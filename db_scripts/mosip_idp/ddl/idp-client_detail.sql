@@ -24,7 +24,7 @@ CREATE TABLE idp.client_detail(
 	cert_data character varying NOT NULL,
 	cert_thumbprint character varying(100) NOT NULL,
 	CONSTRAINT pk_client_detail PRIMARY KEY (id)
-	CONSTRAINT uk_client_cert UNIQUE KEY (cert_thumbprint)
+	CONSTRAINT uk_client_cert UNIQUE (cert_thumbprint)
 );
 -- ddl-end --
 COMMENT ON TABLE idp.id IS 'Client ID: Unique id assigned to registered OIDC client.';
