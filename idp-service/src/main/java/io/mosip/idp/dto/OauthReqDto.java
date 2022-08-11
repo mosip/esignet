@@ -8,8 +8,12 @@ package io.mosip.idp.dto;
 import lombok.Data;
 
 @Data
-public class ErrorDto {
+public class OauthReqDto {
 
-    private String errorCode;
-    private String errorMessage;
+    private String clientId;
+    private String scope;
+    private String responseType;
+    private String redirectUri;
+    private String display;
+    private String prompt;
 }
