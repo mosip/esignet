@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ClientDetailService {
+public class InternalApiService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientDetailService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InternalApiService.class);
 }

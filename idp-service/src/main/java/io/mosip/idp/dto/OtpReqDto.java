@@ -8,8 +8,9 @@ package io.mosip.idp.dto;
 import lombok.Data;
 
 @Data
-public class ErrorDto {
+public class OtpReqDto {
 
-    private String errorCode;
-    private String errorMessage;
+    private String transactionId;
+    private String individualId;
+    private String channel;
 }

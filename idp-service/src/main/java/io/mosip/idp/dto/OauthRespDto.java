@@ -7,9 +7,16 @@ package io.mosip.idp.dto;
 
 import lombok.Data;
 
-@Data
-public class ErrorDto {
+import java.util.List;
+import java.util.Map;
 
-    private String errorCode;
-    private String errorMessage;
+@Data
+public class OauthRespDto {
+
+    private String transactionId;
+    private String authFactors;
+    private List<String> essentialClaims;
+    private List<String> optionalClaims;
+    private Map<String, String> configs;
+
 }
