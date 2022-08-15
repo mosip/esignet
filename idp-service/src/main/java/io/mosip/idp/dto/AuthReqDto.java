@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class OtpReqDto {
+public class AuthReqDto {
 
     @NotNull(message = ErrorConstants.INVALID_REQUEST)
     @NotBlank(message = ErrorConstants.INVALID_REQUEST)
@@ -22,5 +22,6 @@ public class OtpReqDto {
     @NotBlank(message = ErrorConstants.INVALID_REQUEST)
     private String individualId;
 
-    private String channel;
+
+    private String otp;
 }

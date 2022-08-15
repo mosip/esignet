@@ -6,14 +6,12 @@
 package io.mosip.idp.dto;
 
 import lombok.Data;
-import java.util.List;
 
 @Data
-public class ResponseWrapper<T> {
+public class TokenRespDto {
 
-    private String id;
-    private String version;
-    private String responseTime;
-    private T response;
-    private List<ErrorDto> errors;
+    private String id_token;
+    private String access_token;
+    private String scope;
+    private int expires_in;
 }

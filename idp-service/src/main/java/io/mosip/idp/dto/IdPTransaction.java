@@ -6,14 +6,19 @@
 package io.mosip.idp.dto;
 
 import lombok.Data;
+
 import java.util.List;
 
 @Data
-public class ResponseWrapper<T> {
+public class IdPTransaction {
 
-    private String id;
-    private String version;
-    private String responseTime;
-    private T response;
-    private List<ErrorDto> errors;
+    String code;
+    String redirectUri;
+    String kycToken;
+    String userToken;
+    List<String> acceptedClaims;
+    String idToken;
+    String accessToken;
+    String encryptedKyc;
+    String error;
 }
