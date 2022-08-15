@@ -19,5 +19,4 @@ public interface ClientDetailRepository extends CrudRepository<ClientDetail, Str
      * @return
      */
     Optional<ClientDetail> findByIdAndStatus(String clientId, String status);
-
 }

@@ -5,13 +5,24 @@
  */
 package io.mosip.idp.dto;
 
+import io.mosip.idp.validators.RequestTime;
 import lombok.Data;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import static io.mosip.idp.util.ErrorConstants.INVALID_REQUEST;
 
 @Data
 public class RequestWrapper<T> {
 
     private String id;
     private String version;
+
+    @RequestTime
     private String requestTime;
+
+    @NotNull(message = INVALID_REQUEST)
+    @Valid
     private T request;
 }

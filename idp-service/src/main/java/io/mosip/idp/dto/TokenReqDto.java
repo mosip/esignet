@@ -5,38 +5,49 @@
  */
 package io.mosip.idp.dto;
 
+import io.mosip.idp.validators.OIDCClientAssertionType;
+import io.mosip.idp.validators.OIDCGrantType;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import static io.mosip.idp.util.ErrorConstants.INVALID_REQUEST;
 
 @Data
 public class TokenReqDto {
 
-    //TODO Need to add DTO validations
-
     /**
      * Authorization code grant type.
      */
+    @OIDCGrantType
     private String grant_type;
 
     /**
      * Authorization code, sent as query param in the client's redirect URI.
      */
+    @NotNull(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_REQUEST)
     private String code;
 
     /**
-     * Client Id of the OIDC client.
+     * Client ID of the OIDC client.
      */
+    @NotNull(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_REQUEST)
     private String client_id;
 
     /**
      * Type of the client assertion part of this request.
-     * Allowed value:
-     * urn:ietf:params:oauth:client-assertion-type:jwt-bearer
      */
+    @OIDCClientAssertionType
     private String client_assertion_type;
 
     /**
      * Private key signed JWT
      */
+    @NotNull(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_REQUEST)
     private String client_assertion;
 
 }
