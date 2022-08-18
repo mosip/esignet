@@ -38,7 +38,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({ Exception.class, RuntimeException.class })
     public ResponseEntity handleExceptions(Exception ex, WebRequest request) {
-        boolean isInternalAPI = request.getContextPath().contains("/internal");
+        boolean isInternalAPI = request.getContextPath().contains("/authorization") ||
+                request.getContextPath().contains("/client-mgmt");
 
         if(!isInternalAPI && request.getContextPath().contains("/userinfo")) {
             return handleExceptionWithHeader(ex);
