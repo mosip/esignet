@@ -92,13 +92,18 @@
 		<maven.javadoc.version>3.2.0</maven.javadoc.version>
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 
+		<spring-cloud.version>Finchley.SR4</spring-cloud.version>
+		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+
 		<sonar.coverage.exclusions>**/repositories/**,**/constant/**,**/config/**,**/httpfilter/**,**/cache/**,**/dto/**,**/entity/**,**/model/**,**/exception/**,**/security/**,**/*Config.java,**/*BootApplication.java,**/*Util.java,**/helper/beans/**,**/*Filter.java,**/*Enum.java</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>**/dto/**,**/entity/**,**/config/**</sonar.cpd.exclusions>
 	</properties>
 
 	<modules>
+		<module>idp-core</module>
+		<module>authentication-wrapper</module>
 		<module>idp-service</module>
-	</modules>
+    </modules>
 
 	<profiles>
 		<profile>

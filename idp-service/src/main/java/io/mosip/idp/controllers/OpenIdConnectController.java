@@ -5,46 +5,27 @@
  */
 package io.mosip.idp.controllers;
 
-import io.mosip.idp.dto.*;
-import io.mosip.idp.exception.IdPException;
-import io.mosip.idp.exception.InvalidClientException;
-import io.mosip.idp.exception.NotAuthenticatedException;
-import io.mosip.idp.services.OpenIdConnectService;
-import io.mosip.idp.util.ErrorConstants;
+import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.spi.OpenIdConnectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Set;
-
-import static io.mosip.idp.util.ErrorConstants.*;
 
 @RestController
+@RequestMapping("/oidc")
 public class OpenIdConnectController {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenIdConnectController.class);
 
     @Autowired
-    private OpenIdConnectService openIdConnectService;
-
-    @PostMapping("/token")
-    public TokenRespDto getToken(@Valid @RequestBody TokenReqDto tokenReqDto) throws IdPException {
-        return openIdConnectService.getTokens(tokenReqDto);
-    }
+    private OpenIdConnectService openIdConnectServiceImpl;
 
     @GetMapping("/userinfo")
-    public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws NotAuthenticatedException {
-        return openIdConnectService.getCachedUserInfo(bearerToken);
+    public String getUserInfo(@RequestHeader("Authorization") String bearerToken)
+            throws NotAuthenticatedException {
+        return openIdConnectServiceImpl.getUserInfo(bearerToken);
     }
+
+    //TODO discovery API
 }
