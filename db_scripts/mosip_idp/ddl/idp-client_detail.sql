@@ -22,12 +22,11 @@ CREATE TABLE idp.client_detail(
 	logo_uri character varying(256) NOT NULL,
 	redirect_uris character varying NOT NULL,
 	claims character varying NOT NULL,
-	amr_values character varying NOT NULL,
-	cert_data character varying NOT NULL,
-	cert_thumbprint character varying(100) NOT NULL,
+	acr_values character varying NOT NULL,
+	public_key character varying NOT NULL,
+	grant_types character varying(256) NOT NULL,
 	status character varying(20) NOT NULL,
-	CONSTRAINT pk_client_detail PRIMARY KEY (id),
-	CONSTRAINT uk_client_cert UNIQUE (cert_thumbprint)
+	CONSTRAINT pk_client_detail PRIMARY KEY (id)
 );
 -- ddl-end --
 COMMENT ON TABLE idp.id IS 'Client ID: Unique id assigned to registered OIDC client.';
@@ -42,12 +41,12 @@ COMMENT ON COLUMN idp.rp_id IS 'Relaying Party Id: Id of the Relaying Party who 
 -- ddl-end --
 COMMENT ON COLUMN idp.status IS 'Client status: Allowed values - ACTIVE / INACTIVE.';
 -- ddl-end --
-COMMENT ON COLUMN idp.cert_data IS 'Certificate Data: PEM Encoded actual certificate data.';
+COMMENT ON COLUMN idp.public_key IS 'Public key: JWKs data.';
 -- ddl-end --
-COMMENT ON COLUMN idp.cert_thumbprint IS 'Certificate Thumb Print: SHA1 generated certificate thumbprint.';
+COMMENT ON COLUMN idp.grant_types IS 'Grant Types: Allowed grant types for the client.';
 -- ddl-end --
 COMMENT ON COLUMN idp.claims IS 'Requested Claims: claims json as per policy defined for relaying party.';
 -- ddl-end --
-COMMENT ON COLUMN idp.amr_values IS 'Allowed Authentication Method References(amr) json';
+COMMENT ON COLUMN idp.acr_values IS 'Allowed Authentication context References(acr) json';
 -- ddl-end --
 

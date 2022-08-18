@@ -5,13 +5,13 @@
  */
 package io.mosip.idp.advice;
 
-import io.mosip.idp.dto.ErrorDto;
-import io.mosip.idp.dto.ErrorRespDto;
-import io.mosip.idp.dto.ResponseWrapper;
-import io.mosip.idp.exception.IdPException;
-import io.mosip.idp.exception.InvalidClientException;
-import io.mosip.idp.exception.NotAuthenticatedException;
-import io.mosip.idp.util.ErrorConstants;
+import io.mosip.idp.core.dto.Error;
+import io.mosip.idp.core.dto.OauthError;
+import io.mosip.idp.core.dto.ResponseWrapper;
+import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.InvalidClientException;
+import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.util.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +29,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Set;
 
-import static io.mosip.idp.util.ErrorConstants.*;
+import static io.mosip.idp.core.util.ErrorConstants.*;
 
 @ControllerAdvice
 public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
@@ -78,17 +78,17 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
                 HttpStatus.OK);
     }
 
-    public ResponseEntity<ErrorRespDto> handleOpenIdConnectControllerExceptions(Exception ex) {
+    public ResponseEntity<OauthError> handleOpenIdConnectControllerExceptions(Exception ex) {
         if(ex instanceof MethodArgumentNotValidException) {
             FieldError fieldError = ((MethodArgumentNotValidException) ex).getBindingResult().getFieldError();
             String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
-            return new ResponseEntity<ErrorRespDto>(getErrorRespDto(message,
+            return new ResponseEntity<OauthError>(getErrorRespDto(message,
                     INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof ConstraintViolationException) {
             Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
-            return new ResponseEntity<ErrorRespDto>(getErrorRespDto(message,
+            return new ResponseEntity<OauthError>(getErrorRespDto(message,
                     INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof NotAuthenticatedException) {
@@ -98,15 +98,15 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             return responseEntity;
         }
         if(ex instanceof InvalidClientException) {
-            return new ResponseEntity<ErrorRespDto>(getErrorRespDto(ErrorConstants.INVALID_CLIENT_ID,
+            return new ResponseEntity<OauthError>(getErrorRespDto(ErrorConstants.INVALID_CLIENT_ID,
                     INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof IdPException) {
-            return new ResponseEntity<ErrorRespDto>(getErrorRespDto(((IdPException) ex).getErrorCode(),
+            return new ResponseEntity<OauthError>(getErrorRespDto(((IdPException) ex).getErrorCode(),
                     INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
         }
         logger.error("Unhandled exception encountered in handler advice", ex);
-        return new ResponseEntity<ErrorRespDto>(getErrorRespDto(DEFAULT_ERROR_CODE, DEFAULT_ERROR_MSG),
+        return new ResponseEntity<OauthError>(getErrorRespDto(DEFAULT_ERROR_CODE, DEFAULT_ERROR_MSG),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -122,8 +122,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return responseEntity;
     }
 
-    private ErrorRespDto getErrorRespDto(String errorCode, String errorMessage) {
-        ErrorRespDto errorRespDto = new ErrorRespDto();
+    private OauthError getErrorRespDto(String errorCode, String errorMessage) {
+        OauthError errorRespDto = new OauthError();
         errorRespDto.setError(errorCode);
         errorRespDto.setError_description(errorMessage);
         return errorRespDto;
@@ -133,10 +133,10 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     private ResponseWrapper getResponseWrapper(String errorCode, String errorMessage) {
         ResponseWrapper responseWrapper = new ResponseWrapper<>();
         responseWrapper.setErrors(new ArrayList<>());
-        ErrorDto errorDto = new ErrorDto();
-        errorDto.setErrorCode(errorCode);
-        errorDto.setErrorMessage(errorMessage);
-        responseWrapper.getErrors().add(errorDto);
+        Error error = new Error();
+        error.setErrorCode(errorCode);
+        error.setErrorMessage(errorMessage);
+        responseWrapper.getErrors().add(error);
         return responseWrapper;
     }
 }
