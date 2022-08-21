@@ -9,10 +9,11 @@
     "iris_otp" :  [{ "name": "iris", "count": 2 }, { "name": "otp" }]
   },
   "acr_values" : {
-    "1" : "Level 1",
-    "2" : "Level 2",
-    "3" : "Level 3",
-    "4" : "Level 4"
+    "level1" : "1",
+    "level2" : "2",
+    "level3" : "3",
+    "level4" : "4",
+    "level5" : "5"
   },
   "acr_amr" : {
                 "1" :  ["only_otp"],

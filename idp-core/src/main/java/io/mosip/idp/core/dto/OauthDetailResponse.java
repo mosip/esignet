@@ -14,7 +14,7 @@ import java.util.Map;
 public class OauthDetailResponse {
 
     private String transactionId;
-    private String authFactors;
+    private List<List<AuthenticationFactor>> authFactors;
     private List<String> authorizeScopes;
     private List<String> essentialClaims;
     private List<String> optionalClaims;

@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 public class TokenGeneratorServiceServiceImpl implements io.mosip.idp.core.spi.TokenGeneratorService {
 
@@ -17,6 +20,11 @@ public class TokenGeneratorServiceServiceImpl implements io.mosip.idp.core.spi.T
     @Override
     public String getIDToken() {
         return null;
+    }
+
+    @Override
+    public List<String> getOptionalIdTokenClaims() {
+        return Arrays.asList("nonce", "acr", "at_hash", "auth_time");
     }
 
     @Override

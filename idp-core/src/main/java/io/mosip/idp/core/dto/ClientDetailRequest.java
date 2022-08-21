@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.core.dto;
 
+import io.mosip.idp.core.validator.OIDCGrantType;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

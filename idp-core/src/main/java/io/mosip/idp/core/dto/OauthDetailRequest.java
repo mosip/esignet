@@ -5,10 +5,7 @@
  */
 package io.mosip.idp.core.dto;
 
-import io.mosip.idp.core.validator.OIDCDisplay;
-import io.mosip.idp.core.validator.OIDCPrompt;
-import io.mosip.idp.core.validator.OIDCResponseType;
-import io.mosip.idp.core.validator.OIDCScope;
+import io.mosip.idp.core.validator.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
@@ -43,9 +40,11 @@ public class OauthDetailRequest {
     @OIDCPrompt
     private String prompt;
 
+    @AuthContextRef
+    private String acrValues; //Space-separated string
+
     /**
      * Optional value
      */
     private Claims claims;
-    private String acrValues; //Space-separated string
 }
