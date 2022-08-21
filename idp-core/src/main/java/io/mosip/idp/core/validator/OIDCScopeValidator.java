@@ -5,28 +5,58 @@
  */
 package io.mosip.idp.core.validator;
 
+import io.mosip.idp.core.util.Constants;
+import io.mosip.idp.core.util.IdentityProviderUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
 public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String>  {
 
-    @Value("#{${mosip.idp.supported.scopes}}")
-    private List<String> supportedScopes;
+    @Value("#{${mosip.idp.supported.authorize.scopes}}")
+    private List<String> authorizeScopes;
 
+    @Value("#{${mosip.idp.supported.openid.scopes}}")
+    private List<String> openidScopes;
+
+    /**
+     * 1. Unknown scopes are ignored
+     * 2. Provided scope should have at least one of authorize / openid scope
+     * 3. If found any openid scopes then 'openid' MUST also be present in the scopes
+     *
+     * @param value object to validate
+     * @param context context in which the constraint is evaluated
+     *
+     * @return
+     */
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if(value == null || value.isBlank())
             return false;
 
-        //TODO - space separated string
-        //TODO - unknown scope should be ignored
-        //TODO - provided scope should have atleast one of authorize / openid scope
-        //TODO - if found any openid scopes then 'openid' must also be present in the scopes
-        return supportedScopes.contains(value);
+        String[] scopes = IdentityProviderUtil.splitAndTrimValue(value, Constants.SPACE);
+        boolean openid = Arrays.stream(scopes).anyMatch( s -> "openid".equals(s));
+        String[] authorized_scopes = Arrays.stream(scopes)
+                .filter( s -> authorizeScopes.contains(s))
+                .toArray(String[]::new);
+        String[] openid_scopes = Arrays.stream(scopes)
+                .filter( s -> openidScopes.contains(s))
+                .toArray(String[]::new);
+
+        //at least one of authorize / openid scope MUST be present
+        if((!openid && authorized_scopes.length == 0 && openid_scopes.length == 0) ||
+                (authorized_scopes.length == 0 && openid_scopes.length == 0))
+            return false;
+
+        //any openid scopes then 'openid' MUST also be present
+        if(openid_scopes.length > 0 && !openid)
+            return false;
+
+        return true;
     }
 }

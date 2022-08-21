@@ -8,13 +8,11 @@ package io.mosip.idp.core.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ClaimDetail {
 
     private String value;
-    private List<String> values;
+    private String[] values;
     private boolean essential;
 }

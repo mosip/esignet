@@ -10,4 +10,9 @@ public class Constants {
     public static final String CLIENT_ACTIVE_STATUS = "ACTIVE";
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public static final String SPACE = " ";
+    public static final String COMMA = ",";
+
+
+    //Id token claim Names
+    public static final String ACR_CLAIM = "acr";
 }

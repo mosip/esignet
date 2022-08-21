@@ -1,5 +1,7 @@
 package io.mosip.idp.core.spi;
 
+import java.util.List;
+
 public interface TokenGeneratorService {
 
     /**
@@ -22,6 +24,8 @@ public interface TokenGeneratorService {
      * @return
      */
      String getIDToken();
+
+     List<String> getOptionalIdTokenClaims();
 
      String getAccessToken();
 }
