@@ -14,19 +14,26 @@ import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.util.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static io.mosip.idp.core.util.ErrorConstants.*;
@@ -36,8 +43,41 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
 
-    @ExceptionHandler({ Exception.class, RuntimeException.class })
+    @Override
+
+    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
+            HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return handleExceptions(ex, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        return handleExceptions(ex, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        return handleExceptions(ex, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
+                                                        HttpStatus status, WebRequest request) {
+        return handleExceptions(ex, request);
+    }
+
+    @ExceptionHandler(value = { Exception.class, RuntimeException.class })
     public ResponseEntity handleExceptions(Exception ex, WebRequest request) {
+        logger.error("Unhandled exception encountered in handler advice", ex);
+
         boolean isInternalAPI = request.getContextPath().contains("/authorization") ||
                 request.getContextPath().contains("/client-mgmt");
 
@@ -55,16 +95,30 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<ResponseWrapper> handleInternalControllerException(Exception ex) {
         if(ex instanceof MethodArgumentNotValidException) {
-            FieldError fieldError = ((MethodArgumentNotValidException) ex).getBindingResult().getFieldError();
-            String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(message,
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.OK);
+            List<Error> errors = new ArrayList<>();
+            for (FieldError error : ((MethodArgumentNotValidException) ex).getBindingResult().getFieldErrors()) {
+                errors.add(new Error(error.getDefaultMessage(), error.getField() + ": " + error.getDefaultMessage()));
+            }
+            for (ObjectError error : ((MethodArgumentNotValidException) ex).getBindingResult().getGlobalErrors()) {
+                errors.add(new Error(error.getDefaultMessage(), error.getObjectName()+ ": " + error.getDefaultMessage()));
+            }
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errors), HttpStatus.OK);
         }
         if(ex instanceof ConstraintViolationException) {
+            List<Error> errors = new ArrayList<>();
             Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
-            String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(message,
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.OK);
+            for(ConstraintViolation<?> cv : violations) {
+                errors.add(new Error(BAD_REQ_ERROR_CODE,cv.getPropertyPath().toString() + ": " + cv.getMessage()));
+            }
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errors), HttpStatus.OK);
+        }
+        if(ex instanceof MissingServletRequestParameterException) {
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(BAD_REQ_ERROR_CODE, ex.getMessage()),
+                    HttpStatus.OK);
+        }
+        if(ex instanceof HttpMediaTypeNotAcceptableException) {
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(BAD_REQ_ERROR_CODE, ex.getMessage()),
+                    HttpStatus.OK);
         }
         if(ex instanceof InvalidClientException) {
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(ErrorConstants.INVALID_CLIENT_ID,
@@ -74,7 +128,6 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(((IdPException) ex).getErrorCode(),
                     INVALID_INPUT_ERROR_MSG), HttpStatus.OK);
         }
-        logger.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<ResponseWrapper>(getResponseWrapper(DEFAULT_ERROR_CODE, DEFAULT_ERROR_MSG),
                 HttpStatus.OK);
     }
@@ -138,6 +191,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         error.setErrorCode(errorCode);
         error.setErrorMessage(errorMessage);
         responseWrapper.getErrors().add(error);
+        return responseWrapper;
+    }
+
+    private ResponseWrapper getResponseWrapper(List<Error> errors) {
+        ResponseWrapper responseWrapper = new ResponseWrapper<>();
+        responseWrapper.setErrors(errors);
         return responseWrapper;
     }
 }

@@ -33,11 +33,10 @@ public class ClientDetailRepositoryTest {
         clientDetail.setLogoUri("https://clienapp.com/logo.png");
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("https://clientapp.com/home,https://clientapp.com/home2");
-        clientDetail.setCertData("DUMMY PEM CERT");
-        clientDetail.setCertThumbprint("THUMBPRINT");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("{}");
-        clientDetail.setAmrValues("{}");
+        clientDetail.setAcrValues("{}");
         clientDetail = clientDetailRepository.save(clientDetail);
         Assert.assertNotNull(clientDetail);
 

@@ -25,11 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@ConfigurationProperties(prefix = "mosip.idp.openid.scope")
 public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.AuthorizationService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationServiceImpl.class);
@@ -52,14 +54,11 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${mosip.idp.openid.scope.claims}")
-    private Map<String, List<String>> scopeClaims;
+    private Map<String, List<String>> claims;
 
     @Value("${mosip.idp.supported.authorize.scopes}")
     private List<String> authorizeScopes;
 
-    @Value("${mosip.idp.ui.config}")
-    private Map<String, List<String>> uiConfigs;
 
     @Override
     public OauthDetailResponse getOauthDetails(String nonce, OauthDetailRequest oauthDetailReqDto) throws IdPException {
@@ -69,8 +68,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(!result.isPresent())
             throw new InvalidClientException(ErrorConstants.INVALID_CLIENT_ID);
 
-        if(result.get().getRedirectUris().contains(oauthDetailReqDto.getRedirectUri()))
-            throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
+        validateRedirectURI(result.get().getRedirectUris(), oauthDetailReqDto.getRedirectUri());
 
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, result.get());
@@ -203,7 +201,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         List<String> claimNames = new ArrayList<>();
         String[] requestedScopes = IdentityProviderUtil.splitAndTrimValue(scope, Constants.SPACE);
         for(String scopeName : requestedScopes) {
-            claimNames.addAll(scopeClaims.getOrDefault(scopeName, new ArrayList<>()));
+            claimNames.addAll(claims.getOrDefault(scopeName, new ArrayList<>()));
         }
         return claimNames;
     }
@@ -227,5 +225,12 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         List<String> scopes = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE));
         scopes.retainAll(authorizeScopes);
         oauthDetailResponse.setAuthorizeScopes(scopes);
+    }
+
+    private void validateRedirectURI(String registeredRedirectUris, String requestedRedirectUri) throws IdPException {
+       String[] uris = IdentityProviderUtil.splitAndTrimValue(registeredRedirectUris, Constants.COMMA);
+       if(Arrays.stream(uris).anyMatch(uri -> uri.equals(requestedRedirectUri)))
+           return;
+        throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 }
