@@ -40,5 +40,7 @@ public class ClientDetailUpdateRequest {
     @Size(min = 1)
     private List<String> grantTypes;
 
+    @NotNull
+    @NotBlank
     private String clientName;
 }

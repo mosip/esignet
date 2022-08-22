@@ -502,7 +502,7 @@ public class ClientManagementControllerTest {
     }
 
     @Test
-    public void updateClientDetail_withBlankClientName_thenPass() throws Exception {
+    public void updateClientDetail_withBlankClientName_thenFail() throws Exception {
         //Create
         var createRespDto = createClient(defaultClientDetailCreateRequest);
 
@@ -517,12 +517,14 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(STATUS_INACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(BLANK);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
-        Assert.assertNotNull(updateRespDto.getResponse());
-        Assert.assertNull(updateRespDto.getErrors());
-        Assert.assertEquals(updateRespDto.getResponse().getClientId(), CLIENT_ID_1);
+        Assert.assertNull(updateRespDto.getResponse());
+        Assert.assertNotNull(updateRespDto.getErrors());
+        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
     @Test
@@ -541,6 +543,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -566,6 +569,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -591,6 +595,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -616,6 +621,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(BLANK_LIST);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -641,6 +647,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(LIST_WITH_BLANK_ENTRY);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -666,6 +673,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(BLANK);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -691,6 +699,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(STATUS_INVALID);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -716,6 +725,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 
@@ -741,6 +751,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(AMRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
 

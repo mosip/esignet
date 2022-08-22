@@ -23,15 +23,15 @@ import org.springframework.stereotype.Service;
 import java.security.KeyFactory;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.List;
 
 @Service
 public class ClientManagementServiceImpl implements ClientManagementService {
-    public static final String TAG = ClientManagementServiceImpl.class.getSimpleName();
-
     @Autowired
     ClientDetailRepository clientDetailRepository;
 
-    ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    ObjectMapper mapper;
 
     private static final Logger logger = LoggerFactory.getLogger(ClientManagementServiceImpl.class);
 
@@ -40,38 +40,38 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         var clientDetailFromDb = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
 
         if (clientDetailFromDb.isPresent()) {
-            logger.error(TAG, ErrorConstants.DUPLICATE_CLIENT_ID);
+            logger.error(ErrorConstants.DUPLICATE_CLIENT_ID);
             throw new IdPException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
         String publicKey = clientDetailCreateRequest.getPublicKey();
 
         if (!validateBase64PublicKey(publicKey)) {
-            logger.error(TAG, ErrorConstants.INVALID_BASE64_RSA_PUBLIC_KEY);
+            logger.error(ErrorConstants.INVALID_BASE64_RSA_PUBLIC_KEY);
             throw new IdPException(ErrorConstants.INVALID_BASE64_RSA_PUBLIC_KEY);
         }
 
         var redirectUrisList = clientDetailCreateRequest.getRedirectUris();
-        if (redirectUrisList.isEmpty() || redirectUrisList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_REDIRECT_URI);
+        if (!isListValid(redirectUrisList)) {
+            logger.error(ErrorConstants.INVALID_REDIRECT_URI);
             throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
         }
 
         var aCRList = clientDetailCreateRequest.getAuthContextRefs();
-        if (aCRList.isEmpty() || aCRList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_ACR);
+        if (!isListValid(aCRList)) {
+            logger.error(ErrorConstants.INVALID_ACR);
             throw new IdPException(ErrorConstants.INVALID_ACR);
         }
 
         var claimsList = clientDetailCreateRequest.getUserClaims();
-        if (claimsList.isEmpty() || claimsList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_CLAIM);
+        if (!isListValid(claimsList)) {
+            logger.error(ErrorConstants.INVALID_CLAIM);
             throw new IdPException(ErrorConstants.INVALID_CLAIM);
         }
 
         var grantTypesList = clientDetailCreateRequest.getGrantTypes();
-        if (claimsList.isEmpty() || claimsList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_GRANT_TYPE);
+        if (!isListValid(grantTypesList)) {
+            logger.error(ErrorConstants.INVALID_GRANT_TYPE);
             throw new IdPException(ErrorConstants.INVALID_GRANT_TYPE);
         }
 
@@ -86,7 +86,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             claims = mapper.writeValueAsString(claimsList);
             grandTypes = mapper.writeValueAsString(grantTypesList);
         } catch (JsonProcessingException e) {
-            logger.error(TAG, e.getMessage());
+            logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
 
@@ -118,7 +118,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         if (clientDetailFromDb.isEmpty()) {
             String msg = String.format("ClientId %s does not exist", clientId);
-            logger.error(TAG, msg);
+            logger.error(msg);
             throw new IdPException(msg);
         }
 
@@ -129,26 +129,26 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         var redirectUrisList = clientDetailUpdateRequest.getRedirectUris();
-        if (redirectUrisList.isEmpty() || redirectUrisList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_REDIRECT_URI);
+        if (!isListValid(redirectUrisList)) {
+            logger.error(ErrorConstants.INVALID_REDIRECT_URI);
             throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
         }
 
         var aCRList = clientDetailUpdateRequest.getAuthContextRefs();
-        if (aCRList.isEmpty() || aCRList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_ACR);
+        if (!isListValid(aCRList)) {
+            logger.error(ErrorConstants.INVALID_ACR);
             throw new IdPException(ErrorConstants.INVALID_ACR);
         }
 
         var claimsList = clientDetailUpdateRequest.getUserClaims();
-        if (claimsList.isEmpty() || claimsList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_CLAIM);
+        if (!isListValid(claimsList)) {
+            logger.error(ErrorConstants.INVALID_CLAIM);
             throw new IdPException(ErrorConstants.INVALID_CLAIM);
         }
 
         var grantTypesList = clientDetailUpdateRequest.getGrantTypes();
-        if (claimsList.isEmpty() || claimsList.stream().anyMatch(String::isBlank)) {
-            logger.error(TAG, ErrorConstants.INVALID_GRANT_TYPE);
+        if (!isListValid(grantTypesList)) {
+            logger.error(ErrorConstants.INVALID_GRANT_TYPE);
             throw new IdPException(ErrorConstants.INVALID_GRANT_TYPE);
         }
 
@@ -163,7 +163,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             claims = mapper.writeValueAsString(claimsList);
             grandTypes = mapper.writeValueAsString(grantTypesList);
         } catch (JsonProcessingException e) {
-            logger.error(TAG, e.getMessage());
+            logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
 
@@ -182,7 +182,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return response;
     }
 
-    private static boolean validateBase64PublicKey(String publicKey) {
+    private boolean validateBase64PublicKey(String publicKey) {
         try {
             //if base64 is invalid, you will see an error here
             byte[] byteKey = Base64.getDecoder().decode(publicKey);
@@ -195,5 +195,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             logger.error("Invalid public key", e);
         }
         return false;
+    }
+
+    private boolean isListValid(List<String> listOfString) {
+        return !listOfString.isEmpty() && listOfString.stream().noneMatch(String::isBlank);
     }
 }
