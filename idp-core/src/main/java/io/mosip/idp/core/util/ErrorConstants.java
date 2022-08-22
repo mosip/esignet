@@ -24,6 +24,7 @@ public class ErrorConstants {
     public static final String AUTH_FAILED="auth_failed";
     public static final String ACR_AMR_MAPPING_NOT_FOUND="acr_amr_mapping_not_found";
 
+    public static final String BAD_REQ_ERROR_CODE = "MOS-IDP-400";
     public static final String DEFAULT_ERROR_CODE = "MOS-IDP-500";
     public static final String DEFAULT_ERROR_MSG = "UNKNOWN ERROR";
     public static final String INVALID_INPUT_ERROR_MSG = "UNSUPPORTED INPUT PARAMETER";

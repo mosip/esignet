@@ -17,11 +17,11 @@ import javax.validation.Valid;
 public class OAuthController {
 
     @Autowired
-    private OAuthService iOauth;
+    private OAuthService oAuthService;
 
     @PostMapping("/token")
     public TokenResponse getToken(@Valid @RequestBody TokenRequest tokenRequest)
             throws IdPException {
-        return iOauth.getTokens(tokenRequest);
+        return oAuthService.getTokens(tokenRequest);
     }
 }
