@@ -6,46 +6,17 @@
 package io.mosip.idp.core.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.List;
 
 @Data
-public class ClientDetailRequest {
+public class ClientDetailUpdateRequest {
 
     @NotNull
     @NotBlank
-    private String clientId;
-
-    @NotNull
-    @NotBlank
-    private String clientName;
-
-    @NotNull
-    @NotBlank
-    private String publicKey;
-
-    @NotNull
-    @NotBlank
-    private String status;
-
-    @NotNull
-    @NotBlank
-    private String relayingPartyId;
-
-    @NotNull
-    @Size(min = 1)
-    private List<String> userClaims;
-
-    //MUST be among pre-defined set of values
-    @NotNull
-    @Size(min = 1)
-    private List<String> authContextRefs;
-
-    @NotNull
-    @NotBlank
+    @URL
     private String logoUri;
 
     @NotNull
@@ -54,5 +25,20 @@ public class ClientDetailRequest {
 
     @NotNull
     @Size(min = 1)
+    private List<String> userClaims;
+
+    @NotNull
+    @Size(min = 1)
+    private List<String> authContextRefs;
+
+    @NotNull
+    @NotBlank
+    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$", flags = Pattern.Flag.CASE_INSENSITIVE)
+    private String status;
+
+    @NotNull
+    @Size(min = 1)
     private List<String> grantTypes;
+
+    private String clientName;
 }
