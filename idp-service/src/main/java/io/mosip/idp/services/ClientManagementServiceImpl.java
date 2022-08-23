@@ -5,7 +5,7 @@
  */
 package io.mosip.idp.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.jwk.JWK;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
@@ -19,17 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.KeyFactory;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
+import java.util.Map;
 
 @Service
 public class ClientManagementServiceImpl implements ClientManagementService {
     @Autowired
     ClientDetailRepository clientDetailRepository;
-
-    @Autowired
-    ObjectMapper mapper;
 
     private static final Logger logger = LoggerFactory.getLogger(ClientManagementServiceImpl.class);
 
@@ -42,11 +37,11 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new IdPException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
-        String publicKey = clientDetailCreateRequest.getPublicKey();
+        var publicKeyJson = getJwkJson(clientDetailCreateRequest.getPublicKey());
 
-        if (!validateBase64PublicKey(publicKey)) {
-            logger.error(ErrorConstants.INVALID_BASE64_RSA_PUBLIC_KEY);
-            throw new IdPException(ErrorConstants.INVALID_BASE64_RSA_PUBLIC_KEY);
+        if (publicKeyJson == null) {
+            logger.error(ErrorConstants.INVALID_JWK_KEY);
+            throw new IdPException(ErrorConstants.INVALID_JWK_KEY);
         }
 
         //comma separated list
@@ -61,7 +56,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setRpId(clientDetailCreateRequest.getRelayingPartyId());
         clientDetail.setLogoUri(clientDetailCreateRequest.getLogoUri());
         clientDetail.setRedirectUris(redirectUris);
-        clientDetail.setPublicKey(publicKey);
+        clientDetail.setPublicKey(publicKeyJson);
         clientDetail.setClaims(claims);
         clientDetail.setAcrValues(aCR);
         clientDetail.setStatus(clientDetailCreateRequest.getStatus());
@@ -113,18 +108,14 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return response;
     }
 
-    private boolean validateBase64PublicKey(String publicKey) {
+    private String getJwkJson(Map<String, Object> publicKey) {
         try {
-            //if base64 is invalid, you will see an error here
-            byte[] byteKey = Base64.getDecoder().decode(publicKey);
-            //if it is not in RSA public key format, you will see error here as java.security.spec.InvalidKeySpecException
-            X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            kf.generatePublic(X509publicKey);
-            return true;
+            JWK jwk = JWK.parse(publicKey);
+            JWK publicJwk = jwk.toPublicJWK();
+            return publicJwk.toJSONString();
         } catch (Exception e) {
-            logger.error("Invalid public key", e);
+            logger.error("JWK parsing failed", e);
         }
-        return false;
+        return null;
     }
 }

@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.services;
 
+import io.mosip.idp.TestUtil;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
@@ -21,11 +22,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SpringBootTest
@@ -50,7 +50,7 @@ public class ClientManagementServiceTest {
     String CLIENT_NAME_1 = "Client-01";
     String CLIENT_NAME_2 = "Client-02";
     String LOGO_URI = "https://clienapp.com/logo.png";
-    String PUBLIC_KEY;
+    Map<String, Object> PUBLIC_KEY;
     List<String> LIST_OF_URIS = Arrays.asList(commaSeparatedURIs.split(","));
     List<String> CLAIMS = Arrays.asList(commaSeparatedClaims.split(","));
     List<String> AMRS = Arrays.asList(commaSeparatedAMRs.split(","));
@@ -64,14 +64,7 @@ public class ClientManagementServiceTest {
     @Before
     public void Before() throws NoSuchAlgorithmException {
         clientDetailRepository.deleteAll();
-        PUBLIC_KEY = generateBase64PublicKeyRSAString();
-    }
-
-    private String generateBase64PublicKeyRSAString() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(512);
-        byte[] publicKey = keyGen.genKeyPair().getPublic().getEncoded();
-        return Base64.getEncoder().encodeToString(publicKey);
+        PUBLIC_KEY = TestUtil.generateJWK_RSA().toJSONObject();
     }
 
     //region Create Client Test

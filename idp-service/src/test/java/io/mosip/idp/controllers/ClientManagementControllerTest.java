@@ -8,6 +8,7 @@ package io.mosip.idp.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.idp.TestUtil;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.repositories.ClientDetailRepository;
@@ -28,15 +29,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
-import java.security.KeyPairGenerator;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 
@@ -55,9 +53,12 @@ public class ClientManagementControllerTest {
     String CLIENT_NAME_2 = "Client-02";
     String LOGO_URI = "https://clienapp.com/logo.png";
     String INVALID_LOGO_URI = "httpsasdffas";
-    String PUBLIC_KEY;
+    Map<String, Object> PUBLIC_KEY_RSA;
+    Map<String, Object> PUBLIC_KEY_EC;
+    Map<String, Object> PUBLIC_PRIVATE_KEY_PAIR_RSA;
+    Map<String, Object> PUBLIC_PRIVATE_KEY_PAIR_EC;
 
-    String INVALID_PUBLIC_KEY = "INVALID PUBLIC KEY";
+    Map<String, Object> INVALID_PUBLIC_KEY;
     List<String> LIST_OF_URIS = Arrays.asList(commaSeparatedURIs.split(","));
     List<String> CLAIMS = Arrays.asList(commaSeparatedClaims.split(","));
     List<String> AMRS = Arrays.asList(commaSeparatedAMRs.split(","));
@@ -70,7 +71,7 @@ public class ClientManagementControllerTest {
     String STATUS_INVALID = "INVALID_STATUS";
     String RELAYING_PARTY_ID = "RP01";
     String BLANK = "";
-
+    Map<String, Object> BLANK_MAP = new HashMap<>();
     ClientDetailCreateRequest defaultClientDetailCreateRequest;
 
     //endregion
@@ -83,32 +84,37 @@ public class ClientManagementControllerTest {
     ClientDetailRepository clientDetailRepository;
 
     @Before
-    public void setUp() throws NoSuchAlgorithmException {
+    public void setUp() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         LIST_WITH_NULL_STRING = new ArrayList<>();
         LIST_WITH_NULL_STRING.add(null);
 
-        PUBLIC_KEY = generateBase64PublicKeyRSAString();
+        PUBLIC_KEY_RSA = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
+        PUBLIC_PRIVATE_KEY_PAIR_RSA = TestUtil.generateJWK_RSA().toJSONObject();
+
+        PUBLIC_KEY_EC = TestUtil.generateJWK_EC().toPublicJWK().toJSONObject();
+        PUBLIC_PRIVATE_KEY_PAIR_EC = TestUtil.generateJWK_EC().toJSONObject();
+
+        INVALID_PUBLIC_KEY = new HashMap<>();
+        INVALID_PUBLIC_KEY.put("kty", "RSA_");//invalid alg
+        INVALID_PUBLIC_KEY.put("e", "AQAB");
+        INVALID_PUBLIC_KEY.put("use", "sig");
+        INVALID_PUBLIC_KEY.put("kid", "c5SG4KHUxbwTbKwNVQQy_iMv3B3mvtWlJuMDD40cqKw");
+        INVALID_PUBLIC_KEY.put("alg", "RS256");
+        INVALID_PUBLIC_KEY.put("n", "oSh0UB-1TQtwy5iy4twWxBGu0wW-GLUn-3pOTa-W0I1KZ-HBiF20UDtBQQeJKiVGNL3dwv7DY9TlYXfj3481tksAeRMIKUbRtzWlO5XlilskvTIFFOCuZQEWbieg3LonZ0HdJ_UVBy0XFWZTzuTrnCYNe1-D_k7eNxsYIGbo3M_IhWagoN0L9i_4FLZqsZ6mxobrahHILT-36WcH70NCFV2b9dmtum9b6OIgVlD-ok2_XK_1JsBE2AAwAx_DPihkhzPoyiChB9FkoBc0f9TlnQ4HhxE_Y3rwoKNVHCmyn53JbFZXqoXUCNS-7CTqEJPmcKgwlbHJ44X8tsB23Vlfaw");
 
         defaultClientDetailCreateRequest = new ClientDetailCreateRequest();
         defaultClientDetailCreateRequest.setClientId(CLIENT_ID_1);
         defaultClientDetailCreateRequest.setClientName(CLIENT_NAME_1);
         defaultClientDetailCreateRequest.setLogoUri(LOGO_URI);
-        defaultClientDetailCreateRequest.setPublicKey(PUBLIC_KEY);
+        defaultClientDetailCreateRequest.setPublicKey(PUBLIC_KEY_RSA);
         defaultClientDetailCreateRequest.setRedirectUris(LIST_OF_URIS);
         defaultClientDetailCreateRequest.setUserClaims(CLAIMS);
         defaultClientDetailCreateRequest.setAuthContextRefs(AMRS);
         defaultClientDetailCreateRequest.setStatus(STATUS_ACTIVE);
         defaultClientDetailCreateRequest.setRelayingPartyId(RELAYING_PARTY_ID);
         defaultClientDetailCreateRequest.setGrantTypes(GRAND_TYPES);
-    }
-
-    private String generateBase64PublicKeyRSAString() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(512);
-        byte[] publicKey = keyGen.genKeyPair().getPublic().getEncoded();
-        return Base64.getEncoder().encodeToString(publicKey);
     }
 
     @After
@@ -119,12 +125,84 @@ public class ClientManagementControllerTest {
     //region Create Client Test
 
     @Test
-    public void createClient_withValidDetail_thenPass() throws Exception {
+    public void createClient_withValidDetail_PublicRsaKey_thenPass() throws Exception {
         ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+
+        ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        ClientDetailResponse respDto = createRespDto.getResponse();
+
+        Assert.assertEquals(respDto.getClientId(), CLIENT_ID_1);
+        Assert.assertEquals(respDto.getStatus(), STATUS_ACTIVE);
+    }
+
+    @Test
+    public void createClient_withPublicPrivateRsaKeyPair_thenPass() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_PRIVATE_KEY_PAIR_RSA);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+
+        ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        ClientDetailResponse respDto = createRespDto.getResponse();
+
+        Assert.assertEquals(respDto.getClientId(), CLIENT_ID_1);
+        Assert.assertEquals(respDto.getStatus(), STATUS_ACTIVE);
+    }
+
+    @Test
+    public void createClient_withValidDetail_PublicECKey_thenPass() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_EC);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+
+        ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        ClientDetailResponse respDto = createRespDto.getResponse();
+
+        Assert.assertEquals(respDto.getClientId(), CLIENT_ID_1);
+        Assert.assertEquals(respDto.getStatus(), STATUS_ACTIVE);
+    }
+
+    @Test
+    public void createClient_withPublicPrivateECKeyPair_thenPass() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_PRIVATE_KEY_PAIR_EC);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -149,7 +227,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -174,7 +252,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(BLANK);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -186,7 +264,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -196,7 +274,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(BLANK);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -208,7 +286,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -218,7 +296,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(BLANK);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -230,7 +308,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -240,7 +318,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(INVALID_LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -252,7 +330,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must be a valid URL"));
     }
 
@@ -262,7 +340,29 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(BLANK);
+        clientCreateReqDto.setPublicKey(BLANK_MAP);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+
+        var respDto = createClient(clientCreateReqDto);
+
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertTrue(respDto.getErrors().get(0).getErrorCode().contains("size must be between 1 and"));
+    }
+
+    @Test
+    public void createClientDetail_withNullPublicKey_thenFail() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(null);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -275,7 +375,7 @@ public class ClientManagementControllerTest {
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
         Assert.assertTrue(respDto.getErrors().size() > 0);
-        Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+        Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be null"));
     }
 
     @Test
@@ -292,12 +392,34 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
-        ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
+        ResponseWrapper<ClientDetailResponse> respDto = createClient(clientCreateReqDto);
 
-        Assert.assertNull(createRespDto.getResponse());
-        Assert.assertNotNull(createRespDto.getErrors());
-        Assert.assertTrue(createRespDto.getErrors().size() > 0);
-        Assert.assertEquals(createRespDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_BASE64_RSA_PUBLIC_KEY);
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_JWK_KEY);
+    }
+
+    @Test
+    public void createClientDetail_withPrivateKey_thenFail() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(INVALID_PUBLIC_KEY);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+
+        ResponseWrapper<ClientDetailResponse> respDto = createClient(clientCreateReqDto);
+
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_JWK_KEY);
     }
 
     @Test
@@ -306,7 +428,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(EMPTY_LIST);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -318,17 +440,17 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorCode().contains("size must be between 1 and"));
     }
 
     @Test
-    public void createClientDetail_wittNullACR_thenFail() throws Exception {
+    public void createClientDetail_withNullACR_thenFail() throws Exception {
         ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(null);
@@ -350,7 +472,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(EMPTY_LIST);
@@ -362,7 +484,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorCode().contains("size must be between 1 and"));
     }
 
@@ -372,7 +494,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(LIST_WITH_BLANK_STRING);
@@ -384,7 +506,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -394,7 +516,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(LIST_WITH_NULL_STRING);
@@ -406,7 +528,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -416,7 +538,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -428,7 +550,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -438,7 +560,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -450,7 +572,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(2, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().stream().anyMatch(x -> x.getErrorMessage().contains("must match \"^(ACTIVE)|(INACTIVE)$\"")));
     }
 
@@ -460,7 +582,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -472,7 +594,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must match \"^(ACTIVE)|(INACTIVE)$\""));
     }
 
@@ -482,7 +604,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(EMPTY_LIST);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -494,7 +616,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("size must be between 1 and 2147483647"));
     }
 
@@ -504,7 +626,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_WITH_BLANK_STRING);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(AMRS);
@@ -516,7 +638,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
-        Assert.assertTrue(respDto.getErrors().size() > 0);
+        Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -571,7 +693,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -597,7 +719,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -623,7 +745,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must be a valid URL"));
     }
 
@@ -649,7 +771,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorCode().contains("size must be between 1 and"));
     }
 
@@ -675,7 +797,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("size must be between 1 and 2147483647"));
     }
 
@@ -701,7 +823,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
@@ -727,7 +849,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(2, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().stream().anyMatch(x -> x.getErrorMessage().contains("must match \"^(ACTIVE)|(INACTIVE)$\"")));
     }
 
@@ -753,7 +875,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must match \"^(ACTIVE)|(INACTIVE)$\""));
     }
 
@@ -779,7 +901,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("size must be between 1 and 2147483647"));
     }
 
@@ -805,7 +927,7 @@ public class ClientManagementControllerTest {
 
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
-        Assert.assertTrue(updateRespDto.getErrors().size() > 0);
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
     }
 
