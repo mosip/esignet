@@ -5,7 +5,6 @@
  */
 package io.mosip.idp.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.security.KeyFactory;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.List;
 
 @Service
 public class ClientManagementServiceImpl implements ClientManagementService {
@@ -51,28 +49,13 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new IdPException(ErrorConstants.INVALID_BASE64_RSA_PUBLIC_KEY);
         }
 
-        var redirectUrisList = clientDetailCreateRequest.getRedirectUris();
-        var aCRList = clientDetailCreateRequest.getAuthContextRefs();
-        var claimsList = clientDetailCreateRequest.getUserClaims();
-        var grantTypesList = clientDetailCreateRequest.getGrantTypes();
-
-        String redirectUris = null;
-        String aCR = null;
-        String claims = null;
-        String grandTypes = null;
-
-        try {
-            redirectUris = mapper.writeValueAsString(redirectUrisList);
-            aCR = mapper.writeValueAsString(aCRList);
-            claims = mapper.writeValueAsString(claimsList);
-            grandTypes = mapper.writeValueAsString(grantTypesList);
-        } catch (JsonProcessingException e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
+        //comma separated list
+        String redirectUris = String.join(",", clientDetailCreateRequest.getRedirectUris());
+        String aCR = String.join(",", clientDetailCreateRequest.getAuthContextRefs());
+        String claims = String.join(",", clientDetailCreateRequest.getUserClaims());
+        String grandTypes = String.join(",", clientDetailCreateRequest.getGrantTypes());
 
         ClientDetail clientDetail = new ClientDetail();
-
         clientDetail.setId(clientDetailCreateRequest.getClientId());
         clientDetail.setName(clientDetailCreateRequest.getClientName());
         clientDetail.setRpId(clientDetailCreateRequest.getRelayingPartyId());
@@ -109,25 +92,11 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             clientDetails.setName(clientDetailUpdateRequest.getClientName());
         }
 
-        var redirectUrisList = clientDetailUpdateRequest.getRedirectUris();
-        var aCRList = clientDetailUpdateRequest.getAuthContextRefs();
-        var claimsList = clientDetailUpdateRequest.getUserClaims();
-        var grantTypesList = clientDetailUpdateRequest.getGrantTypes();
-
-        String redirectUris = null;
-        String aCR = null;
-        String claims = null;
-        String grandTypes = null;
-
-        try {
-            redirectUris = mapper.writeValueAsString(redirectUrisList);
-            aCR = mapper.writeValueAsString(aCRList);
-            claims = mapper.writeValueAsString(claimsList);
-            grandTypes = mapper.writeValueAsString(grantTypesList);
-        } catch (JsonProcessingException e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
+        //comma separated list
+        String redirectUris = String.join(",", clientDetailUpdateRequest.getRedirectUris());
+        String aCR = String.join(",", clientDetailUpdateRequest.getAuthContextRefs());
+        String claims = String.join(",", clientDetailUpdateRequest.getUserClaims());
+        String grandTypes = String.join(",", clientDetailUpdateRequest.getGrantTypes());
 
         clientDetails.setLogoUri(clientDetailUpdateRequest.getLogoUri());
         clientDetails.setRedirectUris(redirectUris);
