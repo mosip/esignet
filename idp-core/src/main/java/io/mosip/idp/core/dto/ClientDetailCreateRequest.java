@@ -40,12 +40,12 @@ public class ClientDetailCreateRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<String> userClaims;
+    private List<@NotBlank String> userClaims;
 
     //MUST be among pre-defined set of values
     @NotNull
     @Size(min = 1)
-    private List<String> authContextRefs;
+    private List<@NotBlank String> authContextRefs;
 
     @NotNull
     @NotBlank
@@ -54,9 +54,9 @@ public class ClientDetailCreateRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<String> redirectUris;
+    private List<@NotBlank String> redirectUris;
 
     @NotNull
     @Size(min = 1)
-    private List<String> grantTypes;
+    private List<@NotBlank String> grantTypes;
 }

@@ -21,15 +21,15 @@ public class ClientDetailUpdateRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<String> redirectUris;
+    private List<@NotBlank String> redirectUris;
 
     @NotNull
     @Size(min = 1)
-    private List<String> userClaims;
+    private List<@NotBlank String> userClaims;
 
     @NotNull
     @Size(min = 1)
-    private List<String> authContextRefs;
+    private List<@NotBlank String> authContextRefs;
 
     @NotNull
     @NotBlank
@@ -38,7 +38,7 @@ public class ClientDetailUpdateRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<String> grantTypes;
+    private List<@NotBlank String> grantTypes;
 
     @NotNull
     @NotBlank
