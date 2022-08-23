@@ -31,5 +31,5 @@ public class ErrorConstants {
 
     public static final String DUPLICATE_CLIENT_ID = "duplicate_client_id";
     public static final String INVALID_CLAIM = "invalid_claim";
-    public static final String INVALID_BASE64_RSA_PUBLIC_KEY = "invalid base 64 RSA public key";
+    public static final String INVALID_JWK_KEY = "invalid jwk key";
 }
