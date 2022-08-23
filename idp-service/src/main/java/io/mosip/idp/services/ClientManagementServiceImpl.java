@@ -52,28 +52,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         var redirectUrisList = clientDetailCreateRequest.getRedirectUris();
-        if (!isListValid(redirectUrisList)) {
-            logger.error(ErrorConstants.INVALID_REDIRECT_URI);
-            throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
-        }
-
         var aCRList = clientDetailCreateRequest.getAuthContextRefs();
-        if (!isListValid(aCRList)) {
-            logger.error(ErrorConstants.INVALID_ACR);
-            throw new IdPException(ErrorConstants.INVALID_ACR);
-        }
-
         var claimsList = clientDetailCreateRequest.getUserClaims();
-        if (!isListValid(claimsList)) {
-            logger.error(ErrorConstants.INVALID_CLAIM);
-            throw new IdPException(ErrorConstants.INVALID_CLAIM);
-        }
-
         var grantTypesList = clientDetailCreateRequest.getGrantTypes();
-        if (!isListValid(grantTypesList)) {
-            logger.error(ErrorConstants.INVALID_GRANT_TYPE);
-            throw new IdPException(ErrorConstants.INVALID_GRANT_TYPE);
-        }
 
         String redirectUris = null;
         String aCR = null;
@@ -129,28 +110,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         var redirectUrisList = clientDetailUpdateRequest.getRedirectUris();
-        if (!isListValid(redirectUrisList)) {
-            logger.error(ErrorConstants.INVALID_REDIRECT_URI);
-            throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
-        }
-
         var aCRList = clientDetailUpdateRequest.getAuthContextRefs();
-        if (!isListValid(aCRList)) {
-            logger.error(ErrorConstants.INVALID_ACR);
-            throw new IdPException(ErrorConstants.INVALID_ACR);
-        }
-
         var claimsList = clientDetailUpdateRequest.getUserClaims();
-        if (!isListValid(claimsList)) {
-            logger.error(ErrorConstants.INVALID_CLAIM);
-            throw new IdPException(ErrorConstants.INVALID_CLAIM);
-        }
-
         var grantTypesList = clientDetailUpdateRequest.getGrantTypes();
-        if (!isListValid(grantTypesList)) {
-            logger.error(ErrorConstants.INVALID_GRANT_TYPE);
-            throw new IdPException(ErrorConstants.INVALID_GRANT_TYPE);
-        }
 
         String redirectUris = null;
         String aCR = null;
@@ -195,9 +157,5 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             logger.error("Invalid public key", e);
         }
         return false;
-    }
-
-    private boolean isListValid(List<String> listOfString) {
-        return !listOfString.isEmpty() && listOfString.stream().noneMatch(String::isBlank);
     }
 }
