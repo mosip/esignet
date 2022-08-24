@@ -45,7 +45,7 @@ public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String
                 .filter( s -> authorizeScopes.contains(s))
                 .toArray(String[]::new);
         String[] openid_scopes = Arrays.stream(scopes)
-                .filter( s -> openidScopes.contains(s))
+                .filter( s -> openidScopes.contains(s) || "openid".equals(s))
                 .toArray(String[]::new);
 
         //at least one of authorize / openid scope MUST be present

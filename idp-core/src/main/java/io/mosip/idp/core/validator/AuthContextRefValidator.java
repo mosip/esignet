@@ -19,8 +19,8 @@ public class AuthContextRefValidator implements ConstraintValidator<AuthContextR
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if(value == null || value.isEmpty())
-            return false;
+        if(value == null)
+            return true; // As this is OPTIONAL parameter
 
         String[] values = IdentityProviderUtil.splitAndTrimValue(value, Constants.SPACE);
         try {

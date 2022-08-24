@@ -11,15 +11,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
 
-@SpringBootTest
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
+@DataJpaTest
 public class ClientDetailRepositoryTest {
 
     @Autowired
@@ -37,6 +37,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("{}");
         clientDetail.setAcrValues("{}");
+        clientDetail.setGrantTypes("authorization_code");
         clientDetail = clientDetailRepository.save(clientDetail);
         Assert.assertNotNull(clientDetail);
 

@@ -59,7 +59,7 @@ public class AuthenticationContextClassRefUtil {
     private Map<String, List<String>> getAllACR_AMR_Mapping()  throws IdPException {
         try {
             ObjectNode objectNode = objectMapper.readValue(mappingFile.getFile(), new TypeReference<ObjectNode>(){});
-            return objectMapper.convertValue(objectNode.get(AMR_KEY),
+            return objectMapper.convertValue(objectNode.get(AMR_ACR),
                     new TypeReference<Map<String, List<String>>>(){});
 
         } catch (IOException e) {

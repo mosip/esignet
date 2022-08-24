@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 		"io.mosip.kernel.partnercertservice.service",
 		"io.mosip.kernel.partnercertservice.helper"})
 @EnableCaching
-@RefreshScope
 public class IdpServiceApplication {
 
 	public static void main(String[] args) {
