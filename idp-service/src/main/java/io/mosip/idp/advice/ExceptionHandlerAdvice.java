@@ -99,25 +99,22 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             for (FieldError error : ((MethodArgumentNotValidException) ex).getBindingResult().getFieldErrors()) {
                 errors.add(new Error(error.getDefaultMessage(), error.getField() + ": " + error.getDefaultMessage()));
             }
-            for (ObjectError error : ((MethodArgumentNotValidException) ex).getBindingResult().getGlobalErrors()) {
-                errors.add(new Error(error.getDefaultMessage(), error.getObjectName()+ ": " + error.getDefaultMessage()));
-            }
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errors), HttpStatus.OK);
         }
         if(ex instanceof ConstraintViolationException) {
             List<Error> errors = new ArrayList<>();
             Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
             for(ConstraintViolation<?> cv : violations) {
-                errors.add(new Error(BAD_REQ_ERROR_CODE,cv.getPropertyPath().toString() + ": " + cv.getMessage()));
+                errors.add(new Error(INVALID_REQUEST,cv.getPropertyPath().toString() + ": " + cv.getMessage()));
             }
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errors), HttpStatus.OK);
         }
         if(ex instanceof MissingServletRequestParameterException) {
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(BAD_REQ_ERROR_CODE, ex.getMessage()),
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_REQUEST, ex.getMessage()),
                     HttpStatus.OK);
         }
         if(ex instanceof HttpMediaTypeNotAcceptableException) {
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(BAD_REQ_ERROR_CODE, ex.getMessage()),
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_REQUEST, ex.getMessage()),
                     HttpStatus.OK);
         }
         if(ex instanceof InvalidClientException) {

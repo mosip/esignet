@@ -25,13 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
-@ConfigurationProperties(prefix = "mosip.idp.openid.scope")
 public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.AuthorizationService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationServiceImpl.class);
@@ -54,6 +54,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("#{${mosip.idp.openid.scope.claims}}")
     private Map<String, List<String>> claims;
 
     @Value("${mosip.idp.supported.authorize.scopes}")
@@ -72,6 +73,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, result.get());
+        if(resolvedClaims.getId_token().get(Constants.ACR_CLAIM) == null)
+            throw new IdPException(ErrorConstants.INVALID_ACR);
 
         final String transactionId = UUID.randomUUID().toString();
         OauthDetailResponse oauthDetailResponse = new OauthDetailResponse();
@@ -121,6 +124,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(kycAuthRequest.getTransactionId());
+        authRespDto.setMessage(ErrorConstants.AUTH_PASSED);
         return authRespDto;
     }
 
@@ -149,51 +153,66 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
 
 
-    private Claims getRequestedClaims(OauthDetailRequest oauthDetailRequest, ClientDetail clientDetail) {
+    private Claims getRequestedClaims(OauthDetailRequest oauthDetailRequest, ClientDetail clientDetail) throws IdPException {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setUserinfo(new HashMap<>());
         resolvedClaims.setId_token(new HashMap<>());
 
         String requestedScope = oauthDetailRequest.getScope();
         Claims requestedClaims = oauthDetailRequest.getClaims();
-        try {
-            //Assumption is registered claims MUST have at least 1 user claim
-            List<String> registeredUserClaims = objectMapper.readValue(clientDetail.getClaims(), new TypeReference<List<String>>(){});
-            //get claims based on scope
-            List<String> claimBasedOnScope = resolveScopeToClaims(requestedScope);
 
-            boolean isRequestedUserInfoClaimsPresent = requestedClaims != null && requestedClaims.getUserinfo() != null;
-            //claims considered only if part of registered claims
-            for(String claimName : registeredUserClaims) {
-                if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().containsKey(claimName))
-                    resolvedClaims.getUserinfo().put(claimName, requestedClaims.getUserinfo().get(claimName));
-                else if(claimBasedOnScope.contains(claimName))
-                    resolvedClaims.getUserinfo().put(claimName, null);
-            }
+        List<String> registeredUserClaims = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(clientDetail.getClaims(), Constants.COMMA));
+        //get claims based on scope
+        List<String> claimBasedOnScope = resolveScopeToClaims(requestedScope);
 
-            if(requestedClaims != null && requestedClaims.getId_token() != null ) {
-                for(String claimName : tokenGeneratorService.getOptionalIdTokenClaims()) {
-                    if(requestedClaims.getId_token().containsKey(claimName))
-                        resolvedClaims.getId_token().put(claimName, requestedClaims.getId_token().get(claimName));
-                }
-            }
-            resolveACRClaim(oauthDetailRequest.getAcrValues(), clientDetail.getAcrValues(), resolvedClaims);
-
-        } catch (Exception e) {
-            logger.error("Failed to parse claims", e);
+        boolean isRequestedUserInfoClaimsPresent = requestedClaims != null && requestedClaims.getUserinfo() != null;
+        //claims considered only if part of registered claims
+        for(String claimName : registeredUserClaims) {
+            if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().containsKey(claimName))
+                resolvedClaims.getUserinfo().put(claimName, requestedClaims.getUserinfo().get(claimName));
+            else if(claimBasedOnScope.contains(claimName))
+                resolvedClaims.getUserinfo().put(claimName, null);
         }
+
+        if(requestedClaims != null && requestedClaims.getId_token() != null ) {
+            for(String claimName : tokenGeneratorService.getOptionalIdTokenClaims()) {
+                if(requestedClaims.getId_token().containsKey(claimName))
+                    resolvedClaims.getId_token().put(claimName, requestedClaims.getId_token().get(claimName));
+            }
+        }
+        resolveACRClaim(oauthDetailRequest.getAcrValues(), clientDetail.getAcrValues(), resolvedClaims);
+
         return resolvedClaims;
     }
 
-    private void resolveACRClaim(String requestedAcr, String registeredAcr, Claims claims) {
-        ClaimDetail claimDetail = new ClaimDetail();
-        claimDetail.setEssential(true);
+    private void resolveACRClaim(String requestedAcr, String registeredAcr, Claims claims) throws IdPException {
+        if(registeredAcr == null)
+            throw new IdPException(ErrorConstants.NO_ACR_REGISTERED);
+
+        List<String> registeredACRs = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(registeredAcr, Constants.COMMA));
 
         //acr_values request parameter takes highest priority
-        claimDetail.setValues((requestedAcr != null) ?
-                IdentityProviderUtil.splitAndTrimValue(requestedAcr, Constants.SPACE) :
-                IdentityProviderUtil.splitAndTrimValue(registeredAcr, Constants.COMMA));
+        String[] aCRs;
+        if(requestedAcr == null) {
+            ClaimDetail acrClaimDetail = claims.getId_token().get(Constants.ACR_CLAIM);
+            aCRs = acrClaimDetail == null || acrClaimDetail.getValues() == null ? new String[0] : acrClaimDetail.getValues();
+        }
+        else {
+            aCRs = IdentityProviderUtil.splitAndTrimValue(requestedAcr, Constants.SPACE);
+        }
 
+        List<String> filteredAcr = new ArrayList<>();
+        for(String acr : aCRs) {
+            if(registeredACRs.contains(acr))
+                filteredAcr.add(acr);
+        }
+
+        if(filteredAcr.isEmpty())
+            throw new IdPException(ErrorConstants.INVALID_ACR);
+
+        ClaimDetail claimDetail = new ClaimDetail();
+        claimDetail.setEssential(true);
+        claimDetail.setValues(filteredAcr.toArray(String[]::new));
         claims.getId_token().put(Constants.ACR_CLAIM, claimDetail);
     }
 
@@ -222,9 +241,10 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     }
 
     private void setAuthorizeScopes(String requestedScopes, OauthDetailResponse oauthDetailResponse) {
-        List<String> scopes = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE));
-        scopes.retainAll(authorizeScopes);
-        oauthDetailResponse.setAuthorizeScopes(scopes);
+        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE);
+        oauthDetailResponse.setAuthorizeScopes(Arrays.stream(scopes)
+                .filter( s -> authorizeScopes.contains(s) )
+                .collect(Collectors.toList()));
     }
 
     private void validateRedirectURI(String registeredRedirectUris, String requestedRedirectUri) throws IdPException {
