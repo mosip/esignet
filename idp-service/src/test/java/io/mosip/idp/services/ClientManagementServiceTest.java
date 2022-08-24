@@ -242,7 +242,7 @@ public class ClientManagementServiceTest {
             respDto = clientDetailService.updateOIDCClient(CLIENT_ID_2, clientUpdateReqDto);
             Assert.fail();
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("does not exist"));
+            Assert.assertEquals(e.getMessage(), ErrorConstants.INVALID_CLIENT_ID);
         }
 
         Assert.assertNull(respDto);
