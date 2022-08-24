@@ -71,9 +71,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         var clientDetailFromDb = clientDetailRepository.findById(clientId);
 
         if (clientDetailFromDb.isEmpty()) {
-            String msg = String.format("ClientId %s does not exist", clientId);
-            logger.error(msg);
-            throw new IdPException(msg);
+            logger.error("ClientId {} does not exist", clientId);
+            throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
         var clientDetails = clientDetailFromDb.get();
