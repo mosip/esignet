@@ -46,8 +46,12 @@ public class ClientManagementControllerTest {
     //region Variables
     String OIDC_CLIENT_URI = "/client-mgmt/oidc-client";
     String commaSeparatedURIs = "https://clientapp.com/home,https://clientapp.com/home2";
-    String commaSeparatedAMRs = "https://clientapp.com/home,https://clientapp.com/home2";
-    String commaSeparatedClaims = "https://clientapp.com/home,https://clientapp.com/home2";
+    String commaSeparatedACRs = "level1,level2";
+    String commaSeparatedClaims = "phone_verified,email_verified";
+    String grand_type = "authorization_code";
+    String commaSeparatedACRs_invalid = "invalidACR1,level1";
+    String grand_type_invalid = "invalidGrandType";
+
     String CLIENT_ID_1 = "C01";
     String CLIENT_NAME_1 = "Client-01";
     String CLIENT_NAME_2 = "Client-02";
@@ -59,12 +63,17 @@ public class ClientManagementControllerTest {
     Map<String, Object> PUBLIC_PRIVATE_KEY_PAIR_EC;
 
     Map<String, Object> INVALID_PUBLIC_KEY;
+
     List<String> LIST_OF_URIS = Arrays.asList(commaSeparatedURIs.split(","));
     List<String> CLAIMS = Arrays.asList(commaSeparatedClaims.split(","));
-    List<String> AMRS = Arrays.asList(commaSeparatedAMRs.split(","));
+    List<String> ACRS = Arrays.asList(commaSeparatedACRs.split(","));
+    List<String> GRAND_TYPES = List.of(grand_type);
+
+    List<String> ACRS_INVALID = Arrays.asList(commaSeparatedACRs_invalid.split(","));
+    List<String> GRAND_TYPES_INVALID = List.of(grand_type_invalid);
+
     List<String> LIST_WITH_BLANK_STRING = Arrays.asList("".split(","));
     List<String> LIST_WITH_NULL_STRING;
-    List<String> GRAND_TYPES = List.of("authorization_code");
     List<String> EMPTY_LIST = new ArrayList<>();
     String STATUS_ACTIVE = "active";
     String STATUS_INACTIVE = "inactive";
@@ -111,7 +120,7 @@ public class ClientManagementControllerTest {
         defaultClientDetailCreateRequest.setPublicKey(PUBLIC_KEY_RSA);
         defaultClientDetailCreateRequest.setRedirectUris(LIST_OF_URIS);
         defaultClientDetailCreateRequest.setUserClaims(CLAIMS);
-        defaultClientDetailCreateRequest.setAuthContextRefs(AMRS);
+        defaultClientDetailCreateRequest.setAuthContextRefs(ACRS);
         defaultClientDetailCreateRequest.setStatus(STATUS_ACTIVE);
         defaultClientDetailCreateRequest.setRelayingPartyId(RELAYING_PARTY_ID);
         defaultClientDetailCreateRequest.setGrantTypes(GRAND_TYPES);
@@ -133,7 +142,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -157,7 +166,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_PRIVATE_KEY_PAIR_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -181,7 +190,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_EC);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -205,7 +214,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_PRIVATE_KEY_PAIR_EC);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -230,7 +239,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_INACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -255,7 +264,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -277,7 +286,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -299,7 +308,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -321,7 +330,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -343,7 +352,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(BLANK_MAP);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -365,7 +374,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(null);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -387,7 +396,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(INVALID_PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -409,7 +418,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(INVALID_PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -431,7 +440,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(EMPTY_LIST);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -507,7 +516,7 @@ public class ClientManagementControllerTest {
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
         Assert.assertEquals(1, respDto.getErrors().size());
-        Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_ACR);
     }
 
     @Test
@@ -529,7 +538,29 @@ public class ClientManagementControllerTest {
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
         Assert.assertEquals(1, respDto.getErrors().size());
-        Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_ACR);
+    }
+
+    @Test
+    public void createClientDetail_withInvalidAMRString_thenFail() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(ACRS_INVALID);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+
+        var respDto = createClient(clientCreateReqDto);
+
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_ACR);
     }
 
     @Test
@@ -541,7 +572,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(BLANK);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -563,7 +594,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(BLANK);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -585,7 +616,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_INVALID);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -607,7 +638,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(EMPTY_LIST);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -629,7 +660,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
         clientCreateReqDto.setRedirectUris(LIST_WITH_BLANK_STRING);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -640,6 +671,28 @@ public class ClientManagementControllerTest {
         Assert.assertNotNull(respDto.getErrors());
         Assert.assertEquals(1, respDto.getErrors().size());
         Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+    }
+
+    @Test
+    public void createClientDetail_withInvalidGrandType_thenFail() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES_INVALID);
+
+        var respDto = createClient(clientCreateReqDto);
+
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_GRANT_TYPE);
     }
 
     //endregion
@@ -659,7 +712,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
@@ -684,7 +737,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_INACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(BLANK);
@@ -710,7 +763,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(BLANK);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
@@ -736,7 +789,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(INVALID_LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
@@ -762,7 +815,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(EMPTY_LIST);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
@@ -824,7 +877,33 @@ public class ClientManagementControllerTest {
         Assert.assertNull(updateRespDto.getResponse());
         Assert.assertNotNull(updateRespDto.getErrors());
         Assert.assertEquals(1, updateRespDto.getErrors().size());
-        Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+        Assert.assertEquals(updateRespDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_ACR);
+    }
+
+    @Test
+    public void updateClientDetail_withInvalidACR_thenFail() throws Exception {
+        //Create
+        var createRespDto = createClient(defaultClientDetailCreateRequest);
+
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        //update
+        ClientDetailUpdateRequest clientUpdateReqDto = new ClientDetailUpdateRequest();
+        clientUpdateReqDto.setLogoUri(LOGO_URI);
+        clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientUpdateReqDto.setUserClaims(CLAIMS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS_INVALID);
+        clientUpdateReqDto.setStatus(STATUS_ACTIVE);
+        clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
+
+        var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
+
+        Assert.assertNull(updateRespDto.getResponse());
+        Assert.assertNotNull(updateRespDto.getErrors());
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
+        Assert.assertEquals(updateRespDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_ACR);
     }
 
     @Test
@@ -840,7 +919,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(BLANK);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
@@ -866,7 +945,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_INVALID);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
@@ -892,7 +971,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(EMPTY_LIST);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
@@ -918,7 +997,7 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_WITH_BLANK_STRING);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
@@ -929,6 +1008,32 @@ public class ClientManagementControllerTest {
         Assert.assertNotNull(updateRespDto.getErrors());
         Assert.assertEquals(1, updateRespDto.getErrors().size());
         Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+    }
+
+    @Test
+    public void updateClientDetail_withInvalidGrandType_thenFail() throws Exception {
+        //Create
+        var createRespDto = createClient(defaultClientDetailCreateRequest);
+
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        //update
+        ClientDetailUpdateRequest clientUpdateReqDto = new ClientDetailUpdateRequest();
+        clientUpdateReqDto.setLogoUri(LOGO_URI);
+        clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientUpdateReqDto.setUserClaims(CLAIMS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
+        clientUpdateReqDto.setStatus(STATUS_ACTIVE);
+        clientUpdateReqDto.setGrantTypes(GRAND_TYPES_INVALID);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
+
+        var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
+
+        Assert.assertNull(updateRespDto.getResponse());
+        Assert.assertNotNull(updateRespDto.getErrors());
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
+        Assert.assertEquals(updateRespDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_GRANT_TYPE);
     }
 
     //endregion
