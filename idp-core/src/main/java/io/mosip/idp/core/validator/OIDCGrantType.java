@@ -8,9 +8,10 @@ import java.lang.annotation.Target;
 
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_GRANT_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({ FIELD })
+@Target({FIELD, TYPE_USE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = OIDCGrantTypeValidator.class)
 @Documented

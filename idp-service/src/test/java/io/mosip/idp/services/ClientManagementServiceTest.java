@@ -42,8 +42,8 @@ public class ClientManagementServiceTest {
     //region Variables
 
     String commaSeparatedURIs = "https://clientapp.com/home,https://clientapp.com/home2";
-    String commaSeparatedAMRs = "https://clientapp.com/home,https://clientapp.com/home2";
-    String commaSeparatedClaims = "https://clientapp.com/home,https://clientapp.com/home2";
+    String commaSeparatedACRs = "level1,level2";
+    String commaSeparatedClaims = "phone_verified,email_verified";
 
     String CLIENT_ID_1 = "C01";
     String CLIENT_ID_2 = "C02";
@@ -53,7 +53,7 @@ public class ClientManagementServiceTest {
     Map<String, Object> PUBLIC_KEY;
     List<String> LIST_OF_URIS = Arrays.asList(commaSeparatedURIs.split(","));
     List<String> CLAIMS = Arrays.asList(commaSeparatedClaims.split(","));
-    List<String> AMRS = Arrays.asList(commaSeparatedAMRs.split(","));
+    List<String> ACRS = Arrays.asList(commaSeparatedACRs.split(","));
     List<String> GRAND_TYPES = List.of("authorization_code");
     String STATUS_ACTIVE = "active";
     String STATUS_INACTIVE = "inactive";
@@ -78,7 +78,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -104,7 +104,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_INACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -130,7 +130,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto1.setPublicKey(PUBLIC_KEY);
         clientCreateReqDto1.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto1.setUserClaims(CLAIMS);
-        clientCreateReqDto1.setAuthContextRefs(AMRS);
+        clientCreateReqDto1.setAuthContextRefs(ACRS);
         clientCreateReqDto1.setStatus(STATUS_INACTIVE);
         clientCreateReqDto1.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto1.setGrantTypes(GRAND_TYPES);
@@ -151,7 +151,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto2.setPublicKey(PUBLIC_KEY);
         clientCreateReqDto2.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto2.setUserClaims(CLAIMS);
-        clientCreateReqDto2.setAuthContextRefs(AMRS);
+        clientCreateReqDto2.setAuthContextRefs(ACRS);
         clientCreateReqDto2.setStatus(STATUS_INACTIVE);
         clientCreateReqDto2.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto2.setGrantTypes(GRAND_TYPES);
@@ -181,7 +181,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -192,7 +192,7 @@ public class ClientManagementServiceTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(AMRS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
@@ -217,7 +217,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setPublicKey(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
@@ -232,7 +232,7 @@ public class ClientManagementServiceTest {
         clientUpdateReqDto.setLogoUri(LOGO_URI);
         clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
         clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(AMRS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);

@@ -5,6 +5,8 @@
  */
 package io.mosip.idp.core.dto;
 
+import io.mosip.idp.core.validator.AuthContextRef;
+import io.mosip.idp.core.validator.OIDCGrantType;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
@@ -46,7 +48,7 @@ public class ClientDetailCreateRequest {
     //MUST be among pre-defined set of values
     @NotNull
     @Size(min = 1)
-    private List<@NotBlank String> authContextRefs;
+    private List<@AuthContextRef String> authContextRefs;
 
     @NotNull
     @NotBlank
@@ -59,5 +61,5 @@ public class ClientDetailCreateRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<@NotBlank String> grantTypes;
+    private List<@OIDCGrantType String> grantTypes;
 }
