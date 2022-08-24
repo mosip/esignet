@@ -406,7 +406,7 @@ public class ClientManagementControllerTest {
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
         Assert.assertEquals(1, respDto.getErrors().size());
-        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_JWK_KEY);
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_JWKS);
     }
 
     @Test
@@ -428,7 +428,7 @@ public class ClientManagementControllerTest {
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
         Assert.assertEquals(1, respDto.getErrors().size());
-        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_JWK_KEY);
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_JWKS);
     }
 
     @Test
