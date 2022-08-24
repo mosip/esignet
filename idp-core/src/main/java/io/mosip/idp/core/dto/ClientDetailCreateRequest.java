@@ -48,7 +48,7 @@ public class ClientDetailCreateRequest {
     //MUST be among pre-defined set of values
     @NotNull
     @Size(min = 1)
-    private List<@AuthContextRef String> authContextRefs;
+    private List<@NotNull @AuthContextRef String> authContextRefs;
 
     @NotNull
     @NotBlank
