@@ -538,7 +538,7 @@ public class ClientManagementControllerTest {
         Assert.assertNull(respDto.getResponse());
         Assert.assertNotNull(respDto.getErrors());
         Assert.assertEquals(1, respDto.getErrors().size());
-        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_ACR);
+        Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be null"));
     }
 
     @Test
@@ -674,6 +674,28 @@ public class ClientManagementControllerTest {
     }
 
     @Test
+    public void createClientDetail_withRedirectUriNull_ENTRY_thenFail() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
+        clientCreateReqDto.setRedirectUris(LIST_WITH_NULL_STRING);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+
+        var respDto = createClient(clientCreateReqDto);
+
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertTrue(respDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+    }
+
+    @Test
     public void createClientDetail_withInvalidGrandType_thenFail() throws Exception {
         ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
         clientCreateReqDto.setClientId(CLIENT_ID_1);
@@ -686,6 +708,50 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES_INVALID);
+
+        var respDto = createClient(clientCreateReqDto);
+
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_GRANT_TYPE);
+    }
+
+    @Test
+    public void createClientDetail_withGrandTypeNullEntry_thenFail() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(LIST_WITH_NULL_STRING);
+
+        var respDto = createClient(clientCreateReqDto);
+
+        Assert.assertNull(respDto.getResponse());
+        Assert.assertNotNull(respDto.getErrors());
+        Assert.assertEquals(1, respDto.getErrors().size());
+        Assert.assertEquals(respDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_GRANT_TYPE);
+    }
+
+    @Test
+    public void createClientDetail_withGrandTypeBlankEntry_thenFail() throws Exception {
+        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
+        clientCreateReqDto.setClientId(CLIENT_ID_1);
+        clientCreateReqDto.setClientName(CLIENT_NAME_1);
+        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setPublicKey(PUBLIC_KEY_RSA);
+        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientCreateReqDto.setUserClaims(CLAIMS);
+        clientCreateReqDto.setAuthContextRefs(ACRS);
+        clientCreateReqDto.setStatus(STATUS_ACTIVE);
+        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setGrantTypes(LIST_WITH_BLANK_STRING);
 
         var respDto = createClient(clientCreateReqDto);
 
@@ -1011,6 +1077,32 @@ public class ClientManagementControllerTest {
     }
 
     @Test
+    public void updateClientDetail_withRedirectUriNullEntry_thenFail() throws Exception {
+        //Create
+        var createRespDto = createClient(defaultClientDetailCreateRequest);
+
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        //update
+        ClientDetailUpdateRequest clientUpdateReqDto = new ClientDetailUpdateRequest();
+        clientUpdateReqDto.setLogoUri(LOGO_URI);
+        clientUpdateReqDto.setRedirectUris(LIST_WITH_NULL_STRING);
+        clientUpdateReqDto.setUserClaims(CLAIMS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
+        clientUpdateReqDto.setStatus(STATUS_ACTIVE);
+        clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
+
+        var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
+
+        Assert.assertNull(updateRespDto.getResponse());
+        Assert.assertNotNull(updateRespDto.getErrors());
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
+        Assert.assertTrue(updateRespDto.getErrors().get(0).getErrorMessage().contains("must not be blank"));
+    }
+
+    @Test
     public void updateClientDetail_withInvalidGrandType_thenFail() throws Exception {
         //Create
         var createRespDto = createClient(defaultClientDetailCreateRequest);
@@ -1026,6 +1118,58 @@ public class ClientManagementControllerTest {
         clientUpdateReqDto.setAuthContextRefs(ACRS);
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES_INVALID);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
+
+        var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
+
+        Assert.assertNull(updateRespDto.getResponse());
+        Assert.assertNotNull(updateRespDto.getErrors());
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
+        Assert.assertEquals(updateRespDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_GRANT_TYPE);
+    }
+
+    @Test
+    public void updateClientDetail_withGrandTypeNullEntry_thenFail() throws Exception {
+        //Create
+        var createRespDto = createClient(defaultClientDetailCreateRequest);
+
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        //update
+        ClientDetailUpdateRequest clientUpdateReqDto = new ClientDetailUpdateRequest();
+        clientUpdateReqDto.setLogoUri(LOGO_URI);
+        clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientUpdateReqDto.setUserClaims(CLAIMS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
+        clientUpdateReqDto.setStatus(STATUS_ACTIVE);
+        clientUpdateReqDto.setGrantTypes(LIST_WITH_NULL_STRING);
+        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
+
+        var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);
+
+        Assert.assertNull(updateRespDto.getResponse());
+        Assert.assertNotNull(updateRespDto.getErrors());
+        Assert.assertEquals(1, updateRespDto.getErrors().size());
+        Assert.assertEquals(updateRespDto.getErrors().get(0).getErrorCode(), ErrorConstants.INVALID_GRANT_TYPE);
+    }
+
+    @Test
+    public void updateClientDetail_withGrandTypeBlankEntry_thenFail() throws Exception {
+        //Create
+        var createRespDto = createClient(defaultClientDetailCreateRequest);
+
+        Assert.assertNotNull(createRespDto.getResponse());
+        Assert.assertNull(createRespDto.getErrors());
+
+        //update
+        ClientDetailUpdateRequest clientUpdateReqDto = new ClientDetailUpdateRequest();
+        clientUpdateReqDto.setLogoUri(LOGO_URI);
+        clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
+        clientUpdateReqDto.setUserClaims(CLAIMS);
+        clientUpdateReqDto.setAuthContextRefs(ACRS);
+        clientUpdateReqDto.setStatus(STATUS_ACTIVE);
+        clientUpdateReqDto.setGrantTypes(LIST_WITH_BLANK_STRING);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
 
         var updateRespDto = updateClient(createRespDto.getResponse().getClientId(), clientUpdateReqDto);

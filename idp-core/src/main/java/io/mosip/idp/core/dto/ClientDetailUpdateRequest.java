@@ -31,7 +31,7 @@ public class ClientDetailUpdateRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<@AuthContextRef String> authContextRefs;
+    private List<@NotNull @AuthContextRef String> authContextRefs;
 
     @NotNull
     @NotBlank
