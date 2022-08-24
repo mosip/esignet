@@ -39,11 +39,6 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         var publicKeyJson = getJwkJson(clientDetailCreateRequest.getPublicKey());
 
-        if (publicKeyJson == null) {
-            logger.error(ErrorConstants.INVALID_JWK_KEY);
-            throw new IdPException(ErrorConstants.INVALID_JWK_KEY);
-        }
-
         //comma separated list
         String redirectUris = String.join(",", clientDetailCreateRequest.getRedirectUris());
         String aCR = String.join(",", clientDetailCreateRequest.getAuthContextRefs());
@@ -108,14 +103,14 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return response;
     }
 
-    private String getJwkJson(Map<String, Object> publicKey) {
+    private String getJwkJson(Map<String, Object> publicKey) throws IdPException {
         try {
             JWK jwk = JWK.parse(publicKey);
             JWK publicJwk = jwk.toPublicJWK();
             return publicJwk.toJSONString();
         } catch (Exception e) {
-            logger.error("JWK parsing failed", e);
+            logger.error(ErrorConstants.INVALID_JWKS);
+            throw new IdPException(ErrorConstants.INVALID_JWKS);
         }
-        return null;
     }
 }
