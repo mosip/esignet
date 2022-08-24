@@ -20,10 +20,10 @@ import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 @Component
 public class RequestTimeValidator implements ConstraintValidator<RequestTime, String> {
 
-    @Value("${mosip.idp.reqtime.maxlimit:-5}")
+    @Value("${mosip.idp.reqtime.maxlimit:-2}")
     private int maxMinutes;
 
-    @Value("${mosip.idp.reqtime.minlimit:5}")
+    @Value("${mosip.idp.reqtime.minlimit:2}")
     private int minMinutes;
 
 
