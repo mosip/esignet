@@ -28,8 +28,8 @@ public class AuthorizationController {
     AuthorizationService authorizationService;
 
     @PostMapping("/oauth-details")
-    public ResponseWrapper<OauthDetailResponse> getOauthDetails(@RequestParam("nonce") String nonce,
-                                                                @Valid @RequestBody RequestWrapper<OauthDetailRequest> requestWrapper)
+    public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@RequestParam("nonce") String nonce,
+                                                                @Valid @RequestBody RequestWrapper<OAuthDetailRequest> requestWrapper)
             throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());

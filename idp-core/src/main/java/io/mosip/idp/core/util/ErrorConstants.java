@@ -25,6 +25,7 @@ public class ErrorConstants {
     public static final String AUTH_PASSED="auth_passed";
     public static final String ACR_AMR_MAPPING_NOT_FOUND="acr_amr_mapping_not_found";
     public static final String NO_ACR_REGISTERED="no_acr_registered";
+    public static final String INVALID_ALGORITHM = "invalid_algorithm";
     public static final String DEFAULT_ERROR_CODE = "unknown_error";
     public static final String DEFAULT_ERROR_MSG = "UNKNOWN ERROR";
     public static final String INVALID_INPUT_ERROR_MSG = "UNSUPPORTED INPUT PARAMETER";

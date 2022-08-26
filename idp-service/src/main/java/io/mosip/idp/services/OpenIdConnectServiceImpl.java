@@ -7,11 +7,14 @@ package io.mosip.idp.services;
 
 import io.mosip.idp.core.dto.DiscoveryResponse;
 import io.mosip.idp.core.dto.IdPTransaction;
-import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.AuthorizationService;
 import io.mosip.idp.core.spi.TokenGeneratorService;
-import io.mosip.idp.repositories.ClientDetailRepository;
+import io.mosip.idp.core.dto.IdPTransaction;
+import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.idp.repository.ClientDetailRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,17 +128,20 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
     @Autowired
     private CacheUtilService cacheUtilService;
 
+    @Value("${mosip.idp.cache.key.hash.algorithm}")
+    private String hashingAlgorithm;
+
 
     @Override
-    public String getUserInfo(String accessToken) throws NotAuthenticatedException {
-        if (accessToken == null || accessToken.isBlank())
+    public String getUserInfo(String accessToken) throws IdPException {
+        if(accessToken == null || accessToken.isBlank())
             throw new NotAuthenticatedException();
 
         //TODO - validate access token expiry - keymanager
 
-        String accessTokenHash = ""; //TODO - generate access token hash - keymanager
+        String accessTokenHash = IdentityProviderUtil.generateHash(hashingAlgorithm, accessToken);
         IdPTransaction transaction = cacheUtilService.getSetKycTransaction(accessTokenHash, null);
-        if (transaction == null)
+        if(transaction == null)
             throw new NotAuthenticatedException();
 
         return transaction.getEncryptedKyc();

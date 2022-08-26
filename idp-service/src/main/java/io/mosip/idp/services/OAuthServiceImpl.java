@@ -12,11 +12,13 @@ import io.mosip.idp.core.spi.OAuthService;
 import io.mosip.idp.core.spi.TokenGeneratorService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.domain.ClientDetail;
-import io.mosip.idp.repositories.ClientDetailRepository;
+import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.idp.entity.ClientDetail;
+import io.mosip.idp.repository.ClientDetailRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -41,8 +43,14 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private CacheUtilService cacheUtilService;
 
+    @Value("${mosip.idp.cache.key.hash.algorithm}")
+    private String hashingAlgorithm;
+
     @Override
     public TokenResponse getTokens(TokenRequest tokenRequest) throws IdPException {
+        //Authenticate client, currently only support private_key_jwt method
+        authenticateClient(tokenRequest);
+
         IdPTransaction transaction = cacheUtilService.getSetAuthenticatedTransaction(tokenRequest.getCode(), null, null);
         if(transaction == null)
             throw new IdPException(ErrorConstants.INVALID_CODE);
@@ -52,42 +60,38 @@ public class OAuthServiceImpl implements OAuthService {
         if(!result.isPresent())
             throw new InvalidClientException(ErrorConstants.INVALID_CLIENT_ID);
 
-        switch (tokenRequest.getClient_assertion_type()) {
-            case "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" :
-                validateJwtClientAssertion(result.get(), tokenRequest.getClient_assertion());
-                break;
-            default:
-                throw new IdPException(ErrorConstants.INVALID_ASSERTION_TYPE);
-        }
-
-        // TODO - Sign KYC exchange request with MISP key
         KycExchangeRequest kycExchangeRequest = new KycExchangeRequest();
         kycExchangeRequest.setClientId(tokenRequest.getClient_id());
         kycExchangeRequest.setKycToken(transaction.getKycToken());
         kycExchangeRequest.setAcceptedClaims(transaction.getAcceptedClaims());
         String encryptedKyc = authenticationWrapper.doKycExchange(kycExchangeRequest);
 
-        TokenResponse tokenResponse = generateTokens();
+        TokenResponse tokenResponse = new TokenResponse();
+        tokenResponse.setAccess_token(tokenGeneratorService.getAccessToken(transaction));
+        String accessTokenHash = IdentityProviderUtil.generateHash(hashingAlgorithm, tokenResponse.getAccess_token());
+        transaction.setAHash(accessTokenHash);
+        tokenResponse.setId_token(tokenGeneratorService.getIDToken(transaction));
+        tokenResponse.setExpires_in(10); //TODO why is this Required ?
+        tokenResponse.setScope(transaction.getScopes());
+
         // cache kyc with access-token as key
-        String accessTokenHash = ""; //TODO - generate access token hash - keymanager
-        transaction.setAccessToken(tokenResponse.getAccess_token());
-        transaction.setIdToken(tokenResponse.getId_token());
+        transaction.setIdHash(IdentityProviderUtil.generateHash(hashingAlgorithm, tokenResponse.getId_token()));
         transaction.setEncryptedKyc(encryptedKyc);
         cacheUtilService.getSetKycTransaction(accessTokenHash, transaction);
 
         return tokenResponse;
     }
 
-
-
-    private TokenResponse generateTokens() {
-        TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setId_token(tokenGeneratorService.getIDToken());
-        tokenResponse.setAccess_token(tokenGeneratorService.getAccessToken());
-        tokenResponse.setScope("openid"); //TODO ??
-        tokenResponse.setExpires_in(10); //TODO why is this Required ?
-        return tokenResponse;
+    private void authenticateClient(TokenRequest tokenRequest) throws IdPException {
+        switch (tokenRequest.getClient_assertion_type()) {
+            case JWT_BEARER_TYPE:
+                validateJwtClientAssertion(tokenRequest.getClient_assertion());
+                break;
+            default:
+                throw new IdPException(ErrorConstants.INVALID_ASSERTION_TYPE);
+        }
     }
+
 
     /**
      * Client's authentication token when using token endpoint
@@ -104,7 +108,7 @@ public class OAuthServiceImpl implements OAuthService {
      * exp : Expiration time on or after which the ID Token MUST NOT be accepted for processing.
      * iat : OPTIONAL. Time at which the JWT was issued.
      */
-    private void validateJwtClientAssertion(ClientDetail clientDetail, String clientAssertion) throws IdPException {
+    private void validateJwtClientAssertion(String clientAssertion) throws IdPException {
         if(clientAssertion == null || clientAssertion.isBlank())
             throw new IdPException(ErrorConstants.INVALID_ASSERTION);
 

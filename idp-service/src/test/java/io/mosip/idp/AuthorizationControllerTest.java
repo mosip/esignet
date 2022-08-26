@@ -2,8 +2,8 @@ package io.mosip.idp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.controllers.AuthorizationController;
-import io.mosip.idp.core.dto.OauthDetailRequest;
-import io.mosip.idp.core.dto.OauthDetailResponse;
+import io.mosip.idp.core.dto.OAuthDetailRequest;
+import io.mosip.idp.core.dto.OAuthDetailResponse;
 import io.mosip.idp.core.dto.RequestWrapper;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
@@ -45,7 +45,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withNoNonce_returnErrorResponse() throws Exception {
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequest(oauthDetailRequest);
         wrapper.setRequestTime(null);
@@ -65,7 +65,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
@@ -97,7 +97,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri(" ");
         oauthDetailRequest.setScope("openid profile");
@@ -125,7 +125,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
@@ -153,7 +153,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
@@ -181,7 +181,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
@@ -208,7 +208,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level4");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
@@ -237,7 +237,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid");
@@ -250,7 +250,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OauthDetailResponse oauthDetailResponse = new OauthDetailResponse();
+        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -269,7 +269,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("profile");
@@ -298,7 +298,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("profile openid");
@@ -311,7 +311,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OauthDetailResponse oauthDetailResponse = new OauthDetailResponse();
+        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -330,7 +330,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("resident-service");
@@ -343,7 +343,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OauthDetailResponse oauthDetailResponse = new OauthDetailResponse();
+        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -362,7 +362,7 @@ public class AuthorizationControllerTest {
         acrValues.add("level2");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid resident-service");
@@ -375,7 +375,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OauthDetailResponse oauthDetailResponse = new OauthDetailResponse();
+        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
 

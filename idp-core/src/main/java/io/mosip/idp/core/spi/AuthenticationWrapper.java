@@ -17,10 +17,17 @@ public interface AuthenticationWrapper {
      * header name: signature
      *
      * @param kycAuthRequest
-     * @return
+     * @return KYC Token and Partner specific User Token (PSUT)
      */
     <T> KycAuthResponse doKycAuth(KycAuthRequest<T> kycAuthRequest);
 
+    /**
+     * Request to be signed with IdP key, signature to be set in the request header.
+     * header name: signature
+     *
+     * @param kycExchangeRequest
+     * @return encrypted KYC data
+     */
     String doKycExchange(KycExchangeRequest kycExchangeRequest);
 
     SendOtpResult sendOtp(String individualId, String channel);

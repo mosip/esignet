@@ -12,7 +12,8 @@ public class Constants {
     public static final String SPACE = " ";
     public static final String COMMA = ",";
 
-
-    //Id token claim Names
-    public static final String ACR_CLAIM = "acr";
+    public static final String ROOT_KEY = "ROOT";
+    public static final String IDP_PARTNER_APP_ID = "IDP_PARTNER";
+    public static final String IDP_SERVICE_APP_ID = "IDP_SERVICE";
+    public static final String SIGN_REFERENCE_ID = "SIGN";
 }
