@@ -12,17 +12,20 @@ import java.util.List;
 @Data
 public class IdPTransaction {
 
+    String clientId;
     String redirectUri;
     Claims requestedClaims;
+    String scopes;
 
     String kycToken;
     String userToken;
+    long authTimeInSeconds;
     String code;
 
     List<String> acceptedClaims;
     String encryptedKyc;
-    String idToken;
-    String accessToken;
+    String idHash;
+    String aHash;
 
     String error;
 

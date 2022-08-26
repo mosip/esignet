@@ -3,7 +3,7 @@
 -- file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -- -------------------------------------------------------------------------------------------------
 -- Database Name: mosip_idp
--- Table Name : idp.client_detail
+-- Table Name : client_detail
 -- Purpose    : Client Detail: Table to store all registered OIDC client details.
 --           
 -- Create By   	: Anusha S E
@@ -13,9 +13,9 @@
 -- ------------------------------------------------------------------------------------------
 -- ------------------------------------------------------------------------------------------
 
--- object: idp.client_detail | type: TABLE --
--- DROP TABLE IF EXISTS idp.client_detail CASCADE;
-CREATE TABLE idp.client_detail(
+-- object: client_detail.client_detail | type: TABLE --
+-- DROP TABLE IF EXISTS client_detail.client_detail CASCADE;
+CREATE TABLE client_detail(
 	id character varying(50) NOT NULL,
 	name character varying(256) NOT NULL,
 	rp_id character varying(50) NOT NULL,
@@ -29,24 +29,24 @@ CREATE TABLE idp.client_detail(
 	CONSTRAINT pk_client_detail PRIMARY KEY (id)
 );
 -- ddl-end --
-COMMENT ON TABLE idp.id IS 'Client ID: Unique id assigned to registered OIDC client.';
+COMMENT ON TABLE client_detail.id IS 'Client ID: Unique id assigned to registered OIDC client.';
 -- ddl-end --
-COMMENT ON COLUMN idp.name IS 'Client Name: Registered name of OIDC client.';
+COMMENT ON COLUMN client_detail.name IS 'Client Name: Registered name of OIDC client.';
 -- ddl-end --
-COMMENT ON COLUMN idp.logo_uri IS 'Client Logo URL: Client logo to be displayed on IDP UI.';
+COMMENT ON COLUMN client_detail.logo_uri IS 'Client Logo URL: Client logo to be displayed on IDP UI.';
 -- ddl-end --
-COMMENT ON COLUMN idp.redirect_uris IS 'Recirect URLS: Comma separated list of client redirect URLs.';
+COMMENT ON COLUMN client_detail.redirect_uris IS 'Recirect URLS: Comma separated list of client redirect URLs.';
 -- ddl-end --
-COMMENT ON COLUMN idp.rp_id IS 'Relaying Party Id: Id of the Relaying Party who has created this OIDC client.';
+COMMENT ON COLUMN client_detail.rp_id IS 'Relaying Party Id: Id of the Relaying Party who has created this OIDC client.';
 -- ddl-end --
-COMMENT ON COLUMN idp.status IS 'Client status: Allowed values - ACTIVE / INACTIVE.';
+COMMENT ON COLUMN client_detail.status IS 'Client status: Allowed values - ACTIVE / INACTIVE.';
 -- ddl-end --
-COMMENT ON COLUMN idp.public_key IS 'Public key: JWKs data.';
+COMMENT ON COLUMN client_detail.public_key IS 'Public key: JWKs data.';
 -- ddl-end --
-COMMENT ON COLUMN idp.grant_types IS 'Grant Types: Allowed grant types for the client.';
+COMMENT ON COLUMN client_detail.grant_types IS 'Grant Types: Allowed grant types for the client.';
 -- ddl-end --
-COMMENT ON COLUMN idp.claims IS 'Requested Claims: claims json as per policy defined for relaying party.';
+COMMENT ON COLUMN client_detail.claims IS 'Requested Claims: claims json as per policy defined for relaying party.';
 -- ddl-end --
-COMMENT ON COLUMN idp.acr_values IS 'Allowed Authentication context References(acr) json';
+COMMENT ON COLUMN client_detail.acr_values IS 'Allowed Authentication context References(acr) json';
 -- ddl-end --
 

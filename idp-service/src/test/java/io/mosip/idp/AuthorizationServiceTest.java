@@ -6,8 +6,8 @@ import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.domain.ClientDetail;
-import io.mosip.idp.repositories.ClientDetailRepository;
+import io.mosip.idp.entity.ClientDetail;
+import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.AuthorizationServiceImpl;
 import io.mosip.idp.services.CacheUtilService;
 import io.mosip.idp.services.TokenGeneratorServiceServiceImpl;
@@ -84,7 +84,7 @@ public class AuthorizationServiceTest {
 
     @Test(expected = InvalidClientException.class)
     public void getOauthDetails_withInvalidClientId_throwsException() throws IdPException {
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.empty());
         authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
@@ -96,7 +96,7 @@ public class AuthorizationServiceTest {
         clientDetail.setId("34567");
         clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v2/idp");
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
@@ -117,7 +117,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(null);
         clientDetail.setAcrValues("level4");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -126,7 +126,7 @@ public class AuthorizationServiceTest {
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OauthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
@@ -140,7 +140,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(null);
         clientDetail.setAcrValues("level4");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         Claims claims = new Claims();
@@ -153,7 +153,7 @@ public class AuthorizationServiceTest {
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OauthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
@@ -167,7 +167,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims("email,given_name");
         clientDetail.setAcrValues("level4");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         Claims claims = new Claims();
@@ -180,7 +180,7 @@ public class AuthorizationServiceTest {
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OauthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().size() == 1);
         Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
@@ -194,7 +194,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims("email,given_name");
         clientDetail.setAcrValues("level4");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         Claims claims = new Claims();
@@ -207,7 +207,7 @@ public class AuthorizationServiceTest {
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OauthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
@@ -221,7 +221,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims("email,given_name");
         clientDetail.setAcrValues(null);
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -245,7 +245,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims("email,given_name");
         clientDetail.setAcrValues("level1");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -269,7 +269,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims("email,given_name");
         clientDetail.setAcrValues("level1,level2,level5");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -281,7 +281,7 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level1","level5"})).thenReturn(authFactors);
 
-        OauthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 2);
     }
@@ -294,7 +294,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims("email,given_name");
         clientDetail.setAcrValues("level1,level2,level5");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -306,7 +306,7 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level1","level5"})).thenReturn(null);
 
-        OauthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertNull(oauthDetailResponse.getAuthFactors());
     }
@@ -319,7 +319,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims("email,given_name");
         clientDetail.setAcrValues("level2,level5");
 
-        OauthDetailRequest oauthDetailRequest = new OauthDetailRequest();
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         Claims claims = new Claims();
@@ -335,7 +335,7 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level5"})).thenReturn(authFactors);
 
-        OauthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
     }

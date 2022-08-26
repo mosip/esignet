@@ -12,13 +12,11 @@ import org.hibernate.validator.constraints.URL;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import java.util.List;
-
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_CLIENT_ID;
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_REDIRECT_URI;
 
 @Data
-public class OauthDetailRequest {
+public class OAuthDetailRequest {
 
     @NotNull(message = INVALID_CLIENT_ID)
     @NotBlank(message = INVALID_CLIENT_ID)

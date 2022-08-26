@@ -5,15 +5,13 @@
  */
 package io.mosip.idp;
 
-import io.mosip.idp.domain.ClientDetail;
-import io.mosip.idp.repositories.ClientDetailRepository;
+import io.mosip.idp.entity.ClientDetail;
+import io.mosip.idp.repository.ClientDetailRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;

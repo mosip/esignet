@@ -5,6 +5,15 @@
  */
 package io.mosip.idp.core.util;
 
+import io.mosip.idp.core.exception.IdPException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +24,8 @@ import java.util.stream.Collectors;
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 
 public class IdentityProviderUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
 
     public static String getResponseTime() {
         return ZonedDateTime
@@ -29,5 +40,20 @@ public class IdentityProviderUtil {
         return Arrays.stream(value.split(separator))
                 .map(String::trim)
                 .toArray(String[]::new);
+    }
+
+    public static String generateHash(String algorithm, String value) throws IdPException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
+            byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+            return Hex.encodeHexString(hash);
+        } catch (NoSuchAlgorithmException ex) {
+            logger.error("Invalid algorithm : {}", algorithm, ex);
+            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+        }
+    }
+
+    public static long getEpochSeconds() {
+        return ZonedDateTime.now(ZoneOffset.UTC).toEpochSecond();
     }
 }

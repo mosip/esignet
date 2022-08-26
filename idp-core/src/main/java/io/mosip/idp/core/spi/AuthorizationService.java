@@ -16,7 +16,7 @@ public interface AuthorizationService {
      * @param oauthDetailRequest
      * @return
      */
-    OauthDetailResponse getOauthDetails(String nonce, OauthDetailRequest oauthDetailRequest) throws IdPException;
+    OAuthDetailResponse getOauthDetails(String nonce, OAuthDetailRequest oauthDetailRequest) throws IdPException;
 
     /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel

@@ -11,5 +11,5 @@ import lombok.Data;
 public class SendOtpResult {
 
     private boolean status;
-    private String message;
+    private String messageCode;
 }

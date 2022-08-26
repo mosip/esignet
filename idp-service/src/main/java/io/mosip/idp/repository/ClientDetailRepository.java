@@ -3,9 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.idp.repositories;
+package io.mosip.idp.repository;
 
-import io.mosip.idp.domain.ClientDetail;
+import io.mosip.idp.entity.ClientDetail;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

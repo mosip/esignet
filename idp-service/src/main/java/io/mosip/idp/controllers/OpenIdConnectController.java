@@ -6,7 +6,7 @@
 package io.mosip.idp.controllers;
 
 import io.mosip.idp.core.dto.DiscoveryResponse;
-import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.OpenIdConnectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +26,7 @@ public class OpenIdConnectController {
     private OpenIdConnectService openIdConnectServiceImpl;
 
     @GetMapping("/userinfo")
-    public String getUserInfo(@RequestHeader("Authorization") String bearerToken)
-            throws NotAuthenticatedException {
+    public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws IdPException {
         return openIdConnectServiceImpl.getUserInfo(bearerToken);
     }
 
