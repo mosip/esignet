@@ -5,12 +5,16 @@
  */
 package io.mosip.idp.controllers;
 
+import io.mosip.idp.core.dto.DiscoveryResponse;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.OpenIdConnectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/oidc")
@@ -27,5 +31,8 @@ public class OpenIdConnectController {
         return openIdConnectServiceImpl.getUserInfo(bearerToken);
     }
 
-    //TODO discovery API
+    @GetMapping("/.well-known/openid-configuration")
+    public DiscoveryResponse getOpenIdConfiguration() {
+        return openIdConnectServiceImpl.getOpenIdConfiguration();
+    }
 }
