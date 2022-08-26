@@ -5,13 +5,15 @@
  */
 package io.mosip.idp.core.spi;
 
-import io.mosip.idp.core.dto.ClientDetailRequest;
+import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
+import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
+import io.mosip.idp.core.exception.IdPException;
 
 public interface ClientManagementService {
 
-    ClientDetailResponse createOIDCClient(ClientDetailRequest clientDetailRequest);
+    ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws IdPException;
 
-    ClientDetailResponse updateOIDCClient(ClientDetailRequest clientDetailRequest);
+    ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailCreateRequest) throws IdPException;
 
 }

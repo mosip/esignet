@@ -5,9 +5,12 @@
  */
 package io.mosip.idp.core.spi;
 
+import io.mosip.idp.core.dto.DiscoveryResponse;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 
 public interface OpenIdConnectService {
 
     String getUserInfo(String accessToken) throws NotAuthenticatedException;
+
+    DiscoveryResponse getOpenIdConfiguration();
 }

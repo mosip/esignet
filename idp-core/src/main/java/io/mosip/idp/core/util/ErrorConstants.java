@@ -28,4 +28,8 @@ public class ErrorConstants {
     public static final String DEFAULT_ERROR_CODE = "unknown_error";
     public static final String DEFAULT_ERROR_MSG = "UNKNOWN ERROR";
     public static final String INVALID_INPUT_ERROR_MSG = "UNSUPPORTED INPUT PARAMETER";
+
+    public static final String DUPLICATE_CLIENT_ID = "duplicate_client_id";
+    public static final String INVALID_CLAIM = "invalid_claim";
+    public static final String INVALID_JWKS = "invalid_jwks";
 }

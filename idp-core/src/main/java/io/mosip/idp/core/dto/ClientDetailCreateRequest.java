@@ -5,15 +5,20 @@
  */
 package io.mosip.idp.core.dto;
 
+import io.mosip.idp.core.validator.AuthContextRef;
+import io.mosip.idp.core.validator.OIDCGrantType;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Map;
 
 @Data
-public class ClientDetailRequest {
+public class ClientDetailCreateRequest {
 
     @NotNull
     @NotBlank
@@ -24,11 +29,12 @@ public class ClientDetailRequest {
     private String clientName;
 
     @NotNull
-    @NotBlank
-    private String publicKey;
+    @Size(min = 1)
+    private Map<@NotBlank String, Object> publicKey;
 
     @NotNull
     @NotBlank
+    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$", flags = Pattern.Flag.CASE_INSENSITIVE)
     private String status;
 
     @NotNull
@@ -37,22 +43,23 @@ public class ClientDetailRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<String> userClaims;
+    private List<@NotBlank String> userClaims;
 
     //MUST be among pre-defined set of values
     @NotNull
     @Size(min = 1)
-    private List<String> authContextRefs;
+    private List<@NotNull @AuthContextRef String> authContextRefs;
 
     @NotNull
     @NotBlank
+    @URL
     private String logoUri;
 
     @NotNull
     @Size(min = 1)
-    private List<String> redirectUris;
+    private List<@NotBlank String> redirectUris;
 
     @NotNull
     @Size(min = 1)
-    private List<String> grantTypes;
+    private List<@OIDCGrantType String> grantTypes;
 }

@@ -5,10 +5,7 @@
  */
 package io.mosip.idp.controllers;
 
-import io.mosip.idp.core.dto.ClientDetailRequest;
-import io.mosip.idp.core.dto.ClientDetailResponse;
-import io.mosip.idp.core.dto.RequestWrapper;
-import io.mosip.idp.core.dto.ResponseWrapper;
+import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.spi.ClientManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,16 +29,21 @@ public class ClientManagementController {
 
     @PostMapping("/oidc-client")
     public ResponseWrapper<ClientDetailResponse> createClient(
-            @Valid @RequestBody RequestWrapper<ClientDetailRequest> requestWrapper) {
-        //TODO
-        return null;
+            @Valid @RequestBody RequestWrapper<ClientDetailCreateRequest> requestWrapper) throws Exception {
+        var clientRespDto = clientRegistration.createOIDCClient(requestWrapper.getRequest());
+
+        var response = new ResponseWrapper<ClientDetailResponse>();
+        response.setResponse(clientRespDto);
+        return response;
     }
 
     @PutMapping("/oidc-client/{client_id}")
-    public ResponseWrapper<ClientDetailResponse> updateClient(@Valid @PathVariable("client_id")  String clientId,
-                                                              @Valid @RequestBody RequestWrapper<ClientDetailRequest> requestWrapper)
-    {
-        //TODO
-        return null;
+    public ResponseWrapper<ClientDetailResponse> updateClient(@Valid @PathVariable("client_id") String clientId,
+                                                              @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequest> requestWrapper) throws Exception {
+        var clientRespDto = clientRegistration.updateOIDCClient(clientId, requestWrapper.getRequest());
+
+        var response = new ResponseWrapper<ClientDetailResponse>();
+        response.setResponse(clientRespDto);
+        return response;
     }
 }
