@@ -10,25 +10,22 @@ import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.AuthorizationService;
-import io.mosip.idp.core.spi.TokenGeneratorService;
-import io.mosip.idp.core.dto.IdPTransaction;
+import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.idp.repository.ClientDetailRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdConnectService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenIdConnectServiceImpl.class);
-
-    //region properties
+     //region properties
 
     @Value("mosip.idp.discovery.issuer")
     private String issuer;
@@ -120,7 +117,7 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
     private AuthorizationService authorizationService;
 
     @Autowired
-    private TokenGeneratorService tokenGeneratorService;
+    private TokenService tokenService;
 
     @Autowired
     private AuthenticationWrapper authenticationWrapper;
@@ -139,7 +136,7 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
 
         //TODO - validate access token expiry - keymanager
 
-        String accessTokenHash = IdentityProviderUtil.generateHash(hashingAlgorithm, accessToken);
+        String accessTokenHash = IdentityProviderUtil.generateAccessTokenHash(accessToken);
         IdPTransaction transaction = cacheUtilService.getSetKycTransaction(accessTokenHash, null);
         if(transaction == null)
             throw new NotAuthenticatedException();

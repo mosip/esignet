@@ -11,7 +11,7 @@ import io.mosip.idp.core.dto.KycAuthResponse;
 import io.mosip.idp.core.dto.SendOtpResult;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
-import io.mosip.idp.core.spi.TokenGeneratorService;
+import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.idp.entity.ClientDetail;
@@ -20,8 +20,7 @@ import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,12 +28,11 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.idp.core.spi.TokenGeneratorService.ACR;
+import static io.mosip.idp.core.spi.TokenService.ACR;
 
+@Slf4j
 @Service
 public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.AuthorizationService {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthorizationServiceImpl.class);
 
     @Autowired
     private ClientDetailRepository clientDetailRepository;
@@ -46,7 +44,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     private CacheUtilService cacheUtilService;
 
     @Autowired
-    private TokenGeneratorService tokenGeneratorService;
+    private TokenService tokenService;
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -68,7 +66,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(!result.isPresent())
             throw new InvalidClientException(ErrorConstants.INVALID_CLIENT_ID);
 
-        validateRedirectURI(result.get().getRedirectUris(), oauthDetailReqDto.getRedirectUri());
+        IdentityProviderUtil.validateRedirectURI(result.get().getRedirectUris(), oauthDetailReqDto.getRedirectUri());
 
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, result.get());
@@ -174,7 +172,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         }
 
         if(requestedClaims != null && requestedClaims.getId_token() != null ) {
-            for(String claimName : tokenGeneratorService.getOptionalIdTokenClaims()) {
+            for(String claimName : tokenService.getOptionalIdTokenClaims()) {
                 if(requestedClaims.getId_token().containsKey(claimName))
                     resolvedClaims.getId_token().put(claimName, requestedClaims.getId_token().get(claimName));
             }
@@ -244,12 +242,5 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         oauthDetailResponse.setAuthorizeScopes(Arrays.stream(scopes)
                 .filter( s -> authorizeScopes.contains(s) )
                 .collect(Collectors.toList()));
-    }
-
-    private void validateRedirectURI(String registeredRedirectUris, String requestedRedirectUri) throws IdPException {
-       String[] uris = IdentityProviderUtil.splitAndTrimValue(registeredRedirectUris, Constants.COMMA);
-       if(Arrays.stream(uris).anyMatch(uri -> uri.equals(requestedRedirectUri)))
-           return;
-        throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 }

@@ -7,8 +7,6 @@ package io.mosip.idp.controllers;
 
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.spi.ClientManagementService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +19,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/client-mgmt")
 public class ClientManagementController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClientManagementController.class);
 
     @Autowired
     ClientManagementService clientRegistration;

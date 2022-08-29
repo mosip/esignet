@@ -8,6 +8,7 @@ package io.mosip.idp.core.dto;
 import io.mosip.idp.core.validator.OIDCClientAssertionType;
 import io.mosip.idp.core.validator.OIDCGrantType;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -36,6 +37,14 @@ public class TokenRequest {
     @NotNull(message = INVALID_REQUEST)
     @NotBlank(message = INVALID_REQUEST)
     private String client_id;
+
+    /**
+     * Valid client redirect_uri.
+     */
+    @NotNull(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_REQUEST)
+    @URL(message = INVALID_REQUEST)
+    private String redirect_uri;
 
     /**
      * Type of the client assertion part of this request.

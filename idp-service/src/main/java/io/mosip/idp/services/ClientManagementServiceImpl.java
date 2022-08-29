@@ -5,110 +5,89 @@
  */
 package io.mosip.idp.services;
 
-import com.nimbusds.jose.jwk.JWK;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.domain.ClientDetail;
-import io.mosip.idp.repositories.ClientDetailRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.mosip.idp.entity.ClientDetail;
+import io.mosip.idp.repository.ClientDetailRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
+@Slf4j
 @Service
 public class ClientManagementServiceImpl implements ClientManagementService {
+
     @Autowired
     ClientDetailRepository clientDetailRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientManagementServiceImpl.class);
-
     @Override
     public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws IdPException {
-        var clientDetailFromDb = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
 
-        if (clientDetailFromDb.isPresent()) {
-            logger.error(ErrorConstants.DUPLICATE_CLIENT_ID);
+        if (result.isPresent()) {
             throw new IdPException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
-        var publicKeyJson = getJwkJson(clientDetailCreateRequest.getPublicKey());
-
-        //comma separated list
-        String redirectUris = String.join(",", clientDetailCreateRequest.getRedirectUris());
-        String aCR = String.join(",", clientDetailCreateRequest.getAuthContextRefs());
-        String claims = String.join(",", clientDetailCreateRequest.getUserClaims());
-        String grandTypes = String.join(",", clientDetailCreateRequest.getGrantTypes());
-
         ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setJwk(getJWKString(clientDetailCreateRequest.getJwk()));
         clientDetail.setId(clientDetailCreateRequest.getClientId());
         clientDetail.setName(clientDetailCreateRequest.getClientName());
         clientDetail.setRpId(clientDetailCreateRequest.getRelayingPartyId());
         clientDetail.setLogoUri(clientDetailCreateRequest.getLogoUri());
-        clientDetail.setRedirectUris(redirectUris);
-        clientDetail.setPublicKey(publicKeyJson);
-        clientDetail.setClaims(claims);
-        clientDetail.setAcrValues(aCR);
+        clientDetail.setRedirectUris(String.join(",", clientDetailCreateRequest.getRedirectUris()));
+        clientDetail.setClaims(String.join(",", clientDetailCreateRequest.getUserClaims()));
+        clientDetail.setAcrValues(String.join(",", clientDetailCreateRequest.getAuthContextRefs()));
         clientDetail.setStatus(clientDetailCreateRequest.getStatus());
-        clientDetail.setGrantTypes(grandTypes);
-
-        ClientDetail savedClientDetail = clientDetailRepository.save(clientDetail);
+        clientDetail.setGrantTypes(String.join(",", clientDetailCreateRequest.getGrantTypes()));
+        clientDetail.setClientAuthMethods(String.join(",", clientDetailCreateRequest.getClientAuthMethods()));
+        clientDetail = clientDetailRepository.save(clientDetail);
 
         var response = new ClientDetailResponse();
-        response.setClientId(savedClientDetail.getId());
-        response.setStatus(savedClientDetail.getStatus());
+        response.setClientId(clientDetail.getId());
+        response.setStatus(clientDetail.getStatus());
         return response;
     }
 
     @Override
     public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws IdPException {
 
-        var clientDetailFromDb = clientDetailRepository.findById(clientId);
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
 
-        if (clientDetailFromDb.isEmpty()) {
-            logger.error("ClientId {} does not exist", clientId);
+        if (!result.isPresent()) {
             throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
-        var clientDetails = clientDetailFromDb.get();
-
-        if (clientDetailUpdateRequest.getClientName() != null && !clientDetailUpdateRequest.getClientName().isEmpty()) {
-            clientDetails.setName(clientDetailUpdateRequest.getClientName());
-        }
-
-        //comma separated list
-        String redirectUris = String.join(",", clientDetailUpdateRequest.getRedirectUris());
-        String aCR = String.join(",", clientDetailUpdateRequest.getAuthContextRefs());
-        String claims = String.join(",", clientDetailUpdateRequest.getUserClaims());
-        String grandTypes = String.join(",", clientDetailUpdateRequest.getGrantTypes());
-
-        clientDetails.setLogoUri(clientDetailUpdateRequest.getLogoUri());
-        clientDetails.setRedirectUris(redirectUris);
-        clientDetails.setClaims(claims);
-        clientDetails.setAcrValues(aCR);
-        clientDetails.setGrantTypes(grandTypes);
-        clientDetails.setStatus(clientDetailUpdateRequest.getStatus());
-
-        ClientDetail savedClientDetail = clientDetailRepository.save(clientDetails);
+        ClientDetail clientDetail = result.get();
+        clientDetail.setLogoUri(clientDetailUpdateRequest.getLogoUri());
+        clientDetail.setRedirectUris(String.join(",", clientDetailUpdateRequest.getRedirectUris()));
+        clientDetail.setClaims(String.join(",", clientDetailUpdateRequest.getUserClaims()));
+        clientDetail.setAcrValues(String.join(",", clientDetailUpdateRequest.getAuthContextRefs()));
+        clientDetail.setGrantTypes(String.join(",", clientDetailUpdateRequest.getGrantTypes()));
+        clientDetail.setClientAuthMethods(String.join(",", clientDetailUpdateRequest.getClientAuthMethods()));
+        clientDetail.setStatus(clientDetailUpdateRequest.getStatus());
+        clientDetail = clientDetailRepository.save(clientDetail);
 
         var response = new ClientDetailResponse();
-        response.setClientId(savedClientDetail.getId());
-        response.setStatus(savedClientDetail.getStatus());
+        response.setClientId(clientDetail.getId());
+        response.setStatus(clientDetail.getStatus());
         return response;
     }
 
-    private String getJwkJson(Map<String, Object> publicKey) throws IdPException {
+    private String getJWKString(Map<String, Object> jwk) throws IdPException {
         try {
-            JWK jwk = JWK.parse(publicKey);
-            JWK publicJwk = jwk.toPublicJWK();
-            return publicJwk.toJSONString();
-        } catch (Exception e) {
-            logger.error(ErrorConstants.INVALID_JWKS);
+            RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
+            return jsonWebKey.toJson();
+        } catch (JoseException e) {
+            log.error(ErrorConstants.INVALID_JWKS, e);
             throw new IdPException(ErrorConstants.INVALID_JWKS);
         }
     }

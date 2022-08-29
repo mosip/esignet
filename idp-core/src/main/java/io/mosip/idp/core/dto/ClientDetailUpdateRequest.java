@@ -6,6 +6,7 @@
 package io.mosip.idp.core.dto;
 
 import io.mosip.idp.core.validator.AuthContextRef;
+import io.mosip.idp.core.validator.OIDCClientAuth;
 import io.mosip.idp.core.validator.OIDCGrantType;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
@@ -45,4 +46,8 @@ public class ClientDetailUpdateRequest {
     @NotNull
     @NotBlank
     private String clientName;
+
+    @NotNull
+    @Size(min = 1)
+    private List<@OIDCClientAuth String> clientAuthMethods;
 }

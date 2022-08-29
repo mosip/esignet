@@ -23,8 +23,9 @@ CREATE TABLE client_detail(
 	redirect_uris character varying NOT NULL,
 	claims character varying NOT NULL,
 	acr_values character varying NOT NULL,
-	public_key character varying NOT NULL,
+	jwk character varying NOT NULL,
 	grant_types character varying(256) NOT NULL,
+	auth_methods character varying(256) NOT NULL,
 	status character varying(20) NOT NULL,
 	CONSTRAINT pk_client_detail PRIMARY KEY (id)
 );
@@ -41,9 +42,11 @@ COMMENT ON COLUMN client_detail.rp_id IS 'Relaying Party Id: Id of the Relaying 
 -- ddl-end --
 COMMENT ON COLUMN client_detail.status IS 'Client status: Allowed values - ACTIVE / INACTIVE.';
 -- ddl-end --
-COMMENT ON COLUMN client_detail.public_key IS 'Public key: JWKs data.';
+COMMENT ON COLUMN client_detail.jwk IS 'Public key: JWK data.';
 -- ddl-end --
 COMMENT ON COLUMN client_detail.grant_types IS 'Grant Types: Allowed grant types for the client.';
+-- ddl-end --
+COMMENT ON COLUMN client_detail.auth_methods IS 'Client Auth methods: Allowed token endpoint authentication methods.';
 -- ddl-end --
 COMMENT ON COLUMN client_detail.claims IS 'Requested Claims: claims json as per policy defined for relaying party.';
 -- ddl-end --

@@ -16,6 +16,7 @@ public class ErrorConstants {
     public static final String INVALID_DISPLAY="invalid_display";
     public static final String INVALID_PROMPT="invalid_prompt";
     public static final String INVALID_ASSERTION_TYPE="invalid_assertion_type";
+    public static final String INVALID_CLIENT_AUTH="invalid_client_auth";
     public static final String INVALID_TRANSACTION="invalid_transaction";
     public static final String INVALID_CODE="invalid_code";
     public static final String INVALID_ASSERTION="invalid_assertion";

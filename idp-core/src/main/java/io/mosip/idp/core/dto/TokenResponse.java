@@ -10,15 +10,23 @@ import lombok.Data;
 @Data
 public class TokenResponse {
 
-    //OpenID Connect identity token.
+    /**
+     * OpenID Connect identity token.
+     */
     private String id_token;
 
-    //The type of the access token, set to Bearer, DPoP or N_A.
+    /**
+     * The type of the access token, set to Bearer, DPoP or N_A.
+     */
     private String access_token;
 
-    //The scope of the access token.
+    /**
+     * The scope of the access token.
+     */
     private String scope;
 
-    //The lifetime of the access token, in seconds.
+    /**
+     * The lifetime of the access token, in seconds.
+     */
     private int expires_in;
 }
