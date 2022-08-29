@@ -1,10 +1,11 @@
 package io.mosip.idp.core.spi;
 
 import io.mosip.idp.core.dto.IdPTransaction;
+import io.mosip.idp.core.exception.IdPException;
 
 import java.util.List;
 
-public interface TokenGeneratorService {
+public interface TokenService {
 
     String ISS = "iss";
     String SUB = "sub";
@@ -79,4 +80,21 @@ public interface TokenGeneratorService {
      * @return
      */
      String getAccessToken(IdPTransaction transaction);
+
+    /**
+     * Client's authentication token when using token endpoint
+     * This method validates the client's authentication token W.R.T private_key_jwt method.
+     * The JWT MUST contain the following REQUIRED Claim Values:
+     * iss : Issuer. This MUST contain the client_id of the OAuth Client.
+     * sub : Subject. This MUST contain the client_id of the OAuth Client.
+     * aud : Audience. Value that identifies the Authorization Server as an intended audience.
+     * The Authorization Server MUST verify that it is an intended audience for the token.
+     * The Audience SHOULD be the URL of the Authorization Server's Token Endpoint.
+     * jti :  JWT ID. A unique identifier for the token, which can be used to prevent reuse of the token.
+     * These tokens MUST only be used once, unless conditions for reuse were negotiated between the parties;
+     * any such negotiation is beyond the scope of this specification.
+     * exp : Expiration time on or after which the ID Token MUST NOT be accepted for processing.
+     * iat : OPTIONAL. Time at which the JWT was issued.
+     */
+     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws IdPException;
 }

@@ -9,6 +9,7 @@ import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.AuthorizationService;
 import io.mosip.idp.core.util.IdentityProviderUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,10 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("/authorization")
 public class AuthorizationController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthorizationController.class);
 
     @Autowired
     AuthorizationService authorizationService;

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.TestUtil;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.repositories.ClientDetailRepository;
+import io.mosip.idp.repository.ClientDetailRepository;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

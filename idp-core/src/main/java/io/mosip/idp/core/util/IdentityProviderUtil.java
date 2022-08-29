@@ -5,9 +5,9 @@
  */
 package io.mosip.idp.core.util;
 
+import com.nimbusds.jose.util.ByteUtils;
 import io.mosip.idp.core.exception.IdPException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,14 +18,19 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Base64;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 
 public class IdentityProviderUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
+
+    private static Base64.Encoder urlSafeEncoder;
+
+    static {
+        urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
+    }
 
     public static String getResponseTime() {
         return ZonedDateTime
@@ -42,7 +47,7 @@ public class IdentityProviderUtil {
                 .toArray(String[]::new);
     }
 
-    public static String generateHash(String algorithm, String value) throws IdPException {
+    public static String generateHexEncodedHash(String algorithm, String value) throws IdPException {
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
             byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
@@ -53,7 +58,51 @@ public class IdentityProviderUtil {
         }
     }
 
+    public static String generateB64EncodedHash(String algorithm, String value) throws IdPException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
+            byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+            return urlSafeEncoder.encodeToString(hash);
+        } catch (NoSuchAlgorithmException ex) {
+            logger.error("Invalid algorithm : {}", algorithm, ex);
+            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+        }
+    }
+
+    public static String B64Encode(byte[] bytes) {
+        return urlSafeEncoder.encodeToString(bytes);
+    }
+
+    public static String B64Encode(String value) {
+        return urlSafeEncoder.encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     *  if the alg is RS256, hash the access_token value with SHA-256, then take the left-most 128 bits and base64url
+     *  encode them. The at_hash value is a case-sensitive string.
+     * @param accessToken
+     * @return
+     * @throws IdPException
+     */
+    public static String generateAccessTokenHash(String accessToken) throws IdPException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
+            byte[] leftMost128Bits = ByteUtils.subArray(hash, 0, 127);
+            return urlSafeEncoder.encodeToString(leftMost128Bits);
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+        }
+    }
+
     public static long getEpochSeconds() {
         return ZonedDateTime.now(ZoneOffset.UTC).toEpochSecond();
+    }
+
+    public static void validateRedirectURI(String registeredRedirectUris, String requestedRedirectUri) throws IdPException {
+        String[] uris = IdentityProviderUtil.splitAndTrimValue(registeredRedirectUris, Constants.COMMA);
+        if(Arrays.stream(uris).anyMatch(uri -> uri.equals(requestedRedirectUri)))
+            return;
+        throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 }

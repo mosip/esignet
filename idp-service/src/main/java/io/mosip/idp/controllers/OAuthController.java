@@ -4,12 +4,10 @@ import io.mosip.idp.core.dto.TokenRequest;
 import io.mosip.idp.core.dto.TokenResponse;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.OAuthService;
+import org.jose4j.jwk.JsonWebKeySet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -25,5 +23,10 @@ public class OAuthController {
     public TokenResponse getToken(@Valid @RequestBody TokenRequest tokenRequest)
             throws IdPException {
         return oAuthService.getTokens(tokenRequest);
+    }
+
+    @GetMapping("/.well-known/jwks.json")
+    public JsonWebKeySet getAllJwks() {
+        return oAuthService.getJwks();
     }
 }

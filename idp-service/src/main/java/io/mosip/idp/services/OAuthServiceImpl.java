@@ -1,5 +1,6 @@
 package io.mosip.idp.services;
 
+import com.auth0.jwt.JWTVerifier;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.dto.KycExchangeRequest;
 import io.mosip.idp.core.dto.TokenRequest;
@@ -9,24 +10,31 @@ import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.AuthorizationService;
 import io.mosip.idp.core.spi.OAuthService;
-import io.mosip.idp.core.spi.TokenGeneratorService;
+import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.mosip.kernel.signature.service.SignatureService;
+import lombok.extern.slf4j.Slf4j;
+import org.jose4j.jwk.JsonWebKey;
+import org.jose4j.jwk.JsonWebKeySet;
+import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.lang.JoseException;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class OAuthServiceImpl implements OAuthService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OAuthServiceImpl.class);
 
     @Autowired
     private ClientDetailRepository clientDetailRepository;
@@ -38,27 +46,41 @@ public class OAuthServiceImpl implements OAuthService {
     private AuthenticationWrapper authenticationWrapper;
 
     @Autowired
-    private TokenGeneratorService tokenGeneratorService;
+    private TokenService tokenService;
 
     @Autowired
     private CacheUtilService cacheUtilService;
 
+    @Autowired
+    private SignatureService signatureService;
+
     @Value("${mosip.idp.cache.key.hash.algorithm}")
     private String hashingAlgorithm;
 
+    @Value("${mosip.idp.access-token.expire.seconds:60}")
+    private int accessTokenExpireSeconds;
+
+
     @Override
     public TokenResponse getTokens(TokenRequest tokenRequest) throws IdPException {
-        //Authenticate client, currently only support private_key_jwt method
-        authenticateClient(tokenRequest);
-
         IdPTransaction transaction = cacheUtilService.getSetAuthenticatedTransaction(tokenRequest.getCode(), null, null);
         if(transaction == null)
             throw new IdPException(ErrorConstants.INVALID_CODE);
+
+        if(!transaction.getClientId().equals(tokenRequest.getClient_id()))
+            throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
+
+        if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
+            throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
 
         Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(tokenRequest.getClient_id(),
                 Constants.CLIENT_ACTIVE_STATUS);
         if(!result.isPresent())
             throw new InvalidClientException(ErrorConstants.INVALID_CLIENT_ID);
+
+        authenticateClient(tokenRequest, result.get());
+
+        IdentityProviderUtil.validateRedirectURI(result.get().getRedirectUris(), tokenRequest.getRedirect_uri());
 
         KycExchangeRequest kycExchangeRequest = new KycExchangeRequest();
         kycExchangeRequest.setClientId(tokenRequest.getClient_id());
@@ -67,25 +89,30 @@ public class OAuthServiceImpl implements OAuthService {
         String encryptedKyc = authenticationWrapper.doKycExchange(kycExchangeRequest);
 
         TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setAccess_token(tokenGeneratorService.getAccessToken(transaction));
-        String accessTokenHash = IdentityProviderUtil.generateHash(hashingAlgorithm, tokenResponse.getAccess_token());
+        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
+        String accessTokenHash = IdentityProviderUtil.generateAccessTokenHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
-        tokenResponse.setId_token(tokenGeneratorService.getIDToken(transaction));
-        tokenResponse.setExpires_in(10); //TODO why is this Required ?
+        tokenResponse.setId_token(tokenService.getIDToken(transaction));
+        tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setScope(transaction.getScopes());
 
         // cache kyc with access-token as key
-        transaction.setIdHash(IdentityProviderUtil.generateHash(hashingAlgorithm, tokenResponse.getId_token()));
+        transaction.setIdHash(IdentityProviderUtil.generateAccessTokenHash(tokenResponse.getId_token()));
         transaction.setEncryptedKyc(encryptedKyc);
         cacheUtilService.getSetKycTransaction(accessTokenHash, transaction);
 
         return tokenResponse;
     }
 
-    private void authenticateClient(TokenRequest tokenRequest) throws IdPException {
+    @Override
+    public JsonWebKeySet getJwks() {
+        return null;
+    }
+
+    private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws IdPException {
         switch (tokenRequest.getClient_assertion_type()) {
             case JWT_BEARER_TYPE:
-                validateJwtClientAssertion(tokenRequest.getClient_assertion());
+                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getJwk(), tokenRequest.getClient_assertion());
                 break;
             default:
                 throw new IdPException(ErrorConstants.INVALID_ASSERTION_TYPE);
@@ -93,28 +120,12 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
 
-    /**
-     * Client's authentication token when using token endpoint
-     * This method validates the client's authentication token W.R.T private_key_jwt method.
-     * The JWT MUST contain the following REQUIRED Claim Values:
-     * iss : Issuer. This MUST contain the client_id of the OAuth Client.
-     * sub : Subject. This MUST contain the client_id of the OAuth Client.
-     * aud : Audience. Value that identifies the Authorization Server as an intended audience.
-     * The Authorization Server MUST verify that it is an intended audience for the token.
-     * The Audience SHOULD be the URL of the Authorization Server's Token Endpoint.
-     * jti :  JWT ID. A unique identifier for the token, which can be used to prevent reuse of the token.
-     * These tokens MUST only be used once, unless conditions for reuse were negotiated between the parties;
-     * any such negotiation is beyond the scope of this specification.
-     * exp : Expiration time on or after which the ID Token MUST NOT be accepted for processing.
-     * iat : OPTIONAL. Time at which the JWT was issued.
-     */
-    private void validateJwtClientAssertion(String clientAssertion) throws IdPException {
+    private void validateJwtClientAssertion(String ClientId, String jwk, String clientAssertion) throws IdPException {
         if(clientAssertion == null || clientAssertion.isBlank())
             throw new IdPException(ErrorConstants.INVALID_ASSERTION);
 
-        //TODO my work - Need key-manager integration
         //verify signature
         //on valid signature, verify each claims on JWT payload
-        //throw exception on any claim check failure
+        tokenService.verifyClientAssertionToken(ClientId, jwk, clientAssertion);
     }
 }

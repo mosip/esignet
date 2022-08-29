@@ -10,7 +10,7 @@ import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.AuthorizationServiceImpl;
 import io.mosip.idp.services.CacheUtilService;
-import io.mosip.idp.services.TokenGeneratorServiceServiceImpl;
+import io.mosip.idp.services.TokenServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class AuthorizationServiceTest {
     AuthorizationServiceImpl authorizationServiceImpl;
 
     @Mock
-    TokenGeneratorServiceServiceImpl tokenGeneratorServiceService;
+    TokenServiceImpl tokenGeneratorServiceService;
 
     @Mock
     ObjectMapper objectMapper = new ObjectMapper();

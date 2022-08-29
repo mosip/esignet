@@ -8,19 +8,17 @@ package io.mosip.idp.controllers;
 import io.mosip.idp.core.dto.DiscoveryResponse;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.OpenIdConnectService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/oidc")
 public class OpenIdConnectController {
-
-    private static final Logger logger = LoggerFactory.getLogger(OpenIdConnectController.class);
 
     @Autowired
     private OpenIdConnectService openIdConnectServiceImpl;
@@ -31,7 +29,7 @@ public class OpenIdConnectController {
     }
 
     @GetMapping("/.well-known/openid-configuration")
-    public DiscoveryResponse getOpenIdConfiguration() {
+    public DiscoveryResponse getDiscoveryEndpoints() {
         return openIdConnectServiceImpl.getOpenIdConfiguration();
     }
 }

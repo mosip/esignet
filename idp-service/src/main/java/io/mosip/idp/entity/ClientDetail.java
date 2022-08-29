@@ -38,9 +38,9 @@ public class ClientDetail {
     @Column(name = "redirect_uris")
     private String redirectUris;
 
-    @NotBlank(message = "invalid_public_key")
-    @Column(name = "public_key", columnDefinition = "TEXT")
-    private String publicKey;//JWKs
+    @NotBlank(message = "invalid_jwk")
+    @Column(name = "jwk", columnDefinition = "TEXT")
+    private String jwk;
 
     @NotBlank(message = "invalid_claims")
     @Column(name = "claims")
@@ -57,4 +57,8 @@ public class ClientDetail {
     @NotBlank(message = "invalid_grant_types")
     @Column(name = "grant_types")
     private String grantTypes;
+
+    @NotBlank(message = "invalid_client_auth")
+    @Column(name = "client_auth")
+    private String clientAuthMethods;
 }
