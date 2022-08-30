@@ -59,6 +59,6 @@ public class ClientDetail {
     private String grantTypes;
 
     @NotBlank(message = "invalid_client_auth")
-    @Column(name = "client_auth")
+    @Column(name = "auth_methods")
     private String clientAuthMethods;
 }

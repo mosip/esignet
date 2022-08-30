@@ -2,6 +2,7 @@ package io.mosip.idp.core.spi;
 
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.NotAuthenticatedException;
 
 import java.util.List;
 
@@ -49,7 +50,6 @@ public interface TokenService {
      */
      String getIDToken(IdPTransaction transaction);
 
-     List<String> getOptionalIdTokenClaims();
 
     /**
      * Access token need not have any user information, only need to have information about what
@@ -97,4 +97,18 @@ public interface TokenService {
      * iat : OPTIONAL. Time at which the JWT was issued.
      */
      void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws IdPException;
+
+    /**
+     * Verifies access token signature and also the claims with expected values
+     * if any one verification fails then throws NotAuthenticatedException
+     * @throws NotAuthenticatedException
+     */
+     void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException;
+
+    /**
+     * List of optional ID token claims,
+     * We can expect them in claim request parameter in the authorization request.
+     * @return
+     */
+     List<String> getOptionalIdTokenClaims();
 }

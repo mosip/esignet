@@ -1,6 +1,5 @@
 package io.mosip.idp.services;
 
-import com.auth0.jwt.JWTVerifier;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.dto.KycExchangeRequest;
 import io.mosip.idp.core.dto.TokenRequest;
@@ -18,13 +17,7 @@ import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
-import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.JsonWebKeySet;
-import org.jose4j.jwk.RsaJsonWebKey;
-import org.jose4j.lang.JoseException;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

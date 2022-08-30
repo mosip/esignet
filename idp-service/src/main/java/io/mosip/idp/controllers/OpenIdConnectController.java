@@ -5,15 +5,13 @@
  */
 package io.mosip.idp.controllers;
 
-import io.mosip.idp.core.dto.DiscoveryResponse;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.OpenIdConnectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -23,13 +21,22 @@ public class OpenIdConnectController {
     @Autowired
     private OpenIdConnectService openIdConnectServiceImpl;
 
+    /**
+     * 1. The UserInfo Endpoint MUST accept Access Tokens
+     * 2. The UserInfo Endpoint SHOULD support the use of Cross Origin Resource Sharing (CORS) [CORS] and or other methods
+     * as appropriate to enable Javascript Clients to access the endpoint.
+     * @param bearerToken
+     * @return
+     * @throws IdPException
+     */
     @GetMapping("/userinfo")
+    @CrossOrigin
     public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws IdPException {
         return openIdConnectServiceImpl.getUserInfo(bearerToken);
     }
 
     @GetMapping("/.well-known/openid-configuration")
-    public DiscoveryResponse getDiscoveryEndpoints() {
+    public Map<String, Object> getDiscoveryEndpoints() {
         return openIdConnectServiceImpl.getOpenIdConfiguration();
     }
 }

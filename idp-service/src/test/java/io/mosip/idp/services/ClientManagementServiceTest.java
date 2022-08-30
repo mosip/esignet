@@ -75,7 +75,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setJwk(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
@@ -101,7 +101,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setJwk(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
@@ -127,7 +127,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto1.setClientId(CLIENT_ID_1);
         clientCreateReqDto1.setClientName(CLIENT_NAME_1);
         clientCreateReqDto1.setLogoUri(LOGO_URI);
-        clientCreateReqDto1.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto1.setJwk(PUBLIC_KEY);
         clientCreateReqDto1.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto1.setUserClaims(CLAIMS);
         clientCreateReqDto1.setAuthContextRefs(ACRS);
@@ -148,7 +148,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto2.setClientId(CLIENT_ID_1);
         clientCreateReqDto2.setClientName(CLIENT_NAME_1);
         clientCreateReqDto2.setLogoUri(LOGO_URI);
-        clientCreateReqDto2.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto2.setJwk(PUBLIC_KEY);
         clientCreateReqDto2.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto2.setUserClaims(CLAIMS);
         clientCreateReqDto2.setAuthContextRefs(ACRS);
@@ -178,7 +178,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setJwk(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
@@ -214,7 +214,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setClientId(CLIENT_ID_1);
         clientCreateReqDto.setClientName(CLIENT_NAME_1);
         clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateReqDto.setJwk(PUBLIC_KEY);
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);

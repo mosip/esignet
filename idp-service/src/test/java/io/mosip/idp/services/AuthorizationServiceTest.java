@@ -1,4 +1,4 @@
-package io.mosip.idp;
+package io.mosip.idp.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.core.dto.*;
