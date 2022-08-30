@@ -7,9 +7,13 @@ import org.jose4j.jwk.JsonWebKeySet;
 
 public interface OAuthService {
 
-    static final String JWT_BEARER_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+    String JWT_BEARER_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 
     /**
+     * Authenticates client based on the clients registered auth_method, and exchanges auth_code with
+     * ID-token and access-token.
+     *
+     * Request validations MUST be done:
      * Ensure the Authorization Code was issued to the authenticated Client.
      * Verify that the Authorization Code is valid.
      * TODO - If possible, verify that the Authorization Code has not been previously used. How ?
@@ -22,5 +26,9 @@ public interface OAuthService {
      */
     TokenResponse getTokens(TokenRequest tokenRequest) throws IdPException;
 
+    /**
+     * API to get list of IdP public keys
+     * @return list of all the keys used to sign access-token, id-token and user kyc data
+     */
     JsonWebKeySet getJwks();
 }

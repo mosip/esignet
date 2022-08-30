@@ -12,8 +12,21 @@ import io.mosip.idp.core.exception.IdPException;
 
 public interface ClientManagementService {
 
+    /**
+     * API to register Relaying party client
+     * @param clientDetailCreateRequest
+     * @return
+     * @throws IdPException
+     */
     ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws IdPException;
 
+    /**
+     * API to update registered Relaying party client
+     * @param clientId
+     * @param clientDetailCreateRequest
+     * @return
+     * @throws IdPException
+     */
     ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailCreateRequest) throws IdPException;
 
 }

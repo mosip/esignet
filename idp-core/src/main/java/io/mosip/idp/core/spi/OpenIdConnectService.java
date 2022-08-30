@@ -5,13 +5,22 @@
  */
 package io.mosip.idp.core.spi;
 
-import io.mosip.idp.core.dto.DiscoveryResponse;
 import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.exception.NotAuthenticatedException;
+import java.util.Map;
 
 public interface OpenIdConnectService {
 
+    /**
+     * UserInfo Endpoint returns Claims about the authenticated End-User
+     * @param accessToken
+     * @return JWT signed with IDP key. Payload is encrypted with registered client's public key.
+     * @throws IdPException
+     */
     String getUserInfo(String accessToken) throws IdPException;
 
-    DiscoveryResponse getOpenIdConfiguration();
+    /**
+     * Discovery endpoint, returns all the supported values and host endpoints
+     * @return key-value pairs as per OIDC spec
+     */
+    Map<String, Object> getOpenIdConfiguration();
 }

@@ -7,6 +7,7 @@ package io.mosip.idp;
 
 import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,7 @@ public class ClientDetailRepositoryTest {
     @Autowired
     private ClientDetailRepository clientDetailRepository;
 
+
     @Test
     public void createClientDetail_withValidDetail_thenPass() {
         ClientDetail clientDetail = new ClientDetail();
@@ -31,11 +33,12 @@ public class ClientDetailRepositoryTest {
         clientDetail.setLogoUri("https://clienapp.com/logo.png");
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("https://clientapp.com/home,https://clientapp.com/home2");
-        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setJwk("DUMMY PEM CERT");
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("{}");
         clientDetail.setAcrValues("{}");
         clientDetail.setGrantTypes("authorization_code");
+        clientDetail.setClientAuthMethods("private_key_jwt");
         clientDetail = clientDetailRepository.save(clientDetail);
         Assert.assertNotNull(clientDetail);
 

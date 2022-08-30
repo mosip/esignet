@@ -11,19 +11,24 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
+import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
+import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 
@@ -151,6 +157,31 @@ public class TokenServiceImpl implements TokenService {
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
             throw new IdPException(ErrorConstants.INVALID_ASSERTION);
+        }
+    }
+
+    @Override
+    public void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException {
+        JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
+        JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
+        if(!responseDto.isSignatureValid()) {
+            log.error("Access token signature verification failed");
+            throw new NotAuthenticatedException();
+        }
+        try {
+            JWT jwt = JWTParser.parse(accessToken);
+            JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
+                    .audience(clientId)
+                    .issuer(issuerId)
+                    .subject(subject)
+                    .expirationTime(Date.from(Instant.now().plusSeconds(accessTokenExpireSeconds)))
+                    .issueTime(Date.from(Instant.now().minusSeconds(accessTokenExpireSeconds)))
+                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
+            claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
+
+        } catch (Exception e) {
+            log.error("Access token claims verification failed", e);
+            throw new NotAuthenticatedException();
         }
     }
 }
