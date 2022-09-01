@@ -10,20 +10,19 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 @Data
-public class KycAuthRequest<T> {
+public class KycAuthRequest {
 
-    @NotNull(message = ErrorConstants.INVALID_REQUEST)
     @NotBlank(message = ErrorConstants.INVALID_REQUEST)
     private String transactionId;
 
-    @NotNull(message = ErrorConstants.INVALID_REQUEST)
     @NotBlank(message = ErrorConstants.INVALID_REQUEST)
     private String individualId;
 
-    private String otp;
-
-    //TODO - when integrated with non-mosip IDA server, then this will no longer be SBIAuthResponse ?
-    private T biometrics;
+    @NotNull
+    @Size(min = 1, max = 5)
+    private List<AuthChallenge> challengeList;
 }

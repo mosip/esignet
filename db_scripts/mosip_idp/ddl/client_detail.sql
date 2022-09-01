@@ -27,6 +27,8 @@ CREATE TABLE client_detail(
 	grant_types character varying(256) NOT NULL,
 	auth_methods character varying(256) NOT NULL,
 	status character varying(20) NOT NULL,
+	cr_dtimes timestamp NOT NULL,
+	upd_dtimes timestamp,
 	CONSTRAINT pk_client_detail PRIMARY KEY (id)
 );
 -- ddl-end --

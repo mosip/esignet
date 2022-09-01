@@ -55,6 +55,7 @@ public class ClientManagementServiceTest {
     List<String> CLAIMS = Arrays.asList(commaSeparatedClaims.split(","));
     List<String> ACRS = Arrays.asList(commaSeparatedACRs.split(","));
     List<String> GRAND_TYPES = List.of("authorization_code");
+    List<String> CLIENT_AUTH_METHODS = Arrays.asList(commaSeparatedACRs.split(","));
     String STATUS_ACTIVE = "active";
     String STATUS_INACTIVE = "inactive";
     String RELAYING_PARTY_ID = "RP01";
@@ -82,6 +83,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+        clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         ClientDetailResponse respDto = clientDetailService.createOIDCClient(clientCreateReqDto);
 
@@ -108,6 +110,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setStatus(STATUS_INACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+        clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         ClientDetailResponse respDto = clientDetailService.createOIDCClient(clientCreateReqDto);
 
@@ -134,6 +137,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto1.setStatus(STATUS_INACTIVE);
         clientCreateReqDto1.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto1.setGrantTypes(GRAND_TYPES);
+        clientCreateReqDto1.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         ClientDetailResponse respDto1 = null;
         try {
@@ -155,6 +159,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto2.setStatus(STATUS_INACTIVE);
         clientCreateReqDto2.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto2.setGrantTypes(GRAND_TYPES);
+        clientCreateReqDto2.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         ClientDetailResponse respDto2 = null;
         try {
@@ -185,6 +190,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+        clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         clientDetailService.createOIDCClient(clientCreateReqDto);
 
@@ -196,6 +202,7 @@ public class ClientManagementServiceTest {
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         ClientDetailResponse respDto = clientDetailService.updateOIDCClient(CLIENT_ID_1, clientUpdateReqDto);
 
@@ -204,7 +211,7 @@ public class ClientManagementServiceTest {
         Optional<ClientDetail> result = clientDetailRepository.findById(CLIENT_ID_1);
         Assert.assertTrue(result.isPresent());
 
-        Assert.assertEquals(result.get().getName(), CLIENT_NAME_2);
+        Assert.assertEquals(CLIENT_NAME_2, result.get().getName());
     }
 
     @Test
@@ -221,6 +228,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
         clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
+        clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         try {
             clientDetailService.createOIDCClient(clientCreateReqDto);
@@ -236,6 +244,7 @@ public class ClientManagementServiceTest {
         clientUpdateReqDto.setStatus(STATUS_ACTIVE);
         clientUpdateReqDto.setClientName(CLIENT_NAME_2);
         clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
+        clientUpdateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
         ClientDetailResponse respDto = null;
         try {

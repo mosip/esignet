@@ -13,6 +13,7 @@ import java.util.List;
 public class IdPTransaction {
 
     String clientId;
+    String relayingPartyId;
     String redirectUri;
     Claims requestedClaims;
     String scopes;
