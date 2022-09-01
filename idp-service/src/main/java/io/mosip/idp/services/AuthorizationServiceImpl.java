@@ -58,13 +58,16 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     @Value("${mosip.idp.supported.authorize.scopes}")
     private List<String> authorizeScopes;
 
+    @Value("${mosip.idp.misp.license.key}")
+    private String licenseKey;
+
 
     @Override
     public OAuthDetailResponse getOauthDetails(String nonce, OAuthDetailRequest oauthDetailReqDto) throws IdPException {
         Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(oauthDetailReqDto.getClientId(),
                 Constants.CLIENT_ACTIVE_STATUS);
         if(!result.isPresent())
-            throw new InvalidClientException(ErrorConstants.INVALID_CLIENT_ID);
+            throw new InvalidClientException();
 
         IdentityProviderUtil.validateRedirectURI(result.get().getRedirectUris(), oauthDetailReqDto.getRedirectUri());
 
@@ -86,17 +89,21 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         //Cache the transaction
         IdPTransaction idPTransaction = new IdPTransaction();
         idPTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
+        idPTransaction.setRelayingPartyId(result.get().getRpId());
         idPTransaction.setClientId(result.get().getId());
         idPTransaction.setRequestedClaims(resolvedClaims);
         idPTransaction.setScopes(oauthDetailReqDto.getScope());
         idPTransaction.setNonce(nonce);
-        cacheUtilService.getSetTransaction(transactionId, idPTransaction);
+        cacheUtilService.setTransaction(transactionId, idPTransaction);
         return oauthDetailResponse;
     }
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
-        validateTransaction(otpRequest.getTransactionId());
+        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
+        if(transaction == null)
+            throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
+
         SendOtpResult result = authenticationWrapper.sendOtp(otpRequest.getIndividualId(), otpRequest.getChannel());
         if(!result.isStatus())
             throw new IdPException(result.getMessageCode());
@@ -109,9 +116,17 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
     @Override
     public AuthResponse authenticateUser(KycAuthRequest kycAuthRequest)  throws IdPException {
-        IdPTransaction transaction = validateTransaction(kycAuthRequest.getTransactionId());
+        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(kycAuthRequest.getTransactionId());
+        if(transaction == null)
+            throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
 
-        KycAuthResponse result = authenticationWrapper.doKycAuth(kycAuthRequest);
+        KycAuthResponse result = null;
+        try {
+            result = authenticationWrapper.doKycAuth(licenseKey, transaction.getRelayingPartyId(),
+                    transaction.getClientId(), kycAuthRequest);
+        } catch (Throwable t) {
+            log.error("KYC auth failed {}", kycAuthRequest.getTransactionId(), t);
+        }
         if(result == null)
             throw new IdPException(ErrorConstants.AUTH_FAILED);
 
@@ -119,7 +134,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         transaction.setUserToken(result.getUserAuthToken());
         transaction.setKycToken(result.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
-        cacheUtilService.getSetTransaction(kycAuthRequest.getTransactionId(), transaction);
+        cacheUtilService.setTransaction(kycAuthRequest.getTransactionId(), transaction);
 
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(kycAuthRequest.getTransactionId());
@@ -129,7 +144,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
     @Override
     public IdPTransaction getAuthCode(AuthCodeRequest authCodeRequest) {
-        IdPTransaction transaction = cacheUtilService.getSetTransaction(authCodeRequest.getTransactionId(), null);
+        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(authCodeRequest.getTransactionId());
         if(transaction == null) {
             transaction = new IdPTransaction();
             transaction.setError(ErrorConstants.INVALID_TRANSACTION);
@@ -140,14 +155,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         // cache consent with auth-code as key
         transaction.setCode(authCode);
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
-        return cacheUtilService.getSetAuthenticatedTransaction(authCode, authCodeRequest.getTransactionId(), transaction);
-    }
-
-    private IdPTransaction validateTransaction(String transactionId) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getSetTransaction(transactionId, null);
-        if(transaction == null)
-            throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
-        return transaction;
+        return cacheUtilService.setAuthenticatedTransaction(authCode, authCodeRequest.getTransactionId(), transaction);
     }
 
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetail) throws IdPException {

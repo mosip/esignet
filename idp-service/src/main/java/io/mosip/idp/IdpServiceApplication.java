@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
+@EnableCaching
 @SpringBootApplication(scanBasePackages = {"io.mosip.idp",
 		"io.mosip.kernel.crypto",
 		"io.mosip.kernel.keymanager.hsm",
@@ -20,7 +21,6 @@ import org.springframework.cache.annotation.EnableCaching;
 		"io.mosip.kernel.signature.service",
 		"io.mosip.kernel.partnercertservice.service",
 		"io.mosip.kernel.partnercertservice.helper"})
-@EnableCaching
 public class IdpServiceApplication {
 
 	public static void main(String[] args) {

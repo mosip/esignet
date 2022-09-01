@@ -24,6 +24,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -74,15 +75,16 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = { Exception.class, RuntimeException.class })
     public ResponseEntity handleExceptions(Exception ex, WebRequest request) {
         logger.error("Unhandled exception encountered in handler advice", ex);
+        String pathInfo = ((ServletWebRequest)request).getRequest().getPathInfo();
 
-        boolean isInternalAPI = request.getContextPath().contains("/authorization") ||
-                request.getContextPath().contains("/client-mgmt");
+        boolean isInternalAPI = pathInfo.startsWith("/authorization") ||
+                pathInfo.startsWith("/client-mgmt/");
 
-        if(!isInternalAPI && request.getContextPath().contains("/userinfo")) {
+        if(!isInternalAPI && pathInfo.startsWith("/oidc/userinfo")) {
             return handleExceptionWithHeader(ex);
         }
 
-        if(!isInternalAPI && request.getContextPath().contains("/token")) {
+        if(!isInternalAPI && pathInfo.startsWith("/oauth/")) {
             return handleOpenIdConnectControllerExceptions(ex);
         }
 

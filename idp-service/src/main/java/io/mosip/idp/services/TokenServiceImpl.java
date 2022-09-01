@@ -80,58 +80,39 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getIDToken(@NonNull IdPTransaction transaction) {
-        JSONObject jsonObject=new JSONObject();
-        jsonObject.put(ISS, issuerId);
-        jsonObject.put(SUB, transaction.getUserToken());
-        jsonObject.put(AUD, transaction.getClientId());
+        JSONObject payload = new JSONObject();
+        payload.put(ISS, issuerId);
+        payload.put(SUB, transaction.getUserToken());
+        payload.put(AUD, transaction.getClientId());
         long issueTime = IdentityProviderUtil.getEpochSeconds();
-        jsonObject.put(IAT, issueTime);
-        jsonObject.put(EXP, issueTime + (idTokenExpireSeconds<=0 ? 3600 : idTokenExpireSeconds));
-        jsonObject.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
-        jsonObject.put(NONCE, transaction.getNonce());
-        jsonObject.put(ACR, transaction.getRequestedClaims().getId_token().get(ACR));
-        jsonObject.put(ACCESS_TOKEN_HASH, transaction.getAHash());
-        String payload = IdentityProviderUtil.B64Encode(jsonObject.toJSONString());
+        payload.put(IAT, issueTime);
+        payload.put(EXP, issueTime + (idTokenExpireSeconds<=0 ? 3600 : idTokenExpireSeconds));
+        payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
+        payload.put(NONCE, transaction.getNonce());
+        String[] acrs = transaction.getRequestedClaims().getId_token().get(ACR).getValues();
+        payload.put(ACR, String.join(Constants.SPACE, acrs));
+        payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
+        return getSignedJWT(payload);
+    }
 
-        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
-        jwtSignatureRequestDto.setReferenceId(Constants.SIGN_REFERENCE_ID);
-        jwtSignatureRequestDto.setDataToSign(payload);
-        jwtSignatureRequestDto.setIncludePayload(true);
-        jwtSignatureRequestDto.setIncludeCertificate(true);
-        jwtSignatureRequestDto.setIncludeCertHash(true);
-        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
-        return responseDto.getJwtSignedData();
+    @Override
+    public String getAccessToken(IdPTransaction transaction) {
+        JSONObject payload = new JSONObject();
+        payload.put(ISS, issuerId);
+        payload.put(SUB, transaction.getUserToken());
+        payload.put(AUD, transaction.getClientId());
+        long issueTime = IdentityProviderUtil.getEpochSeconds();
+        payload.put(IAT, issueTime);
+        //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
+        payload.put(SCOPE, transaction.getScopes()); //scopes as received in authorize request
+        payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
+        return getSignedJWT(payload);
     }
 
     @Override
     public List<String> getOptionalIdTokenClaims() {
         //return Arrays.asList(NONCE, ACR, ACCESS_TOKEN_HASH, AUTH_TIME);
         return Arrays.asList();
-    }
-
-    @Override
-    public String getAccessToken(IdPTransaction transaction) {
-        JSONObject jsonObject=new JSONObject();
-        jsonObject.put(ISS, issuerId);
-        jsonObject.put(SUB, transaction.getUserToken());
-        jsonObject.put(AUD, transaction.getClientId());
-        long issueTime = IdentityProviderUtil.getEpochSeconds();
-        jsonObject.put(IAT, issueTime);
-        //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
-        jsonObject.put(SCOPE, transaction.getScopes()); //scopes as received in authorize request
-        jsonObject.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
-        String payload = IdentityProviderUtil.B64Encode(jsonObject.toJSONString());
-
-        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
-        jwtSignatureRequestDto.setReferenceId(Constants.SIGN_REFERENCE_ID);
-        jwtSignatureRequestDto.setIncludePayload(true);
-        jwtSignatureRequestDto.setIncludeCertificate(true);
-        jwtSignatureRequestDto.setDataToSign(payload);
-        jwtSignatureRequestDto.setIncludeCertHash(true);
-        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
-        return responseDto.getJwtSignedData();
     }
 
     @Override
@@ -146,8 +127,6 @@ public class TokenServiceImpl implements TokenService {
                     .audience(issuerId)
                     .issuer(clientId)
                     .subject(clientId)
-                    .expirationTime(Date.from(Instant.now().plusSeconds(clientAssertionExpireSeconds)))
-                    .issueTime(Date.from(Instant.now().minusSeconds(clientAssertionExpireSeconds)))
                     .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
 
             ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
@@ -163,6 +142,9 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException {
         JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
+        signatureVerifyRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
+        signatureVerifyRequestDto.setReferenceId("");
+        signatureVerifyRequestDto.setJwtSignatureData(accessToken);
         JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
         if(!responseDto.isSignatureValid()) {
             log.error("Access token signature verification failed");
@@ -174,14 +156,23 @@ public class TokenServiceImpl implements TokenService {
                     .audience(clientId)
                     .issuer(issuerId)
                     .subject(subject)
-                    .expirationTime(Date.from(Instant.now().plusSeconds(accessTokenExpireSeconds)))
-                    .issueTime(Date.from(Instant.now().minusSeconds(accessTokenExpireSeconds)))
                     .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
             claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
-
         } catch (Exception e) {
             log.error("Access token claims verification failed", e);
             throw new NotAuthenticatedException();
         }
+    }
+
+    private String getSignedJWT(JSONObject payload) {
+        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
+        jwtSignatureRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
+        jwtSignatureRequestDto.setReferenceId("");
+        jwtSignatureRequestDto.setIncludePayload(true);
+        jwtSignatureRequestDto.setIncludeCertificate(true);
+        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.B64Encode(payload.toJSONString()));
+        jwtSignatureRequestDto.setIncludeCertHash(true);
+        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
+        return responseDto.getJwtSignedData();
     }
 }

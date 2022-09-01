@@ -13,6 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -61,4 +62,10 @@ public class ClientDetail {
     @NotBlank(message = "invalid_client_auth")
     @Column(name = "auth_methods")
     private String clientAuthMethods;
+
+    @Column(name = "cr_dtimes")
+    private LocalDateTime createdtimes;
+
+    @Column(name = "upd_dtimes")
+    private LocalDateTime updatedtimes;
 }

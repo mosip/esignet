@@ -6,6 +6,7 @@ import io.mosip.idp.core.dto.TokenRequest;
 import io.mosip.idp.core.dto.TokenResponse;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
+import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.AuthorizationService;
 import io.mosip.idp.core.spi.OAuthService;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @Slf4j
@@ -55,13 +57,13 @@ public class OAuthServiceImpl implements OAuthService {
 
 
     @Override
-    public TokenResponse getTokens(TokenRequest tokenRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getSetAuthenticatedTransaction(tokenRequest.getCode(), null, null);
+    public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
+        IdPTransaction transaction = cacheUtilService.getAuthenticatedTransaction(tokenRequest.getCode());
         if(transaction == null)
-            throw new IdPException(ErrorConstants.INVALID_CODE);
+            throw new NotAuthenticatedException();
 
         if(!transaction.getClientId().equals(tokenRequest.getClient_id()))
-            throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
+            throw new InvalidClientException();
 
         if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
             throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
@@ -69,7 +71,7 @@ public class OAuthServiceImpl implements OAuthService {
         Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(tokenRequest.getClient_id(),
                 Constants.CLIENT_ACTIVE_STATUS);
         if(!result.isPresent())
-            throw new InvalidClientException(ErrorConstants.INVALID_CLIENT_ID);
+            throw new InvalidClientException();
 
         authenticateClient(tokenRequest, result.get());
 
@@ -92,7 +94,7 @@ public class OAuthServiceImpl implements OAuthService {
         // cache kyc with access-token as key
         transaction.setIdHash(IdentityProviderUtil.generateAccessTokenHash(tokenResponse.getId_token()));
         transaction.setEncryptedKyc(encryptedKyc);
-        cacheUtilService.getSetKycTransaction(accessTokenHash, transaction);
+        cacheUtilService.setKycTransaction(accessTokenHash, transaction);
 
         return tokenResponse;
     }

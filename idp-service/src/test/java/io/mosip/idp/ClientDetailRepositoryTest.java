@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RunWith(SpringRunner.class)
@@ -39,6 +40,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setAcrValues("{}");
         clientDetail.setGrantTypes("authorization_code");
         clientDetail.setClientAuthMethods("private_key_jwt");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
         clientDetail = clientDetailRepository.save(clientDetail);
         Assert.assertNotNull(clientDetail);
 

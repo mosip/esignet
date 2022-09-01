@@ -1,0 +1,37 @@
+{
+	"attributes" : {
+			"fullName" : "$.identity.fullName",
+			"dateOfBirth" : "$.identity.dateOfBirth",
+			"gender" : "$.identity.gender",
+			"email" : "$.identity.email",
+			"phone" : "$.identity.phone",
+			"addressLine1" : "$.identity.addressLine1",
+			"addressLine2" : "$.identity.addressLine2",
+			"addressLine3" : "$.identity.addressLine3",
+			"province" : "$.identity.province",
+			"region" : "$.identity.region",
+			"postal_code" : "$.identity.postalCode",
+			"zone" : "$.identity.zone",
+	},
+	"claims" : {
+
+			"given_name" : "fullName",
+			"name" : "fullName",
+			"middle_name" : "",
+			"preferred_username" : "fullName",
+			"nickname" : "",
+			"family_name" : "",
+			"gender" : "gender",
+			"birthdate" : "dateOfBirth",			
+			"email" : "email",
+			"phone_number" : "phone",
+			"locale" : "",
+			"email_verified" : "",	
+			"phone_number_verified" : "",
+			"picture": "",
+			"zoneinfo" : "",
+			"updated_at" : "",
+			"address" : { "street_address" : "",  "locality" : "province", "region" : "region", "postal_code": "postalCode", "country" : "", 
+								"formatted" : ["addressLine1", "addressLine2", "addressLine3"] }
+	}	
+}

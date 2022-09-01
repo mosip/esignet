@@ -60,7 +60,7 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
             throw new NotAuthenticatedException();
 
         String accessTokenHash = IdentityProviderUtil.generateAccessTokenHash(accessToken);
-        IdPTransaction transaction = cacheUtilService.getSetKycTransaction(accessTokenHash, null);
+        IdPTransaction transaction = cacheUtilService.getKycTransaction(accessTokenHash);
         if(transaction == null)
             throw new NotAuthenticatedException();
 
@@ -68,7 +68,7 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
 
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
         jwtSignatureRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
-        jwtSignatureRequestDto.setReferenceId(Constants.SIGN_REFERENCE_ID);
+        jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(true);
         jwtSignatureRequestDto.setIncludeCertificate(true);
         jwtSignatureRequestDto.setDataToSign(transaction.getEncryptedKyc());

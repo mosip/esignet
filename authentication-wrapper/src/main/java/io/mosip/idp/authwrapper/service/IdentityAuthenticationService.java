@@ -10,15 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-@ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl",
-        havingValue = "IdentityAuthenticationService", matchIfMissing = true)
+@ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "IdentityAuthenticationService")
 @Component
 public class IdentityAuthenticationService implements AuthenticationWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityAuthenticationService.class);
 
     @Override
-    public <SBIAuthResponse> KycAuthResponse doKycAuth(KycAuthRequest<SBIAuthResponse> kycAuthRequest) {
+    public KycAuthResponse doKycAuth(String licenseKey, String relayingPartnerId,
+                                                       String clientId, KycAuthRequest kycAuthRequest) {
         return null;
     }
 

@@ -5,9 +5,11 @@
  */
 package io.mosip.idp.core.exception;
 
+import io.mosip.idp.core.util.ErrorConstants;
+
 public class InvalidClientException extends IdPException {
 
-    public InvalidClientException(String errorCode) {
-        super(errorCode);
+    public InvalidClientException() {
+        super(ErrorConstants.INVALID_CLIENT_ID);
     }
 }

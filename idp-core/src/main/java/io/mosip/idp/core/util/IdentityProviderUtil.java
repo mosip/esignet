@@ -88,7 +88,7 @@ public class IdentityProviderUtil {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
-            byte[] leftMost128Bits = ByteUtils.subArray(hash, 0, 127);
+            byte[] leftMost128Bits = ByteUtils.subArray(hash, 0, 32);
             return urlSafeEncoder.encodeToString(leftMost128Bits);
         } catch (NoSuchAlgorithmException ex) {
             throw new IdPException(ErrorConstants.INVALID_ALGORITHM);

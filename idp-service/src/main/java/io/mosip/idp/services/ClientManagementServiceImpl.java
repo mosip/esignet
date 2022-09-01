@@ -19,6 +19,10 @@ import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,6 +53,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setStatus(clientDetailCreateRequest.getStatus());
         clientDetail.setGrantTypes(String.join(",", clientDetailCreateRequest.getGrantTypes()));
         clientDetail.setClientAuthMethods(String.join(",", clientDetailCreateRequest.getClientAuthMethods()));
+        clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
         var response = new ClientDetailResponse();
@@ -67,6 +72,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         ClientDetail clientDetail = result.get();
+        clientDetail.setName(clientDetailUpdateRequest.getClientName());
         clientDetail.setLogoUri(clientDetailUpdateRequest.getLogoUri());
         clientDetail.setRedirectUris(String.join(",", clientDetailUpdateRequest.getRedirectUris()));
         clientDetail.setClaims(String.join(",", clientDetailUpdateRequest.getUserClaims()));
@@ -74,6 +80,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setGrantTypes(String.join(",", clientDetailUpdateRequest.getGrantTypes()));
         clientDetail.setClientAuthMethods(String.join(",", clientDetailUpdateRequest.getClientAuthMethods()));
         clientDetail.setStatus(clientDetailUpdateRequest.getStatus());
+        clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
         var response = new ClientDetailResponse();
