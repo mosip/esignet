@@ -16,4 +16,8 @@ public class Error {
 
     private String errorCode;
     private String errorMessage;
+
+    public String getError() {
+        return this.errorCode + " -> " + this.errorMessage;
+    }
 }

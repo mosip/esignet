@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -20,6 +21,7 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
@@ -37,8 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -49,7 +49,10 @@ public class TokenServiceImpl implements TokenService {
     private SignatureService signatureService;
 
     @Autowired
-    private CacheUtilService cacheUtilService;
+    private ObjectMapper objectMapper;
+
+    @Value("${mosip.idp.transaction-token.expire.seconds:30}")
+    private int preAuthTransactionTokenExpireSeconds;
 
     @Value("${mosip.idp.id-token.expire.seconds:60}")
     private int idTokenExpireSeconds;
@@ -67,6 +70,7 @@ public class TokenServiceImpl implements TokenService {
     private Map<String, List<String>> claims;
 
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
+    private static Set<String> REQUIRED_TRANSACTION_CLAIMS;
 
     static {
         REQUIRED_CLIENT_ASSERTION_CLAIMS = new HashSet<>();
@@ -75,6 +79,14 @@ public class TokenServiceImpl implements TokenService {
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("exp");
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iss");
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iat");
+
+        REQUIRED_TRANSACTION_CLAIMS = new HashSet<>();
+        REQUIRED_TRANSACTION_CLAIMS.add("sub");
+        REQUIRED_TRANSACTION_CLAIMS.add("aud");
+        REQUIRED_TRANSACTION_CLAIMS.add("exp");
+        REQUIRED_TRANSACTION_CLAIMS.add("iss");
+        REQUIRED_TRANSACTION_CLAIMS.add("iat");
+        REQUIRED_TRANSACTION_CLAIMS.add("nonce");
     }
 
 
@@ -92,7 +104,7 @@ public class TokenServiceImpl implements TokenService {
         String[] acrs = transaction.getRequestedClaims().getId_token().get(ACR).getValues();
         payload.put(ACR, String.join(Constants.SPACE, acrs));
         payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
-        return getSignedJWT(payload);
+        return getSignedJWT(Constants.IDP_SERVICE_APP_ID, payload);
     }
 
     @Override
@@ -106,7 +118,7 @@ public class TokenServiceImpl implements TokenService {
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
         payload.put(SCOPE, transaction.getScopes()); //scopes as received in authorize request
         payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
-        return getSignedJWT(payload);
+        return getSignedJWT(Constants.IDP_SERVICE_APP_ID, payload);
     }
 
     @Override
@@ -141,12 +153,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException {
-        JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
-        signatureVerifyRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
-        signatureVerifyRequestDto.setReferenceId("");
-        signatureVerifyRequestDto.setJwtSignatureData(accessToken);
-        JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
-        if(!responseDto.isSignatureValid()) {
+        if(!isSignatureValid(accessToken)) {
             log.error("Access token signature verification failed");
             throw new NotAuthenticatedException();
         }
@@ -164,9 +171,10 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    private String getSignedJWT(JSONObject payload) {
+    @Override
+    public String getSignedJWT(String applicationId, JSONObject payload) {
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
+        jwtSignatureRequestDto.setApplicationId(applicationId);
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(true);
         jwtSignatureRequestDto.setIncludeCertificate(true);
@@ -174,5 +182,14 @@ public class TokenServiceImpl implements TokenService {
         jwtSignatureRequestDto.setIncludeCertHash(true);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
+    }
+
+    private boolean isSignatureValid(String jwt) {
+        JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
+        signatureVerifyRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
+        signatureVerifyRequestDto.setReferenceId("");
+        signatureVerifyRequestDto.setJwtSignatureData(jwt);
+        JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
+        return responseDto.isSignatureValid();
     }
 }

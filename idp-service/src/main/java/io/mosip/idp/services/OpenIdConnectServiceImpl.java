@@ -5,7 +5,6 @@
  */
 package io.mosip.idp.services;
 
-import io.mosip.idp.core.dto.DiscoveryResponse;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;

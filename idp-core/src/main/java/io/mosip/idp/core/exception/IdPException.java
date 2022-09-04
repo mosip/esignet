@@ -5,8 +5,6 @@
  */
 package io.mosip.idp.core.exception;
 
-import io.mosip.idp.core.util.ErrorConstants;
-
 public class IdPException extends Exception {
 
     private String errorCode;

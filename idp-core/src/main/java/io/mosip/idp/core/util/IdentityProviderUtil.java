@@ -7,6 +7,7 @@ package io.mosip.idp.core.util;
 
 import com.nimbusds.jose.util.ByteUtils;
 import io.mosip.idp.core.exception.IdPException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +20,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.UUID;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 
+@Slf4j
 public class IdentityProviderUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
@@ -85,12 +88,14 @@ public class IdentityProviderUtil {
      * @throws IdPException
      */
     public static String generateAccessTokenHash(String accessToken) throws IdPException {
+        String alg = "SHA-256";
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            MessageDigest digest = MessageDigest.getInstance(alg);
             byte[] hash = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
             byte[] leftMost128Bits = ByteUtils.subArray(hash, 0, 32);
             return urlSafeEncoder.encodeToString(leftMost128Bits);
         } catch (NoSuchAlgorithmException ex) {
+            log.error("Access token hashing failed with alg:{}", alg, ex);
             throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
@@ -103,6 +108,19 @@ public class IdentityProviderUtil {
         String[] uris = IdentityProviderUtil.splitAndTrimValue(registeredRedirectUris, Constants.COMMA);
         if(Arrays.stream(uris).anyMatch(uri -> uri.equals(requestedRedirectUri)))
             return;
+
+        log.error("Invalid redirect URI registered : {}, requested: {}", registeredRedirectUris, requestedRedirectUri);
         throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
+    }
+
+    public static String createTransactionId(String nonce) throws IdPException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+            digest.update(UUID.randomUUID().toString().concat(nonce).getBytes(StandardCharsets.UTF_8));
+            return urlSafeEncoder.encodeToString(digest.digest());
+        } catch (NoSuchAlgorithmException ex) {
+            log.error("create transaction id failed with alg SHA3-256", ex);
+            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+        }
     }
 }

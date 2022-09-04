@@ -10,6 +10,7 @@ import io.mosip.idp.core.dto.KycAuthRequest;
 import io.mosip.idp.core.dto.KycAuthResponse;
 import io.mosip.idp.core.dto.SendOtpResult;
 import io.mosip.idp.core.dto.*;
+import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
@@ -69,6 +70,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(!result.isPresent())
             throw new InvalidClientException();
 
+        log.info("Valid client id found, proceeding to validate redirect URI");
         IdentityProviderUtil.validateRedirectURI(result.get().getRedirectUris(), oauthDetailReqDto.getRedirectUri());
 
         //Resolve the final set of claims based on registered and request parameter.
@@ -76,7 +78,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(resolvedClaims.getId_token().get(ACR) == null)
             throw new IdPException(ErrorConstants.INVALID_ACR);
 
-        final String transactionId = UUID.randomUUID().toString();
+        final String transactionId = IdentityProviderUtil.createTransactionId(nonce);
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId(transactionId);
         oauthDetailResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
@@ -102,7 +104,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
         IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
         if(transaction == null)
-            throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
+            throw new InvalidTransactionException();
 
         SendOtpResult result = authenticationWrapper.sendOtp(otpRequest.getIndividualId(), otpRequest.getChannel());
         if(!result.isStatus())
@@ -118,21 +120,23 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     public AuthResponse authenticateUser(KycAuthRequest kycAuthRequest)  throws IdPException {
         IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(kycAuthRequest.getTransactionId());
         if(transaction == null)
-            throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
+            throw new InvalidTransactionException();
 
-        KycAuthResponse result = null;
+        ResponseWrapper<KycAuthResponse> result = null;
         try {
             result = authenticationWrapper.doKycAuth(licenseKey, transaction.getRelayingPartyId(),
                     transaction.getClientId(), kycAuthRequest);
         } catch (Throwable t) {
-            log.error("KYC auth failed {}", kycAuthRequest.getTransactionId(), t);
-        }
-        if(result == null)
+            log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), t);
             throw new IdPException(ErrorConstants.AUTH_FAILED);
+        }
+
+        if(result.getErrors() != null && !result.getErrors().isEmpty())
+            throw new IdPException(result.getErrors().get(0).getErrorCode());
 
         //cache tokens on successful response
-        transaction.setUserToken(result.getUserAuthToken());
-        transaction.setKycToken(result.getKycToken());
+        transaction.setUserToken(result.getResponse().getUserAuthToken());
+        transaction.setKycToken(result.getResponse().getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
         cacheUtilService.setTransaction(kycAuthRequest.getTransactionId(), transaction);
 
@@ -143,15 +147,14 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     }
 
     @Override
-    public IdPTransaction getAuthCode(AuthCodeRequest authCodeRequest) {
+    public IdPTransaction getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
         IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(authCodeRequest.getTransactionId());
         if(transaction == null) {
-            transaction = new IdPTransaction();
-            transaction.setError(ErrorConstants.INVALID_TRANSACTION);
-            return transaction;
+            log.error("getAuthCode -> Transaction verification failure : {}", authCodeRequest.getTransactionId());
+            throw new InvalidTransactionException();
         }
 
-        String authCode = UUID.randomUUID().toString();
+        String authCode = IdentityProviderUtil.generateB64EncodedHash("MD5", UUID.randomUUID().toString());
         // cache consent with auth-code as key
         transaction.setCode(authCode);
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
@@ -166,11 +169,13 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         String requestedScope = oauthDetailRequest.getScope();
         Claims requestedClaims = oauthDetailRequest.getClaims();
 
+        log.info("Started to resolve claims based on the request scope {} and claims {}", requestedScope, requestedClaims);
         List<String> registeredUserClaims = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(clientDetail.getClaims(), Constants.COMMA));
         //get claims based on scope
         List<String> claimBasedOnScope = resolveScopeToClaims(requestedScope);
 
         boolean isRequestedUserInfoClaimsPresent = requestedClaims != null && requestedClaims.getUserinfo() != null;
+        log.info("isRequestedUserInfoClaimsPresent ? {}", isRequestedUserInfoClaimsPresent);
         //claims considered only if part of registered claims
         for(String claimName : registeredUserClaims) {
             if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().containsKey(claimName))
@@ -178,6 +183,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             else if(claimBasedOnScope.contains(claimName))
                 resolvedClaims.getUserinfo().put(claimName, null);
         }
+        log.debug("Resolved userinfo claims : {}", resolvedClaims.getUserinfo());
 
         if(requestedClaims != null && requestedClaims.getId_token() != null ) {
             for(String claimName : tokenService.getOptionalIdTokenClaims()) {
@@ -187,6 +193,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         }
         resolveACRClaim(oauthDetailRequest.getAcrValues(), clientDetail.getAcrValues(), resolvedClaims);
 
+        log.info("Final resolved claims : {}", resolvedClaims);
         return resolvedClaims;
     }
 
@@ -197,28 +204,27 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         List<String> registeredACRs = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(registeredAcr, Constants.COMMA));
 
         //acr_values request parameter takes highest priority
-        String[] aCRs;
-        if(requestedAcr == null) {
-            ClaimDetail acrClaimDetail = claims.getId_token().get(ACR);
-            aCRs = acrClaimDetail == null || acrClaimDetail.getValues() == null ? new String[0] : acrClaimDetail.getValues();
-        }
-        else {
-            aCRs = IdentityProviderUtil.splitAndTrimValue(requestedAcr, Constants.SPACE);
-        }
+        ClaimDetail acrClaimDetail = claims.getId_token().get(ACR);
+        String[] aCRs = (requestedAcr != null) ? IdentityProviderUtil.splitAndTrimValue(requestedAcr, Constants.SPACE) :
+                (acrClaimDetail == null || acrClaimDetail.getValues() == null ? new String[0] : acrClaimDetail.getValues());
 
+        log.info("ACR provided in request as part of claims request param to acr_values request param: {}", aCRs);
         List<String> filteredAcr = new ArrayList<>();
         for(String acr : aCRs) {
             if(registeredACRs.contains(acr))
                 filteredAcr.add(acr);
         }
 
-        if(filteredAcr.isEmpty())
-            throw new IdPException(ErrorConstants.INVALID_ACR);
+        if(filteredAcr.isEmpty()) {
+            log.error("Was unable to find any valid ACR");
+            throw new IdPException(ErrorConstants.EMPTY_ACR);
+        }
 
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setEssential(true);
         claimDetail.setValues(filteredAcr.toArray(String[]::new));
         claims.getId_token().put(ACR, claimDetail);
+        log.debug("Final resolved list of acr: {}", claims.getId_token());
     }
 
     private List<String> resolveScopeToClaims(String scope) {
@@ -227,6 +233,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         for(String scopeName : requestedScopes) {
             claimNames.addAll(claims.getOrDefault(scopeName, new ArrayList<>()));
         }
+        log.info("Resolved claims: {} based on request scope : {}", claimNames, scope);
         return claimNames;
     }
 

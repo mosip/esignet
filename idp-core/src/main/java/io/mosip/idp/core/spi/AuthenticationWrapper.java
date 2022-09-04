@@ -5,10 +5,8 @@
  */
 package io.mosip.idp.core.spi;
 
-import io.mosip.idp.core.dto.KycAuthRequest;
-import io.mosip.idp.core.dto.KycAuthResponse;
-import io.mosip.idp.core.dto.KycExchangeRequest;
-import io.mosip.idp.core.dto.SendOtpResult;
+import io.mosip.idp.core.dto.*;
+import io.mosip.idp.core.exception.IdPException;
 
 public interface AuthenticationWrapper {
 
@@ -21,10 +19,9 @@ public interface AuthenticationWrapper {
      * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
      * @param kycAuthRequest
      * @return KYC Token and Partner specific User Token (PSUT)
-     * @param <T>
      */
-    KycAuthResponse doKycAuth(String licenseKey, String relayingPartnerId,
-                                  String clientId, KycAuthRequest kycAuthRequest);
+    ResponseWrapper<KycAuthResponse> doKycAuth(String licenseKey, String relayingPartnerId,
+                                              String clientId, KycAuthRequest kycAuthRequest) throws IdPException;
 
     /**
      * Delegate request to exchange KYC token with encrypted user data
@@ -34,7 +31,7 @@ public interface AuthenticationWrapper {
      * @param kycExchangeRequest
      * @return encrypted KYC data
      */
-    String doKycExchange(KycExchangeRequest kycExchangeRequest);
+    String doKycExchange(KycExchangeRequest kycExchangeRequest) throws IdPException;
 
     /**
      * Delegate request to send out OTP to provided individual Id on the configured channel
