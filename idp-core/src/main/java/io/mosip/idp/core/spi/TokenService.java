@@ -3,6 +3,7 @@ package io.mosip.idp.core.spi;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
+import org.json.simple.JSONObject;
 
 import java.util.List;
 
@@ -111,4 +112,12 @@ public interface TokenService {
      * @return
      */
      List<String> getOptionalIdTokenClaims();
+
+    /**
+     * Sign the provided payload with master key specific to application id
+     * @param applicationId
+     * @param payload
+     * @return
+     */
+     String getSignedJWT(String applicationId, JSONObject payload);
 }

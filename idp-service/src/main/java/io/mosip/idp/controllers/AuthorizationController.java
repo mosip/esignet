@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
@@ -23,6 +24,9 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/authorization")
 public class AuthorizationController {
+
+    @Value("${mosip.idp.redirect.error.page:/error}")
+    private String errorPage;
 
     @Autowired
     AuthorizationService authorizationService;
@@ -62,14 +66,16 @@ public class AuthorizationController {
                                              final RedirectAttributes redirectAttributes) {
         redirectAttributes.addAttribute("state", state);
         redirectAttributes.addAttribute("nonce", nonce);
-
-        IdPTransaction idPTransaction = authorizationService.getAuthCode(requestWrapper.getRequest());
-        if(idPTransaction.getError() == null && idPTransaction.getCode() != null) {
+        try {
+            IdPTransaction idPTransaction = authorizationService.getAuthCode(requestWrapper.getRequest());
             redirectAttributes.addAttribute("code", idPTransaction.getCode());
             redirectAttributes.addAttribute("nonce", idPTransaction.getNonce());
+            return new RedirectView(idPTransaction.getRedirectUri());
+        } catch (IdPException e) {
+            log.error("Failed to generate auth code or validate the provided transaction {}",
+                    requestWrapper.getRequest().getTransactionId(), e);
+            redirectAttributes.addAttribute("error", e.getErrorCode());
         }
-        else
-            redirectAttributes.addAttribute("error", idPTransaction.getError());
-        return new RedirectView(idPTransaction.getRedirectUri());
+        return new RedirectView(errorPage);
     }
 }

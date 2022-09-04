@@ -118,13 +118,13 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         }
         if(ex instanceof InvalidClientException) {
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(ErrorConstants.INVALID_CLIENT_ID,
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.OK);
+                    INVALID_CLIENT_ID), HttpStatus.OK);
         }
         if(ex instanceof IdPException) {
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(((IdPException) ex).getErrorCode(),
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.OK);
+            String errorCode = ((IdPException) ex).getErrorCode();
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode,errorCode), HttpStatus.OK);
         }
-        return new ResponseEntity<ResponseWrapper>(getResponseWrapper(DEFAULT_ERROR_CODE, DEFAULT_ERROR_MSG),
+        return new ResponseEntity<ResponseWrapper>(getResponseWrapper(UNKNOWN_ERROR, UNKNOWN_ERROR),
                 HttpStatus.OK);
     }
 
@@ -132,14 +132,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         if(ex instanceof MethodArgumentNotValidException) {
             FieldError fieldError = ((MethodArgumentNotValidException) ex).getBindingResult().getFieldError();
             String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(message,
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof ConstraintViolationException) {
             Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(message,
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof NotAuthenticatedException) {
             ResponseEntity responseEntity = new ResponseEntity(HttpStatus.UNAUTHORIZED);
@@ -148,20 +146,19 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             return responseEntity;
         }
         if(ex instanceof InvalidClientException) {
-            return new ResponseEntity<OAuthError>(getErrorRespDto(ErrorConstants.INVALID_CLIENT_ID,
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_CLIENT_ID, INVALID_CLIENT_ID), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof IdPException) {
-            return new ResponseEntity<OAuthError>(getErrorRespDto(((IdPException) ex).getErrorCode(),
-                    INVALID_INPUT_ERROR_MSG), HttpStatus.BAD_REQUEST);
+            String errorCode = ((IdPException) ex).getErrorCode();
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode,errorCode), HttpStatus.BAD_REQUEST);
         }
         logger.error("Unhandled exception encountered in handler advice", ex);
-        return new ResponseEntity<OAuthError>(getErrorRespDto(DEFAULT_ERROR_CODE, DEFAULT_ERROR_MSG),
+        return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, UNKNOWN_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity handleExceptionWithHeader(Exception ex) {
-        String errorCode = DEFAULT_ERROR_CODE;
+        String errorCode = UNKNOWN_ERROR;
         if(ex instanceof NotAuthenticatedException) {
             errorCode = INVALID_AUTH_TOKEN;
         }

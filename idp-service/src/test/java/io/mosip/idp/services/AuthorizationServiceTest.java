@@ -23,6 +23,7 @@ import org.springframework.core.io.Resource;
 
 import java.util.*;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -257,7 +258,7 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
             Assert.fail();
         } catch (IdPException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_ACR));
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.EMPTY_ACR));
         }
     }
 

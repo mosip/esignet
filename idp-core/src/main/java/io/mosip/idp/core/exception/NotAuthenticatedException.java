@@ -12,4 +12,8 @@ public class NotAuthenticatedException extends IdPException {
     public NotAuthenticatedException() {
         super(ErrorConstants.INVALID_AUTH_TOKEN);
     }
+
+    public NotAuthenticatedException(String errorCode) {
+        super(errorCode);
+    }
 }

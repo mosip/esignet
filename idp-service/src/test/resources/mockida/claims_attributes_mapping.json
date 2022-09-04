@@ -12,9 +12,9 @@
 			"region" : "$.identity.region",
 			"postal_code" : "$.identity.postalCode",
 			"zone" : "$.identity.zone",
+			"encodedPhoto" : "$.identity.encodedPhoto"
 	},
 	"claims" : {
-
 			"given_name" : "fullName",
 			"name" : "fullName",
 			"middle_name" : "",
@@ -28,10 +28,11 @@
 			"locale" : "",
 			"email_verified" : "",	
 			"phone_number_verified" : "",
-			"picture": "",
+			"picture": "encodedPhoto",
 			"zoneinfo" : "",
 			"updated_at" : "",
-			"address" : { "street_address" : "",  "locality" : "province", "region" : "region", "postal_code": "postalCode", "country" : "", 
-								"formatted" : ["addressLine1", "addressLine2", "addressLine3"] }
+			"address" : { "street_address" : "",  "locality" : "province", "region" : "region",
+				"postal_code": "postalCode", "country" : "",
+				"formatted" : ["addressLine1", "addressLine2", "addressLine3"] }
 	}	
 }
