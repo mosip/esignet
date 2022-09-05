@@ -139,15 +139,6 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
             return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof NotAuthenticatedException) {
-            ResponseEntity responseEntity = new ResponseEntity(HttpStatus.UNAUTHORIZED);
-            HttpHeaders headers = responseEntity.getHeaders();
-            headers.add("WWW-Authenticate", "error=\""+INVALID_AUTH_TOKEN+"\"");
-            return responseEntity;
-        }
-        if(ex instanceof InvalidClientException) {
-            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_CLIENT_ID, INVALID_CLIENT_ID), HttpStatus.BAD_REQUEST);
-        }
         if(ex instanceof IdPException) {
             String errorCode = ((IdPException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode,errorCode), HttpStatus.BAD_REQUEST);
