@@ -135,9 +135,9 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return tokenService.getSignedJWT(APPLICATION_ID, payload);
     }
 
-    private JWTClaimsSet verifyAndGetSubject(String kycToken) throws IdPException {
+    private JWTClaimsSet verifyAndGetClaims(String kycToken) throws IdPException {
         JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
-        signatureVerifyRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
+        signatureVerifyRequestDto.setApplicationId(APPLICATION_ID);
         signatureVerifyRequestDto.setReferenceId("");
         signatureVerifyRequestDto.setJwtSignatureData(kycToken);
         JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
@@ -148,7 +148,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         try {
             JWT jwt = JWTParser.parse(kycToken);
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                    .audience("IDP_SERVICE")
+                    .audience(Constants.IDP_SERVICE_APP_ID)
                     .issuer(APPLICATION_ID)
                     .build(), REQUIRED_CLAIMS);
             ((DefaultJWTClaimsVerifier<?>) claimsSetVerifier).setMaxClockSkew(5);
@@ -162,7 +162,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Override
     public String doKycExchange(@NotNull @Valid KycExchangeRequest kycExchangeRequest) throws IdPException {
-        JWTClaimsSet jwtClaimsSet = verifyAndGetSubject(kycExchangeRequest.getKycToken());
+        JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
         try {
             String clientId = jwtClaimsSet.getStringClaim(CID_CLAIM);
             if(!kycExchangeRequest.getClientId().equals(clientId))
