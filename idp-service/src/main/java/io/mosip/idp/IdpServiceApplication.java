@@ -9,12 +9,21 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
-@SpringBootApplication
 @EnableCaching
+@SpringBootApplication(scanBasePackages = {"io.mosip.idp",
+		"io.mosip.kernel.crypto",
+		"io.mosip.kernel.keymanager.hsm",
+		"io.mosip.kernel.cryptomanager.util",
+		"io.mosip.kernel.keymanagerservice.helper",
+		"io.mosip.kernel.keymanagerservice.service",
+		"io.mosip.kernel.keymanagerservice.util",
+		"io.mosip.kernel.keygenerator.bouncycastle",
+		"io.mosip.kernel.signature.service",
+		"io.mosip.kernel.partnercertservice.service",
+		"io.mosip.kernel.partnercertservice.helper"})
 public class IdpServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(IdpServiceApplication.class, args);
 	}
-
 }

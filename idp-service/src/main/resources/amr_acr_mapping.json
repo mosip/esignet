@@ -1,0 +1,28 @@
+{
+  "amr_values" : {
+    "only_pin" :  [{ "name": "pin" }],
+    "only_otp" :  [{ "name": "otp" }],
+    "only_finger" :  [{ "name": "fpt", "count": 1, "bioSubTypes" : ["leftThumb"] }],
+    "only_iris" :  [{ "name": "iris", "count": 2 }],
+    "five_fingers" : [{ "name": "fpt", "count": 4 , "bioSubTypes" : ["unknown", "unknown", "unknown", "unknown"]}],
+    "otp_one_finger" : [{ "name": "otp" },{ "name": "fpt", "count": 1 , "bioSubTypes" : ["rightThumb"]}],
+    "otp_all_fingers" : [{ "name": "otp" },{ "name": "fpt", "count": 10 }],
+    "iris_otp" :  [{ "name": "iris", "count": 2 }, { "name": "otp" }]
+  },
+  "acr_values" : {
+    "level0" : "0",
+    "level1" : "1",
+    "level2" : "2",
+    "level3" : "3",
+    "level4" : "4",
+    "level5" : "5"
+  },
+  "acr_amr" : {
+                "0" :  ["only_pin"],
+                "1" :  ["only_otp"],
+                "2" :  ["only_otp", "only_finger"],
+                "3" :  ["five_fingers", "otp_one_finger"],
+                "4" :  ["otp_all_fingers", "only_iris"],
+                "5" :  ["iris_otp"]
+              }
+}

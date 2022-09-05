@@ -5,25 +5,26 @@
  */
 package io.mosip.idp;
 
-import io.mosip.idp.domain.ClientDetail;
-import io.mosip.idp.repositories.ClientDetailRepository;
+import io.mosip.idp.entity.ClientDetail;
+import io.mosip.idp.repository.ClientDetailRepository;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-@SpringBootTest
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
+@DataJpaTest
 public class ClientDetailRepositoryTest {
 
     @Autowired
     private ClientDetailRepository clientDetailRepository;
+
 
     @Test
     public void createClientDetail_withValidDetail_thenPass() {
@@ -33,11 +34,13 @@ public class ClientDetailRepositoryTest {
         clientDetail.setLogoUri("https://clienapp.com/logo.png");
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("https://clientapp.com/home,https://clientapp.com/home2");
-        clientDetail.setCertData("DUMMY PEM CERT");
-        clientDetail.setCertThumbprint("THUMBPRINT");
+        clientDetail.setJwk("DUMMY PEM CERT");
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("{}");
-        clientDetail.setAmrValues("{}");
+        clientDetail.setAcrValues("{}");
+        clientDetail.setGrantTypes("authorization_code");
+        clientDetail.setClientAuthMethods("private_key_jwt");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
         clientDetail = clientDetailRepository.save(clientDetail);
         Assert.assertNotNull(clientDetail);
 

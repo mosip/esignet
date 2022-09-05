@@ -1,0 +1,65 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+package io.mosip.idp.core.dto;
+
+import io.mosip.idp.core.util.ErrorConstants;
+import io.mosip.idp.core.validator.AuthContextRef;
+import io.mosip.idp.core.validator.OIDCClientAuth;
+import io.mosip.idp.core.validator.OIDCGrantType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.URL;
+
+import javax.validation.constraints.*;
+import java.util.List;
+import java.util.Map;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ClientDetailCreateRequest {
+
+    @NotBlank(message = ErrorConstants.INVALID_CLIENT_ID)
+    private String clientId;
+
+    @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME)
+    private String clientName;
+
+    @NotEmpty(message = ErrorConstants.INVALID_JWKS)
+    private Map<String, @NotNull Object> jwk;
+
+    @NotNull(message = ErrorConstants.INVALID_CLIENT_STATUS)
+    @Pattern(message = ErrorConstants.INVALID_CLIENT_STATUS, regexp = "^(ACTIVE)|(INACTIVE)$")
+    private String status;
+
+    @NotBlank(message = ErrorConstants.INVALID_RP_ID)
+    private String relayingPartyId;
+
+    @NotNull(message = ErrorConstants.INVALID_CLAIM)
+    @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)
+    private List<@NotBlank String> userClaims;
+
+    @NotNull(message = ErrorConstants.INVALID_ACR)
+    @Size(message = ErrorConstants.INVALID_ACR, min = 1, max = 30)
+    private List<@NotNull @AuthContextRef String> authContextRefs;
+
+    @NotBlank(message = ErrorConstants.INVALID_URI)
+    @URL(message = ErrorConstants.INVALID_URI)
+    private String logoUri;
+
+    @NotNull(message = ErrorConstants.INVALID_REDIRECT_URI)
+    @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
+    private List<@URL(message = ErrorConstants.INVALID_REDIRECT_URI) String> redirectUris;
+
+    @NotNull(message = ErrorConstants.INVALID_GRANT_TYPE)
+    @Size(message = ErrorConstants.INVALID_GRANT_TYPE, min = 1, max=3)
+    private List<@OIDCGrantType String> grantTypes;
+
+    @NotNull(message = ErrorConstants.INVALID_CLIENT_AUTH)
+    @Size(message = ErrorConstants.INVALID_CLIENT_AUTH, min = 1, max = 3)
+    private List<@OIDCClientAuth String> clientAuthMethods;
+}
