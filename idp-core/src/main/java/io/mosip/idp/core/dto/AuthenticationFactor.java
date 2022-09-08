@@ -9,7 +9,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthenticationFactor {
 
-    private String name;
+    private String type;
     private int count;
     private List<String> bioSubTypes;
 }

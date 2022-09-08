@@ -14,6 +14,13 @@ public class AuthCodeRequest {
     @NotBlank(message = ErrorConstants.INVALID_REQUEST)
     private String transactionId;
 
-    @NotNull(message = ErrorConstants.INVALID_REQUEST)
+    /**
+     * List of accepted claim names by end-user
+     */
     private List<String> acceptedClaims;
+
+    /**
+     * List of permitted authorize scopes
+     */
+    private List<String> permittedAuthorizeScopes;
 }

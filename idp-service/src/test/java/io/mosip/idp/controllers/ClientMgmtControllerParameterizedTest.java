@@ -84,17 +84,17 @@ public class ClientMgmtControllerParameterizedTest {
     private final static Object[][] TEST_CASES = new Object[][] {
             // test-name, ClientDetailCreateRequest, ClientDetailUpdateRequest, clientIdQueryParam, errorCode
             { "Successful create", new ClientDetailCreateRequest("client-id", "client-name", jwk,
-                    Constants.CLIENT_ACTIVE_STATUS, "rp-id", Arrays.asList("given_name"),
+                    "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("level1"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt")),  null, null, null },
             { "With Null ClientId", new ClientDetailCreateRequest(null, "client-name", jwk,
-                    Constants.CLIENT_ACTIVE_STATUS, "rp-id", Arrays.asList("given_name"),
+                    "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("level1"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_CLIENT_ID },
             { "With Empty ClientName", new ClientDetailCreateRequest("client-id", " ", jwk,
-                    Constants.CLIENT_ACTIVE_STATUS, "rp-id", Arrays.asList("given_name"),
+                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("level1"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLIENT_NAME }

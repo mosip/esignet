@@ -130,7 +130,7 @@ public class AuthorizationServiceTest {
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
+        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -157,7 +157,7 @@ public class AuthorizationServiceTest {
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
+        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -184,7 +184,7 @@ public class AuthorizationServiceTest {
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().size() == 1);
-        Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
+        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -211,7 +211,7 @@ public class AuthorizationServiceTest {
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponse.getOptionalClaims().isEmpty());
+        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test

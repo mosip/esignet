@@ -18,12 +18,12 @@ public class TokenResponse {
     /**
      * The type of the access token, set to Bearer, DPoP or N_A.
      */
-    private String access_token;
+    private String token_type;
 
     /**
-     * The scope of the access token.
+     * The access token. The token that will be used to call the UserInfo endpoint.
      */
-    private String scope;
+    private String access_token;
 
     /**
      * The lifetime of the access token, in seconds.

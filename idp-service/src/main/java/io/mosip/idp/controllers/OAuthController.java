@@ -24,7 +24,7 @@ public class OAuthController {
     @Autowired
     private OAuthService oAuthService;
 
-    @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
+    @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public TokenResponse getToken(@RequestParam MultiValueMap<String,String> paramMap)
             throws IdPException {

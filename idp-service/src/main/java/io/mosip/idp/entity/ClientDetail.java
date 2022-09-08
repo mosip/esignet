@@ -39,9 +39,9 @@ public class ClientDetail {
     @Column(name = "redirect_uris")
     private String redirectUris;
 
-    @NotBlank(message = "invalid_jwk")
-    @Column(name = "jwk", columnDefinition = "TEXT")
-    private String jwk;
+    @NotBlank(message = "invalid_public_key")
+    @Column(name = "public_key", columnDefinition = "TEXT")
+    private String publicKey;
 
     @NotBlank(message = "invalid_claims")
     @Column(name = "claims")

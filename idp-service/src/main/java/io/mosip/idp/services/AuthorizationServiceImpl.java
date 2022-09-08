@@ -158,6 +158,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         // cache consent with auth-code as key
         transaction.setCode(authCode);
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
+        transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
         return cacheUtilService.setAuthenticatedTransaction(authCode, authCodeRequest.getTransactionId(), transaction);
     }
 
@@ -239,12 +240,12 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
     private void setClaimNamesInResponse(Claims resolvedClaims, OAuthDetailResponse oauthDetailResponse) {
         oauthDetailResponse.setEssentialClaims(new ArrayList<>());
-        oauthDetailResponse.setOptionalClaims(new ArrayList<>());
+        oauthDetailResponse.setVoluntaryClaims(new ArrayList<>());
         for(Map.Entry<String, ClaimDetail> claim : resolvedClaims.getUserinfo().entrySet()) {
             if(claim.getValue() != null && claim.getValue().isEssential())
                 oauthDetailResponse.getEssentialClaims().add(claim.getKey());
             else
-                oauthDetailResponse.getOptionalClaims().add(claim.getKey());
+                oauthDetailResponse.getVoluntaryClaims().add(claim.getKey());
         }
     }
 

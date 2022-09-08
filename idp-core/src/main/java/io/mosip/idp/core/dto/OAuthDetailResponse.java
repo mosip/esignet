@@ -17,7 +17,7 @@ public class OAuthDetailResponse {
     private List<List<AuthenticationFactor>> authFactors;
     private List<String> authorizeScopes;
     private List<String> essentialClaims;
-    private List<String> optionalClaims;
+    private List<String> voluntaryClaims;
     private Map<String, String> configs;
 
 }

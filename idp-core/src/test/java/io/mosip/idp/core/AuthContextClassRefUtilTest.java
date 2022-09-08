@@ -38,13 +38,13 @@ public class AuthContextClassRefUtilTest {
 
     private static final String amr_acr_mapping = "{\n" +
             "  \"amr_values\" : {\n" +
-            "    \"only_otp\" :  [{ \"name\": \"otp\" }],\n" +
-            "    \"only_finger\" :  [{ \"name\": \"fpt\", \"count\": 1, \"bioSubTypes\" : [\"leftThumb\"] }],\n" +
-            "    \"only_iris\" :  [{ \"name\": \"iris\", \"count\": 2 }],\n" +
-            "    \"five_fingers\" : [{ \"name\": \"fpt\", \"count\": 4 , \"bioSubTypes\" : [\"unknown\", \"unknown\", \"unknown\", \"unknown\"]}],\n" +
-            "    \"otp_one_finger\" : [{ \"name\": \"otp\" },{ \"name\": \"fpt\", \"count\": 1 , \"bioSubTypes\" : [\"rightThumb\"]}],\n" +
-            "    \"otp_all_fingers\" : [{ \"name\": \"otp\" },{ \"name\": \"fpt\", \"count\": 10 }],\n" +
-            "    \"iris_otp\" :  [{ \"name\": \"iris\", \"count\": 2 }, { \"name\": \"otp\" }]\n" +
+            "    \"only_otp\" :  [{ \"type\": \"otp\" }],\n" +
+            "    \"only_finger\" :  [{ \"type\": \"fpt\", \"count\": 1, \"bioSubTypes\" : [\"leftThumb\"] }],\n" +
+            "    \"only_iris\" :  [{ \"type\": \"iris\", \"count\": 2 }],\n" +
+            "    \"five_fingers\" : [{ \"type\": \"fpt\", \"count\": 4 , \"bioSubTypes\" : [\"unknown\", \"unknown\", \"unknown\", \"unknown\"]}],\n" +
+            "    \"otp_one_finger\" : [{ \"type\": \"otp\" },{ \"type\": \"fpt\", \"count\": 1 , \"bioSubTypes\" : [\"rightThumb\"]}],\n" +
+            "    \"otp_all_fingers\" : [{ \"type\": \"otp\" },{ \"type\": \"fpt\", \"count\": 10 }],\n" +
+            "    \"iris_otp\" :  [{ \"type\": \"iris\", \"count\": 2 }, { \"type\": \"otp\" }]\n" +
             "  },\n" +
             "  \"acr_values\" : {\n" +
             "    \"level1\" : \"1\",\n" +
@@ -104,7 +104,7 @@ public class AuthContextClassRefUtilTest {
         List<AuthenticationFactor> five_fingers = authFactors.get(0);
         Assert.assertNotNull(five_fingers);
         Assert.assertTrue(five_fingers.size() == 1);
-        Assert.assertTrue(five_fingers.get(0).getName().equals("fpt"));
+        Assert.assertTrue(five_fingers.get(0).getType().equals("fpt"));
         Assert.assertTrue(five_fingers.get(0).getCount() == 4);
         Assert.assertNotNull(five_fingers.get(0).getBioSubTypes());
         Assert.assertNotNull(five_fingers.get(0).getBioSubTypes().size() == 4);
@@ -112,8 +112,8 @@ public class AuthContextClassRefUtilTest {
         List<AuthenticationFactor> otp_one_finger = authFactors.get(1);
         Assert.assertNotNull(otp_one_finger);
         Assert.assertTrue(otp_one_finger.size() == 2);
-        Assert.assertTrue(otp_one_finger.get(0).getName().equals("otp"));
-        Assert.assertTrue(otp_one_finger.get(1).getName().equals("fpt"));
+        Assert.assertTrue(otp_one_finger.get(0).getType().equals("otp"));
+        Assert.assertTrue(otp_one_finger.get(1).getType().equals("fpt"));
         Assert.assertTrue(otp_one_finger.get(1).getCount() == 1);
         Assert.assertNotNull(otp_one_finger.get(1).getBioSubTypes());
         Assert.assertNotNull(otp_one_finger.get(1).getBioSubTypes().size() == 1);
@@ -129,7 +129,7 @@ public class AuthContextClassRefUtilTest {
         List<AuthenticationFactor> five_fingers = authFactors.get(0);
         Assert.assertNotNull(five_fingers);
         Assert.assertTrue(five_fingers.size() == 1);
-        Assert.assertTrue(five_fingers.get(0).getName().equals("fpt"));
+        Assert.assertTrue(five_fingers.get(0).getType().equals("fpt"));
         Assert.assertTrue(five_fingers.get(0).getCount() == 4);
         Assert.assertNotNull(five_fingers.get(0).getBioSubTypes());
         Assert.assertNotNull(five_fingers.get(0).getBioSubTypes().size() == 4);
@@ -137,8 +137,8 @@ public class AuthContextClassRefUtilTest {
         List<AuthenticationFactor> otp_one_finger = authFactors.get(1);
         Assert.assertNotNull(otp_one_finger);
         Assert.assertTrue(otp_one_finger.size() == 2);
-        Assert.assertTrue(otp_one_finger.get(0).getName().equals("otp"));
-        Assert.assertTrue(otp_one_finger.get(1).getName().equals("fpt"));
+        Assert.assertTrue(otp_one_finger.get(0).getType().equals("otp"));
+        Assert.assertTrue(otp_one_finger.get(1).getType().equals("fpt"));
         Assert.assertTrue(otp_one_finger.get(1).getCount() == 1);
         Assert.assertNotNull(otp_one_finger.get(1).getBioSubTypes());
         Assert.assertNotNull(otp_one_finger.get(1).getBioSubTypes().size() == 1);
@@ -146,7 +146,7 @@ public class AuthContextClassRefUtilTest {
         List<AuthenticationFactor> only_otp = authFactors.get(2);
         Assert.assertNotNull(only_otp);
         Assert.assertTrue(only_otp.size() == 1);
-        Assert.assertTrue(only_otp.get(0).getName().equals("otp"));
+        Assert.assertTrue(only_otp.get(0).getType().equals("otp"));
     }
 
 }

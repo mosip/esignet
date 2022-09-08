@@ -7,6 +7,8 @@ package io.mosip.idp.authwrapper.service;
 
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 @ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "IdentityAuthenticationService")
 @Component
+@Slf4j
 public class IdentityAuthenticationService implements AuthenticationWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityAuthenticationService.class);
@@ -21,16 +24,16 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Override
     public ResponseWrapper<KycAuthResponse> doKycAuth(String licenseKey, String relayingPartnerId,
                                                      String clientId, KycAuthRequest kycAuthRequest) {
-        return null;
+        throw new NotImplementedException("KYC auth not implemented");
     }
 
     @Override
-    public String doKycExchange(KycExchangeRequest kycExchangeRequest) {
-        return null;
+    public ResponseWrapper<KycExchangeResult> doKycExchange(KycExchangeRequest kycExchangeRequest) {
+        throw new NotImplementedException("KYC exchange not implemented");
     }
 
     @Override
     public SendOtpResult sendOtp(String individualId, String channel) {
-        return null;
+        throw new NotImplementedException("Send OTP not implemented");
     }
 }

@@ -116,12 +116,11 @@ public class ClientManagementControllerTest {
         defaultClientDetailCreateRequest.setClientId(CLIENT_ID_1);
         defaultClientDetailCreateRequest.setClientName(CLIENT_NAME_1);
         defaultClientDetailCreateRequest.setLogoUri(LOGO_URI);
-        defaultClientDetailCreateRequest.setJwk(PUBLIC_KEY_RSA);
+        defaultClientDetailCreateRequest.setPublicKey(PUBLIC_KEY_RSA);
         defaultClientDetailCreateRequest.setRedirectUris(LIST_OF_URIS);
         defaultClientDetailCreateRequest.setUserClaims(CLAIMS);
         defaultClientDetailCreateRequest.setAuthContextRefs(ACRS);
-        defaultClientDetailCreateRequest.setStatus(STATUS_ACTIVE);
-        defaultClientDetailCreateRequest.setRelayingPartyId(RELAYING_PARTY_ID);
+        defaultClientDetailCreateRequest.setRelyingPartyId(RELAYING_PARTY_ID);
         defaultClientDetailCreateRequest.setGrantTypes(GRAND_TYPES);
     }
 

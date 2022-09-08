@@ -29,15 +29,11 @@ public class ClientDetailCreateRequest {
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME)
     private String clientName;
 
-    @NotEmpty(message = ErrorConstants.INVALID_JWKS)
-    private Map<String, @NotNull Object> jwk;
-
-    @NotNull(message = ErrorConstants.INVALID_CLIENT_STATUS)
-    @Pattern(message = ErrorConstants.INVALID_CLIENT_STATUS, regexp = "^(ACTIVE)|(INACTIVE)$")
-    private String status;
+    @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
+    private Map<String, @NotNull Object> publicKey;
 
     @NotBlank(message = ErrorConstants.INVALID_RP_ID)
-    private String relayingPartyId;
+    private String relyingPartyId;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)
     @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)

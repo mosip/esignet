@@ -5,10 +5,7 @@
  */
 package io.mosip.idp.services;
 
-import io.mosip.idp.core.dto.IdPTransaction;
-import io.mosip.idp.core.dto.KycExchangeRequest;
-import io.mosip.idp.core.dto.TokenRequest;
-import io.mosip.idp.core.dto.TokenResponse;
+import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
@@ -86,7 +83,11 @@ public class OAuthServiceImpl implements OAuthService {
         kycExchangeRequest.setClientId(tokenRequest.getClient_id());
         kycExchangeRequest.setKycToken(transaction.getKycToken());
         kycExchangeRequest.setAcceptedClaims(transaction.getAcceptedClaims());
-        String encryptedKyc = authenticationWrapper.doKycExchange(kycExchangeRequest);
+        ResponseWrapper<KycExchangeResult> exchangeResult = authenticationWrapper.doKycExchange(kycExchangeRequest);
+
+        if(exchangeResult.getErrors() != null && !exchangeResult.getErrors().isEmpty()) {
+            throw new IdPException(exchangeResult.getErrors().get(0).getErrorCode());
+        }
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
@@ -94,11 +95,11 @@ public class OAuthServiceImpl implements OAuthService {
         transaction.setAHash(accessTokenHash);
         tokenResponse.setId_token(tokenService.getIDToken(transaction));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
-        tokenResponse.setScope(transaction.getScopes());
+        tokenResponse.setToken_type(Constants.BEARER);
 
         // cache kyc with access-token as key
         transaction.setIdHash(IdentityProviderUtil.generateAccessTokenHash(tokenResponse.getId_token()));
-        transaction.setEncryptedKyc(encryptedKyc);
+        transaction.setEncryptedKyc(exchangeResult.getResponse().getEncryptedKyc());
         cacheUtilService.setKycTransaction(accessTokenHash, transaction);
 
         return tokenResponse;
@@ -112,7 +113,7 @@ public class OAuthServiceImpl implements OAuthService {
     private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws IdPException {
         switch (tokenRequest.getClient_assertion_type()) {
             case JWT_BEARER_TYPE:
-                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getJwk(), tokenRequest.getClient_assertion());
+                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion());
                 break;
             default:
                 throw new IdPException(ErrorConstants.INVALID_ASSERTION_TYPE);

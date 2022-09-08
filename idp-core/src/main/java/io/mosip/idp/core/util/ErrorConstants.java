@@ -37,5 +37,5 @@ public class ErrorConstants {
     public static final String KYC_FAILED = "kyc_failed";
     public static final String DUPLICATE_CLIENT_ID = "duplicate_client_id";
     public static final String INVALID_CLAIM = "invalid_claim";
-    public static final String INVALID_JWKS = "invalid_jwks";
+    public static final String INVALID_PUBLIC_KEY = "invalid_public_key";
 }

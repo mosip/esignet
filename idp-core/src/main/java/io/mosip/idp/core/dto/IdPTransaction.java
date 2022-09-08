@@ -24,6 +24,7 @@ public class IdPTransaction {
     String code;
 
     List<String> acceptedClaims;
+    List<String> permittedScopes;
     String encryptedKyc;
     String idHash;
     String aHash;

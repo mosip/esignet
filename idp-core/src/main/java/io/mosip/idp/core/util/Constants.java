@@ -11,6 +11,7 @@ public class Constants {
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public static final String SPACE = " ";
     public static final String COMMA = ",";
+    public static final String BEARER = "bearer";
 
     public static final String PRE_AUTH_SESSION_CACHE = "preauthsessions";
     public static final String AUTHENTICATED_CACHE = "authenticated";
