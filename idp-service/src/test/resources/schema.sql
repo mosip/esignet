@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS client_detail(
 	redirect_uris character varying NOT NULL,
 	claims character varying NOT NULL,
 	acr_values character varying NOT NULL,
-	jwk character varying NOT NULL,
+	public_key character varying NOT NULL,
 	grant_types character varying(256) NOT NULL,
 	auth_methods character varying(256) NOT NULL,
 	status character varying(20) NOT NULL,

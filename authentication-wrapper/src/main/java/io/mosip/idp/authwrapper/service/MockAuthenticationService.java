@@ -40,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.mosip.idp.core.util.ErrorConstants.INVALID_INPUT;
 import static io.mosip.idp.core.util.ErrorConstants.KYC_FAILED;
 
 @Slf4j
@@ -96,7 +97,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     @Override
     public ResponseWrapper<KycAuthResponse> doKycAuth(@NotBlank String licenseKey, @NotBlank String relayingPartnerId,
                                          @NotBlank String clientId,
-                                         @NotNull @Valid KycAuthRequest kycAuthRequest) throws IdPException {
+                                         @NotNull @Valid KycAuthRequest kycAuthRequest) {
 
         ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
         responseWrapper.setErrors(new ArrayList<>());
@@ -128,7 +129,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         payload.put(TokenService.SUB, individualId);
         payload.put(CID_CLAIM, clientId);
         payload.put(RID_CLAIM, relayingPartyId);
-        payload.put(TokenService.AUD, "IDP_SERVICE");
+        payload.put(TokenService.AUD, Constants.IDP_SERVICE_APP_ID);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(TokenService.IAT, issueTime);
         payload.put(TokenService.EXP, issueTime +tokenExpireInSeconds);
@@ -143,7 +144,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
         if(!responseDto.isSignatureValid()) {
             log.error("Kyc token verification failed");
-            throw new IdPException(ErrorConstants.INVALID_INPUT);
+            throw new IdPException(INVALID_INPUT);
         }
         try {
             JWT jwt = JWTParser.parse(kycToken);
@@ -161,25 +162,32 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     @Override
-    public String doKycExchange(@NotNull @Valid KycExchangeRequest kycExchangeRequest) throws IdPException {
-        JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
+    public ResponseWrapper<KycExchangeResult> doKycExchange(@NotNull @Valid KycExchangeRequest kycExchangeRequest) {
+        ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
+        responseWrapper.setErrors(new ArrayList<>());
+
         try {
+            JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
             String clientId = jwtClaimsSet.getStringClaim(CID_CLAIM);
-            if(!kycExchangeRequest.getClientId().equals(clientId))
-                throw new IdPException(ErrorConstants.INVALID_INPUT);
+            if(!kycExchangeRequest.getClientId().equals(clientId)) {
+                responseWrapper.getErrors().add(new Error(INVALID_INPUT, INVALID_INPUT));
+                return responseWrapper;
+            }
 
             String relayingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
-
             Map<String,Object> kyc = getKycAttributesFromPolicy(relayingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeRequest.getAcceptedClaims());
 
             String plainKyc = objectMapper.writeValueAsString(kyc);
             //TODO - encrypt KYC
-            return CryptoUtil.encodeToURLSafeBase64(plainKyc.getBytes(StandardCharsets.UTF_8));
+            KycExchangeResult kycExchangeResult = new KycExchangeResult();
+            kycExchangeResult.setEncryptedKyc(CryptoUtil.encodeToURLSafeBase64(plainKyc.getBytes(StandardCharsets.UTF_8)));
+            responseWrapper.setResponse(kycExchangeResult);
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
-            throw new IdPException(KYC_FAILED);
+            responseWrapper.getErrors().add(new Error(KYC_FAILED, KYC_FAILED));
         }
+        return responseWrapper;
     }
 
     @Override
@@ -258,9 +266,10 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         }
     }
 
-    private Object getKycValue(DocumentContext personaContext, String attributeName) {
+    private String getKycValue(DocumentContext personaContext, String attributeName) {
         String path = mappingDocumentContext.read("$.attributes."+attributeName);
-        return personaContext.read(path);
+        //TODO handle address and the multi-lingual value
+        return personaContext.read(path).toString();
     }
 
     private boolean isValidAttributeName(String attribute) {

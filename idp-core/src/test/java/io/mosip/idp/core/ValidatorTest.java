@@ -64,7 +64,7 @@ public class ValidatorTest {
     public void test_displayValidator_nullValue() {
         OIDCDisplayValidator validator = new OIDCDisplayValidator();
         ReflectionTestUtils.setField(validator, "supportedDisplays", Arrays.asList("page", "wap"));
-        Assert.assertFalse(validator.isValid(null, null));
+        Assert.assertTrue(validator.isValid(null, null));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class ValidatorTest {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts",
                 Arrays.asList("none","login","consent"));
-        Assert.assertFalse(validator.isValid(null, null));
+        Assert.assertTrue(validator.isValid(null, null));
     }
 
     @Test

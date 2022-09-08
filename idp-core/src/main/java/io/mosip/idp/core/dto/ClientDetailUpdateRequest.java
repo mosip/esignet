@@ -17,7 +17,6 @@ import java.util.List;
 @Data
 public class ClientDetailUpdateRequest {
 
-    @NotNull
     @NotBlank
     @URL
     private String logoUri;
@@ -34,16 +33,14 @@ public class ClientDetailUpdateRequest {
     @Size(min = 1)
     private List<@NotNull @AuthContextRef String> authContextRefs;
 
-    @NotNull
     @NotBlank
-    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$", flags = Pattern.Flag.CASE_INSENSITIVE)
+    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$")
     private String status;
 
     @NotNull
     @Size(min = 1)
     private List<@OIDCGrantType String> grantTypes;
 
-    @NotNull
     @NotBlank
     private String clientName;
 

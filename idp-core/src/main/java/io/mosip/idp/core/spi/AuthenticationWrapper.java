@@ -21,7 +21,7 @@ public interface AuthenticationWrapper {
      * @return KYC Token and Partner specific User Token (PSUT)
      */
     ResponseWrapper<KycAuthResponse> doKycAuth(String licenseKey, String relayingPartnerId,
-                                              String clientId, KycAuthRequest kycAuthRequest) throws IdPException;
+                                              String clientId, KycAuthRequest kycAuthRequest);
 
     /**
      * Delegate request to exchange KYC token with encrypted user data
@@ -31,7 +31,7 @@ public interface AuthenticationWrapper {
      * @param kycExchangeRequest
      * @return encrypted KYC data
      */
-    String doKycExchange(KycExchangeRequest kycExchangeRequest) throws IdPException;
+    ResponseWrapper<KycExchangeResult> doKycExchange(KycExchangeRequest kycExchangeRequest);
 
     /**
      * Delegate request to send out OTP to provided individual Id on the configured channel

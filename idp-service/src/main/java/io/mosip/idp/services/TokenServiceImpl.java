@@ -21,7 +21,6 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
@@ -70,7 +69,6 @@ public class TokenServiceImpl implements TokenService {
     private Map<String, List<String>> claims;
 
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
-    private static Set<String> REQUIRED_TRANSACTION_CLAIMS;
 
     static {
         REQUIRED_CLIENT_ASSERTION_CLAIMS = new HashSet<>();
@@ -79,14 +77,6 @@ public class TokenServiceImpl implements TokenService {
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("exp");
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iss");
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iat");
-
-        REQUIRED_TRANSACTION_CLAIMS = new HashSet<>();
-        REQUIRED_TRANSACTION_CLAIMS.add("sub");
-        REQUIRED_TRANSACTION_CLAIMS.add("aud");
-        REQUIRED_TRANSACTION_CLAIMS.add("exp");
-        REQUIRED_TRANSACTION_CLAIMS.add("iss");
-        REQUIRED_TRANSACTION_CLAIMS.add("iat");
-        REQUIRED_TRANSACTION_CLAIMS.add("nonce");
     }
 
 

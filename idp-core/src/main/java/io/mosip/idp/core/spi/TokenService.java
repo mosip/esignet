@@ -37,7 +37,9 @@ public interface TokenService {
      * iat: REQUIRED. Time at which the JWT was issued. Its value is a JSON number representing the number of seconds
      * from 1970-01-01T0:0:0Z as measured in UTC until the date/time.
      *
-     * auth_time: Time when the End-User authentication occurred. Its value is a JSON number representing the number of
+     * amr: REQUIRED. list of authentication methods that are used to assert users authenticity.
+     *
+     * auth_time: REQUIRED. Time when the End-User authentication occurred. Its value is a JSON number representing the number of
      * seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time.
      *
      * nonce: String value used to associate a Client session with an ID Token, and to mitigate replay attacks. The value is
@@ -45,6 +47,7 @@ public interface TokenService {
      *
      * acr: String specifying an Authentication Context Class Reference value that identifies the Authentication Context
      * Class that the authentication performed satisfied.
+     *
      *
      * at_hash: Access token hash
      * @return
