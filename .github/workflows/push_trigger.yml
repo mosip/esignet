@@ -65,7 +65,9 @@ jobs:
         cd "./${{env.SERVICE_LOCATION}}"
         mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
     - name: Ready the springboot artifacts
-      run: find -name '*.jar' -executable -type f  -exec zip release.zip {} +
+      run: |
+        cd "./${{env.SERVICE_LOCATION}}"
+        find -name '*.jar' -executable -type f  -exec zip release.zip {} +
 
     - name: Upload the springboot jars 
       uses: actions/upload-artifact@v1
@@ -108,7 +110,7 @@ jobs:
           xml-file: ./${{ env.SERVICE_LOCATION }}/pom.xml
           xpath: /*[local-name()="project"]/*[local-name()="version"]
 
-      - name: Unzip and extract the admin-service
+      - name: Unzip and extract the idp-service
         run: unzip -uj "release.zip" "${{ env.SERVICE_LOCATION }}/target/*" -d "./${{ env.SERVICE_LOCATION }}/target"
 
       - name: Get current date
