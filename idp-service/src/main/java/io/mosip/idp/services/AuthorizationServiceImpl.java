@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
+import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
 
 @Slf4j
 @Service
@@ -64,13 +65,13 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
 
     @Override
-    public OAuthDetailResponse getOauthDetails(String nonce, OAuthDetailRequest oauthDetailReqDto) throws IdPException {
+    public OAuthDetailResponse getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws IdPException {
         Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(oauthDetailReqDto.getClientId(),
                 Constants.CLIENT_ACTIVE_STATUS);
         if(!result.isPresent())
             throw new InvalidClientException();
 
-        log.info("Valid client id found, proceeding to validate redirect URI");
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
         IdentityProviderUtil.validateRedirectURI(result.get().getRedirectUris(), oauthDetailReqDto.getRedirectUri());
 
         //Resolve the final set of claims based on registered and request parameter.
@@ -78,7 +79,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(resolvedClaims.getId_token().get(ACR) == null)
             throw new IdPException(ErrorConstants.INVALID_ACR);
 
-        final String transactionId = IdentityProviderUtil.createTransactionId(nonce);
+        final String transactionId = IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce());
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId(transactionId);
         oauthDetailResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
@@ -87,6 +88,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         setClaimNamesInResponse(resolvedClaims, oauthDetailResponse);
         setAuthorizeScopes(oauthDetailReqDto.getScope(), oauthDetailResponse);
         setUIConfigMap(oauthDetailResponse);
+        oauthDetailResponse.setClientName(result.get().getName());
+        oauthDetailResponse.setLogoUrl(result.get().getLogoUri());
 
         //Cache the transaction
         IdPTransaction idPTransaction = new IdPTransaction();
@@ -95,7 +98,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         idPTransaction.setClientId(result.get().getId());
         idPTransaction.setRequestedClaims(resolvedClaims);
         idPTransaction.setScopes(oauthDetailReqDto.getScope());
-        idPTransaction.setNonce(nonce);
+        idPTransaction.setNonce(oauthDetailReqDto.getNonce());
+        idPTransaction.setClaimsLocales(oauthDetailReqDto.getClaimsLocales());
         cacheUtilService.setTransaction(transactionId, idPTransaction);
         return oauthDetailResponse;
     }
@@ -169,14 +173,19 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
         String requestedScope = oauthDetailRequest.getScope();
         Claims requestedClaims = oauthDetailRequest.getClaims();
+        boolean isRequestedUserInfoClaimsPresent = requestedClaims != null && requestedClaims.getUserinfo() != null;
+        log.info("isRequestedUserInfoClaimsPresent ? {}", isRequestedUserInfoClaimsPresent);
+
+        //Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
+        if(isRequestedUserInfoClaimsPresent && !Arrays.stream(IdentityProviderUtil.splitAndTrimValue(requestedScope, Constants.SPACE))
+                .anyMatch( s  -> SCOPE_OPENID.equals(s)))
+            throw new IdPException(ErrorConstants.INVALID_SCOPE);
 
         log.info("Started to resolve claims based on the request scope {} and claims {}", requestedScope, requestedClaims);
         List<String> registeredUserClaims = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(clientDetail.getClaims(), Constants.COMMA));
         //get claims based on scope
         List<String> claimBasedOnScope = resolveScopeToClaims(requestedScope);
 
-        boolean isRequestedUserInfoClaimsPresent = requestedClaims != null && requestedClaims.getUserinfo() != null;
-        log.info("isRequestedUserInfoClaimsPresent ? {}", isRequestedUserInfoClaimsPresent);
         //claims considered only if part of registered claims
         for(String claimName : registeredUserClaims) {
             if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().containsKey(claimName))

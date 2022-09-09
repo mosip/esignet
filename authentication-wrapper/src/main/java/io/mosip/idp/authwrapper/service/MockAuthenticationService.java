@@ -20,12 +20,12 @@ import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONObject;
@@ -41,7 +41,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_INPUT;
-import static io.mosip.idp.core.util.ErrorConstants.KYC_FAILED;
 
 @Slf4j
 public class MockAuthenticationService implements AuthenticationWrapper {
@@ -52,6 +51,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
     private static Map<String, List<String>> policyContextMap;
+    private static Map<String, String> localesMapping;
     private static Set<String> REQUIRED_CLAIMS;
     private int tokenExpireInSeconds;
     private SignatureService signatureService;
@@ -106,7 +106,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
         boolean result = kycAuthRequest.getChallengeList()
                 .stream()
-                .allMatch(authChallenge -> authMethods.contains(authChallenge.getType()) &&
+                .allMatch(authChallenge -> authMethods.contains(authChallenge.getAuthFactorType()) &&
                         authenticateUser(kycAuthRequest.getIndividualId(), authChallenge, responseWrapper));
 
         log.info("Auth methods as per partner policy : {}, KYC auth result : {}",authMethods, result);
@@ -175,8 +175,9 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             }
 
             String relayingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
+            String[] claimsLocales = IdentityProviderUtil.splitAndTrimValue(kycExchangeRequest.getClaimsLocales(), Constants.SPACE);
             Map<String,Object> kyc = getKycAttributesFromPolicy(relayingPartyId, jwtClaimsSet.getSubject(),
-                    kycExchangeRequest.getAcceptedClaims());
+                    kycExchangeRequest.getAcceptedClaims(), claimsLocales);
 
             String plainKyc = objectMapper.writeValueAsString(kyc);
             //TODO - encrypt KYC
@@ -185,7 +186,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             responseWrapper.setResponse(kycExchangeResult);
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
-            responseWrapper.getErrors().add(new Error(KYC_FAILED, KYC_FAILED));
+            responseWrapper.getErrors().add(new Error("mock-ida-005", "Failed to build kyc data"));
         }
         return responseWrapper;
     }
@@ -199,7 +200,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     private boolean authenticateUser(String individualId, AuthChallenge authChallenge, ResponseWrapper responseWrapper) {
-        switch (authChallenge.getType()) {
+        switch (authChallenge.getAuthFactorType()) {
             case "PIN" :
                 return authenticateIndividualWithPin(individualId, authChallenge.getChallenge(), responseWrapper);
             case "OTP" :
@@ -246,30 +247,64 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     private Map<String, Object> getKycAttributesFromPolicy(String relayingPartyId, String individualId,
-                                                           List<String> claims) throws IdPException {
+                                                           List<String> claims, String[] locales) throws IdPException {
+        Map<String, Object> kyc = new HashMap<>();
         String persona = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
             DocumentContext personaContext = JsonPath.parse(new File(personaDir, persona));
             List<String> allowedAttributes = getPolicyKycAttributes(relayingPartyId);
 
-            return claims.stream()
+            Map<String, PathInfo> kycAttributeMap = claims.stream()
                     .distinct()
                     .collect(Collectors.toMap(claim -> claim, claim -> mappingDocumentContext.read("$.claims."+claim)))
                     .entrySet()
                     .stream()
                     .filter( e -> isValidAttributeName((String) e.getValue()) && allowedAttributes.contains((String)e.getValue()))
-                    .collect(Collectors.toMap(e -> e.getKey(), e -> getKycValue(personaContext, (String) e.getValue())));
+                    .collect(Collectors.toMap(e -> e.getKey(), e -> mappingDocumentContext.read("$.attributes."+e.getValue(), PathInfo.class)))
+                    .entrySet()
+                    .stream()
+                    .filter( e -> e.getValue() != null && e.getValue().getPath() != null && !e.getValue().getPath().isBlank() )
+                    .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
 
+            for(Map.Entry<String, PathInfo> entry : kycAttributeMap.entrySet()) {
+                String path = entry.getValue().getPath();
+
+                Optional<String> langResult = Arrays.stream(locales)
+                        .filter( locale -> getKycValue(personaContext, path, locale) != null)
+                        .findFirst();
+
+                String value = (langResult.isPresent()) ? getKycValue(personaContext, path, langResult.get()) :
+                        getKycValue(personaContext, path, entry.getValue().getDefaultLocale());
+
+                if(value != null) {
+                    //Handling the language tagging based on the requested claims_locales
+                    kyc.put((langResult.isPresent()) ? entry.getKey()+"#"+langResult.get() : entry.getKey(), value);
+                }
+            }
         } catch (Exception e) {
             log.error("Failed to load kyc for : {}", persona, e);
-            throw new IdPException(KYC_FAILED);
         }
+        return kyc;
     }
 
-    private String getKycValue(DocumentContext personaContext, String attributeName) {
-        String path = mappingDocumentContext.read("$.attributes."+attributeName);
-        //TODO handle address and the multi-lingual value
-        return personaContext.read(path).toString();
+    private String getKycValue(DocumentContext persona, String path, String locale) {
+        try {
+            String jsonPath = locale == null ? path : path.replace("_LOCALE_", getLocalesMapping(locale));
+            var value = persona.read(jsonPath);
+            if(value instanceof List)
+                return (String) ((List)value).get(0);
+            return (String) value;
+        } catch (Exception ex) {
+            log.error("Failed to get kyc value with path {}", path, ex);
+        }
+        return null;
+    }
+
+    private String  getLocalesMapping(String locale) {
+        if(localesMapping == null || localesMapping.isEmpty()) {
+            localesMapping = mappingDocumentContext.read("$.locales");
+        }
+        return localesMapping.getOrDefault(locale, "");
     }
 
     private boolean isValidAttributeName(String attribute) {
@@ -291,4 +326,10 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         //TODO - Need to check the policy to resolve supported auth methods
         return Arrays.asList("PIN");
     }
+}
+
+@Data
+class PathInfo {
+    String path;
+    String defaultLocale;
 }

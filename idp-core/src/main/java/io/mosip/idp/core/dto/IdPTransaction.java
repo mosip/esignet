@@ -17,6 +17,7 @@ public class IdPTransaction {
     String redirectUri;
     Claims requestedClaims;
     String scopes;
+    String claimsLocales;
 
     String kycToken;
     String userToken;

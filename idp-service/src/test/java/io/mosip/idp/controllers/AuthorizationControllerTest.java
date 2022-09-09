@@ -42,19 +42,6 @@ public class AuthorizationControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    @Test
-    public void getOauthDetails_withNoNonce_returnErrorResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
-        RequestWrapper wrapper = new RequestWrapper<>();
-        wrapper.setRequest(oauthDetailRequest);
-        wrapper.setRequestTime(null);
-        mockMvc.perform(post("/authorization/oauth-details")
-                .content(objectMapper.writeValueAsString(wrapper))
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REQUEST));
-    }
 
     @Test
     public void getOauthDetails_withInvalidTimestamp_returnErrorResponse() throws Exception {
@@ -72,6 +59,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
 
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         requestTime = requestTime.plusMinutes(10);
@@ -79,7 +67,7 @@ public class AuthorizationControllerTest {
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -104,12 +92,13 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -132,12 +121,13 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -160,12 +150,13 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("none");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -188,12 +179,13 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("touch");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -215,12 +207,13 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("none");
         oauthDetailRequest.setResponseType("implicit");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -244,6 +237,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -251,9 +245,9 @@ public class AuthorizationControllerTest {
 
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
+        when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -276,12 +270,13 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -305,6 +300,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -312,9 +308,9 @@ public class AuthorizationControllerTest {
 
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
+        when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -337,6 +333,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -344,9 +341,9 @@ public class AuthorizationControllerTest {
 
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
+        when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -369,6 +366,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -376,9 +374,9 @@ public class AuthorizationControllerTest {
 
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetails("23424234TY", oauthDetailRequest)).thenReturn(oauthDetailResponse);
+        when(authorizationService.getOauthDetails( oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
-        mockMvc.perform(post("/authorization/oauth-details?nonce=23424234TY")
+        mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
