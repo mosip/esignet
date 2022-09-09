@@ -8,11 +8,14 @@ on:
       - release-1*
       - master
       - 1.*
-      - develop  
+      - develop
+      - main
   
 jobs:
+  call-workflow-codeql-analysis:
+    uses: ./.github/workflows/codeql-analysis.yml
   build:
-
+    needs: call-workflow-codeql-analysis
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -76,6 +79,7 @@ jobs:
 
   publish_to_nexus:
     if: "!contains(github.ref, 'master')"
+    needs: call-workflow-codeql-analysis
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -138,7 +142,7 @@ jobs:
       if: failure() # Pick up events even if the job fails or is canceled.
 
   sonar_analysis:
-
+    needs: call-workflow-codeql-analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
