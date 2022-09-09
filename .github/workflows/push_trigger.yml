@@ -72,7 +72,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: release
-        path: ./${{env.SERVICE_LOCATION}}/release.zip
+        path: ./release.zip
 
     - uses: 8398a7/action-slack@v3
       with:
