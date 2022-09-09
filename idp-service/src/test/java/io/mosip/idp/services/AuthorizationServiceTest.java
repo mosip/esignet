@@ -19,7 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
@@ -50,36 +52,58 @@ public class AuthorizationServiceTest {
     @Mock
     Resource mappingFile;
 
+
     private static final String amr_acr_mapping = "{\n" +
-            "  \"amr_values\" : {\n" +
-            "    \"only_otp\" :  [{ \"name\": \"otp\" }],\n" +
-            "    \"only_finger\" :  [{ \"name\": \"fpt\", \"count\": 1, \"bioSubTypes\" : [\"leftThumb\"] }],\n" +
-            "    \"only_iris\" :  [{ \"name\": \"iris\", \"count\": 2 }],\n" +
-            "    \"five_fingers\" : [{ \"name\": \"fpt\", \"count\": 4 , \"bioSubTypes\" : [\"unknown\", \"unknown\", \"unknown\", \"unknown\"]}],\n" +
-            "    \"otp_one_finger\" : [{ \"name\": \"otp\" },{ \"name\": \"fpt\", \"count\": 1 , \"bioSubTypes\" : [\"rightThumb\"]}],\n" +
-            "    \"otp_all_fingers\" : [{ \"name\": \"otp\" },{ \"name\": \"fpt\", \"count\": 10 }],\n" +
-            "    \"iris_otp\" :  [{ \"name\": \"iris\", \"count\": 2 }, { \"name\": \"otp\" }]\n" +
-            "  },\n" +
-            "  \"acr_values\" : {\n" +
-            "    \"level1\" : \"1\",\n" +
-            "    \"level2\" : \"2\",\n" +
-            "    \"level3\" : \"3\",\n" +
-            "    \"level4\" : \"4\",\n" +
-            "    \"level5\" : \"5\"\n" +
-            "  },\n" +
-            "  \"acr_amr\" : {\n" +
-            "                \"1\" :  [\"only_otp\"],\n" +
-            "                \"2\" :  [\"only_otp\", \"only_finger\"],\n" +
-            "                \"3\" :  [\"five_fingers\", \"otp_one_finger\"],\n" +
-            "                \"4\" :  [\"otp_all_fingers\", \"only_iris\"],\n" +
-            "                \"5\" :  [\"iris_otp\"]\n" +
-            "              }\n" +
+            "\t\"locales\": {\"en\" :  \"eng\", \"fr\":  \"fra\", \"ar\":  \"ara\" },\n" +
+            "\t\"attributes\" : {\n" +
+            "\t\t\t\"fullName\" : { \"path\": \"$.identity.fullName[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"dateOfBirth\" : { \"path\": \"$.identity.dateOfBirth\"},\n" +
+            "\t\t\t\"gender\" : { \"path\": \"$.identity.gender[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"email\" : { \"path\": \"$.identity.email\"},\n" +
+            "\t\t\t\"phone\" : { \"path\": \"$.identity.phone\"},\n" +
+            "\t\t\t\"addressLine1\" : { \"path\": \"$.identity.addressLine1[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"addressLine2\" : { \"path\": \"$.identity.addressLine2[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"addressLine3\" : { \"path\": \"$.identity.addressLine3[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"province\" : { \"path\": \"$.identity.province[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"region\" : { \"path\": \"$.identity.region[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"postal_code\" : { \"path\": \"$.identity.postalCode\" },\n" +
+            "\t\t\t\"zone\" : { \"path\": \"$.identity.zone[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
+            "\t\t\t\"encodedPhoto\" : { \"path\": \"$.identity.encodedPhoto\"}\n" +
+            "\t},\n" +
+            "\t\"claims\" : {\n" +
+            "\t\t\t\"given_name\" : \"fullName\",\n" +
+            "\t\t\t\"name\" : \"fullName\",\n" +
+            "\t\t\t\"middle_name\" : \"\",\n" +
+            "\t\t\t\"preferred_username\" : \"fullName\",\n" +
+            "\t\t\t\"nickname\" : \"\",\n" +
+            "\t\t\t\"family_name\" : \"\",\n" +
+            "\t\t\t\"gender\" : \"gender\",\n" +
+            "\t\t\t\"birthdate\" : \"dateOfBirth\",\t\t\t\n" +
+            "\t\t\t\"email\" : \"email\",\n" +
+            "\t\t\t\"phone_number\" : \"phone\",\n" +
+            "\t\t\t\"locale\" : \"\",\n" +
+            "\t\t\t\"email_verified\" : \"\",\t\n" +
+            "\t\t\t\"phone_number_verified\" : \"\",\n" +
+            "\t\t\t\"picture\": \"encodedPhoto\",\n" +
+            "\t\t\t\"zoneinfo\" : \"\",\n" +
+            "\t\t\t\"updated_at\" : \"\",\n" +
+            "\t\t\t\"address\" : { \"street_address\" : \"\",  \"locality\" : \"province\", \"region\" : \"region\",\n" +
+            "\t\t\t\t\"postal_code\": \"postalCode\", \"country\" : \"\",\n" +
+            "\t\t\t\t\"formatted\" : [\"addressLine1\", \"addressLine2\", \"addressLine3\"] }\n" +
+            "\t}\t\n" +
             "}";
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(tokenGeneratorServiceService.getOptionalIdTokenClaims()).thenReturn(Arrays.asList("nonce", "acr", "at_hash", "auth_time"));
+
+        Map<String, List<String>> claims = new HashMap<>();
+        claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
+        claims.put("email", Arrays.asList("email","email_verified"));
+        claims.put("phone", Arrays.asList("phone_number","phone_number_verified"));
+        ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
+        ReflectionTestUtils.setField(authorizationServiceImpl, "authorizeScopes", Arrays.asList("resident-service"));
     }
 
 
@@ -87,8 +111,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withInvalidClientId_throwsException() throws IdPException {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setNonce("test-nonce");
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.empty());
-        authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
     }
 
     @Test
@@ -100,10 +125,11 @@ public class AuthorizationServiceTest {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v2/idp");
+        oauthDetailRequest.setNonce("test-nonce");
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
 
         try {
-            authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
             Assert.fail();
         } catch (IdPException e) {
             Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
@@ -123,11 +149,12 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
         oauthDetailRequest.setAcrValues("level4");
+        oauthDetailRequest.setNonce("test-nonce");
 
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -143,6 +170,8 @@ public class AuthorizationServiceTest {
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setNonce("test-nonce");
+        oauthDetailRequest.setScope("openid test-scope");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         Claims claims = new Claims();
         Map<String, ClaimDetail> userClaims = new HashMap<>();
@@ -154,7 +183,7 @@ public class AuthorizationServiceTest {
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -170,7 +199,9 @@ public class AuthorizationServiceTest {
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
         Claims claims = new Claims();
         Map<String, ClaimDetail> userClaims = new HashMap<>();
         userClaims.put("given_name", new ClaimDetail(null, null, true));
@@ -181,7 +212,7 @@ public class AuthorizationServiceTest {
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().size() == 1);
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -197,7 +228,9 @@ public class AuthorizationServiceTest {
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setScope("test-scope openid resident");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
         Claims claims = new Claims();
         Map<String, ClaimDetail> userClaims = new HashMap<>();
         userClaims.put("phone", new ClaimDetail(null, null, true));
@@ -208,7 +241,7 @@ public class AuthorizationServiceTest {
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level4"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -227,11 +260,12 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
         oauthDetailRequest.setAcrValues("level4 level1");
+        oauthDetailRequest.setNonce("test-nonce");
 
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
 
         try {
-            authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
             Assert.fail();
         } catch (IdPException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.NO_ACR_REGISTERED));
@@ -251,11 +285,12 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
         oauthDetailRequest.setAcrValues(null);
+        oauthDetailRequest.setNonce("test-nonce");
 
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
 
         try {
-            authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
             Assert.fail();
         } catch (IdPException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.EMPTY_ACR));
@@ -275,6 +310,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
         oauthDetailRequest.setAcrValues("level21 level1 level5");
+        oauthDetailRequest.setNonce("test-nonce");
 
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
@@ -282,7 +318,7 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level1","level5"})).thenReturn(authFactors);
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 2);
     }
@@ -300,6 +336,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
         oauthDetailRequest.setAcrValues("level21 level1 level5");
+        oauthDetailRequest.setNonce("test-nonce");
 
         when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
@@ -307,7 +344,7 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level1","level5"})).thenReturn(null);
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertNull(oauthDetailResponse.getAuthFactors());
     }
@@ -323,6 +360,7 @@ public class AuthorizationServiceTest {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
         Claims claims = new Claims();
         claims.setId_token(new HashMap<>());
         ClaimDetail claimDetail = new ClaimDetail();
@@ -336,8 +374,38 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level5"})).thenReturn(authFactors);
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails("test-nonce", oauthDetailRequest);
+        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
+    }
+
+    @Test
+    public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReqAndNoOPENIDScope() throws Exception {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
+        clientDetail.setClaims("email,given_name");
+        clientDetail.setAcrValues("level4");
+
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setScope("resident service");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
+        Claims claims = new Claims();
+        Map<String, ClaimDetail> userClaims = new HashMap<>();
+        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        claims.setUserinfo(userClaims);
+        oauthDetailRequest.setClaims(claims);
+        oauthDetailRequest.setAcrValues("level4");
+
+        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+
+        try {
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+            Assert.fail();
+        } catch (IdPException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_SCOPE));
+        }
     }
 }

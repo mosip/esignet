@@ -15,6 +15,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
+
 @Component
 public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String>  {
 
@@ -40,12 +42,12 @@ public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String
             return false;
 
         String[] scopes = IdentityProviderUtil.splitAndTrimValue(value, Constants.SPACE);
-        boolean openid = Arrays.stream(scopes).anyMatch( s -> "openid".equals(s));
+        boolean openid = Arrays.stream(scopes).anyMatch( s -> SCOPE_OPENID.equals(s));
         String[] authorized_scopes = Arrays.stream(scopes)
                 .filter( s -> authorizeScopes.contains(s))
                 .toArray(String[]::new);
         String[] openid_scopes = Arrays.stream(scopes)
-                .filter( s -> openidScopes.contains(s) || "openid".equals(s))
+                .filter( s -> openidScopes.contains(s) || SCOPE_OPENID.equals(s))
                 .toArray(String[]::new);
 
         //at least one of authorize / openid scope MUST be present

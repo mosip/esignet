@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 public class AuthChallenge {
 
     @NotBlank
-    private String type;
+    private String authFactorType;
 
     @NotBlank
     private String challenge;

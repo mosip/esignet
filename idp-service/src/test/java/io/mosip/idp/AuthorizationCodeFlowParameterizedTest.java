@@ -125,22 +125,9 @@ public class AuthorizationCodeFlowParameterizedTest {
         AuthResponse authResponse = authenticate(oAuthDetailResponse.getTransactionId());
         log.info("Successfully completed kyc auth : {}", authResponse);
 
-        String redirectedTo = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
-        Assert.assertTrue(redirectedTo.startsWith(redirectionUrl));
-        log.info("Successfully redirected to valid URL : {}", redirectedTo);
-
-        String[] parts = redirectedTo.split("\\?");
-        for(String param : parts[1].split("&")) {
-            if(param.startsWith("state"))
-                Assert.assertTrue(param.endsWith(state));
-            if(param.startsWith("nonce"))
-                Assert.assertTrue(param.endsWith(nonce));
-            if(param.startsWith("code"))
-                code = param.split("=")[1];
-        }
-
-        Assert.assertNotNull(code);
-        log.info("Authorization code : {}", code);
+        code = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
+        Assert.assertTrue(code != null && !code.isBlank());
+        log.info("Authorization code generated : {}", code);
 
         TokenResponse tokenResponse = getAccessToken(clientId, code, redirectionUrl, clientJWK);
         log.info("Successfully fetched auth token in exchange with auth_code : {}", tokenResponse);
@@ -153,7 +140,7 @@ public class AuthorizationCodeFlowParameterizedTest {
     private String getUserInfo(String accessToken) throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/oidc/userinfo")
                         .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .header("Authorization", accessToken))
+                        .header("Authorization", Constants.BEARER + Constants.SPACE + accessToken))
                 .andExpect(status().isOk()).andReturn();
 
         return result.getResponse().getContentAsString();
@@ -194,7 +181,7 @@ public class AuthorizationCodeFlowParameterizedTest {
         return objectMapper.readValue(result.getResponse().getContentAsString(), TokenResponse.class);
     }
 
-    private String getAuthCode(String transactionId,String state, String nonce) throws Exception  {
+    private String getAuthCodeWithRedirection(String transactionId,String state, String nonce) throws Exception  {
         AuthCodeRequest authCodeRequest = new AuthCodeRequest();
         authCodeRequest.setTransactionId(transactionId);
         authCodeRequest.setAcceptedClaims(Arrays.asList("email", "name", "gender"));
@@ -208,14 +195,45 @@ public class AuthorizationCodeFlowParameterizedTest {
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().is3xxRedirection()).andReturn();
 
-        return result.getResponse().getRedirectedUrl();
+        String code = null;
+        String[] parts = result.getResponse().getRedirectedUrl().split("\\?");
+        for(String param : parts[1].split("&")) {
+            if(param.startsWith("state"))
+                Assert.assertTrue(param.endsWith(state));
+            if(param.startsWith("nonce"))
+                Assert.assertTrue(param.endsWith(nonce));
+            if(param.startsWith("code"))
+                code = param.split("=")[1];
+        }
+        return code;
+    }
+
+    private String getAuthCode(String transactionId,String state, String nonce) throws Exception  {
+        AuthCodeRequest authCodeRequest = new AuthCodeRequest();
+        authCodeRequest.setTransactionId(transactionId);
+        authCodeRequest.setAcceptedClaims(Arrays.asList("email", "name", "gender"));
+        RequestWrapper<AuthCodeRequest> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(authCodeRequest);
+
+        MvcResult result = mockMvc.perform(post("/authorization/auth-code")
+                        .param("nonce", nonce).param("state", state)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(objectMapper.writeValueAsString(wrapper)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isEmpty())
+                .andExpect(jsonPath("$.response.redirectUri").isNotEmpty()).andReturn();
+
+        ResponseWrapper<AuthCodeResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<ResponseWrapper<AuthCodeResponse>>() {});
+        return response.getResponse().getCode();
     }
 
     private AuthResponse authenticate(String transactionId) throws Exception {
         KycAuthRequest kycAuthRequest = new KycAuthRequest();
         kycAuthRequest.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setType("PIN");
+        authChallenge.setAuthFactorType("PIN");
         authChallenge.setChallenge("34789");
         kycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         kycAuthRequest.setTransactionId(transactionId);
@@ -245,6 +263,8 @@ public class AuthorizationCodeFlowParameterizedTest {
         oAuthDetailRequest.setDisplay("popup");
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setResponseType("code");
+        oAuthDetailRequest.setNonce(nonce);
+        oAuthDetailRequest.setState(state);
         Claims claims = new Claims();
         claims.setUserinfo(new HashMap<>());
         claims.getUserinfo().put("email", new ClaimDetail(null,null,true));

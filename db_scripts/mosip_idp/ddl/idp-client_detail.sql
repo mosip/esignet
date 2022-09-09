@@ -32,7 +32,9 @@ CREATE TABLE client_detail(
 	CONSTRAINT pk_client_detail PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE client_detail.id IS 'Client ID: Unique id assigned to registered OIDC client.';
+COMMENT ON TABLE key_alias IS 'Contains key alias and  metadata of all the keys used in MOSIP system.';
+
+COMMENT ON COLUMN client_detail.id IS 'Client ID: Unique id assigned to registered OIDC client.';
 COMMENT ON COLUMN client_detail.name IS 'Client Name: Registered name of OIDC client.';
 COMMENT ON COLUMN client_detail.logo_uri IS 'Client Logo URL: Client logo to be displayed on IDP UI.';
 COMMENT ON COLUMN client_detail.redirect_uris IS 'Recirect URLS: Comma separated client redirect URLs.';

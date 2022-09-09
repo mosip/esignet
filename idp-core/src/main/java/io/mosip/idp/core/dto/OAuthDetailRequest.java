@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.core.dto;
 
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.validator.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
@@ -44,6 +45,11 @@ public class OAuthDetailRequest {
     @OIDCPrompt
     private String prompt;
 
+    @NotBlank(message = ErrorConstants.INVALID_REQUEST)
+    private String nonce;
+
+    private String state;
+
     /**
      * Optional
      */
@@ -70,5 +76,5 @@ public class OAuthDetailRequest {
      * End-User's preferred languages and scripts for Claims being returned,
      * represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference.
      */
-    private String claims_locales;
+    private String claimsLocales;
 }
