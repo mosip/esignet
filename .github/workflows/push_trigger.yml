@@ -12,10 +12,10 @@ on:
       - main
   
 jobs:
-  call-workflow-codeql-analysis:
-    uses: ./.github/workflows/codeql-analysis.yml
+  #call-workflow-codeql-analysis:
+  #  uses: ./.github/workflows/codeql-analysis.yml
   build:
-    needs: call-workflow-codeql-analysis
+    #needs: call-workflow-codeql-analysis
     runs-on: ubuntu-latest
     env:
       SERVICE_NAME: idp
@@ -68,12 +68,13 @@ jobs:
       run: |
         cd "./${{env.SERVICE_LOCATION}}"
         find -name '*.jar' -executable -type f  -exec zip release.zip {} +
+        ls -l 
 
     - name: Upload the springboot jars 
       uses: actions/upload-artifact@v1
       with:
         name: release
-        path: ./release.zip
+        path: ./${{env.SERVICE_LOCATION}}/release.zip
 
     - uses: 8398a7/action-slack@v3
       with:
