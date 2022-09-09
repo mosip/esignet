@@ -162,14 +162,19 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
 				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
+					<executable>true</executable>
+					<layout>ZIP</layout>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
