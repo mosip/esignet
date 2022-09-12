@@ -20,7 +20,7 @@
 			"name" : "fullName",
 			"middle_name" : "",
 			"preferred_username" : "fullName",
-			"nickname" : "",
+			"nickname" : "fullName",
 			"family_name" : "",
 			"gender" : "gender",
 			"birthdate" : "dateOfBirth",			

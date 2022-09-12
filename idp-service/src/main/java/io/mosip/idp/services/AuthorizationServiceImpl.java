@@ -94,7 +94,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         //Cache the transaction
         IdPTransaction idPTransaction = new IdPTransaction();
         idPTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
-        idPTransaction.setRelayingPartyId(result.get().getRpId());
+        idPTransaction.setRelyingPartyId(result.get().getRpId());
         idPTransaction.setClientId(result.get().getId());
         idPTransaction.setRequestedClaims(resolvedClaims);
         idPTransaction.setScopes(oauthDetailReqDto.getScope());
@@ -128,7 +128,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
         ResponseWrapper<KycAuthResponse> result = null;
         try {
-            result = authenticationWrapper.doKycAuth(licenseKey, transaction.getRelayingPartyId(),
+            result = authenticationWrapper.doKycAuth(licenseKey, transaction.getRelyingPartyId(),
                     transaction.getClientId(), kycAuthRequest);
         } catch (Throwable t) {
             log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), t);
@@ -185,7 +185,6 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         List<String> registeredUserClaims = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(clientDetail.getClaims(), Constants.COMMA));
         //get claims based on scope
         List<String> claimBasedOnScope = resolveScopeToClaims(requestedScope);
-
         //claims considered only if part of registered claims
         for(String claimName : registeredUserClaims) {
             if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().containsKey(claimName))
@@ -193,48 +192,44 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             else if(claimBasedOnScope.contains(claimName))
                 resolvedClaims.getUserinfo().put(claimName, null);
         }
-        log.debug("Resolved userinfo claims : {}", resolvedClaims.getUserinfo());
 
-        if(requestedClaims != null && requestedClaims.getId_token() != null ) {
-            for(String claimName : tokenService.getOptionalIdTokenClaims()) {
-                if(requestedClaims.getId_token().containsKey(claimName))
-                    resolvedClaims.getId_token().put(claimName, requestedClaims.getId_token().get(claimName));
-            }
-        }
-        resolveACRClaim(oauthDetailRequest.getAcrValues(), clientDetail.getAcrValues(), resolvedClaims);
+        //Resolve ans set ACR claim
+        resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetail.getAcrValues(), oauthDetailRequest.getAcrValues(),
+                requestedClaims));
 
         log.info("Final resolved claims : {}", resolvedClaims);
         return resolvedClaims;
     }
 
-    private void resolveACRClaim(String requestedAcr, String registeredAcr, Claims claims) throws IdPException {
-        if(registeredAcr == null)
-            throw new IdPException(ErrorConstants.NO_ACR_REGISTERED);
-
-        List<String> registeredACRs = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(registeredAcr, Constants.COMMA));
-
-        //acr_values request parameter takes highest priority
-        ClaimDetail acrClaimDetail = claims.getId_token().get(ACR);
-        String[] aCRs = (requestedAcr != null) ? IdentityProviderUtil.splitAndTrimValue(requestedAcr, Constants.SPACE) :
-                (acrClaimDetail == null || acrClaimDetail.getValues() == null ? new String[0] : acrClaimDetail.getValues());
-
-        log.info("ACR provided in request as part of claims request param to acr_values request param: {}", aCRs);
-        List<String> filteredAcr = new ArrayList<>();
-        for(String acr : aCRs) {
-            if(registeredACRs.contains(acr))
-                filteredAcr.add(acr);
-        }
-
-        if(filteredAcr.isEmpty()) {
-            log.error("Was unable to find any valid ACR");
-            throw new IdPException(ErrorConstants.EMPTY_ACR);
-        }
-
+    private ClaimDetail resolveACRClaim(String registeredAcr, String requestedAcr, Claims requestedClaims) throws IdPException {
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setEssential(true);
-        claimDetail.setValues(filteredAcr.toArray(String[]::new));
-        claims.getId_token().put(ACR, claimDetail);
-        log.debug("Final resolved list of acr: {}", claims.getId_token());
+
+        List<String> registeredACRs = Arrays.asList(IdentityProviderUtil.splitAndTrimValue(registeredAcr, Constants.COMMA));
+        if(registeredACRs == null || registeredACRs.isEmpty())
+            throw new IdPException(ErrorConstants.NO_ACR_REGISTERED);
+
+        log.info("Registered ACRS :{}", registeredACRs);
+        //First priority is given to claims request parameter
+        if(requestedClaims != null && requestedClaims.getId_token() != null && requestedClaims.getId_token().get(ACR) != null) {
+            String [] acrs = requestedClaims.getId_token().get(ACR).getValues();
+            String[] filteredAcrs = Arrays.stream(acrs).filter(acr -> registeredAcr.contains(acr)).toArray(String[]::new);
+            if(filteredAcrs.length > 0) {
+                claimDetail.setValues(filteredAcrs);
+                return claimDetail;
+            }
+            log.info("No ACRS found / filtered in claims request parameter : {}", acrs);
+        }
+        //Next priority is given to claims request parameter
+        String[] acrs = IdentityProviderUtil.splitAndTrimValue(requestedAcr, Constants.SPACE);
+        String[] filteredAcrs = Arrays.stream(acrs).filter(acr -> registeredAcr.contains(acr)).toArray(String[]::new);
+        if(filteredAcrs.length > 0) {
+            claimDetail.setValues(filteredAcrs);
+            return claimDetail;
+        }
+        log.info("Considering registered acrs as no valid acrs found in acr_values request param: {}", requestedAcr);
+        claimDetail.setValues(registeredACRs.toArray(new String[0]));
+        return claimDetail;
     }
 
     private List<String> resolveScopeToClaims(String scope) {

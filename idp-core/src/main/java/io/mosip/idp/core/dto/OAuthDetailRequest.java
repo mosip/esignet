@@ -48,12 +48,14 @@ public class OAuthDetailRequest {
     @NotBlank(message = ErrorConstants.INVALID_REQUEST)
     private String nonce;
 
+    /**
+     * Optional
+     */
     private String state;
 
     /**
      * Optional
      */
-    @AuthContextRef
     private String acrValues; //Space-separated string
 
     /**

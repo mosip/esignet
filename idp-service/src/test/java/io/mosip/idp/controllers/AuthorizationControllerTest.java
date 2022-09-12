@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.core.dto.OAuthDetailRequest;
 import io.mosip.idp.core.dto.OAuthDetailResponse;
 import io.mosip.idp.core.dto.RequestWrapper;
+import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.services.AuthorizationServiceImpl;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,20 +44,22 @@ public class AuthorizationControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
+    @Before
+    public void init() throws IdPException {
+        HashSet<String> acrValues = new HashSet<>();
+        acrValues.add("mosip:idp:acr:static-code");
+        acrValues.add("mosip:idp:acr:biometrics");
+        acrValues.add("mosip:idp:acr:linked-wallet");
+        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
+    }
+
 
     @Test
     public void getOauthDetails_withInvalidTimestamp_returnErrorResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level5");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
-        oauthDetailRequest.setAcrValues("level5 level2");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -78,17 +82,10 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withInvalidRedirectUri_returnErrorResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level5");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri(" ");
         oauthDetailRequest.setScope("openid profile");
-        oauthDetailRequest.setAcrValues("level5 level2");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -107,17 +104,12 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void getOauthDetails_withInvalidAcr_returnErrorResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
+    public void getOauthDetails_withInvalidAcr_returnSuccessResponse() throws Exception {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
-        oauthDetailRequest.setAcrValues("level5 level2");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code level2");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -127,26 +119,24 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
+        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        oauthDetailResponse.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
+
         mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_ACR));
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
     public void getOauthDetails_withInvalidDisplay_returnErrorResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
-        oauthDetailRequest.setAcrValues("level4");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("none");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -166,16 +156,11 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withInvalidPrompt_returnErrorResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
-        oauthDetailRequest.setAcrValues("level4");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("touch");
         oauthDetailRequest.setResponseType("code");
@@ -195,15 +180,11 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withInvalidResponseType_returnErrorResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
-        oauthDetailRequest.setAcrValues("level4");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("none");
         oauthDetailRequest.setResponseType("implicit");
@@ -223,17 +204,11 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withOnlyOpenIdScope_returnSuccessResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level5");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid");
-        oauthDetailRequest.setAcrValues("level5 level2");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -256,17 +231,11 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withOutOpenIdScope_returnSuccessResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level5");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("profile");
-        oauthDetailRequest.setAcrValues("level5 level2");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -286,17 +255,11 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withOpenIdScope_returnSuccessResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level5");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("profile openid");
-        oauthDetailRequest.setAcrValues("level5 level2");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -319,17 +282,11 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withOnlyAuthorizeScope_returnSuccessResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level5");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("resident-service");
-        oauthDetailRequest.setAcrValues("level5 level2");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
@@ -352,17 +309,11 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetails_withAuthorizeAndOpenIdScope_returnSuccessResponse() throws Exception {
-        HashSet<String> acrValues = new HashSet<>();
-        acrValues.add("level4");
-        acrValues.add("level5");
-        acrValues.add("level2");
-        when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
-
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid resident-service");
-        oauthDetailRequest.setAcrValues("level5 level2");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");

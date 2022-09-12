@@ -9,23 +9,13 @@
 	}, {
 		"attributeName": "dateOfBirth"
 	}, {
-		"attributeName": "photo"
+		"attributeName": "encodedPhoto"
 	}, {
-		"attributeName": "civilRegistryNumber"
+		"attributeName": "email"
 	}, {
-		"attributeName": "birthCertificateNumber"
+		"attributeName": "phone"
 	}, {
-		"attributeName": "flagidcs"
-	}, {
-		"attributeName": "listCountry"
-	}, {
-		"attributeName": "placeOfBirth"
-	}, {
-		"attributeName": "flagb"
-	}, {
-		"attributeName": "passportNumber"
-	}, {
-		"attributeName": "referenceResidencyNumber"
+		"attributeName": "province"
 	}, {
 		"attributeName": "resOuPass"
 	}],
@@ -39,7 +29,7 @@
 		"mandatory": false
 	}, {
 		"authSubType": "",
-		"authType": "otp",
+		"authType": "pin",
 		"mandatory": false
 	}, {
 		"authSubType": "FACE",

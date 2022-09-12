@@ -58,7 +58,7 @@ public class ClientManagementServiceTest {
     List<String> CLIENT_AUTH_METHODS = Arrays.asList(commaSeparatedACRs.split(","));
     String STATUS_ACTIVE = "ACTIVE";
     String STATUS_INACTIVE = "INACTIVE";
-    String RELAYING_PARTY_ID = "RP01";
+    String RELYING_PARTY_ID = "RP01";
 
     //endregion
 
@@ -80,7 +80,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
-        clientCreateReqDto.setRelyingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setRelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
         clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
@@ -106,7 +106,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto1.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto1.setUserClaims(CLAIMS);
         clientCreateReqDto1.setAuthContextRefs(ACRS);
-        clientCreateReqDto1.setRelyingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto1.setRelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto1.setGrantTypes(GRAND_TYPES);
         clientCreateReqDto1.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
@@ -127,7 +127,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto2.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto2.setUserClaims(CLAIMS);
         clientCreateReqDto2.setAuthContextRefs(ACRS);
-        clientCreateReqDto2.setRelyingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto2.setRelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto2.setGrantTypes(GRAND_TYPES);
         clientCreateReqDto2.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
@@ -157,7 +157,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
-        clientCreateReqDto.setRelyingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setRelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
         clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
@@ -194,7 +194,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
-        clientCreateReqDto.setRelyingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setRelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
         clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
 
