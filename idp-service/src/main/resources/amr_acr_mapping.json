@@ -1,28 +1,14 @@
 {
-  "amr_values" : {
-    "only_pin" :  [{ "type": "pin" }],
-    "only_otp" :  [{ "type": "otp" }],
-    "only_finger" :  [{ "type": "fpt", "count": 1, "bioSubTypes" : ["leftThumb"] }],
-    "only_iris" :  [{ "type": "iris", "count": 2 }],
-    "five_fingers" : [{ "type": "fpt", "count": 4 , "bioSubTypes" : ["unknown", "unknown", "unknown", "unknown"]}],
-    "otp_one_finger" : [{ "type": "otp" },{ "type": "fpt", "count": 1 , "bioSubTypes" : ["rightThumb"]}],
-    "otp_all_fingers" : [{ "type": "otp" },{ "type": "fpt", "count": 10 }],
-    "iris_otp" :  [{ "type": "iris", "count": 2 }, { "type": "otp" }]
-  },
-  "acr_values" : {
-    "level0" : "0",
-    "level1" : "1",
-    "level2" : "2",
-    "level3" : "3",
-    "level4" : "4",
-    "level5" : "5"
+  "amr" : {
+    "PIN" :  [{ "type": "PIN" }],
+    "OTP" :  [{ "type": "OTP" }],
+    "Inji" :  [{ "type": "INJI" }],
+    "L1 device" :  [{ "type": "BIO", "count": 1 }]
   },
   "acr_amr" : {
-                "0" :  ["only_pin"],
-                "1" :  ["only_otp"],
-                "2" :  ["only_otp", "only_finger"],
-                "3" :  ["five_fingers", "otp_one_finger"],
-                "4" :  ["otp_all_fingers", "only_iris"],
-                "5" :  ["iris_otp"]
-              }
+    "mosip:idp:acr:static-code" : ["PIN"],
+    "mosip:idp:acr:generated-code" : ["OTP"],
+    "mosip:idp:acr:linked-wallet" : [ "Inji" ],
+    "mosip:idp:acr:biometrics" : [ "L1 device" ]
+  }
 }

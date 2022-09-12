@@ -220,7 +220,7 @@ public class AuthCodeFlowTest {
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
         oAuthDetailRequest.setClientId(clientId);
         oAuthDetailRequest.setRedirectUri(redirectionUrl);
-        oAuthDetailRequest.setAcrValues("level0 level1");
+        oAuthDetailRequest.setAcrValues("level0 mosip:idp:acr:static-code");
         oAuthDetailRequest.setPrompt("login");
         oAuthDetailRequest.setDisplay("popup");
         oAuthDetailRequest.setScope("openid profile");
@@ -254,12 +254,12 @@ public class AuthCodeFlowTest {
         ClientDetailCreateRequest createRequest = new ClientDetailCreateRequest();
         createRequest.setClientName("Mock OIDC Client");
         createRequest.setClientId(clientId);
-        createRequest.setRelyingPartyId("mock-relaying-party-id");
+        createRequest.setRelyingPartyId("mock-relying-party-id");
         createRequest.setPublicKey(publicJWK.toJSONObject());
         createRequest.setLogoUri("https://mock.client.com/logo.png");
         createRequest.setGrantTypes(Arrays.asList("authorization_code"));
         createRequest.setClientAuthMethods(Arrays.asList("private_key_jwt"));
-        createRequest.setAuthContextRefs(Arrays.asList("level0"));
+        createRequest.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
         createRequest.setRedirectUris(Arrays.asList("https://mock.client.com/home", "https://mock.client.com/dashboard"));
         createRequest.setUserClaims(Arrays.asList("name", "email", "gender"));
         RequestWrapper<ClientDetailCreateRequest> request = new RequestWrapper<>();

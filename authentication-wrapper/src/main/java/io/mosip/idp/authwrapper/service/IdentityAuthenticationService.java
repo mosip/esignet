@@ -22,7 +22,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     private static final Logger logger = LoggerFactory.getLogger(IdentityAuthenticationService.class);
 
     @Override
-    public ResponseWrapper<KycAuthResponse> doKycAuth(String licenseKey, String relayingPartnerId,
+    public ResponseWrapper<KycAuthResponse> doKycAuth(String licenseKey, String relyingPartyId,
                                                      String clientId, KycAuthRequest kycAuthRequest) {
         throw new NotImplementedException("KYC auth not implemented");
     }

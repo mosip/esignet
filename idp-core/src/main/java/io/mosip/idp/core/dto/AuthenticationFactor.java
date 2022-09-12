@@ -11,5 +11,5 @@ public class AuthenticationFactor {
 
     private String type;
     private int count;
-    private List<String> bioSubTypes;
+    private List<String> subTypes;
 }

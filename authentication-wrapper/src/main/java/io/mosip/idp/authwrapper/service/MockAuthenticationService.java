@@ -95,14 +95,14 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Validated
     @Override
-    public ResponseWrapper<KycAuthResponse> doKycAuth(@NotBlank String licenseKey, @NotBlank String relayingPartnerId,
+    public ResponseWrapper<KycAuthResponse> doKycAuth(@NotBlank String licenseKey, @NotBlank String relyingPartyId,
                                          @NotBlank String clientId,
                                          @NotNull @Valid KycAuthRequest kycAuthRequest) {
 
         ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
         responseWrapper.setErrors(new ArrayList<>());
 
-        List<String> authMethods = resolveAuthMethods(relayingPartnerId);
+        List<String> authMethods = resolveAuthMethods(relyingPartyId);
 
         boolean result = kycAuthRequest.getChallengeList()
                 .stream()
@@ -115,7 +115,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             return responseWrapper;
         }
 
-        String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relayingPartnerId);
+        String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId);
         KycAuthResponse kycAuthResponse = new KycAuthResponse();
         kycAuthResponse.setKycToken(kycToken);
         kycAuthResponse.setUserAuthToken(UUID.randomUUID().toString());
@@ -123,12 +123,12 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return responseWrapper;
     }
 
-    private String getKycToken(String individualId, String clientId, String relayingPartyId) {
+    private String getKycToken(String individualId, String clientId, String relyingPartyId) {
         JSONObject payload = new JSONObject();
         payload.put(TokenService.ISS, APPLICATION_ID);
         payload.put(TokenService.SUB, individualId);
         payload.put(CID_CLAIM, clientId);
-        payload.put(RID_CLAIM, relayingPartyId);
+        payload.put(RID_CLAIM, relyingPartyId);
         payload.put(TokenService.AUD, Constants.IDP_SERVICE_APP_ID);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(TokenService.IAT, issueTime);
@@ -174,9 +174,9 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                 return responseWrapper;
             }
 
-            String relayingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
+            String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
             String[] claimsLocales = IdentityProviderUtil.splitAndTrimValue(kycExchangeRequest.getClaimsLocales(), Constants.SPACE);
-            Map<String,Object> kyc = getKycAttributesFromPolicy(relayingPartyId, jwtClaimsSet.getSubject(),
+            Map<String,Object> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeRequest.getAcceptedClaims(), claimsLocales);
 
             String plainKyc = objectMapper.writeValueAsString(kyc);
@@ -246,13 +246,13 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return false;
     }
 
-    private Map<String, Object> getKycAttributesFromPolicy(String relayingPartyId, String individualId,
+    private Map<String, Object> buildKycDataBasedOnPolicy(String relyingPartyId, String individualId,
                                                            List<String> claims, String[] locales) throws IdPException {
         Map<String, Object> kyc = new HashMap<>();
         String persona = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
             DocumentContext personaContext = JsonPath.parse(new File(personaDir, persona));
-            List<String> allowedAttributes = getPolicyKycAttributes(relayingPartyId);
+            List<String> allowedAttributes = getPolicyKycAttributes(relyingPartyId);
 
             Map<String, PathInfo> kycAttributeMap = claims.stream()
                     .distinct()
@@ -311,18 +311,18 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return attribute != null && !attribute.isBlank();
     }
 
-    private List<String> getPolicyKycAttributes(String relayingPartyId) throws IOException {
-        String filename = String.format(POLICY_FILE_NAME_FORMAT, relayingPartyId);
-        if(!policyContextMap.containsKey(relayingPartyId)) {
+    private List<String> getPolicyKycAttributes(String relyingPartyId) throws IOException {
+        String filename = String.format(POLICY_FILE_NAME_FORMAT, relyingPartyId);
+        if(!policyContextMap.containsKey(relyingPartyId)) {
             DocumentContext context = JsonPath.parse(new File(policyDir, filename));
             List<String> allowedAttributes = context.read("$.allowedKycAttributes.*.attributeName");
-            policyContextMap.put(relayingPartyId, allowedAttributes);
+            policyContextMap.put(relyingPartyId, allowedAttributes);
         }
 
-        return policyContextMap.get(relayingPartyId);
+        return policyContextMap.get(relyingPartyId);
     }
 
-    private List<String> resolveAuthMethods(String relayingPartyId) {
+    private List<String> resolveAuthMethods(String relyingPartyId) {
         //TODO - Need to check the policy to resolve supported auth methods
         return Arrays.asList("PIN");
     }
