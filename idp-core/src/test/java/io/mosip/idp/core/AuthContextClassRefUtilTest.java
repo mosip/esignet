@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.Resource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,21 +35,19 @@ public class AuthContextClassRefUtilTest {
     @Mock
     ObjectMapper objectMapper;
 
-    @Mock
-    Resource mappingFile;
 
     private static final String amr_acr_mapping = "{\n" +
             "  \"amr\" : {\n" +
             "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
             "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
             "    \"Inji\" :  [{ \"type\": \"INJI\" }],\n" +
-            "    \"L1 device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
+            "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
             "  },\n" +
             "  \"acr_amr\" : {\n" +
             "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
             "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
             "    \"mosip:idp:acr:linked-wallet\" : [ \"Inji\" ],\n" +
-            "    \"mosip:idp:acr:biometrics\" : [ \"L1 device\" ]\n" +
+            "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
             "  }\n" +
             "}";
 
@@ -61,13 +60,14 @@ public class AuthContextClassRefUtilTest {
         Map<String, List<String>> acr_amr_Values = new ObjectMapper().convertValue(objectNode.get("acr_amr"),
                 new TypeReference<Map<String, List<String>>>(){});
 
-        when(mappingFile.getFile()).thenReturn(new File(""));
         when(objectMapper.readValue(ArgumentMatchers.<File>any(),
                 ArgumentMatchers.<TypeReference<ObjectNode>>any())).thenReturn(objectNode);
 
         //Ongoing stub, returns value in order of call hierarchy
         when(objectMapper.convertValue(ArgumentMatchers.<ObjectNode>any(),
                 ArgumentMatchers.<TypeReference<Map<String, Object>>>any())).thenReturn(amrValues, acr_amr_Values);
+
+        ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingFilePath", "src/test/resources/amr_acr_mapping.json");
     }
 
 

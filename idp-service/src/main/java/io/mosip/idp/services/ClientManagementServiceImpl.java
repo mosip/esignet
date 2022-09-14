@@ -90,6 +90,17 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return response;
     }
 
+    @Override
+    public String getClientPublicKey(String clientId) throws IdPException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+
+        if (!result.isPresent()) {
+            throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        return  result.get().getPublicKey();
+    }
+
     private String getJWKString(Map<String, Object> jwk) throws IdPException {
         try {
             RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);

@@ -20,7 +20,7 @@ public class OIDCPromptValidator implements ConstraintValidator<OIDCPrompt, Stri
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if(value == null)
+        if(value == null || value.isBlank())
             return true; // As this is OPTIONAL parameter
 
         return supportedPrompts.contains(value);

@@ -29,4 +29,6 @@ public interface ClientManagementService {
      */
     ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailCreateRequest) throws IdPException;
 
+
+    String getClientPublicKey(String clientId) throws IdPException;
 }

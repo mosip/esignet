@@ -8,6 +8,13 @@ package io.mosip.idp.authwrapper.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWEHeader;
+import com.nimbusds.jose.crypto.RSAEncrypter;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -18,6 +25,7 @@ import io.mosip.idp.core.dto.Error;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
+import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
@@ -28,6 +36,7 @@ import io.mosip.kernel.signature.service.SignatureService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.jose4j.jwk.RsaJsonWebKey;
 import org.json.simple.JSONObject;
 import org.springframework.validation.annotation.Validated;
 
@@ -37,6 +46,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +65,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static Set<String> REQUIRED_CLAIMS;
     private int tokenExpireInSeconds;
     private SignatureService signatureService;
+    private ClientManagementService clientManagementService;
     private TokenService tokenService;
     private ObjectMapper objectMapper;
     private DocumentContext mappingDocumentContext;
@@ -77,12 +88,13 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     public MockAuthenticationService(String personaDirPath, String policyDirPath, String claimsMappingFilePath,
                                      int kycTokenExpireSeconds, SignatureService signatureService,
-                                     TokenService tokenService, ObjectMapper objectMapper)
+                                     TokenService tokenService, ObjectMapper objectMapper, ClientManagementService clientManagementService)
             throws IOException {
 
         this.signatureService = signatureService;
         this.tokenService = tokenService;
         this.objectMapper = objectMapper;
+        this.clientManagementService = clientManagementService;
 
         log.info("Started to setup MOCK IDA");
         personaDir = new File(personaDirPath);
@@ -175,20 +187,32 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             }
 
             String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
-            String[] claimsLocales = IdentityProviderUtil.splitAndTrimValue(kycExchangeRequest.getClaimsLocales(), Constants.SPACE);
             Map<String,Object> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
-                    kycExchangeRequest.getAcceptedClaims(), claimsLocales);
+                    kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
 
             String plainKyc = objectMapper.writeValueAsString(kyc);
-            //TODO - encrypt KYC
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
             kycExchangeResult.setEncryptedKyc(CryptoUtil.encodeToURLSafeBase64(plainKyc.getBytes(StandardCharsets.UTF_8)));
+            //kycExchangeResult.setEncryptedKyc(encryptKyc(clientId, kyc));
             responseWrapper.setResponse(kycExchangeResult);
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
             responseWrapper.getErrors().add(new Error("mock-ida-005", "Failed to build kyc data"));
         }
         return responseWrapper;
+    }
+
+    private String encryptKyc(String clientId, Map<String,Object> kyc) throws Exception {
+        String publicKey = clientManagementService.getClientPublicKey(clientId);
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+        kyc.entrySet().forEach( e-> {
+            builder.claim(e.getKey(), e.getValue());
+        });
+        JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128GCM);
+        EncryptedJWT jwt = new EncryptedJWT(jweHeader, builder.build());
+        RSAEncrypter rsaEncrypter = new RSAEncrypter(RSAKey.parse(publicKey));
+        jwt.encrypt(rsaEncrypter);
+        return jwt.serialize();
     }
 
     @Override
@@ -269,16 +293,20 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             for(Map.Entry<String, PathInfo> entry : kycAttributeMap.entrySet()) {
                 String path = entry.getValue().getPath();
 
-                Optional<String> langResult = Arrays.stream(locales)
+                Map<String, String> langResult = Arrays.stream(locales)
                         .filter( locale -> getKycValue(personaContext, path, locale) != null)
-                        .findFirst();
+                        .collect(Collectors.toMap(locale -> locale, locale -> getKycValue(personaContext, path, locale)));
 
-                String value = (langResult.isPresent()) ? getKycValue(personaContext, path, langResult.get()) :
-                        getKycValue(personaContext, path, entry.getValue().getDefaultLocale());
+                if(langResult.isEmpty())
+                    continue;
 
-                if(value != null) {
+                if(langResult.size() == 1)
+                    kyc.put(entry.getKey(), langResult.values().stream().findFirst().get());
+                else {
                     //Handling the language tagging based on the requested claims_locales
-                    kyc.put((langResult.isPresent()) ? entry.getKey()+"#"+langResult.get() : entry.getKey(), value);
+                    kyc.putAll(langResult.entrySet()
+                            .stream()
+                            .collect(Collectors.toMap(e -> entry.getKey()+"#"+e.getKey(), e-> e.getValue())));
                 }
             }
         } catch (Exception e) {

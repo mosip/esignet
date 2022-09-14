@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -24,8 +25,8 @@ public class AuthenticationContextClassRefUtil {
     private static final String AMR_KEY = "amr";
     private static final String ACR_AMR = "acr_amr";
 
-    @Value("classpath:amr_acr_mapping.json")
-    Resource mappingFile;
+    @Value("${mosip.idp.amr-acr-mapping-file:amr_acr_mapping.json}")
+    String mappingFilePath;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -33,7 +34,7 @@ public class AuthenticationContextClassRefUtil {
     @Cacheable(value = "acr_amr", key = "amr", unless = "#result != null")
     private Map<String, List<AuthenticationFactor>> getAllAMRs()  throws IdPException {
         try {
-            ObjectNode objectNode = objectMapper.readValue(mappingFile.getFile(), new TypeReference<ObjectNode>(){});
+            ObjectNode objectNode = objectMapper.readValue(new File(mappingFilePath), new TypeReference<ObjectNode>(){});
             return objectMapper.convertValue(objectNode.get(AMR_KEY),
                     new TypeReference<Map<String, List<AuthenticationFactor>>>(){});
         } catch (IOException e) {
@@ -45,7 +46,7 @@ public class AuthenticationContextClassRefUtil {
     @Cacheable(value = "acr_amr", key = "acr_amr", unless = "#result != null")
     private Map<String, List<String>> getAllACR_AMR_Mapping()  throws IdPException {
         try {
-            ObjectNode objectNode = objectMapper.readValue(mappingFile.getFile(), new TypeReference<ObjectNode>(){});
+            ObjectNode objectNode = objectMapper.readValue(new File(mappingFilePath), new TypeReference<ObjectNode>(){});
             return objectMapper.convertValue(objectNode.get(ACR_AMR),
                     new TypeReference<Map<String, List<String>>>(){});
 
