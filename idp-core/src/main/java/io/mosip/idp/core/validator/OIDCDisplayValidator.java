@@ -20,7 +20,7 @@ public class OIDCDisplayValidator implements ConstraintValidator<OIDCDisplay, St
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if(value == null)
+        if(value == null || value.isBlank())
             return true; // As this is OPTIONAL parameter
 
         return supportedDisplays.contains(value);

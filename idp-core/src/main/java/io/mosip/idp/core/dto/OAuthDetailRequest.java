@@ -45,7 +45,9 @@ public class OAuthDetailRequest {
     @OIDCPrompt
     private String prompt;
 
-    @NotBlank(message = ErrorConstants.INVALID_REQUEST)
+    /**
+     * Optional
+     */
     private String nonce;
 
     /**

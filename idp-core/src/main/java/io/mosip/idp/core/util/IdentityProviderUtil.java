@@ -116,7 +116,9 @@ public class IdentityProviderUtil {
     public static String createTransactionId(String nonce) throws IdPException {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA3-256");
-            digest.update(UUID.randomUUID().toString().concat(nonce).getBytes(StandardCharsets.UTF_8));
+            digest.update(UUID.randomUUID().toString()
+                    .concat(nonce == null ? getResponseTime() : nonce)
+                    .getBytes(StandardCharsets.UTF_8));
             return urlSafeEncoder.encodeToString(digest.digest());
         } catch (NoSuchAlgorithmException ex) {
             log.error("create transaction id failed with alg SHA3-256", ex);
