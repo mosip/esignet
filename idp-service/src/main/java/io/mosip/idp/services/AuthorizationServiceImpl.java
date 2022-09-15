@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 
 @Slf4j
 @Service
@@ -158,7 +159,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new InvalidTransactionException();
         }
 
-        String authCode = IdentityProviderUtil.generateB64EncodedHash("MD5", UUID.randomUUID().toString());
+        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, UUID.randomUUID().toString());
         // cache consent with auth-code as key
         transaction.setCode(authCode);
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());

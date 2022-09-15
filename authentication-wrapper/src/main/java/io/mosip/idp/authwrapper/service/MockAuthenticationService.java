@@ -28,6 +28,7 @@ import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
@@ -36,7 +37,6 @@ import io.mosip.kernel.signature.service.SignatureService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.jose4j.jwk.RsaJsonWebKey;
 import org.json.simple.JSONObject;
 import org.springframework.validation.annotation.Validated;
 
@@ -46,18 +46,21 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.mosip.idp.core.spi.TokenService.SUB;
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_INPUT;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 public class MockAuthenticationService implements AuthenticationWrapper {
 
     private static final String APPLICATION_ID = "MOCK_IDA_SERVICES";
+    private static final String PSUT_FORMAT = "%s%s";
     private static final String CID_CLAIM = "cid";
     private static final String RID_CLAIM = "rid";
+    private static final String PSUT_CLAIM = "psut";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
     private static Map<String, List<String>> policyContextMap;
@@ -127,19 +130,28 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             return responseWrapper;
         }
 
-        String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId);
+        String psut;
+        try {
+            psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
+                    String.format(PSUT_FORMAT, kycAuthRequest.getIndividualId(), relyingPartyId));
+        } catch (IdPException e) {
+            responseWrapper.getErrors().add(new Error("mock-ida-006", "Failed to generate PSUT"));
+            return responseWrapper;
+        }
+        String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId, psut);
         KycAuthResponse kycAuthResponse = new KycAuthResponse();
         kycAuthResponse.setKycToken(kycToken);
-        kycAuthResponse.setUserAuthToken(UUID.randomUUID().toString());
+        kycAuthResponse.setUserAuthToken(psut);
         responseWrapper.setResponse(kycAuthResponse);
         return responseWrapper;
     }
 
-    private String getKycToken(String individualId, String clientId, String relyingPartyId) {
+    private String getKycToken(String individualId, String clientId, String relyingPartyId, @NotBlank String psut) {
         JSONObject payload = new JSONObject();
         payload.put(TokenService.ISS, APPLICATION_ID);
-        payload.put(TokenService.SUB, individualId);
+        payload.put(SUB, individualId);
         payload.put(CID_CLAIM, clientId);
+        payload.put(PSUT_CLAIM, psut);
         payload.put(RID_CLAIM, relyingPartyId);
         payload.put(TokenService.AUD, Constants.IDP_SERVICE_APP_ID);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
@@ -189,6 +201,8 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
             Map<String,Object> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
+
+            kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
 
             String plainKyc = objectMapper.writeValueAsString(kyc);
             KycExchangeResult kycExchangeResult = new KycExchangeResult();

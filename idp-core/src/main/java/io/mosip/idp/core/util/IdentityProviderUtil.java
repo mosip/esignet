@@ -28,6 +28,9 @@ import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 public class IdentityProviderUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
+    public static final String ALGO_SHA3_256 = "SHA3-256";
+    public static final String ALGO_SHA_256 = "SHA-256";
+    public static final String ALGO_MD5 = "MD5";
 
     private static Base64.Encoder urlSafeEncoder;
 
@@ -88,14 +91,13 @@ public class IdentityProviderUtil {
      * @throws IdPException
      */
     public static String generateAccessTokenHash(String accessToken) throws IdPException {
-        String alg = "SHA-256";
         try {
-            MessageDigest digest = MessageDigest.getInstance(alg);
+            MessageDigest digest = MessageDigest.getInstance(ALGO_SHA_256);
             byte[] hash = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
             byte[] leftMost128Bits = ByteUtils.subArray(hash, 0, 32);
             return urlSafeEncoder.encodeToString(leftMost128Bits);
         } catch (NoSuchAlgorithmException ex) {
-            log.error("Access token hashing failed with alg:{}", alg, ex);
+            log.error("Access token hashing failed with alg:{}", ALGO_SHA_256, ex);
             throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
@@ -115,7 +117,7 @@ public class IdentityProviderUtil {
 
     public static String createTransactionId(String nonce) throws IdPException {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+            MessageDigest digest = MessageDigest.getInstance(ALGO_SHA3_256);
             digest.update(UUID.randomUUID().toString()
                     .concat(nonce == null ? getResponseTime() : nonce)
                     .getBytes(StandardCharsets.UTF_8));
