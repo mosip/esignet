@@ -13,10 +13,11 @@ import java.util.List;
 public class IdPTransaction {
 
     String clientId;
-    String relayingPartyId;
+    String relyingPartyId;
     String redirectUri;
     Claims requestedClaims;
     String scopes;
+    String claimsLocales;
 
     String kycToken;
     String userToken;
@@ -24,6 +25,7 @@ public class IdPTransaction {
     String code;
 
     List<String> acceptedClaims;
+    List<String> permittedScopes;
     String encryptedKyc;
     String idHash;
     String aHash;

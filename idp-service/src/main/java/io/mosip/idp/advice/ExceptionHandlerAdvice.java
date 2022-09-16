@@ -18,6 +18,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -139,15 +140,6 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
             return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof NotAuthenticatedException) {
-            ResponseEntity responseEntity = new ResponseEntity(HttpStatus.UNAUTHORIZED);
-            HttpHeaders headers = responseEntity.getHeaders();
-            headers.add("WWW-Authenticate", "error=\""+INVALID_AUTH_TOKEN+"\"");
-            return responseEntity;
-        }
-        if(ex instanceof InvalidClientException) {
-            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_CLIENT_ID, INVALID_CLIENT_ID), HttpStatus.BAD_REQUEST);
-        }
         if(ex instanceof IdPException) {
             String errorCode = ((IdPException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode,errorCode), HttpStatus.BAD_REQUEST);
@@ -163,9 +155,9 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
             errorCode = INVALID_AUTH_TOKEN;
         }
         logger.error("Unhandled exception encountered in handler advice", ex);
-        ResponseEntity responseEntity = new ResponseEntity(HttpStatus.UNAUTHORIZED);
-        HttpHeaders headers = responseEntity.getHeaders();
+        MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add("WWW-Authenticate", "error=\""+errorCode+"\"");
+        ResponseEntity responseEntity = new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
         return responseEntity;
     }
 

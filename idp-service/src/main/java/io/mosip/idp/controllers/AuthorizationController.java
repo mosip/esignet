@@ -10,13 +10,9 @@ import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.AuthorizationService;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.validation.Valid;
 
@@ -32,12 +28,11 @@ public class AuthorizationController {
     AuthorizationService authorizationService;
 
     @PostMapping("/oauth-details")
-    public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@RequestParam("nonce") String nonce,
-                                                                @Valid @RequestBody RequestWrapper<OAuthDetailRequest> requestWrapper)
+    public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest> requestWrapper)
             throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());
-        responseWrapper.setResponse(authorizationService.getOauthDetails(nonce, requestWrapper.getRequest()));
+        responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
         return responseWrapper;
     }
 
@@ -60,22 +55,16 @@ public class AuthorizationController {
     }
 
     @PostMapping("/auth-code")
-    public RedirectView getAuthorizationCode(@RequestParam(value = "state", required = true) String state,
-                                             @RequestParam(value = "nonce", required = true) String nonce,
-                                             @Valid @RequestBody RequestWrapper<AuthCodeRequest> requestWrapper,
-                                             final RedirectAttributes redirectAttributes) {
-        redirectAttributes.addAttribute("state", state);
-        redirectAttributes.addAttribute("nonce", nonce);
-        try {
-            IdPTransaction idPTransaction = authorizationService.getAuthCode(requestWrapper.getRequest());
-            redirectAttributes.addAttribute("code", idPTransaction.getCode());
-            redirectAttributes.addAttribute("nonce", idPTransaction.getNonce());
-            return new RedirectView(idPTransaction.getRedirectUri());
-        } catch (IdPException e) {
-            log.error("Failed to generate auth code or validate the provided transaction {}",
-                    requestWrapper.getRequest().getTransactionId(), e);
-            redirectAttributes.addAttribute("error", e.getErrorCode());
-        }
-        return new RedirectView(errorPage);
+    public ResponseWrapper<AuthCodeResponse> getAuthorizationCode(@Valid @RequestBody RequestWrapper<AuthCodeRequest>
+                                                                              requestWrapper) throws IdPException {
+        IdPTransaction idPTransaction = authorizationService.getAuthCode(requestWrapper.getRequest());
+        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
+        authCodeResponse.setCode(idPTransaction.getCode());
+        authCodeResponse.setRedirectUri(idPTransaction.getRedirectUri());
+        authCodeResponse.setNonce(idPTransaction.getNonce());
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());
+        responseWrapper.setResponse(authCodeResponse);
+        return responseWrapper;
     }
 }

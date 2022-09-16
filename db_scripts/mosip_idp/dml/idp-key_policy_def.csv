@@ -1,3 +1,4 @@
 app_id,key_validity_duration,is_active,cr_by,cr_dtimes,pre_expire_days,access_allowed
 ROOT,2920,TRUE,mosipadmin,now(),1125,NA
 IDP_SERVICE,1095,TRUE,mosipadmin,now(),60,NA
+IDP_PARTNER,1095,TRUE,mosipadmin,now(),60,NA

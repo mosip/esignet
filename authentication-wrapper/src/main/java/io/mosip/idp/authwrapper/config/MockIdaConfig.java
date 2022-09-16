@@ -8,6 +8,7 @@ package io.mosip.idp.authwrapper.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.authwrapper.service.MockAuthenticationService;
+import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.kernel.signature.service.SignatureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +44,12 @@ public class MockIdaConfig {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private ClientManagementService clientManagementService;
+
     @Bean
     public MockAuthenticationService mockAuthenticationService() throws IOException {
         return new MockAuthenticationService(personaRepoDirPath, policyRepoDirPath, claimsMappingFilePath,
-                tokenExpireInSeconds, signatureService, tokenService, objectMapper);
+                tokenExpireInSeconds, signatureService, tokenService, objectMapper, clientManagementService);
     }
 }

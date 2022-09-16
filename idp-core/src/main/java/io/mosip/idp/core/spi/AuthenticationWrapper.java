@@ -15,13 +15,13 @@ public interface AuthenticationWrapper {
      *  1. Request to be signed with IdP key, signature to be set in the request header.
      *       header name: signature
      * @param licenseKey IdP Service License Key. This LK is similar MISP-LK.
-     * @param relayingPartnerId Relaying Party (RP) Partner ID. This ID will be provided during partner self registration process
+     * @param relyingPartyId relying Party (RP) ID. This ID will be provided during partner self registration process
      * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
      * @param kycAuthRequest
      * @return KYC Token and Partner specific User Token (PSUT)
      */
-    ResponseWrapper<KycAuthResponse> doKycAuth(String licenseKey, String relayingPartnerId,
-                                              String clientId, KycAuthRequest kycAuthRequest) throws IdPException;
+    ResponseWrapper<KycAuthResponse> doKycAuth(String licenseKey, String relyingPartyId,
+                                              String clientId, KycAuthRequest kycAuthRequest);
 
     /**
      * Delegate request to exchange KYC token with encrypted user data
@@ -31,7 +31,7 @@ public interface AuthenticationWrapper {
      * @param kycExchangeRequest
      * @return encrypted KYC data
      */
-    String doKycExchange(KycExchangeRequest kycExchangeRequest) throws IdPException;
+    ResponseWrapper<KycExchangeResult> doKycExchange(KycExchangeRequest kycExchangeRequest);
 
     /**
      * Delegate request to send out OTP to provided individual Id on the configured channel

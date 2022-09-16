@@ -77,7 +77,7 @@ public class ClientManagementControllerTest {
     String STATUS_ACTIVE = "active";
     String STATUS_INACTIVE = "inactive";
     String STATUS_INVALID = "INVALID_STATUS";
-    String RELAYING_PARTY_ID = "RP01";
+    String RELYING_PARTY_ID = "RP01";
     String BLANK = "";
     Map<String, Object> BLANK_MAP = new HashMap<>();
     ClientDetailCreateRequest defaultClientDetailCreateRequest;
@@ -116,12 +116,11 @@ public class ClientManagementControllerTest {
         defaultClientDetailCreateRequest.setClientId(CLIENT_ID_1);
         defaultClientDetailCreateRequest.setClientName(CLIENT_NAME_1);
         defaultClientDetailCreateRequest.setLogoUri(LOGO_URI);
-        defaultClientDetailCreateRequest.setJwk(PUBLIC_KEY_RSA);
+        defaultClientDetailCreateRequest.setPublicKey(PUBLIC_KEY_RSA);
         defaultClientDetailCreateRequest.setRedirectUris(LIST_OF_URIS);
         defaultClientDetailCreateRequest.setUserClaims(CLAIMS);
         defaultClientDetailCreateRequest.setAuthContextRefs(ACRS);
-        defaultClientDetailCreateRequest.setStatus(STATUS_ACTIVE);
-        defaultClientDetailCreateRequest.setRelayingPartyId(RELAYING_PARTY_ID);
+        defaultClientDetailCreateRequest.setRelyingPartyId(RELYING_PARTY_ID);
         defaultClientDetailCreateRequest.setGrantTypes(GRAND_TYPES);
     }
 
@@ -143,7 +142,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
@@ -167,7 +166,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
@@ -191,7 +190,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
@@ -215,7 +214,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
@@ -240,7 +239,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_INACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         ResponseWrapper<ClientDetailResponse> createRespDto = createClient(clientCreateReqDto);
@@ -265,7 +264,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -287,7 +286,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -309,7 +308,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -331,7 +330,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -353,7 +352,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -375,7 +374,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -397,7 +396,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         ResponseWrapper<ClientDetailResponse> respDto = createClient(clientCreateReqDto);
@@ -419,7 +418,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         ResponseWrapper<ClientDetailResponse> respDto = createClient(clientCreateReqDto);
@@ -441,7 +440,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(EMPTY_LIST);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -463,7 +462,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(null);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -485,7 +484,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(EMPTY_LIST);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -507,7 +506,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(LIST_WITH_BLANK_STRING);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -529,7 +528,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(LIST_WITH_NULL_STRING);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -551,7 +550,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS_INVALID);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -573,7 +572,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(BLANK);
+        clientCreateReqDto.setrelyingPartyId(BLANK);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -595,7 +594,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(BLANK);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -617,7 +616,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_INVALID);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -639,7 +638,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -661,7 +660,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -683,7 +682,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES);
 
         var respDto = createClient(clientCreateReqDto);
@@ -705,7 +704,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(GRAND_TYPES_INVALID);
 
         var respDto = createClient(clientCreateReqDto);
@@ -727,7 +726,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(LIST_WITH_NULL_STRING);
 
         var respDto = createClient(clientCreateReqDto);
@@ -749,7 +748,7 @@ public class ClientManagementControllerTest {
         clientCreateReqDto.setUserClaims(CLAIMS);
         clientCreateReqDto.setAuthContextRefs(ACRS);
         clientCreateReqDto.setStatus(STATUS_ACTIVE);
-        clientCreateReqDto.setRelayingPartyId(RELAYING_PARTY_ID);
+        clientCreateReqDto.setrelyingPartyId(RELYING_PARTY_ID);
         clientCreateReqDto.setGrantTypes(LIST_WITH_BLANK_STRING);
 
         var respDto = createClient(clientCreateReqDto);

@@ -10,6 +10,7 @@ import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.ClientManagementService;
+import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
@@ -42,15 +43,15 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setJwk(getJWKString(clientDetailCreateRequest.getJwk()));
         clientDetail.setId(clientDetailCreateRequest.getClientId());
+        clientDetail.setPublicKey(getJWKString(clientDetailCreateRequest.getPublicKey()));
         clientDetail.setName(clientDetailCreateRequest.getClientName());
-        clientDetail.setRpId(clientDetailCreateRequest.getRelayingPartyId());
+        clientDetail.setRpId(clientDetailCreateRequest.getRelyingPartyId());
         clientDetail.setLogoUri(clientDetailCreateRequest.getLogoUri());
         clientDetail.setRedirectUris(String.join(",", clientDetailCreateRequest.getRedirectUris()));
         clientDetail.setClaims(String.join(",", clientDetailCreateRequest.getUserClaims()));
         clientDetail.setAcrValues(String.join(",", clientDetailCreateRequest.getAuthContextRefs()));
-        clientDetail.setStatus(clientDetailCreateRequest.getStatus());
+        clientDetail.setStatus(Constants.CLIENT_ACTIVE_STATUS);
         clientDetail.setGrantTypes(String.join(",", clientDetailCreateRequest.getGrantTypes()));
         clientDetail.setClientAuthMethods(String.join(",", clientDetailCreateRequest.getClientAuthMethods()));
         clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
@@ -89,13 +90,24 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return response;
     }
 
+    @Override
+    public String getClientPublicKey(String clientId) throws IdPException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+
+        if (!result.isPresent()) {
+            throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        return  result.get().getPublicKey();
+    }
+
     private String getJWKString(Map<String, Object> jwk) throws IdPException {
         try {
             RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
             return jsonWebKey.toJson();
         } catch (JoseException e) {
-            log.error(ErrorConstants.INVALID_JWKS, e);
-            throw new IdPException(ErrorConstants.INVALID_JWKS);
+            log.error(ErrorConstants.INVALID_PUBLIC_KEY, e);
+            throw new IdPException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
     }
 }
