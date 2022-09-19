@@ -62,7 +62,6 @@ jobs:
         sudo apt-get install libxml2-utils
     - name: Build with Maven
       run: |
-        cd "./${{env.SERVICE_LOCATION}}"
         mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
     - name: Ready the springboot artifacts
       run: |
@@ -197,7 +196,6 @@ jobs:
         sudo apt-get install libxml2-utils
     - name: Build with Maven
       run: |
-        cd "./${{env.SERVICE_LOCATION}}"
         mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
@@ -255,7 +253,6 @@ jobs:
 
       - name: Build with Maven
         run: |
-          cd "./${{env.SERVICE_LOCATION}}"
           mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
       - name: Analyze with SonarCloud
