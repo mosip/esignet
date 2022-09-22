@@ -10,7 +10,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.authwrapper.service.MockAuthenticationService;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
+import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.service.SignatureService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,6 +24,7 @@ import java.io.IOException;
 
 @ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "MockAuthenticationService")
 @Configuration
+@Slf4j
 public class MockIdaConfig {
 
     @Value("${mosip.idp.authn.mock.impl.token-expire-sec:30}")
@@ -47,9 +51,13 @@ public class MockIdaConfig {
     @Autowired
     private ClientManagementService clientManagementService;
 
+    @Autowired
+    private KeymanagerService keymanagerService;
+
     @Bean
     public MockAuthenticationService mockAuthenticationService() throws IOException {
         return new MockAuthenticationService(personaRepoDirPath, policyRepoDirPath, claimsMappingFilePath,
-                tokenExpireInSeconds, signatureService, tokenService, objectMapper, clientManagementService);
+                tokenExpireInSeconds, signatureService, tokenService, objectMapper, clientManagementService,
+                keymanagerService);
     }
 }
