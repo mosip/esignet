@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
+import static io.mosip.idp.core.util.ErrorConstants.AUTH_FAILED;
+import static io.mosip.idp.core.util.ErrorConstants.UNKNOWN_ERROR;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 
 @Slf4j
@@ -122,11 +124,11 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
                     transaction.getClientId(), kycAuthRequest);
         } catch (Throwable t) {
             log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), t);
-            throw new IdPException(ErrorConstants.AUTH_FAILED);
+            throw new IdPException(AUTH_FAILED);
         }
 
         if(result == null || (result.getErrors() != null && !result.getErrors().isEmpty()))
-            throw new IdPException(result.getErrors().get(0).getErrorCode());
+            throw new IdPException(result == null ? AUTH_FAILED : result.getErrors().get(0).getErrorCode());
 
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(result.getResponse().getPartnerSpecificUserToken());

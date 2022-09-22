@@ -5,11 +5,8 @@
  */
 package io.mosip.idp.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
@@ -29,11 +26,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,6 +45,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @Autowired
     ObjectMapper objectMapper;
 
+    private List<String> NULL = Collections.singletonList(null);
+
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
     @Override
     public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws IdPException {
@@ -64,12 +61,23 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setName(clientDetailCreateRequest.getClientName());
         clientDetail.setRpId(clientDetailCreateRequest.getRelyingPartyId());
         clientDetail.setLogoUri(clientDetailCreateRequest.getLogoUri());
+
+        clientDetailCreateRequest.getRedirectUris().removeAll(NULL);
         clientDetail.setRedirectUris(JSONArray.toJSONString(clientDetailCreateRequest.getRedirectUris()));
+
+        clientDetailCreateRequest.getUserClaims().removeAll(NULL);
         clientDetail.setClaims(JSONArray.toJSONString(clientDetailCreateRequest.getUserClaims()));
+
+        clientDetailCreateRequest.getAuthContextRefs().removeAll(NULL);
         clientDetail.setAcrValues(JSONArray.toJSONString(clientDetailCreateRequest.getAuthContextRefs()));
-        clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
+
+        clientDetailCreateRequest.getGrantTypes().removeAll(NULL);
         clientDetail.setGrantTypes(JSONArray.toJSONString(clientDetailCreateRequest.getGrantTypes()));
+
+        clientDetailCreateRequest.getClientAuthMethods().removeAll(NULL);
         clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailCreateRequest.getClientAuthMethods()));
+
+        clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
         clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
@@ -90,10 +98,20 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         ClientDetail clientDetail = result.get();
         clientDetail.setName(clientDetailUpdateRequest.getClientName());
         clientDetail.setLogoUri(clientDetailUpdateRequest.getLogoUri());
+
+        clientDetailUpdateRequest.getRedirectUris().removeAll(NULL);
         clientDetail.setRedirectUris(JSONArray.toJSONString(clientDetailUpdateRequest.getRedirectUris()));
+
+        clientDetailUpdateRequest.getUserClaims().removeAll(NULL);
         clientDetail.setClaims(JSONArray.toJSONString(clientDetailUpdateRequest.getUserClaims()));
+
+        clientDetailUpdateRequest.getAuthContextRefs().removeAll(NULL);
         clientDetail.setAcrValues(JSONArray.toJSONString(clientDetailUpdateRequest.getAuthContextRefs()));
+
+        clientDetailUpdateRequest.getGrantTypes().removeAll(NULL);
         clientDetail.setGrantTypes(JSONArray.toJSONString(clientDetailUpdateRequest.getGrantTypes()));
+
+        clientDetailUpdateRequest.getClientAuthMethods().removeAll(NULL);
         clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailUpdateRequest.getClientAuthMethods()));
         clientDetail.setStatus(clientDetailUpdateRequest.getStatus());
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
