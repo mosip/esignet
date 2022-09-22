@@ -6,6 +6,7 @@
 package io.mosip.idp.core.dto;
 
 import io.mosip.idp.core.validator.AuthContextRef;
+import io.mosip.idp.core.validator.OIDCClaim;
 import io.mosip.idp.core.validator.OIDCClientAuth;
 import io.mosip.idp.core.validator.OIDCGrantType;
 import lombok.Data;
@@ -27,11 +28,11 @@ public class ClientDetailUpdateRequest {
 
     @NotNull
     @Size(min = 1)
-    private List<@NotBlank String> userClaims;
+    private List<@OIDCClaim String> userClaims;
 
     @NotNull
     @Size(min = 1)
-    private List<@NotNull @AuthContextRef String> authContextRefs;
+    private List<@NotBlank @AuthContextRef String> authContextRefs;
 
     @NotBlank
     @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$")

@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
@@ -83,7 +84,7 @@ public class ClientMgmtControllerParameterizedTest {
 
     private final static Object[][] TEST_CASES = new Object[][] {
             // test-name, ClientDetailCreateRequest, ClientDetailUpdateRequest, clientIdQueryParam, errorCode
-            { "Successful create", new ClientDetailCreateRequest("client-id", "client-name", jwk,
+            { "Successful create", new ClientDetailCreateRequest("client-id-v1", "client-name", jwk,
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
@@ -97,7 +98,52 @@ public class ClientMgmtControllerParameterizedTest {
                      "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLIENT_NAME }
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLIENT_NAME },
+            { "With Invalid public key", new ClientDetailCreateRequest("client-id", "Test client", new HashMap<>(),
+                    "rp-id", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_PUBLIC_KEY },
+            { "With null public key", new ClientDetailCreateRequest("client-id", "Test client", null,
+                    "rp-id", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_PUBLIC_KEY },
+            { "With null relying party id", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    null, Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_RP_ID },
+            { "With empty relying party id", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    "  ", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_RP_ID },
+            { "With null user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    "rp-id", null,
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
+            { "With empty user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    "rp-id", Arrays.asList(),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
+            { "With invalid user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    "rp-id", Arrays.asList(null, "given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
+            { "With valid & invalid user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    "rp-id", Arrays.asList("birthdate", "given_name", "gender", ""),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
+            { "With valid user claims", new ClientDetailCreateRequest("client-id-v2", "Test client", jwk,
+                    "rp-id", Arrays.asList("birthdate", "given_name", "gender"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null, null }
     };
 
     @Parameterized.Parameters(name = "Test {0}")

@@ -5,10 +5,13 @@
  */
 package io.mosip.idp.services;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.TestUtil;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
+import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.entity.ClientDetail;
@@ -17,214 +20,143 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@RunWith(SpringRunner.class)
+import static io.mosip.idp.core.util.Constants.CLIENT_ACTIVE_STATUS;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ClientManagementServiceTest {
 
-    @Autowired
-    ClientManagementService clientDetailService;
+    @InjectMocks
+    ClientManagementServiceImpl clientManagementService;
 
-    @Autowired
+    @Mock
     ClientDetailRepository clientDetailRepository;
 
-    //region Variables
+    @Mock
+    ObjectMapper objectMapper = new ObjectMapper();
 
-    String commaSeparatedURIs = "https://clientapp.com/home,https://clientapp.com/home2";
-    String commaSeparatedACRs = "level1,level2";
-    String commaSeparatedClaims = "phone_verified,email_verified";
-
-    String CLIENT_ID_1 = "C01";
-    String CLIENT_ID_2 = "C02";
-    String CLIENT_NAME_1 = "Client-01";
-    String CLIENT_NAME_2 = "Client-02";
-    String LOGO_URI = "https://clienapp.com/logo.png";
     Map<String, Object> PUBLIC_KEY;
-    List<String> LIST_OF_URIS = Arrays.asList(commaSeparatedURIs.split(","));
-    List<String> CLAIMS = Arrays.asList(commaSeparatedClaims.split(","));
-    List<String> ACRS = Arrays.asList(commaSeparatedACRs.split(","));
-    List<String> GRAND_TYPES = List.of("authorization_code");
-    List<String> CLIENT_AUTH_METHODS = Arrays.asList(commaSeparatedACRs.split(","));
-    String STATUS_ACTIVE = "ACTIVE";
-    String STATUS_INACTIVE = "INACTIVE";
-    String RELYING_PARTY_ID = "RP01";
-
-    //endregion
 
     @Before
-    public void Before() throws NoSuchAlgorithmException {
-        clientDetailRepository.deleteAll();
+    public void Before() {
         PUBLIC_KEY = TestUtil.generateJWK_RSA().toJSONObject();
     }
-
-    //region Create Client Test
 
     @Test
     public void createClient_withValidDetail_thenPass() throws Exception {
         ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
-        clientCreateReqDto.setClientId(CLIENT_ID_1);
-        clientCreateReqDto.setClientName(CLIENT_NAME_1);
-        clientCreateReqDto.setLogoUri(LOGO_URI);
+        clientCreateReqDto.setClientId("mock_id_v1");
+        clientCreateReqDto.setClientName("client_name_v1");
+        clientCreateReqDto.setLogoUri("http://service.com/logo.png");
         clientCreateReqDto.setPublicKey(PUBLIC_KEY);
-        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
-        clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(ACRS);
-        clientCreateReqDto.setRelyingPartyId(RELYING_PARTY_ID);
-        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
-        clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
+        clientCreateReqDto.setRedirectUris(Arrays.asList("http://service.com/home"));
+        clientCreateReqDto.setUserClaims(Arrays.asList("given_name"));
+        clientCreateReqDto.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
+        clientCreateReqDto.setRelyingPartyId("RELYING_PARTY_ID");
+        clientCreateReqDto.setGrantTypes(Arrays.asList("authorization_code"));
+        clientCreateReqDto.setClientAuthMethods(Arrays.asList("private_key_jwt"));
 
-        ClientDetailResponse respDto = clientDetailService.createOIDCClient(clientCreateReqDto);
-
-        Assert.assertNotNull(respDto);
-
-        Optional<ClientDetail> result = clientDetailRepository.findById(CLIENT_ID_1);
-        Assert.assertTrue(result.isPresent());
-
-        result = clientDetailRepository.findByIdAndStatus(CLIENT_ID_1, STATUS_ACTIVE);
-        Assert.assertTrue(result.isPresent());
+        ClientDetail entity = new ClientDetail();
+        entity.setId("mock_id_v1");
+        entity.setStatus("active");
+        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        ClientDetailResponse clientDetailResponse = clientManagementService.createOIDCClient(clientCreateReqDto);
+        Assert.assertNotNull(clientDetailResponse);
+        Assert.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
+        Assert.assertTrue(clientDetailResponse.getStatus().equals("active"));
     }
 
     @Test
-    public void createClientDetail_withDuplicateClientId_thenFail() {
-
-        ClientDetailCreateRequest clientCreateReqDto1 = new ClientDetailCreateRequest();
-        clientCreateReqDto1.setClientId(CLIENT_ID_1);
-        clientCreateReqDto1.setClientName(CLIENT_NAME_1);
-        clientCreateReqDto1.setLogoUri(LOGO_URI);
-        clientCreateReqDto1.setPublicKey(PUBLIC_KEY);
-        clientCreateReqDto1.setRedirectUris(LIST_OF_URIS);
-        clientCreateReqDto1.setUserClaims(CLAIMS);
-        clientCreateReqDto1.setAuthContextRefs(ACRS);
-        clientCreateReqDto1.setRelyingPartyId(RELYING_PARTY_ID);
-        clientCreateReqDto1.setGrantTypes(GRAND_TYPES);
-        clientCreateReqDto1.setClientAuthMethods(CLIENT_AUTH_METHODS);
-
-        ClientDetailResponse respDto1 = null;
-        try {
-            respDto1 = clientDetailService.createOIDCClient(clientCreateReqDto1);
-        } catch (Exception e) {
-            Assert.fail();
-        }
-
-        Assert.assertNotNull(respDto1);
-
-        ClientDetailCreateRequest clientCreateReqDto2 = new ClientDetailCreateRequest();
-        clientCreateReqDto2.setClientId(CLIENT_ID_1);
-        clientCreateReqDto2.setClientName(CLIENT_NAME_1);
-        clientCreateReqDto2.setLogoUri(LOGO_URI);
-        clientCreateReqDto2.setPublicKey(PUBLIC_KEY);
-        clientCreateReqDto2.setRedirectUris(LIST_OF_URIS);
-        clientCreateReqDto2.setUserClaims(CLAIMS);
-        clientCreateReqDto2.setAuthContextRefs(ACRS);
-        clientCreateReqDto2.setRelyingPartyId(RELYING_PARTY_ID);
-        clientCreateReqDto2.setGrantTypes(GRAND_TYPES);
-        clientCreateReqDto2.setClientAuthMethods(CLIENT_AUTH_METHODS);
-
-        ClientDetailResponse respDto2 = null;
-        try {
-            respDto2 = clientDetailService.createOIDCClient(clientCreateReqDto2);
-            Assert.fail();
-        } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), ErrorConstants.DUPLICATE_CLIENT_ID);
-        }
-
-        Assert.assertNull(respDto2);
-    }
-
-    //endregion
-
-    //region Update Client Test
-
-    @Test
-    public void updateClient_withValidDetail_thenPass() throws Exception {
-
+    public void createClient_withExistingClientId_thenFail() {
+        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(new ClientDetail()));
         ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
-        clientCreateReqDto.setClientId(CLIENT_ID_1);
-        clientCreateReqDto.setClientName(CLIENT_NAME_1);
-        clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
-        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
-        clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(ACRS);
-        clientCreateReqDto.setRelyingPartyId(RELYING_PARTY_ID);
-        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
-        clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
-
-        clientDetailService.createOIDCClient(clientCreateReqDto);
-
-        ClientDetailUpdateRequest clientUpdateReqDto = new ClientDetailUpdateRequest();
-        clientUpdateReqDto.setLogoUri(LOGO_URI);
-        clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
-        clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientUpdateReqDto.setAuthContextRefs(ACRS);
-        clientUpdateReqDto.setStatus(STATUS_ACTIVE);
-        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
-        clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
-        clientUpdateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
-
-        ClientDetailResponse respDto = clientDetailService.updateOIDCClient(CLIENT_ID_1, clientUpdateReqDto);
-
-        Assert.assertNotNull(respDto);
-
-        Optional<ClientDetail> result = clientDetailRepository.findById(CLIENT_ID_1);
-        Assert.assertTrue(result.isPresent());
-
-        Assert.assertEquals(CLIENT_NAME_2, result.get().getName());
+        clientCreateReqDto.setClientId("client_id_v1");
+        try {
+            clientManagementService.createOIDCClient(clientCreateReqDto);
+        } catch (IdPException ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
     }
 
     @Test
-    public void updateClient_withInvalidClientId_thenPass() {
-
-        ClientDetailCreateRequest clientCreateReqDto = new ClientDetailCreateRequest();
-        clientCreateReqDto.setClientId(CLIENT_ID_1);
-        clientCreateReqDto.setClientName(CLIENT_NAME_1);
-        clientCreateReqDto.setLogoUri(LOGO_URI);
-        clientCreateReqDto.setPublicKey(PUBLIC_KEY);
-        clientCreateReqDto.setRedirectUris(LIST_OF_URIS);
-        clientCreateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(ACRS);
-        clientCreateReqDto.setRelyingPartyId(RELYING_PARTY_ID);
-        clientCreateReqDto.setGrantTypes(GRAND_TYPES);
-        clientCreateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
-
+    public void updateClient_withNonExistingClientId_thenFail() {
+        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.empty());
         try {
-            clientDetailService.createOIDCClient(clientCreateReqDto);
-        } catch (Exception e) {
-            Assert.fail();
+            clientManagementService.updateOIDCClient("client_id_v1", null);
+        } catch (IdPException ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
-
-        ClientDetailUpdateRequest clientUpdateReqDto = new ClientDetailUpdateRequest();
-        clientUpdateReqDto.setLogoUri(LOGO_URI);
-        clientUpdateReqDto.setRedirectUris(LIST_OF_URIS);
-        clientUpdateReqDto.setUserClaims(CLAIMS);
-        clientCreateReqDto.setAuthContextRefs(ACRS);
-        clientUpdateReqDto.setStatus(STATUS_ACTIVE);
-        clientUpdateReqDto.setClientName(CLIENT_NAME_2);
-        clientUpdateReqDto.setGrantTypes(GRAND_TYPES);
-        clientUpdateReqDto.setClientAuthMethods(CLIENT_AUTH_METHODS);
-
-        ClientDetailResponse respDto = null;
-        try {
-            respDto = clientDetailService.updateOIDCClient(CLIENT_ID_2, clientUpdateReqDto);
-            Assert.fail();
-        } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), ErrorConstants.INVALID_CLIENT_ID);
-        }
-
-        Assert.assertNull(respDto);
     }
 
-    //endregion
+    @Test
+    public void updateClient_withValidClientId_thenPass() throws IdPException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setName("client_id_v1");
+        clientDetail.setId("client_id_v1");
+        clientDetail.setLogoUri("http://service.com/logo.png");
+        clientDetail.setClaims("[\"given_name\", \"birthdate\"]");
+        clientDetail.setAcrValues("[\"mosip:idp:acr:static-code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setRedirectUris("[\"https://service.com/home\",\"https://service.com/dashboard\", \"v1/idp\"]");
+        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(clientDetail));
+
+        ClientDetailUpdateRequest updateRequest = new ClientDetailUpdateRequest();
+        updateRequest.setClientName("client_name_v1");
+        updateRequest.setLogoUri("http://service.com/logo.png");
+        updateRequest.setRedirectUris(Arrays.asList("http://service.com/home"));
+        updateRequest.setUserClaims(Arrays.asList("given_name"));
+        updateRequest.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
+        updateRequest.setGrantTypes(Arrays.asList("authorization_code"));
+        updateRequest.setClientAuthMethods(Arrays.asList("private_key_jwt"));
+
+        ClientDetail entity = new ClientDetail();
+        entity.setId("client_id_v1");
+        entity.setStatus("inactive");
+        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        ClientDetailResponse clientDetailResponse = clientManagementService.updateOIDCClient("client_id_v1", updateRequest);
+        Assert.assertNotNull(clientDetailResponse);
+        Assert.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
+        Assert.assertTrue(clientDetailResponse.getStatus().equals("inactive"));
+    }
+
+    @Test
+    public void getClient_withValidClientId_thenPass() throws IdPException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setName("client_id_v1");
+        clientDetail.setId("client_id_v1");
+        clientDetail.setLogoUri("http://service.com/logo.png");
+        clientDetail.setClaims("[\"given_name\", \"birthdate\"]");
+        clientDetail.setAcrValues("[\"mosip:idp:acr:static-code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setRedirectUris("[\"https://service.com/home\",\"https://service.com/dashboard\", \"v1/idp\"]");
+
+        Mockito.when(clientDetailRepository.findByIdAndStatus("client_id_v1", CLIENT_ACTIVE_STATUS))
+                .thenReturn(Optional.of(clientDetail));
+
+        io.mosip.idp.core.dto.ClientDetail dto = clientManagementService.getClientDetails("client_id_v1");
+        Assert.assertNotNull(dto);
+    }
+
+    @Test
+    public void getClient_withInvalidClientId_thenFail() throws IdPException {
+        Mockito.when(clientDetailRepository.findByIdAndStatus("client_id_v1", CLIENT_ACTIVE_STATUS))
+                .thenReturn(Optional.empty());
+
+        try {
+            clientManagementService.getClientDetails("client_id_v1");
+        } catch (IdPException ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
+        }
+    }
 
 }
