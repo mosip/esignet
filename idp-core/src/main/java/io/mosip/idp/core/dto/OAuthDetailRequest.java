@@ -5,7 +5,6 @@
  */
 package io.mosip.idp.core.dto;
 
-import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.validator.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;

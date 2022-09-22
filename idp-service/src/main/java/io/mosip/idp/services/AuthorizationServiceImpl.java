@@ -21,12 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
 import static io.mosip.idp.core.util.ErrorConstants.AUTH_FAILED;
-import static io.mosip.idp.core.util.ErrorConstants.UNKNOWN_ERROR;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 
 @Slf4j
