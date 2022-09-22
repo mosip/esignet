@@ -20,6 +20,6 @@ public class OAuthDetailResponse {
     private List<String> authorizeScopes;
     private List<String> essentialClaims;
     private List<String> voluntaryClaims;
-    private Map<String, String> configs;
+    private Map<String, Object> configs;
 
 }

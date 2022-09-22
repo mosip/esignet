@@ -11,7 +11,6 @@ import io.mosip.idp.core.spi.AuthorizationService;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -21,15 +20,12 @@ import javax.validation.Valid;
 @RequestMapping("/authorization")
 public class AuthorizationController {
 
-    @Value("${mosip.idp.redirect.error.page:/error}")
-    private String errorPage;
-
     @Autowired
     AuthorizationService authorizationService;
 
     @PostMapping("/oauth-details")
-    public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest> requestWrapper)
-            throws IdPException {
+    public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
+                                                                            requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());
         responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));

@@ -81,4 +81,9 @@ public class OAuthDetailRequest {
      * represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference.
      */
     private String claimsLocales;
+
+    /**
+     * Optional
+     */
+    private String uiLocales;
 }

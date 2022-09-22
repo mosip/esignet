@@ -5,16 +5,10 @@
  */
 package io.mosip.idp.authwrapper.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.JWEHeader;
-import com.nimbusds.jose.crypto.RSAEncrypter;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -28,9 +22,13 @@ import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
+import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
+import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
+import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
+import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
@@ -63,6 +61,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static final String PSUT_CLAIM = "psut";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
+    private static final String KEY_FILE_NAME_FORMAT = "%s_keys.json";
     private static Map<String, List<String>> policyContextMap;
     private static Map<String, String> localesMapping;
     private static Set<String> REQUIRED_CLAIMS;
@@ -71,6 +70,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private ClientManagementService clientManagementService;
     private TokenService tokenService;
     private ObjectMapper objectMapper;
+    private KeymanagerService keymanagerService;
     private DocumentContext mappingDocumentContext;
     private File personaDir;
     private File policyDir;
@@ -91,13 +91,14 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     public MockAuthenticationService(String personaDirPath, String policyDirPath, String claimsMappingFilePath,
                                      int kycTokenExpireSeconds, SignatureService signatureService,
-                                     TokenService tokenService, ObjectMapper objectMapper, ClientManagementService clientManagementService)
-            throws IOException {
-
+                                     TokenService tokenService, ObjectMapper objectMapper,
+                                     ClientManagementService clientManagementService,
+                                     KeymanagerService keymanagerService) throws IOException {
         this.signatureService = signatureService;
         this.tokenService = tokenService;
         this.objectMapper = objectMapper;
         this.clientManagementService = clientManagementService;
+        this.keymanagerService = keymanagerService;
 
         log.info("Started to setup MOCK IDA");
         personaDir = new File(personaDirPath);
@@ -135,13 +136,13 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
                     String.format(PSUT_FORMAT, kycAuthRequest.getIndividualId(), relyingPartyId));
         } catch (IdPException e) {
-            responseWrapper.getErrors().add(new Error("mock-ida-006", "Failed to generate PSUT"));
+            responseWrapper.getErrors().add(new Error("mock-ida-006", "Failed to generate Partner specific user token"));
             return responseWrapper;
         }
         String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId, psut);
         KycAuthResponse kycAuthResponse = new KycAuthResponse();
         kycAuthResponse.setKycToken(kycToken);
-        kycAuthResponse.setUserAuthToken(psut);
+        kycAuthResponse.setPartnerSpecificUserToken(psut);
         responseWrapper.setResponse(kycAuthResponse);
         return responseWrapper;
     }
@@ -157,6 +158,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(TokenService.IAT, issueTime);
         payload.put(TokenService.EXP, issueTime +tokenExpireInSeconds);
+        setupMockIDAKey();
         return tokenService.getSignedJWT(APPLICATION_ID, payload);
     }
 
@@ -199,15 +201,13 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             }
 
             String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
-            Map<String,Object> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
+            Map<String,String> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
 
             kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
 
-            String plainKyc = objectMapper.writeValueAsString(kyc);
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
-            kycExchangeResult.setEncryptedKyc(CryptoUtil.encodeToURLSafeBase64(plainKyc.getBytes(StandardCharsets.UTF_8)));
-            //kycExchangeResult.setEncryptedKyc(encryptKyc(clientId, kyc));
+            kycExchangeResult.setEncryptedKyc(signKyc(kyc)); //TODO encrypt with relying party public key
             responseWrapper.setResponse(kycExchangeResult);
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
@@ -216,17 +216,32 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return responseWrapper;
     }
 
-    private String encryptKyc(String clientId, Map<String,Object> kyc) throws Exception {
-        String publicKey = clientManagementService.getClientPublicKey(clientId);
-        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
-        kyc.entrySet().forEach( e-> {
-            builder.claim(e.getKey(), e.getValue());
-        });
-        JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128GCM);
-        EncryptedJWT jwt = new EncryptedJWT(jweHeader, builder.build());
-        RSAEncrypter rsaEncrypter = new RSAEncrypter(RSAKey.parse(publicKey));
-        jwt.encrypt(rsaEncrypter);
-        return jwt.serialize();
+    private String signKyc(Map<String,String> kyc) throws JsonProcessingException {
+        setupMockIDAKey();
+        String payload = objectMapper.writeValueAsString(kyc);
+        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
+        jwtSignatureRequestDto.setApplicationId(APPLICATION_ID);
+        jwtSignatureRequestDto.setReferenceId("");
+        jwtSignatureRequestDto.setIncludePayload(true);
+        jwtSignatureRequestDto.setIncludeCertificate(true);
+        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.B64Encode(payload));
+        jwtSignatureRequestDto.setIncludeCertHash(true);
+        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
+        return responseDto.getJwtSignedData();
+    }
+
+    private void setupMockIDAKey() {
+        try {
+            keymanagerService.getCertificate(APPLICATION_ID, Optional.empty());
+            //Nothing to do as key is already present.
+            return;
+        } catch (KeymanagerServiceException ex) {
+            log.error("Failed while getting MOCK IDA signing certificate", ex);
+        }
+        KeyPairGenerateRequestDto mockIDAMasterKeyRequest = new KeyPairGenerateRequestDto();
+        mockIDAMasterKeyRequest.setApplicationId(APPLICATION_ID);
+        keymanagerService.generateMasterKey("CSR", mockIDAMasterKeyRequest);
+        log.info("===================== MOCK_IDA_SERVICES MASTER KEY SETUP COMPLETED ========================");
     }
 
     @Override
@@ -284,9 +299,9 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return false;
     }
 
-    private Map<String, Object> buildKycDataBasedOnPolicy(String relyingPartyId, String individualId,
-                                                           List<String> claims, String[] locales) throws IdPException {
-        Map<String, Object> kyc = new HashMap<>();
+    private Map<String, String> buildKycDataBasedOnPolicy(String relyingPartyId, String individualId,
+                                                           List<String> claims, String[] locales) {
+        Map<String, String> kyc = new HashMap<>();
         String persona = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
             DocumentContext personaContext = JsonPath.parse(new File(personaDir, persona));

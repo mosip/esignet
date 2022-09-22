@@ -109,12 +109,6 @@ public interface TokenService {
      */
      void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException;
 
-    /**
-     * List of optional ID token claims,
-     * We can expect them in claim request parameter in the authorization request.
-     * @return
-     */
-     List<String> getOptionalIdTokenClaims();
 
     /**
      * Sign the provided payload with master key specific to application id
