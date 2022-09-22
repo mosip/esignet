@@ -1,0 +1,24 @@
+package io.mosip.idp.core.validator;
+
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.List;
+import java.util.Map;
+
+
+public class OIDCClaimValidator implements ConstraintValidator<OIDCClaim, String> {
+
+    @Value("#{${mosip.idp.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if(value == null || value.isBlank())
+            return false;
+
+        List<String> supportedClaims = (List<String>) discoveryMap.get("claims_supported");
+        return supportedClaims.contains(value);
+    }
+}

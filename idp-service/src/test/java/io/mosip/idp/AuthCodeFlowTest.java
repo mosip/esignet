@@ -71,8 +71,8 @@ public class AuthCodeFlowTest {
 
     @Test
     public void authorizationCodeFlowTest() throws Exception {
-        String clientId = "mock-oidc-client";
-        String redirectionUrl = "https://mock.client.com/home";
+        String clientId = "service-oidc-client";
+        String redirectionUrl = "https://service.client.com/home";
         String state = "er345agrR3T";
         String nonce = "23424234TY";
         String code = null;
@@ -260,7 +260,7 @@ public class AuthCodeFlowTest {
         createRequest.setGrantTypes(Arrays.asList("authorization_code"));
         createRequest.setClientAuthMethods(Arrays.asList("private_key_jwt"));
         createRequest.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
-        createRequest.setRedirectUris(Arrays.asList("https://mock.client.com/home", "https://mock.client.com/dashboard"));
+        createRequest.setRedirectUris(Arrays.asList("https://service.client.com/home", "https://mock.client.com/dashboard"));
         createRequest.setUserClaims(Arrays.asList("name", "email", "gender"));
         RequestWrapper<ClientDetailCreateRequest> request = new RequestWrapper<>();
         request.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));

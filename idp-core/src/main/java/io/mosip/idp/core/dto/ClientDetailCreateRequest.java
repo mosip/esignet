@@ -7,6 +7,7 @@ package io.mosip.idp.core.dto;
 
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.validator.AuthContextRef;
+import io.mosip.idp.core.validator.OIDCClaim;
 import io.mosip.idp.core.validator.OIDCClientAuth;
 import io.mosip.idp.core.validator.OIDCGrantType;
 import lombok.AllArgsConstructor;
@@ -37,11 +38,11 @@ public class ClientDetailCreateRequest {
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)
     @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)
-    private List<@NotBlank String> userClaims;
+    private List<@OIDCClaim String> userClaims;
 
     @NotNull(message = ErrorConstants.INVALID_ACR)
     @Size(message = ErrorConstants.INVALID_ACR, min = 1, max = 30)
-    private List<@NotNull @AuthContextRef String> authContextRefs;
+    private List<@NotBlank @AuthContextRef String> authContextRefs;
 
     @NotBlank(message = ErrorConstants.INVALID_URI)
     @URL(message = ErrorConstants.INVALID_URI)
