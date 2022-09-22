@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.authwrapper.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -23,6 +24,8 @@ import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
+import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
+import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
@@ -195,10 +198,9 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
 
             kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
-            // relying party key
-            String plainKyc = objectMapper.writeValueAsString(kyc);
+
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
-            kycExchangeResult.setEncryptedKyc(CryptoUtil.encodeToURLSafeBase64(plainKyc.getBytes(StandardCharsets.UTF_8)));
+            kycExchangeResult.setEncryptedKyc(signKyc(kyc)); //TODO encrypt with relying party public key
             responseWrapper.setResponse(kycExchangeResult);
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
@@ -207,12 +209,18 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return responseWrapper;
     }
 
-    /*private String signKyc(Map<String,String> kyc) {
-        JWTCreator.Builder builder = com.auth0.jwt.JWT.create();
-        kyc.entrySet().forEach( e-> {
-            builder.withClaim(e.getKey(), e.getValue());
-        });
-    }*/
+    private String signKyc(Map<String,String> kyc) throws JsonProcessingException {
+        String payload = objectMapper.writeValueAsString(kyc);
+        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
+        jwtSignatureRequestDto.setApplicationId(APPLICATION_ID);
+        jwtSignatureRequestDto.setReferenceId("");
+        jwtSignatureRequestDto.setIncludePayload(true);
+        jwtSignatureRequestDto.setIncludeCertificate(true);
+        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.B64Encode(payload));
+        jwtSignatureRequestDto.setIncludeCertHash(true);
+        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
+        return responseDto.getJwtSignedData();
+    }
 
     @Override
     public SendOtpResult sendOtp(String individualId, String channel) {
