@@ -9,24 +9,18 @@ import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
-import io.mosip.idp.core.spi.AuthenticationWrapper;
-import io.mosip.idp.core.spi.AuthorizationService;
-import io.mosip.idp.core.spi.OAuthService;
-import io.mosip.idp.core.spi.TokenService;
+import io.mosip.idp.core.spi.*;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.idp.entity.ClientDetail;
-import io.mosip.idp.repository.ClientDetailRepository;
-import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jose4j.jwk.JsonWebKeySet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -34,10 +28,7 @@ public class OAuthServiceImpl implements OAuthService {
 
 
     @Autowired
-    private ClientDetailRepository clientDetailRepository;
-
-    @Autowired
-    private AuthorizationService authorizationService;
+    private ClientManagementService clientManagementService;
 
     @Autowired
     private AuthenticationWrapper authenticationWrapper;
@@ -47,12 +38,6 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Autowired
     private CacheUtilService cacheUtilService;
-
-    @Autowired
-    private SignatureService signatureService;
-
-    @Value("${mosip.idp.cache.key.hash.algorithm}")
-    private String hashingAlgorithm;
 
     @Value("${mosip.idp.access-token.expire.seconds:60}")
     private int accessTokenExpireSeconds;
@@ -70,14 +55,11 @@ public class OAuthServiceImpl implements OAuthService {
         if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
             throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
 
-        Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(tokenRequest.getClient_id(),
-                Constants.CLIENT_ACTIVE_STATUS);
-        if(!result.isPresent())
-            throw new InvalidClientException();
+        io.mosip.idp.core.dto.ClientDetail clientDetailDto = clientManagementService.getClientDetails(tokenRequest.getClient_id());
 
-        authenticateClient(tokenRequest, result.get());
+        authenticateClient(tokenRequest, clientDetailDto);
 
-        IdentityProviderUtil.validateRedirectURI(result.get().getRedirectUris(), tokenRequest.getRedirect_uri());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         KycExchangeRequest kycExchangeRequest = new KycExchangeRequest();
         kycExchangeRequest.setClientId(tokenRequest.getClient_id());
@@ -92,14 +74,13 @@ public class OAuthServiceImpl implements OAuthService {
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
-        String accessTokenHash = IdentityProviderUtil.generateAccessTokenHash(tokenResponse.getAccess_token());
+        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
         tokenResponse.setId_token(tokenService.getIDToken(transaction));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setToken_type(Constants.BEARER);
 
         // cache kyc with access-token as key
-        transaction.setIdHash(IdentityProviderUtil.generateAccessTokenHash(tokenResponse.getId_token()));
         transaction.setEncryptedKyc(exchangeResult.getResponse().getEncryptedKyc());
         cacheUtilService.setKycTransaction(accessTokenHash, transaction);
 
@@ -108,7 +89,7 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public JsonWebKeySet getJwks() {
-        return null;
+        throw new NotImplementedException("Under implementation...");
     }
 
     private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws IdPException {

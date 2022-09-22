@@ -16,18 +16,16 @@ public class IdPTransaction {
     String relyingPartyId;
     String redirectUri;
     Claims requestedClaims;
-    String scopes;
     String claimsLocales;
 
     String kycToken;
-    String userToken;
+    String partnerSpecificUserToken;
     long authTimeInSeconds;
     String code;
 
     List<String> acceptedClaims;
     List<String> permittedScopes;
     String encryptedKyc;
-    String idHash;
     String aHash;
 
     String error;

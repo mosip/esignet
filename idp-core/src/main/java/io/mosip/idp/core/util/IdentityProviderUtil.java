@@ -20,6 +20,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
@@ -90,7 +91,7 @@ public class IdentityProviderUtil {
      * @return
      * @throws IdPException
      */
-    public static String generateAccessTokenHash(String accessToken) throws IdPException {
+    public static String generateOIDCAtHash(String accessToken) throws IdPException {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGO_SHA_256);
             byte[] hash = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
@@ -106,9 +107,8 @@ public class IdentityProviderUtil {
         return ZonedDateTime.now(ZoneOffset.UTC).toEpochSecond();
     }
 
-    public static void validateRedirectURI(String registeredRedirectUris, String requestedRedirectUri) throws IdPException {
-        String[] uris = IdentityProviderUtil.splitAndTrimValue(registeredRedirectUris, Constants.COMMA);
-        if(Arrays.stream(uris).anyMatch(uri -> uri.equals(requestedRedirectUri)))
+    public static void validateRedirectURI(List<String> registeredRedirectUris, String requestedRedirectUri) throws IdPException {
+        if(registeredRedirectUris.stream().anyMatch(uri -> uri.equals(requestedRedirectUri)))
             return;
 
         log.error("Invalid redirect URI registered : {}, requested: {}", registeredRedirectUris, requestedRedirectUri);

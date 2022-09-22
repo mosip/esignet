@@ -17,6 +17,7 @@ public class Constants {
     public static final String PRE_AUTH_SESSION_CACHE = "preauthsessions";
     public static final String AUTHENTICATED_CACHE = "authenticated";
     public static final String KYC_CACHE = "kyc";
+    public static final String CLIENT_DETAIL_CACHE = "clientdetails";
 
     public static final String ROOT_KEY = "ROOT";
     public static final String IDP_PARTNER_APP_ID = "IDP_PARTNER";

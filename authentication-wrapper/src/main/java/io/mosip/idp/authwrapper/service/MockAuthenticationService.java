@@ -8,13 +8,6 @@ package io.mosip.idp.authwrapper.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.JWEHeader;
-import com.nimbusds.jose.crypto.RSAEncrypter;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -28,7 +21,6 @@ import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
@@ -63,6 +55,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static final String PSUT_CLAIM = "psut";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
+    private static final String KEY_FILE_NAME_FORMAT = "%s_keys.json";
     private static Map<String, List<String>> policyContextMap;
     private static Map<String, String> localesMapping;
     private static Set<String> REQUIRED_CLAIMS;
@@ -91,9 +84,8 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     public MockAuthenticationService(String personaDirPath, String policyDirPath, String claimsMappingFilePath,
                                      int kycTokenExpireSeconds, SignatureService signatureService,
-                                     TokenService tokenService, ObjectMapper objectMapper, ClientManagementService clientManagementService)
-            throws IOException {
-
+                                     TokenService tokenService, ObjectMapper objectMapper,
+                                     ClientManagementService clientManagementService) throws IOException {
         this.signatureService = signatureService;
         this.tokenService = tokenService;
         this.objectMapper = objectMapper;
@@ -135,13 +127,13 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
                     String.format(PSUT_FORMAT, kycAuthRequest.getIndividualId(), relyingPartyId));
         } catch (IdPException e) {
-            responseWrapper.getErrors().add(new Error("mock-ida-006", "Failed to generate PSUT"));
+            responseWrapper.getErrors().add(new Error("mock-ida-006", "Failed to generate Partner specific user token"));
             return responseWrapper;
         }
         String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId, psut);
         KycAuthResponse kycAuthResponse = new KycAuthResponse();
         kycAuthResponse.setKycToken(kycToken);
-        kycAuthResponse.setUserAuthToken(psut);
+        kycAuthResponse.setPartnerSpecificUserToken(psut);
         responseWrapper.setResponse(kycAuthResponse);
         return responseWrapper;
     }
@@ -199,15 +191,14 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             }
 
             String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
-            Map<String,Object> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
+            Map<String,String> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
 
             kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
-
+            // relying party key
             String plainKyc = objectMapper.writeValueAsString(kyc);
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
             kycExchangeResult.setEncryptedKyc(CryptoUtil.encodeToURLSafeBase64(plainKyc.getBytes(StandardCharsets.UTF_8)));
-            //kycExchangeResult.setEncryptedKyc(encryptKyc(clientId, kyc));
             responseWrapper.setResponse(kycExchangeResult);
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
@@ -216,18 +207,12 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return responseWrapper;
     }
 
-    private String encryptKyc(String clientId, Map<String,Object> kyc) throws Exception {
-        String publicKey = clientManagementService.getClientPublicKey(clientId);
-        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+    /*private String signKyc(Map<String,String> kyc) {
+        JWTCreator.Builder builder = com.auth0.jwt.JWT.create();
         kyc.entrySet().forEach( e-> {
-            builder.claim(e.getKey(), e.getValue());
+            builder.withClaim(e.getKey(), e.getValue());
         });
-        JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128GCM);
-        EncryptedJWT jwt = new EncryptedJWT(jweHeader, builder.build());
-        RSAEncrypter rsaEncrypter = new RSAEncrypter(RSAKey.parse(publicKey));
-        jwt.encrypt(rsaEncrypter);
-        return jwt.serialize();
-    }
+    }*/
 
     @Override
     public SendOtpResult sendOtp(String individualId, String channel) {
@@ -284,9 +269,9 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return false;
     }
 
-    private Map<String, Object> buildKycDataBasedOnPolicy(String relyingPartyId, String individualId,
-                                                           List<String> claims, String[] locales) throws IdPException {
-        Map<String, Object> kyc = new HashMap<>();
+    private Map<String, String> buildKycDataBasedOnPolicy(String relyingPartyId, String individualId,
+                                                           List<String> claims, String[] locales) {
+        Map<String, String> kyc = new HashMap<>();
         String persona = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
             DocumentContext personaContext = JsonPath.parse(new File(personaDir, persona));

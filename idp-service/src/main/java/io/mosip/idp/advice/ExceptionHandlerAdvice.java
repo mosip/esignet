@@ -11,10 +11,11 @@ import io.mosip.idp.core.dto.ResponseWrapper;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
-import io.mosip.idp.core.util.ErrorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +43,10 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
 
-    @Override
+    @Autowired
+    MessageSource messageSource;
 
+    @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
             HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return handleExceptions(ex, request);
@@ -118,15 +121,16 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
                     HttpStatus.OK);
         }
         if(ex instanceof InvalidClientException) {
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(ErrorConstants.INVALID_CLIENT_ID,
-                    INVALID_CLIENT_ID), HttpStatus.OK);
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_CLIENT_ID,
+                    messageSource.getMessage(INVALID_CLIENT_ID, null, null)), HttpStatus.OK);
         }
         if(ex instanceof IdPException) {
             String errorCode = ((IdPException) ex).getErrorCode();
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode,errorCode), HttpStatus.OK);
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode,
+                    messageSource.getMessage(errorCode, null, null)), HttpStatus.OK);
         }
-        return new ResponseEntity<ResponseWrapper>(getResponseWrapper(UNKNOWN_ERROR, UNKNOWN_ERROR),
-                HttpStatus.OK);
+        return new ResponseEntity<ResponseWrapper>(getResponseWrapper(UNKNOWN_ERROR,
+                messageSource.getMessage(UNKNOWN_ERROR, null, null)), HttpStatus.OK);
     }
 
     public ResponseEntity<OAuthError> handleOpenIdConnectControllerExceptions(Exception ex) {
@@ -142,11 +146,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         }
         if(ex instanceof IdPException) {
             String errorCode = ((IdPException) ex).getErrorCode();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode,errorCode), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode,
+                    messageSource.getMessage(errorCode, null, null)), HttpStatus.BAD_REQUEST);
         }
         logger.error("Unhandled exception encountered in handler advice", ex);
-        return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, UNKNOWN_ERROR),
-                HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR,
+                messageSource.getMessage(UNKNOWN_ERROR, null, null)), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity handleExceptionWithHeader(Exception ex) {

@@ -40,6 +40,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static io.mosip.idp.core.util.Constants.SPACE;
+
 @Slf4j
 @Service
 public class TokenServiceImpl implements TokenService {
@@ -84,7 +86,7 @@ public class TokenServiceImpl implements TokenService {
     public String getIDToken(@NonNull IdPTransaction transaction) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
-        payload.put(SUB, transaction.getUserToken());
+        payload.put(SUB, transaction.getPartnerSpecificUserToken());
         payload.put(AUD, transaction.getClientId());
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
@@ -92,7 +94,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
         payload.put(NONCE, transaction.getNonce());
         String[] acrs = transaction.getRequestedClaims().getId_token().get(ACR).getValues();
-        payload.put(ACR, String.join(Constants.SPACE, acrs));
+        payload.put(ACR, String.join(SPACE, acrs));
         payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
         return getSignedJWT(Constants.IDP_SERVICE_APP_ID, payload);
     }
@@ -101,20 +103,15 @@ public class TokenServiceImpl implements TokenService {
     public String getAccessToken(IdPTransaction transaction) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
-        payload.put(SUB, transaction.getUserToken());
+        payload.put(SUB, transaction.getPartnerSpecificUserToken());
         payload.put(AUD, transaction.getClientId());
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
-        payload.put(SCOPE, transaction.getScopes()); //scopes as received in authorize request
+        if(transaction.getPermittedScopes() != null)
+            payload.put(SCOPE, String.join(SPACE, transaction.getPermittedScopes()));
         payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
         return getSignedJWT(Constants.IDP_SERVICE_APP_ID, payload);
-    }
-
-    @Override
-    public List<String> getOptionalIdTokenClaims() {
-        //return Arrays.asList(NONCE, ACR, ACCESS_TOKEN_HASH, AUTH_TIME);
-        return Arrays.asList();
     }
 
     @Override
