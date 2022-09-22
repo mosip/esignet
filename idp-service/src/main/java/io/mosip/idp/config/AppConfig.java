@@ -13,7 +13,6 @@ import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -26,9 +25,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = {"io.mosip.idp.entity", "io.mosip.kernel.keymanagerservice.entity"})
 @Slf4j
 public class AppConfig implements ApplicationRunner {
-
-    @Value("${mosip.idp.authn.wrapper.impl}")
-    private String authenticationWrapper;
 
     @Autowired
     private KeymanagerService keymanagerService;
@@ -56,12 +52,5 @@ public class AppConfig implements ApplicationRunner {
         partnerMasterKeyRequest.setApplicationId(Constants.IDP_PARTNER_APP_ID);
         keymanagerService.generateMasterKey(objectType, partnerMasterKeyRequest);
         log.info("===================== IDP KEY SETUP COMPLETED ========================");
-
-        if(authenticationWrapper.equals("MockAuthenticationService")) {
-            KeyPairGenerateRequestDto mockIDAMasterKeyRequest = new KeyPairGenerateRequestDto();
-            mockIDAMasterKeyRequest.setApplicationId("MOCK_IDA_SERVICES");
-            keymanagerService.generateMasterKey(objectType, mockIDAMasterKeyRequest);
-            log.info("===================== MOCK_IDA_SERVICES MASTER KEY SETUP COMPLETED ========================");
-        }
     }
 }

@@ -24,6 +24,9 @@ import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
+import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
+import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
@@ -67,6 +70,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private ClientManagementService clientManagementService;
     private TokenService tokenService;
     private ObjectMapper objectMapper;
+    private KeymanagerService keymanagerService;
     private DocumentContext mappingDocumentContext;
     private File personaDir;
     private File policyDir;
@@ -88,11 +92,13 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     public MockAuthenticationService(String personaDirPath, String policyDirPath, String claimsMappingFilePath,
                                      int kycTokenExpireSeconds, SignatureService signatureService,
                                      TokenService tokenService, ObjectMapper objectMapper,
-                                     ClientManagementService clientManagementService) throws IOException {
+                                     ClientManagementService clientManagementService,
+                                     KeymanagerService keymanagerService) throws IOException {
         this.signatureService = signatureService;
         this.tokenService = tokenService;
         this.objectMapper = objectMapper;
         this.clientManagementService = clientManagementService;
+        this.keymanagerService = keymanagerService;
 
         log.info("Started to setup MOCK IDA");
         personaDir = new File(personaDirPath);
@@ -152,6 +158,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(TokenService.IAT, issueTime);
         payload.put(TokenService.EXP, issueTime +tokenExpireInSeconds);
+        setupMockIDAKey();
         return tokenService.getSignedJWT(APPLICATION_ID, payload);
     }
 
@@ -210,6 +217,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     private String signKyc(Map<String,String> kyc) throws JsonProcessingException {
+        setupMockIDAKey();
         String payload = objectMapper.writeValueAsString(kyc);
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
         jwtSignatureRequestDto.setApplicationId(APPLICATION_ID);
@@ -220,6 +228,20 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         jwtSignatureRequestDto.setIncludeCertHash(true);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
+    }
+
+    private void setupMockIDAKey() {
+        try {
+            keymanagerService.getCertificate(APPLICATION_ID, Optional.empty());
+            //Nothing to do as key is already present.
+            return;
+        } catch (KeymanagerServiceException ex) {
+            log.error("Failed while getting MOCK IDA signing certificate", ex);
+        }
+        KeyPairGenerateRequestDto mockIDAMasterKeyRequest = new KeyPairGenerateRequestDto();
+        mockIDAMasterKeyRequest.setApplicationId(APPLICATION_ID);
+        keymanagerService.generateMasterKey("CSR", mockIDAMasterKeyRequest);
+        log.info("===================== MOCK_IDA_SERVICES MASTER KEY SETUP COMPLETED ========================");
     }
 
     @Override
