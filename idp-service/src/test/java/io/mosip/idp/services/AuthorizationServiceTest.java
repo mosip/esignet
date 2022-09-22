@@ -6,11 +6,7 @@ import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
-import io.mosip.idp.services.AuthorizationServiceImpl;
-import io.mosip.idp.services.CacheUtilService;
-import io.mosip.idp.services.TokenServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,13 +15,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +27,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     ClientDetailRepository clientDetailRepository;
+
+    @Mock
+    ClientManagementServiceImpl clientManagementService;
 
     @Mock
     AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -110,21 +107,21 @@ public class AuthorizationServiceTest {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setNonce("test-nonce");
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.empty());
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenThrow(InvalidClientException.class);
         authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
     }
 
     @Test
-    public void getOauthDetails_withInvalidRedirectUri_throwsException() {
+    public void getOauthDetails_withInvalidRedirectUri_throwsException() throws IdPException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v2/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -138,9 +135,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq() throws IdPException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(null);
-        clientDetail.setAcrValues("mosip:idp:acr:static-code");
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -149,7 +146,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setNonce("test-nonce");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -162,9 +159,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withNullClaimsInDbAndValidClaimsInReq() throws IdPException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(null);
-        clientDetail.setAcrValues("mosip:idp:acr:static-code");
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -178,7 +175,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("level4");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -191,9 +188,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReq() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
-        clientDetail.setAcrValues("mosip:idp:acr:static-code");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -207,7 +204,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -220,9 +217,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidClaimsInDbAndInValidClaimsInReq() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
-        clientDetail.setAcrValues("mosip:idp:acr:generated-code");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -236,7 +233,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -249,8 +246,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withNullAcrInDB() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(null);
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
@@ -260,7 +257,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code mosip:idp:acr:static-code");
         oauthDetailRequest.setNonce("test-nonce");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -274,9 +271,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndNullAcrInReq() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
-        clientDetail.setAcrValues("mosip:idp:acr:generated-code,mosip:idp:acr:linked-wallet");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -285,7 +282,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues(null);
         oauthDetailRequest.setNonce("test-nonce");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         authFactors.add(Collections.emptyList());
@@ -301,9 +298,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndValidAcrInReq() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
-        clientDetail.setAcrValues("mosip:idp:acr:generated-code,mosip:idp:acr:linked-wallet");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -312,7 +309,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("level21 mosip:idp:acr:linked-wallet");
         oauthDetailRequest.setNonce("test-nonce");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
@@ -326,18 +323,18 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndValidAcrInReq_orderOfPrecedencePreserved() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
-        clientDetail.setAcrValues("mosip:idp:acr:generated-code,mosip:idp:acr:linked-wallet");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
-        oauthDetailRequest.setAcrValues("level21 mosip:idp:acr:linked-wallet mosip:idp:acr:generated-code");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:linked-wallet mosip:idp:acr:generated-code");
         oauthDetailRequest.setNonce("test-nonce");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         //NOTE: if order differs then below mock will not be used, hence will not return null
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet",
                 "mosip:idp:acr:generated-code"})).thenReturn(null);
@@ -351,9 +348,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndValidAcrClaimInReq() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
-        clientDetail.setAcrValues("level2,level5");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code", "mosip:idp:acr:wallet"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -362,16 +359,16 @@ public class AuthorizationServiceTest {
         Claims claims = new Claims();
         claims.setId_token(new HashMap<>());
         ClaimDetail claimDetail = new ClaimDetail();
-        claimDetail.setValues(new String[]{"level2", "level1"});
+        claimDetail.setValues(new String[]{"mosip:idp:acr:wallet", "mosip:idp:acr:webauthn"});
         claims.getId_token().put("acr", claimDetail);
         oauthDetailRequest.setClaims(claims);
-        oauthDetailRequest.setAcrValues("level21 level1 level5");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
-        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"level2"})).thenReturn(authFactors);
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
 
         OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
@@ -382,9 +379,9 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReqAndNoOPENIDScope() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
-        clientDetail.setRedirectUris("https://localshot:3044/logo.png,http://localhost:8088/v1/idp,/v1/idp");
-        clientDetail.setClaims("email,given_name");
-        clientDetail.setAcrValues("level4");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:wallet"));
 
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
@@ -396,9 +393,9 @@ public class AuthorizationServiceTest {
         userClaims.put("given_name", new ClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
-        oauthDetailRequest.setAcrValues("level4");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
 
-        when(clientDetailRepository.findByIdAndStatus(oauthDetailRequest.getClientId(), "ACTIVE")).thenReturn(Optional.of(clientDetail));
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);

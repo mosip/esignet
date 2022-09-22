@@ -19,7 +19,7 @@ import java.util.Map;
 public class OpenIdConnectController {
 
     @Autowired
-    private OpenIdConnectService openIdConnectServiceImpl;
+    private OpenIdConnectService openIdConnectService;
 
     /**
      * 1. The UserInfo Endpoint MUST accept Access Tokens
@@ -32,11 +32,11 @@ public class OpenIdConnectController {
     @GetMapping("/userinfo")
     @CrossOrigin
     public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws IdPException {
-        return openIdConnectServiceImpl.getUserInfo(bearerToken);
+        return openIdConnectService.getUserInfo(bearerToken);
     }
 
     @GetMapping("/.well-known/openid-configuration")
     public Map<String, Object> getDiscoveryEndpoints() {
-        return openIdConnectServiceImpl.getOpenIdConfiguration();
+        return openIdConnectService.getOpenIdConfiguration();
     }
 }

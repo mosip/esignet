@@ -5,10 +5,12 @@
  */
 package io.mosip.idp.core.spi;
 
+import io.mosip.idp.core.dto.ClientDetail;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.InvalidClientException;
 
 public interface ClientManagementService {
 
@@ -29,6 +31,11 @@ public interface ClientManagementService {
      */
     ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailCreateRequest) throws IdPException;
 
+    /**
+     * Api to get the active client detail with the provided client id.
+     * @param clientId
+     * @return
+     */
+    ClientDetail getClientDetails(String clientId) throws IdPException;
 
-    String getClientPublicKey(String clientId) throws IdPException;
 }

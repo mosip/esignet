@@ -7,16 +7,10 @@ package io.mosip.idp.services;
 
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.spi.AuthenticationWrapper;
-import io.mosip.idp.core.spi.AuthorizationService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.idp.repository.ClientDetailRepository;
-import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
-import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,25 +23,10 @@ import java.util.Map;
 public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdConnectService {
 
     @Autowired
-    private ClientDetailRepository clientDetailRepository;
-
-    @Autowired
-    private AuthorizationService authorizationService;
-
-    @Autowired
     private TokenService tokenService;
 
     @Autowired
-    private AuthenticationWrapper authenticationWrapper;
-
-    @Autowired
     private CacheUtilService cacheUtilService;
-
-    @Autowired
-    private SignatureService signatureService;
-
-    @Value("${mosip.idp.cache.key.hash.algorithm}")
-    private String hashingAlgorithm;
 
     @Value("#{${mosip.idp.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
@@ -65,22 +44,13 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
         if(!Constants.BEARER.equals(tokenParts[0]))
             throw new NotAuthenticatedException();
 
-        String accessTokenHash = IdentityProviderUtil.generateAccessTokenHash(tokenParts[1]);
+        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenParts[1]);
         IdPTransaction transaction = cacheUtilService.getKycTransaction(accessTokenHash);
         if(transaction == null)
             throw new NotAuthenticatedException();
 
-        tokenService.verifyAccessToken(transaction.getClientId(), transaction.getUserToken(), tokenParts[1]);
-
-        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
-        jwtSignatureRequestDto.setReferenceId("");
-        jwtSignatureRequestDto.setIncludePayload(true);
-        jwtSignatureRequestDto.setIncludeCertificate(true);
-        jwtSignatureRequestDto.setDataToSign(transaction.getEncryptedKyc());
-        jwtSignatureRequestDto.setIncludeCertHash(true);
-        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
-        return responseDto.getJwtSignedData();
+        tokenService.verifyAccessToken(transaction.getClientId(), transaction.getPartnerSpecificUserToken(), tokenParts[1]);
+        return transaction.getEncryptedKyc();
     }
 
     @Override

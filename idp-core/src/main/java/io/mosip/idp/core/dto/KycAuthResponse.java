@@ -10,5 +10,5 @@ import lombok.Data;
 public class KycAuthResponse {
 
     private String kycToken;
-    private String userAuthToken;
+    private String partnerSpecificUserToken;
 }
