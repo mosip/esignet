@@ -13,6 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 @Data
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 public class ClientDetail {
 
     @Id
+    @NotBlank
     private String id;
 
     @NotBlank(message = "invalid_name")
@@ -52,6 +54,7 @@ public class ClientDetail {
     private String acrValues;
 
     @NotBlank(message = "invalid_status")
+    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$")
     @Column(name = "status")
     private String status;
 

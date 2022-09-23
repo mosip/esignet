@@ -8,13 +8,16 @@ package io.mosip.idp;
 import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
+import org.hibernate.HibernateException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -33,15 +36,15 @@ public class ClientDetailRepositoryTest {
         clientDetail.setName("Client-01");
         clientDetail.setLogoUri("https://clienapp.com/logo.png");
         clientDetail.setStatus("ACTIVE");
-        clientDetail.setRedirectUris("https://clientapp.com/home,https://clientapp.com/home2");
+        clientDetail.setRedirectUris("[\"https://clientapp.com/home\",\"https://clientapp.com/home2\"]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
         clientDetail.setRpId("RP01");
-        clientDetail.setClaims("{}");
-        clientDetail.setAcrValues("{}");
-        clientDetail.setGrantTypes("authorization_code");
-        clientDetail.setClientAuthMethods("private_key_jwt");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
         clientDetail.setCreatedtimes(LocalDateTime.now());
-        clientDetail = clientDetailRepository.save(clientDetail);
+        clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
         Assert.assertNotNull(clientDetail);
 
         Optional<ClientDetail> result = clientDetailRepository.findById("C01");
@@ -59,36 +62,226 @@ public class ClientDetailRepositoryTest {
 
     @Test
     public void createClientDetail_withBlankClientId_thenFail() {
-
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("");
+        clientDetail.setName("Client-01");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setRpId("RP01");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("id")));
+            return;
+        }
+        Assert.fail();
     }
 
     @Test
     public void createClientDetail_withBlankPublicKey_thenFail() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName("Client-01");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[]");
+        clientDetail.setPublicKey("");
+        clientDetail.setRpId("RP01");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("publicKey")));
+            return;
+        }
+        Assert.fail();
+    }
 
+    @Test
+    public void createClientDetail_withNullPublicKey_thenFail() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName("Client-01");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[]");
+        clientDetail.setPublicKey(null);
+        clientDetail.setRpId("RP01");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("publicKey")));
+            return;
+        }
+        Assert.fail();
     }
 
     @Test
     public void createClientDetail_withBlankClientName_thenFail() {
-
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName(" ");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setRpId("RP01");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("name")));
+            return;
+        }
+        Assert.fail();
     }
 
     @Test
     public void createClientDetail_withBlankRP_thenFail() {
-
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName("C)1");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setRpId(" ");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("rpId")));
+            return;
+        }
+        Assert.fail();
     }
 
     @Test
     public void createClientDetail_withBlankRedirectUri_thenFail() {
-
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName("C01");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris(" ");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setRpId("RP_ID");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("redirectUris")));
+            return;
+        }
+        Assert.fail();
     }
 
     @Test
     public void createClientDetail_withBlankStatus_thenFail() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName("C01");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("");
+        clientDetail.setRedirectUris("[]]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setRpId("RP_ID");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("status")));
+            return;
+        }
+        Assert.fail();
+    }
 
+    @Test
+    public void createClientDetail_withNullStatus_thenFail() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName("C01");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus(null);
+        clientDetail.setRedirectUris("[]]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setRpId("RP_ID");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("status")));
+            return;
+        }
+        Assert.fail();
     }
 
     @Test
     public void createClientDetail_withInvalidStatus_thenFail() {
-
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C01");
+        clientDetail.setName("C01");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("active");
+        clientDetail.setRedirectUris("[]]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setRpId("RP_ID");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[]");
+        clientDetail.setClientAuthMethods("[]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        try {
+            clientDetailRepository.saveAndFlush(clientDetail);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("status")));
+            return;
+        }
+        Assert.fail();
     }
 }
