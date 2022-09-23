@@ -140,15 +140,16 @@ public class ClientMgmtControllerParameterizedTest {
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
             { "With valid & invalid user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
-                    "rp-id", Arrays.asList("birthdate", "given_name", "gender", ""),
+                    "rp-id", Arrays.asList("birthdate", "given_name", "gender", "street"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
-            { "With valid user claims", new ClientDetailCreateRequest("client-id-v2", "Test client", jwk,
+            { "With invalid acr", new ClientDetailCreateRequest("client-id-v2", "Test client", jwk,
                     "rp-id", Arrays.asList("birthdate", "given_name", "gender"),
-                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("mosip:idp:acr:static-code-1"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null, null }
+                    Arrays.asList("private_key_jwt")), null, null, ErrorConstants.INVALID_ACR }
+
     };
 
     @Parameterized.Parameters(name = "Test {0}")
