@@ -1,13 +1,20 @@
-package io.mosip.idp;
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+package io.mosip.idp.flows;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import io.mosip.idp.TestUtil;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.TokenService;
@@ -16,14 +23,16 @@ import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.TestContextManager;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -33,6 +42,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -41,11 +51,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@RunWith(Parameterized.class)
 @SpringBootTest
-@RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(secure = false)
 @Slf4j
-public class AuthCodeFlowTest {
+public class AuthorizationCodeFlowParameterizedTest {
+
+    @ClassRule
+    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     MockMvc mockMvc;
@@ -68,15 +84,42 @@ public class AuthCodeFlowTest {
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
+    private TestContextManager testContextManager;
+
+    private String testName;
+    private String clientId;
+    private String redirectionUrl;
+    private String state;
+    private String nonce;
+    private static JWK clientJWK = TestUtil.generateJWK_RSA();
+
+    public AuthorizationCodeFlowParameterizedTest(String testName, String clientId, String redirectUrl, String state, String nonce) {
+        this.testName = testName;
+        this.clientId =clientId;
+        this.redirectionUrl = redirectUrl;
+        this.state = state;
+        this.nonce = nonce;
+    }
+
+    private final static Object[][] TEST_CASES = new Object[][] {
+            // test-name, clientId, redirectionUrl, state, nonce
+            { "Auth-code flow", "mock-oidc-client",  "https://mock.client.com/home", "er345agrR3T", "23424234TY"}
+    };
+
+    @Parameterized.Parameters(name = "Test {0}")
+    public static Collection<Object[]> data() {
+        return Arrays.asList(TEST_CASES);
+    }
+
+    @Before
+    public void setup() throws Exception {
+        this.testContextManager = new TestContextManager(getClass());
+        this.testContextManager.prepareTestInstance(this);
+    }
 
     @Test
     public void authorizationCodeFlowTest() throws Exception {
-        String clientId = "service-oidc-client";
-        String redirectionUrl = "https://service.client.com/home";
-        String state = "er345agrR3T";
-        String nonce = "23424234TY";
         String code = null;
-        JWK clientJWK = TestUtil.generateJWK_RSA();
 
         createOIDCClient(clientId, clientJWK.toPublicJWK());
         log.info("Successfully create OIDC Client {}", clientId);
@@ -237,6 +280,7 @@ public class AuthCodeFlowTest {
         request.setRequest(oAuthDetailRequest);
 
         MvcResult result = mockMvc.perform(post("/authorization/oauth-details")
+                        .param("nonce", nonce).param("state", state)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -260,7 +304,7 @@ public class AuthCodeFlowTest {
         createRequest.setGrantTypes(Arrays.asList("authorization_code"));
         createRequest.setClientAuthMethods(Arrays.asList("private_key_jwt"));
         createRequest.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
-        createRequest.setRedirectUris(Arrays.asList("https://service.client.com/home", "https://mock.client.com/dashboard"));
+        createRequest.setRedirectUris(Arrays.asList("https://mock.client.com/home", "https://mock.client.com/dashboard"));
         createRequest.setUserClaims(Arrays.asList("name", "email", "gender"));
         RequestWrapper<ClientDetailCreateRequest> request = new RequestWrapper<>();
         request.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -274,5 +318,4 @@ public class AuthCodeFlowTest {
                 .andExpect(jsonPath("$.response.clientId").value(clientId))
                 .andExpect(jsonPath("$.response.status").value(Constants.CLIENT_ACTIVE_STATUS));
     }
-
 }
