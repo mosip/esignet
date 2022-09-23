@@ -16,6 +16,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
+import static io.mosip.idp.core.util.ErrorConstants.*;
+
 @Data
 @Entity
 @NoArgsConstructor
@@ -26,43 +28,43 @@ public class ClientDetail {
     @NotBlank
     private String id;
 
-    @NotBlank(message = "invalid_name")
+    @NotBlank(message = INVALID_CLIENT_NAME)
     @Column(name = "name")
     private String name;
 
-    @NotBlank(message = "invalid_rp")
+    @NotBlank(message = INVALID_RP_ID)
     @Column(name = "rp_id")
     private String rpId;
 
+    @NotBlank(message = INVALID_URI)
     @Column(name = "logo_uri")
     private String logoUri;
 
-    @NotBlank(message = "invalid_redirect_uri")
+    @NotBlank(message = INVALID_REDIRECT_URI)
     @Column(name = "redirect_uris")
     private String redirectUris;
 
-    @NotBlank(message = "invalid_public_key")
+    @NotBlank(message = INVALID_PUBLIC_KEY)
     @Column(name = "public_key", columnDefinition = "TEXT")
     private String publicKey;
 
-    @NotBlank(message = "invalid_claims")
+    @NotBlank(message = INVALID_CLAIM)
     @Column(name = "claims")
     private String claims;
 
-    @NotBlank(message = "invalid_acr_values")
+    @NotBlank(message = INVALID_ACR)
     @Column(name = "acr_values")
     private String acrValues;
 
-    @NotBlank(message = "invalid_status")
     @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$")
     @Column(name = "status")
     private String status;
 
-    @NotBlank(message = "invalid_grant_types")
+    @NotBlank(message = INVALID_GRANT_TYPE)
     @Column(name = "grant_types")
     private String grantTypes;
 
-    @NotBlank(message = "invalid_client_auth")
+    @NotBlank(message = INVALID_CLIENT_AUTH)
     @Column(name = "auth_methods")
     private String clientAuthMethods;
 
