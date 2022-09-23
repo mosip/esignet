@@ -67,7 +67,7 @@ public class ClientManagementServiceTest {
         ClientDetail entity = new ClientDetail();
         entity.setId("mock_id_v1");
         entity.setStatus("active");
-        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        Mockito.when(clientDetailRepository.saveAndFlush(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponse clientDetailResponse = clientManagementService.createOIDCClient(clientCreateReqDto);
         Assert.assertNotNull(clientDetailResponse);
         Assert.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
@@ -121,7 +121,7 @@ public class ClientManagementServiceTest {
         ClientDetail entity = new ClientDetail();
         entity.setId("client_id_v1");
         entity.setStatus("inactive");
-        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        Mockito.when(clientDetailRepository.saveAndFlush(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponse clientDetailResponse = clientManagementService.updateOIDCClient("client_id_v1", updateRequest);
         Assert.assertNotNull(clientDetailResponse);
         Assert.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));

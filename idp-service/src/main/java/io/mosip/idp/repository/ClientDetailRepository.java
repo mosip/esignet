@@ -6,11 +6,11 @@
 package io.mosip.idp.repository;
 
 import io.mosip.idp.entity.ClientDetail;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ClientDetailRepository extends CrudRepository<ClientDetail, String> {
+public interface ClientDetailRepository extends JpaRepository<ClientDetail, String> {
 
     /**
      * case-sensitive query to fetch client with clientId and status
