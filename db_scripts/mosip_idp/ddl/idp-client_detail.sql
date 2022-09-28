@@ -32,7 +32,7 @@ CREATE TABLE client_detail(
 	CONSTRAINT pk_client_detail PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE key_alias IS 'Contains key alias and  metadata of all the keys used in MOSIP system.';
+COMMENT ON TABLE client_detail IS 'Contains key alias and  metadata of all the keys used in MOSIP system.';
 
 COMMENT ON COLUMN client_detail.id IS 'Client ID: Unique id assigned to registered OIDC client.';
 COMMENT ON COLUMN client_detail.name IS 'Client Name: Registered name of OIDC client.';
@@ -45,6 +45,6 @@ COMMENT ON COLUMN client_detail.grant_types IS 'Grant Types: Allowed grant types
 COMMENT ON COLUMN client_detail.auth_methods IS 'Client Auth methods: Allowed token endpoint authentication methods, comma separated string.';
 COMMENT ON COLUMN client_detail.claims IS 'Requested Claims: claims json as per policy defined for relying party, comma separated string.';
 COMMENT ON COLUMN client_detail.acr_values IS 'Allowed Authentication context References(acr), comma separated string.';
-COMMENT ON COLUMN key_policy_def.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted';
-COMMENT ON COLUMN key_policy_def.upd_dtimes IS 'Updated DateTimestamp : Date and Timestamp when any of the fields in the record is updated with new values.';
+COMMENT ON COLUMN client_detail.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted';
+COMMENT ON COLUMN client_detail.upd_dtimes IS 'Updated DateTimestamp : Date and Timestamp when any of the fields in the record is updated with new values.';
 -- ddl-end --
