@@ -31,4 +31,5 @@ public class IdPTransaction {
     String error;
 
     String nonce;
+    String state;
 }
