@@ -39,7 +39,7 @@ public class IdentityProviderUtil {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
     }
 
-    public static String getResponseTime() {
+    public static String getUTCDataTime() {
         return ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
@@ -119,7 +119,7 @@ public class IdentityProviderUtil {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGO_SHA3_256);
             digest.update(UUID.randomUUID().toString()
-                    .concat(nonce == null ? getResponseTime() : nonce)
+                    .concat(nonce == null ? getUTCDataTime() : nonce)
                     .getBytes(StandardCharsets.UTF_8));
             return urlSafeEncoder.encodeToString(digest.digest());
         } catch (NoSuchAlgorithmException ex) {
