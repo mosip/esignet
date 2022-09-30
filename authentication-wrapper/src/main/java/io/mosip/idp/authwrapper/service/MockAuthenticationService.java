@@ -350,7 +350,6 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         } catch (Exception e) {
             log.error("Failed to load kyc for : {}", persona, e);
         }
-        log.info("buildKycDataBasedOnPolicy :{}", kyc);
         return kyc;
     }
 
