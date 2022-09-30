@@ -27,7 +27,7 @@ public class AuthorizationController {
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                             requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
         responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
         return responseWrapper;
     }
@@ -36,7 +36,7 @@ public class AuthorizationController {
     public ResponseWrapper<OtpResponse> sendOtp(@Valid @RequestBody RequestWrapper<OtpRequest> requestWrapper)
             throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
         responseWrapper.setResponse(authorizationService.sendOtp(requestWrapper.getRequest()));
         return responseWrapper;
     }
@@ -45,7 +45,7 @@ public class AuthorizationController {
     public ResponseWrapper<AuthResponse> authenticateEndUser(@Valid @RequestBody RequestWrapper<KycAuthRequest>
                                                                         requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
         responseWrapper.setResponse(authorizationService.authenticateUser(requestWrapper.getRequest()));
         return responseWrapper;
     }
@@ -59,7 +59,7 @@ public class AuthorizationController {
         authCodeResponse.setRedirectUri(idPTransaction.getRedirectUri());
         authCodeResponse.setNonce(idPTransaction.getNonce());
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getResponseTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
         responseWrapper.setResponse(authCodeResponse);
         return responseWrapper;
     }
