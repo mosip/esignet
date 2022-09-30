@@ -11,6 +11,7 @@ import lombok.Data;
 public class AuthCodeResponse {
 
     private String nonce;
+    private String state;
     private String code;
     private String redirectUri;
 }
