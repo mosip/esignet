@@ -147,6 +147,40 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return responseWrapper;
     }
 
+
+
+    @Override
+    public ResponseWrapper<KycExchangeResult> doKycExchange(@NotNull @Valid KycExchangeRequest kycExchangeRequest) {
+        ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
+        responseWrapper.setErrors(new ArrayList<>());
+
+        log.info("Accepted claims : {} and locales : {}", kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
+
+        try {
+            JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
+            log.info("KYC token claim set : {}", jwtClaimsSet);
+            String clientId = jwtClaimsSet.getStringClaim(CID_CLAIM);
+            if(!kycExchangeRequest.getClientId().equals(clientId) || jwtClaimsSet.getStringClaim(PSUT_CLAIM) == null) {
+                responseWrapper.getErrors().add(new Error(INVALID_INPUT, INVALID_INPUT));
+                return responseWrapper;
+            }
+
+            String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
+            Map<String,String> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
+                    kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
+
+            kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
+
+            KycExchangeResult kycExchangeResult = new KycExchangeResult();
+            kycExchangeResult.setEncryptedKyc(signKyc(kyc)); //TODO encrypt with relying party public key
+            responseWrapper.setResponse(kycExchangeResult);
+        } catch (Exception e) {
+            log.error("Failed to create kyc", e);
+            responseWrapper.getErrors().add(new Error("mock-ida-005", "Failed to build kyc data"));
+        }
+        return responseWrapper;
+    }
+
     private String getKycToken(String individualId, String clientId, String relyingPartyId, @NotBlank String psut) {
         JSONObject payload = new JSONObject();
         payload.put(TokenService.ISS, APPLICATION_ID);
@@ -185,35 +219,6 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             log.error("kyc token claims verification failed", e);
             throw new NotAuthenticatedException();
         }
-    }
-
-    @Override
-    public ResponseWrapper<KycExchangeResult> doKycExchange(@NotNull @Valid KycExchangeRequest kycExchangeRequest) {
-        ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
-        responseWrapper.setErrors(new ArrayList<>());
-
-        try {
-            JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
-            String clientId = jwtClaimsSet.getStringClaim(CID_CLAIM);
-            if(!kycExchangeRequest.getClientId().equals(clientId)) {
-                responseWrapper.getErrors().add(new Error(INVALID_INPUT, INVALID_INPUT));
-                return responseWrapper;
-            }
-
-            String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
-            Map<String,String> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
-                    kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
-
-            kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
-
-            KycExchangeResult kycExchangeResult = new KycExchangeResult();
-            kycExchangeResult.setEncryptedKyc(signKyc(kyc)); //TODO encrypt with relying party public key
-            responseWrapper.setResponse(kycExchangeResult);
-        } catch (Exception e) {
-            log.error("Failed to create kyc", e);
-            responseWrapper.getErrors().add(new Error("mock-ida-005", "Failed to build kyc data"));
-        }
-        return responseWrapper;
     }
 
     private String signKyc(Map<String,String> kyc) throws JsonProcessingException {
@@ -307,6 +312,8 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             DocumentContext personaContext = JsonPath.parse(new File(personaDir, persona));
             List<String> allowedAttributes = getPolicyKycAttributes(relyingPartyId);
 
+            log.info("Allowed kyc attributes as per policy : {}", allowedAttributes);
+
             Map<String, PathInfo> kycAttributeMap = claims.stream()
                     .distinct()
                     .collect(Collectors.toMap(claim -> claim, claim -> mappingDocumentContext.read("$.claims."+claim)))
@@ -318,6 +325,8 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                     .stream()
                     .filter( e -> e.getValue() != null && e.getValue().getPath() != null && !e.getValue().getPath().isBlank() )
                     .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+
+            log.info("Final kyc attribute map : {}", kycAttributeMap);
 
             for(Map.Entry<String, PathInfo> entry : kycAttributeMap.entrySet()) {
                 String path = entry.getValue().getPath();
@@ -341,6 +350,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         } catch (Exception e) {
             log.error("Failed to load kyc for : {}", persona, e);
         }
+        log.info("buildKycDataBasedOnPolicy :{}", kyc);
         return kyc;
     }
 
