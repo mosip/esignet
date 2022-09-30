@@ -30,7 +30,7 @@ public class ClientManagementController {
             @Valid @RequestBody RequestWrapper<ClientDetailCreateRequest> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         response.setResponse(clientManagementService.createOIDCClient(requestWrapper.getRequest()));
-        response.setResponseTime(IdentityProviderUtil.getResponseTime());
+        response.setResponseTime(IdentityProviderUtil.getUTCDataTime());
         return response;
     }
 
@@ -40,7 +40,7 @@ public class ClientManagementController {
                                                               @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequest> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         response.setResponse(clientManagementService.updateOIDCClient(clientId, requestWrapper.getRequest()));
-        response.setResponseTime(IdentityProviderUtil.getResponseTime());
+        response.setResponseTime(IdentityProviderUtil.getUTCDataTime());
         return response;
     }
 }

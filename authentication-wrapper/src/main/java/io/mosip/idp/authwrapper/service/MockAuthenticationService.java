@@ -329,11 +329,10 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             log.info("Final kyc attribute map : {}", kycAttributeMap);
 
             for(Map.Entry<String, PathInfo> entry : kycAttributeMap.entrySet()) {
-                String path = entry.getValue().getPath();
-
-                Map<String, String> langResult = Arrays.stream(locales)
-                        .filter( locale -> getKycValue(personaContext, path, locale) != null)
-                        .collect(Collectors.toMap(locale -> locale, locale -> getKycValue(personaContext, path, locale)));
+                Map<String, String> langResult = Arrays.stream( (locales == null || locales.length == 0) ? new String[]{"en"} : locales)
+                         .filter( locale -> getKycValue(personaContext, entry.getValue(), locale) != null)
+                        .collect(Collectors.toMap(locale -> locale,
+                                locale -> getKycValue(personaContext, entry.getValue(), locale)));
 
                 if(langResult.isEmpty())
                     continue;
@@ -353,24 +352,26 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return kyc;
     }
 
-    private String getKycValue(DocumentContext persona, String path, String locale) {
+    private String getKycValue(DocumentContext persona, PathInfo pathInfo, String locale) {
         try {
-            String jsonPath = locale == null ? path : path.replace("_LOCALE_", getLocalesMapping(locale));
+            String path =  pathInfo.getPath();
+            String jsonPath = locale == null ? path : path.replace("_LOCALE_",
+                    getLocalesMapping(locale, pathInfo.getDefaultLocale()));
             var value = persona.read(jsonPath);
             if(value instanceof List)
                 return (String) ((List)value).get(0);
             return (String) value;
         } catch (Exception ex) {
-            log.error("Failed to get kyc value with path {}", path, ex);
+            log.error("Failed to get kyc value with path {}", pathInfo, ex);
         }
         return null;
     }
 
-    private String  getLocalesMapping(String locale) {
+    private String  getLocalesMapping(String locale, String defaultLocale) {
         if(localesMapping == null || localesMapping.isEmpty()) {
             localesMapping = mappingDocumentContext.read("$.locales");
         }
-        return localesMapping.getOrDefault(locale, "");
+        return localesMapping.getOrDefault(locale, defaultLocale);
     }
 
     private boolean isValidAttributeName(String attribute) {
