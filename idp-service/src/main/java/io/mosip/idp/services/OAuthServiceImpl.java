@@ -8,6 +8,7 @@ package io.mosip.idp.services;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
+import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.spi.*;
 import io.mosip.idp.core.util.Constants;
@@ -47,7 +48,10 @@ public class OAuthServiceImpl implements OAuthService {
     public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
         IdPTransaction transaction = cacheUtilService.getAuthenticatedTransaction(tokenRequest.getCode());
         if(transaction == null)
-            throw new NotAuthenticatedException();
+            throw new InvalidTransactionException();
+
+        if(transaction.getKycToken() == null)
+            throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
 
         if(!transaction.getClientId().equals(tokenRequest.getClient_id()))
             throw new InvalidClientException();

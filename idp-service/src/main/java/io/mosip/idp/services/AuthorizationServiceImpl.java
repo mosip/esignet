@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -127,6 +128,12 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
         if(result == null || (result.getErrors() != null && !result.getErrors().isEmpty()))
             throw new IdPException(result == null ? AUTH_FAILED : result.getErrors().get(0).getErrorCode());
+
+        if(StringUtils.isEmpty(result.getResponse().getKycToken()) ||
+                StringUtils.isEmpty(result.getResponse().getPartnerSpecificUserToken())) {
+            log.error("** authenticationWrapper : {} returned empty tokens received **", authenticationWrapper);
+            throw new IdPException(AUTH_FAILED);
+        }
 
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(result.getResponse().getPartnerSpecificUserToken());
