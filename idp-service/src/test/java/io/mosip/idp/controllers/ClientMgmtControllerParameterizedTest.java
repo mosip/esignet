@@ -22,15 +22,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.ZoneOffset;
@@ -42,6 +45,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,14 +65,23 @@ public class ClientMgmtControllerParameterizedTest {
     @Autowired
     private WebApplicationContext wac;
 
+    @InjectMocks
+    ClientManagementServiceImpl clientManagementService;
+
+    @Value("${mosip.idp.amr-acr-mapping-file-url}")
+    private String mappingFileUrl;
+
+    @Autowired
+    RestTemplate  restTemplate;
+
     private MockMvc mockMvc;
 
     private TestContextManager testContextManager;
 
-    @InjectMocks
-    ClientManagementServiceImpl clientManagementService;
-
     ObjectMapper objectMapper = new ObjectMapper();
+
+    private MockRestServiceServer mockRestServiceServer;
+
     private static Map<String, Object> jwk = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
 
     private ClientDetailCreateRequest clientDetailCreateRequest;
@@ -162,6 +176,23 @@ public class ClientMgmtControllerParameterizedTest {
         this.testContextManager = new TestContextManager(getClass());
         this.testContextManager.prepareTestInstance(this);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+
+        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
+        mockRestServiceServer.expect(requestTo(mappingFileUrl))
+                .andRespond(withSuccess("{\n" +
+                        "  \"amr\" : {\n" +
+                        "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
+                        "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
+                        "    \"Wallet\" :  [{ \"type\": \"WALLET\" }],\n" +
+                        "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
+                        "  },\n" +
+                        "  \"acr_amr\" : {\n" +
+                        "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
+                        "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
+                        "    \"mosip:idp:acr:linked-wallet\" : [ \"Wallet\" ],\n" +
+                        "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
+                        "  }\n" +
+                        "}",  MediaType.APPLICATION_JSON_UTF8));
     }
 
     @Test

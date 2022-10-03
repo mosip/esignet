@@ -34,9 +34,11 @@ public class IdentityProviderUtil {
     public static final String ALGO_MD5 = "MD5";
 
     private static Base64.Encoder urlSafeEncoder;
+    private static Base64.Decoder urlSafeDecoder;
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
+        urlSafeDecoder = Base64.getUrlDecoder();
     }
 
     public static String getUTCDataTime() {
@@ -82,6 +84,10 @@ public class IdentityProviderUtil {
 
     public static String B64Encode(String value) {
         return urlSafeEncoder.encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static byte[] B64Decode(String value) {
+        return urlSafeDecoder.decode(value);
     }
 
     /**

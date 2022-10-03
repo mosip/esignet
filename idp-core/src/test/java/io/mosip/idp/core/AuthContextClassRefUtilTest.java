@@ -65,14 +65,14 @@ public class AuthContextClassRefUtilTest {
         Map<String, List<String>> acr_amr_Values = new ObjectMapper().convertValue(objectNode.get("acr_amr"),
                 new TypeReference<Map<String, List<String>>>(){});
 
-        when(objectMapper.readValue(ArgumentMatchers.<File>any(),
-                ArgumentMatchers.<TypeReference<ObjectNode>>any())).thenReturn(objectNode);
+        when(objectMapper.readValue(ArgumentMatchers.<String>any(),
+                ArgumentMatchers.<TypeReference<ObjectNode>>any())).thenReturn(objectNode, objectNode);
 
         //Ongoing stub, returns value in order of call hierarchy
         when(objectMapper.convertValue(ArgumentMatchers.<ObjectNode>any(),
                 ArgumentMatchers.<TypeReference<Map<String, Object>>>any())).thenReturn(amrValues, acr_amr_Values);
 
-        ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingFilePath", "src/test/resources/amr_acr_mapping.json");
+        ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingJson", amr_acr_mapping);
     }
 
 

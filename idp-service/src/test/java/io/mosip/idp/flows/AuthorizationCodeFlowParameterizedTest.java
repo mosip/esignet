@@ -27,15 +27,18 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -47,6 +50,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,6 +75,9 @@ public class AuthorizationCodeFlowParameterizedTest {
     ObjectMapper objectMapper;
 
     @Autowired
+    RestTemplate restTemplate;
+
+    @Autowired
     private ClientDetailRepository clientDetailRepository;
 
     @Autowired
@@ -84,6 +92,9 @@ public class AuthorizationCodeFlowParameterizedTest {
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
+    @Value("${mosip.idp.amr-acr-mapping-file-url}")
+    private String mappingFileUrl;
+
     private TestContextManager testContextManager;
 
     private String testName;
@@ -92,6 +103,8 @@ public class AuthorizationCodeFlowParameterizedTest {
     private String state;
     private String nonce;
     private static JWK clientJWK = TestUtil.generateJWK_RSA();
+
+    private MockRestServiceServer mockRestServiceServer;
 
     public AuthorizationCodeFlowParameterizedTest(String testName, String clientId, String redirectUrl, String state, String nonce) {
         this.testName = testName;
@@ -115,6 +128,22 @@ public class AuthorizationCodeFlowParameterizedTest {
     public void setup() throws Exception {
         this.testContextManager = new TestContextManager(getClass());
         this.testContextManager.prepareTestInstance(this);
+        this.mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
+        mockRestServiceServer.expect(requestTo(mappingFileUrl))
+                .andRespond(withSuccess("{\n" +
+                        "  \"amr\" : {\n" +
+                        "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
+                        "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
+                        "    \"Wallet\" :  [{ \"type\": \"WALLET\" }],\n" +
+                        "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
+                        "  },\n" +
+                        "  \"acr_amr\" : {\n" +
+                        "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
+                        "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
+                        "    \"mosip:idp:acr:linked-wallet\" : [ \"Wallet\" ],\n" +
+                        "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
+                        "  }\n" +
+                        "}",  MediaType.APPLICATION_JSON_UTF8));
     }
 
     @Test
