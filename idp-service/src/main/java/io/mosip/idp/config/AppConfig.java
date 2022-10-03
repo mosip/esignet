@@ -12,19 +12,32 @@ import io.mosip.idp.core.util.Constants;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"io.mosip.idp.repository", "io.mosip.kernel.keymanagerservice.repository"})
 @EntityScan(basePackages = {"io.mosip.idp.entity", "io.mosip.kernel.keymanagerservice.entity"})
 @Slf4j
 public class AppConfig implements ApplicationRunner {
+
+
+    @Value("${mosip.idp.default.httpclient.connections.max.per.host:20}")
+    private int defaultMaxConnectionPerRoute;
+
+    @Value("${mosip.idp.default.httpclient.connections.max:100}")
+    private int defaultTotalMaxConnection;
+
 
     @Autowired
     private KeymanagerService keymanagerService;
@@ -34,6 +47,17 @@ public class AppConfig implements ApplicationRunner {
         return JsonMapper.builder()
                 .addModule(new AfterburnerModule())
                 .build();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        HttpClientBuilder httpClientBuilder = HttpClients.custom()
+                .setMaxConnPerRoute(defaultMaxConnectionPerRoute)
+                .setMaxConnTotal(defaultTotalMaxConnection)
+                .disableCookieManagement();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setHttpClient(httpClientBuilder.build());
+        return new RestTemplate(requestFactory);
     }
 
     @Override

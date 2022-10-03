@@ -14,6 +14,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.idp.TestUtil;
+import io.mosip.idp.config.AppConfig;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.TokenService;
@@ -22,17 +23,27 @@ import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -43,7 +54,10 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -74,6 +88,33 @@ public class AuthCodeFlowTest {
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Value("${mosip.idp.amr-acr-mapping-file-url}")
+    private String mappingFileUrl;
+
+    private MockRestServiceServer mockRestServiceServer;
+
+    @Before
+    public void init() {
+        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
+        mockRestServiceServer.expect(requestTo(mappingFileUrl))
+                .andRespond(withSuccess("{\n" +
+                        "  \"amr\" : {\n" +
+                        "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
+                        "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
+                        "    \"Wallet\" :  [{ \"type\": \"WALLET\" }],\n" +
+                        "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
+                        "  },\n" +
+                        "  \"acr_amr\" : {\n" +
+                        "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
+                        "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
+                        "    \"mosip:idp:acr:linked-wallet\" : [ \"Wallet\" ],\n" +
+                        "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
+                        "  }\n" +
+                        "}",  MediaType.APPLICATION_JSON_UTF8));
+    }
 
     @Test
     public void authorizationCodeFlowTest() throws Exception {
