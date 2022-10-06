@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
-import static io.mosip.idp.core.util.ErrorConstants.AUTH_FAILED;
+import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 
 @Slf4j
@@ -52,9 +53,6 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
     @Value("#{${mosip.idp.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
-
-    @Value("${mosip.idp.misp.license.key}")
-    private String licenseKey;
 
 
     @Override
@@ -89,6 +87,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         idPTransaction.setRelyingPartyId(clientDetailDto.getRpId());
         idPTransaction.setClientId(clientDetailDto.getId());
         idPTransaction.setRequestedClaims(resolvedClaims);
+        idPTransaction.setRequestedAuthorizeScopes(oauthDetailResponse.getAuthorizeScopes());
         idPTransaction.setNonce(oauthDetailReqDto.getNonce());
         idPTransaction.setState(oauthDetailReqDto.getState());
         idPTransaction.setClaimsLocales(oauthDetailReqDto.getClaimsLocales());
@@ -120,8 +119,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
         ResponseWrapper<KycAuthResponse> result = null;
         try {
-            result = authenticationWrapper.doKycAuth(licenseKey, transaction.getRelyingPartyId(),
-                    transaction.getClientId(), kycAuthRequest);
+            result = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(), kycAuthRequest);
         } catch (Throwable t) {
             log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), t);
             throw new IdPException(AUTH_FAILED);
@@ -153,6 +151,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
+        validateAcceptedClaims(transaction, authCodeRequest.getAcceptedClaims());
+        validateAuthorizeScopes(transaction, authCodeRequest.getPermittedAuthorizeScopes());
 
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, UUID.randomUUID().toString());
         // cache consent with auth-code as key
@@ -160,6 +160,31 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
         return cacheUtilService.setAuthenticatedTransaction(authCode, authCodeRequest.getTransactionId(), transaction);
+    }
+
+    private void validateAcceptedClaims(IdPTransaction transaction, List<String> acceptedClaims) throws IdPException {
+        if(CollectionUtils.isEmpty(acceptedClaims))
+            return;
+
+        if(CollectionUtils.isEmpty(transaction.getRequestedClaims().getUserinfo()))
+            throw new IdPException(INVALID_CLAIM);
+
+        if(acceptedClaims.stream()
+                .allMatch( claim -> transaction.getRequestedClaims().getUserinfo().containsKey(claim) ))
+            return;
+
+        throw new IdPException(INVALID_CLAIM);
+    }
+
+    private void validateAuthorizeScopes(IdPTransaction transaction, List<String> authorizeScopes) throws IdPException {
+        if(CollectionUtils.isEmpty(authorizeScopes))
+            return;
+
+        if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()))
+            throw new IdPException(INVALID_SCOPE);
+
+        if(!transaction.getRequestedAuthorizeScopes().containsAll(authorizeScopes))
+            throw new IdPException(INVALID_SCOPE);
     }
 
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)
