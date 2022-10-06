@@ -16,6 +16,7 @@ public class IdPTransaction {
     String relyingPartyId;
     String redirectUri;
     Claims requestedClaims;
+    List<String> requestedAuthorizeScopes;
     String claimsLocales;
 
     String kycToken;
