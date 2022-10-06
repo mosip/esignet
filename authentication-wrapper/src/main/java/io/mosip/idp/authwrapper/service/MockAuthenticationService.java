@@ -111,7 +111,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Validated
     @Override
-    public ResponseWrapper<KycAuthResponse> doKycAuth(@NotBlank String licenseKey, @NotBlank String relyingPartyId,
+    public ResponseWrapper<KycAuthResponse> doKycAuth(@NotBlank String relyingPartyId,
                                          @NotBlank String clientId,
                                          @NotNull @Valid KycAuthRequest kycAuthRequest) {
 

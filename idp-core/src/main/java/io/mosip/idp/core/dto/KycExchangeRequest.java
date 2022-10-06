@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 public class KycExchangeRequest {
 
+    private String relyingPartyId;
     private String clientId;
     private List<String> acceptedClaims;
     private String kycToken;
