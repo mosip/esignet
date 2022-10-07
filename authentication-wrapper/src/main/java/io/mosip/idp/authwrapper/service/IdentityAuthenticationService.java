@@ -7,10 +7,7 @@ package io.mosip.idp.authwrapper.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.idp.authwrapper.dto.IdaKycAuthRequest;
-import io.mosip.idp.authwrapper.dto.IdaKycExchangeRequest;
-import io.mosip.idp.authwrapper.dto.IdaSendOtpRequest;
-import io.mosip.idp.authwrapper.dto.IdaSendOtpResponse;
+import io.mosip.idp.authwrapper.dto.*;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.exception.KycExchangeException;
@@ -195,8 +192,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 sendOtpRequest.getTransactionId(), clientId);
         try {
             IdaSendOtpRequest idaSendOtpRequest = new IdaSendOtpRequest();
-            idaSendOtpRequest.setOtpChannel(sendOtpRequest.getOtpChannel() == null ?
-                    Collections.emptyList() : Arrays.asList(sendOtpRequest.getOtpChannel()));
+            idaSendOtpRequest.setOtpChannel(sendOtpRequest.getOtpChannels());
             idaSendOtpRequest.setIndividualId(sendOtpRequest.getIndividualId());
             idaSendOtpRequest.setTransactionID(sendOtpRequest.getTransactionId());
             idaSendOtpRequest.setId(IDENTITY);
@@ -210,15 +206,14 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .body(requestBody);
             requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
-            ResponseEntity<ResponseWrapper<IdaSendOtpResponse>> responseEntity = restTemplate.exchange(requestEntity,
-                    new ParameterizedTypeReference<ResponseWrapper<IdaSendOtpResponse>>() {});
-
-            if(responseEntity.getBody() != null && CollectionUtils.isEmpty(responseEntity.getBody().getErrors()) &&
-                    responseEntity.getBody().getResponse() != null) {
-                return new SendOtpResult(true, SEND_OTP_SUCCESS);
+            IdaSendOtpResponse idaSendOtpResponse = restTemplate.exchange(requestEntity, IdaSendOtpResponse.class).getBody();
+            if(idaSendOtpResponse != null && CollectionUtils.isEmpty(idaSendOtpResponse.getErrors()) &&
+                    idaSendOtpResponse.getResponse() != null) {
+                return new SendOtpResult(idaSendOtpResponse.getTransactionID(), idaSendOtpResponse.getMaskedEmail(),
+                        idaSendOtpResponse.getMaskedMobile());
             }
-            log.error("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
-            return new SendOtpResult(false, responseEntity.getBody().getErrors().get(0).getErrorCode());
+            log.error("Errors in response received from IDA : {}", idaSendOtpResponse.getErrors());
+            throw new SendOtpException(idaSendOtpResponse.getErrors().get(0).getErrorCode());
         } catch (Exception e) {
             log.error("send-otp failed with clientId : {}", clientId, e);
         }

@@ -104,11 +104,12 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new InvalidTransactionException();
 
         SendOtpResult sendOtpResult;
+        String otpTransactionId = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, otpRequest.getTransactionId());
         try {
             SendOtpRequest sendOtpRequest = new SendOtpRequest();
-            sendOtpRequest.setTransactionId(IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, otpRequest.getTransactionId()));
+            sendOtpRequest.setTransactionId(otpTransactionId);
             sendOtpRequest.setIndividualId(otpRequest.getIndividualId());
-            sendOtpRequest.setOtpChannel(otpRequest.getChannel());
+            sendOtpRequest.setOtpChannels(otpRequest.getOtpChannels());
             sendOtpResult = authenticationWrapper.sendOtp(transaction.getRelyingPartyId(), transaction.getClientId(),
                     sendOtpRequest);
         } catch (SendOtpException e) {
@@ -116,12 +117,13 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new IdPException(e.getErrorCode());
         }
 
-        if(!sendOtpResult.isStatus())
-            throw new IdPException(sendOtpResult.getMessageCode());
+        if(!otpTransactionId.equals(sendOtpResult.getTransactionId()))
+            throw new IdPException(SEND_OTP_FAILED);
 
         OtpResponse otpResponse = new OtpResponse();
         otpResponse.setTransactionId(otpRequest.getTransactionId());
-        otpResponse.setMessageCode(sendOtpResult.getMessageCode());
+        otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
+        otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
         return otpResponse;
     }
 
