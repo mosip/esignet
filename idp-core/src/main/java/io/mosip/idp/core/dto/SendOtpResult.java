@@ -12,6 +12,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class SendOtpResult {
 
-    private boolean status;
-    private String messageCode;
+    private String transactionId;
+    private String maskedEmail;
+    private String maskedMobile;
 }

@@ -15,7 +15,6 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.dto.Error;
 import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
@@ -233,7 +232,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     @Override
     public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
             throws SendOtpException {
-        return new SendOtpResult(true, "success");
+        return new SendOtpResult(sendOtpRequest.getTransactionId(), "xxxxxx@mosip.io", "xxxxxxx1234");
     }
 
     private boolean authenticateUser(String individualId, AuthChallenge authChallenge) {
