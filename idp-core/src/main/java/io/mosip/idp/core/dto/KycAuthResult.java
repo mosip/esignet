@@ -7,7 +7,7 @@ package io.mosip.idp.core.dto;
 
 import lombok.Data;
 @Data
-public class KycAuthResponse {
+public class KycAuthResult {
 
     private String kycToken;
     private String partnerSpecificUserToken;

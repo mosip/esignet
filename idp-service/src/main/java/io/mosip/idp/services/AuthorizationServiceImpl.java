@@ -7,6 +7,8 @@ package io.mosip.idp.services;
 
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.InvalidTransactionException;
+import io.mosip.idp.core.exception.KycAuthException;
+import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
@@ -101,13 +103,25 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(transaction == null)
             throw new InvalidTransactionException();
 
-        SendOtpResult result = authenticationWrapper.sendOtp(otpRequest.getIndividualId(), otpRequest.getChannel());
-        if(!result.isStatus())
-            throw new IdPException(result.getMessageCode());
+        SendOtpResult sendOtpResult;
+        try {
+            SendOtpRequest sendOtpRequest = new SendOtpRequest();
+            sendOtpRequest.setTransactionId(otpRequest.getTransactionId());
+            sendOtpRequest.setIndividualId(otpRequest.getIndividualId());
+            sendOtpRequest.setOtpChannel(otpRequest.getChannel());
+            sendOtpResult = authenticationWrapper.sendOtp(transaction.getRelyingPartyId(), transaction.getClientId(),
+                    sendOtpRequest);
+        } catch (SendOtpException e) {
+            log.error("Failed to send otp for transaction : {}", otpRequest.getTransactionId(), e);
+            throw new IdPException(e.getErrorCode());
+        }
+
+        if(!sendOtpResult.isStatus())
+            throw new IdPException(sendOtpResult.getMessageCode());
 
         OtpResponse otpResponse = new OtpResponse();
         otpResponse.setTransactionId(otpRequest.getTransactionId());
-        otpResponse.setMessageCode(result.getMessageCode());
+        otpResponse.setMessageCode(sendOtpResult.getMessageCode());
         return otpResponse;
     }
 
@@ -117,26 +131,24 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(transaction == null)
             throw new InvalidTransactionException();
 
-        ResponseWrapper<KycAuthResponse> result = null;
+        KycAuthResult kycAuthResult;
         try {
-            result = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(), kycAuthRequest);
-        } catch (Throwable t) {
-            log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), t);
-            throw new IdPException(AUTH_FAILED);
+            kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
+                    kycAuthRequest);
+        } catch (KycAuthException e) {
+            log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), e);
+            throw new IdPException(e.getErrorCode());
         }
 
-        if(result == null || (result.getErrors() != null && !result.getErrors().isEmpty()))
-            throw new IdPException(result == null ? AUTH_FAILED : result.getErrors().get(0).getErrorCode());
-
-        if(StringUtils.isEmpty(result.getResponse().getKycToken()) ||
-                StringUtils.isEmpty(result.getResponse().getPartnerSpecificUserToken())) {
+        if(kycAuthResult == null || (StringUtils.isEmpty(kycAuthResult.getKycToken()) ||
+                StringUtils.isEmpty(kycAuthResult.getPartnerSpecificUserToken()))) {
             log.error("** authenticationWrapper : {} returned empty tokens received **", authenticationWrapper);
             throw new IdPException(AUTH_FAILED);
         }
 
         //cache tokens on successful response
-        transaction.setPartnerSpecificUserToken(result.getResponse().getPartnerSpecificUserToken());
-        transaction.setKycToken(result.getResponse().getKycToken());
+        transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
+        transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
         cacheUtilService.setTransaction(kycAuthRequest.getTransactionId(), transaction);
 

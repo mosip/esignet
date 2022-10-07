@@ -9,11 +9,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.authwrapper.dto.IdaKycAuthRequest;
 import io.mosip.idp.authwrapper.dto.IdaKycExchangeRequest;
+import io.mosip.idp.authwrapper.dto.IdaSendOtpRequest;
+import io.mosip.idp.authwrapper.dto.IdaSendOtpResponse;
 import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.dto.Error;
+import io.mosip.idp.core.exception.KycAuthException;
+import io.mosip.idp.core.exception.KycExchangeException;
+import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.HMACUtils2;
@@ -32,10 +35,10 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.MessageSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -45,10 +48,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static io.mosip.idp.core.util.ErrorConstants.UNKNOWN_ERROR;
 
@@ -61,6 +61,8 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     public static final String IDENTITY = "mosip.identity.auth.internal";
     public static final String KYC_EXCHANGE_PATH_NAME = "oidc";
     public static final String SIGNATURE_HEADER_NAME = "signature";
+    public static final String SEND_OTP_SUCCESS = "send_otp_success";
+    public static final String REQUEST_FAILED = "request_failed";
 
     @Value("${mosip.idp.authn.wrapper.ida-version:1.0}")
     private String idaVersion;
@@ -74,10 +76,10 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     private int symmetricKeyLength;
     @Value("${mosip.idp.authn.ida.kyc-auth-url}")
     private String kycAuthUrl;
-
     @Value("${mosip.idp.authn.ida.kyc-exchange-url}")
     private String kycExchangeUrl;
-
+    @Value("${mosip.idp.authn.ida.send-otp-url}")
+    private String sendOtpUrl;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -90,11 +92,10 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     private SignatureService signatureService;
     @Autowired
     private CryptoCore cryptoCore;
-    @Autowired
-    MessageSource messageSource;
 
     @Override
-    public ResponseWrapper<KycAuthResponse> doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest) {
+    public KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest)
+            throws KycAuthException {
         log.info("Started to build kyc-auth request with transactionId : {} && clientId : {}",
                 kycAuthRequest.getTransactionId(), clientId);
         try {
@@ -134,24 +135,26 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .body(requestBody);
             requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
-            ResponseEntity<ResponseWrapper<KycAuthResponse>> responseEntity = restTemplate.exchange(requestEntity,
-                    new ParameterizedTypeReference<ResponseWrapper<KycAuthResponse>>() {});
-            if(responseEntity.getBody() != null) {
-                log.info("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
-                return responseEntity.getBody();
+            ResponseEntity<ResponseWrapper<KycAuthResult>> responseEntity = restTemplate.exchange(requestEntity,
+                    new ParameterizedTypeReference<ResponseWrapper<KycAuthResult>>() {});
+            if(responseEntity.getBody() != null && CollectionUtils.isEmpty(responseEntity.getBody().getErrors()) &&
+                    responseEntity.getBody().getResponse() != null) {
+                return responseEntity.getBody().getResponse();
             }
 
+            log.error("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
+            throw new KycAuthException(responseEntity.getBody().getErrors().get(0).getErrorCode());
         } catch (Exception e) {
             log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthRequest.getTransactionId(), clientId, e);
         }
-        ResponseWrapper<KycAuthResponse> responseWrapper = new ResponseWrapper<KycAuthResponse>();
-        responseWrapper.setErrors(new ArrayList<>());
-        responseWrapper.getErrors().add(new Error(UNKNOWN_ERROR, messageSource.getMessage(UNKNOWN_ERROR, null, null)));
-        return responseWrapper;
+        throw new KycAuthException(UNKNOWN_ERROR);
     }
 
     @Override
-    public ResponseWrapper<KycExchangeResult> doKycExchange(KycExchangeRequest kycExchangeRequest) {
+    public KycExchangeResult doKycExchange(String relyingPartyId, String clientId, KycExchangeRequest kycExchangeRequest)
+            throws KycExchangeException {
+        log.info("Started to build kyc-exchange request with transactionId : {} && clientId : {}",
+                kycExchangeRequest.getTransactionId(), clientId);
         try {
             RequestWrapper<IdaKycExchangeRequest> requestWrapper = new RequestWrapper<>();
             IdaKycExchangeRequest idaKycExchangeRequest = new IdaKycExchangeRequest();
@@ -166,31 +169,60 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             //set signature header, body and invoke kyc exchange endpoint
             String requestBody = objectMapper.writeValueAsString(requestWrapper);
             RequestEntity requestEntity = RequestEntity
-                    .post(UriComponentsBuilder.fromUriString(kycExchangeUrl).pathSegment(kycExchangeRequest.getRelyingPartyId(),
-                            kycExchangeRequest.getClientId(), KYC_EXCHANGE_PATH_NAME).build().toUri())
+                    .post(UriComponentsBuilder.fromUriString(kycExchangeUrl).pathSegment(relyingPartyId,
+                            clientId, KYC_EXCHANGE_PATH_NAME).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .body(requestBody);
             requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
             ResponseEntity<ResponseWrapper<KycExchangeResult>> responseEntity = restTemplate.exchange(requestEntity,
                     new ParameterizedTypeReference<ResponseWrapper<KycExchangeResult>>() {});
 
-            if(responseEntity.getBody() != null) {
-                log.info("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
-                return responseEntity.getBody();
+            if(responseEntity.getBody() != null && CollectionUtils.isEmpty(responseEntity.getBody().getErrors()) &&
+                    responseEntity.getBody().getResponse() != null) {
+                return responseEntity.getBody().getResponse();
             }
-
+            log.error("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
+            throw new KycExchangeException(responseEntity.getBody().getErrors().get(0).getErrorCode());
         } catch (Exception e) {
-            log.error("KYC-exchange failed with clientId : {}", kycExchangeRequest.getClientId(), e);
+            log.error("KYC-exchange failed with clientId : {}", clientId, e);
         }
-        ResponseWrapper<KycExchangeResult> responseWrapper = new ResponseWrapper<KycExchangeResult>();
-        responseWrapper.setErrors(new ArrayList<>());
-        responseWrapper.getErrors().add(new Error(UNKNOWN_ERROR, messageSource.getMessage(UNKNOWN_ERROR, null, null)));
-        return responseWrapper;
+        throw new KycExchangeException(UNKNOWN_ERROR);
     }
 
     @Override
-    public SendOtpResult sendOtp(String individualId, String channel) {
-        throw new NotImplementedException("Send OTP not implemented");
+    public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)  throws SendOtpException {
+        log.info("Started to build send-otp request with transactionId : {} && clientId : {}",
+                sendOtpRequest.getTransactionId(), clientId);
+        try {
+            IdaSendOtpRequest idaSendOtpRequest = new IdaSendOtpRequest();
+            idaSendOtpRequest.setOtpChannel(sendOtpRequest.getOtpChannel() == null ?
+                    Collections.emptyList() : Arrays.asList(sendOtpRequest.getOtpChannel()));
+            idaSendOtpRequest.setIndividualId(sendOtpRequest.getIndividualId());
+            idaSendOtpRequest.setTransactionID(sendOtpRequest.getTransactionId());
+            idaSendOtpRequest.setId(IDENTITY);
+            idaSendOtpRequest.setVersion(idaVersion);
+            idaSendOtpRequest.setRequestTime(IdentityProviderUtil.getUTCDataTime());
+
+            //set signature header, body and invoke kyc exchange endpoint
+            String requestBody = objectMapper.writeValueAsString(idaSendOtpRequest);
+            RequestEntity requestEntity = RequestEntity
+                    .post(UriComponentsBuilder.fromUriString(sendOtpUrl).pathSegment(relyingPartyId, clientId).build().toUri())
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .body(requestBody);
+            requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
+            ResponseEntity<ResponseWrapper<IdaSendOtpResponse>> responseEntity = restTemplate.exchange(requestEntity,
+                    new ParameterizedTypeReference<ResponseWrapper<IdaSendOtpResponse>>() {});
+
+            if(responseEntity.getBody() != null && CollectionUtils.isEmpty(responseEntity.getBody().getErrors()) &&
+                    responseEntity.getBody().getResponse() != null) {
+                return new SendOtpResult(true, SEND_OTP_SUCCESS);
+            }
+            log.error("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
+            return new SendOtpResult(false, responseEntity.getBody().getErrors().get(0).getErrorCode());
+        } catch (Exception e) {
+            log.error("send-otp failed with clientId : {}", clientId, e);
+        }
+        throw new SendOtpException(REQUEST_FAILED);
     }
 
     private void buildAuthRequest(String authFactor, String authChallenge,

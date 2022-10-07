@@ -16,14 +16,13 @@ import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.dto.Error;
-import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
@@ -43,7 +42,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,24 +109,16 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Validated
     @Override
-    public ResponseWrapper<KycAuthResponse> doKycAuth(@NotBlank String relyingPartyId,
-                                         @NotBlank String clientId,
-                                         @NotNull @Valid KycAuthRequest kycAuthRequest) {
-
-        ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
-        responseWrapper.setErrors(new ArrayList<>());
-
+    public KycAuthResult doKycAuth(@NotBlank String relyingPartyId, @NotBlank String clientId,
+                                                    @NotNull @Valid KycAuthRequest kycAuthRequest) throws KycAuthException {
         List<String> authMethods = resolveAuthMethods(relyingPartyId);
-
         boolean result = kycAuthRequest.getChallengeList()
                 .stream()
                 .allMatch(authChallenge -> authMethods.contains(authChallenge.getAuthFactorType()) &&
-                        authenticateUser(kycAuthRequest.getIndividualId(), authChallenge, responseWrapper));
-
+                        authenticateUser(kycAuthRequest.getIndividualId(), authChallenge));
         log.info("Auth methods as per partner policy : {}, KYC auth result : {}",authMethods, result);
-
         if(!result) {
-            return responseWrapper;
+            throw new KycAuthException(ErrorConstants.AUTH_FAILED);
         }
 
         String psut;
@@ -136,49 +126,40 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
                     String.format(PSUT_FORMAT, kycAuthRequest.getIndividualId(), relyingPartyId));
         } catch (IdPException e) {
-            responseWrapper.getErrors().add(new Error("mock-ida-006", "Failed to generate Partner specific user token"));
-            return responseWrapper;
+            log.error("Failed to generate PSUT",authMethods, e);
+            throw new KycAuthException("mock-ida-006", "Failed to generate Partner specific user token");
         }
         String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId, psut);
-        KycAuthResponse kycAuthResponse = new KycAuthResponse();
-        kycAuthResponse.setKycToken(kycToken);
-        kycAuthResponse.setPartnerSpecificUserToken(psut);
-        responseWrapper.setResponse(kycAuthResponse);
-        return responseWrapper;
+        KycAuthResult kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken(kycToken);
+        kycAuthResult.setPartnerSpecificUserToken(psut);
+        return kycAuthResult;
     }
 
 
 
     @Override
-    public ResponseWrapper<KycExchangeResult> doKycExchange(@NotNull @Valid KycExchangeRequest kycExchangeRequest) {
-        ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
-        responseWrapper.setErrors(new ArrayList<>());
-
+    public KycExchangeResult doKycExchange(@NotBlank String relyingPartyId, @NotBlank String clientId,
+                                                            @NotNull @Valid KycExchangeRequest kycExchangeRequest)
+            throws KycExchangeException {
         log.info("Accepted claims : {} and locales : {}", kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
-
         try {
             JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
             log.info("KYC token claim set : {}", jwtClaimsSet);
-            String clientId = jwtClaimsSet.getStringClaim(CID_CLAIM);
-            if(!kycExchangeRequest.getClientId().equals(clientId) || jwtClaimsSet.getStringClaim(PSUT_CLAIM) == null) {
-                responseWrapper.getErrors().add(new Error(INVALID_INPUT, INVALID_INPUT));
-                return responseWrapper;
+            String clientIdClaim = jwtClaimsSet.getStringClaim(CID_CLAIM);
+            if(!clientId.equals(clientIdClaim) || jwtClaimsSet.getStringClaim(PSUT_CLAIM) == null) {
+                throw new KycExchangeException(INVALID_INPUT, INVALID_INPUT);
             }
-
-            String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
             Map<String,String> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
-
             kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
-
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
             kycExchangeResult.setEncryptedKyc(signKyc(kyc)); //TODO encrypt with relying party public key
-            responseWrapper.setResponse(kycExchangeResult);
+            return kycExchangeResult;
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
-            responseWrapper.getErrors().add(new Error("mock-ida-005", "Failed to build kyc data"));
         }
-        return responseWrapper;
+        throw new KycExchangeException("mock-ida-005", "Failed to build kyc data");
     }
 
     private String getKycToken(String individualId, String clientId, String relyingPartyId, @NotBlank String psut) {
@@ -250,56 +231,39 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     @Override
-    public SendOtpResult sendOtp(String individualId, String channel) {
-        SendOtpResult otpResult = new SendOtpResult();
-        otpResult.setStatus(true);
-        otpResult.setMessageCode("success");
-        return otpResult;
+    public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
+            throws SendOtpException {
+        return new SendOtpResult(true, "success");
     }
 
-    private boolean authenticateUser(String individualId, AuthChallenge authChallenge, ResponseWrapper responseWrapper) {
+    private boolean authenticateUser(String individualId, AuthChallenge authChallenge) {
         switch (authChallenge.getAuthFactorType()) {
             case "PIN" :
-                return authenticateIndividualWithPin(individualId, authChallenge.getChallenge(), responseWrapper);
+                return authenticateIndividualWithPin(individualId, authChallenge.getChallenge());
             case "OTP" :
-                return authenticateIndividualWithOTP(individualId, authChallenge.getChallenge(), responseWrapper);
+                return authenticateIndividualWithOTP(individualId, authChallenge.getChallenge());
         }
-        responseWrapper.getErrors().add(new Error("mock-ida-004", "Invalid auth challenge type"));
         return false;
     }
 
-    private boolean authenticateIndividualWithPin(String individualId, String pin, ResponseWrapper responseWrapper) {
+    private boolean authenticateIndividualWithPin(String individualId, String pin) {
         String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
             DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
             String savedPin = context.read("$.pin", String.class);
-            if(!pin.equals(savedPin)) {
-                responseWrapper.getErrors().add(new Error("mock-ida-001", "Incorrect PIN"));
-                return false;
-            }
-            return true;
+            return pin.equals(savedPin);
         } catch (IOException e) {
-            log.error("Failed to find {}", filename, e);
-            responseWrapper.getErrors().add(new Error("mock-ida-002", "Invalid / No identity found"));
+            log.error("authenticateIndividualWithPin failed {}", filename, e);
         }
         return false;
     }
 
-    private boolean authenticateIndividualWithOTP(String individualId, String OTP, ResponseWrapper responseWrapper) {
+    private boolean authenticateIndividualWithOTP(String individualId, String OTP) {
         String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
-            if(!FileUtils.directoryContains(personaDir, new File(filename))) {
-                responseWrapper.getErrors().add(new Error("mock-ida-002", "Invalid / No identity found"));
-                return false;
-            }
-            if(!OTP.equals("111111")) {
-                responseWrapper.getErrors().add(new Error("mock-ida-003", "Incorrect OTP"));
-                return false;
-            }
-            return true;
+            return FileUtils.directoryContains(personaDir, new File(filename))&&OTP.equals("111111");
         } catch (IOException e) {
-            log.error("Failed to find {}", filename, e);
-            responseWrapper.getErrors().add(new Error("mock-ida-002", "Invalid / No identity found"));
+            log.error("authenticateIndividualWithOTP failed {}", filename, e);
         }
         return false;
     }

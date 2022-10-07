@@ -6,37 +6,43 @@
 package io.mosip.idp.core.spi;
 
 import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.KycAuthException;
+import io.mosip.idp.core.exception.KycExchangeException;
+import io.mosip.idp.core.exception.SendOtpException;
 
 public interface AuthenticationWrapper {
 
     /**
      * Delegate request to authenticate the user, and get KYC token
-     *  1. Request to be signed with IdP key, signature to be set in the request header.
-     *       header name: signature
      * @param relyingPartyId relying Party (RP) ID. This ID will be provided during partner self registration process
      * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
      * @param kycAuthRequest
      * @return KYC Token and Partner specific User Token (PSUT)
+     * @throws KycAuthException
      */
-    ResponseWrapper<KycAuthResponse> doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest);
+    KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest)
+            throws KycAuthException;
 
     /**
      * Delegate request to exchange KYC token with encrypted user data
-     * Request to be signed with IdP key, signature to be set in the request header.
-     * header name: signature
-     *
+     * @param relyingPartyId relying Party (RP) ID. This ID will be provided during partner self registration process
+     * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
      * @param kycExchangeRequest
-     * @return encrypted KYC data
+     * @return signed and encrypted kyc data.
+     * @throws KycExchangeException
      */
-    ResponseWrapper<KycExchangeResult> doKycExchange(KycExchangeRequest kycExchangeRequest);
+    KycExchangeResult doKycExchange(String relyingPartyId, String clientId, KycExchangeRequest kycExchangeRequest)
+            throws KycExchangeException;
 
     /**
      * Delegate request to send out OTP to provided individual Id on the configured channel
-     * @param individualId either UIN or VID
-     * @param channel either sms or email
-     * @return send OTP status
+     * @param relyingPartyId relying Party (RP) ID. This ID will be provided during partner self registration process
+     * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
+     * @param sendOtpRequest
+     * @return status of send otp response.
+     * @throws SendOtpException
      */
-    SendOtpResult sendOtp(String individualId, String channel);
+    SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
+            throws SendOtpException;
 
 }
