@@ -5,9 +5,11 @@
  */
 package io.mosip.idp.core.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class SendOtpResult {
 
     private boolean status;

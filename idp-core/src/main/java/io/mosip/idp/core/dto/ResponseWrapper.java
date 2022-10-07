@@ -6,6 +6,8 @@
 package io.mosip.idp.core.dto;
 
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,5 +17,5 @@ public class ResponseWrapper<T> {
     private String version;
     private String responseTime;
     private T response;
-    private List<Error> errors;
+    private List<Error> errors = new ArrayList<>();
 }
