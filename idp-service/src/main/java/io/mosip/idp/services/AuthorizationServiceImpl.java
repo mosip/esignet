@@ -106,7 +106,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         SendOtpResult sendOtpResult;
         try {
             SendOtpRequest sendOtpRequest = new SendOtpRequest();
-            sendOtpRequest.setTransactionId(otpRequest.getTransactionId());
+            sendOtpRequest.setTransactionId(IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, otpRequest.getTransactionId()));
             sendOtpRequest.setIndividualId(otpRequest.getIndividualId());
             sendOtpRequest.setOtpChannel(otpRequest.getChannel());
             sendOtpResult = authenticationWrapper.sendOtp(transaction.getRelyingPartyId(), transaction.getClientId(),
