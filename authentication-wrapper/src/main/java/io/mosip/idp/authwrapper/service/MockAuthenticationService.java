@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -33,6 +34,9 @@ import io.mosip.kernel.signature.service.SignatureService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
+import org.jose4j.jwe.JsonWebEncryption;
+import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers;
 import org.json.simple.JSONObject;
 import org.springframework.validation.annotation.Validated;
 
@@ -58,7 +62,6 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static final String PSUT_CLAIM = "psut";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
-    private static final String KEY_FILE_NAME_FORMAT = "%s_keys.json";
     private static Map<String, List<String>> policyContextMap;
     private static Map<String, String> localesMapping;
     private static Set<String> REQUIRED_CLAIMS;
@@ -153,12 +156,28 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
             kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
-            kycExchangeResult.setEncryptedKyc(signKyc(kyc)); //TODO encrypt with relying party public key
+            kycExchangeResult.setEncryptedKyc(getJWE(relyingPartyId, signKyc(kyc)));
             return kycExchangeResult;
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
         }
         throw new KycExchangeException("mock-ida-005", "Failed to build kyc data");
+    }
+
+    private String getJWE(String relyingPartyId, String signedJwt) throws Exception {
+        String filename = String.format(POLICY_FILE_NAME_FORMAT, relyingPartyId);
+        DocumentContext context = JsonPath.parse(new File(policyDir, filename));
+        Map<String, Object> publicKey = context.read("$.publicKey");
+
+        JsonWebEncryption jsonWebEncryption = new JsonWebEncryption();
+        jsonWebEncryption.setAlgorithmHeaderValue(KeyManagementAlgorithmIdentifiers.RSA_OAEP_256);
+        jsonWebEncryption.setEncryptionMethodHeaderParameter(ContentEncryptionAlgorithmIdentifiers.AES_256_GCM);
+        jsonWebEncryption.setPayload(signedJwt);
+        jsonWebEncryption.setContentTypeHeaderValue("JWT");
+        RSAKey rsaKey = RSAKey.parse(publicKey);
+        jsonWebEncryption.setKey(rsaKey.toPublicKey());
+        jsonWebEncryption.setKeyIdHeaderValue(rsaKey.getKeyID());
+        return jsonWebEncryption.getCompactSerialization();
     }
 
     private String getKycToken(String individualId, String clientId, String relyingPartyId, @NotBlank String psut) {

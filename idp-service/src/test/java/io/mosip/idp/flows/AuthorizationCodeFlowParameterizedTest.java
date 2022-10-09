@@ -12,6 +12,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.idp.TestUtil;
@@ -23,6 +24,7 @@ import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
+import org.jose4j.jwe.JsonWebEncryption;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -146,6 +148,20 @@ public class AuthorizationCodeFlowParameterizedTest {
                         "}",  MediaType.APPLICATION_JSON_UTF8));
     }
 
+    String partnerPrivateKey = "{\n" +
+            "\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",\n" +
+            "\t\"kty\": \"RSA\",\n" +
+            "\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",\n" +
+            "\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",\n" +
+            "\t\"e\": \"AQAB\",\n" +
+            "\t\"use\": \"sig\",\n" +
+            "\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",\n" +
+            "\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",\n" +
+            "\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",\n" +
+            "\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",\n" +
+            "\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"\n" +
+            "}";
+
     @Test
     public void authorizationCodeFlowTest() throws Exception {
         String code = null;
@@ -168,7 +184,12 @@ public class AuthorizationCodeFlowParameterizedTest {
 
         String usertoken = getUserInfo(tokenResponse.getAccess_token());
         Assert.assertNotNull(usertoken);
-        log.info("Successfully fetched user token : {}", usertoken);
+
+        JsonWebEncryption decrypt = new JsonWebEncryption();
+        decrypt.setKey(RSAKey.parse(partnerPrivateKey).toPrivateKey());
+        decrypt.setCompactSerialization(usertoken);
+        String payload = decrypt.getPayload();
+        log.info("Successfully fetched user token : {}", payload);
     }
 
     private String getUserInfo(String accessToken) throws Exception {
