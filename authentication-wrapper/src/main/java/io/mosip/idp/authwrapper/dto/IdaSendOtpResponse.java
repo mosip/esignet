@@ -19,18 +19,5 @@ public class IdaSendOtpResponse {
     private String responseTime;
     private List<Error> errors;
     private IdaOtpResponse response;
-
-    public String getMaskedEmail() {
-        return response.getMaskedEmail();
-    }
-
-    public String getMaskedMobile() {
-        return response.getMaskedMobile();
-    }
 }
 
-@Data
-class IdaOtpResponse {
-    private String maskedEmail;
-    private String maskedMobile;
-}

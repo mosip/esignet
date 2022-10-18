@@ -78,15 +78,15 @@ public class IdentityProviderUtil {
         }
     }
 
-    public static String B64Encode(byte[] bytes) {
+    public static String b64Encode(byte[] bytes) {
         return urlSafeEncoder.encodeToString(bytes);
     }
 
-    public static String B64Encode(String value) {
+    public static String b64Encode(String value) {
         return urlSafeEncoder.encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static byte[] B64Decode(String value) {
+    public static byte[] b64Decode(String value) {
         return urlSafeDecoder.decode(value);
     }
 

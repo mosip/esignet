@@ -3,15 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.idp.core.dto;
+package io.mosip.idp.authwrapper.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class KycExchangeResult {
-    private String encryptedKyc;
+public class IdaOtpResponse {
+    private String maskedEmail;
+    private String maskedMobile;
 }

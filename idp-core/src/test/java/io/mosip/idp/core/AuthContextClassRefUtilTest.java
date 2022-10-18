@@ -6,9 +6,7 @@
 package io.mosip.idp.core;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.idp.core.dto.AuthenticationFactor;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
@@ -16,30 +14,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthContextClassRefUtilTest {
 
-    @InjectMocks
-    AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
-
-    @Mock
-    ObjectMapper objectMapper;
-
+    AuthenticationContextClassRefUtil authenticationContextClassRefUtil = new AuthenticationContextClassRefUtil();
+    ObjectMapper mapper = new ObjectMapper();
 
     private static final String amr_acr_mapping = "{\n" +
             "  \"amr\" : {\n" +
@@ -58,20 +44,7 @@ public class AuthContextClassRefUtilTest {
 
     @Before
     public void setup() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode objectNode = mapper.readValue(amr_acr_mapping, new TypeReference<ObjectNode>(){});
-        Map<String, List<AuthenticationFactor>> amrValues = new ObjectMapper().convertValue(objectNode.get("amr"),
-                new TypeReference<Map<String, List<AuthenticationFactor>>>(){});
-        Map<String, List<String>> acr_amr_Values = new ObjectMapper().convertValue(objectNode.get("acr_amr"),
-                new TypeReference<Map<String, List<String>>>(){});
-
-        when(objectMapper.readValue(ArgumentMatchers.<String>any(),
-                ArgumentMatchers.<TypeReference<ObjectNode>>any())).thenReturn(objectNode, objectNode);
-
-        //Ongoing stub, returns value in order of call hierarchy
-        when(objectMapper.convertValue(ArgumentMatchers.<ObjectNode>any(),
-                ArgumentMatchers.<TypeReference<Map<String, Object>>>any())).thenReturn(amrValues, acr_amr_Values);
-
+        ReflectionTestUtils.setField(authenticationContextClassRefUtil, "objectMapper", mapper);
         ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingJson", amr_acr_mapping);
     }
 

@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.0.2.RELEASE</version>
+		<version>2.3.6.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -92,8 +92,8 @@
 		<maven.javadoc.version>3.2.0</maven.javadoc.version>
 		<maven-shade-plugin.version>2.3</maven-shade-plugin.version>
 
-		<spring-cloud.version>Finchley.SR4</spring-cloud.version>
-		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+		<spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+		<spring.boot.version>2.3.6.RELEASE</spring.boot.version>
 
 		<sonar.coverage.exclusions>**/repositories/**,**/constant/**,**/config/**,**/httpfilter/**,**/cache/**,**/dto/**,**/entity/**,**/model/**,**/exception/**,**/security/**,**/*Config.java,**/*BootApplication.java,**/*Util.java,**/helper/beans/**,**/*Filter.java,**/*Enum.java</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>**/dto/**,**/entity/**,**/config/**</sonar.cpd.exclusions>
