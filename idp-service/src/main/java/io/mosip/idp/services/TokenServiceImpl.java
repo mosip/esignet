@@ -165,7 +165,7 @@ public class TokenServiceImpl implements TokenService {
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(true);
         jwtSignatureRequestDto.setIncludeCertificate(true);
-        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.B64Encode(payload.toJSONString()));
+        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload.toJSONString()));
         jwtSignatureRequestDto.setIncludeCertHash(true);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();

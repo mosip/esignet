@@ -11,40 +11,57 @@ import io.mosip.idp.core.dto.ResponseWrapper;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import static io.mosip.idp.core.util.ErrorConstants.*;
 
+@Slf4j
 @ControllerAdvice
-public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
+public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler implements AccessDeniedHandler {
 
     @Autowired
     MessageSource messageSource;
+
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
+                                                                  HttpStatus status, WebRequest request) {
+        return handleExceptions(ex, request);
+    }
 
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
@@ -76,9 +93,9 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return handleExceptions(ex, request);
     }
 
-    @ExceptionHandler(value = { Exception.class, RuntimeException.class })
+    @ExceptionHandler(value = { Exception.class, RuntimeException.class, MissingRequestHeaderException.class })
     public ResponseEntity handleExceptions(Exception ex, WebRequest request) {
-        logger.error("Unhandled exception encountered in handler advice", ex);
+        log.error("Unhandled exception encountered in handler advice", ex);
         String pathInfo = ((ServletWebRequest)request).getRequest().getPathInfo();
 
         boolean isInternalAPI = pathInfo.startsWith("/authorization") ||
@@ -121,16 +138,21 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
                     HttpStatus.OK);
         }
         if(ex instanceof InvalidClientException) {
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_CLIENT_ID,
-                    messageSource.getMessage(INVALID_CLIENT_ID, null, null)), HttpStatus.OK);
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_CLIENT_ID, getMessage(INVALID_CLIENT_ID)), HttpStatus.OK);
         }
         if(ex instanceof IdPException) {
             String errorCode = ((IdPException) ex).getErrorCode();
-            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode,
-                    messageSource.getMessage(errorCode, null, null)), HttpStatus.OK);
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode, getMessage(errorCode)), HttpStatus.OK);
         }
-        return new ResponseEntity<ResponseWrapper>(getResponseWrapper(UNKNOWN_ERROR,
-                messageSource.getMessage(UNKNOWN_ERROR, null, null)), HttpStatus.OK);
+        if(ex instanceof AuthenticationCredentialsNotFoundException) {
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(HttpStatus.UNAUTHORIZED.name(),
+                    HttpStatus.UNAUTHORIZED.getReasonPhrase()), HttpStatus.UNAUTHORIZED);
+        }
+        if(ex instanceof AccessDeniedException) {
+            return new ResponseEntity<ResponseWrapper>(getResponseWrapper(HttpStatus.FORBIDDEN.name(),
+                    HttpStatus.FORBIDDEN.getReasonPhrase()), HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<ResponseWrapper>(getResponseWrapper(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.OK);
     }
 
     public ResponseEntity<OAuthError> handleOpenIdConnectControllerExceptions(Exception ex) {
@@ -146,12 +168,10 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         }
         if(ex instanceof IdPException) {
             String errorCode = ((IdPException) ex).getErrorCode();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode,
-                    messageSource.getMessage(errorCode, null, null)), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
         }
-        logger.error("Unhandled exception encountered in handler advice", ex);
-        return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR,
-                messageSource.getMessage(UNKNOWN_ERROR, null, null)), HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("Unhandled exception encountered in handler advice", ex);
+        return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity handleExceptionWithHeader(Exception ex) {
@@ -159,7 +179,10 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         if(ex instanceof NotAuthenticatedException) {
             errorCode = INVALID_AUTH_TOKEN;
         }
-        logger.error("Unhandled exception encountered in handler advice", ex);
+        if(ex instanceof MissingRequestHeaderException) {
+            errorCode = MISSING_HEADER;
+        }
+        log.error("Unhandled exception encountered in handler advice", ex);
         MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add("WWW-Authenticate", "error=\""+errorCode+"\"");
         ResponseEntity responseEntity = new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
@@ -188,5 +211,20 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         ResponseWrapper responseWrapper = new ResponseWrapper<>();
         responseWrapper.setErrors(errors);
         return responseWrapper;
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        handleExceptions(accessDeniedException, (WebRequest) request);
+    }
+
+    private String getMessage(String errorCode) {
+        try {
+            messageSource.getMessage(errorCode, null, Locale.getDefault());
+        } catch (NoSuchMessageException ex) {
+            log.error("Message not found in the i18n bundle", ex);
+        }
+        return errorCode;
     }
 }

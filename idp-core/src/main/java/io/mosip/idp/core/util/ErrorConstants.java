@@ -35,4 +35,5 @@ public class ErrorConstants {
     public static final String INVALID_PUBLIC_KEY = "invalid_public_key";
     public static final String DATA_EXCHANGE_FAILED="data_exchange_failed";
     public static final String SEND_OTP_FAILED="send_otp_failed";
+    public static final String MISSING_HEADER="missing_header";
 }

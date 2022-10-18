@@ -28,8 +28,10 @@ import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
+import static io.mosip.idp.core.util.Constants.SPACE;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
@@ -92,7 +94,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         idPTransaction.setRequestedAuthorizeScopes(oauthDetailResponse.getAuthorizeScopes());
         idPTransaction.setNonce(oauthDetailReqDto.getNonce());
         idPTransaction.setState(oauthDetailReqDto.getState());
-        idPTransaction.setClaimsLocales(oauthDetailReqDto.getClaimsLocales());
+        idPTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
+        idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, transactionId));
         cacheUtilService.setTransaction(transactionId, idPTransaction);
         return oauthDetailResponse;
     }
@@ -104,10 +107,9 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new InvalidTransactionException();
 
         SendOtpResult sendOtpResult;
-        String otpTransactionId = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, otpRequest.getTransactionId());
         try {
             SendOtpRequest sendOtpRequest = new SendOtpRequest();
-            sendOtpRequest.setTransactionId(otpTransactionId);
+            sendOtpRequest.setTransactionId(transaction.getAuthTransactionId());
             sendOtpRequest.setIndividualId(otpRequest.getIndividualId());
             sendOtpRequest.setOtpChannels(otpRequest.getOtpChannels());
             sendOtpResult = authenticationWrapper.sendOtp(transaction.getRelyingPartyId(), transaction.getClientId(),
@@ -117,8 +119,11 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new IdPException(e.getErrorCode());
         }
 
-        if(!otpTransactionId.equals(sendOtpResult.getTransactionId()))
+        if(!transaction.getAuthTransactionId().equals(sendOtpResult.getTransactionId())) {
+            log.error("Auth transactionId in request {} is not matching with send-otp response : {}", transaction.getAuthTransactionId(),
+                    sendOtpResult.getTransactionId());
             throw new IdPException(SEND_OTP_FAILED);
+        }
 
         OtpResponse otpResponse = new OtpResponse();
         otpResponse.setTransactionId(otpRequest.getTransactionId());
@@ -136,7 +141,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         KycAuthResult kycAuthResult;
         try {
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    kycAuthRequest);
+                    new KycAuthRequest(transaction.getAuthTransactionId(), kycAuthRequest.getIndividualId(),
+                            kycAuthRequest.getChallengeList()));
         } catch (KycAuthException e) {
             log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), e);
             throw new IdPException(e.getErrorCode());

@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = OpenIdConnectController.class, secure = false)
+@WebMvcTest(value = OpenIdConnectController.class)
 public class OpenIdConnectControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();

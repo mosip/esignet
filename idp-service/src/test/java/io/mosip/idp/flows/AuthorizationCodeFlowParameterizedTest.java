@@ -7,6 +7,8 @@ package io.mosip.idp.flows;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -25,6 +27,7 @@ import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.jose4j.jwe.JsonWebEncryption;
+import org.json.simple.JSONObject;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -42,14 +45,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
+import java.security.PrivateKey;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -60,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(Parameterized.class)
 @SpringBootTest
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc(addFilters = false)
 @Slf4j
 public class AuthorizationCodeFlowParameterizedTest {
 
@@ -96,6 +98,9 @@ public class AuthorizationCodeFlowParameterizedTest {
 
     @Value("${mosip.idp.amr-acr-mapping-file-url}")
     private String mappingFileUrl;
+
+    @Value("${mosip.idp.authn.mock.impl.policy-repo}")
+    private String policyDir;
 
     private TestContextManager testContextManager;
 
@@ -148,25 +153,12 @@ public class AuthorizationCodeFlowParameterizedTest {
                         "}",  MediaType.APPLICATION_JSON_UTF8));
     }
 
-    String partnerPrivateKey = "{\n" +
-            "\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",\n" +
-            "\t\"kty\": \"RSA\",\n" +
-            "\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",\n" +
-            "\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",\n" +
-            "\t\"e\": \"AQAB\",\n" +
-            "\t\"use\": \"sig\",\n" +
-            "\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",\n" +
-            "\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",\n" +
-            "\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",\n" +
-            "\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",\n" +
-            "\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"\n" +
-            "}";
-
     @Test
     public void authorizationCodeFlowTest() throws Exception {
         String code = null;
+        String replyingPartyId = "mock-relying-party-id";
 
-        createOIDCClient(clientId, clientJWK.toPublicJWK());
+        createOIDCClient(clientId, clientJWK.toPublicJWK(), replyingPartyId);
         log.info("Successfully create OIDC Client {}", clientId);
 
         OAuthDetailResponse oAuthDetailResponse = getOauthDetails(clientId, redirectionUrl, state, nonce);
@@ -186,10 +178,16 @@ public class AuthorizationCodeFlowParameterizedTest {
         Assert.assertNotNull(usertoken);
 
         JsonWebEncryption decrypt = new JsonWebEncryption();
-        decrypt.setKey(RSAKey.parse(partnerPrivateKey).toPrivateKey());
+        decrypt.setKey(getRelyingPartyPrivateKey(replyingPartyId));
         decrypt.setCompactSerialization(usertoken);
         String payload = decrypt.getPayload();
         log.info("Successfully fetched user token : {}", payload);
+    }
+
+    private PrivateKey getRelyingPartyPrivateKey(String relyingPartyId) throws Exception {
+        DocumentContext mockRelyingPartyJson = JsonPath.parse(new File(policyDir, relyingPartyId+"_policy.json"));
+        Map<String, String> keyMap = mockRelyingPartyJson.read("$.privateKey");
+        return RSAKey.parse(new JSONObject(keyMap).toJSONString()).toPrivateKey();
     }
 
     private String getUserInfo(String accessToken) throws Exception {
@@ -212,7 +210,7 @@ public class AuthorizationCodeFlowParameterizedTest {
         Instant issuedInstant = Instant.now();
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .issuer(clientId)
-                .audience("http://localhost:-1/v1/idp")
+                .audience("http://localhost:8088/v1/idp")
                 .subject(clientId)
                 .issueTime(Date.from(issuedInstant))
                 .expirationTime(Date.from(issuedInstant.plusSeconds(60)))
@@ -344,11 +342,11 @@ public class AuthorizationCodeFlowParameterizedTest {
         return response.getResponse();
     }
 
-    private void createOIDCClient(String clientId, JWK publicJWK) throws Exception {
+    private void createOIDCClient(String clientId, JWK publicJWK, String replyingPartyId) throws Exception {
         ClientDetailCreateRequest createRequest = new ClientDetailCreateRequest();
         createRequest.setClientName("Mock OIDC Client");
         createRequest.setClientId(clientId);
-        createRequest.setRelyingPartyId("mock-relying-party-id");
+        createRequest.setRelyingPartyId(replyingPartyId);
         createRequest.setPublicKey(publicJWK.toJSONObject());
         createRequest.setLogoUri("https://mock.client.com/logo.png");
         createRequest.setGrantTypes(Arrays.asList("authorization_code"));
