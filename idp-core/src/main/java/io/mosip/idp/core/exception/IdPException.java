@@ -5,13 +5,15 @@
  */
 package io.mosip.idp.core.exception;
 
+import io.mosip.idp.core.util.ErrorConstants;
+
 public class IdPException extends Exception {
 
     private String errorCode;
 
     public IdPException() {
-        super("UNKNOWN_ERROR");
-        this.errorCode = "UNKNOWN_ERROR";
+        super(ErrorConstants.UNKNOWN_ERROR);
+        this.errorCode = ErrorConstants.UNKNOWN_ERROR;
     }
 
     public IdPException(String errorCode) {

@@ -7,11 +7,12 @@ package io.mosip.idp.core.dto;
 
 import lombok.Data;
 
-@Data
-public class AuthCodeResponse {
+import java.util.List;
 
-    private String nonce;
-    private String state;
-    private String code;
-    private String redirectUri;
+@Data
+public class SendOtpRequest {
+
+    private String transactionId;
+    private String individualId;
+    private List<String> otpChannels;
 }

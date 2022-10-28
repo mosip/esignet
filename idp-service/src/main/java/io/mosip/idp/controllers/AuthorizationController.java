@@ -58,6 +58,7 @@ public class AuthorizationController {
         authCodeResponse.setCode(idPTransaction.getCode());
         authCodeResponse.setRedirectUri(idPTransaction.getRedirectUri());
         authCodeResponse.setNonce(idPTransaction.getNonce());
+        authCodeResponse.setState(idPTransaction.getState());
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
         responseWrapper.setResponse(authCodeResponse);

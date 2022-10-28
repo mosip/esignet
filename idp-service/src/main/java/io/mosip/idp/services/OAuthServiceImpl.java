@@ -6,10 +6,7 @@
 package io.mosip.idp.services;
 
 import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.exception.InvalidClientException;
-import io.mosip.idp.core.exception.InvalidTransactionException;
-import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.*;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
@@ -65,16 +62,21 @@ public class OAuthServiceImpl implements OAuthService {
 
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
-        KycExchangeRequest kycExchangeRequest = new KycExchangeRequest();
-        kycExchangeRequest.setClientId(tokenRequest.getClient_id());
-        kycExchangeRequest.setKycToken(transaction.getKycToken());
-        kycExchangeRequest.setAcceptedClaims(transaction.getAcceptedClaims());
-        kycExchangeRequest.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(transaction.getClaimsLocales(), Constants.SPACE));
-        ResponseWrapper<KycExchangeResult> exchangeResult = authenticationWrapper.doKycExchange(kycExchangeRequest);
-
-        if(exchangeResult.getErrors() != null && !exchangeResult.getErrors().isEmpty()) {
-            throw new IdPException(exchangeResult.getErrors().get(0).getErrorCode());
+        KycExchangeResult kycExchangeResult;
+        try {
+            KycExchangeRequest kycExchangeRequest = new KycExchangeRequest();
+            kycExchangeRequest.setKycToken(transaction.getKycToken());
+            kycExchangeRequest.setAcceptedClaims(transaction.getAcceptedClaims());
+            kycExchangeRequest.setClaimsLocales(transaction.getClaimsLocales());
+            kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
+                    transaction.getClientId(), kycExchangeRequest);
+        } catch (KycExchangeException e) {
+            log.error("KYC exchange failed", e);
+            throw new IdPException(e.getErrorCode());
         }
+
+        if(kycExchangeResult == null || kycExchangeResult.getEncryptedKyc() == null)
+            throw new IdPException(ErrorConstants.DATA_EXCHANGE_FAILED);
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
@@ -85,7 +87,7 @@ public class OAuthServiceImpl implements OAuthService {
         tokenResponse.setToken_type(Constants.BEARER);
 
         // cache kyc with access-token as key
-        transaction.setEncryptedKyc(exchangeResult.getResponse().getEncryptedKyc());
+        transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
         cacheUtilService.setKycTransaction(accessTokenHash, transaction);
 
         return tokenResponse;

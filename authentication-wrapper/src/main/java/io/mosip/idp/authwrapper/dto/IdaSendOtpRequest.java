@@ -3,19 +3,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.idp.core.dto;
+package io.mosip.idp.authwrapper.dto;
 
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ResponseWrapper<T> {
+public class IdaSendOtpRequest {
 
     private String id;
     private String version;
-    private String responseTime;
-    private T response;
-    private List<Error> errors = new ArrayList<>();
+    private String individualId;
+    private String individualIdType;
+    private String transactionID;
+    private String requestTime;
+    private List<String> otpChannel;
+
 }

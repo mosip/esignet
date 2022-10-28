@@ -9,21 +9,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+import io.mosip.idp.authwrapper.dto.PathInfo;
 import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.dto.Error;
-import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
@@ -32,9 +32,11 @@ import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
+import org.jose4j.jwe.JsonWebEncryption;
+import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers;
 import org.json.simple.JSONObject;
 import org.springframework.validation.annotation.Validated;
 
@@ -43,12 +45,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.SUB;
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_INPUT;
+import static io.mosip.idp.core.util.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
@@ -61,8 +64,8 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static final String PSUT_CLAIM = "psut";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
-    private static final String KEY_FILE_NAME_FORMAT = "%s_keys.json";
     private static Map<String, List<String>> policyContextMap;
+    private static Map<String, RSAKey> relyingPartyPublicKeys;
     private static Map<String, String> localesMapping;
     private static Set<String> REQUIRED_CLAIMS;
     private int tokenExpireInSeconds;
@@ -87,6 +90,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         REQUIRED_CLAIMS.add(RID_CLAIM);
 
         policyContextMap = new HashMap<>();
+        relyingPartyPublicKeys = new HashMap<>();
     }
 
     public MockAuthenticationService(String personaDirPath, String policyDirPath, String claimsMappingFilePath,
@@ -111,24 +115,16 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Validated
     @Override
-    public ResponseWrapper<KycAuthResponse> doKycAuth(@NotBlank String licenseKey, @NotBlank String relyingPartyId,
-                                         @NotBlank String clientId,
-                                         @NotNull @Valid KycAuthRequest kycAuthRequest) {
-
-        ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
-        responseWrapper.setErrors(new ArrayList<>());
-
+    public KycAuthResult doKycAuth(@NotBlank String relyingPartyId, @NotBlank String clientId,
+                                                    @NotNull @Valid KycAuthRequest kycAuthRequest) throws KycAuthException {
         List<String> authMethods = resolveAuthMethods(relyingPartyId);
-
         boolean result = kycAuthRequest.getChallengeList()
                 .stream()
                 .allMatch(authChallenge -> authMethods.contains(authChallenge.getAuthFactorType()) &&
-                        authenticateUser(kycAuthRequest.getIndividualId(), authChallenge, responseWrapper));
-
+                        authenticateUser(kycAuthRequest.getIndividualId(), authChallenge));
         log.info("Auth methods as per partner policy : {}, KYC auth result : {}",authMethods, result);
-
         if(!result) {
-            return responseWrapper;
+            throw new KycAuthException(ErrorConstants.AUTH_FAILED);
         }
 
         String psut;
@@ -136,49 +132,63 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
                     String.format(PSUT_FORMAT, kycAuthRequest.getIndividualId(), relyingPartyId));
         } catch (IdPException e) {
-            responseWrapper.getErrors().add(new Error("mock-ida-006", "Failed to generate Partner specific user token"));
-            return responseWrapper;
+            log.error("Failed to generate PSUT",authMethods, e);
+            throw new KycAuthException("mock-ida-006", "Failed to generate Partner specific user token");
         }
         String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId, psut);
-        KycAuthResponse kycAuthResponse = new KycAuthResponse();
-        kycAuthResponse.setKycToken(kycToken);
-        kycAuthResponse.setPartnerSpecificUserToken(psut);
-        responseWrapper.setResponse(kycAuthResponse);
-        return responseWrapper;
+        KycAuthResult kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken(kycToken);
+        kycAuthResult.setPartnerSpecificUserToken(psut);
+        return kycAuthResult;
     }
 
 
 
     @Override
-    public ResponseWrapper<KycExchangeResult> doKycExchange(@NotNull @Valid KycExchangeRequest kycExchangeRequest) {
-        ResponseWrapper responseWrapper = new ResponseWrapper<KycAuthResponse>();
-        responseWrapper.setErrors(new ArrayList<>());
-
+    public KycExchangeResult doKycExchange(@NotBlank String relyingPartyId, @NotBlank String clientId,
+                                                            @NotNull @Valid KycExchangeRequest kycExchangeRequest)
+            throws KycExchangeException {
         log.info("Accepted claims : {} and locales : {}", kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
-
         try {
             JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
             log.info("KYC token claim set : {}", jwtClaimsSet);
-            String clientId = jwtClaimsSet.getStringClaim(CID_CLAIM);
-            if(!kycExchangeRequest.getClientId().equals(clientId) || jwtClaimsSet.getStringClaim(PSUT_CLAIM) == null) {
-                responseWrapper.getErrors().add(new Error(INVALID_INPUT, INVALID_INPUT));
-                return responseWrapper;
+            String clientIdClaim = jwtClaimsSet.getStringClaim(CID_CLAIM);
+            if(!clientId.equals(clientIdClaim) || jwtClaimsSet.getStringClaim(PSUT_CLAIM) == null) {
+                throw new KycExchangeException("mock-ida-008", "Provided invalid KYC token");
             }
-
-            String relyingPartyId = jwtClaimsSet.getStringClaim(RID_CLAIM);
             Map<String,String> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
-
             kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
-
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
-            kycExchangeResult.setEncryptedKyc(signKyc(kyc)); //TODO encrypt with relying party public key
-            responseWrapper.setResponse(kycExchangeResult);
+            kycExchangeResult.setEncryptedKyc(getJWE(relyingPartyId, signKyc(kyc)));
+            return kycExchangeResult;
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
-            responseWrapper.getErrors().add(new Error("mock-ida-005", "Failed to build kyc data"));
         }
-        return responseWrapper;
+        throw new KycExchangeException("mock-ida-005", "Failed to build kyc data");
+    }
+
+    private String getJWE(String relyingPartyId, String signedJwt) throws Exception {
+        JsonWebEncryption jsonWebEncryption = new JsonWebEncryption();
+        jsonWebEncryption.setAlgorithmHeaderValue(KeyManagementAlgorithmIdentifiers.RSA_OAEP_256);
+        jsonWebEncryption.setEncryptionMethodHeaderParameter(ContentEncryptionAlgorithmIdentifiers.AES_256_GCM);
+        jsonWebEncryption.setPayload(signedJwt);
+        jsonWebEncryption.setContentTypeHeaderValue("JWT");
+        RSAKey rsaKey = getRelyingPartyPublicKey(relyingPartyId);
+        jsonWebEncryption.setKey(rsaKey.toPublicKey());
+        jsonWebEncryption.setKeyIdHeaderValue(rsaKey.getKeyID());
+        return jsonWebEncryption.getCompactSerialization();
+    }
+
+    private RSAKey getRelyingPartyPublicKey(String relyingPartyId) throws IOException, ParseException {
+        if(!relyingPartyPublicKeys.containsKey(relyingPartyId)) {
+            String filename = String.format(POLICY_FILE_NAME_FORMAT, relyingPartyId);
+            DocumentContext context = JsonPath.parse(new File(policyDir, filename));
+            Map<String, String> publicKey = context.read("$.publicKey");
+            relyingPartyPublicKeys.put(relyingPartyId,
+                    RSAKey.parse(new JSONObject(publicKey).toJSONString()));
+        }
+        return relyingPartyPublicKeys.get(relyingPartyId);
     }
 
     private String getKycToken(String individualId, String clientId, String relyingPartyId, @NotBlank String psut) {
@@ -229,7 +239,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(true);
         jwtSignatureRequestDto.setIncludeCertificate(true);
-        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.B64Encode(payload));
+        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload));
         jwtSignatureRequestDto.setIncludeCertHash(true);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
@@ -250,56 +260,63 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     @Override
-    public SendOtpResult sendOtp(String individualId, String channel) {
-        SendOtpResult otpResult = new SendOtpResult();
-        otpResult.setStatus(true);
-        otpResult.setMessageCode("success");
-        return otpResult;
+    public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
+            throws SendOtpException {
+        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, sendOtpRequest.getIndividualId());
+        try {
+            if(FileUtils.directoryContains(personaDir, new File(personaDir.getAbsolutePath(), filename))) {
+                DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
+                String maskedEmailId = context.read("$.maskedEmailId", String.class);
+                String maskedMobile = context.read("$.maskedMobile", String.class);
+                return new SendOtpResult(sendOtpRequest.getTransactionId(), maskedEmailId, maskedMobile);
+            }
+        } catch (IOException e) {
+            log.error("authenticateIndividualWithPin failed {}", filename, e);
+        }
+        throw new SendOtpException(SEND_OTP_FAILED);
     }
 
-    private boolean authenticateUser(String individualId, AuthChallenge authChallenge, ResponseWrapper responseWrapper) {
+    private boolean authenticateUser(String individualId, AuthChallenge authChallenge) {
         switch (authChallenge.getAuthFactorType()) {
             case "PIN" :
-                return authenticateIndividualWithPin(individualId, authChallenge.getChallenge(), responseWrapper);
+                return authenticateIndividualWithPin(individualId, authChallenge.getChallenge());
             case "OTP" :
-                return authenticateIndividualWithOTP(individualId, authChallenge.getChallenge(), responseWrapper);
+                return authenticateIndividualWithOTP(individualId, authChallenge.getChallenge());
+            case "BIO" :
+                return authenticateIndividualWithBio(individualId);
         }
-        responseWrapper.getErrors().add(new Error("mock-ida-004", "Invalid auth challenge type"));
         return false;
     }
 
-    private boolean authenticateIndividualWithPin(String individualId, String pin, ResponseWrapper responseWrapper) {
+    private boolean authenticateIndividualWithPin(String individualId, String pin) {
         String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
             DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
             String savedPin = context.read("$.pin", String.class);
-            if(!pin.equals(savedPin)) {
-                responseWrapper.getErrors().add(new Error("mock-ida-001", "Incorrect PIN"));
-                return false;
-            }
-            return true;
+            return pin.equals(savedPin);
         } catch (IOException e) {
-            log.error("Failed to find {}", filename, e);
-            responseWrapper.getErrors().add(new Error("mock-ida-002", "Invalid / No identity found"));
+            log.error("authenticateIndividualWithPin failed {}", filename, e);
         }
         return false;
     }
 
-    private boolean authenticateIndividualWithOTP(String individualId, String OTP, ResponseWrapper responseWrapper) {
+    private boolean authenticateIndividualWithOTP(String individualId, String OTP) {
         String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
         try {
-            if(!FileUtils.directoryContains(personaDir, new File(filename))) {
-                responseWrapper.getErrors().add(new Error("mock-ida-002", "Invalid / No identity found"));
-                return false;
-            }
-            if(!OTP.equals("111111")) {
-                responseWrapper.getErrors().add(new Error("mock-ida-003", "Incorrect OTP"));
-                return false;
-            }
-            return true;
+            return FileUtils.directoryContains(personaDir, new File(personaDir.getAbsolutePath(), filename))
+                    && OTP.equals("111111");
         } catch (IOException e) {
-            log.error("Failed to find {}", filename, e);
-            responseWrapper.getErrors().add(new Error("mock-ida-002", "Invalid / No identity found"));
+            log.error("authenticateIndividualWithOTP failed {}", filename, e);
+        }
+        return false;
+    }
+
+    private boolean authenticateIndividualWithBio(String individualId) {
+        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
+        try {
+            return FileUtils.directoryContains(personaDir, new File(personaDir.getAbsolutePath(), filename));
+        } catch (IOException e) {
+            log.error("authenticateIndividualWithBio failed {}", filename, e);
         }
         return false;
     }
@@ -391,12 +408,6 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     private List<String> resolveAuthMethods(String relyingPartyId) {
         //TODO - Need to check the policy to resolve supported auth methods
-        return Arrays.asList("PIN");
+        return Arrays.asList("PIN", "OTP", "BIO");
     }
-}
-
-@Data
-class PathInfo {
-    String path;
-    String defaultLocale;
 }

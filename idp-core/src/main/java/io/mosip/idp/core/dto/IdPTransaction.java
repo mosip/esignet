@@ -16,7 +16,9 @@ public class IdPTransaction {
     String relyingPartyId;
     String redirectUri;
     Claims requestedClaims;
-    String claimsLocales;
+    List<String> requestedAuthorizeScopes;
+    String[] claimsLocales;
+    String authTransactionId;
 
     String kycToken;
     String partnerSpecificUserToken;
@@ -31,4 +33,5 @@ public class IdPTransaction {
     String error;
 
     String nonce;
+    String state;
 }

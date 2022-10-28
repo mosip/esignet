@@ -11,5 +11,6 @@ import lombok.Data;
 public class OtpResponse {
 
     private String transactionId;
-    private String messageCode;
+    private String maskedEmail;
+    private String maskedMobile;
 }

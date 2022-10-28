@@ -5,13 +5,15 @@
  */
 package io.mosip.idp.core.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class AuthCodeResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class KycAuthResult {
 
-    private String nonce;
-    private String state;
-    private String code;
-    private String redirectUri;
+    private String kycToken;
+    private String partnerSpecificUserToken;
 }
