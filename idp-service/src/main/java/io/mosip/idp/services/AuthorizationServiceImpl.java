@@ -95,7 +95,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         idPTransaction.setNonce(oauthDetailReqDto.getNonce());
         idPTransaction.setState(oauthDetailReqDto.getState());
         idPTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
-        idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, transactionId));
+        idPTransaction.setAuthTransactionId(IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce()));
         cacheUtilService.setTransaction(transactionId, idPTransaction);
         return oauthDetailResponse;
     }
