@@ -111,7 +111,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
             idaKycAuthRequest.setId(IDENTITY);
             idaKycAuthRequest.setVersion(idaVersion);
-            idaKycAuthRequest.setRequestTime(IdentityProviderUtil.getUTCDataTime());
+            idaKycAuthRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
             idaKycAuthRequest.setDomainUri(idaDomainUri);
             idaKycAuthRequest.setEnv(idaEnv);
             idaKycAuthRequest.setConsentObtained(true);
@@ -173,7 +173,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             idaKycExchangeRequest.setLocales(Arrays.asList(kycExchangeRequest.getClaimsLocales()));
             requestWrapper.setId(IDENTITY);
             requestWrapper.setVersion(idaVersion);
-            requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDataTime());
+            requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
             requestWrapper.setRequest(idaKycExchangeRequest);
 
             //set signature header, body and invoke kyc exchange endpoint
@@ -210,7 +210,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             idaSendOtpRequest.setTransactionID(sendOtpRequest.getTransactionId());
             idaSendOtpRequest.setId(IDENTITY);
             idaSendOtpRequest.setVersion(idaVersion);
-            idaSendOtpRequest.setRequestTime(IdentityProviderUtil.getUTCDataTime());
+            idaSendOtpRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
 
             //set signature header, body and invoke kyc exchange endpoint
             String requestBody = objectMapper.writeValueAsString(idaSendOtpRequest);

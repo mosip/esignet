@@ -41,7 +41,7 @@ public class IdentityProviderUtil {
         urlSafeDecoder = Base64.getUrlDecoder();
     }
 
-    public static String getUTCDataTime() {
+    public static String getUTCDateTime() {
         return ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
@@ -121,11 +121,12 @@ public class IdentityProviderUtil {
         throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 
+    //TODO - Get this verified by sasi & taheer
     public static String createTransactionId(String nonce) throws IdPException {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGO_SHA3_256);
             digest.update(UUID.randomUUID().toString()
-                    .concat(nonce == null ? getUTCDataTime() : nonce)
+                    .concat(nonce == null ? getUTCDateTime() : nonce)
                     .getBytes(StandardCharsets.UTF_8));
             return urlSafeEncoder.encodeToString(digest.digest());
         } catch (NoSuchAlgorithmException ex) {

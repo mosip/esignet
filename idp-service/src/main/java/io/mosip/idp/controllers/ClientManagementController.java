@@ -10,7 +10,6 @@ import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,7 +30,7 @@ public class ClientManagementController {
             @Valid @RequestBody RequestWrapper<ClientDetailCreateRequest> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         response.setResponse(clientManagementService.createOIDCClient(requestWrapper.getRequest()));
-        response.setResponseTime(IdentityProviderUtil.getUTCDataTime());
+        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         return response;
     }
 
@@ -41,7 +40,7 @@ public class ClientManagementController {
                                                               @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequest> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         response.setResponse(clientManagementService.updateOIDCClient(clientId, requestWrapper.getRequest()));
-        response.setResponseTime(IdentityProviderUtil.getUTCDataTime());
+        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         return response;
     }
 }

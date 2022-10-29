@@ -67,6 +67,8 @@ public class TokenServiceImpl implements TokenService {
     @Value("${mosip.idp.discovery.issuer-id}")
     private String issuerId;
 
+
+
     @Value("#{${mosip.idp.openid.scope.claims}}")
     private Map<String, List<String>> claims;
 
