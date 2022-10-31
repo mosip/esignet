@@ -27,7 +27,7 @@ public class AuthorizationController {
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                             requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
         return responseWrapper;
     }
@@ -36,7 +36,7 @@ public class AuthorizationController {
     public ResponseWrapper<OtpResponse> sendOtp(@Valid @RequestBody RequestWrapper<OtpRequest> requestWrapper)
             throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(authorizationService.sendOtp(requestWrapper.getRequest()));
         return responseWrapper;
     }
@@ -45,7 +45,7 @@ public class AuthorizationController {
     public ResponseWrapper<AuthResponse> authenticateEndUser(@Valid @RequestBody RequestWrapper<KycAuthRequest>
                                                                         requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(authorizationService.authenticateUser(requestWrapper.getRequest()));
         return responseWrapper;
     }
@@ -60,7 +60,7 @@ public class AuthorizationController {
         authCodeResponse.setNonce(idPTransaction.getNonce());
         authCodeResponse.setState(idPTransaction.getState());
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDataTime());
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(authCodeResponse);
         return responseWrapper;
     }

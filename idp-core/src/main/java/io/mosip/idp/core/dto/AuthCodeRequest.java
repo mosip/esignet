@@ -15,8 +15,8 @@ import java.util.List;
 @Data
 public class AuthCodeRequest {
 
-    @NotNull(message = ErrorConstants.INVALID_REQUEST)
-    @NotBlank(message = ErrorConstants.INVALID_REQUEST)
+    @NotNull(message = ErrorConstants.INVALID_TRANSACTION)
+    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION)
     private String transactionId;
 
     /**

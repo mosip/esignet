@@ -25,15 +25,18 @@ import java.util.Map;
 public class ClientDetailCreateRequest {
 
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_ID)
+    @Size(max = 50, message = ErrorConstants.INVALID_CLIENT_ID)
     private String clientId;
 
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME)
+    @Size(max = 256, message = ErrorConstants.INVALID_CLIENT_NAME)
     private String clientName;
 
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
     private Map<String, @NotNull Object> publicKey;
 
     @NotBlank(message = ErrorConstants.INVALID_RP_ID)
+    @Size(max = 50, message = ErrorConstants.INVALID_RP_ID)
     private String relyingPartyId;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)

@@ -20,13 +20,13 @@ import java.util.List;
 @NoArgsConstructor
 public class KycAuthRequest {
 
-    @NotBlank(message = ErrorConstants.INVALID_REQUEST)
+    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION)
     private String transactionId;
 
-    @NotBlank(message = ErrorConstants.INVALID_REQUEST)
+    @NotBlank(message = ErrorConstants.INVALID_IDENTIFIER)
     private String individualId;
 
-    @NotNull
-    @Size(min = 1, max = 5)
+    @NotNull(message = ErrorConstants.INVALID_CHALLENGE_LIST)
+    @Size(min = 1, max = 5, message = ErrorConstants.INVALID_CHALLENGE_LIST)
     private List<AuthChallenge> challengeList;
 }
