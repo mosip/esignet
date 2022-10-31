@@ -36,6 +36,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${mosip.idp.put-req-client-mgmt-scope}")
     private String putApiClientMgmtScope;
 
+    @Value("${mosip.idp.auth-ignore-urls}")
+    private String[] authIgnoreUrls;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -53,11 +56,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(idpAuthenticationEntryPoint);
     }
 
+
     @Override
     public void configure(WebSecurity webSecurity) throws Exception {
         //Nullifying security filters
-        webSecurity.ignoring().antMatchers(servletPath+"/oidc/**",
-                servletPath+"/oauth/**", servletPath+"/authorization/**", servletPath+"/actuator/**", 
-                                           "/v1/notifier/actuator/**");
+        webSecurity.ignoring().antMatchers(authIgnoreUrls);
     }
 }
