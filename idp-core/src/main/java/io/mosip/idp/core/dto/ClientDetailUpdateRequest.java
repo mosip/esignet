@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.core.dto;
 
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.validator.AuthContextRef;
 import io.mosip.idp.core.validator.OIDCClaim;
 import io.mosip.idp.core.validator.OIDCClientAuth;
@@ -18,34 +19,35 @@ import java.util.List;
 @Data
 public class ClientDetailUpdateRequest {
 
-    @NotBlank
-    @URL
+    @NotBlank(message = ErrorConstants.INVALID_URI)
+    @URL(message = ErrorConstants.INVALID_URI)
     private String logoUri;
 
-    @NotNull
-    @Size(min = 1)
+    @NotNull(message = ErrorConstants.INVALID_REDIRECT_URI)
+    @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
     private List<@NotBlank String> redirectUris;
 
-    @NotNull
-    @Size(min = 1)
+    @NotNull(message = ErrorConstants.INVALID_CLAIM)
+    @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)
     private List<@OIDCClaim String> userClaims;
 
-    @NotNull
-    @Size(min = 1)
+    @NotNull(message = ErrorConstants.INVALID_ACR)
+    @Size(message = ErrorConstants.INVALID_ACR, min = 1, max = 30)
     private List<@NotBlank @AuthContextRef String> authContextRefs;
 
     @NotBlank
     @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$")
     private String status;
 
-    @NotNull
-    @Size(min = 1)
+    @NotNull(message = ErrorConstants.INVALID_GRANT_TYPE)
+    @Size(message = ErrorConstants.INVALID_GRANT_TYPE, min = 1, max=3)
     private List<@OIDCGrantType String> grantTypes;
 
-    @NotBlank
+    @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME)
+    @Size(max = 256, message = ErrorConstants.INVALID_CLIENT_NAME)
     private String clientName;
 
-    @NotNull
-    @Size(min = 1)
+    @NotNull(message = ErrorConstants.INVALID_CLIENT_AUTH)
+    @Size(message = ErrorConstants.INVALID_CLIENT_AUTH, min = 1, max = 3)
     private List<@OIDCClientAuth String> clientAuthMethods;
 }
