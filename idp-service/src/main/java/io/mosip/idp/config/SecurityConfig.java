@@ -57,6 +57,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity webSecurity) throws Exception {
         //Nullifying security filters
         webSecurity.ignoring().antMatchers(servletPath+"/oidc/**",
-                servletPath+"/oauth/**", servletPath+"/authorization/**");
+                servletPath+"/oauth/**", servletPath+"/authorization/**", servletPath+"/actuator/**");
     }
 }
