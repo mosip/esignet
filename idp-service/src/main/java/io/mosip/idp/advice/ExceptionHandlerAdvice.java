@@ -98,8 +98,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         log.error("Unhandled exception encountered in handler advice", ex);
         String pathInfo = ((ServletWebRequest)request).getRequest().getPathInfo();
 
-        boolean isInternalAPI = pathInfo.startsWith("/authorization") ||
-                pathInfo.startsWith("/client-mgmt/");
+        boolean isInternalAPI = pathInfo != null && (pathInfo.startsWith("/authorization") ||
+                pathInfo.startsWith("/client-mgmt/"));
 
         if(!isInternalAPI && pathInfo.startsWith("/oidc/userinfo")) {
             return handleExceptionWithHeader(ex);
