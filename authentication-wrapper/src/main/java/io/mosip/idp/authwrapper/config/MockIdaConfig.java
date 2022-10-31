@@ -39,6 +39,9 @@ public class MockIdaConfig {
     @Value("${mosip.idp.authn.mock.impl.claims-mapping-file:claims_attributes_mapping.json}")
     private String claimsMappingFilePath;
 
+    @Value("${mosip.idp.authn.mock.impl.encrypt-kyc:false}")
+    private boolean encryptKyc;
+
     @Autowired
     private SignatureService signatureService;
 
@@ -57,7 +60,7 @@ public class MockIdaConfig {
     @Bean
     public MockAuthenticationService mockAuthenticationService() throws IOException {
         return new MockAuthenticationService(personaRepoDirPath, policyRepoDirPath, claimsMappingFilePath,
-                tokenExpireInSeconds, signatureService, tokenService, objectMapper, clientManagementService,
+                tokenExpireInSeconds, encryptKyc, signatureService, tokenService, objectMapper, clientManagementService,
                 keymanagerService);
     }
 }

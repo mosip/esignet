@@ -78,6 +78,8 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private File personaDir;
     private File policyDir;
 
+    private boolean encryptKyc;
+
 
     static {
         REQUIRED_CLAIMS = new HashSet<>();
@@ -94,7 +96,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     public MockAuthenticationService(String personaDirPath, String policyDirPath, String claimsMappingFilePath,
-                                     int kycTokenExpireSeconds, SignatureService signatureService,
+                                     int kycTokenExpireSeconds, boolean encryptKyc, SignatureService signatureService,
                                      TokenService tokenService, ObjectMapper objectMapper,
                                      ClientManagementService clientManagementService,
                                      KeymanagerService keymanagerService) throws IOException {
@@ -103,6 +105,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         this.objectMapper = objectMapper;
         this.clientManagementService = clientManagementService;
         this.keymanagerService = keymanagerService;
+        this.encryptKyc = encryptKyc;
 
         log.info("Started to setup MOCK IDA");
         personaDir = new File(personaDirPath);
@@ -160,7 +163,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                     kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
             kyc.put(SUB, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
-            kycExchangeResult.setEncryptedKyc(getJWE(relyingPartyId, signKyc(kyc)));
+            kycExchangeResult.setEncryptedKyc(this.encryptKyc ? getJWE(relyingPartyId, signKyc(kyc)) : signKyc(kyc));
             return kycExchangeResult;
         } catch (Exception e) {
             log.error("Failed to create kyc", e);
