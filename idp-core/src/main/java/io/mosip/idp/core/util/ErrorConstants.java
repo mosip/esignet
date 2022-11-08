@@ -39,4 +39,6 @@ public class ErrorConstants {
     public static final String INVALID_IDENTIFIER="invalid_identifier";
     public static final String INVALID_OTP_CHANNEL="invalid_otp_channel";
     public static final String INVALID_CHALLENGE_LIST="invalid_no_of_challenges";
+    public static final String INVALID_PERMITTED_SCOPE="invalid_permitted_scope";
+    public static final String INVALID_ACCEPTED_CLAIM="invalid_accepted_claim";
 }
