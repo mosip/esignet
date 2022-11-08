@@ -11,6 +11,7 @@ import io.mosip.idp.core.dto.ResponseWrapper;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import static io.mosip.idp.core.util.ErrorConstants.*;
 
@@ -198,17 +196,15 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
 
     private ResponseWrapper getResponseWrapper(String errorCode, String errorMessage) {
-        ResponseWrapper responseWrapper = new ResponseWrapper<>();
-        responseWrapper.setErrors(new ArrayList<>());
         Error error = new Error();
         error.setErrorCode(errorCode);
         error.setErrorMessage(errorMessage);
-        responseWrapper.getErrors().add(error);
-        return responseWrapper;
+        return getResponseWrapper(Arrays.asList(error));
     }
 
     private ResponseWrapper getResponseWrapper(List<Error> errors) {
         ResponseWrapper responseWrapper = new ResponseWrapper<>();
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setErrors(errors);
         return responseWrapper;
     }
