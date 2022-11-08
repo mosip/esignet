@@ -179,7 +179,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         log.info("Started to build kyc-exchange request with transactionId : {} && clientId : {}",
                 kycExchangeRequest.getTransactionId(), clientId);
         try {
-            RequestWrapper<IdaKycExchangeRequest> requestWrapper = new RequestWrapper<>();
+            IdaRequestWrapper<IdaKycExchangeRequest> requestWrapper = new IdaRequestWrapper<>();
             IdaKycExchangeRequest idaKycExchangeRequest = new IdaKycExchangeRequest();
             idaKycExchangeRequest.setKycToken(kycExchangeRequest.getKycToken());
             idaKycExchangeRequest.setConsentObtained(kycExchangeRequest.getAcceptedClaims());
