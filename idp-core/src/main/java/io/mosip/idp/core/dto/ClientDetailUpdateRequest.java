@@ -25,7 +25,7 @@ public class ClientDetailUpdateRequest {
 
     @NotNull(message = ErrorConstants.INVALID_REDIRECT_URI)
     @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
-    private List<@NotBlank String> redirectUris;
+    private List<@NotBlank @URL String> redirectUris;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)
     @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)
