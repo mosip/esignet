@@ -162,6 +162,11 @@ public class ClientMgmtControllerParameterizedTest {
                     "rp-id", Arrays.asList("birthdate", "given_name", "gender"),
                     Arrays.asList("mosip:idp:acr:static-code-1"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")), null, null, ErrorConstants.INVALID_ACR },
+            { "With patterned redirectUri", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    "rp-id", Arrays.asList("birthdate", "given_name", "gender"),
+                    Arrays.asList("mosip:idp:acr:static-code-1"), "https://logo-url/png",
+                    Arrays.asList("https://dev.mosip.net/home/**"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt")), null, null, ErrorConstants.INVALID_ACR }
 
     };
