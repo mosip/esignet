@@ -3,19 +3,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.idp.core.dto;
+package io.mosip.idp.authwrapper.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class KycAuthResult {
+public class IdaResponseWrapper<T> {
 
-    private String kycToken;
-    private String partnerSpecificUserToken;
+    private String id;
+    private String version;
+    private String transactionID;
+    private String responseTime;
+    private T response;
+    private List<IdaError> errors;
+
 }
