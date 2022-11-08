@@ -145,8 +145,8 @@ public class IdentityProviderUtil {
         try {
             URL registered = new URL(registeredUri);
             URL requested = new URL(requestedUri);
-            return registered.getProtocol().equals(requested.getProtocol()) &&
-                    registered.getHost().equals(requested.getHost()) &&
+            return registered.getProtocol().equalsIgnoreCase(requested.getProtocol()) &&
+                    registered.getHost().equalsIgnoreCase(requested.getHost()) &&
                     pathMatcher.match(registered.getFile(), requested.getFile());
         } catch (MalformedURLException e) {
             log.error("Invalid redirect URLs found during validation", e);

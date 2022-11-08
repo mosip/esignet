@@ -27,6 +27,8 @@ public class IdentityProviderUtilTest {
                 "https://api.dev.mosip.net/home/werrrwqfdsfg5fgs34sdffggdfgsdfg?state=reefdf");
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/t*"),
                 "https://api.dev.mosip.net/home/testament?rr=rrr");
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("HTTPS://DEV.MOSIP.NET/home"),
+                "https://dev.mosip.net/home");
     }
 
     @Test
