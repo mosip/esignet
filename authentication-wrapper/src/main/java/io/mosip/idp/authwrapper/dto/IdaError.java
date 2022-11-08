@@ -8,9 +8,9 @@ package io.mosip.idp.authwrapper.dto;
 import lombok.Data;
 
 @Data
-public class IdaKycAuthResponse {
+public class IdaError {
 
-    private String kycToken;
-    private String authToken;
-    private boolean kycStatus;
+    private String actionMessage;
+    private String errorCode;
+    private String errorMessage;
 }

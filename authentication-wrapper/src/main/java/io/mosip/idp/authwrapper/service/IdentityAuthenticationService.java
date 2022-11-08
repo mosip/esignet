@@ -47,8 +47,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.util.*;
 
-import static io.mosip.idp.core.util.ErrorConstants.SEND_OTP_FAILED;
-import static io.mosip.idp.core.util.ErrorConstants.UNKNOWN_ERROR;
+import static io.mosip.idp.core.util.ErrorConstants.*;
 
 
 @ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "IdentityAuthenticationService")
@@ -56,9 +55,15 @@ import static io.mosip.idp.core.util.ErrorConstants.UNKNOWN_ERROR;
 @Slf4j
 public class IdentityAuthenticationService implements AuthenticationWrapper {
 
-    public static final String IDENTITY = "mosip.identity.auth.internal";
     public static final String KYC_EXCHANGE_PATH_NAME = "oidc";
     public static final String SIGNATURE_HEADER_NAME = "signature";
+    public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+
+    @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycauth}")
+    private String idaId;
+
+    @Value("${mosip.idp.authn.wrapper.ida-send-otp-id:mosip.identity.kycauth}")
+    private String sendOtpId;
 
     @Value("${mosip.idp.authn.wrapper.ida-version:1.0}")
     private String idaVersion;
@@ -109,7 +114,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 kycAuthRequest.getTransactionId(), clientId);
         try {
             IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
-            idaKycAuthRequest.setId(IDENTITY);
+            idaKycAuthRequest.setId(idaId);
             idaKycAuthRequest.setVersion(idaVersion);
             idaKycAuthRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
             idaKycAuthRequest.setDomainUri(idaDomainUri);
@@ -144,18 +149,26 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .body(requestBody);
             requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
-            ResponseEntity<ResponseWrapper<IdaKycAuthResponse>> responseEntity = restTemplate.exchange(requestEntity,
-                    new ParameterizedTypeReference<ResponseWrapper<IdaKycAuthResponse>>() {});
-            if(responseEntity.getBody() != null && CollectionUtils.isEmpty(responseEntity.getBody().getErrors()) &&
-                    responseEntity.getBody().getResponse() != null) {
-                return new KycAuthResult(responseEntity.getBody().getResponse().getKycToken(),
-                        responseEntity.getBody().getResponse().getPartnerSpecificUserToken());
-            }
+            requestEntity.getHeaders().add(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME);
+            ResponseEntity<IdaResponseWrapper<IdaKycAuthResponse>> responseEntity = restTemplate.exchange(requestEntity,
+                    new ParameterizedTypeReference<IdaResponseWrapper<IdaKycAuthResponse>>() {});
+            log.info("Response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
 
-            log.error("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
-            throw new KycAuthException(responseEntity.getBody().getErrors().get(0).getErrorCode());
+            if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+                IdaResponseWrapper<IdaKycAuthResponse> responseWrapper = responseEntity.getBody();
+                if(responseWrapper.getResponse().isKycStatus() && responseWrapper.getResponse().getKycToken() != null) {
+                    return new KycAuthResult(responseEntity.getBody().getResponse().getKycToken(),
+                            responseEntity.getBody().getResponse().getAuthToken());
+                }
+                log.error("Error response received from IDA KycStatus : {} && Errors: {}",
+                        responseWrapper.getResponse().isKycStatus(), responseWrapper.getErrors());
+                throw new KycAuthException(CollectionUtils.isEmpty(responseWrapper.getErrors()) ?
+                         AUTH_FAILED : responseWrapper.getErrors().get(0).getErrorCode());
+            }
+            log.error("Errors in response received from IDA Kyc auth: {} -> {}", responseEntity.getStatusCode(), responseEntity.getStatusCodeValue());
         } catch (Exception e) {
-            log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthRequest.getTransactionId(), clientId, e);
+            log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthRequest.getTransactionId(),
+                    clientId, e);
         }
         throw new KycAuthException(UNKNOWN_ERROR);
     }
@@ -171,7 +184,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             idaKycExchangeRequest.setKycToken(kycExchangeRequest.getKycToken());
             idaKycExchangeRequest.setConsentObtained(kycExchangeRequest.getAcceptedClaims());
             idaKycExchangeRequest.setLocales(Arrays.asList(kycExchangeRequest.getClaimsLocales()));
-            requestWrapper.setId(IDENTITY);
+            requestWrapper.setId(idaId);
             requestWrapper.setVersion(idaVersion);
             requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
             requestWrapper.setRequest(idaKycExchangeRequest);
@@ -184,17 +197,22 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .body(requestBody);
             requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
-            ResponseEntity<ResponseWrapper<IdaKycExchangeResponse>> responseEntity = restTemplate.exchange(requestEntity,
-                    new ParameterizedTypeReference<ResponseWrapper<IdaKycExchangeResponse>>() {});
+            requestEntity.getHeaders().add(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME);
+            ResponseEntity<IdaResponseWrapper<IdaKycExchangeResponse>> responseEntity = restTemplate.exchange(requestEntity,
+                    new ParameterizedTypeReference<IdaResponseWrapper<IdaKycExchangeResponse>>() {});
+            log.info("Response received from IDA (Kyc-exchange) with status : {}", responseEntity.getStatusCode());
 
-            if(responseEntity.getBody() != null && CollectionUtils.isEmpty(responseEntity.getBody().getErrors()) &&
-                    responseEntity.getBody().getResponse() != null) {
-                return new KycExchangeResult(responseEntity.getBody().getResponse().getEncryptedKyc());
+            if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+                IdaResponseWrapper<IdaKycExchangeResponse> responseWrapper = responseEntity.getBody();
+                if(responseWrapper.getResponse() != null && responseWrapper.getResponse().getEncryptedKyc() != null) {
+                    return new KycExchangeResult(responseWrapper.getResponse().getEncryptedKyc());
+                }
+                log.error("Errors in response received from IDA Kyc Exchange: {}", responseWrapper.getErrors());
+                throw new KycExchangeException(CollectionUtils.isEmpty(responseWrapper.getErrors()) ?
+                        AUTH_FAILED : responseWrapper.getErrors().get(0).getErrorCode());
             }
-            log.error("Errors in response received from IDA : {}", responseEntity.getBody().getErrors());
-            throw new KycExchangeException(responseEntity.getBody().getErrors().get(0).getErrorCode());
         } catch (Exception e) {
-            log.error("KYC-exchange failed with clientId : {}", clientId, e);
+            log.error("IDA Kyc-exchange failed with clientId : {}", clientId, e);
         }
         throw new KycExchangeException(UNKNOWN_ERROR);
     }
@@ -208,7 +226,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             idaSendOtpRequest.setOtpChannel(sendOtpRequest.getOtpChannels());
             idaSendOtpRequest.setIndividualId(sendOtpRequest.getIndividualId());
             idaSendOtpRequest.setTransactionID(sendOtpRequest.getTransactionId());
-            idaSendOtpRequest.setId(IDENTITY);
+            idaSendOtpRequest.setId(sendOtpId);
             idaSendOtpRequest.setVersion(idaVersion);
             idaSendOtpRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
 
@@ -219,14 +237,20 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .body(requestBody);
             requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
-            IdaSendOtpResponse idaSendOtpResponse = restTemplate.exchange(requestEntity, IdaSendOtpResponse.class).getBody();
-            if(idaSendOtpResponse != null && CollectionUtils.isEmpty(idaSendOtpResponse.getErrors()) &&
-                    idaSendOtpResponse.getResponse() != null) {
-                return new SendOtpResult(idaSendOtpResponse.getTransactionID(), idaSendOtpResponse.getResponse().getMaskedEmail(),
-                        idaSendOtpResponse.getResponse().getMaskedMobile());
+            ResponseEntity<IdaSendOtpResponse> responseEntity = restTemplate.exchange(requestEntity,
+                            IdaSendOtpResponse.class);
+            log.info("Response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
+
+            if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+                IdaSendOtpResponse idaSendOtpResponse = responseEntity.getBody();
+                if(idaSendOtpRequest.getTransactionID().equals(idaSendOtpResponse.getTransactionID())){
+                    return new SendOtpResult(idaSendOtpResponse.getTransactionID(),
+                            idaSendOtpResponse.getResponse().getMaskedEmail(),
+                            idaSendOtpResponse.getResponse().getMaskedMobile());
+                }
+                log.error("Errors in response received from IDA send-otp : {}", idaSendOtpResponse.getErrors());
+                throw new SendOtpException(idaSendOtpResponse.getErrors().get(0).getErrorCode());
             }
-            log.error("Errors in response received from IDA : {}", idaSendOtpResponse.getErrors());
-            throw new SendOtpException(idaSendOtpResponse.getErrors().get(0).getErrorCode());
         } catch (Exception e) {
             log.error("send-otp failed with clientId : {}", clientId, e);
         }
