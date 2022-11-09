@@ -11,7 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,10 +39,12 @@ public class IdentityProviderUtil {
 
     private static Base64.Encoder urlSafeEncoder;
     private static Base64.Decoder urlSafeDecoder;
+    private static PathMatcher pathMatcher;
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
         urlSafeDecoder = Base64.getUrlDecoder();
+        pathMatcher = new AntPathMatcher();
     }
 
     public static String getUTCDateTime() {
@@ -114,7 +120,7 @@ public class IdentityProviderUtil {
     }
 
     public static void validateRedirectURI(List<String> registeredRedirectUris, String requestedRedirectUri) throws IdPException {
-        if(registeredRedirectUris.stream().anyMatch(uri -> uri.equals(requestedRedirectUri)))
+        if(registeredRedirectUris.stream().anyMatch(uri -> matchUri(uri, requestedRedirectUri)))
             return;
 
         log.error("Invalid redirect URI registered : {}, requested: {}", registeredRedirectUris, requestedRedirectUri);
@@ -133,5 +139,18 @@ public class IdentityProviderUtil {
             log.error("create transaction id failed with alg SHA3-256", ex);
             throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
         }
+    }
+
+    private static boolean matchUri(String registeredUri, String requestedUri) {
+        try {
+            URL registered = new URL(registeredUri);
+            URL requested = new URL(requestedUri);
+            return registered.getProtocol().equalsIgnoreCase(requested.getProtocol()) &&
+                    registered.getHost().equalsIgnoreCase(requested.getHost()) &&
+                    pathMatcher.match(registered.getFile(), requested.getFile());
+        } catch (MalformedURLException e) {
+            log.error("Invalid redirect URLs found during validation", e);
+        }
+        return false;
     }
 }
