@@ -22,4 +22,14 @@ public class Constants {
     public static final String ROOT_KEY = "ROOT";
     public static final String IDP_PARTNER_APP_ID = "IDP_PARTNER";
     public static final String IDP_SERVICE_APP_ID = "IDP_SERVICE";
+
+    public static final String JWK_MODULUS = "n";
+    public static final String JWK_EXPONENT = "e";
+    public static final String JWK_KEY_ID = "kid";
+    public static final String JWK_KEY_ALG = "alg";
+    public static final String JWK_KEY_TYPE = "kty";
+    public static final String JWK_KEY_USE= "use";
+    public static final String JWK_KEY_CERT_CHAIN= "x5c";
+    public static final String JWK_KEY_CERT_SHA256_THUMBPRINT = "x5t#S256";
+    public static final String JWK_KEY_EXPIRE = "exp";
 }
