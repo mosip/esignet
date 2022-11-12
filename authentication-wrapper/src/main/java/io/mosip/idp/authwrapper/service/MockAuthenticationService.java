@@ -282,7 +282,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     @Override
-    public List<KycSigningCertificateData> getAllKycSigningCertificate() {
+    public List<KycSigningCertificateData> getAllKycSigningCertificates() {
         List<KycSigningCertificateData> certs = new ArrayList<>();
         AllCertificatesDataResponseDto allCertificatesDataResponseDto = keymanagerService.getAllCertificates(APPLICATION_ID,
                 Optional.empty());

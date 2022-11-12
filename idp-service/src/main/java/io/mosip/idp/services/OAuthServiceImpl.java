@@ -124,7 +124,7 @@ public class OAuthServiceImpl implements OAuthService {
             }
         });
 
-        List<KycSigningCertificateData> allAuthCerts = authenticationWrapper.getAllKycSigningCertificate();
+        List<KycSigningCertificateData> allAuthCerts = authenticationWrapper.getAllKycSigningCertificates();
         if(allAuthCerts != null) {
             allAuthCerts.stream().forEach( authCert -> {
                 try {

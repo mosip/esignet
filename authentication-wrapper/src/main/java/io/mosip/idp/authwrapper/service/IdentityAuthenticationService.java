@@ -62,7 +62,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycauth}")
     private String idaId;
 
-    @Value("${mosip.idp.authn.wrapper.ida-send-otp-id:mosip.identity.kycauth}")
+    @Value("${mosip.idp.authn.wrapper.ida-send-otp-id:mosip.identity.otp}")
     private String sendOtpId;
 
     @Value("${mosip.idp.authn.wrapper.ida-version:1.0}")
@@ -152,7 +152,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             requestEntity.getHeaders().add(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME);
             ResponseEntity<IdaResponseWrapper<IdaKycAuthResponse>> responseEntity = restTemplate.exchange(requestEntity,
                     new ParameterizedTypeReference<IdaResponseWrapper<IdaKycAuthResponse>>() {});
-            log.info("Response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
 
             if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 IdaResponseWrapper<IdaKycAuthResponse> responseWrapper = responseEntity.getBody();
@@ -165,7 +164,8 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 throw new KycAuthException(CollectionUtils.isEmpty(responseWrapper.getErrors()) ?
                          AUTH_FAILED : responseWrapper.getErrors().get(0).getErrorCode());
             }
-            log.error("Errors in response received from IDA Kyc auth: {} -> {}", responseEntity.getStatusCode(), responseEntity.getStatusCodeValue());
+
+            log.error("Error response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
         } catch (Exception e) {
             log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthRequest.getTransactionId(),
                     clientId, e);
@@ -200,7 +200,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             requestEntity.getHeaders().add(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME);
             ResponseEntity<IdaResponseWrapper<IdaKycExchangeResponse>> responseEntity = restTemplate.exchange(requestEntity,
                     new ParameterizedTypeReference<IdaResponseWrapper<IdaKycExchangeResponse>>() {});
-            log.info("Response received from IDA (Kyc-exchange) with status : {}", responseEntity.getStatusCode());
 
             if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 IdaResponseWrapper<IdaKycExchangeResponse> responseWrapper = responseEntity.getBody();
@@ -211,6 +210,8 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 throw new KycExchangeException(CollectionUtils.isEmpty(responseWrapper.getErrors()) ?
                         AUTH_FAILED : responseWrapper.getErrors().get(0).getErrorCode());
             }
+
+            log.error("Error response received from IDA (Kyc-exchange) with status : {}", responseEntity.getStatusCode());
         } catch (Exception e) {
             log.error("IDA Kyc-exchange failed with clientId : {}", clientId, e);
         }
@@ -239,7 +240,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
             ResponseEntity<IdaSendOtpResponse> responseEntity = restTemplate.exchange(requestEntity,
                             IdaSendOtpResponse.class);
-            log.info("Response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
 
             if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 IdaSendOtpResponse idaSendOtpResponse = responseEntity.getBody();
@@ -251,6 +251,8 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 log.error("Errors in response received from IDA send-otp : {}", idaSendOtpResponse.getErrors());
                 throw new SendOtpException(idaSendOtpResponse.getErrors().get(0).getErrorCode());
             }
+
+            log.error("Error response received from IDA (send-otp) with status : {}", responseEntity.getStatusCode());
         } catch (Exception e) {
             log.error("send-otp failed with clientId : {}", clientId, e);
         }
@@ -258,7 +260,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     }
 
     @Override
-    public List<KycSigningCertificateData> getAllKycSigningCertificate() {
+    public List<KycSigningCertificateData> getAllKycSigningCertificates() {
         List<KycSigningCertificateData> certs = new ArrayList<>();
         return certs;
     }
