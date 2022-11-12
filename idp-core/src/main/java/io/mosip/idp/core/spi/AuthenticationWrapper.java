@@ -47,6 +47,6 @@ public interface AuthenticationWrapper {
     SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
             throws SendOtpException;
 
-    List<KycSigningCertificateData> getAllKycSigningCertificate();
+    List<KycSigningCertificateData> getAllKycSigningCertificates();
 
 }
