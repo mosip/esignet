@@ -24,6 +24,8 @@ import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
+import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
@@ -277,6 +279,18 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             log.error("authenticateIndividualWithPin failed {}", filename, e);
         }
         throw new SendOtpException(SEND_OTP_FAILED);
+    }
+
+    @Override
+    public List<KycSigningCertificateData> getAllKycSigningCertificate() {
+        List<KycSigningCertificateData> certs = new ArrayList<>();
+        AllCertificatesDataResponseDto allCertificatesDataResponseDto = keymanagerService.getAllCertificates(APPLICATION_ID,
+                Optional.empty());
+        for(CertificateDataResponseDto dto : allCertificatesDataResponseDto.getAllCertificates()) {
+            certs.add(new KycSigningCertificateData(dto.getKeyId(), dto.getCertificateData(),
+                    dto.getExpiryAt(), dto.getIssuedAt()));
+        }
+        return certs;
     }
 
     private boolean authenticateUser(String individualId, AuthChallenge authChallenge) {

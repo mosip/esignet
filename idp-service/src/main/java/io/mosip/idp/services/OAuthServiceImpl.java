@@ -5,20 +5,35 @@
  */
 package io.mosip.idp.services;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.*;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
+import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jose4j.jwk.JsonWebKeySet;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Stream;
+
+import static io.mosip.idp.core.util.Constants.*;
 
 @Slf4j
 @Service
@@ -36,6 +51,9 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Autowired
     private CacheUtilService cacheUtilService;
+
+    @Autowired
+    private KeymanagerService keymanagerService;
 
     @Value("${mosip.idp.access-token.expire.seconds:60}")
     private int accessTokenExpireSeconds;
@@ -94,8 +112,49 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     @Override
-    public JsonWebKeySet getJwks() {
-        throw new NotImplementedException("Under implementation...");
+    public Map<String, Object> getJwks() {
+        AllCertificatesDataResponseDto allCertificatesDataResponseDto = keymanagerService.getAllCertificates(
+                Constants.IDP_SERVICE_APP_ID, Optional.empty());
+        List<Map<String, Object>> jwkList = new ArrayList<>();
+        Arrays.stream(allCertificatesDataResponseDto.getAllCertificates()).forEach( dto -> {
+            try {
+                jwkList.add(getJwk(dto.getKeyId(), dto.getCertificateData(), dto.getExpiryAt()));
+            } catch (JOSEException e) {
+                log.error("Failed to parse the certificate data", e);
+            }
+        });
+
+        List<KycSigningCertificateData> allAuthCerts = authenticationWrapper.getAllKycSigningCertificate();
+        if(allAuthCerts != null) {
+            allAuthCerts.stream().forEach( authCert -> {
+                try {
+                    jwkList.add(getJwk(authCert.getKeyId(), authCert.getCertificateData(), authCert.getExpiryAt()));
+                } catch (JOSEException e) {
+                    log.error("Failed to parse the auth certificate data", e);
+                }
+            });
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("keys", jwkList);
+        return response;
+    }
+
+    private Map<String, Object> getJwk(String keyId, String certificate, LocalDateTime expireAt)
+            throws JOSEException {
+        JWK jwk = JWK.parseFromPEMEncodedX509Cert(certificate);
+        Map<String, Object> map = new HashMap<>();
+        map.put(JWK_KEY_ID, keyId);
+        map.put(JWK_KEY_ALG, jwk.getAlgorithm().getName());
+        map.put(JWK_KEY_TYPE, jwk.getKeyType().getValue());
+        map.put(JWK_KEY_USE, jwk.getKeyUse().getValue());
+        map.put(JWK_KEY_EXPIRE, expireAt.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        List<String> certs = new ArrayList<>();
+        jwk.getX509CertChain().forEach(c -> { certs.add(c.toString()); });
+        map.put(JWK_KEY_CERT_CHAIN, certs);
+        map.put(JWK_KEY_CERT_SHA256_THUMBPRINT, jwk.getX509CertSHA256Thumbprint().toString());
+        map.put(JWK_EXPONENT, jwk.toPublicJWK().getRequiredParams().get(JWK_EXPONENT));
+        map.put(JWK_MODULUS, jwk.toPublicJWK().getRequiredParams().get(JWK_MODULUS));
+        return map;
     }
 
     private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws IdPException {

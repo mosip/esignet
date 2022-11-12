@@ -257,6 +257,12 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         throw new SendOtpException(SEND_OTP_FAILED);
     }
 
+    @Override
+    public List<KycSigningCertificateData> getAllKycSigningCertificate() {
+        List<KycSigningCertificateData> certs = new ArrayList<>();
+        return certs;
+    }
+
     private void buildAuthRequest(String authFactor, String authChallenge,
                                   IdaKycAuthRequest.AuthRequest authRequest) {
         log.info("Build kyc-auth request with authFactor : {}",  authFactor);
