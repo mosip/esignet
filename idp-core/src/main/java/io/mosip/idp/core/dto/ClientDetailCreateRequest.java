@@ -26,7 +26,6 @@ public class ClientDetailCreateRequest {
 
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_ID)
     @Size(max = 50, message = ErrorConstants.INVALID_CLIENT_ID)
-    @Pattern(regexp = "^[\\w_-]*$", message = ErrorConstants.INVALID_CLIENT_ID)
     private String clientId;
 
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME)
@@ -38,7 +37,6 @@ public class ClientDetailCreateRequest {
 
     @NotBlank(message = ErrorConstants.INVALID_RP_ID)
     @Size(max = 50, message = ErrorConstants.INVALID_RP_ID)
-    @Pattern(regexp = "^[\\w_-]*$", message = ErrorConstants.INVALID_RP_ID)
     private String relyingPartyId;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)
