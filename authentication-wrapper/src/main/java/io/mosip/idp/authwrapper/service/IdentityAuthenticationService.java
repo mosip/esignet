@@ -89,6 +89,9 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Value("${mosip.idp.authn.ida.send-otp-url}")
     private String sendOtpUrl;
 
+    @Value("${mosip.idp.authn.ida.otp-channels}")
+    private List<String> otpChannels;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -257,6 +260,11 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             log.error("send-otp failed with clientId : {}", clientId, e);
         }
         throw new SendOtpException(SEND_OTP_FAILED);
+    }
+
+    @Override
+    public boolean isSupportedOtpChannel(String channel) {
+        return channel != null && otpChannels.contains(channel.toLowerCase());
     }
 
     @Override
