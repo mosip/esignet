@@ -47,6 +47,16 @@ public interface AuthenticationWrapper {
     SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
             throws SendOtpException;
 
+    /**
+     * supported OTP channel to validate in Send-otp request.
+     * @return true if supported, otherwise false
+     */
+    boolean isSupportedOtpChannel(String channel);
+
+    /**
+     * Get list of KYC signing certificate and its details.
+     * @return list
+     */
     List<KycSigningCertificateData> getAllKycSigningCertificates();
 
 }

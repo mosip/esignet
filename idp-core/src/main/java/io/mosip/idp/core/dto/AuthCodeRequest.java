@@ -9,14 +9,12 @@ import io.mosip.idp.core.util.ErrorConstants;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 public class AuthCodeRequest {
 
-    @NotNull(message = ErrorConstants.INVALID_TRANSACTION)
-    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION)
+    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;
 
     /**

@@ -6,6 +6,7 @@
 package io.mosip.idp.core.dto;
 
 import io.mosip.idp.core.util.ErrorConstants;
+import io.mosip.idp.core.validator.OtpChannel;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -16,15 +17,13 @@ import java.util.List;
 @Data
 public class OtpRequest {
 
-    @NotNull(message = ErrorConstants.INVALID_REQUEST)
-    @NotBlank(message = ErrorConstants.INVALID_REQUEST)
+    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;
 
-    @NotNull(message = ErrorConstants.INVALID_REQUEST)
-    @NotBlank(message = ErrorConstants.INVALID_REQUEST)
+    @NotBlank(message = ErrorConstants.INVALID_IDENTIFIER)
     private String individualId;
 
-    @NotNull(message = ErrorConstants.INVALID_REQUEST)
-    @Size(min = 1, max = 2)
-    private List<String> otpChannels;
+    @NotNull(message = ErrorConstants.INVALID_OTP_CHANNEL)
+    @Size(min = 1, message = ErrorConstants.INVALID_OTP_CHANNEL)
+    private List<@OtpChannel String> otpChannels;
 }
