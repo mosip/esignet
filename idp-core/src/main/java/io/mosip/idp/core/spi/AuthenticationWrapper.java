@@ -10,6 +10,8 @@ import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.exception.KycExchangeException;
 import io.mosip.idp.core.exception.SendOtpException;
 
+import java.util.List;
+
 public interface AuthenticationWrapper {
 
     /**
@@ -44,5 +46,7 @@ public interface AuthenticationWrapper {
      */
     SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
             throws SendOtpException;
+
+    List<KycSigningCertificateData> getAllKycSigningCertificates();
 
 }

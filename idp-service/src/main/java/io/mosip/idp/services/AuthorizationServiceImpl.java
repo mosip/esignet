@@ -187,13 +187,13 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             return;
 
         if(CollectionUtils.isEmpty(transaction.getRequestedClaims().getUserinfo()))
-            throw new IdPException(INVALID_CLAIM);
+            throw new IdPException(INVALID_ACCEPTED_CLAIM);
 
         if(acceptedClaims.stream()
                 .allMatch( claim -> transaction.getRequestedClaims().getUserinfo().containsKey(claim) ))
             return;
 
-        throw new IdPException(INVALID_CLAIM);
+        throw new IdPException(INVALID_ACCEPTED_CLAIM);
     }
 
     private void validateAuthorizeScopes(IdPTransaction transaction, List<String> authorizeScopes) throws IdPException {
@@ -201,10 +201,10 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             return;
 
         if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()))
-            throw new IdPException(INVALID_SCOPE);
+            throw new IdPException(INVALID_PERMITTED_SCOPE);
 
         if(!transaction.getRequestedAuthorizeScopes().containsAll(authorizeScopes))
-            throw new IdPException(INVALID_SCOPE);
+            throw new IdPException(INVALID_PERMITTED_SCOPE);
     }
 
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)

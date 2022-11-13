@@ -16,9 +16,6 @@ import static io.mosip.idp.core.util.ErrorConstants.INVALID_REQUEST;
 @Data
 public class RequestWrapper<T> {
 
-    private String id;
-    private String version;
-
     @RequestTime
     private String requestTime;
 

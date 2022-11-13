@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.controllers;
 
+import com.nimbusds.jose.jwk.JWKSet;
 import io.mosip.idp.core.dto.TokenRequest;
 import io.mosip.idp.core.dto.TokenResponse;
 import io.mosip.idp.core.exception.IdPException;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/oauth")
@@ -37,7 +40,7 @@ public class OAuthController {
     }
 
     @GetMapping("/.well-known/jwks.json")
-    public JsonWebKeySet getAllJwks() {
+    public Map<String, Object> getAllJwks() {
         return oAuthService.getJwks();
     }
 }

@@ -26,10 +26,7 @@ import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
+import io.mosip.kernel.signature.dto.*;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -166,9 +163,9 @@ public class TokenServiceImpl implements TokenService {
         jwtSignatureRequestDto.setApplicationId(applicationId);
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(true);
-        jwtSignatureRequestDto.setIncludeCertificate(true);
+        jwtSignatureRequestDto.setIncludeCertificate(false);
         jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload.toJSONString()));
-        jwtSignatureRequestDto.setIncludeCertHash(true);
+        jwtSignatureRequestDto.setIncludeCertHash(false);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
     }
