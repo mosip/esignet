@@ -18,7 +18,6 @@ import static io.mosip.idp.core.util.ErrorConstants.INVALID_REDIRECT_URI;
 @Data
 public class OAuthDetailRequest {
 
-    @NotNull(message = INVALID_CLIENT_ID)
     @NotBlank(message = INVALID_CLIENT_ID)
     private String clientId;
 

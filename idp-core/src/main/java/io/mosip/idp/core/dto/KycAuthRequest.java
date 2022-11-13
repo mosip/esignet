@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 public class KycAuthRequest {
 
-    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION)
+    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;
 
     @NotBlank(message = ErrorConstants.INVALID_IDENTIFIER)

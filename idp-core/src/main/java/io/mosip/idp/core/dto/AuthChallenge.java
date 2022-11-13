@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.core.dto;
 
+import io.mosip.idp.core.util.ErrorConstants;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -12,9 +13,9 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class AuthChallenge {
 
-    @NotBlank
+    @NotBlank(message = ErrorConstants.INVALID_AUTH_FACTOR_TYPE)
     private String authFactorType;
 
-    @NotBlank
+    @NotBlank(message = ErrorConstants.INVALID_CHALLENGE)
     private String challenge;
 }

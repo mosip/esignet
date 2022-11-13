@@ -275,10 +275,18 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                 String maskedMobile = context.read("$.maskedMobile", String.class);
                 return new SendOtpResult(sendOtpRequest.getTransactionId(), maskedEmailId, maskedMobile);
             }
+
+            log.error("Provided identity is not found {}", sendOtpRequest.getIndividualId());
+            throw new SendOtpException("mock-ida-001");
         } catch (IOException e) {
             log.error("authenticateIndividualWithPin failed {}", filename, e);
         }
         throw new SendOtpException(SEND_OTP_FAILED);
+    }
+
+    @Override
+    public boolean isSupportedOtpChannel(String channel) {
+        return channel != null && ("email".equalsIgnoreCase(channel) || "mobile".equalsIgnoreCase(channel));
     }
 
     @Override
