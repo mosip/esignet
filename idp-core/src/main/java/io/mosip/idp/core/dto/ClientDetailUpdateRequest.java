@@ -25,7 +25,8 @@ public class ClientDetailUpdateRequest {
 
     @NotNull(message = ErrorConstants.INVALID_REDIRECT_URI)
     @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
-    private List<@NotBlank @URL String> redirectUris;
+    private List<@NotBlank(message = ErrorConstants.INVALID_REDIRECT_URI)
+    @URL(message = ErrorConstants.INVALID_REDIRECT_URI) String> redirectUris;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)
     @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)
@@ -33,10 +34,10 @@ public class ClientDetailUpdateRequest {
 
     @NotNull(message = ErrorConstants.INVALID_ACR)
     @Size(message = ErrorConstants.INVALID_ACR, min = 1, max = 30)
-    private List<@NotBlank @AuthContextRef String> authContextRefs;
+    private List<@AuthContextRef String> authContextRefs;
 
-    @NotBlank
-    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$")
+    @NotNull(message = ErrorConstants.INVALID_STATUS)
+    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$", message = ErrorConstants.INVALID_STATUS)
     private String status;
 
     @NotNull(message = ErrorConstants.INVALID_GRANT_TYPE)
