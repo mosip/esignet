@@ -33,7 +33,7 @@ public class ClientDetailCreateRequest {
     private String clientName;
 
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
-    private Map<String, @NotNull Object> publicKey;
+    private Map<String, Object> publicKey;
 
     @NotBlank(message = ErrorConstants.INVALID_RP_ID)
     @Size(max = 50, message = ErrorConstants.INVALID_RP_ID)
@@ -45,7 +45,7 @@ public class ClientDetailCreateRequest {
 
     @NotNull(message = ErrorConstants.INVALID_ACR)
     @Size(message = ErrorConstants.INVALID_ACR, min = 1, max = 30)
-    private List<@NotBlank @AuthContextRef String> authContextRefs;
+    private List<@AuthContextRef String> authContextRefs;
 
     @NotBlank(message = ErrorConstants.INVALID_URI)
     @URL(message = ErrorConstants.INVALID_URI)
@@ -53,7 +53,8 @@ public class ClientDetailCreateRequest {
 
     @NotNull(message = ErrorConstants.INVALID_REDIRECT_URI)
     @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
-    private List<@URL(message = ErrorConstants.INVALID_REDIRECT_URI) String> redirectUris;
+    private List<@NotBlank(message = ErrorConstants.INVALID_REDIRECT_URI)
+                 @URL(message = ErrorConstants.INVALID_REDIRECT_URI) String> redirectUris;
 
     @NotNull(message = ErrorConstants.INVALID_GRANT_TYPE)
     @Size(message = ErrorConstants.INVALID_GRANT_TYPE, min = 1, max=3)

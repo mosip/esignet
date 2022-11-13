@@ -44,4 +44,5 @@ public class ErrorConstants {
     public static final String INVALID_TRANSACTION_ID="invalid_transaction_id";
     public static final String INVALID_AUTH_FACTOR_TYPE="invalid_auth_factor_type";
     public static final String INVALID_CHALLENGE="invalid_challenge";
+    public static final String INVALID_STATUS = "invalid_status";
 }
