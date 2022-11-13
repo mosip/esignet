@@ -352,4 +352,18 @@ public class ValidatorTest {
         ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
         Assert.assertFalse(validator.isValid("mobile", null));
     }
+
+    @Test
+    public void test_OtpChannelValidator_blank() {
+        OtpChannelValidator validator = new OtpChannelValidator();
+        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
+        Assert.assertFalse(validator.isValid("   ", null));
+    }
+
+    @Test
+    public void test_OtpChannelValidator_spaceAppended() {
+        OtpChannelValidator validator = new OtpChannelValidator();
+        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
+        Assert.assertFalse(validator.isValid("   email ", null));
+    }
 }
