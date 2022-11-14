@@ -144,7 +144,7 @@ public class OAuthServiceImpl implements OAuthService {
         JWK jwk = JWK.parseFromPEMEncodedX509Cert(certificate);
         Map<String, Object> map = new HashMap<>();
         map.put(JWK_KEY_ID, keyId);
-        map.put(JWK_KEY_ALG, jwk.getAlgorithm().getName());
+        if(jwk.getAlgorithm() != null) { map.put(JWK_KEY_ALG, jwk.getAlgorithm().getName()); }
         map.put(JWK_KEY_TYPE, jwk.getKeyType().getValue());
         map.put(JWK_KEY_USE, jwk.getKeyUse().getValue());
         map.put(JWK_KEY_EXPIRE, expireAt.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
