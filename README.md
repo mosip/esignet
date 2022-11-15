@@ -17,3 +17,25 @@ IdP repository contains following:
 4. authentication-wrapper
 5. audits
 
+## Databases
+Refer to [SQL scripts](db_scripts).
+
+## Build & run (for developers)
+The project requires JDK 11. 
+1. Build and install:
+    ```
+    $ cd
+    $ mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
+    ```
+1. Build Docker for a service:
+    ```
+    $ cd <service folder>
+    $ docker build -f Dockerfile
+    ```
+
+## APIs
+API documentation is available [here](https://mosip.stoplight.io/docs/identity-provider/branches/main/6f1syzijynu40-identity-provider).
+
+## License
+This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
+
