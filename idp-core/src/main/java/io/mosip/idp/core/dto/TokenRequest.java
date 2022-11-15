@@ -13,7 +13,7 @@ import org.hibernate.validator.constraints.URL;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static io.mosip.idp.core.util.ErrorConstants.INVALID_REQUEST;
+import static io.mosip.idp.core.util.ErrorConstants.*;
 
 @Data
 public class TokenRequest {
@@ -27,23 +27,20 @@ public class TokenRequest {
     /**
      * Authorization code, sent as query param in the client's redirect URI.
      */
-    @NotNull(message = INVALID_REQUEST)
-    @NotBlank(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_AUTH_CODE)
     private String code;
 
     /**
      * Client ID of the OIDC client.
      */
-    @NotNull(message = INVALID_REQUEST)
-    @NotBlank(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_CLIENT_ID)
     private String client_id;
 
     /**
      * Valid client redirect_uri.
      */
-    @NotNull(message = INVALID_REQUEST)
-    @NotBlank(message = INVALID_REQUEST)
-    @URL(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_REDIRECT_URI)
+    @URL(message = INVALID_REDIRECT_URI)
     private String redirect_uri;
 
     /**
@@ -55,8 +52,7 @@ public class TokenRequest {
     /**
      * Private key signed JWT
      */
-    @NotNull(message = INVALID_REQUEST)
-    @NotBlank(message = INVALID_REQUEST)
+    @NotBlank(message = INVALID_ASSERTION)
     private String client_assertion;
 
 }
