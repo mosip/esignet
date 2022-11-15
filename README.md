@@ -6,8 +6,7 @@
 
 ## Overview
 
-This repository contains the source code MOSIP Identity provider service module providing the implementation of Authorization Code flow of OAuth 2.0.
-Supports all the mandatory features of OIDC (Open ID Connect) specification.
+This repository contains the implementation of Authorization Code flow of OAuth 2.0. Supports all the mandatory features of OIDC (Open ID Connect) specification.
 
 IdP repository contains following:
 
