@@ -24,7 +24,7 @@ Refer to [SQL scripts](db_scripts).
 The project requires JDK 11. 
 1. Build and install:
     ```
-    $ mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
+    $ mvn clean install -Dgpg.skip=true
     ```
 1. Build Docker for a service:
     ```
