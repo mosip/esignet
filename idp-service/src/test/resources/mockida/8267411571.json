@@ -1,6 +1,8 @@
 {
 	"pin" : "34789",
 	"introducerBiometrics": "null",
+	"maskedEmailId" : "****sdf@gmsil.com",
+	"maskedMobile" : "****33478",
 	"identity": {
 		"proofOfAddress": {
 			"format": "pdf",

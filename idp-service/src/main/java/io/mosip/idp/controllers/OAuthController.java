@@ -5,12 +5,10 @@
  */
 package io.mosip.idp.controllers;
 
-import com.nimbusds.jose.jwk.JWKSet;
 import io.mosip.idp.core.dto.TokenRequest;
 import io.mosip.idp.core.dto.TokenResponse;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.OAuthService;
-import org.jose4j.jwk.JsonWebKeySet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
