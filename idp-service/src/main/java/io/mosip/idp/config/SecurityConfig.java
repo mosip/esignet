@@ -30,11 +30,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${server.servlet.path}")
     private String servletPath;
 
-    @Value("${mosip.idp.post-req-client-mgmt-scope}")
-    private String postApiClientMgmtScope;
+    @Value("${mosip.idp.clientmgmt.postcreateclient}")
+    private String createClientApiScope;
 
-    @Value("${mosip.idp.put-req-client-mgmt-scope}")
-    private String putApiClientMgmtScope;
+    @Value("${mosip.idp.clientmgmt.putupdateclient}")
+    private String updateClientApiScope;
+
+    @Value("${mosip.idp.systeminfo.getgetcertificate}")
+    private String getCertificateApiScope;
 
     @Value("${mosip.idp.auth-ignore-urls}")
     private String[] authIgnoreUrls;
@@ -47,8 +50,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, servletPath+"/client-mgmt/**").hasAuthority(postApiClientMgmtScope)
-                .antMatchers(HttpMethod.PUT, servletPath+"/client-mgmt/**").hasAuthority(putApiClientMgmtScope)
+                .antMatchers(HttpMethod.POST, servletPath+"/client-mgmt/**").hasAuthority(createClientApiScope)
+                .antMatchers(HttpMethod.PUT, servletPath+"/client-mgmt/**").hasAuthority(updateClientApiScope)
+                .antMatchers(HttpMethod.GET, servletPath+"/certificate-mgmt/**").hasAuthority(getCertificateApiScope)
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt())

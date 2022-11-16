@@ -31,7 +31,6 @@ import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
 import static io.mosip.idp.core.util.Constants.SPACE;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
