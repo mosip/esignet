@@ -52,7 +52,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     @Value("#{${mosip.idp.openid.scope.claims}}")
     private Map<String, List<String>> claims;
 
-    @Value("${mosip.idp.supported.authorize.scopes}")
+    @Value("#{${mosip.idp.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
 
     @Value("#{${mosip.idp.ui.config.key-values}}")
