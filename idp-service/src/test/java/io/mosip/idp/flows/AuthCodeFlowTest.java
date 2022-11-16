@@ -22,6 +22,7 @@ import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.Constants;
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
@@ -100,9 +101,15 @@ public class AuthCodeFlowTest {
     @Value("${mosip.idp.authn.mock.impl.policy-repo}")
     private String policyDir;
     private MockRestServiceServer mockRestServiceServer;
+    private String clientId = "service-oidc-client";
+    private String state = "er345agrR3T";
+    private String nonce = "23424234TY";
+    private String replyingPartyId = "mock-relying-party-id";
+    private String redirectionUrl = "https://service.client.com/home";
+    private JWK clientJWK = TestUtil.generateJWK_RSA();
 
     @Before
-    public void init() throws IOException {
+    public void init() throws Exception {
         mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
         mockRestServiceServer.expect(requestTo(mappingFileUrl))
                 .andRespond(withSuccess("{\n" +
@@ -121,26 +128,21 @@ public class AuthCodeFlowTest {
                         "}",  MediaType.APPLICATION_JSON_UTF8));
 
 
-
+        createOIDCClient(clientId, clientJWK.toPublicJWK(), replyingPartyId);
+        log.info("Successfully create OIDC Client {}", clientId);
     }
 
     @Test
     public void authorizationCodeFlowTest() throws Exception {
-        String clientId = "service-oidc-client";
         String redirectionUrl = "https://service.client.com/home";
-        String state = "er345agrR3T";
-        String nonce = "23424234TY";
         String code = null;
-        String replyingPartyId = "mock-relying-party-id";
-        JWK clientJWK = TestUtil.generateJWK_RSA();
 
-        createOIDCClient(clientId, clientJWK.toPublicJWK(), replyingPartyId);
-        log.info("Successfully create OIDC Client {}", clientId);
-
-        OAuthDetailResponse oAuthDetailResponse = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         log.info("Successfully received oauth details : {}", oAuthDetailResponse);
 
-        AuthResponse authResponse = authenticate(oAuthDetailResponse.getTransactionId());
+        ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
+        AuthResponse authResponse = authResponseResponseWrapper.getResponse();
         log.info("Successfully completed kyc auth : {}", authResponse);
 
         code = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
@@ -157,7 +159,6 @@ public class AuthCodeFlowTest {
         decrypt.setKey(getRelyingPartyPrivateKey(replyingPartyId));
         decrypt.setCompactSerialization(usertoken);
         String payload = decrypt.getPayload();
-
 
         log.info("Successfully fetched user token : {}", payload);
     }
@@ -260,7 +261,7 @@ public class AuthCodeFlowTest {
         return response.getResponse().getCode();
     }
 
-    private AuthResponse authenticate(String transactionId) throws Exception {
+    private ResponseWrapper<AuthResponse> authenticate(String transactionId) throws Exception {
         KycAuthRequest kycAuthRequest = new KycAuthRequest();
         kycAuthRequest.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
@@ -282,10 +283,10 @@ public class AuthCodeFlowTest {
 
         ResponseWrapper<AuthResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
                 new TypeReference<ResponseWrapper<AuthResponse>>() {});
-        return response.getResponse();
+        return response;
     }
 
-    private OAuthDetailResponse getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
+    private ResponseWrapper<OAuthDetailResponse> getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
         oAuthDetailRequest.setClientId(clientId);
         oAuthDetailRequest.setRedirectUri(redirectionUrl);
@@ -316,7 +317,7 @@ public class AuthCodeFlowTest {
 
         ResponseWrapper<OAuthDetailResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
                 new TypeReference<ResponseWrapper<OAuthDetailResponse>>() {});
-        return response.getResponse();
+        return response;
     }
 
     private void createOIDCClient(String clientId, JWK publicJWK, String relyingPartyId) throws Exception {

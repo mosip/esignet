@@ -158,7 +158,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
-        cacheUtilService.setTransaction(kycAuthRequest.getTransactionId(), transaction);
+        cacheUtilService.setAuthenticatedTransaction(kycAuthRequest.getTransactionId(), transaction);
 
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(kycAuthRequest.getTransactionId());
@@ -167,7 +167,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
     @Override
     public IdPTransaction getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(authCodeRequest.getTransactionId());
+        IdPTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
@@ -179,7 +179,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         transaction.setCode(authCode);
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
-        return cacheUtilService.setAuthenticatedTransaction(authCode, authCodeRequest.getTransactionId(), transaction);
+        return cacheUtilService.setConsentedTransaction(authCode, authCodeRequest.getTransactionId(), transaction);
     }
 
     private void validateAcceptedClaims(IdPTransaction transaction, List<String> acceptedClaims) throws IdPException {

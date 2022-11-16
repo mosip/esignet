@@ -36,9 +36,16 @@ public class CacheUtilService {
     }
 
     @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
-    @Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#authCode")
-    public IdPTransaction setAuthenticatedTransaction(String authCode, String transactionId,
+    @Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
+    public IdPTransaction setAuthenticatedTransaction(String transactionId,
                                                          IdPTransaction idPTransaction) {
+        return idPTransaction;
+    }
+
+    @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
+    @Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#authCode")
+    public IdPTransaction setConsentedTransaction(String authCode, String transactionId,
+                                                  IdPTransaction idPTransaction) {
         return idPTransaction;
     }
 
@@ -48,18 +55,18 @@ public class CacheUtilService {
         return idPTransaction;
     }
 
-    public IdPTransaction getPreAuthTransaction(String transactionId) throws IdPException {
+    public IdPTransaction getPreAuthTransaction(String transactionId) {
         if(pre_auth_cache == null)
             pre_auth_cache = cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE);
 
         return pre_auth_cache.get(transactionId, IdPTransaction.class);
     }
 
-    public IdPTransaction getAuthenticatedTransaction(String authCode) {
+    public IdPTransaction getAuthenticatedTransaction(String transactionId) {
         if(authenticate_cache == null)
             authenticate_cache = cacheManager.getCache(Constants.AUTHENTICATED_CACHE);
 
-        return authenticate_cache.get(authCode, IdPTransaction.class);
+        return authenticate_cache.get(transactionId, IdPTransaction.class);
     }
 
     public IdPTransaction getKycTransaction(String accessTokenHash) {
