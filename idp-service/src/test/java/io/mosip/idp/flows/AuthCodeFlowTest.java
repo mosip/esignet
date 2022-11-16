@@ -133,7 +133,7 @@ public class AuthCodeFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_positive() throws Exception {
+    public void authorizationCodeFlowTest() throws Exception {
         String redirectionUrl = "https://service.client.com/home";
         String code = null;
 
