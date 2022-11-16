@@ -250,8 +250,8 @@ public class AuthorizationAPIFlowTest {
         Assert.assertNotNull(authResponseResponseWrapper.getResponse());
         Assert.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
 
-        ResponseWrapper<AuthCodeResponse> responseWrapper = getAuthCode("weerwerwerwe", state, nonce);
-        assertErrorCode(responseWrapper, ErrorConstants.INVALID_TRANSACTION);
+        ResponseWrapper<AuthCodeResponse> responseWrapper = getAuthCodeWithInvalidClaim(oAuthDetailResponse.getTransactionId());
+        assertErrorCode(responseWrapper, ErrorConstants.INVALID_ACCEPTED_CLAIM);
 
         ResponseWrapper<OtpResponse> otpResponseResponseWrapper = sendOtp(authResponseResponseWrapper.getResponse().getTransactionId(),
                 "8267411571");
@@ -263,8 +263,8 @@ public class AuthorizationAPIFlowTest {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
-        ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate("failed-auth");
-        assertErrorCode(authResponseResponseWrapper, ErrorConstants.INVALID_TRANSACTION);
+        ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticateWithInvalidPin(oAuthDetailResponse.getTransactionId());
+        assertErrorCode(authResponseResponseWrapper, ErrorConstants.AUTH_FAILED);
 
         ResponseWrapper<OtpResponse> otpResponseResponseWrapper = sendOtp(oAuthDetailResponse.getTransactionId(),
                 "8267411571");
@@ -273,9 +273,6 @@ public class AuthorizationAPIFlowTest {
         Assert.assertNotNull(otpResponseResponseWrapper.getResponse());
         Assert.assertEquals(oAuthDetailResponse.getTransactionId(), otpResponseResponseWrapper.getResponse().getTransactionId());
     }
-
-
-    //TODO call send-otp after auth and after auth-code APIs
 
     private void assertErrorCode(ResponseWrapper responseWrapper, String expectedErrorCode) {
         Assert.assertNotNull(responseWrapper);
@@ -363,7 +360,6 @@ public class AuthorizationAPIFlowTest {
         wrapper.setRequest(authCodeRequest);
 
         MvcResult result = mockMvc.perform(post("/authorization/auth-code")
-                        .param("nonce", nonce).param("state", state)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())
@@ -371,6 +367,49 @@ public class AuthorizationAPIFlowTest {
 
         ResponseWrapper<AuthCodeResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
                 new TypeReference<ResponseWrapper<AuthCodeResponse>>() {});
+        return response;
+    }
+
+    private ResponseWrapper<AuthCodeResponse> getAuthCodeWithInvalidClaim(String transactionId) throws Exception  {
+        AuthCodeRequest authCodeRequest = new AuthCodeRequest();
+        authCodeRequest.setTransactionId(transactionId);
+        authCodeRequest.setAcceptedClaims(Arrays.asList("email", "name1", "gender"));
+        RequestWrapper<AuthCodeRequest> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(authCodeRequest);
+
+        MvcResult result = mockMvc.perform(post("/authorization/auth-code")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(objectMapper.writeValueAsString(wrapper)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ResponseWrapper<AuthCodeResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<ResponseWrapper<AuthCodeResponse>>() {});
+        return response;
+    }
+
+    private ResponseWrapper<AuthResponse> authenticateWithInvalidPin(String transactionId) throws Exception {
+        KycAuthRequest kycAuthRequest = new KycAuthRequest();
+        kycAuthRequest.setIndividualId("8267411571");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("PIN");
+        authChallenge.setChallenge("1234453");
+        kycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
+        kycAuthRequest.setTransactionId(transactionId);
+
+        RequestWrapper<KycAuthRequest> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(kycAuthRequest);
+
+        MvcResult result = mockMvc.perform(post("/authorization/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .content(objectMapper.writeValueAsString(wrapper)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ResponseWrapper<AuthResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<ResponseWrapper<AuthResponse>>() {});
         return response;
     }
 
