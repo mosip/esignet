@@ -137,6 +137,9 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(transaction == null)
             throw new InvalidTransactionException();
 
+        //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
+        validateProvidedAuthFactors(transaction, kycAuthRequest.getChallengeList());
+
         KycAuthResult kycAuthResult;
         try {
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
@@ -295,5 +298,21 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         oauthDetailResponse.setAuthorizeScopes(Arrays.stream(scopes)
                 .filter( s -> authorizeScopes.contains(s) )
                 .collect(Collectors.toList()));
+    }
+
+    private void validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+        List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
+                transaction.getRequestedClaims().getId_token().get(ACR).getValues());
+        List<String> providedAuthFactors = challengeList.stream()
+                .map(AuthChallenge::getAuthFactorType)
+                .collect(Collectors.toList());
+
+        boolean result = resolvedAuthFactors.stream().anyMatch( acrFactors ->
+                providedAuthFactors.containsAll(acrFactors.stream().map(AuthenticationFactor::getType).collect(Collectors.toList())));
+
+        if(!result) {
+            log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
+            throw new IdPException(AUTH_FACTOR_MISMATCH);
+        }
     }
 }
