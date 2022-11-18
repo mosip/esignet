@@ -126,7 +126,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_InvalidClientId() throws Exception {
+    public void authorizationCodeFlowTest_invalidClientId_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails("invalid-client", redirectionUrl, state, nonce);
         assertErrorCode(oAuthDetailResponseWrapper, ErrorConstants.INVALID_CLIENT_ID);
     }
