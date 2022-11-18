@@ -46,7 +46,7 @@ public class OpenIdConnectControllerTest {
     OpenIdConnectService openIdConnectServiceImpl;
 
     @Test
-    public void getOpenIdConfiguration_pass() throws Exception {
+    public void getOpenIdConfiguration_thenPass() throws Exception {
         when(openIdConnectServiceImpl.getOpenIdConfiguration()).thenReturn(discoveryMap);
 
         mockMvc.perform(get("/oidc/.well-known/openid-configuration")
