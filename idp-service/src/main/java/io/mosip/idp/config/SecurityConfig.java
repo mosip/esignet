@@ -52,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, servletPath+"/client-mgmt/**").hasAuthority(createClientApiScope)
                 .antMatchers(HttpMethod.PUT, servletPath+"/client-mgmt/**").hasAuthority(updateClientApiScope)
-                .antMatchers(HttpMethod.GET, servletPath+"/certificate-mgmt/**").hasAuthority(getCertificateApiScope)
+                .antMatchers(HttpMethod.GET, servletPath+"/system-info/**").hasAuthority(getCertificateApiScope)
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt())
