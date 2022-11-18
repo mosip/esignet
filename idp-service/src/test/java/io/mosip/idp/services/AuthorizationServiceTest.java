@@ -6,9 +6,11 @@
 package io.mosip.idp.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.idp.authwrapper.service.MockAuthenticationService;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
+import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.repository.ClientDetailRepository;
@@ -23,8 +25,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
 import java.util.*;
 
+import static io.mosip.idp.core.spi.TokenService.ACR;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,6 +48,9 @@ public class AuthorizationServiceTest {
     @Mock
     CacheUtilService cacheUtilService;
 
+    @Mock
+    MockAuthenticationService authenticationWrapper;
+
     @InjectMocks
     AuthorizationServiceImpl authorizationServiceImpl;
 
@@ -55,48 +64,8 @@ public class AuthorizationServiceTest {
     Resource mappingFile;
 
 
-    private static final String amr_acr_mapping = "{\n" +
-            "\t\"locales\": {\"en\" :  \"eng\", \"fr\":  \"fra\", \"ar\":  \"ara\" },\n" +
-            "\t\"attributes\" : {\n" +
-            "\t\t\t\"fullName\" : { \"path\": \"$.identity.fullName[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"dateOfBirth\" : { \"path\": \"$.identity.dateOfBirth\"},\n" +
-            "\t\t\t\"gender\" : { \"path\": \"$.identity.gender[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"email\" : { \"path\": \"$.identity.email\"},\n" +
-            "\t\t\t\"phone\" : { \"path\": \"$.identity.phone\"},\n" +
-            "\t\t\t\"addressLine1\" : { \"path\": \"$.identity.addressLine1[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"addressLine2\" : { \"path\": \"$.identity.addressLine2[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"addressLine3\" : { \"path\": \"$.identity.addressLine3[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"province\" : { \"path\": \"$.identity.province[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"region\" : { \"path\": \"$.identity.region[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"postal_code\" : { \"path\": \"$.identity.postalCode\" },\n" +
-            "\t\t\t\"zone\" : { \"path\": \"$.identity.zone[?(@.language=='_LOCALE_')].value\", \"defaultLocale\" : \"en\" },\n" +
-            "\t\t\t\"encodedPhoto\" : { \"path\": \"$.identity.encodedPhoto\"}\n" +
-            "\t},\n" +
-            "\t\"claims\" : {\n" +
-            "\t\t\t\"given_name\" : \"fullName\",\n" +
-            "\t\t\t\"name\" : \"fullName\",\n" +
-            "\t\t\t\"middle_name\" : \"\",\n" +
-            "\t\t\t\"preferred_username\" : \"fullName\",\n" +
-            "\t\t\t\"nickname\" : \"\",\n" +
-            "\t\t\t\"family_name\" : \"\",\n" +
-            "\t\t\t\"gender\" : \"gender\",\n" +
-            "\t\t\t\"birthdate\" : \"dateOfBirth\",\t\t\t\n" +
-            "\t\t\t\"email\" : \"email\",\n" +
-            "\t\t\t\"phone_number\" : \"phone\",\n" +
-            "\t\t\t\"locale\" : \"\",\n" +
-            "\t\t\t\"email_verified\" : \"\",\t\n" +
-            "\t\t\t\"phone_number_verified\" : \"\",\n" +
-            "\t\t\t\"picture\": \"encodedPhoto\",\n" +
-            "\t\t\t\"zoneinfo\" : \"\",\n" +
-            "\t\t\t\"updated_at\" : \"\",\n" +
-            "\t\t\t\"address\" : { \"street_address\" : \"\",  \"locality\" : \"province\", \"region\" : \"region\",\n" +
-            "\t\t\t\t\"postal_code\": \"postalCode\", \"country\" : \"\",\n" +
-            "\t\t\t\t\"formatted\" : [\"addressLine1\", \"addressLine2\", \"addressLine3\"] }\n" +
-            "\t}\t\n" +
-            "}";
-
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
         Map<String, List<String>> claims = new HashMap<>();
         claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
@@ -137,7 +106,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq() throws IdPException {
+    public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws IdPException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -161,7 +130,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withNullClaimsInDbAndValidClaimsInReq() throws IdPException {
+    public void getOauthDetails_withNullClaimsInDbAndValidClaimsInReq_thenPass() throws IdPException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -190,7 +159,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReq() throws Exception {
+    public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -219,7 +188,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withValidClaimsInDbAndInValidClaimsInReq() throws Exception {
+    public void getOauthDetails_withValidClaimsInDbAndInValidClaimsInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -248,7 +217,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withNullAcrInDB() throws Exception {
+    public void getOauthDetails_withNullAcrInDB_thenFail() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -273,7 +242,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withValidAcrInDBAndNullAcrInReq() throws Exception {
+    public void getOauthDetails_withValidAcrInDBAndNullAcrInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -300,7 +269,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withValidAcrInDBAndValidAcrInReq() throws Exception {
+    public void getOauthDetails_withValidAcrInDBAndValidAcrInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -350,7 +319,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withValidAcrInDBAndValidAcrClaimInReq() throws Exception {
+    public void getOauthDetails_withValidAcrInDBAndValidAcrClaimInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -381,7 +350,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReqAndNoOPENIDScope() throws Exception {
+    public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReqAndNoOPENIDScope_thenFail() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -409,4 +378,182 @@ public class AuthorizationServiceTest {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_SCOPE));
         }
     }
+
+    @Test
+    public void authenticate_withInvalidTransaction_thenFail() {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(null);
+
+        KycAuthRequest kycAuthRequest = new KycAuthRequest();
+        kycAuthRequest.setTransactionId(transactionId);
+        try {
+            authorizationServiceImpl.authenticateUser(kycAuthRequest);
+            Assert.fail();
+        } catch (IdPException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
+        }
+    }
+
+    @Test
+    public void authenticate_multipleRegisteredAcrsWithSingleFactor_thenPass() throws IdPException, KycAuthException {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+
+        KycAuthResult kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken("test-kyc-token");
+        kycAuthResult.setPartnerSpecificUserToken("test-psut");
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+
+        KycAuthRequest kycAuthRequest = new KycAuthRequest();
+        kycAuthRequest.setTransactionId(transactionId);
+        kycAuthRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("OTP"));
+        kycAuthRequest.setChallengeList(authChallenges);
+
+        AuthResponse authResponse = authorizationServiceImpl.authenticateUser(kycAuthRequest);
+        Assert.assertNotNull(authResponse);
+        Assert.assertEquals(transactionId, authResponse.getTransactionId());
+    }
+
+    @Test
+    public void authenticate_multipleRegisteredAcrsWithInvalidSingleFactor_thenPass() throws IdPException {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+
+        KycAuthRequest kycAuthRequest = new KycAuthRequest();
+        kycAuthRequest.setTransactionId(transactionId);
+        kycAuthRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("BIO"));
+        kycAuthRequest.setChallengeList(authChallenges);
+
+        try {
+            authorizationServiceImpl.authenticateUser(kycAuthRequest);
+            Assert.fail();
+        } catch (IdPException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+        }
+    }
+
+    @Test
+    public void authenticate_multipleRegisteredAcrsWithMultiFactor_thenPass() throws IdPException, KycAuthException {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:biometrics-generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:biometrics-generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+
+        KycAuthResult kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken("test-kyc-token");
+        kycAuthResult.setPartnerSpecificUserToken("test-psut");
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+
+        KycAuthRequest kycAuthRequest = new KycAuthRequest();
+        kycAuthRequest.setTransactionId(transactionId);
+        kycAuthRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("OTP"));
+        authChallenges.add(getAuthChallengeDto("BIO"));
+        kycAuthRequest.setChallengeList(authChallenges);
+
+        AuthResponse authResponse = authorizationServiceImpl.authenticateUser(kycAuthRequest);
+        Assert.assertNotNull(authResponse);
+        Assert.assertEquals(transactionId, authResponse.getTransactionId());
+    }
+
+    @Test
+    public void authenticate_multipleRegisteredAcrsWithInvalidMultiFactor_thenPass() throws IdPException {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:linked-wallet"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:biometrics-generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:linked-wallet"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:biometrics-generated-code",
+                "mosip:idp:acr:linked-wallet"})).thenReturn(allAuthFactors);
+
+        KycAuthRequest kycAuthRequest = new KycAuthRequest();
+        kycAuthRequest.setTransactionId(transactionId);
+        kycAuthRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("OTP"));
+        authChallenges.add(getAuthChallengeDto("PIN"));
+        kycAuthRequest.setChallengeList(authChallenges);
+
+        try {
+            authorizationServiceImpl.authenticateUser(kycAuthRequest);
+            Assert.fail();
+        } catch (IdPException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+        }
+    }
+
+    private IdPTransaction createIdpTransaction(String[] acrs) {
+        IdPTransaction idPTransaction = new IdPTransaction();
+        Map<String, ClaimDetail> idClaims = new HashMap<>();
+        idClaims.put(ACR, new ClaimDetail(null, acrs, false));
+        Claims requestedClaims = new Claims();
+        requestedClaims.setId_token(idClaims);
+        idPTransaction.setRequestedClaims(requestedClaims);
+        idPTransaction.setClientId("test-client");
+        idPTransaction.setRelyingPartyId("test-rp-client");
+        return idPTransaction;
+    }
+
+    private AuthChallenge getAuthChallengeDto(String type) {
+        AuthChallenge auth = new AuthChallenge();
+        auth.setAuthFactorType(type);
+        auth.setChallenge("111111");
+        return auth;
+    }
+
+
+    private List<AuthenticationFactor> getAuthFactors(String acr) {
+        List<AuthenticationFactor> acrAuthFactors = new ArrayList<>();
+        switch (acr){
+            case "mosip:idp:acr:generated-code":
+                acrAuthFactors.add(new AuthenticationFactor("OTP", 0, null));
+                break;
+            case "mosip:idp:acr:static-code":
+                acrAuthFactors.add(new AuthenticationFactor("PIN", 0, null));
+                break;
+            case "mosip:idp:acr:linked-wallet":
+                acrAuthFactors.add(new AuthenticationFactor("LFA", 0, null));
+                break;
+            case "mosip:idp:acr:biometrics":
+                acrAuthFactors.add(new AuthenticationFactor("BIO", 0, null));
+                break;
+            case "mosip:idp:acr:biometrics-generated-code":
+                acrAuthFactors.add(new AuthenticationFactor("BIO", 0, null));
+                acrAuthFactors.add(new AuthenticationFactor("OTP", 0, null));
+                break;
+            case "mosip:idp:acr:biometrics-static-code":
+                acrAuthFactors.add(new AuthenticationFactor("L1-bio-device", 0, null));
+                acrAuthFactors.add(new AuthenticationFactor("PIN", 0, null));
+                break;
+        }
+        return acrAuthFactors;
+    }
+
+
 }
