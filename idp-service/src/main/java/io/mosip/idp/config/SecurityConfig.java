@@ -30,13 +30,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${server.servlet.path}")
     private String servletPath;
 
-    @Value("${mosip.idp.clientmgmt.postcreateclient}")
+    @Value("${mosip.idp.clientmgmt.create-client}")
     private String createClientApiScope;
 
-    @Value("${mosip.idp.clientmgmt.putupdateclient}")
+    @Value("${mosip.idp.clientmgmt.update-client}")
     private String updateClientApiScope;
 
-    @Value("${mosip.idp.systeminfo.getgetcertificate}")
+    @Value("${mosip.idp.systeminfo.get-certificate}")
     private String getCertificateApiScope;
 
     @Value("${mosip.idp.auth-ignore-urls}")

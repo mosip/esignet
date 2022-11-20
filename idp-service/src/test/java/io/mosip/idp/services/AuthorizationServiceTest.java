@@ -424,7 +424,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticate_multipleRegisteredAcrsWithInvalidSingleFactor_thenPass() throws IdPException {
+    public void authenticate_multipleRegisteredAcrsWithInvalidSingleFactor_thenFail() throws IdPException {
         String transactionId = "test-transaction";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
