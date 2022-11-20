@@ -2,13 +2,13 @@
   "amr" : {
     "PIN" :  [{ "type": "PIN" }],
     "OTP" :  [{ "type": "OTP" }],
-    "local-face-auth" :  [{ "type": "LFA" }],
+    "WFA" :  [{ "type": "WFA" }],
     "L1-bio-device" :  [{ "type": "BIO", "count": 1 }]
   },
   "acr_amr" : {
     "mosip:idp:acr:static-code" : ["PIN"],
     "mosip:idp:acr:generated-code" : ["OTP"],
-    "mosip:idp:acr:linked-wallet" : [ "local-face-auth" ],
+    "mosip:idp:acr:linked-wallet" : [ "WFA" ],
     "mosip:idp:acr:biometrics" : [ "L1-bio-device" ],
     "mosip:idp:acr:biometrics-generated-code" : ["L1-bio-device", "OTP"],
     "mosip:idp:acr:biometrics-static-code" : ["L1-bio-device", "PIN"]

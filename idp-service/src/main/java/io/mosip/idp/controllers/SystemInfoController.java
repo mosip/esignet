@@ -29,7 +29,7 @@ public class SystemInfoController {
     @Autowired
     private KeymanagerService keymanagerService;
 
-    @GetMapping(value = "/getCertificate")
+    @GetMapping(value = "/certificate")
     public ResponseWrapper<KeyPairGenerateResponseDto> getCertificate(
             @RequestParam("applicationId") String applicationId,
             @RequestParam("referenceId") Optional<String> referenceId) {
