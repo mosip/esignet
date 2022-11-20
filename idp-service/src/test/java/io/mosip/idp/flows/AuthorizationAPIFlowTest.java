@@ -113,26 +113,26 @@ public class AuthorizationAPIFlowTest {
                         "  \"amr\" : {\n" +
                         "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
                         "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
-                        "    \"Wallet\" :  [{ \"type\": \"WALLET\" }],\n" +
+                        "    \"WFA\" :  [{ \"type\": \"WFA\" }],\n" +
                         "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
                         "  },\n" +
                         "  \"acr_amr\" : {\n" +
                         "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
                         "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
-                        "    \"mosip:idp:acr:linked-wallet\" : [ \"Wallet\" ],\n" +
+                        "    \"mosip:idp:acr:linked-wallet\" : [ \"WFA\" ],\n" +
                         "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
                         "  }\n" +
                         "}",  MediaType.APPLICATION_JSON_UTF8));
     }
 
     @Test
-    public void authorizationCodeFlowTest_invalidClientId_thenFail() throws Exception {
+    public void invalidClientId_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails("invalid-client", redirectionUrl, state, nonce);
         assertErrorCode(oAuthDetailResponseWrapper, ErrorConstants.INVALID_CLIENT_ID);
     }
 
     @Test
-    public void authorizationCodeFlowTest_authWithInvalidTransactionId_thenFail() throws Exception {
+    public void authWithInvalidTransactionId_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
@@ -156,7 +156,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_callAuthTwiceWithValidTransactionId_thenFail() throws Exception {
+    public void callAuthTwiceWithValidTransactionId_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
@@ -170,7 +170,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_getAuthCodeAfterAuthCall_thenPass() throws Exception {
+    public void getAuthCodeAfterAuthCall_thenPass() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
@@ -191,7 +191,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_getAuthCodeBeforeAuthCall_thenFail() throws Exception {
+    public void getAuthCodeBeforeAuthCall_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         ResponseWrapper<AuthCodeResponse> responseWrapper = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
@@ -199,7 +199,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_sendotpAfterSuccessAuthCall_thenFail() throws Exception {
+    public void sendotpAfterSuccessAuthCall_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
@@ -215,7 +215,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_sendotpAfterSuccessAuthcodeCall_thenFail() throws Exception {
+    public void sendotpAfterSuccessAuthcodeCall_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
@@ -240,7 +240,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_sendotpAfterFailedAuthcodeCall_thenFail() throws Exception {
+    public void sendotpAfterFailedAuthcodeCall_thenFail() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
@@ -259,7 +259,7 @@ public class AuthorizationAPIFlowTest {
     }
 
     @Test
-    public void authorizationCodeFlowTest_sendotpAfterFailedAuthCall_thenPass() throws Exception {
+    public void sendotpAfterFailedAuthCall_thenPass() throws Exception {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
