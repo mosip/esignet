@@ -29,7 +29,7 @@ COMMENT ON TABLE public_key_registry IS 'Contains individualIds and their respec
 
 COMMENT ON COLUMN public_key_registry.individual_id IS 'Individual ID: Unique ID of an individual.';
 COMMENT ON COLUMN public_key_registry.psu_token IS 'PSU Token: Partner Specific User Token.';
-COMMENT ON COLUMN public_key_registry.public_key IS 'Public Key: used for authentication/encryption.';
-COMMENT ON COLUMN public_key_registry.expires_on IS 'Expiry DateTimestamp : Date and Timestamp of the token expiry';
+COMMENT ON COLUMN public_key_registry.public_key IS 'Public Key: Used to validate JWT signature and encrypt Wallet Binding Id.';
+COMMENT ON COLUMN public_key_registry.expires_on IS 'Expiry DateTimestamp : Date and Timestamp of the expiry of the binding entry';
 COMMENT ON COLUMN public_key_registry.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted.';
 -- ddl-end --
