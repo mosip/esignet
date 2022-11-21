@@ -49,22 +49,14 @@ public class TokenServiceImpl implements TokenService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${mosip.idp.transaction-token.expire.seconds:30}")
-    private int preAuthTransactionTokenExpireSeconds;
-
-    @Value("${mosip.idp.id-token.expire.seconds:60}")
+    @Value("${mosip.idp.id-token-expire-seconds:60}")
     private int idTokenExpireSeconds;
 
-    @Value("${mosip.idp.access-token.expire.seconds:60}")
+    @Value("${mosip.idp.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
-
-    @Value("${mosip.idp.client-assertion.expire.seconds:60}")
-    private int clientAssertionExpireSeconds;
 
     @Value("${mosip.idp.discovery.issuer-id}")
     private String issuerId;
-
-
 
     @Value("#{${mosip.idp.openid.scope.claims}}")
     private Map<String, List<String>> claims;
