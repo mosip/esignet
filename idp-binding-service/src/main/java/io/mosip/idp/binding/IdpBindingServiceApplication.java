@@ -1,4 +1,4 @@
-package io.mosip.idp.binding.service;
+package io.mosip.idp.binding;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 
 
 @EnableCaching
-@SpringBootApplication(scanBasePackages = {"io.mosip.idp",
+@SpringBootApplication(scanBasePackages = {"io.mosip.idp.binding",
 		"io.mosip.kernel.crypto",
 		"io.mosip.kernel.keymanager.hsm",
 		"io.mosip.kernel.cryptomanager.util",
