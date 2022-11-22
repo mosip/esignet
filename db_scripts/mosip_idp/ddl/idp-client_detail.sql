@@ -16,10 +16,10 @@
 -- object: client_detail.client_detail | type: TABLE --
 -- DROP TABLE IF EXISTS client_detail.client_detail CASCADE;
 CREATE TABLE client_detail(
-	id character varying(50) NOT NULL,
+	id character varying(100) NOT NULL,
 	name character varying(256) NOT NULL,
-	rp_id character varying(50) NOT NULL,
-	logo_uri character varying(1024) NOT NULL,
+	rp_id character varying(100) NOT NULL,
+	logo_uri character varying(2048) NOT NULL,
 	redirect_uris character varying NOT NULL,
 	claims character varying NOT NULL,
 	acr_values character varying NOT NULL,
@@ -29,7 +29,8 @@ CREATE TABLE client_detail(
 	status character varying(20) NOT NULL,
 	cr_dtimes timestamp NOT NULL,
 	upd_dtimes timestamp,
-	CONSTRAINT pk_client_detail PRIMARY KEY (id)
+	CONSTRAINT pk_clntdtl_id PRIMARY KEY (id),
+	CONSTRAINT uk_clntdtl_key UNIQUE (public_key)
 );
 
 COMMENT ON TABLE client_detail IS 'Contains key alias and  metadata of all the keys used in MOSIP system.';
