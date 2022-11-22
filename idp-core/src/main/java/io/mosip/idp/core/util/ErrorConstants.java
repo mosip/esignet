@@ -47,4 +47,5 @@ public class ErrorConstants {
     public static final String INVALID_STATUS = "invalid_status";
     public static final String INVALID_AUTH_CODE = "invalid_auth_code";
     public static final String AUTH_FACTOR_MISMATCH = "auth_factor_mismatch";
+    public static final String UNSUPPORTED_ID_FORMAT = "unsupported_id_format";
 }

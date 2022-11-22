@@ -167,7 +167,17 @@ public class ClientMgmtControllerParameterizedTest {
                     "rp-id", Arrays.asList("birthdate", "given_name", "gender"),
                     Arrays.asList("mosip:idp:acr:static-code-1"), "https://logo-url/png",
                     Arrays.asList("https://dev.mosip.net/home/**"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null, ErrorConstants.INVALID_ACR }
+                    Arrays.asList("private_key_jwt")), null, null, ErrorConstants.INVALID_ACR },
+            { "ClientId with spaces", new ClientDetailCreateRequest("client id", "client-name", jwk,
+                    "rp-id", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_CLIENT_ID },
+            { "RP-Id with spaces", new ClientDetailCreateRequest("cid#1", "client-name", jwk,
+                    "rp id  1", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_RP_ID }
 
     };
 
