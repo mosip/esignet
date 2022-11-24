@@ -15,7 +15,6 @@ IdP repository contains following:
 3. db_scripts
 4. authentication-wrapper
 
-![Idp service interaction with its components](/docs/IdP-service-basic-flow.png)
 
 ## Databases
 Refer to [SQL scripts](db_scripts).
