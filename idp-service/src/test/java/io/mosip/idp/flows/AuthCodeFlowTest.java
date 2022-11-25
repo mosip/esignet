@@ -64,6 +64,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -171,9 +172,9 @@ public class AuthCodeFlowTest {
 
     private String getUserInfo(String accessToken) throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/oidc/userinfo")
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .accept("application/jwt")
                         .header("Authorization", Constants.BEARER + Constants.SPACE + accessToken))
-                .andExpect(status().isOk()).andReturn();
+                .andExpect(status().isOk()).andExpect(content().contentType("application/jwt;charset=UTF-8")).andReturn();
 
         return result.getResponse().getContentAsString();
     }
