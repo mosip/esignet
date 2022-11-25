@@ -9,13 +9,13 @@ import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.OpenIdConnectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/oidc")
 public class OpenIdConnectController {
 
     @Autowired
@@ -29,13 +29,13 @@ public class OpenIdConnectController {
      * @return
      * @throws IdPException
      */
-    @GetMapping("/userinfo")
+    @RequestMapping(value = "/oidc/userinfo", method = RequestMethod.GET, produces = "application/jwt")
     @CrossOrigin
     public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws IdPException {
         return openIdConnectService.getUserInfo(bearerToken);
     }
-
-    @GetMapping("/.well-known/openid-configuration")
+    
+    @RequestMapping(value = "/oidc/.well-known/openid-configuration", method = RequestMethod.GET)
     public Map<String, Object> getDiscoveryEndpoints() {
         return openIdConnectService.getOpenIdConfiguration();
     }
