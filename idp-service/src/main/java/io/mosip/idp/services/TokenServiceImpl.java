@@ -7,7 +7,7 @@ package io.mosip.idp.services;
 
 import static io.mosip.idp.core.util.Constants.SPACE;
 
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
