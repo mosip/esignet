@@ -9,6 +9,7 @@ public class Constants {
 
     public static final String CLIENT_ACTIVE_STATUS = "ACTIVE";
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    public static final String UTC_DATETIME_PATTERN_WITH_NANO_SECS = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS.nnnnnnnnn";
     public static final String SPACE = " ";
     public static final String COMMA = ",";
     public static final String BEARER = "Bearer";
@@ -18,6 +19,8 @@ public class Constants {
     public static final String AUTHENTICATED_CACHE = "authenticated";
     public static final String KYC_CACHE = "kyc";
     public static final String CLIENT_DETAIL_CACHE = "clientdetails";
+    public static final String LINK_CODE_CACHE = "linkcodes";
+    public static final String LINKED_SESSION_CACHE = "linkedsessions";
 
     public static final String ROOT_KEY = "ROOT";
     public static final String IDP_PARTNER_APP_ID = "IDP_PARTNER";
@@ -35,4 +38,6 @@ public class Constants {
     public static final String JWK_KEY_CERT_CHAIN= "x5c";
     public static final String JWK_KEY_CERT_SHA256_THUMBPRINT = "x5t#S256";
     public static final String JWK_KEY_EXPIRE = "exp";
+    public static final String ESSENTIAL = "essential";
+    public static final String VOLUNTARY = "voluntary";
 }

@@ -10,8 +10,10 @@ import io.mosip.idp.core.dto.OAuthDetailRequest;
 import io.mosip.idp.core.dto.OAuthDetailResponse;
 import io.mosip.idp.core.dto.RequestWrapper;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.spi.LinkAuthorizationService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
+import io.mosip.idp.services.AuthorizationHelperService;
 import io.mosip.idp.services.AuthorizationServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +52,12 @@ public class AuthorizationControllerTest {
 
     @MockBean
     AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
+
+    @MockBean
+    AuthorizationHelperService authorizationHelperService;
+
+    @MockBean
+    LinkAuthorizationService linkAuthorizationService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 

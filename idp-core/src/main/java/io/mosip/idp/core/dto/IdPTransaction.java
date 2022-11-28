@@ -31,7 +31,7 @@ public class IdPTransaction implements Serializable {
     String encryptedKyc;
     String aHash;
 
-    String error;
+    String linkTransactionId;
 
     String nonce;
     String state;
