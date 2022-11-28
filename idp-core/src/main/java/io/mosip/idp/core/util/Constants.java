@@ -23,6 +23,9 @@ public class Constants {
     public static final String IDP_PARTNER_APP_ID = "IDP_PARTNER";
     public static final String IDP_SERVICE_APP_ID = "IDP_SERVICE";
 
+    public static final String IDP_BINDING_PARTNER_APP_ID = "IDP_BINDING_PARTNER";
+    public static final String IDP_BINDING_SERVICE_APP_ID = "IDP_BINDING_SERVICE";
+
     public static final String JWK_MODULUS = "n";
     public static final String JWK_EXPONENT = "e";
     public static final String JWK_KEY_ID = "kid";
