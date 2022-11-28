@@ -150,9 +150,9 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             RequestEntity requestEntity = RequestEntity
                     .post(UriComponentsBuilder.fromUriString(kycAuthUrl).pathSegment(relyingPartyId, clientId).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .header(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody))
+                    .header(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME)
                     .body(requestBody);
-            requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
-            requestEntity.getHeaders().add(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME);
             ResponseEntity<IdaResponseWrapper<IdaKycAuthResponse>> responseEntity = restTemplate.exchange(requestEntity,
                     new ParameterizedTypeReference<IdaResponseWrapper<IdaKycAuthResponse>>() {});
 
@@ -198,9 +198,9 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .post(UriComponentsBuilder.fromUriString(kycExchangeUrl).pathSegment(relyingPartyId,
                             clientId, KYC_EXCHANGE_PATH_NAME).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .header(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody))
+                    .header(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME)
                     .body(requestBody);
-            requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
-            requestEntity.getHeaders().add(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME);
             ResponseEntity<IdaResponseWrapper<IdaKycExchangeResponse>> responseEntity = restTemplate.exchange(requestEntity,
                     new ParameterizedTypeReference<IdaResponseWrapper<IdaKycExchangeResponse>>() {});
 
@@ -239,8 +239,8 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             RequestEntity requestEntity = RequestEntity
                     .post(UriComponentsBuilder.fromUriString(sendOtpUrl).pathSegment(relyingPartyId, clientId).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .header(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody))
                     .body(requestBody);
-            requestEntity.getHeaders().add(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody));
             ResponseEntity<IdaSendOtpResponse> responseEntity = restTemplate.exchange(requestEntity,
                             IdaSendOtpResponse.class);
 
