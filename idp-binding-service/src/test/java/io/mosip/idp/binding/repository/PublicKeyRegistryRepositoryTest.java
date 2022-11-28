@@ -27,7 +27,7 @@ public class PublicKeyRegistryRepositoryTest {
     private PublicKeyRegistryRepository publicKeyRegistryRepository;
 	
 	@Test
-	public void createPublicKeyRegistryWithValidDetail() {
+	public void createPublicKeyRegistry_withValidDetail_thenPass() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIndividualId("2337511530");
 		publicKeyRegistry.setPsuToken("test_token");
@@ -48,7 +48,7 @@ public class PublicKeyRegistryRepositoryTest {
     }
 	
 	@Test
-    public void createPublicKeyRegistryWithBlankIndividualId() {
+    public void createPublicKeyRegistry_withBlankIndividualId_thenFail() {
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
         publicKeyRegistry.setIndividualId("");
 		publicKeyRegistry.setPsuToken("test_token");
@@ -66,7 +66,7 @@ public class PublicKeyRegistryRepositoryTest {
     }
 	
 	@Test
-    public void createPublicKeyRegistryWithBlankPublicKey() {
+    public void createPublicKeyRegistry_withBlankPublicKey_thenFail() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
         publicKeyRegistry.setIndividualId("2337511530");
 		publicKeyRegistry.setPsuToken("test_token");
@@ -84,7 +84,7 @@ public class PublicKeyRegistryRepositoryTest {
     }
 	
 	@Test
-    public void createPublicKeyRegistryWithNullPublicKey() {
+    public void createPublicKeyRegistry_withNullPublicKey_thenFail() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
         publicKeyRegistry.setIndividualId("2337511530");
 		publicKeyRegistry.setPsuToken("test_token");
@@ -102,7 +102,7 @@ public class PublicKeyRegistryRepositoryTest {
     }
 	
 	@Test
-	public void createPublicKeyRegistryWithValidExpiryDate() {
+	public void createPublicKeyRegistry_withValidExpiryDate_thenPass() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIndividualId("2337511530");
 		publicKeyRegistry.setPsuToken("test_token");
@@ -120,7 +120,7 @@ public class PublicKeyRegistryRepositoryTest {
     }
 	
 	@Test
-	public void createPublicKeyRegistryWithInValidExpiryDate() {
+	public void createPublicKeyRegistry_withInValidExpiryDate_thenFail() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIndividualId("2337511530");
 		publicKeyRegistry.setPsuToken("test_token");
