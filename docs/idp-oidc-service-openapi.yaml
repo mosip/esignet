@@ -25,10 +25,10 @@ info:
     UIN - Unique Identification Number</br>
     VID - Virtual Identifier</br>
     PSUT - Partner(Relying Party) Specific User Token</br>
-  
-  
-  
 
+        
+        
+       
   license:
     name: MPL-2.0
     url: 'https://www.mozilla.org/en-US/MPL/2.0/'
@@ -540,7 +540,7 @@ paths:
                         description: |-
                           Auth factors defines the authentication screens displayed in IDP frontend.
                           More than one authFactor may be resolved or combination of authfactors.
-                          Precedence of authFactors is based on its order
+                          Precedence of authFactors is based on its order  
                         type: array
                         items:
                           type: array
@@ -564,6 +564,12 @@ paths:
                       configs:
                         type: object
                         description: UI configuration key-value pairs.
+                      clientName:
+                        type: string
+                        description: Registered OIDC client name.
+                      logoUrl:
+                        type: string
+                        description: Registered OIDC client logo URL.
                     required:
                       - transactionId
                       - authFactors
@@ -583,7 +589,9 @@ paths:
                             - invalid_redirect_uri
                             - invalid_scope
                             - no_acr_registered
-                            - unknown_error
+                            - invalid_response_type
+                            - invalid_display
+                            - invalid_prompt
                         errorMessage:
                           type: string
               examples:
@@ -650,7 +658,7 @@ paths:
                   properties:
                     scope:
                       type: string
-                      description: Secifies what access privileges are being requested for Access Tokens. The scopes associated with Access Tokens determine what resources will be available when they are used to access OAuth 2.0 protected endpoints. OpenID Connect requests MUST contain the openid scope value.
+                      description: Secifies what access privileges are being requested for Access Tokens. The scopes associated with Access Tokens determine what resources will be available when they are used to access OAuth 2.0 protected endpoints. OpenID Connect requests MUST contain the openid scope value. This field can contain multiple scopes with space as seperator. Scope values that are not understood will be ignored.
                     responseType:
                       type: string
                       description: 'Value that determines the authorization processing flow to be used. When using the Authorization Code Flow, this value is code.'
@@ -743,11 +751,12 @@ paths:
                       transactionId:
                         type: string
                         description: oauth-details transactionId is used until the /token call.
-                      messageCode:
+                      maskedEmail:
                         type: string
-                        description: Send OTP status message as returned from IDA servers.
-                    required:
-                      - transactionId
+                        description: Masked email id to which generated OTP was mailed.
+                      maskedMobile:
+                        type: string
+                        description: Masked phone number to which generated OTP was messaged.
                   errors:
                     type: array
                     description: 'List of Errors in case of request validation / processing failure in Idp server. if failure from IDA, the same error is relayed in this response.'
@@ -758,7 +767,11 @@ paths:
                           type: string
                           enum:
                             - invalid_transaction
-                            - invalid_request
+                            - invalid_transaction_id
+                            - invalid_identifier
+                            - invalid_otp_channel
+                            - send_otp_failed
+                            - unknown_error
                         errorMessage:
                           type: string
       description: |-
@@ -787,7 +800,7 @@ paths:
                   required:
                     - transactionId
                     - individualId
-                    - channel
+                    - otpChannels
                   properties:
                     transactionId:
                       type: string
@@ -795,12 +808,16 @@ paths:
                     individualId:
                       type: string
                       description: Actual UIN or VID value of the authenticating enduser.
-                    channel:
+                    otpChannels:
+                      type: array
                       enum:
                         - email
-                        - sms
-                      description: Channel to be used to deliver request OTP.
-                      type: string
+                        - mobile
+                      description: Channel to be used to deliver request OTP. Allowed values completely depends on the integrated authentication server.
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        type: string
               required:
                 - requestTime
                 - request
@@ -839,8 +856,10 @@ paths:
                           type: string
                           enum:
                             - invalid_transaction
+                            - invalid_identifier
+                            - invalid_no_of_challenges
                             - auth_failed
-                            - invalid_request
+                            - unknown_error
                         errorMessage:
                           type: string
       requestBody:
@@ -975,6 +994,8 @@ paths:
                           enum:
                             - invalid_request
                             - invalid_transaction
+                            - invalid_permitted_scope
+                            - invalid_accepted_claim
                         errorMessage:
                           type: string
       tags:
@@ -1050,10 +1071,10 @@ paths:
                       - invalid_transaction
                       - invalid_assertion
                       - invalid_redirect_uri
-                      - invalid_input
                       - unknown_error
-                      - invalid_request
                       - invalid_assertion_type
+                      - invalid_grant_type
+                      - invalid_client_id
                   error_description:
                     type: string
                     description: Optional text providing additional information about the error that occurred.
@@ -1233,7 +1254,7 @@ paths:
       tags:
         - OIDC
     parameters: []
-  /.well-known/openid-configuration:
+  /oidc/.well-known/openid-configuration:
     get:
       summary: Configuration Endpoint
       tags:
@@ -1320,8 +1341,12 @@ paths:
         Open ID Connect dynamic provider discovery is not supported currently, this endpoint is only for facilitating the OIDC provider details in a standard way.
 
         Reference : https://openid.net/specs/openid-connect-discovery-1_0.html
+
+        <b>NOTE: we can access above endpoint as below
+
+        https://idp.dev.mosip.net/.well-known/openid-configuration</b>
     parameters: []
-  /.well-known/jwks.json:
+  /oauth/.well-known/jwks.json:
     get:
       summary: JSON Web Key Set Endpoint
       tags:
@@ -1344,9 +1369,7 @@ paths:
                           description: The certificate's Key ID
                         alg:
                           type: string
-                          description: 'The algorithm used with the Key. Valid value: RS256'
-                          enum:
-                            - RS256
+                          description: The algorithm used with the Key.
                         use:
                           type: string
                           description: 'How the Key is used. Valid value: sig'
@@ -1363,19 +1386,18 @@ paths:
                         'n':
                           type: string
                           description: RSA modulus value
-                        status:
+                        exp:
                           type: string
-                          enum:
-                            - ACTIVE
-                            - EXPIRED
-                            - NEXT
-                          description: |-
-                            ACTIVE Key is used to sign tokens issued by the Idp server.
-                            NEXT Key is the next Key that the IdP Server uses to sign tokens when Keys are rotated. The NEXT Key might not be listed if it hasn't been generated yet.
-                            EXPIRED Key is the previous Key that the IdP Server used to sign tokens. The EXPIRED Key might not be listed if no Key has expired or the expired Key has been deleted.
+                          description: Expire/Rotation datetime of this publickey.
+                          format: date-time
                         x5c:
+                          type: array
+                          description: List of Certificates to validate the Oauth server trust.
+                          items: {}
+                        x5t#S256:
                           type: string
-                          description: Certificate to validate the Oauth server trust.
+                          description: Certificate SHA-256 thumbprint.
+                          items: {}
                       required:
                         - kid
                         - alg
@@ -1383,8 +1405,20 @@ paths:
                         - kty
                         - e
                         - 'n'
+                        - exp
+                        - x5c
+                        - x5t#S256
       operationId: get-certs
-      description: Endpoint to fetch all the public keys of the IdP server.Returns public key set in the JWKS format.
+      description: |-
+        Endpoint to fetch all the public keys of the IdP server.Returns public key set in the JWK format along with expire datetime.
+
+        1. public key used to sign Id-token.
+        2. public key used to sign access-token.
+        3. public key used to sign userinfo(As provided by authentication server).
+
+        <b>NOTE: we can access above endpoint as below
+
+        https://idp.dev.mosip.net/.well-known/jwks.json</b>
     parameters: []
   /introspect:
     get:

@@ -14,7 +14,7 @@ IdP repository contains following:
 2. idp-service
 3. db_scripts
 4. authentication-wrapper
-5. audits
+
 
 ## Databases
 Refer to [SQL scripts](db_scripts).
