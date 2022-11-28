@@ -27,8 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
-import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
-import static io.mosip.idp.core.util.Constants.SPACE;
+import static io.mosip.idp.core.util.Constants.*;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 
@@ -48,14 +47,14 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
-    @Value("#{${mosip.idp.openid.scope.claims}}")
-    private Map<String, List<String>> claims;
-
-    @Value("#{${mosip.idp.supported.authorize.scopes}}")
-    private List<String> authorizeScopes;
+    @Autowired
+    private AuthorizationHelperService authorizationHelperService;
 
     @Value("#{${mosip.idp.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
+
+    @Value("#{${mosip.idp.openid.scope.claims}}")
+    private Map<String, List<String>> claims;
 
 
     @Override
@@ -68,8 +67,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
-        resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(), oauthDetailReqDto.getAcrValues(),
-                oauthDetailReqDto.getClaims()));
+        resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(),
+                oauthDetailReqDto.getAcrValues(), oauthDetailReqDto.getClaims()));
         log.info("Final resolved claims : {}", resolvedClaims);
 
         final String transactionId = IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce());
@@ -78,9 +77,12 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         oauthDetailResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
                resolvedClaims.getId_token().get(ACR).getValues()
         ));
-        setClaimNamesInResponse(resolvedClaims, oauthDetailResponse);
-        setAuthorizeScopes(oauthDetailReqDto.getScope(), oauthDetailResponse);
-        setUIConfigMap(oauthDetailResponse);
+
+        Map<String, List> claimsMap = authorizationHelperService.getClaimNames(resolvedClaims);
+        oauthDetailResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
+        oauthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
+        oauthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
+        oauthDetailResponse.setConfigs(uiConfigMap);
         oauthDetailResponse.setClientName(clientDetailDto.getName());
         oauthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
 
@@ -209,6 +211,22 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new IdPException(INVALID_PERMITTED_SCOPE);
     }
 
+    private void validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+        List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
+                transaction.getRequestedClaims().getId_token().get(ACR).getValues());
+        List<String> providedAuthFactors = challengeList.stream()
+                .map(AuthChallenge::getAuthFactorType)
+                .collect(Collectors.toList());
+
+        boolean result = resolvedAuthFactors.stream().anyMatch( acrFactors ->
+                providedAuthFactors.containsAll(acrFactors.stream().map(AuthenticationFactor::getType).collect(Collectors.toList())));
+
+        if(!result) {
+            log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
+            throw new IdPException(AUTH_FACTOR_MISMATCH);
+        }
+    }
+
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)
             throws IdPException {
         Claims resolvedClaims = new Claims();
@@ -221,7 +239,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         log.info("isRequestedUserInfoClaimsPresent ? {}", isRequestedUserInfoClaimsPresent);
 
         //Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
-        if(isRequestedUserInfoClaimsPresent && !Arrays.stream(requestedScopes).anyMatch( s  -> SCOPE_OPENID.equals(s)))
+        if(isRequestedUserInfoClaimsPresent && !Arrays.stream(requestedScopes).anyMatch(s  -> SCOPE_OPENID.equals(s)))
             throw new IdPException(ErrorConstants.INVALID_SCOPE);
 
         log.info("Started to resolve claims based on the request scope {} and claims {}", requestedScopes, requestedClaims);
@@ -276,43 +294,5 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         log.info("Considering registered acrs as no valid acrs found in acr_values request param: {}", requestedAcr);
         claimDetail.setValues(registeredACRs.toArray(new String[0]));
         return claimDetail;
-    }
-
-    private void setClaimNamesInResponse(Claims resolvedClaims, OAuthDetailResponse oauthDetailResponse) {
-        oauthDetailResponse.setEssentialClaims(new ArrayList<>());
-        oauthDetailResponse.setVoluntaryClaims(new ArrayList<>());
-        for(Map.Entry<String, ClaimDetail> claim : resolvedClaims.getUserinfo().entrySet()) {
-            if(claim.getValue() != null && claim.getValue().isEssential())
-                oauthDetailResponse.getEssentialClaims().add(claim.getKey());
-            else
-                oauthDetailResponse.getVoluntaryClaims().add(claim.getKey());
-        }
-    }
-
-    private void setUIConfigMap(OAuthDetailResponse oauthDetailResponse) {
-        oauthDetailResponse.setConfigs(uiConfigMap);
-    }
-
-    private void setAuthorizeScopes(String requestedScopes, OAuthDetailResponse oauthDetailResponse) {
-        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE);
-        oauthDetailResponse.setAuthorizeScopes(Arrays.stream(scopes)
-                .filter( s -> authorizeScopes.contains(s) )
-                .collect(Collectors.toList()));
-    }
-
-    private void validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
-        List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
-                transaction.getRequestedClaims().getId_token().get(ACR).getValues());
-        List<String> providedAuthFactors = challengeList.stream()
-                .map(AuthChallenge::getAuthFactorType)
-                .collect(Collectors.toList());
-
-        boolean result = resolvedAuthFactors.stream().anyMatch( acrFactors ->
-                providedAuthFactors.containsAll(acrFactors.stream().map(AuthenticationFactor::getType).collect(Collectors.toList())));
-
-        if(!result) {
-            log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
-            throw new IdPException(AUTH_FACTOR_MISMATCH);
-        }
     }
 }

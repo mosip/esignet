@@ -26,8 +26,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN_WITH_NANO_SECS;
 
 @Slf4j
 public class IdentityProviderUtil {
@@ -36,6 +38,7 @@ public class IdentityProviderUtil {
     public static final String ALGO_SHA3_256 = "SHA3-256";
     public static final String ALGO_SHA_256 = "SHA-256";
     public static final String ALGO_MD5 = "MD5";
+    public static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     private static Base64.Encoder urlSafeEncoder;
     private static Base64.Decoder urlSafeDecoder;
@@ -51,6 +54,12 @@ public class IdentityProviderUtil {
         return ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
+    }
+
+    public static String getUTCDateTimeWithNanoSeconds() {
+        return ZonedDateTime
+                .now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN_WITH_NANO_SECS));
     }
 
     public static String[] splitAndTrimValue(String value, String separator) {
@@ -127,18 +136,27 @@ public class IdentityProviderUtil {
         throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 
-    //TODO - Get this verified by sasi & taheer
     public static String createTransactionId(String nonce) throws IdPException {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGO_SHA3_256);
             digest.update(UUID.randomUUID().toString()
-                    .concat(nonce == null ? getUTCDateTime() : nonce)
+                    .concat(nonce == null ? getUTCDateTimeWithNanoSeconds() : nonce)
+                    .concat(generateRandomAlphaNumeric(10))
                     .getBytes(StandardCharsets.UTF_8));
             return urlSafeEncoder.encodeToString(digest.digest());
         } catch (NoSuchAlgorithmException ex) {
             log.error("create transaction id failed with alg SHA3-256", ex);
             throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
         }
+    }
+
+    public static String generateRandomAlphaNumeric(int length) {
+        StringBuilder builder = new StringBuilder();
+        for(int i=0; i<length; i++) {
+            int index = ThreadLocalRandom.current().nextInt(CHARACTERS.length());
+            builder.append(CHARACTERS.charAt(index));
+        }
+        return builder.toString();
     }
 
     private static boolean matchUri(String registeredUri, String requestedUri) {

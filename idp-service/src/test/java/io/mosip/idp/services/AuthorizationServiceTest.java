@@ -63,6 +63,9 @@ public class AuthorizationServiceTest {
     @Mock
     Resource mappingFile;
 
+    @Mock
+    AuthorizationHelperService authorizationHelperService;
+
 
     @Before
     public void setUp() throws IOException {
@@ -72,7 +75,8 @@ public class AuthorizationServiceTest {
         claims.put("email", Arrays.asList("email","email_verified"));
         claims.put("phone", Arrays.asList("phone_number","phone_number_verified"));
         ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "authorizeScopes", Arrays.asList("resident-service"));
+        ReflectionTestUtils.setField(authorizationHelperService, "claims", claims);
+        ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("resident-service"));
     }
 
 
