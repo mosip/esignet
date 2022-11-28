@@ -7,7 +7,7 @@ package io.mosip.idp.core.exception;
 
 import io.mosip.idp.core.util.ErrorConstants;
 
-public class IdPException extends Exception {
+public class IdPException extends RuntimeException {
 
     private String errorCode;
 
