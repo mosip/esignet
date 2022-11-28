@@ -6,7 +6,7 @@
 -- Table Name : public_key_registry
 -- Purpose    : Public Key Registry: Table to store individualId and its respective PSU Token and Public Key.
 --           
--- Create By   	: Anusha S E
+-- Create By   	: Himaja D
 -- Created Date	: Nov-2022
 -- 
 -- Modified Date        Modified By         Comments / Remarks
