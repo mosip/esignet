@@ -16,6 +16,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@RequestMapping("/oidc")
 public class OpenIdConnectController {
 
     @Autowired
@@ -29,13 +30,13 @@ public class OpenIdConnectController {
      * @return
      * @throws IdPException
      */
-    @RequestMapping(value = "/oidc/userinfo", method = RequestMethod.GET, produces = "application/jwt")
+    @GetMapping(value = "/userinfo",produces = "application/jwt")
     @CrossOrigin
     public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws IdPException {
         return openIdConnectService.getUserInfo(bearerToken);
     }
     
-    @RequestMapping(value = "/oidc/.well-known/openid-configuration", method = RequestMethod.GET)
+    @GetMapping("/.well-known/openid-configuration")
     public Map<String, Object> getDiscoveryEndpoints() {
         return openIdConnectService.getOpenIdConfiguration();
     }
