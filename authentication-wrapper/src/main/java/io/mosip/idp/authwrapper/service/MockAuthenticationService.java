@@ -243,9 +243,9 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         jwtSignatureRequestDto.setApplicationId(APPLICATION_ID);
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(true);
-        jwtSignatureRequestDto.setIncludeCertificate(true);
+        jwtSignatureRequestDto.setIncludeCertificate(false);
         jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload));
-        jwtSignatureRequestDto.setIncludeCertHash(true);
+        jwtSignatureRequestDto.setIncludeCertHash(false);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
     }

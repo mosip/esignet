@@ -31,7 +31,6 @@ import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
 import static io.mosip.idp.core.util.Constants.SPACE;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
@@ -137,6 +136,9 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(kycAuthRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
+
+        //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
+        validateProvidedAuthFactors(transaction, kycAuthRequest.getChallengeList());
 
         KycAuthResult kycAuthResult;
         try {
@@ -296,5 +298,21 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         oauthDetailResponse.setAuthorizeScopes(Arrays.stream(scopes)
                 .filter( s -> authorizeScopes.contains(s) )
                 .collect(Collectors.toList()));
+    }
+
+    private void validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+        List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
+                transaction.getRequestedClaims().getId_token().get(ACR).getValues());
+        List<String> providedAuthFactors = challengeList.stream()
+                .map(AuthChallenge::getAuthFactorType)
+                .collect(Collectors.toList());
+
+        boolean result = resolvedAuthFactors.stream().anyMatch( acrFactors ->
+                providedAuthFactors.containsAll(acrFactors.stream().map(AuthenticationFactor::getType).collect(Collectors.toList())));
+
+        if(!result) {
+            log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
+            throw new IdPException(AUTH_FACTOR_MISMATCH);
+        }
     }
 }
