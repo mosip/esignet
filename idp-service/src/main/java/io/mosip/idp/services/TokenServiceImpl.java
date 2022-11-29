@@ -5,6 +5,20 @@
  */
 package io.mosip.idp.services;
 
+import static io.mosip.idp.core.util.Constants.SPACE;
+
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -19,6 +33,7 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
@@ -26,18 +41,13 @@ import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.kernel.signature.dto.*;
+import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
+import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
+import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
+import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-
-import static io.mosip.idp.core.util.Constants.SPACE;
 
 @Slf4j
 @Service
@@ -61,6 +71,10 @@ public class TokenServiceImpl implements TokenService {
     @Value("#{${mosip.idp.openid.scope.claims}}")
     private Map<String, List<String>> claims;
 
+    @Value("#{${mosip.idp.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
+    
+    
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
 
     static {
@@ -111,10 +125,11 @@ public class TokenServiceImpl implements TokenService {
             throw new IdPException(ErrorConstants.INVALID_ASSERTION);
 
         try {
+      
             JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
                     new ImmutableJWKSet(new JWKSet(RSAKey.parse(jwk))));
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                    .audience(issuerId)
+                    .audience(Collections.singletonList((String)discoveryMap.get("token_endpoint")))
                     .issuer(clientId)
                     .subject(clientId)
                     .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
