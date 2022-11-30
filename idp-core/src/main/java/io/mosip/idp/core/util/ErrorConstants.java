@@ -47,4 +47,6 @@ public class ErrorConstants {
     public static final String INVALID_STATUS = "invalid_status";
     public static final String INVALID_AUTH_CODE = "invalid_auth_code";
     public static final String AUTH_FACTOR_MISMATCH = "auth_factor_mismatch";
+    public static final String INVALID_INDIVIDUAL_ID="invalid_individual_id";
+    public static final String JSON_PROCESSING_ERROR="json_processing_error";
 }
