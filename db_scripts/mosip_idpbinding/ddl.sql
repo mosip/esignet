@@ -1,5 +1,6 @@
 \c mosip_idpbinding
 
+\ir ddl/idpbinding-id_token_mapping.sql
 \ir ddl/idpbinding-public_key_registry.sql
 \ir ddl/idpbinding-key_alias.sql
 \ir ddl/idpbinding-key_policy_def.sql
