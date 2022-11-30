@@ -5,8 +5,6 @@
  */
 package io.mosip.idp.binding.entity;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -20,25 +18,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class PublicKeyRegistry {
-	
+public class IdTokenMapping {
+
 	@Id
+	@NotBlank
+	@Column(name = "id_hash")
+	private String idHash;
+
 	@NotBlank
 	@Column(name = "psu_token")
 	private String psuToken;
-	
-	@NotBlank
-	@Column(name = "public_key")
-	private String publicKey;
-	
-	@Column(name = "expires_on")
-	private LocalDateTime expiresOn;
-	
-	@NotBlank
-	@Column(name = "wallet_binding_id")
-	private String walletBindingId;
-
-	@Column(name = "cr_dtimes")
-    private LocalDateTime createdtimes;
 
 }
