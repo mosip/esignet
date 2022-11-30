@@ -64,7 +64,7 @@ public class AppConfig implements ApplicationRunner {
         keymanagerService.generateMasterKey(objectType, rootKeyRequest);
         log.info("===================== IDP_BINDING_SERVICE MASTER KEY CHECK ========================");
         KeyPairGenerateRequestDto masterKeyRequest = new KeyPairGenerateRequestDto();
-        masterKeyRequest.setApplicationId(Constants.IDP_BINDING_PARTNER_APP_ID);
+        masterKeyRequest.setApplicationId(Constants.IDP_BINDING_SERVICE_APP_ID);
         keymanagerService.generateMasterKey(objectType, masterKeyRequest);
         log.info("===================== IDP_BINDING_PARTNER MASTER KEY CHECK ========================");
         KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
