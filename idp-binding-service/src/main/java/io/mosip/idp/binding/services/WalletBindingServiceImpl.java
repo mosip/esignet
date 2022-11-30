@@ -8,9 +8,6 @@ package io.mosip.idp.binding.services;
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.idp.core.util.ErrorConstants.AUTH_FAILED;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -19,14 +16,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.lang.JoseException;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,9 +29,6 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
-import com.nimbusds.jose.jwk.RSAKey;
 
 import io.mosip.idp.binding.dto.BindingTransaction;
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
@@ -90,13 +82,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
     @Value("${mosip.idp.binding.issuer-id}")
     private String issuerId;
 
-    
-    private static Map<String, RSAKey> relyingPartyPublicKeys;
-    
-    private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
- 
-	
-	@Override
+    @Override
 	public void sendBindingOtp() throws IdPException {
 		// TODO Auto-generated method stub
 		
@@ -104,7 +90,8 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 
 	@Override
 	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest) throws IdPException {
-		BindingTransaction bindingTransaction=cacheUtilService.getTransaction(walletBindingRequest.getTransactionId());
+		BindingTransaction bindingTransaction = cacheUtilService
+				.getTransaction(walletBindingRequest.getTransactionId());
 		 if(bindingTransaction == null)
 	            throw new InvalidTransactionException();
 		 
@@ -117,7 +104,6 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		 KycAuthResult kycAuthResult= authenticateIndividual(bindingTransaction,walletBindingRequest);
 		 
 		 PublicKeyRegistry publicKeyRegistry= savePublicKeyRegistry(walletBindingRequest,kycAuthResult.getPartnerSpecificUserToken());		 
-		// TODO Generate Wallet-Binding-Id = SHA-256-hash(psut+salt)
 		 byte[] salt=IdentityProviderUtil.generateSalt(16);
 		 String  walletBindingId=IdentityProviderUtil.digestAsPlainTextWithSalt(kycAuthResult.getPartnerSpecificUserToken().getBytes(), salt);
 		 WalletBindingResponse walletBindingResponse=new WalletBindingResponse();
@@ -145,14 +131,14 @@ public class WalletBindingServiceImpl implements WalletBindingService {
     }
 	private PublicKeyRegistry savePublicKeyRegistry(WalletBindingRequest walletBindingRequest, String partnerSpecificUserToken) throws IdPException {
 		
-		     PublicKeyRegistry publicKeyRegistry=new PublicKeyRegistry();
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		     String publicKey=getJWKString(walletBindingRequest.getPublicKey());
 			 publicKeyRegistry.setIndividualId(walletBindingRequest.getIndividualId());
 			 publicKeyRegistry.setPsuToken(partnerSpecificUserToken);
 			 publicKeyRegistry.setPublicKey(publicKey);
 			 publicKeyRegistry.setExpiresOn(calculateExpiresOn());
 			 publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
-		
+			 publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
 		return publicKeyRegistry;
 	}
 
