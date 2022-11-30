@@ -9,7 +9,7 @@ import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.dto.Error;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.AuthorizationService;
-import io.mosip.idp.core.spi.LinkAuthorizationService;
+import io.mosip.idp.core.spi.LinkedAuthorizationService;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class AuthorizationController {
     AuthorizationService authorizationService;
 
     @Autowired
-    LinkAuthorizationService linkAuthorizationService;
+    LinkedAuthorizationService linkAuthorizationService;
 
     @Autowired
     MessageSource messageSource;
@@ -95,19 +95,10 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
-    @PostMapping("/link-transaction")
-    public ResponseWrapper<LinkTransactionResponse> linkTransaction(@Valid @RequestBody RequestWrapper<LinkTransactionRequest>
-                                                                            requestWrapper) throws IdPException {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkAuthorizationService.linkTransaction(requestWrapper.getRequest()));
-        return responseWrapper;
-    }
-
     @PostMapping("/link-status")
     public DeferredResult<ResponseWrapper<LinkStatusResponse>> getLinkStatus(@Valid @RequestBody RequestWrapper<LinkStatusRequest>
                                                                       requestWrapper) throws IdPException {
-        DeferredResult deferredResult = new DeferredResult<>(linkStatusDeferredResponseTimeout);
+        DeferredResult deferredResult = new DeferredResult<>(linkStatusDeferredResponseTimeout*1000);
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         linkAuthorizationService.getLinkStatus(deferredResult, requestWrapper.getRequest());
@@ -117,7 +108,7 @@ public class AuthorizationController {
     @PostMapping("/link-auth-code")
     public DeferredResult<ResponseWrapper<LinkAuthCodeResponse>> getAuthCodeStatus(@Valid @RequestBody RequestWrapper<LinkAuthCodeRequest>
                                                                       requestWrapper) throws IdPException {
-        DeferredResult deferredResult = new DeferredResult<>(linkAuthCodeDeferredResponseTimeout);
+        DeferredResult deferredResult = new DeferredResult<>(linkAuthCodeDeferredResponseTimeout*1000);
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         linkAuthorizationService.getLinkAuthCodeStatus(deferredResult, requestWrapper.getRequest());
@@ -133,7 +124,7 @@ public class AuthorizationController {
                 responseWrapper.setErrors(new ArrayList<>());
                 responseWrapper.getErrors().add(new Error(ErrorConstants.RESPONSE_TIMEOUT,
                         messageSource.getMessage(ErrorConstants.RESPONSE_TIMEOUT, null, Locale.getDefault())));
-                deferredResult.setResult(responseWrapper);
+                deferredResult.setErrorResult(responseWrapper);
             }
         });
     }
