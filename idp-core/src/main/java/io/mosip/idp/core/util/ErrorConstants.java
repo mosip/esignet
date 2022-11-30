@@ -54,8 +54,9 @@ public class ErrorConstants {
     public static final String LINK_CODE_GEN_FAILED = "link_code_gen_failed";
     public static final String INVALID_LINK_CODE = "invalid_link_code";
     public static final String TRANSACTION_NOT_FOUND = "transaction_not_found";
-    public static final String TRANSACTION_ALREADY_LINKED = "transaction_already_linked";
     public static final String SUBSCRIBE_FAILED = "subscription_failed";
     public static final String RESPONSE_TIMEOUT = "response_timeout";
+    public static final String INVALID_STATE = "invalid_state";
+
 
 }

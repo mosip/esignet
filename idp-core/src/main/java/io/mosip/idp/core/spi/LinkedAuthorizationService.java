@@ -9,7 +9,7 @@ import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
 import org.springframework.web.context.request.async.DeferredResult;
 
-public interface LinkAuthorizationService {
+public interface LinkedAuthorizationService {
 
     /**
      * Validates the provided transactionId and generates a link-code with a ttl.
@@ -24,20 +24,41 @@ public interface LinkAuthorizationService {
      * @param linkTransactionRequest
      * @return
      */
-    LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws IdPException;;
+    LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws IdPException;
 
     /**
      * Returns the status of linked-transaction if any.
      * @param linkStatusRequest
      * @return
      */
-    void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException;;
+    void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException;
 
     /**
      * Returns the authentication and consent status of the linked-transaction.
      * @param linkAuthCodeRequest
      * @return
      */
-    void getLinkAuthCodeStatus(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException;;
+    void getLinkAuthCodeStatus(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException;
+
+    /**
+     * Request from IDP UI to send OTP to provided individual ID and OTP channel
+     * @param otpRequest
+     * @return
+     */
+    OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException;
+
+    /**
+     * Authentication request for the required auth-factors
+     * @param linkedKycAuthRequest
+     * @return
+     */
+    LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws IdPException;
+
+    /**
+     * Accepted claims are verified and KYC exchange is performed
+     * Redirects to requested redirect_uri
+     * @param linkedConsentRequest
+     */
+    LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws IdPException;
 
 }
