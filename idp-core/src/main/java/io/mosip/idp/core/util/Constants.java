@@ -11,14 +11,15 @@ public class Constants {
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public static final String UTC_DATETIME_PATTERN_WITH_NANO_SECS = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS.nnnnnnnnn";
     public static final String SPACE = " ";
-    public static final String COMMA = ",";
     public static final String BEARER = "Bearer";
     public static final String SCOPE_OPENID= "openid";
 
     public static final String PRE_AUTH_SESSION_CACHE = "preauthsessions";
     public static final String AUTHENTICATED_CACHE = "authenticated";
+    public static final String CONSENTED_CACHE = "consented";
     public static final String KYC_CACHE = "kyc";
     public static final String CLIENT_DETAIL_CACHE = "clientdetails";
+    public static final String LINKED_AUTH_CACHE = "linkedauth";
     public static final String LINK_CODE_CACHE = "linkcodes";
     public static final String LINKED_SESSION_CACHE = "linkedsessions";
 

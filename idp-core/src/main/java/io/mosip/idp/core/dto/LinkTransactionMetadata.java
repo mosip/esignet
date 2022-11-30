@@ -5,11 +5,13 @@
  */
 package io.mosip.idp.core.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class LinkStatusResponse {
+@AllArgsConstructor
+public class LinkTransactionMetadata {
 
     private String transactionId;
-    private String linkStatus;
+    private String linkedTransactionId;
 }
