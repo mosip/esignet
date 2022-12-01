@@ -9,7 +9,7 @@ import io.mosip.idp.core.util.ErrorConstants;
 
 public class InvalidIndividualIdException extends IdPException {
 
-    public InvalidIndividualIdException() {
-        super(ErrorConstants.INVALID_INDIVIDUAL_ID);
-    }
+	public InvalidIndividualIdException() {
+		super(ErrorConstants.INVALID_INDIVIDUAL_ID);
+	}
 }
