@@ -12,5 +12,5 @@ public class WalletBindingResponse {
 
 	private String transactionId;
     private String encryptedWalletBindingToken;
-    private String expireEpoch;
+    private String expireDateTime;
 }
