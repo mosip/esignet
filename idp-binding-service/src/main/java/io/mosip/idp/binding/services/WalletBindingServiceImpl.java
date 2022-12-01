@@ -107,7 +107,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		if (!bindingTransaction.getIndividualId().equals(walletBindingRequest.getIndividualId()))
 			throw new InvalidIndividualIdException();
 
-		if (!walletBindingRequest.getAuthChallenge().getAuthFactorType().equalsIgnoreCase(Constants.OTP))
+		if (!walletBindingRequest.getAuthChallenge().equals(walletBindingRequest.getAuthChallenge()))
 			throw new InvalidAuthFactorTypeException();
 
 		KycAuthResult kycAuthResult = authenticateIndividual(bindingTransaction, walletBindingRequest);

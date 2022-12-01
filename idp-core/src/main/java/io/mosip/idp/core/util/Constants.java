@@ -35,6 +35,4 @@ public class Constants {
     public static final String JWK_KEY_CERT_CHAIN= "x5c";
     public static final String JWK_KEY_CERT_SHA256_THUMBPRINT = "x5t#S256";
     public static final String JWK_KEY_EXPIRE = "exp";
-    public static final String OTP = "otp";
-    
 }
