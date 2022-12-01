@@ -18,8 +18,7 @@
 CREATE TABLE id_token_mapping (
 	id_hash character varying(50) NOT NULL,
 	psu_token character varying(256) NOT NULL,
-	CONSTRAINT pk_id_token_mapping PRIMARY KEY (id_hash),
-	CONSTRAINT uk_id_token_mapping UNIQUE (psu_token)
+	CONSTRAINT pk_id_token_mapping PRIMARY KEY (id_hash)
 );
 
 COMMENT ON TABLE id_token_mapping IS 'Contains Id hash and their respective PSU Tokens.';
