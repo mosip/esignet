@@ -123,7 +123,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		WalletBindingResponse walletBindingResponse = new WalletBindingResponse();
 		walletBindingResponse.setTransactionId(walletBindingRequest.getTransactionId());
 		walletBindingResponse.setExpireEpoch(
-				publicKeyRegistry.getExpiresOn().format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+				publicKeyRegistry.getExpiredtimes().format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
 		// TODO need to call Keymanager publickey-JWE encryption
 		walletBindingResponse.setEncryptedWalletBindingToken(
 				getEncryptedWalletBindingId(walletBindingRequest, publicKeyRegistry, walletBindingId));
@@ -155,7 +155,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		String publicKey = getJWKString(walletBindingRequest.getPublicKey());
 		publicKeyRegistry.setPsuToken(partnerSpecificUserToken);
 		publicKeyRegistry.setPublicKey(publicKey);
-		publicKeyRegistry.setExpiresOn(calculateExpiresOn());
+		publicKeyRegistry.setExpiredtimes(calculateExpiresOn());
 		publicKeyRegistry.setWalletBindingId(walletBindingId);
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
 		publicKeyRegistry = publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
@@ -228,7 +228,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		Map<String, Object> walletBindingIdMap = new HashMap<String, Object>();
 		walletBindingIdMap.put("sub", walletBindingId);
 		walletBindingIdMap.put("iss", issuerId);
-		walletBindingIdMap.put("exp", publicKeyRegistry.getExpiresOn().toEpochSecond(ZoneOffset.UTC));
+		walletBindingIdMap.put("exp", publicKeyRegistry.getExpiredtimes().toEpochSecond(ZoneOffset.UTC));
 		walletBindingIdMap.put("iat", IdentityProviderUtil.getEpochSeconds());
 		walletBindingIdMap.put("aud", walletBindingRequest.getIndividualId());
 		try {
