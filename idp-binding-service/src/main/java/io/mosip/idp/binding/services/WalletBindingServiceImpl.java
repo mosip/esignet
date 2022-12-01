@@ -158,13 +158,13 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		publicKeyRegistry.setExpiredtimes(calculateExpiresOn());
 		publicKeyRegistry.setWalletBindingId(walletBindingId);
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
-		publicKeyRegistry = publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
+		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		log.info("Saved PublicKeyRegistry details successfully");
 		IdTokenMapping idTokenMapping = new IdTokenMapping();
 		idTokenMapping.setIdHash(
 				IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, walletBindingRequest.getIndividualId()));
 		idTokenMapping.setPsuToken(partnerSpecificUserToken);
-		idTokenMapping = idTokenMappingRepository.saveAndFlush(idTokenMapping);
+		idTokenMapping = idTokenMappingRepository.save(idTokenMapping);
 		log.info("Saved IdTokenMapping details successfully");
 		return publicKeyRegistry;
 	}
