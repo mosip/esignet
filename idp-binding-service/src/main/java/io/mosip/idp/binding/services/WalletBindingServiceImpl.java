@@ -9,6 +9,8 @@ package io.mosip.idp.binding.services;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.idp.core.util.ErrorConstants.AUTH_FAILED;
+import static io.mosip.idp.core.util.ErrorConstants.INVALID_AUTH_CHALLENGE;
+import static io.mosip.idp.core.util.ErrorConstants.INVALID_INDIVIDUAL_ID;
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_PUBLIC_KEY;
 import static io.mosip.idp.core.util.ErrorConstants.JSON_PROCESSING_ERROR;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA_256;
@@ -46,8 +48,6 @@ import io.mosip.idp.core.dto.KycAuthResult;
 import io.mosip.idp.core.dto.WalletBindingRequest;
 import io.mosip.idp.core.dto.WalletBindingResponse;
 import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.exception.InvalidAuthFactorTypeException;
-import io.mosip.idp.core.exception.InvalidIndividualIdException;
 import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
@@ -75,8 +75,10 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 	@Autowired
 	private IdTokenMappingRepository idTokenMappingRepository;
 
+	@Autowired
 	private SignatureService signatureService;
 
+	@Autowired
 	private ObjectMapper objectMapper;
 
 	@Value("${mosip.idp.binding.auth-partner-id}")
@@ -86,10 +88,13 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 	private String apiKey;
 
 	@Value("${mosip.idp.binding.public-key-expire-days}")
-	private long expireDays;
+	private int expireDays;
 
 	@Value("${mosip.idp.binding.issuer-id}")
 	private String issuerId;
+
+	@Value("${mosip.idp.binding.salt-length}")
+	private int saltLength;
 
 	@Override
 	public void sendBindingOtp() throws IdPException {
@@ -105,14 +110,19 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 			throw new InvalidTransactionException();
 
 		if (!bindingTransaction.getIndividualId().equals(walletBindingRequest.getIndividualId()))
-			throw new InvalidIndividualIdException();
+			throw new IdPException(INVALID_INDIVIDUAL_ID);
 
-		if (!walletBindingRequest.getAuthChallenge().equals(walletBindingRequest.getAuthChallenge()))
-			throw new InvalidAuthFactorTypeException();
+		if (!bindingTransaction.getAuthChallengeType()
+				.equals(walletBindingRequest.getAuthChallenge().getAuthFactorType()))
+			throw new IdPException(INVALID_AUTH_CHALLENGE);
+
+		log.info("Wallet Binding Request validated and sent for authentication");
 
 		KycAuthResult kycAuthResult = authenticateIndividual(bindingTransaction, walletBindingRequest);
 
-		byte[] salt = IdentityProviderUtil.generateSalt(16);
+		log.info("Wallet Binding Request authentication is successful");
+
+		byte[] salt = IdentityProviderUtil.generateSalt(saltLength);
 
 		String walletBindingId = IdentityProviderUtil
 				.digestAsPlainTextWithSalt(kycAuthResult.getPartnerSpecificUserToken().getBytes(), salt);
@@ -122,7 +132,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 
 		WalletBindingResponse walletBindingResponse = new WalletBindingResponse();
 		walletBindingResponse.setTransactionId(walletBindingRequest.getTransactionId());
-		walletBindingResponse.setExpireEpoch(
+		walletBindingResponse.setExpireDateTime(
 				publicKeyRegistry.getExpiredtimes().format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
 		// TODO need to call Keymanager publickey-JWE encryption
 		walletBindingResponse.setEncryptedWalletBindingToken(
@@ -138,33 +148,24 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 
 	}
 
-	private String getJWKString(Map<String, Object> jwk) throws IdPException {
-		try {
-			RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
-			return jsonWebKey.toJson();
-		} catch (JoseException e) {
-			log.error(INVALID_PUBLIC_KEY, e);
-			throw new IdPException(INVALID_PUBLIC_KEY);
-		}
-	}
-
 	private PublicKeyRegistry storeData(WalletBindingRequest walletBindingRequest,
 			String partnerSpecificUserToken, String walletBindingId) throws IdPException {
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		String publicKey = getJWKString(walletBindingRequest.getPublicKey());
+		String publicKey = IdentityProviderUtil.getJWKString(walletBindingRequest.getPublicKey());
 		publicKeyRegistry.setPsuToken(partnerSpecificUserToken);
 		publicKeyRegistry.setPublicKey(publicKey);
 		publicKeyRegistry.setExpiredtimes(calculateExpiresOn());
 		publicKeyRegistry.setWalletBindingId(walletBindingId);
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
 		publicKeyRegistry = publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
-		
+		log.info("Saved PublicKeyRegistry details successfully");
 		IdTokenMapping idTokenMapping = new IdTokenMapping();
 		idTokenMapping.setIdHash(
 				IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, walletBindingRequest.getIndividualId()));
 		idTokenMapping.setPsuToken(partnerSpecificUserToken);
 		idTokenMapping = idTokenMappingRepository.saveAndFlush(idTokenMapping);
+		log.info("Saved IdTokenMapping details successfully");
 		return publicKeyRegistry;
 	}
 
@@ -198,7 +199,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 
 		String payload = objectMapper.writeValueAsString(walletBindingIdMap);
 		JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-		jwtSignatureRequestDto.setApplicationId(Constants.IDP_BINDING_SERVICE_APP_ID);
+		jwtSignatureRequestDto.setApplicationId(Constants.IDP_BINDING_PARTNER_APP_ID);
 		jwtSignatureRequestDto.setReferenceId("");
 		jwtSignatureRequestDto.setIncludePayload(true);
 		jwtSignatureRequestDto.setIncludeCertificate(false);
@@ -208,11 +209,11 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		return responseDto.getJwtSignedData();
 	}
 
-	private String getJWE(Map<String, Object> publicKey, String signWalletBindingId) throws JoseException {
+	private String getJWE(Map<String, Object> publicKey, String signedWalletBindingId) throws JoseException {
 		JsonWebEncryption jsonWebEncryption = new JsonWebEncryption();
 		jsonWebEncryption.setAlgorithmHeaderValue(KeyManagementAlgorithmIdentifiers.RSA_OAEP_256);
 		jsonWebEncryption.setEncryptionMethodHeaderParameter(ContentEncryptionAlgorithmIdentifiers.AES_256_GCM);
-		jsonWebEncryption.setPayload(signWalletBindingId);
+		jsonWebEncryption.setPayload(signedWalletBindingId);
 		jsonWebEncryption.setContentTypeHeaderValue("JWT");
 		RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(publicKey);
 		jsonWebEncryption.setKey(jsonWebKey.getKey());

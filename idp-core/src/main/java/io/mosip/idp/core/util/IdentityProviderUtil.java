@@ -6,6 +6,7 @@
 package io.mosip.idp.core.util;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import static io.mosip.idp.core.util.ErrorConstants.INVALID_PUBLIC_KEY;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,9 +20,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.codec.binary.Hex;
+import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
@@ -177,4 +181,13 @@ public class IdentityProviderUtil {
 		return b64Encode(messageDigest.digest());
 	}
 
+	public static String getJWKString(Map<String, Object> jwk) throws IdPException {
+		try {
+			RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
+			return jsonWebKey.toJson();
+		} catch (JoseException e) {
+			log.error(INVALID_PUBLIC_KEY, e);
+			throw new IdPException(INVALID_PUBLIC_KEY);
+		}
+	}
 }

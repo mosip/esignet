@@ -10,8 +10,6 @@ import java.util.Map;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 
 import io.mosip.idp.core.util.ErrorConstants;
 import lombok.AllArgsConstructor;
@@ -29,7 +27,7 @@ public class WalletBindingRequest {
     @NotBlank(message = ErrorConstants.INVALID_IDENTIFIER)
     private String individualId;
 
-
+	@NotBlank(message = ErrorConstants.INVALID_AUTH_CHALLENGE)
     private AuthChallenge authChallenge;
     
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
