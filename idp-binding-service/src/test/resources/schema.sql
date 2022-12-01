@@ -1,7 +1,7 @@
 CREATE TABLE public_key_registry(
 	psu_token character varying(256) NOT NULL,
 	public_key character varying(50) NOT NULL,
-	expires_on timestamp NOT NULL,
+	expire_dtimes timestamp NOT NULL,
 	wallet_binding_id character varying(256) NOT NULL,
 	cr_dtimes timestamp NOT NULL,
 	CONSTRAINT pk_public_key_registry PRIMARY KEY (psu_token),
@@ -10,6 +10,5 @@ CREATE TABLE public_key_registry(
 CREATE TABLE id_token_mapping (
 	id_hash character varying(50) NOT NULL,
 	psu_token character varying(256) NOT NULL,
-	CONSTRAINT pk_id_token_mapping PRIMARY KEY (id_hash),
-	CONSTRAINT uk_id_token_mapping UNIQUE (psu_token)
+	CONSTRAINT pk_id_token_mapping PRIMARY KEY (id_hash)
 );

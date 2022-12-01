@@ -29,6 +29,6 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	 * @param currentDate
 	 * @return
 	 */
-	PublicKeyRegistry findByPsuTokenAndExpiresOnGreaterThan(String psuToken, LocalDateTime currentDate);
+	PublicKeyRegistry findByPsuTokenAndExpiredtimesGreaterThan(String psuToken, LocalDateTime currentDate);
 
 }
