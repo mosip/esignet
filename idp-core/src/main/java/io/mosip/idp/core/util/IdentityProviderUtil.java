@@ -39,11 +39,6 @@ public class IdentityProviderUtil {
     public static final String ALGO_SHA3_256 = "SHA3-256";
     public static final String ALGO_SHA_256 = "SHA-256";
     public static final String ALGO_MD5 = "MD5";
- // lookup array for converting byte to hex
- 	private static final char[] LOOKUP_TABLE_LOWER = new char[] { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
- 			0x39, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66 };
- 	private static final char[] LOOKUP_TABLE_UPPER = new char[] { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
- 			0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46 };
 
     private static Base64.Encoder urlSafeEncoder;
     private static Base64.Decoder urlSafeDecoder;
@@ -162,15 +157,14 @@ public class IdentityProviderUtil {
         return false;
     }
     
-    public static byte[] generateSalt(int bytes) {
+	public static byte[] generateSalt(int bytes) {
 		SecureRandom random = new SecureRandom();
 		byte[] randomBytes = new byte[bytes];
 		random.nextBytes(randomBytes);
 		return randomBytes;
 	}
-	
-	public static String digestAsPlainTextWithSalt(final byte[] password, final byte[] salt) throws IdPException
-			 {
+
+	public static String digestAsPlainTextWithSalt(final byte[] password, final byte[] salt) throws IdPException {
 		MessageDigest messageDigest = null;
 		try {
 			messageDigest = MessageDigest.getInstance(ALGO_SHA_256);
@@ -179,7 +173,7 @@ public class IdentityProviderUtil {
 		} catch (NoSuchAlgorithmException e) {
 			throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
 		}
-		
+
 		return b64Encode(messageDigest.digest());
 	}
 
