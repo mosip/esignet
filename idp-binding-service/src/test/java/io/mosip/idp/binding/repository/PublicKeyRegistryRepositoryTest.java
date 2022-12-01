@@ -31,7 +31,7 @@ public class PublicKeyRegistryRepositoryTest {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey("test_public_key");
-        publicKeyRegistry.setExpiresOn(LocalDateTime.now());
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
         publicKeyRegistry = publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
@@ -52,7 +52,7 @@ public class PublicKeyRegistryRepositoryTest {
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setPsuToken("");
 		publicKeyRegistry.setPublicKey("test_public_key");
-        publicKeyRegistry.setExpiresOn(LocalDateTime.now());
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
         try {
@@ -70,7 +70,7 @@ public class PublicKeyRegistryRepositoryTest {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey("");
-        publicKeyRegistry.setExpiresOn(LocalDateTime.now());
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
         try {
@@ -88,7 +88,7 @@ public class PublicKeyRegistryRepositoryTest {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey(null);
-        publicKeyRegistry.setExpiresOn(LocalDateTime.now());
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
         try {
@@ -107,16 +107,16 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey("test_public_key");
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-        publicKeyRegistry.setExpiresOn(LocalDateTime.of(2040, 11, 11, 11, 11));
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.of(2040, 11, 11, 11, 11));
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
         publicKeyRegistry = publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
         Assert.assertNotNull(publicKeyRegistry);
 
-		PublicKeyRegistry result = publicKeyRegistryRepository.findByPsuTokenAndExpiresOnGreaterThan("test_token",
+		PublicKeyRegistry result = publicKeyRegistryRepository.findByPsuTokenAndExpiredtimesGreaterThan("test_token",
 				LocalDateTime.now());
         Assert.assertNotNull(result);
 
-		result = publicKeyRegistryRepository.findByPsuTokenAndExpiresOnGreaterThan("0000000", LocalDateTime.now());
+		result = publicKeyRegistryRepository.findByPsuTokenAndExpiredtimesGreaterThan("0000000", LocalDateTime.now());
         Assert.assertNull(result);
     }
 	
@@ -125,13 +125,13 @@ public class PublicKeyRegistryRepositoryTest {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey("test_public_key");
-        publicKeyRegistry.setExpiresOn(LocalDateTime.of(2020, 11, 11, 11, 11));
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.of(2020, 11, 11, 11, 11));
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
         publicKeyRegistry = publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
         Assert.assertNotNull(publicKeyRegistry);
 
-		PublicKeyRegistry result = publicKeyRegistryRepository.findByPsuTokenAndExpiresOnGreaterThan("2337511530",
+		PublicKeyRegistry result = publicKeyRegistryRepository.findByPsuTokenAndExpiredtimesGreaterThan("2337511530",
 				LocalDateTime.now());
         Assert.assertNull(result);
     }
@@ -141,7 +141,7 @@ public class PublicKeyRegistryRepositoryTest {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setExpiresOn(LocalDateTime.now());
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("");
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		try {
@@ -159,7 +159,7 @@ public class PublicKeyRegistryRepositoryTest {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setExpiresOn(LocalDateTime.now());
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId(null);
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		try {

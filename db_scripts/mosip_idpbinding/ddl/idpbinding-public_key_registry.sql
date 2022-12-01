@@ -18,7 +18,7 @@
 CREATE TABLE public_key_registry(
 	psu_token character varying(256) NOT NULL,
 	public_key character varying(50) NOT NULL,
-	expires_on timestamp NOT NULL,
+	expire_dtimes timestamp NOT NULL,
 	wallet_binding_id character varying(256) NOT NULL,
 	cr_dtimes timestamp NOT NULL,
 	CONSTRAINT pk_public_key_registry PRIMARY KEY (psu_token),
@@ -29,7 +29,7 @@ COMMENT ON TABLE public_key_registry IS 'Contains PSU Token and their respective
 
 COMMENT ON COLUMN public_key_registry.psu_token IS 'PSU Token: Partner Specific User Token.';
 COMMENT ON COLUMN public_key_registry.public_key IS 'Public Key: Used to validate JWT signature and encrypt Wallet Binding Id.';
-COMMENT ON COLUMN public_key_registry.expires_on IS 'Expiry DateTimestamp : Date and Timestamp of the expiry of the binding entry.';
+COMMENT ON COLUMN public_key_registry.expire_dtimes IS 'Expiry DateTimestamp : Date and Timestamp of the expiry of the binding entry.';
 COMMENT ON COLUMN public_key_registry.wallet_binding_id IS 'Wallet Binding Id: hash of PSU  Token and salt.';
 COMMENT ON COLUMN public_key_registry.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted.';
 -- ddl-end --
