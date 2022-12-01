@@ -120,6 +120,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		// TODO Auto-generated method stub
 		
 	}
+
 	private String getJWKString(Map<String, Object> jwk) throws IdPException {
         try {
             RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
@@ -208,4 +209,5 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		            throw new IdPException(ErrorConstants.INVALID_PUBLIC_KEY);
 			}
 		}
+	}
 }
