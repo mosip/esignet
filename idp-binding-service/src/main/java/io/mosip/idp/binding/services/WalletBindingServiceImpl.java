@@ -133,7 +133,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		     String publicKey=getJWKString(walletBindingRequest.getPublicKey());
-			 publicKeyRegistry.setIndividualId(walletBindingRequest.getIndividualId());
+		publicKeyRegistry.setIndividualId(walletBindingRequest.getIndividualId());
 			 publicKeyRegistry.setPsuToken(partnerSpecificUserToken);
 			 publicKeyRegistry.setPublicKey(publicKey);
 			 publicKeyRegistry.setExpiresOn(calculateExpiresOn());
