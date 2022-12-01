@@ -31,8 +31,8 @@ public class PublicKeyRegistry {
 	@Column(name = "public_key")
 	private String publicKey;
 	
-	@Column(name = "expires_on")
-	private LocalDateTime expiresOn;
+	@Column(name = "expire_dtimes")
+	private LocalDateTime expiredtimes;
 	
 	@NotBlank
 	@Column(name = "wallet_binding_id")
