@@ -387,7 +387,6 @@ jobs:
 
       - name: Build with Maven
         run: |
-          cd idp-service
           mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
       - name: Analyze with SonarCloud
