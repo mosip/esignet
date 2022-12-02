@@ -35,12 +35,12 @@ public class CacheUtilService {
     }
 
     @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
-    @Cacheable(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCode()")
+    @Cacheable(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()")
     public IdPTransaction setConsentedTransaction(String transactionId, IdPTransaction idPTransaction) {
         return idPTransaction;
     }
 
-    @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCode()")
+    @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()")
     @Cacheable(value = Constants.KYC_CACHE, key = "#accessTokenHash")
     public IdPTransaction setKycTransaction(String accessTokenHash, IdPTransaction idPTransaction) {
         return idPTransaction;
@@ -62,7 +62,7 @@ public class CacheUtilService {
     }
 
     @CacheEvict(value = Constants.LINKED_AUTH_CACHE, key = "#idPTransaction.getLinkedTransactionId()")
-    @Cacheable(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCode()")
+    @Cacheable(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()")
     public IdPTransaction setLinkedConsentedTransaction(String linkedTransactionId, IdPTransaction idPTransaction) {
         return idPTransaction;
     }
@@ -87,8 +87,8 @@ public class CacheUtilService {
         return cacheManager.getCache(Constants.AUTHENTICATED_CACHE).get(transactionId, IdPTransaction.class);
     }
 
-    public IdPTransaction getConsentedTransaction(String code) {
-        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(code, IdPTransaction.class);
+    public IdPTransaction getConsentedTransaction(String codeHash) {
+        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(codeHash, IdPTransaction.class);
     }
 
     public IdPTransaction getKycTransaction(String accessTokenHash) {

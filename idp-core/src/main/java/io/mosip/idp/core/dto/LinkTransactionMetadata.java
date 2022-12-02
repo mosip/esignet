@@ -14,4 +14,5 @@ public class LinkTransactionMetadata {
 
     private String transactionId;
     private String linkedTransactionId;
+    private String authCode;
 }

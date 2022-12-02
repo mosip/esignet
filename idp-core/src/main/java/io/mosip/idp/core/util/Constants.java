@@ -9,7 +9,6 @@ public class Constants {
 
     public static final String CLIENT_ACTIVE_STATUS = "ACTIVE";
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    public static final String UTC_DATETIME_PATTERN_WITH_NANO_SECS = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS.nnnnnnnnn";
     public static final String SPACE = " ";
     public static final String BEARER = "Bearer";
     public static final String SCOPE_OPENID= "openid";
@@ -41,4 +40,5 @@ public class Constants {
     public static final String JWK_KEY_EXPIRE = "exp";
     public static final String ESSENTIAL = "essential";
     public static final String VOLUNTARY = "voluntary";
+    public static final String LINKED_STATUS = "LINKED";
 }

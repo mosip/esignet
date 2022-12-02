@@ -26,6 +26,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static io.mosip.idp.core.util.Constants.*;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
@@ -53,7 +55,8 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getConsentedTransaction(tokenRequest.getCode());
+        String codeHash = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, tokenRequest.getCode());
+        IdPTransaction transaction = cacheUtilService.getConsentedTransaction(codeHash);
         if(transaction == null)
             throw new InvalidTransactionException();
 
