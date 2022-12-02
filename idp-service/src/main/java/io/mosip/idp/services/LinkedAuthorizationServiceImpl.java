@@ -62,7 +62,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     private String linkedSessionTopicName;
 
     @Value("${mosip.idp.kafka.linked-auth-code.topic}")
-    private String linkedAuthConsentTopicName;
+    private String linkedAuthCodeTopicName;
 
     @Value("${mosip.idp.link-code-length:15}")
     private int linkCodeLength;
@@ -197,7 +197,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         cacheUtilService.updateLinkCode(transaction.getLinkCodeHash(), linkTransactionMetadata);
 
         //Publish message after successfully saving the consent
-        kafkaHelperService.publish(linkedAuthConsentTopicName, transaction.getLinkCodeHash());
+        kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkCodeHash());
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
