@@ -15,11 +15,8 @@ import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.listener.MessageListener;
-import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -39,10 +36,6 @@ import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 @Slf4j
 @Service
 public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationService {
-
-    private static final int LINK_CODE_LENGTH = 15;
-    private static String LINKED_STATUS = "LINKED";
-    private static String KEY_SEPARATOR = "::";
 
     @Autowired
     private CacheUtilService cacheUtilService;
@@ -68,8 +61,11 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Value("${mosip.idp.kafka.linked-session.topic}")
     private String linkedSessionTopicName;
 
-    @Value("${mosip.idp.kafka.linked-auth-consent.topic}")
+    @Value("${mosip.idp.kafka.linked-auth-code.topic}")
     private String linkedAuthConsentTopicName;
+
+    @Value("${mosip.idp.link-code-length:15}")
+    private int linkCodeLength;
 
 
     @Override
@@ -82,9 +78,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         String linkCode = null;
         ZonedDateTime expireDateTime = null;
         try {
-            linkCode = IdentityProviderUtil.generateRandomAlphaNumeric(LINK_CODE_LENGTH);
-            cacheUtilService.setLinkCode(linkCode, new LinkTransactionMetadata(linkCodeRequest.getTransactionId(), null));
-            expireDateTime = ZonedDateTime.now(ZoneOffset.UTC).plus(linkCodeExpiryInSeconds, ChronoUnit.SECONDS);
+            linkCode = IdentityProviderUtil.generateRandomAlphaNumeric(linkCodeLength);
         } catch (DuplicateLinkCodeException e) {
             log.error("Generated duplicate link code");
             linkCode = null;
@@ -92,10 +86,12 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         if(linkCode == null) {
             log.info("Found duplicate link-code, generating new link-code");
-            linkCode = IdentityProviderUtil.generateRandomAlphaNumeric(LINK_CODE_LENGTH);
-            cacheUtilService.setLinkCode(linkCode, new LinkTransactionMetadata(linkCodeRequest.getTransactionId(), null));
-            expireDateTime = ZonedDateTime.now(ZoneOffset.UTC).plus(linkCodeExpiryInSeconds, ChronoUnit.SECONDS);
+            linkCode = IdentityProviderUtil.generateRandomAlphaNumeric(linkCodeLength);
         }
+
+        cacheUtilService.setLinkCode(authorizationHelperService.getCacheKey(linkCode),
+                new LinkTransactionMetadata(linkCodeRequest.getTransactionId(),null,null));
+        expireDateTime = ZonedDateTime.now(ZoneOffset.UTC).plus(linkCodeExpiryInSeconds, ChronoUnit.SECONDS);
 
         LinkCodeResponse linkCodeResponse = new LinkCodeResponse();
         linkCodeResponse.setLinkCode(linkCode);
@@ -107,7 +103,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws IdPException {
-        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkTransactionRequest.getLinkCode());
+        String linkCodeHash = authorizationHelperService.getCacheKey(linkTransactionRequest.getLinkCode());
+        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
         if(linkTransactionMetadata == null || linkTransactionMetadata.getTransactionId() == null)
             throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
 
@@ -121,9 +118,10 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         //if valid, generate link-transaction-id and move transaction from preauth-sessions to linked-sessions cache
         String linkedTransactionId = IdentityProviderUtil.createTransactionId(transaction.getNonce());
         transaction.setLinkedTransactionId(linkedTransactionId);
+        transaction.setLinkCodeHash(linkCodeHash);
         transaction = cacheUtilService.setLinkedTransaction(linkTransactionMetadata.getTransactionId(), transaction);
         linkTransactionMetadata.setLinkedTransactionId(linkedTransactionId);
-        cacheUtilService.updateLinkCode(linkTransactionRequest.getLinkCode(), linkTransactionMetadata);
+        cacheUtilService.updateLinkCode(linkCodeHash, linkTransactionMetadata);
 
         LinkTransactionResponse linkTransactionResponse = new LinkTransactionResponse();
         linkTransactionResponse.setLinkTransactionId(linkedTransactionId);
@@ -138,83 +136,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setConfigs(uiConfigMap);
 
         //Publish message after successfully linking the transaction
-        kafkaHelperService.publish(linkedSessionTopicName, linkTransactionMetadata.getTransactionId());
+        kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
         return linkTransactionResponse;
-    }
-
-    @Async
-    @Override
-    public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException {
-        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkStatusRequest.getLinkCode());
-        if(linkTransactionMetadata == null || !linkStatusRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()))
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
-
-        //It's a valid link-code, Start kafka consumer thread
-        kafkaHelperService.subscribe(linkedSessionTopicName, linkTransactionMetadata.getTransactionId(),
-                new MessageListener<String, String>() {
-                    @Override
-                    public void onMessage(ConsumerRecord<String, String> data) {
-                        if(linkTransactionMetadata.getTransactionId().equals(data.value())) {
-                            log.info("link-status message received for transactionId : {}", linkTransactionMetadata.getTransactionId());
-                            ResponseWrapper<LinkStatusResponse> responseWrapper = getLinkStatusResponse(linkStatusRequest.getLinkCode());
-                            //Set the responseWrapper into DeferredResult
-                            deferredResult.setResult(responseWrapper);
-                            //After setting the deferred result, stop the consumer
-                            kafkaHelperService.unsubscribe(linkStatusRequest.getTransactionId());
-                        }
-                    }
-                }, getRecordFilterStrategy(linkTransactionMetadata.getTransactionId()));
-    }
-
-    private ResponseWrapper<LinkStatusResponse> getLinkStatusResponse(String linkCode) {
-        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCode);
-        if(linkTransactionMetadata == null || linkTransactionMetadata.getLinkedTransactionId() == null)
-            throw new IdPException(ErrorConstants.INVALID_STATE);
-
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        LinkStatusResponse linkStatusResponse = new LinkStatusResponse();
-        linkStatusResponse.setTransactionId(linkTransactionMetadata.getTransactionId());
-        linkStatusResponse.setLinkStatus(LINKED_STATUS);
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkStatusResponse);
-        return responseWrapper;
-    }
-
-
-    @Async
-    @Override
-    public void getLinkAuthCodeStatus(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException {
-        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkAuthCodeRequest.getLinkedCode());
-        if(linkTransactionMetadata == null || !linkAuthCodeRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()) ||
-                            linkTransactionMetadata.getLinkedTransactionId() == null)
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
-
-        //It's a valid link-code, check the status, Start kafka consumer thread
-        kafkaHelperService.subscribe(linkedAuthConsentTopicName, linkTransactionMetadata.getLinkedTransactionId(),
-                new MessageListener<String, String>() {
-                    @Override
-                    public void onMessage(ConsumerRecord<String, String> data) {
-                        if(data.value().startsWith(linkTransactionMetadata.getLinkedTransactionId())) {
-                            String[] parts = data.value().split(KEY_SEPARATOR);
-                            String authCode = parts.length > 1 ? parts[1] : null;
-                            log.info("link-auth-code message received for linkTransactionId : {}", linkTransactionMetadata.getLinkedTransactionId());
-                            ResponseWrapper<LinkAuthCodeResponse> responseWrapper = getLinkAuthStatusResponse(authCode);
-                            //Set the responseWrapper into DeferredResult
-                            deferredResult.setResult(responseWrapper);
-                            //After setting the deferred result, stop the consumer
-                            kafkaHelperService.unsubscribe(linkTransactionMetadata.getLinkedTransactionId());
-                        }
-                    }
-                }, getRecordFilterStrategy(linkTransactionMetadata.getLinkedTransactionId()));
-    }
-
-    private RecordFilterStrategy getRecordFilterStrategy(String matchValue) {
-        return new RecordFilterStrategy<String, String>() {
-            @Override
-            public boolean filter(ConsumerRecord<String, String> consumerRecord) {
-                return !(consumerRecord.value().equals(matchValue) || consumerRecord.value().startsWith(matchValue));
-            }
-        };
     }
 
     @Override
@@ -263,33 +186,55 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         authorizationHelperService.validateAuthorizeScopes(transaction, linkedConsentRequest.getPermittedAuthorizeScopes());
 
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, UUID.randomUUID().toString());
-        // cache consent with auth-code as key
-        transaction.setCode(authCode);
+        // cache consent with auth-code-hash as key
+        transaction.setCodeHash(authorizationHelperService.getCacheKey(authCode));
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
 
+        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(transaction.getLinkCodeHash());
+        linkTransactionMetadata.setAuthCode(authCode);
+        cacheUtilService.updateLinkCode(transaction.getLinkCodeHash(), linkTransactionMetadata);
+
         //Publish message after successfully saving the consent
-        kafkaHelperService.publish(linkedAuthConsentTopicName, linkedConsentRequest.getLinkedTransactionId().concat(KEY_SEPARATOR).concat(authCode));
+        kafkaHelperService.publish(linkedAuthConsentTopicName, transaction.getLinkCodeHash());
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
         return authRespDto;
     }
 
-    private ResponseWrapper<LinkAuthCodeResponse> getLinkAuthStatusResponse(String authCode) {
-        IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(authCode);
-        if(idPTransaction == null || idPTransaction.getCode() == null || idPTransaction.getRedirectUri() == null)
-            throw new IdPException(ErrorConstants.INVALID_STATE);
+    @Async
+    @Override
+    public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException {
+        String linkCodeHash = authorizationHelperService.getCacheKey(linkStatusRequest.getLinkCode());
+        authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
+        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
+        if (linkTransactionMetadata == null || !linkStatusRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()))
+            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
 
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        LinkAuthCodeResponse linkAuthCodeResponse = new LinkAuthCodeResponse();
-        linkAuthCodeResponse.setNonce(idPTransaction.getNonce());
-        linkAuthCodeResponse.setState(idPTransaction.getState());
-        linkAuthCodeResponse.setRedirectUri(idPTransaction.getRedirectUri());
-        linkAuthCodeResponse.setCode(idPTransaction.getCode());
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkAuthCodeResponse);
-        return responseWrapper;
+        if (linkTransactionMetadata.getLinkedTransactionId() != null) {
+            deferredResult.setResult(authorizationHelperService.createLinkStatusResponse(linkTransactionMetadata.getTransactionId(),
+                    LINKED_STATUS));
+        }
+    }
+
+    @Async
+    @Override
+    public void getLinkAuthCodeStatus(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException {
+        String linkCodeHash = authorizationHelperService.getCacheKey(linkAuthCodeRequest.getLinkedCode());
+        authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
+        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
+        if(linkTransactionMetadata == null || !linkAuthCodeRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()) ||
+                linkTransactionMetadata.getLinkedTransactionId() == null)
+            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
+
+        if(linkTransactionMetadata.getAuthCode() != null) {
+            try {
+                deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getAuthCode()));
+            } catch (IdPException e) {
+                log.error("Cache hit failed to get the auth-code status for linkCode : {}", linkAuthCodeRequest.getLinkedCode());
+            }
+        }
     }
 }

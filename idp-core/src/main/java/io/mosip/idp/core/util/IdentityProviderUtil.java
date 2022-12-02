@@ -29,7 +29,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
-import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN_WITH_NANO_SECS;
 
 @Slf4j
 public class IdentityProviderUtil {
@@ -50,16 +49,24 @@ public class IdentityProviderUtil {
         pathMatcher = new AntPathMatcher();
     }
 
+    /**
+     * Output format : 2022-12-01T03:22:46.720Z
+     * @return Formatted datetime
+     */
     public static String getUTCDateTime() {
         return ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
     }
 
+    /**
+     * Output format : 2022-12-01T03:22:46.722904874
+     * @return datetime
+     */
     public static String getUTCDateTimeWithNanoSeconds() {
         return ZonedDateTime
                 .now(ZoneOffset.UTC)
-                .format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN_WITH_NANO_SECS));
+                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
     public static String[] splitAndTrimValue(String value, String separator) {

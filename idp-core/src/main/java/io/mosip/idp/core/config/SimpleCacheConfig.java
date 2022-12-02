@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@ConditionalOnProperty(value = "spring.cache.type", havingValue = "SIMPLE")
+@ConditionalOnProperty(value = "spring.cache.type", havingValue = "simple")
 @Configuration
 public class SimpleCacheConfig extends CachingConfigurerSupport {
 
-    @Value("#{${mosip.idp.cache.names}}")
+    @Value("${mosip.idp.cache.names}")
     private List<String> cacheNames;
 
     @Value("#{${mosip.idp.cache.size}}")
