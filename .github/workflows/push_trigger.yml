@@ -221,7 +221,7 @@ jobs:
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
       SERVICE_NAME: idp-binding-service
-      SERVICE_LOCATION: idp--binding-service
+      SERVICE_LOCATION: idp-binding-service
 
     steps:
       - uses: actions/checkout@v2
