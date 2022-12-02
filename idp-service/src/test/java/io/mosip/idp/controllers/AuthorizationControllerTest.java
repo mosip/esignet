@@ -52,9 +52,6 @@ public class AuthorizationControllerTest {
     @MockBean
     AuthorizationHelperService authorizationHelperService;
 
-    @MockBean
-    LinkedAuthorizationService linkAuthorizationService;
-
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Before

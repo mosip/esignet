@@ -132,7 +132,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     }
 
     @Override
-    public IdPTransaction getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
+    public AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
         IdPTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
@@ -142,12 +142,18 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         authorizationHelperService.validateAuthorizeScopes(transaction, authCodeRequest.getPermittedAuthorizeScopes());
 
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, UUID.randomUUID().toString());
-        // cache consent with auth-code as key
-        transaction.setCode(authCode);
+        // cache consent with auth-code-hash as key
+        transaction.setCodeHash(authorizationHelperService.getCacheKey(authCode));
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
         transaction = cacheUtilService.setConsentedTransaction(authCodeRequest.getTransactionId(), transaction);
-        return transaction;
+
+        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
+        authCodeResponse.setCode(authCode);
+        authCodeResponse.setRedirectUri(transaction.getRedirectUri());
+        authCodeResponse.setNonce(transaction.getNonce());
+        authCodeResponse.setState(transaction.getState());
+        return authCodeResponse;
     }
 
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)

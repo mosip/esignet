@@ -37,5 +37,5 @@ public interface AuthorizationService {
      * Redirects to requested redirect_uri
      * @param authCodeRequest
      */
-    IdPTransaction getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException;
+    AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException;
 }

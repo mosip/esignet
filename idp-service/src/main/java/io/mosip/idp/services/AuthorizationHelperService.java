@@ -7,26 +7,32 @@ import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.Constants;
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.async.DeferredResult;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
-import static io.mosip.idp.core.util.Constants.ESSENTIAL;
-import static io.mosip.idp.core.util.Constants.VOLUNTARY;
+import static io.mosip.idp.core.util.Constants.*;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_PERMITTED_SCOPE;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 
 @Slf4j
 @Component
 public class AuthorizationHelperService {
+
+    private static final Map<String, DeferredResult> DEFERRED_RESULT_MAP = new HashMap<>();
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -34,11 +40,53 @@ public class AuthorizationHelperService {
     @Autowired
     private AuthenticationWrapper authenticationWrapper;
 
-    @Value("#{${mosip.idp.openid.scope.claims}}")
-    private Map<String, List<String>> claims;
+    @Autowired
+    private CacheUtilService cacheUtilService;
 
     @Value("#{${mosip.idp.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
+
+
+    protected void addEntryInDeferredResultMap(String key, DeferredResult deferredResult) {
+        DEFERRED_RESULT_MAP.put(key, deferredResult);
+    }
+
+    @KafkaListener(id = "link-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-session.topic}")
+    public void consumeLinkStatus(String linkCodeHash) {
+        if(DEFERRED_RESULT_MAP.get(linkCodeHash) != null) {
+            LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
+            if(linkTransactionMetadata == null || linkTransactionMetadata.getLinkedTransactionId() == null) {
+                log.warn("Received link-status kafka message, but key was not found in cache / was found in invalid state. Ignoring the message :{}",
+                        linkCodeHash);
+                return;
+            }
+            DEFERRED_RESULT_MAP.get(linkCodeHash).setResult(
+                    createLinkStatusResponse(linkTransactionMetadata.getTransactionId(), LINKED_STATUS));
+            DEFERRED_RESULT_MAP.remove(linkCodeHash);
+        }
+    }
+
+    @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-auth-code.topic}")
+    public void consumeLinkAuthCodeStatus(String linkCodeHash) {
+        if(DEFERRED_RESULT_MAP.get(linkCodeHash) != null) {
+            LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
+            if(linkTransactionMetadata == null || linkTransactionMetadata.getLinkedTransactionId() == null ||
+                    linkTransactionMetadata.getAuthCode() == null) {
+                log.warn("Received link-auth-code kafka message, but key was not found in cache / was found in invalid state. Ignoring the message :{}",
+                        linkCodeHash);
+                return;
+            }
+            IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(getCacheKey(linkTransactionMetadata.getAuthCode()));
+            if(idPTransaction == null || idPTransaction.getCodeHash() == null) {
+                log.warn("Received link-auth-code kafka message, but key was not found in cache / was found in invalid state. Ignoring the message :{}",
+                        linkCodeHash);
+                return;
+            }
+            DEFERRED_RESULT_MAP.get(linkCodeHash).setResult(createLinkAuthCodeResponse(idPTransaction,
+                            linkTransactionMetadata.getAuthCode()));
+            DEFERRED_RESULT_MAP.remove(linkCodeHash);
+        }
+    }
 
     protected Map<String, List> getClaimNames(Claims resolvedClaims) {
         List<String> essentialClaims = new ArrayList<>();
@@ -142,5 +190,39 @@ public class AuthorizationHelperService {
             log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
             throw new IdPException(AUTH_FACTOR_MISMATCH);
         }
+    }
+
+    protected ResponseWrapper<LinkStatusResponse> createLinkStatusResponse(String transactionId, String status){
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        LinkStatusResponse linkStatusResponse = new LinkStatusResponse();
+        linkStatusResponse.setTransactionId(transactionId);
+        linkStatusResponse.setLinkStatus(status);
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        responseWrapper.setResponse(linkStatusResponse);
+        return responseWrapper;
+    }
+
+    protected ResponseWrapper<LinkAuthCodeResponse> getLinkAuthStatusResponse(String authCode) {
+        IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, authCode));
+        if(idPTransaction == null || idPTransaction.getCodeHash() == null || idPTransaction.getRedirectUri() == null)
+            throw new IdPException(ErrorConstants.INVALID_STATE);
+
+        return createLinkAuthCodeResponse(idPTransaction, authCode);
+    }
+
+    protected ResponseWrapper<LinkAuthCodeResponse> createLinkAuthCodeResponse(IdPTransaction idPTransaction, String authCode){
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        LinkAuthCodeResponse linkAuthCodeResponse = new LinkAuthCodeResponse();
+        linkAuthCodeResponse.setNonce(idPTransaction.getNonce());
+        linkAuthCodeResponse.setState(idPTransaction.getState());
+        linkAuthCodeResponse.setRedirectUri(idPTransaction.getRedirectUri());
+        linkAuthCodeResponse.setCode(authCode);
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        responseWrapper.setResponse(linkAuthCodeResponse);
+        return responseWrapper;
+    }
+
+    protected String getCacheKey(@NotNull String value) {
+        return IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, value);
     }
 }

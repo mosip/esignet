@@ -79,7 +79,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
         clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
-        clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
+        clientDetail = clientDetailRepository.save(clientDetail);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
@@ -115,7 +115,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailUpdateRequest.getClientAuthMethods()));
         clientDetail.setStatus(clientDetailUpdateRequest.getStatus());
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
-        clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
+        clientDetail = clientDetailRepository.save(clientDetail);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
