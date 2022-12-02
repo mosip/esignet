@@ -353,9 +353,6 @@ jobs:
   sonar_analysis:
     needs: build
     runs-on: ubuntu-latest
-    env:
-      SERVICE_NAME: idp
-      SERVICE_LOCATION: idp-service
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
