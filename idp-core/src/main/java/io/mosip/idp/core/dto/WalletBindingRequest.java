@@ -25,7 +25,7 @@ public class WalletBindingRequest {
 	@NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;
 
-    @NotBlank(message = ErrorConstants.INVALID_IDENTIFIER)
+	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
     private String individualId;
 
 	@NotNull(message = ErrorConstants.INVALID_AUTH_CHALLENGE)
