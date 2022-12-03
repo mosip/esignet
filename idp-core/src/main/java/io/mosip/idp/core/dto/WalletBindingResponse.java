@@ -11,6 +11,6 @@ import lombok.Data;
 public class WalletBindingResponse {
 
 	private String transactionId;
-    private String encryptedWalletBindingToken;
+    private String encryptedWalletBindingId;
     private String expireDateTime;
 }

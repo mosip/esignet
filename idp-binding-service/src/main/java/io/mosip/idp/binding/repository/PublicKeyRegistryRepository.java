@@ -9,18 +9,19 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
 
 public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegistry, String> {
 	
 	/**
-	 * Query to fetch PublicKeyRegistry based on psuToken
+	 * Query to fetch PublicKeyRegistry based on idHash
 	 * 
 	 * @param psuToken
 	 * @return
 	 */
-	Optional<PublicKeyRegistry> findByPsuToken(String psuToken);
+	Optional<PublicKeyRegistry> findByIdHash(String idHash);
 	
 	/**
 	 * Query to fetch PublicKeyRegistry with psuToken which is not expired
@@ -29,6 +30,11 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	 * @param currentDate
 	 * @return
 	 */
-	PublicKeyRegistry findByPsuTokenAndExpiredtimesGreaterThan(String psuToken, LocalDateTime currentDate);
+	PublicKeyRegistry findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDate);
 
+	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
+	Optional<PublicKeyRegistry> findByPSUToken(String psuToken);
+
+	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
+	Optional<PublicKeyRegistry> findByPublicKeyHashWithPsuToken(String publicKeyHash, String psuToken);
 }

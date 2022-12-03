@@ -9,7 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -62,7 +64,9 @@ public class WalletBindingControllerTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("12345");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -88,7 +92,9 @@ public class WalletBindingControllerTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("12345");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -111,7 +117,9 @@ public class WalletBindingControllerTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("12345");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -135,7 +143,9 @@ public class WalletBindingControllerTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("12345");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -155,7 +165,7 @@ public class WalletBindingControllerTest {
 				.setPublicKey((Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
 		walletBindingRequest.setTransactionId("123456789");
-		walletBindingRequest.setAuthChallenge(null);
+		walletBindingRequest.setChallengeList(null);
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -164,6 +174,6 @@ public class WalletBindingControllerTest {
 		mockMvc.perform(post("/wallet-binding").content(objectMapper.writeValueAsString(wrapper))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.errors").isNotEmpty())
-				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_AUTH_CHALLENGE));
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_LIST));
 	}
 }

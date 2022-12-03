@@ -6,11 +6,13 @@
 package io.mosip.idp.core.dto;
 
 
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import io.mosip.idp.core.util.ErrorConstants;
 import lombok.AllArgsConstructor;
@@ -28,8 +30,9 @@ public class WalletBindingRequest {
 	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
     private String individualId;
 
-	@NotNull(message = ErrorConstants.INVALID_AUTH_CHALLENGE)
-    private AuthChallenge authChallenge;
+	@NotNull(message = ErrorConstants.INVALID_CHALLENGE_LIST)
+	@Size(min = 1, max = 5, message = ErrorConstants.INVALID_CHALLENGE_LIST)
+	private List<AuthChallenge> challengeList;
     
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
     private Map<String, Object> publicKey;
