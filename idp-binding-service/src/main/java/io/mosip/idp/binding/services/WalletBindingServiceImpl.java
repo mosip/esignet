@@ -129,9 +129,9 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		String publicKeyHash=IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256,publicKey );
 		LocalDateTime expiredtimes = calculateExpiresdtimes();
 		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository
-				.findByPSUToken(partnerSpecificUserToken);
+				.findByPsuToken(partnerSpecificUserToken);
 		Optional<PublicKeyRegistry> optionalPublicKeyRegistryForDuplicateCheck = publicKeyRegistryRepository
-				.findByPublicKeyHashWithPsuToken(publicKeyHash, partnerSpecificUserToken);
+				.findByPublicKeyHashNotEqualToPsuToken(publicKeyHash, partnerSpecificUserToken);
 
 		if (optionalPublicKeyRegistryForDuplicateCheck.isPresent())
         	throw new IdPException(DUPLICATE_PUBLIC_KEY);
