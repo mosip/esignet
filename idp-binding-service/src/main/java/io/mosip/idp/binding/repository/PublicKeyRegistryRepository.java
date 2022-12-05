@@ -5,7 +5,6 @@
  */
 package io.mosip.idp.binding.repository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,14 +20,4 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	 * @return
 	 */
 	Optional<PublicKeyRegistry> findByIdHash(String idHash);
-	
-	/**
-	 * Query to fetch PublicKeyRegistry with psuToken which is not expired
-	 * 
-	 * @param psuToken
-	 * @param currentDate
-	 * @return
-	 */
-	PublicKeyRegistry findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDate);
-
 }
