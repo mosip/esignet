@@ -21,13 +21,13 @@ IdP-UI transaction
 
 Linked transactions
 
-| Endpoint        | Cache                        | Evict                                                              |
-|-----------------|------------------------------|--------------------------------------------------------------------|
-| oauthDetails    | preauthsessions (k: transactionId) |                                                                    |
-| linkTransaction | linkedsessions (k: linkTransactionId), linkcodes (k: linkCodeHash) | preauthsessions (k: transactionId)                                 |
-| authenticate    | linkedauth (k: linkTransactionId), linkcodes (k: linkCodeHash) |                                                                    |
-| authCode        | consented (k: codeHash), linkcodes (k: linkCodeHash)    | linkedauth (k: linkTransactionId), linkedsessions (k: linkTransactionId) |
-| token           | kyc  (k: accessTokenHash)    | consented  (k: codeHash), linkcodes (k: linkCodeHash)                                           |
+| Endpoint        | Cache                                                                 | Evict                                                              |
+|-----------------|-----------------------------------------------------------------------|--------------------------------------------------------------------|
+| oauthDetails    | preauthsessions (k: transactionId)                                    |                                                                    |
+| linkTransaction | linkedsessions (k: linkTransactionId), linkcodehash (k: linkCodeHash) | preauthsessions (k: transactionId)                                 |
+| authenticate    | linkedauth (k: linkTransactionId), linkcodehash (k: linkCodeHash)     | linkedsessions (k: linkTransactionId)                                                                |
+| authCode        | consented (k: codeHash), linkcodehash (k: linkCodeHash)               | linkedauth (k: linkTransactionId) |
+| token           | kyc  (k: accessTokenHash)                                             | consented  (k: codeHash), linkcodehash (k: linkCodeHash)                                           |
 
 
 ## Databases
