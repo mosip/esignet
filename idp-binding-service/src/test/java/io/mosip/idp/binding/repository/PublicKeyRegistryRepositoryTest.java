@@ -117,47 +117,6 @@ public class PublicKeyRegistryRepositoryTest {
 	}
 
 	@Test
-	public void createPublicKeyRegistry_withValidExpiryDate_thenPass() {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setIdHash("test_id_hash");
-		publicKeyRegistry.setPsuToken("test_token");
-		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.of(2040, 11, 11, 11, 11));
-        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
-		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
-        Assert.assertNotNull(publicKeyRegistry);
-
-		PublicKeyRegistry result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("test_id_hash",
-				LocalDateTime.now());
-        Assert.assertNotNull(result);
-
-		result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("0000000", LocalDateTime.now());
-        Assert.assertNull(result);
-    }
-	
-	@Test
-	public void createPublicKeyRegistry_withInValidExpiryDate_thenFail() {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setIdHash("test_id_hash");
-		publicKeyRegistry.setPsuToken("test_token");
-		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.of(2020, 11, 11, 11, 11));
-        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistryRepository.save(publicKeyRegistry);
-		publicKeyRegistryRepository.flush();
-        Assert.assertNotNull(publicKeyRegistry);
-
-		PublicKeyRegistry result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("2337511530",
-				LocalDateTime.now());
-        Assert.assertNull(result);
-    }
-
-	@Test
 	public void createPublicKeyRegistry_withBlankWalletBindingId_thenFail() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIdHash("test_id_hash");

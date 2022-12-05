@@ -22,19 +22,10 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	 * @return
 	 */
 	Optional<PublicKeyRegistry> findByIdHash(String idHash);
-	
-	/**
-	 * Query to fetch PublicKeyRegistry with psuToken which is not expired
-	 * 
-	 * @param psuToken
-	 * @param currentDate
-	 * @return
-	 */
-	PublicKeyRegistry findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDate);
 
-	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
-	Optional<PublicKeyRegistry> findByPsuToken(String psuToken);
+    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
+    Optional<PublicKeyRegistry> findByPsuToken(String psuToken);
 
-	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
-	Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
+    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
+    Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
 }
