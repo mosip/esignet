@@ -189,11 +189,11 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		return kycAuthResult;
 	}
 
-	private String getJWE(Map<String, Object> publicKey, String signedWalletBindingId) throws JoseException {
+	private String getJWE(Map<String, Object> publicKey, String walletBindingId) throws JoseException {
 		JsonWebEncryption jsonWebEncryption = new JsonWebEncryption();
 		jsonWebEncryption.setAlgorithmHeaderValue(KeyManagementAlgorithmIdentifiers.RSA_OAEP_256);
 		jsonWebEncryption.setEncryptionMethodHeaderParameter(ContentEncryptionAlgorithmIdentifiers.AES_256_GCM);
-		jsonWebEncryption.setPayload(signedWalletBindingId);
+		jsonWebEncryption.setPayload(walletBindingId);
 		jsonWebEncryption.setContentTypeHeaderValue("JWT");
 		RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(publicKey);
 		jsonWebEncryption.setKey(jsonWebKey.getKey());
