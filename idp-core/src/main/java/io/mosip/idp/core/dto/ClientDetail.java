@@ -8,9 +8,10 @@ package io.mosip.idp.core.dto;
 import lombok.Data;
 
 import java.util.List;
+import java.io.Serializable;
 
 @Data
-public class ClientDetail {
+public class ClientDetail implements Serializable {
 
     private String id;
     private String name;
