@@ -36,8 +36,7 @@ public class PublicKeyRegistryRepositoryTest {
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		publicKeyRegistryRepository.save(publicKeyRegistry);
-		publicKeyRegistryRepository.flush();
+        publicKeyRegistry = publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
         Assert.assertNotNull(publicKeyRegistry);
 
 		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findByIdHash("test_id_hash");
@@ -52,30 +51,26 @@ public class PublicKeyRegistryRepositoryTest {
 	
 	@Test
 	public void createPublicKeyRegistry_withBlankPsuToken_thenFail() {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setIdHash("test_id_hash");
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+        publicKeyRegistry.setIdHash("test_id_hash");
 		publicKeyRegistry.setPsuToken("");
 		publicKeyRegistry.setPublicKey("test_public_key");
 		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
-		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
+        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		try {
-			publicKeyRegistryRepository.save(publicKeyRegistry);
-			publicKeyRegistryRepository.flush();
-		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+            publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("psuToken")));
-			return;
-		} catch (Exception e) {
-			System.out.println("message" + e.getMessage());
-			return;
-		}
-		Assert.fail();
-	}
-
+            return;
+        }
+        Assert.fail();
+    }
+	
 	@Test
-	public void createPublicKeyRegistry_withBlankPublicKey_thenFail() {
+    public void createPublicKeyRegistry_withBlankPublicKey_thenFail() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIdHash("test_id_hash");
 		publicKeyRegistry.setPsuToken("test_token");
@@ -84,19 +79,18 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		try {
-			publicKeyRegistryRepository.save(publicKeyRegistry);
-			publicKeyRegistryRepository.flush();
-		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
-					.anyMatch(v -> v.getPropertyPath().toString().equals("publicKey")));
-			return;
-		}
-		Assert.fail();
-	}
-
+        try {
+        	publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("publicKey")));
+            return;
+        }
+        Assert.fail();
+    }
+	
 	@Test
-	public void createPublicKeyRegistry_withNullPublicKey_thenFail() {
+    public void createPublicKeyRegistry_withNullPublicKey_thenFail() {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIdHash("test_id_hash");
 		publicKeyRegistry.setPsuToken("test_token");
@@ -105,56 +99,14 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		try {
-			publicKeyRegistryRepository.save(publicKeyRegistry);
-			publicKeyRegistryRepository.flush();
-		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
-					.anyMatch(v -> v.getPropertyPath().toString().equals("publicKey")));
-			return;
-		}
-		Assert.fail();
-	}
-
-	@Test
-	public void createPublicKeyRegistry_withValidExpiryDate_thenPass() {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setIdHash("test_id_hash");
-		publicKeyRegistry.setPsuToken("test_token");
-		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.of(2040, 11, 11, 11, 11));
-        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
-		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
-        Assert.assertNotNull(publicKeyRegistry);
-
-		PublicKeyRegistry result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("test_id_hash",
-				LocalDateTime.now());
-        Assert.assertNotNull(result);
-
-		result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("0000000", LocalDateTime.now());
-        Assert.assertNull(result);
-    }
-	
-	@Test
-	public void createPublicKeyRegistry_withInValidExpiryDate_thenFail() {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setIdHash("test_id_hash");
-		publicKeyRegistry.setPsuToken("test_token");
-		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.of(2020, 11, 11, 11, 11));
-        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistryRepository.save(publicKeyRegistry);
-		publicKeyRegistryRepository.flush();
-        Assert.assertNotNull(publicKeyRegistry);
-
-		PublicKeyRegistry result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("2337511530",
-				LocalDateTime.now());
-        Assert.assertNull(result);
+        try {
+        	publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch( v -> v.getPropertyPath().toString().equals("publicKey")));
+            return;
+        }
+        Assert.fail();
     }
 
 	@Test
@@ -168,8 +120,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setWalletBindingId("");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		try {
-			publicKeyRegistryRepository.save(publicKeyRegistry);
-			publicKeyRegistryRepository.flush();
+			publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
 		} catch (ConstraintViolationException e) {
 			Assert.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("walletBindingId")));
@@ -189,50 +140,12 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setWalletBindingId(null);
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		try {
-			publicKeyRegistryRepository.save(publicKeyRegistry);
-			publicKeyRegistryRepository.flush();
+			publicKeyRegistryRepository.saveAndFlush(publicKeyRegistry);
 		} catch (ConstraintViolationException e) {
 			Assert.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("walletBindingId")));
 			return;
 		}
 		Assert.fail();
-	}
-
-	@Test
-	public void findWalletBindingIdWithPsuToken_withValidDetail_thenPass() {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setIdHash("test_id_hash");
-		publicKeyRegistry.setPsuToken("test_token");
-		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
-		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
-		Assert.assertNotNull(publicKeyRegistry);
-
-		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findByPsuToken("test_token");
-		Assert.assertTrue(result.isPresent());
-		result = publicKeyRegistryRepository.findByPsuToken("test_token_2");
-		Assert.assertFalse(result.isPresent());
-	}
-
-	@Test
-	public void findByPublicKeyHashWithPsuToken_withValidDetail_thenPass() {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setIdHash("test_id_hash");
-		publicKeyRegistry.setPsuToken("test_token");
-		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
-		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
-		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
-		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
-		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
-		Assert.assertNotNull(publicKeyRegistry);
-
-		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository
-				.findByPublicKeyHashNotEqualToPsuToken("test_public_key_hash", "test_token_2");
-		Assert.assertTrue(result.isPresent());
 	}
 }
