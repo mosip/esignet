@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${mosip.idp.binding.systeminfo.get-certificate}")
 	private String getCertificateApiScope;
 
-    @Value("${mosip.idp.auth-ignore-urls}")
+	@Value("${mosip.idp.binding.auth-ignore-urls}")
     private String[] authIgnoreUrls;
 
 
