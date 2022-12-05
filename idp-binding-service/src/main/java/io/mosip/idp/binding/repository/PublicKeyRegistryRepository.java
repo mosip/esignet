@@ -5,7 +5,6 @@
  */
 package io.mosip.idp.binding.repository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,6 +21,7 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	 * @return
 	 */
 	Optional<PublicKeyRegistry> findByIdHash(String idHash);
+<<<<<<< HEAD
 	
 	/**
 	 * Query to fetch PublicKeyRegistry with psuToken which is not expired
@@ -37,4 +37,6 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 
 	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
 	Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
+=======
+>>>>>>> 59c56c4d (MOSIP-24757 review comment fix)
 }
