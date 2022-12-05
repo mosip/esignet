@@ -38,6 +38,9 @@ public class OAuthServiceImpl implements OAuthService {
     private ClientManagementService clientManagementService;
 
     @Autowired
+    private AuthorizationHelperService authorizationHelperService;
+
+    @Autowired
     private AuthenticationWrapper authenticationWrapper;
 
     @Autowired
@@ -55,7 +58,7 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
-        String codeHash = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, tokenRequest.getCode());
+        String codeHash = authorizationHelperService.getCacheKey(tokenRequest.getCode());
         IdPTransaction transaction = cacheUtilService.getConsentedTransaction(codeHash);
         if(transaction == null)
             throw new InvalidTransactionException();

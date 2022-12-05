@@ -208,7 +208,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Override
     public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException {
         String linkCodeHash = authorizationHelperService.getCacheKey(linkStatusRequest.getLinkCode());
-        authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
         if (linkTransactionMetadata == null || !linkStatusRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()))
             throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
@@ -216,6 +215,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if (linkTransactionMetadata.getLinkedTransactionId() != null) {
             deferredResult.setResult(authorizationHelperService.createLinkStatusResponse(linkTransactionMetadata.getTransactionId(),
                     LINKED_STATUS));
+        } else {
+            authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
         }
     }
 
@@ -223,7 +224,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Override
     public void getLinkAuthCodeStatus(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException {
         String linkCodeHash = authorizationHelperService.getCacheKey(linkAuthCodeRequest.getLinkedCode());
-        authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
         if(linkTransactionMetadata == null || !linkAuthCodeRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()) ||
                 linkTransactionMetadata.getLinkedTransactionId() == null)
@@ -235,6 +235,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
             } catch (IdPException e) {
                 log.error("Cache hit failed to get the auth-code status for linkCode : {}", linkAuthCodeRequest.getLinkedCode());
             }
+        } else {
+            authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
         }
     }
 }
