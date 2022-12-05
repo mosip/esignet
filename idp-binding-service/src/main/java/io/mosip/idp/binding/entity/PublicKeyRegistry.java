@@ -24,6 +24,10 @@ public class PublicKeyRegistry {
 	
 	@Id
 	@NotBlank
+	@Column(name = "id_hash")
+	private String idHash;
+
+	@NotBlank
 	@Column(name = "psu_token")
 	private String psuToken;
 	
@@ -37,6 +41,10 @@ public class PublicKeyRegistry {
 	@NotBlank
 	@Column(name = "wallet_binding_id")
 	private String walletBindingId;
+
+	@NotBlank
+	@Column(name = "public_key_hash")
+	private String publicKeyHash;
 
 	@Column(name = "cr_dtimes")
     private LocalDateTime createdtimes;
