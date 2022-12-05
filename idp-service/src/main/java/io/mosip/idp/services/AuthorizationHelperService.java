@@ -27,6 +27,7 @@ import static io.mosip.idp.core.util.Constants.*;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_PERMITTED_SCOPE;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Component
@@ -53,22 +54,23 @@ public class AuthorizationHelperService {
 
     @KafkaListener(id = "link-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-session.topic}")
     public void consumeLinkStatus(String linkCodeHash) {
-        if(DEFERRED_RESULT_MAP.get(linkCodeHash) != null) {
+        DeferredResult deferredResult = DEFERRED_RESULT_MAP.get(linkCodeHash);
+        if(deferredResult != null) {
             LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
             if(linkTransactionMetadata == null || linkTransactionMetadata.getLinkedTransactionId() == null) {
                 log.warn("Received link-status kafka message, but key was not found in cache / was found in invalid state. Ignoring the message :{}",
                         linkCodeHash);
                 return;
             }
-            DEFERRED_RESULT_MAP.get(linkCodeHash).setResult(
-                    createLinkStatusResponse(linkTransactionMetadata.getTransactionId(), LINKED_STATUS));
+            deferredResult.setResult(createLinkStatusResponse(linkTransactionMetadata.getTransactionId(), LINKED_STATUS));
             DEFERRED_RESULT_MAP.remove(linkCodeHash);
         }
     }
 
     @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-auth-code.topic}")
     public void consumeLinkAuthCodeStatus(String linkCodeHash) {
-        if(DEFERRED_RESULT_MAP.get(linkCodeHash) != null) {
+        DeferredResult deferredResult = DEFERRED_RESULT_MAP.get(linkCodeHash);
+        if(deferredResult != null) {
             LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
             if(linkTransactionMetadata == null || linkTransactionMetadata.getLinkedTransactionId() == null ||
                     linkTransactionMetadata.getAuthCode() == null) {
@@ -82,8 +84,7 @@ public class AuthorizationHelperService {
                         linkCodeHash);
                 return;
             }
-            DEFERRED_RESULT_MAP.get(linkCodeHash).setResult(createLinkAuthCodeResponse(idPTransaction,
-                            linkTransactionMetadata.getAuthCode()));
+            deferredResult.setResult(createLinkAuthCodeResponse(idPTransaction, linkTransactionMetadata.getAuthCode()));
             DEFERRED_RESULT_MAP.remove(linkCodeHash);
         }
     }
@@ -223,6 +224,6 @@ public class AuthorizationHelperService {
     }
 
     protected String getCacheKey(@NotNull String value) {
-        return IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, value);
+        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, value);
     }
 }
