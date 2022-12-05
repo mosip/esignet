@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 
@@ -40,8 +41,10 @@ public class CacheUtilService {
         return idPTransaction;
     }
 
-    @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()")
-    @Cacheable(value = Constants.KYC_CACHE, key = "#accessTokenHash")
+    @Caching( evict = { @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()"),
+                        @CacheEvict(value = Constants.LINK_CODE_HASH_CACHE, key = "#idPTransaction.getLinkCodeHash()",
+                                condition = "#idPTransaction.getLinkCodeHash() != null")},
+              cacheable = { @Cacheable(value = Constants.KYC_CACHE, key = "#accessTokenHash") })
     public IdPTransaction setKycTransaction(String accessTokenHash, IdPTransaction idPTransaction) {
         return idPTransaction;
     }
@@ -68,13 +71,13 @@ public class CacheUtilService {
     }
 
     public void setLinkCode(String linkCode, LinkTransactionMetadata transactionMetadata) {
-        Object existingValue = cacheManager.getCache(Constants.LINK_CODE_CACHE).putIfAbsent(linkCode, transactionMetadata);
+        Object existingValue = cacheManager.getCache(Constants.LINK_CODE_HASH_CACHE).putIfAbsent(linkCode, transactionMetadata);
         if(existingValue != null)
             throw new DuplicateLinkCodeException();
     }
 
     public void updateLinkCode(String linkCode, LinkTransactionMetadata transactionMetadata) {
-        cacheManager.getCache(Constants.LINK_CODE_CACHE).put(linkCode, transactionMetadata);
+        cacheManager.getCache(Constants.LINK_CODE_HASH_CACHE).put(linkCode, transactionMetadata);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -96,7 +99,7 @@ public class CacheUtilService {
     }
 
     public LinkTransactionMetadata getLinkedTransactionMetadata(String linkCode) {
-        return cacheManager.getCache(Constants.LINK_CODE_CACHE).get(linkCode, LinkTransactionMetadata.class);
+        return cacheManager.getCache(Constants.LINK_CODE_HASH_CACHE).get(linkCode, LinkTransactionMetadata.class);
     }
 
     public IdPTransaction getLinkedSessionTransaction(String linkTransactionId) {

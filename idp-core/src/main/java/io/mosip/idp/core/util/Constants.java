@@ -19,7 +19,7 @@ public class Constants {
     public static final String KYC_CACHE = "kyc";
     public static final String CLIENT_DETAIL_CACHE = "clientdetails";
     public static final String LINKED_AUTH_CACHE = "linkedauth";
-    public static final String LINK_CODE_CACHE = "linkcodes";
+    public static final String LINK_CODE_HASH_CACHE = "linkcodehash";
     public static final String LINKED_SESSION_CACHE = "linkedsessions";
 
     public static final String ROOT_KEY = "ROOT";
