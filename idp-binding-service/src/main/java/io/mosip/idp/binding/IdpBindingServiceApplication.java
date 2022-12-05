@@ -11,7 +11,8 @@ import org.springframework.cache.annotation.EnableCaching;
 
 
 @EnableCaching
-@SpringBootApplication(scanBasePackages = { "io.mosip.idp.binding", "io.mosip.idp.core", "io.mosip.idp.authwrapper",
+@SpringBootApplication(scanBasePackages = { "io.mosip.idp.binding", "io.mosip.idp.core.config",
+		"io.mosip.idp.core.util", "io.mosip.idp.authwrapper",
 		"io.mosip.kernel.crypto",
 		"io.mosip.kernel.keymanager.hsm",
 		"io.mosip.kernel.cryptomanager.util",

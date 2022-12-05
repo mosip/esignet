@@ -33,8 +33,8 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	PublicKeyRegistry findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDate);
 
 	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
-	Optional<PublicKeyRegistry> findByPSUToken(String psuToken);
+	Optional<PublicKeyRegistry> findByPsuToken(String psuToken);
 
 	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
-	Optional<PublicKeyRegistry> findByPublicKeyHashWithPsuToken(String publicKeyHash, String psuToken);
+	Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
 }
