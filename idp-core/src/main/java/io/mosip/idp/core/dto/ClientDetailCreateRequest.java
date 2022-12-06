@@ -6,10 +6,7 @@
 package io.mosip.idp.core.dto;
 
 import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.core.validator.AuthContextRef;
-import io.mosip.idp.core.validator.OIDCClaim;
-import io.mosip.idp.core.validator.OIDCClientAuth;
-import io.mosip.idp.core.validator.OIDCGrantType;
+import io.mosip.idp.core.validator.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,8 +21,8 @@ import java.util.Map;
 @NoArgsConstructor
 public class ClientDetailCreateRequest {
 
-    @NotBlank(message = ErrorConstants.INVALID_CLIENT_ID)
-    @Size(max = 50, message = ErrorConstants.INVALID_CLIENT_ID)
+    @IdFormat(message = ErrorConstants.INVALID_CLIENT_ID)
+    @Size(max = 100, message = ErrorConstants.INVALID_CLIENT_ID)
     private String clientId;
 
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME)
@@ -35,8 +32,8 @@ public class ClientDetailCreateRequest {
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
     private Map<String, Object> publicKey;
 
-    @NotBlank(message = ErrorConstants.INVALID_RP_ID)
-    @Size(max = 50, message = ErrorConstants.INVALID_RP_ID)
+    @IdFormat(message = ErrorConstants.INVALID_RP_ID)
+    @Size(max = 100, message = ErrorConstants.INVALID_RP_ID)
     private String relyingPartyId;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)

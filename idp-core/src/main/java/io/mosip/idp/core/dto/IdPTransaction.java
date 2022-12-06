@@ -24,14 +24,15 @@ public class IdPTransaction implements Serializable {
     String kycToken;
     String partnerSpecificUserToken;
     long authTimeInSeconds;
-    String code;
+    String codeHash;
 
     List<String> acceptedClaims;
     List<String> permittedScopes;
     String encryptedKyc;
     String aHash;
 
-    String error;
+    String linkedCodeHash;
+    String linkedTransactionId;
 
     String nonce;
     String state;
