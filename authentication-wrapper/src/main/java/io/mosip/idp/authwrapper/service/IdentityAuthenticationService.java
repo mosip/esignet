@@ -310,7 +310,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         jwtSignatureRequestDto.setApplicationId(Constants.IDP_PARTNER_APP_ID);
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(false);
-        jwtSignatureRequestDto.setIncludeCertificate(false);
+        jwtSignatureRequestDto.setIncludeCertificate(true);
         jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(request));
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
