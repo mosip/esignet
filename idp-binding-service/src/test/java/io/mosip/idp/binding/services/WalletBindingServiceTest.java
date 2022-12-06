@@ -207,7 +207,7 @@ public class WalletBindingServiceTest {
 	}
 
 	@Test
-	public void bindWallet_withAuthFail() throws IOException, KycAuthException, IdPException {
+	public void bindWallet_withAuthFail_thenFail() throws IOException, KycAuthException, IdPException {
 		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
 		ObjectMapper objectMappertest = new ObjectMapper();
 
