@@ -8,11 +8,12 @@ package io.mosip.idp.core.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
-public class LinkTransactionMetadata {
+public class LinkTransactionMetadata implements Serializable {
 
     private String transactionId;
     private String linkedTransactionId;
-    private String authCode;
 }

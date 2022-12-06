@@ -24,6 +24,7 @@ import java.util.*;
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
@@ -141,12 +142,12 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         authorizationHelperService.validateAcceptedClaims(transaction, authCodeRequest.getAcceptedClaims());
         authorizationHelperService.validateAuthorizeScopes(transaction, authCodeRequest.getPermittedAuthorizeScopes());
 
-        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, UUID.randomUUID().toString());
+        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
         // cache consent with auth-code-hash as key
-        transaction.setCodeHash(authorizationHelperService.getCacheKey(authCode));
+        transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
-        transaction = cacheUtilService.setConsentedTransaction(authCodeRequest.getTransactionId(), transaction);
+        transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
 
         AuthCodeResponse authCodeResponse = new AuthCodeResponse();
         authCodeResponse.setCode(authCode);

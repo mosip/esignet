@@ -58,8 +58,8 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
-        String codeHash = authorizationHelperService.getCacheKey(tokenRequest.getCode());
-        IdPTransaction transaction = cacheUtilService.getConsentedTransaction(codeHash);
+        String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
+        IdPTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -104,7 +104,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         // cache kyc with access-token as key
         transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
-        cacheUtilService.setKycTransaction(accessTokenHash, transaction);
+        cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
 
         return tokenResponse;
     }

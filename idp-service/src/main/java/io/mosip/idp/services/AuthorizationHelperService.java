@@ -2,12 +2,12 @@ package io.mosip.idp.services;
 
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,14 @@ import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.*;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.ErrorConstants.INVALID_PERMITTED_SCOPE;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Component
 public class AuthorizationHelperService {
 
-    private static final Map<String, DeferredResult> DEFERRED_RESULT_MAP = new HashMap<>();
+    private static final Map<String, DeferredResult> LINK_STATUS_DEFERRED_RESULT_MAP = new HashMap<>();
+    private static final Map<String, DeferredResult> LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP = new HashMap<>();
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -48,44 +48,39 @@ public class AuthorizationHelperService {
     private List<String> authorizeScopes;
 
 
-    protected void addEntryInDeferredResultMap(String key, DeferredResult deferredResult) {
-        DEFERRED_RESULT_MAP.put(key, deferredResult);
+    protected void addEntryInLinkStatusDeferredResultMap(String key, DeferredResult deferredResult) {
+        LINK_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
+    }
+
+    protected void addEntryInLinkAuthCodeStatusDeferredResultMap(String key, DeferredResult deferredResult) {
+        LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
     }
 
     @KafkaListener(id = "link-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-session.topic}")
     public void consumeLinkStatus(String linkCodeHash) {
-        DeferredResult deferredResult = DEFERRED_RESULT_MAP.get(linkCodeHash);
+        DeferredResult deferredResult = LINK_STATUS_DEFERRED_RESULT_MAP.get(linkCodeHash);
         if(deferredResult != null) {
-            LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
-            if(linkTransactionMetadata == null || linkTransactionMetadata.getLinkedTransactionId() == null) {
-                log.warn("Received link-status kafka message, but key was not found in cache / was found in invalid state. Ignoring the message :{}",
-                        linkCodeHash);
-                return;
-            }
-            deferredResult.setResult(createLinkStatusResponse(linkTransactionMetadata.getTransactionId(), LINKED_STATUS));
-            DEFERRED_RESULT_MAP.remove(linkCodeHash);
+            if(!deferredResult.isSetOrExpired())
+                deferredResult.setResult(getLinkStatusResponse(LINKED_STATUS));
+            LINK_STATUS_DEFERRED_RESULT_MAP.remove(linkCodeHash);
         }
     }
 
     @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-auth-code.topic}")
-    public void consumeLinkAuthCodeStatus(String linkCodeHash) {
-        DeferredResult deferredResult = DEFERRED_RESULT_MAP.get(linkCodeHash);
+    public void consumeLinkAuthCodeStatus(String linkTransactionId) {
+        DeferredResult deferredResult = LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.get(linkTransactionId);
         if(deferredResult != null) {
-            LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
-            if(linkTransactionMetadata == null || linkTransactionMetadata.getLinkedTransactionId() == null ||
-                    linkTransactionMetadata.getAuthCode() == null) {
-                log.warn("Received link-auth-code kafka message, but key was not found in cache / was found in invalid state. Ignoring the message :{}",
-                        linkCodeHash);
-                return;
+            try {
+                if(!deferredResult.isSetOrExpired()) {
+                    IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(linkTransactionId);
+                    if(idPTransaction == null)
+                        throw new InvalidTransactionException();
+
+                    deferredResult.setResult(getLinkAuthStatusResponse(null, idPTransaction));
+                }
+            } finally {
+                LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.remove(linkTransactionId);
             }
-            IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(getCacheKey(linkTransactionMetadata.getAuthCode()));
-            if(idPTransaction == null || idPTransaction.getCodeHash() == null) {
-                log.warn("Received link-auth-code kafka message, but key was not found in cache / was found in invalid state. Ignoring the message :{}",
-                        linkCodeHash);
-                return;
-            }
-            deferredResult.setResult(createLinkAuthCodeResponse(idPTransaction, linkTransactionMetadata.getAuthCode()));
-            DEFERRED_RESULT_MAP.remove(linkCodeHash);
         }
     }
 
@@ -193,25 +188,22 @@ public class AuthorizationHelperService {
         }
     }
 
-    protected ResponseWrapper<LinkStatusResponse> createLinkStatusResponse(String transactionId, String status){
+    protected ResponseWrapper<LinkStatusResponse> getLinkStatusResponse(String status){
         ResponseWrapper responseWrapper = new ResponseWrapper();
         LinkStatusResponse linkStatusResponse = new LinkStatusResponse();
-        linkStatusResponse.setTransactionId(transactionId);
         linkStatusResponse.setLinkStatus(status);
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(linkStatusResponse);
         return responseWrapper;
     }
 
-    protected ResponseWrapper<LinkAuthCodeResponse> getLinkAuthStatusResponse(String authCode) {
-        IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, authCode));
-        if(idPTransaction == null || idPTransaction.getCodeHash() == null || idPTransaction.getRedirectUri() == null)
-            throw new IdPException(ErrorConstants.INVALID_STATE);
+    protected ResponseWrapper<LinkAuthCodeResponse> getLinkAuthStatusResponse(String transactionId, IdPTransaction idPTransaction) {
+        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
+        if(idPTransaction.getCodeHash() != null)
+            cacheUtilService.removeAuthCodeGeneratedTransaction(idPTransaction.getCodeHash());
+        idPTransaction.setCodeHash(getKeyHash(authCode));
+        cacheUtilService.setAuthCodeGeneratedTransaction(transactionId, idPTransaction);
 
-        return createLinkAuthCodeResponse(idPTransaction, authCode);
-    }
-
-    protected ResponseWrapper<LinkAuthCodeResponse> createLinkAuthCodeResponse(IdPTransaction idPTransaction, String authCode){
         ResponseWrapper responseWrapper = new ResponseWrapper();
         LinkAuthCodeResponse linkAuthCodeResponse = new LinkAuthCodeResponse();
         linkAuthCodeResponse.setNonce(idPTransaction.getNonce());
@@ -223,7 +215,7 @@ public class AuthorizationHelperService {
         return responseWrapper;
     }
 
-    protected String getCacheKey(@NotNull String value) {
+    protected String getKeyHash(@NotNull String value) {
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, value);
     }
 }

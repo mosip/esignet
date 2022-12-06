@@ -13,14 +13,16 @@ public class Constants {
     public static final String BEARER = "Bearer";
     public static final String SCOPE_OPENID= "openid";
 
-    public static final String PRE_AUTH_SESSION_CACHE = "preauthsessions";
+    public static final String PRE_AUTH_SESSION_CACHE = "preauth";
     public static final String AUTHENTICATED_CACHE = "authenticated";
     public static final String CONSENTED_CACHE = "consented";
-    public static final String KYC_CACHE = "kyc";
+    public static final String USERINFO_CACHE = "userinfo";
     public static final String CLIENT_DETAIL_CACHE = "clientdetails";
     public static final String LINKED_AUTH_CACHE = "linkedauth";
-    public static final String LINK_CODE_HASH_CACHE = "linkcodehash";
-    public static final String LINKED_SESSION_CACHE = "linkedsessions";
+    public static final String LINK_CODE_GENERATED_CACHE = "linkcodegenerated";
+    public static final String LINKED_SESSION_CACHE = "linked";
+    public static final String LINKED_CODE_CACHE = "linkedcode";
+    public static final String AUTH_CODE_GENERATED_CACHE = "authcodegenerated";
 
     public static final String ROOT_KEY = "ROOT";
     public static final String IDP_PARTNER_APP_ID = "IDP_PARTNER";
