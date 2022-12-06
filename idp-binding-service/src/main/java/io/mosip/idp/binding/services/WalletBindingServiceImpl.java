@@ -128,20 +128,22 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		String publicKey = IdentityProviderUtil.getJWKString(walletBindingRequest.getPublicKey());
 		String publicKeyHash=IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256,publicKey );
 		LocalDateTime expiredtimes = calculateExpiresdtimes();
-		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository
-				.findByPsuToken(partnerSpecificUserToken);
 		Optional<PublicKeyRegistry> optionalPublicKeyRegistryForDuplicateCheck = publicKeyRegistryRepository
 				.findByPublicKeyHashNotEqualToPsuToken(publicKeyHash, partnerSpecificUserToken);
 
 		if (optionalPublicKeyRegistryForDuplicateCheck.isPresent())
-        	throw new IdPException(DUPLICATE_PUBLIC_KEY);
+			throw new IdPException(DUPLICATE_PUBLIC_KEY);
+
+		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository
+				.findOneByPsuToken(partnerSpecificUserToken);
 
 		if (optionalPublicKeyRegistry.isPresent()) {
 			publicKeyRegistry = optionalPublicKeyRegistry.get();
 			publicKeyRegistry.setPublicKey(publicKey);
 			publicKeyRegistry.setPublicKeyHash(publicKeyHash);
 			publicKeyRegistry.setExpiredtimes(expiredtimes);
-			publicKeyRegistryRepository.save(publicKeyRegistry);
+			publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash, expiredtimes,
+					partnerSpecificUserToken);
 		} else {
 
 			publicKeyRegistry = new PublicKeyRegistry();

@@ -5,9 +5,11 @@
  */
 package io.mosip.idp.binding.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
@@ -21,22 +23,14 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	 * @return
 	 */
 	Optional<PublicKeyRegistry> findByIdHash(String idHash);
-<<<<<<< HEAD
-	
-	/**
-	 * Query to fetch PublicKeyRegistry with psuToken which is not expired
-	 * 
-	 * @param psuToken
-	 * @param currentDate
-	 * @return
-	 */
-	PublicKeyRegistry findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDate);
 
-	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
-	Optional<PublicKeyRegistry> findByPsuToken(String psuToken);
+    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
+	Optional<PublicKeyRegistry> findOneByPsuToken(String psuToken);
 
-	@Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
-	Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
-=======
->>>>>>> 59c56c4d (MOSIP-24757 review comment fix)
+    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
+    Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
+
+	@Modifying
+	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expiredtimes where pkr.psuToken= :psuToken")
+	void updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expiredtimes, String psuToken);
 }
