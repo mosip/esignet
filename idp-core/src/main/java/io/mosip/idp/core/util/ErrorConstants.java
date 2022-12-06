@@ -54,6 +54,8 @@ public class ErrorConstants {
     public static final String SUBSCRIBE_FAILED = "subscription_failed";
     public static final String RESPONSE_TIMEOUT = "response_timeout";
     public static final String INVALID_STATE = "invalid_state";
-
-
+    public static final String INVALID_INDIVIDUAL_ID="invalid_individual_id";
+    public static final String JSON_PROCESSING_ERROR="json_processing_error";
+    public static final String INVALID_AUTH_CHALLENGE = "invalid_auth_challenge";
+    public static final String DUPLICATE_PUBLIC_KEY = "duplicate_public_key";
 }
