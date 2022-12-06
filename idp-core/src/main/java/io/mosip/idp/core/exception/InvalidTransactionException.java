@@ -9,7 +9,7 @@ import io.mosip.idp.core.util.ErrorConstants;
 
 public class InvalidTransactionException extends IdPException {
 
-    public InvalidTransactionException() {
-        super(ErrorConstants.INVALID_TRANSACTION);
-    }
+	public InvalidTransactionException() {
+		super(ErrorConstants.INVALID_TRANSACTION);
+	}
 }
