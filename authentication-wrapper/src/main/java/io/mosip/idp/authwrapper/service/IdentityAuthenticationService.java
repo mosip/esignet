@@ -158,7 +158,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
 
             if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 IdaResponseWrapper<IdaKycAuthResponse> responseWrapper = responseEntity.getBody();
-                if(responseWrapper.getResponse().isKycStatus() && responseWrapper.getResponse().getKycToken() != null) {
+                if(responseWrapper.getResponse() != null && responseWrapper.getResponse().isKycStatus() && responseWrapper.getResponse().getKycToken() != null) {
                     return new KycAuthResult(responseEntity.getBody().getResponse().getKycToken(),
                             responseEntity.getBody().getResponse().getAuthToken());
                 }
@@ -246,7 +246,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
 
             if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 IdaSendOtpResponse idaSendOtpResponse = responseEntity.getBody();
-                if(idaSendOtpRequest.getTransactionID().equals(idaSendOtpResponse.getTransactionID())){
+                if(idaSendOtpRequest.getTransactionID().equals(idaSendOtpResponse.getTransactionID()) && idaSendOtpResponse.getResponse() != null){
                     return new SendOtpResult(idaSendOtpResponse.getTransactionID(),
                             idaSendOtpResponse.getResponse().getMaskedEmail(),
                             idaSendOtpResponse.getResponse().getMaskedMobile());
