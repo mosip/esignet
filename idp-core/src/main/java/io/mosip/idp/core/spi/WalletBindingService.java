@@ -5,15 +5,19 @@
  */
 package io.mosip.idp.core.spi;
 
+import io.mosip.idp.core.dto.BindingOtpRequest;
+import io.mosip.idp.core.dto.OtpResponse;
+import io.mosip.idp.core.dto.ValidateBindingRequest;
+import io.mosip.idp.core.dto.ValidateBindingResponse;
 import io.mosip.idp.core.dto.WalletBindingRequest;
 import io.mosip.idp.core.dto.WalletBindingResponse;
 import io.mosip.idp.core.exception.IdPException;
 
 public interface WalletBindingService {
 
-    void sendBindingOtp() throws IdPException;
+	OtpResponse sendBindingOtp(BindingOtpRequest otpRequest) throws IdPException;
 
     WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest) throws IdPException;
 
-    void validateBinding() throws IdPException;
+    ValidateBindingResponse validateBinding(ValidateBindingRequest validateBindingRequest) throws IdPException;
 }
