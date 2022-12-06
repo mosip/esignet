@@ -5,6 +5,8 @@
  */
 package io.mosip.idp.binding.repository;
 
+import static org.junit.Assert.assertEquals;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -194,4 +196,25 @@ public class PublicKeyRegistryRepositoryTest {
 				.findByPublicKeyHashNotEqualToPsuToken("test_public_key_hash", "test_token_2");
 		Assert.assertTrue(result.isPresent());
 	}
+
+	@Test
+	public void updatePublicKeyRegistry_withValidDetail_thenPass() {
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+		publicKeyRegistry.setIdHash("test_id_hash");
+		publicKeyRegistry.setPsuToken("test_token");
+		publicKeyRegistry.setPublicKey("test_public_key");
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
+		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
+		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+		publicKeyRegistryRepository.save(publicKeyRegistry);
+		publicKeyRegistryRepository.flush();
+		Assert.assertNotNull(publicKeyRegistry);
+		int updatedRows = publicKeyRegistryRepository.updatePublicKeyRegistry("test_public_key_updated",
+				"test_public_key_hash_updated",
+				LocalDateTime.now(), "test_token");
+		assertEquals(1, updatedRows);
+
+	}
+
 }
