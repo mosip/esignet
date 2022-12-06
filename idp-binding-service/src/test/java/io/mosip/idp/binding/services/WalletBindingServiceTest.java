@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -242,43 +241,6 @@ public class WalletBindingServiceTest {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.AUTH_FAILED));
 		}
 
-	}
-
-	@Test
-	public void bindWallet_withAlreadyExistingWalletBindingId_thenPass()
-			throws IOException, KycAuthException, IdPException {
-		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
-		ObjectMapper objectMappertest = new ObjectMapper();
-
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setTransactionId("909422113");
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		List<AuthChallenge> authChallengeList = new ArrayList();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest.setPublicKey(
-				(Map<String, Object>) objectMappertest.readValue(clientJWK.toJSONString(), HashMap.class));
-		BindingTransaction transaction = new BindingTransaction();
-		transaction.setIndividualId(walletBindingRequest.getIndividualId());
-		transaction.setAuthTransactionId("909422113");
-		transaction.setAuthChallengeType("OTP");
-		KycAuthResult kycAuthResult = new KycAuthResult();
-		kycAuthResult.setKycToken("kyctoken123");
-		kycAuthResult.setPartnerSpecificUserToken("psutoken123");
-		when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
-				.thenReturn(kycAuthResult);
-		when(cacheUtilService.getTransaction(Mockito.anyString())).thenReturn(transaction);
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
-		publicKeyRegistry.setIdHash("hCv0zz_jnOkGS17BN1dUOU7tqNri-8XpHokWVQQMfiI");
-		publicKeyRegistry.setPsuToken("psutoken123");
-		publicKeyRegistry.setWalletBindingId("tXOFGPKly4L_9VI8NYvYXJe5ZNrgOIUnfFdLkNKYdTE");
-		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = Optional.of(publicKeyRegistry);
-		when(publicKeyRegistryRepository.findOneByPsuToken(Mockito.any())).thenReturn(optionalPublicKeyRegistry);
-		Assert.assertNotNull(walletBindingServiceImpl.bindWallet(walletBindingRequest));
 	}
 
 }
