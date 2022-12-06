@@ -94,15 +94,15 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 	@Value("${mosip.idp.binding.validate-binding-issuer-id}")
 	private String validateBindingIssuerId;
 	
-	private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
+	private static Set<String> REQUIRED_WFA_CLAIMS;
 
 	static {
-		REQUIRED_CLIENT_ASSERTION_CLAIMS = new HashSet<>();
-		REQUIRED_CLIENT_ASSERTION_CLAIMS.add("sub");
-		REQUIRED_CLIENT_ASSERTION_CLAIMS.add("aud");
-		REQUIRED_CLIENT_ASSERTION_CLAIMS.add("exp");
-		REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iss");
-		REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iat");
+		REQUIRED_WFA_CLAIMS = new HashSet<>();
+		REQUIRED_WFA_CLAIMS.add("sub");
+		REQUIRED_WFA_CLAIMS.add("aud");
+		REQUIRED_WFA_CLAIMS.add("exp");
+		REQUIRED_WFA_CLAIMS.add("iss");
+		REQUIRED_WFA_CLAIMS.add("iat");
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(validateBindingIssuerId)
                     .subject(individualId)
-                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
+                    .build(), REQUIRED_WFA_CLAIMS);
 
             ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
             jwtProcessor.setJWSKeySelector(keySelector);
