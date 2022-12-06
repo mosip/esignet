@@ -13,6 +13,9 @@ import lombok.Data;
 public class ValidateBindingResponse {
 	
 	@NotBlank
-    private String bavToken;
+    private String individualId;
+	
+	@NotBlank
+    private String transactionId;
 
 }

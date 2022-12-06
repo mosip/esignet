@@ -13,6 +13,9 @@ import lombok.Data;
 @Data
 public class ValidateBindingRequest {
 	
+	@NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
+    private String transactionId;
+	
 	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
     private String individualId;
 	
