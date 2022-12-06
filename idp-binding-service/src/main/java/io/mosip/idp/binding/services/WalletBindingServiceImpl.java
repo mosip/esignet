@@ -124,44 +124,43 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 
 	private PublicKeyRegistry storeData(WalletBindingRequest walletBindingRequest,
 			String partnerSpecificUserToken) throws IdPException {
-		PublicKeyRegistry publicKeyRegistry;
 		String publicKey = IdentityProviderUtil.getJWKString(walletBindingRequest.getPublicKey());
-		String publicKeyHash=IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256,publicKey );
-		LocalDateTime expiredtimes = calculateExpiresdtimes();
+		String publicKeyHash = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, publicKey);
+
 		Optional<PublicKeyRegistry> optionalPublicKeyRegistryForDuplicateCheck = publicKeyRegistryRepository
 				.findByPublicKeyHashNotEqualToPsuToken(publicKeyHash, partnerSpecificUserToken);
 
 		if (optionalPublicKeyRegistryForDuplicateCheck.isPresent())
 			throw new IdPException(DUPLICATE_PUBLIC_KEY);
 
+		LocalDateTime expiredtimes = calculateExpiresdtimes();
+
 		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository
 				.findOneByPsuToken(partnerSpecificUserToken);
 
+		String walletBindingId = null;
 		if (optionalPublicKeyRegistry.isPresent()) {
-			publicKeyRegistry = optionalPublicKeyRegistry.get();
-			publicKeyRegistry.setPublicKey(publicKey);
-			publicKeyRegistry.setPublicKeyHash(publicKeyHash);
-			publicKeyRegistry.setExpiredtimes(expiredtimes);
+			walletBindingId = optionalPublicKeyRegistry.get().getWalletBindingId();
 			publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash, expiredtimes,
 					partnerSpecificUserToken);
-		} else {
-
-			publicKeyRegistry = new PublicKeyRegistry();
-			publicKeyRegistry.setIdHash(
-					IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, walletBindingRequest.getIndividualId()));
-			publicKeyRegistry.setPsuToken(partnerSpecificUserToken);
-			publicKeyRegistry.setPublicKey(publicKey);
-			publicKeyRegistry.setExpiredtimes(expiredtimes);
+		}
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+		publicKeyRegistry.setIdHash(
+				IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, walletBindingRequest.getIndividualId()));
+		publicKeyRegistry.setPsuToken(partnerSpecificUserToken);
+		publicKeyRegistry.setPublicKey(publicKey);
+		publicKeyRegistry.setExpiredtimes(expiredtimes);
+		if (walletBindingId == null) {
 			byte[] salt = IdentityProviderUtil.generateSalt(saltLength);
 
-			String walletBindingId = IdentityProviderUtil
-					.digestAsPlainTextWithSalt(partnerSpecificUserToken.getBytes(), salt);
-
-			publicKeyRegistry.setWalletBindingId(walletBindingId);
-			publicKeyRegistry.setPublicKeyHash(publicKeyHash);
-			publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
-			publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
+			walletBindingId = IdentityProviderUtil.digestAsPlainTextWithSalt(partnerSpecificUserToken.getBytes(), salt);
 		}
+
+		publicKeyRegistry.setWalletBindingId(walletBindingId);
+		publicKeyRegistry.setPublicKeyHash(publicKeyHash);
+		publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
+		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
+
 		log.info("Saved PublicKeyRegistry details successfully");
 
 		return publicKeyRegistry;
