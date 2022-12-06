@@ -7,8 +7,6 @@ package io.mosip.idp.services;
 
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.InvalidTransactionException;
-import io.mosip.idp.core.exception.KycAuthException;
-import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
@@ -20,17 +18,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
-import static io.mosip.idp.core.util.Constants.SCOPE_OPENID;
-import static io.mosip.idp.core.util.Constants.SPACE;
-import static io.mosip.idp.core.util.ErrorConstants.*;
+import static io.mosip.idp.core.util.Constants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
@@ -48,14 +42,15 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
-    @Value("#{${mosip.idp.openid.scope.claims}}")
-    private Map<String, List<String>> claims;
-
-    @Value("#{${mosip.idp.supported.authorize.scopes}}")
-    private List<String> authorizeScopes;
+    @Autowired
+    private AuthorizationHelperService authorizationHelperService;
 
     @Value("#{${mosip.idp.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
+
+    @Value("#{${mosip.idp.openid.scope.claims}}")
+    private Map<String, List<String>> claims;
+
 
 
     @Override
@@ -68,8 +63,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
-        resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(), oauthDetailReqDto.getAcrValues(),
-                oauthDetailReqDto.getClaims()));
+        resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(),
+                oauthDetailReqDto.getAcrValues(), oauthDetailReqDto.getClaims()));
         log.info("Final resolved claims : {}", resolvedClaims);
 
         final String transactionId = IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce());
@@ -78,9 +73,12 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         oauthDetailResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
                resolvedClaims.getId_token().get(ACR).getValues()
         ));
-        setClaimNamesInResponse(resolvedClaims, oauthDetailResponse);
-        setAuthorizeScopes(oauthDetailReqDto.getScope(), oauthDetailResponse);
-        setUIConfigMap(oauthDetailResponse);
+
+        Map<String, List> claimsMap = authorizationHelperService.getClaimNames(resolvedClaims);
+        oauthDetailResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
+        oauthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
+        oauthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
+        oauthDetailResponse.setConfigs(uiConfigMap);
         oauthDetailResponse.setClientName(clientDetailDto.getName());
         oauthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
 
@@ -105,25 +103,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         if(transaction == null)
             throw new InvalidTransactionException();
 
-        SendOtpResult sendOtpResult;
-        try {
-            SendOtpRequest sendOtpRequest = new SendOtpRequest();
-            sendOtpRequest.setTransactionId(transaction.getAuthTransactionId());
-            sendOtpRequest.setIndividualId(otpRequest.getIndividualId());
-            sendOtpRequest.setOtpChannels(otpRequest.getOtpChannels());
-            sendOtpResult = authenticationWrapper.sendOtp(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    sendOtpRequest);
-        } catch (SendOtpException e) {
-            log.error("Failed to send otp for transaction : {}", otpRequest.getTransactionId(), e);
-            throw new IdPException(e.getErrorCode());
-        }
-
-        if(!transaction.getAuthTransactionId().equals(sendOtpResult.getTransactionId())) {
-            log.error("Auth transactionId in request {} is not matching with send-otp response : {}", transaction.getAuthTransactionId(),
-                    sendOtpResult.getTransactionId());
-            throw new IdPException(SEND_OTP_FAILED);
-        }
-
+        SendOtpResult sendOtpResult = authorizationHelperService.delegateSendOtpRequest(otpRequest, transaction);
         OtpResponse otpResponse = new OtpResponse();
         otpResponse.setTransactionId(otpRequest.getTransactionId());
         otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
@@ -138,24 +118,9 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new InvalidTransactionException();
 
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
-        validateProvidedAuthFactors(transaction, kycAuthRequest.getChallengeList());
-
-        KycAuthResult kycAuthResult;
-        try {
-            kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    new KycAuthRequest(transaction.getAuthTransactionId(), kycAuthRequest.getIndividualId(),
-                            kycAuthRequest.getChallengeList()));
-        } catch (KycAuthException e) {
-            log.error("KYC auth failed for transaction : {}", kycAuthRequest.getTransactionId(), e);
-            throw new IdPException(e.getErrorCode());
-        }
-
-        if(kycAuthResult == null || (StringUtils.isEmpty(kycAuthResult.getKycToken()) ||
-                StringUtils.isEmpty(kycAuthResult.getPartnerSpecificUserToken()))) {
-            log.error("** authenticationWrapper : {} returned empty tokens received **", authenticationWrapper);
-            throw new IdPException(AUTH_FAILED);
-        }
-
+        authorizationHelperService.validateProvidedAuthFactors(transaction, kycAuthRequest.getChallengeList());
+        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(kycAuthRequest.getTransactionId(),
+                kycAuthRequest.getIndividualId(), kycAuthRequest.getChallengeList(), transaction);
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
@@ -168,45 +133,28 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     }
 
     @Override
-    public IdPTransaction getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
+    public AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
         IdPTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
-        validateAcceptedClaims(transaction, authCodeRequest.getAcceptedClaims());
-        validateAuthorizeScopes(transaction, authCodeRequest.getPermittedAuthorizeScopes());
 
-        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, UUID.randomUUID().toString());
-        // cache consent with auth-code as key
-        transaction.setCode(authCode);
+        authorizationHelperService.validateAcceptedClaims(transaction, authCodeRequest.getAcceptedClaims());
+        authorizationHelperService.validateAuthorizeScopes(transaction, authCodeRequest.getPermittedAuthorizeScopes());
+
+        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
+        // cache consent with auth-code-hash as key
+        transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
-        return cacheUtilService.setConsentedTransaction(authCode, authCodeRequest.getTransactionId(), transaction);
-    }
+        transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
 
-    private void validateAcceptedClaims(IdPTransaction transaction, List<String> acceptedClaims) throws IdPException {
-        if(CollectionUtils.isEmpty(acceptedClaims))
-            return;
-
-        if(CollectionUtils.isEmpty(transaction.getRequestedClaims().getUserinfo()))
-            throw new IdPException(INVALID_ACCEPTED_CLAIM);
-
-        if(acceptedClaims.stream()
-                .allMatch( claim -> transaction.getRequestedClaims().getUserinfo().containsKey(claim) ))
-            return;
-
-        throw new IdPException(INVALID_ACCEPTED_CLAIM);
-    }
-
-    private void validateAuthorizeScopes(IdPTransaction transaction, List<String> authorizeScopes) throws IdPException {
-        if(CollectionUtils.isEmpty(authorizeScopes))
-            return;
-
-        if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()))
-            throw new IdPException(INVALID_PERMITTED_SCOPE);
-
-        if(!transaction.getRequestedAuthorizeScopes().containsAll(authorizeScopes))
-            throw new IdPException(INVALID_PERMITTED_SCOPE);
+        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
+        authCodeResponse.setCode(authCode);
+        authCodeResponse.setRedirectUri(transaction.getRedirectUri());
+        authCodeResponse.setNonce(transaction.getNonce());
+        authCodeResponse.setState(transaction.getState());
+        return authCodeResponse;
     }
 
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)
@@ -221,7 +169,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         log.info("isRequestedUserInfoClaimsPresent ? {}", isRequestedUserInfoClaimsPresent);
 
         //Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
-        if(isRequestedUserInfoClaimsPresent && !Arrays.stream(requestedScopes).anyMatch( s  -> SCOPE_OPENID.equals(s)))
+        if(isRequestedUserInfoClaimsPresent && !Arrays.stream(requestedScopes).anyMatch(s  -> SCOPE_OPENID.equals(s)))
             throw new IdPException(ErrorConstants.INVALID_SCOPE);
 
         log.info("Started to resolve claims based on the request scope {} and claims {}", requestedScopes, requestedClaims);
@@ -276,43 +224,5 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         log.info("Considering registered acrs as no valid acrs found in acr_values request param: {}", requestedAcr);
         claimDetail.setValues(registeredACRs.toArray(new String[0]));
         return claimDetail;
-    }
-
-    private void setClaimNamesInResponse(Claims resolvedClaims, OAuthDetailResponse oauthDetailResponse) {
-        oauthDetailResponse.setEssentialClaims(new ArrayList<>());
-        oauthDetailResponse.setVoluntaryClaims(new ArrayList<>());
-        for(Map.Entry<String, ClaimDetail> claim : resolvedClaims.getUserinfo().entrySet()) {
-            if(claim.getValue() != null && claim.getValue().isEssential())
-                oauthDetailResponse.getEssentialClaims().add(claim.getKey());
-            else
-                oauthDetailResponse.getVoluntaryClaims().add(claim.getKey());
-        }
-    }
-
-    private void setUIConfigMap(OAuthDetailResponse oauthDetailResponse) {
-        oauthDetailResponse.setConfigs(uiConfigMap);
-    }
-
-    private void setAuthorizeScopes(String requestedScopes, OAuthDetailResponse oauthDetailResponse) {
-        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE);
-        oauthDetailResponse.setAuthorizeScopes(Arrays.stream(scopes)
-                .filter( s -> authorizeScopes.contains(s) )
-                .collect(Collectors.toList()));
-    }
-
-    private void validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
-        List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
-                transaction.getRequestedClaims().getId_token().get(ACR).getValues());
-        List<String> providedAuthFactors = challengeList.stream()
-                .map(AuthChallenge::getAuthFactorType)
-                .collect(Collectors.toList());
-
-        boolean result = resolvedAuthFactors.stream().anyMatch( acrFactors ->
-                providedAuthFactors.containsAll(acrFactors.stream().map(AuthenticationFactor::getType).collect(Collectors.toList())));
-
-        if(!result) {
-            log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
-            throw new IdPException(AUTH_FACTOR_MISMATCH);
-        }
     }
 }

@@ -46,13 +46,7 @@ public class MockIdaConfig {
     private SignatureService signatureService;
 
     @Autowired
-    private TokenService tokenService;
-
-    @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private ClientManagementService clientManagementService;
 
     @Autowired
     private KeymanagerService keymanagerService;
@@ -60,7 +54,6 @@ public class MockIdaConfig {
     @Bean
     public MockAuthenticationService mockAuthenticationService() throws IOException {
         return new MockAuthenticationService(personaRepoDirPath, policyRepoDirPath, claimsMappingFilePath,
-                tokenExpireInSeconds, encryptKyc, signatureService, tokenService, objectMapper, clientManagementService,
-                keymanagerService);
+                tokenExpireInSeconds, encryptKyc, signatureService, objectMapper, keymanagerService);
     }
 }

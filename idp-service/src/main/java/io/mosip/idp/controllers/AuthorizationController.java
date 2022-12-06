@@ -53,15 +53,9 @@ public class AuthorizationController {
     @PostMapping("/auth-code")
     public ResponseWrapper<AuthCodeResponse> getAuthorizationCode(@Valid @RequestBody RequestWrapper<AuthCodeRequest>
                                                                               requestWrapper) throws IdPException {
-        IdPTransaction idPTransaction = authorizationService.getAuthCode(requestWrapper.getRequest());
-        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
-        authCodeResponse.setCode(idPTransaction.getCode());
-        authCodeResponse.setRedirectUri(idPTransaction.getRedirectUri());
-        authCodeResponse.setNonce(idPTransaction.getNonce());
-        authCodeResponse.setState(idPTransaction.getState());
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(authCodeResponse);
+        responseWrapper.setResponse(authorizationService.getAuthCode(requestWrapper.getRequest()));
         return responseWrapper;
     }
 }

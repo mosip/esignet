@@ -5,14 +5,15 @@
  */
 package io.mosip.idp.core.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Map;
 import java.io.Serializable;
 
 @Data
-public class Claims implements Serializable {
+@AllArgsConstructor
+public class LinkTransactionMetadata implements Serializable {
 
-    private Map<String, ClaimDetail> userinfo;
-    private Map<String, ClaimDetail> id_token;
+    private String transactionId;
+    private String linkedTransactionId;
 }

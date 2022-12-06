@@ -7,8 +7,6 @@ package io.mosip.idp.services;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.*;
@@ -16,24 +14,20 @@ import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
-import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
-import org.jose4j.jwk.JsonWebKeySet;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static io.mosip.idp.core.util.Constants.*;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
+import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
@@ -42,6 +36,9 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Autowired
     private ClientManagementService clientManagementService;
+
+    @Autowired
+    private AuthorizationHelperService authorizationHelperService;
 
     @Autowired
     private AuthenticationWrapper authenticationWrapper;
@@ -61,7 +58,8 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getAuthenticatedTransaction(tokenRequest.getCode());
+        String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
+        IdPTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -106,7 +104,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         // cache kyc with access-token as key
         transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
-        cacheUtilService.setKycTransaction(accessTokenHash, transaction);
+        cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
 
         return tokenResponse;
     }

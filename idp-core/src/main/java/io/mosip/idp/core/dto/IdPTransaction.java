@@ -8,9 +8,10 @@ package io.mosip.idp.core.dto;
 import lombok.Data;
 
 import java.util.List;
+import java.io.Serializable;
 
 @Data
-public class IdPTransaction {
+public class IdPTransaction implements Serializable {
 
     String clientId;
     String relyingPartyId;
@@ -23,14 +24,15 @@ public class IdPTransaction {
     String kycToken;
     String partnerSpecificUserToken;
     long authTimeInSeconds;
-    String code;
+    String codeHash;
 
     List<String> acceptedClaims;
     List<String> permittedScopes;
     String encryptedKyc;
     String aHash;
 
-    String error;
+    String linkedCodeHash;
+    String linkedTransactionId;
 
     String nonce;
     String state;

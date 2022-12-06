@@ -50,44 +50,44 @@ public class ValidatorTest {
     //============================ Display Validator =========================
 
     @Test
-    public void test_displayValidator_valid() {
+    public void test_displayValidator_valid_thenPass() {
         OIDCDisplayValidator validator = new OIDCDisplayValidator();
         ReflectionTestUtils.setField(validator, "supportedDisplays", Arrays.asList("page", "wap"));
         Assert.assertTrue(validator.isValid("wap", null));
     }
 
     @Test
-    public void test_displayValidator_invalid() {
+    public void test_displayValidator_invalid_thenFail() {
         OIDCDisplayValidator validator = new OIDCDisplayValidator();
         ReflectionTestUtils.setField(validator, "supportedDisplays", Arrays.asList("page", "wap"));
         Assert.assertFalse(validator.isValid("wap2", null));
     }
 
     @Test
-    public void test_displayValidator_invalidWithSpace() {
+    public void test_displayValidator_invalidWithSpace_thenFail() {
         OIDCDisplayValidator validator = new OIDCDisplayValidator();
         ReflectionTestUtils.setField(validator, "supportedDisplays", Arrays.asList("page", "wap"));
         Assert.assertFalse(validator.isValid("page wap", null));
     }
 
     @Test
-    public void test_displayValidator_nullValue() {
+    public void test_displayValidator_nullValue_thenPass() {
         OIDCDisplayValidator validator = new OIDCDisplayValidator();
         ReflectionTestUtils.setField(validator, "supportedDisplays", Arrays.asList("page", "wap"));
         Assert.assertTrue(validator.isValid(null, null));
     }
 
     @Test
-    public void test_displayValidator_EmptyValue() {
+    public void test_displayValidator_EmptyValue_thenFail() {
         OIDCDisplayValidator validator = new OIDCDisplayValidator();
         ReflectionTestUtils.setField(validator, "supportedDisplays", Arrays.asList("page", "wap"));
-        Assert.assertTrue(validator.isValid("", null));
+        Assert.assertFalse(validator.isValid("", null));
     }
 
     //============================ GranType Validator =========================
 
     @Test
-    public void test_grantTypeValidator_valid() {
+    public void test_grantTypeValidator_valid_thenPass() {
         OIDCGrantTypeValidator validator = new OIDCGrantTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedGrantTypes",
                 Arrays.asList("authorization_code"));
@@ -95,7 +95,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_grantTypeValidator_invalid() {
+    public void test_grantTypeValidator_invalid_thenFail() {
         OIDCGrantTypeValidator validator = new OIDCGrantTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedGrantTypes",
                 Arrays.asList("authorization_code"));
@@ -103,7 +103,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_grantTypeValidator_invalidWithSpace() {
+    public void test_grantTypeValidator_invalidWithSpace_thenFail() {
         OIDCGrantTypeValidator validator = new OIDCGrantTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedGrantTypes",
                 Arrays.asList("authorization_code"));
@@ -111,7 +111,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_grantTypeValidator_nullValue() {
+    public void test_grantTypeValidator_nullValue_thenFail() {
         OIDCGrantTypeValidator validator = new OIDCGrantTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedGrantTypes",
                 Arrays.asList("authorization_code"));
@@ -119,7 +119,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_grantTypeValidator_EmptyValue() {
+    public void test_grantTypeValidator_EmptyValue_thenFail() {
         OIDCGrantTypeValidator validator = new OIDCGrantTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedGrantTypes",
                 Arrays.asList("authorization_code"));
@@ -129,7 +129,7 @@ public class ValidatorTest {
     //============================ Prompt Validator =========================
 
     @Test
-    public void test_PromptValidator_valid() {
+    public void test_PromptValidator_valid_thenPass() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts",
                 Arrays.asList("none","login","consent"));
@@ -137,7 +137,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_PromptValidator_invalid() {
+    public void test_PromptValidator_invalid_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts",
                 Arrays.asList("none","login","consent"));
@@ -145,7 +145,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_PromptValidator_invalidWithSpace() {
+    public void test_PromptValidator_invalidWithSpace_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts",
                 Arrays.asList("none","login","consent"));
@@ -153,7 +153,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_PromptValidator_nullValue() {
+    public void test_PromptValidator_nullValue_thenPass() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts",
                 Arrays.asList("none","login","consent"));
@@ -161,17 +161,17 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_PromptValidator_EmptyValue() {
+    public void test_PromptValidator_EmptyValue_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts",
                 Arrays.asList("none","login","consent"));
-        Assert.assertTrue(validator.isValid("", null));
+        Assert.assertFalse(validator.isValid("", null));
     }
 
     //============================ ResponseType Validator =========================
 
     @Test
-    public void test_ResponseTypeValidator_valid() {
+    public void test_ResponseTypeValidator_valid_thenPass() {
         OIDCResponseTypeValidator validator = new OIDCResponseTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedResponseTypes",
                 Arrays.asList("code"));
@@ -179,7 +179,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ResponseTypeValidator_invalid() {
+    public void test_ResponseTypeValidator_invalid_thenFail() {
         OIDCResponseTypeValidator validator = new OIDCResponseTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedResponseTypes",
                 Arrays.asList("code"));
@@ -187,7 +187,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ResponseTypeValidator_invalidWithSpace() {
+    public void test_ResponseTypeValidator_invalidWithSpace_thenFail() {
         OIDCResponseTypeValidator validator = new OIDCResponseTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedResponseTypes",
                 Arrays.asList("code"));
@@ -195,7 +195,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ResponseTypeValidator_nullValue() {
+    public void test_ResponseTypeValidator_nullValue_thenFail() {
         OIDCResponseTypeValidator validator = new OIDCResponseTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedResponseTypes",
                 Arrays.asList("code"));
@@ -203,7 +203,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ResponseTypeValidator_EmptyValue() {
+    public void test_ResponseTypeValidator_EmptyValue_thenFail() {
         OIDCResponseTypeValidator validator = new OIDCResponseTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedResponseTypes",
                 Arrays.asList("code"));
@@ -213,7 +213,7 @@ public class ValidatorTest {
     //============================ Client Assertion type Validator =========================
 
     @Test
-    public void test_ClientAssertionTypeValidator_valid() {
+    public void test_ClientAssertionTypeValidator_valid_thenPass() {
         OIDCClientAssertionTypeValidator validator = new OIDCClientAssertionTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedAssertionTypes",
                 Arrays.asList("urn:ietf:params:oauth:client-assertion-type:jwt-bearer"));
@@ -221,7 +221,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ClientAssertionTypeValidator_invalid() {
+    public void test_ClientAssertionTypeValidator_invalid_thenFail() {
         OIDCClientAssertionTypeValidator validator = new OIDCClientAssertionTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedAssertionTypes",
                 Arrays.asList("urn:ietf:params:oauth:client-assertion-type:jwt-bearer"));
@@ -229,7 +229,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ClientAssertionTypeValidator_invalidWithSpace() {
+    public void test_ClientAssertionTypeValidator_invalidWithSpace_thenFail() {
         OIDCClientAssertionTypeValidator validator = new OIDCClientAssertionTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedAssertionTypes",
                 Arrays.asList("urn:ietf:params:oauth:client-assertion-type:jwt-bearer"));
@@ -237,7 +237,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ClientAssertionTypeValidator_nullValue() {
+    public void test_ClientAssertionTypeValidator_nullValue_thenFail() {
         OIDCClientAssertionTypeValidator validator = new OIDCClientAssertionTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedAssertionTypes",
                 Arrays.asList("urn:ietf:params:oauth:client-assertion-type:jwt-bearer"));
@@ -245,7 +245,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_ClientAssertionTypeValidator_EmptyValue() {
+    public void test_ClientAssertionTypeValidator_EmptyValue_thenFail() {
         OIDCClientAssertionTypeValidator validator = new OIDCClientAssertionTypeValidator();
         ReflectionTestUtils.setField(validator, "supportedAssertionTypes",
                 Arrays.asList("urn:ietf:params:oauth:client-assertion-type:jwt-bearer"));
@@ -255,35 +255,35 @@ public class ValidatorTest {
     //============================ Optional ACR Validator =========================
 
     @Test
-    public void test_OptionalACRValidator_valid() {
+    public void test_OptionalACRValidator_valid_thenPass() {
         AuthContextRefValidator validator = new AuthContextRefValidator();
         ReflectionTestUtils.setField(validator, "acrUtil", authenticationContextClassRefUtil);
         Assert.assertTrue(validator.isValid(null, null));
     }
 
     @Test
-    public void test_OptionalACRValidator_EmptyValue() {
+    public void test_OptionalACRValidator_EmptyValue_thenFail() {
         AuthContextRefValidator validator = new AuthContextRefValidator();
         ReflectionTestUtils.setField(validator, "acrUtil", authenticationContextClassRefUtil);
         Assert.assertFalse(validator.isValid("", null));
     }
 
     @Test
-    public void test_OptionalACRValidator_SingleValue() {
+    public void test_OptionalACRValidator_SingleValue_thenPass() {
         AuthContextRefValidator validator = new AuthContextRefValidator();
         ReflectionTestUtils.setField(validator, "acrUtil", authenticationContextClassRefUtil);
         Assert.assertTrue(validator.isValid("level2", null));
     }
 
     @Test
-    public void test_OptionalACRValidator_MultipleValue() {
+    public void test_OptionalACRValidator_MultipleValue_thenPass() {
         AuthContextRefValidator validator = new AuthContextRefValidator();
         ReflectionTestUtils.setField(validator, "acrUtil", authenticationContextClassRefUtil);
         Assert.assertTrue(validator.isValid("level4 level2", null));
     }
 
     @Test
-    public void test_OptionalACRValidator_InvalidMultipleValue() {
+    public void test_OptionalACRValidator_InvalidMultipleValue_thenFail() {
         AuthContextRefValidator validator = new AuthContextRefValidator();
         ReflectionTestUtils.setField(validator, "acrUtil", authenticationContextClassRefUtil);
         Assert.assertFalse(validator.isValid("level5 level1", null));
@@ -292,7 +292,7 @@ public class ValidatorTest {
     //============================ Request time Validator =========================
 
     @Test
-    public void test_RequestTimeValidator_nullValue() {
+    public void test_RequestTimeValidator_nullValue_thenFail() {
         RequestTimeValidator validator = new RequestTimeValidator();
         Assert.assertFalse(validator.isValid(null, null));
         Assert.assertFalse(validator.isValid("", null));
@@ -300,14 +300,14 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_RequestTimeValidator_validValue() {
+    public void test_RequestTimeValidator_validValue_thenPass() {
         RequestTimeValidator validator = new RequestTimeValidator();
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         Assert.assertTrue(validator.isValid(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)), null));
     }
 
     @Test
-    public void test_RequestTimeValidator_futureDateValue() {
+    public void test_RequestTimeValidator_futureDateValue_thenFail() {
         RequestTimeValidator validator = new RequestTimeValidator();
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         requestTime = requestTime.plusMinutes(4);
@@ -315,7 +315,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_RequestTimeValidator_oldDateValue() {
+    public void test_RequestTimeValidator_oldDateValue_thenFail() {
         RequestTimeValidator validator = new RequestTimeValidator();
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         requestTime = requestTime.minusMinutes(5);
@@ -323,7 +323,7 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_RequestTimeValidator_invalidFormat() {
+    public void test_RequestTimeValidator_invalidFormat_thenFail() {
         RequestTimeValidator validator = new RequestTimeValidator();
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
@@ -333,37 +333,62 @@ public class ValidatorTest {
     //============================ Otp channel Validator =========================
 
     @Test
-    public void test_OtpChannelValidator_valid() {
+    public void test_OtpChannelValidator_valid_thenPass() {
         OtpChannelValidator validator = new OtpChannelValidator();
         ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
         Assert.assertTrue(validator.isValid("email", null));
     }
 
     @Test
-    public void test_OtpChannelValidator_null() {
+    public void test_OtpChannelValidator_null_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
         ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
         Assert.assertFalse(validator.isValid(null, null));
     }
 
     @Test
-    public void test_OtpChannelValidator_invalid() {
+    public void test_OtpChannelValidator_invalid_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
         ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
         Assert.assertFalse(validator.isValid("mobile", null));
     }
 
     @Test
-    public void test_OtpChannelValidator_blank() {
+    public void test_OtpChannelValidator_blank_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
         ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
         Assert.assertFalse(validator.isValid("   ", null));
     }
 
     @Test
-    public void test_OtpChannelValidator_spaceAppended() {
+    public void test_OtpChannelValidator_spaceAppended_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
         ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
         Assert.assertFalse(validator.isValid("   email ", null));
+    }
+
+    //============================ IdFormat Validator =========================
+
+    @Test
+    public void test_IdFormatValidator_nullValue_thenFail() {
+        IdFormatValidator validator = new IdFormatValidator();
+        Assert.assertFalse(validator.isValid(null, null));
+        Assert.assertFalse(validator.isValid("", null));
+        Assert.assertFalse(validator.isValid("  ", null));
+    }
+
+    @Test
+    public void test_IdFormatValidator_validValue_thenPass() {
+        IdFormatValidator validator = new IdFormatValidator();
+        Assert.assertTrue(validator.isValid("id-#4_$%", null));
+    }
+
+    @Test
+    public void test_IdFormatValidator_withInvalidValue_thenFail() {
+        IdFormatValidator validator = new IdFormatValidator();
+        Assert.assertFalse(validator.isValid("  id#4$%", null));
+        Assert.assertFalse(validator.isValid("id#4$% ", null));
+        Assert.assertFalse(validator.isValid("id #4$%", null));
+        Assert.assertFalse(validator.isValid("id #4$    %", null));
     }
 }
