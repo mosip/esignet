@@ -10,6 +10,5 @@ import lombok.Data;
 @Data
 public class LinkStatusResponse {
 
-    private String transactionId;
     private String linkStatus;
 }

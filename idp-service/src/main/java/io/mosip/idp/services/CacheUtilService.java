@@ -9,6 +9,7 @@ import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.dto.LinkTransactionMetadata;
 import io.mosip.idp.core.exception.DuplicateLinkCodeException;
 import io.mosip.idp.core.util.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,6 +18,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 
+@Slf4j
 @Service
 public class CacheUtilService {
 
@@ -35,18 +37,25 @@ public class CacheUtilService {
         return idPTransaction;
     }
 
-    @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
-    @Cacheable(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()")
-    public IdPTransaction setConsentedTransaction(String transactionId, IdPTransaction idPTransaction) {
+    @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId", condition = "#transactionId != null")
+    @Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#idPTransaction.getCodeHash()")
+    public IdPTransaction setAuthCodeGeneratedTransaction(String transactionId, IdPTransaction idPTransaction) {
         return idPTransaction;
     }
 
-    @Caching( evict = { @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()"),
-                        @CacheEvict(value = Constants.LINK_CODE_HASH_CACHE, key = "#idPTransaction.getLinkCodeHash()",
-                                condition = "#idPTransaction.getLinkCodeHash() != null")},
-              cacheable = { @Cacheable(value = Constants.KYC_CACHE, key = "#accessTokenHash") })
-    public IdPTransaction setKycTransaction(String accessTokenHash, IdPTransaction idPTransaction) {
+    @Caching(evict = {@CacheEvict(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#idPTransaction.getCodeHash()"),
+            @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getLinkedTransactionId()",
+                    condition = "#idPTransaction.getLinkedTransactionId() != null"),
+            @CacheEvict(value = Constants.LINKED_CODE_CACHE, key = "#idPTransaction.getLinkedCodeHash()",
+                    condition = "#idPTransaction.getLinkedCodeHash() != null" )},
+            cacheable = {@Cacheable(value = Constants.USERINFO_CACHE, key = "#accessTokenHash")})
+    public IdPTransaction setUserInfoTransaction(String accessTokenHash, IdPTransaction idPTransaction) {
         return idPTransaction;
+    }
+
+    @CacheEvict(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#codeHash", condition = "#codeHash != null")
+    public void removeAuthCodeGeneratedTransaction(String codeHash) {
+        log.debug("Evicting entry from authCodeGeneratedCache");
     }
 
     //---------------------------------------------- Linked authorization ----------------------------------------------
@@ -65,19 +74,28 @@ public class CacheUtilService {
     }
 
     @CacheEvict(value = Constants.LINKED_AUTH_CACHE, key = "#idPTransaction.getLinkedTransactionId()")
-    @Cacheable(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getCodeHash()")
+    @Cacheable(value = Constants.CONSENTED_CACHE, key = "#linkedTransactionId")
     public IdPTransaction setLinkedConsentedTransaction(String linkedTransactionId, IdPTransaction idPTransaction) {
         return idPTransaction;
     }
 
-    public void setLinkCode(String linkCode, LinkTransactionMetadata transactionMetadata) {
-        Object existingValue = cacheManager.getCache(Constants.LINK_CODE_HASH_CACHE).putIfAbsent(linkCode, transactionMetadata);
+    @Caching(evict = {@CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getLinkedTransactionId()"),
+            @CacheEvict(value = Constants.LINKED_CODE_CACHE, key = "#linkCodeHash")},
+    cacheable = {@Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#idPTransaction.getCodeHash()")})
+    public IdPTransaction setLinkedAuthCodeTransaction(String linkCodeHash, String linkedTransactionId, IdPTransaction idPTransaction) {
+        return idPTransaction;
+    }
+
+    public void setLinkCodeGenerated(String linkCodeHash, LinkTransactionMetadata transactionMetadata) {
+        Object existingValue = cacheManager.getCache(Constants.LINK_CODE_GENERATED_CACHE).putIfAbsent(linkCodeHash, transactionMetadata);
         if(existingValue != null)
             throw new DuplicateLinkCodeException();
     }
 
-    public void updateLinkCode(String linkCode, LinkTransactionMetadata transactionMetadata) {
-        cacheManager.getCache(Constants.LINK_CODE_HASH_CACHE).put(linkCode, transactionMetadata);
+    @CacheEvict(value = Constants.LINK_CODE_GENERATED_CACHE, key = "#linkCodeHash")
+    @Cacheable(value = Constants.LINKED_CODE_CACHE, key = "#linkCodeHash")
+    public LinkTransactionMetadata setLinkedCode(String linkCodeHash, LinkTransactionMetadata transactionMetadata) {
+        return transactionMetadata;
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -90,16 +108,24 @@ public class CacheUtilService {
         return cacheManager.getCache(Constants.AUTHENTICATED_CACHE).get(transactionId, IdPTransaction.class);
     }
 
-    public IdPTransaction getConsentedTransaction(String codeHash) {
-        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(codeHash, IdPTransaction.class);
+    public IdPTransaction getAuthCodeTransaction(String codeHash) {
+        return cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE).get(codeHash, IdPTransaction.class);
     }
 
-    public IdPTransaction getKycTransaction(String accessTokenHash) {
-        return cacheManager.getCache(Constants.KYC_CACHE).get(accessTokenHash, IdPTransaction.class);
+    public IdPTransaction getConsentedTransaction(String linkedTransactionId) {
+        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(linkedTransactionId, IdPTransaction.class);
     }
 
-    public LinkTransactionMetadata getLinkedTransactionMetadata(String linkCode) {
-        return cacheManager.getCache(Constants.LINK_CODE_HASH_CACHE).get(linkCode, LinkTransactionMetadata.class);
+    public IdPTransaction getUserInfoTransaction(String accessTokenHash) {
+        return cacheManager.getCache(Constants.USERINFO_CACHE).get(accessTokenHash, IdPTransaction.class);
+    }
+
+    public LinkTransactionMetadata getLinkedTransactionMetadata(String linkCodeHash) {
+        return cacheManager.getCache(Constants.LINKED_CODE_CACHE).get(linkCodeHash, LinkTransactionMetadata.class);
+    }
+
+    public LinkTransactionMetadata getLinkCodeGenerated(String linkCodeHash) {
+        return cacheManager.getCache(Constants.LINK_CODE_GENERATED_CACHE).get(linkCodeHash, LinkTransactionMetadata.class);
     }
 
     public IdPTransaction getLinkedSessionTransaction(String linkTransactionId) {

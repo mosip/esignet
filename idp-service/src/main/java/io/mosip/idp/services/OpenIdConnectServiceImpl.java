@@ -45,7 +45,7 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
             throw new NotAuthenticatedException();
 
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenParts[1]);
-        IdPTransaction transaction = cacheUtilService.getKycTransaction(accessTokenHash);
+        IdPTransaction transaction = cacheUtilService.getUserInfoTransaction(accessTokenHash);
         if(transaction == null)
             throw new NotAuthenticatedException();
 
