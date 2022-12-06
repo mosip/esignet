@@ -202,6 +202,7 @@ public class WalletBindingControllerTest {
 	@Test
 	public void validateBinding_withValidRequest_returnSuccessResponse() throws Exception {
 		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
+		bindingRequest.setTransactionId("9043211571");
 		bindingRequest.setIndividualId("8267411571");
 		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
@@ -210,17 +211,19 @@ public class WalletBindingControllerTest {
 		wrapper.setRequest(bindingRequest);
 
 		ValidateBindingResponse bindingResponse = new ValidateBindingResponse();
-		bindingResponse.setBavToken("eyJhbGciOiJIUzI1N");
+		bindingResponse.setTransactionId("9043211571");
+		bindingResponse.setIndividualId("8267411571");
 		when(walletBindingService.validateBinding(bindingRequest)).thenReturn(bindingResponse);
 
 		mockMvc.perform(post("/validate-binding").content(objectMapper.writeValueAsString(wrapper))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.response.bavToken").value("eyJhbGciOiJIUzI1N"));
+				.andExpect(jsonPath("$.response.transactionId").value("9043211571"));
 	}
 	
 	@Test
 	public void validateBinding_withInvalidIndividualId_returnFailureResponse() throws Exception {
 		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
+		bindingRequest.setTransactionId("9043211571");
 		bindingRequest.setIndividualId("");
 		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
@@ -237,6 +240,7 @@ public class WalletBindingControllerTest {
 	@Test
 	public void validateBinding_withInvalidWfaToken_returnFailureResponse() throws Exception {
 		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
+		bindingRequest.setTransactionId("9043211571");
 		bindingRequest.setIndividualId("8267411571");
 		bindingRequest.setWfaToken("");
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
@@ -248,6 +252,23 @@ public class WalletBindingControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.errors").isNotEmpty())
 				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_WFA_TOKEN));
+	}
+	
+	@Test
+	public void validateBinding_withInvalidTransactionId_returnFailureResponse() throws Exception {
+		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
+		bindingRequest.setTransactionId("");
+		bindingRequest.setIndividualId("8267411571");
+		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
+		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+		RequestWrapper wrapper = new RequestWrapper<>();
+		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+		wrapper.setRequest(bindingRequest);
+
+		mockMvc.perform(post("/validate-binding").content(objectMapper.writeValueAsString(wrapper))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.errors").isNotEmpty())
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID));
 	}
 	
 }
