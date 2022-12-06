@@ -26,16 +26,21 @@ import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.lang.JoseException;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.nimbusds.jwt.JWT;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 
 import io.mosip.idp.binding.dto.BindingTransaction;
@@ -54,18 +59,11 @@ import io.mosip.idp.core.dto.WalletBindingResponse;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.exception.KycAuthException;
-import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.WalletBindingService;
-import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
-import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -80,9 +78,6 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 
 	@Autowired
 	private PublicKeyRegistryRepository publicKeyRegistryRepository;
-	
-	@Autowired
-	private SignatureService signatureService;
 
 	@Value("${mosip.idp.binding.auth-partner-id}")
 	private String authPartnerId;
@@ -93,17 +88,11 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 	@Value("${mosip.idp.binding.public-key-expire-days}")
 	private int expireDays;
 
-	@Value("${mosip.idp.binding.issuer-id}")
-	private String issuerId;
-
 	@Value("${mosip.idp.binding.salt-length}")
 	private int saltLength;
 	
-	@Value("${mosip.idp.bav-token-expire-seconds:60}")
-	private int bavTokenExpireSeconds;
-	
-	@Value("${mosip.idp.authn.ida.kyc-auth-url}")
-	private String kycAuthURL;
+	@Value("${mosip.idp.binding.validate-binding-issuer-id}")
+	private String validateBindingIssuerId;
 	
 	private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
 
@@ -199,36 +188,26 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 			throw new IdPException(ErrorConstants.INVALID_INDIVIDUAL_ID);
 		}
 		
-		// Verify WFA Token
-		if (!isSignatureValid(validateBindingRequest.getWfaToken())) {
-			log.error("WFA token signature verification failed");
-			throw new NotAuthenticatedException();
-		}
+		try {		      
+            JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
+                    new ImmutableJWKSet(new JWKSet(RSAKey.parse(publicKeyRegistry.get().getPublicKey()))));
+            JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
+                    .audience(validateBindingIssuerId)
+                    .subject(individualId)
+                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
+
+            ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
+            jwtProcessor.setJWSKeySelector(keySelector);
+            jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
+            jwtProcessor.process(validateBindingRequest.getWfaToken(), null); //If invalid throws exception
+        } catch (Exception e) {
+            log.error("Failed to verify WFA token", e);
+            throw new IdPException(ErrorConstants.INVALID_AUTH_TOKEN);
+        }
 		
-		try {
-			JWT jwt = JWTParser.parse(validateBindingRequest.getWfaToken());
-			JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(
-					new JWTClaimsSet.Builder().audience(issuerId)
-							.subject(individualId).build(),
-					REQUIRED_CLIENT_ASSERTION_CLAIMS);
-			claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
-		} catch (Exception e) {
-			log.error("WFA token claims verification failed", e);
-			throw new NotAuthenticatedException();
-		}
-
-		// Generate BAV Token
-		JSONObject payload = new JSONObject();
-		payload.put("iss", issuerId);
-		payload.put("sub", individualId);
-		payload.put("aud", kycAuthURL);
-		long issueTime = IdentityProviderUtil.getEpochSeconds();
-		payload.put("iat", issueTime);
-		payload.put("exp", issueTime + (bavTokenExpireSeconds <= 0 ? 3600 : bavTokenExpireSeconds));
-		String bavToken = getSignedJWT(Constants.IDP_BINDING_PARTNER_APP_ID, payload);
-
 		ValidateBindingResponse validateBindingResponse = new ValidateBindingResponse();
-		validateBindingResponse.setBavToken(bavToken);
+		validateBindingResponse.setIndividualId(individualId);
+		validateBindingResponse.setTransactionId(validateBindingRequest.getTransactionId());
 		return validateBindingResponse;
 	}
 
@@ -321,27 +300,6 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 			log.error(INVALID_PUBLIC_KEY, e);
 			throw new IdPException(INVALID_PUBLIC_KEY);
 		}
-	}
-	
-	private String getSignedJWT(String applicationId, JSONObject payload) {
-		JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-		jwtSignatureRequestDto.setApplicationId(applicationId);
-		jwtSignatureRequestDto.setReferenceId("");
-		jwtSignatureRequestDto.setIncludePayload(true);
-		jwtSignatureRequestDto.setIncludeCertificate(false);
-		jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload.toJSONString()));
-		jwtSignatureRequestDto.setIncludeCertHash(false);
-		JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
-		return responseDto.getJwtSignedData();
-	}
-
-	private boolean isSignatureValid(String jwt) {
-		JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
-		signatureVerifyRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
-		signatureVerifyRequestDto.setReferenceId("");
-		signatureVerifyRequestDto.setJwtSignatureData(jwt);
-		JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
-		return responseDto.isSignatureValid();
 	}
 	
 }
