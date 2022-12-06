@@ -68,6 +68,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     private int linkCodeLength;
 
 
+    //TODO limit on link-code generation
     @Override
     public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException {
         IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(linkCodeRequest.getTransactionId());
@@ -79,6 +80,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         ZonedDateTime expireDateTime = null;
         try {
             linkCode = IdentityProviderUtil.generateRandomAlphaNumeric(linkCodeLength);
+            cacheUtilService.setLinkCodeGenerated(authorizationHelperService.getKeyHash(linkCode),
+                    new LinkTransactionMetadata(linkCodeRequest.getTransactionId(),null));
         } catch (DuplicateLinkCodeException e) {
             log.error("Generated duplicate link code");
             linkCode = null;
@@ -87,10 +90,10 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if(linkCode == null) {
             log.info("Found duplicate link-code, generating new link-code");
             linkCode = IdentityProviderUtil.generateRandomAlphaNumeric(linkCodeLength);
+            cacheUtilService.setLinkCodeGenerated(authorizationHelperService.getKeyHash(linkCode),
+                    new LinkTransactionMetadata(linkCodeRequest.getTransactionId(),null));
         }
 
-        cacheUtilService.setLinkCode(authorizationHelperService.getCacheKey(linkCode),
-                new LinkTransactionMetadata(linkCodeRequest.getTransactionId(),null,null));
         expireDateTime = ZonedDateTime.now(ZoneOffset.UTC).plus(linkCodeExpiryInSeconds, ChronoUnit.SECONDS);
 
         LinkCodeResponse linkCodeResponse = new LinkCodeResponse();
@@ -103,8 +106,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws IdPException {
-        String linkCodeHash = authorizationHelperService.getCacheKey(linkTransactionRequest.getLinkCode());
-        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
+        String linkCodeHash = authorizationHelperService.getKeyHash(linkTransactionRequest.getLinkCode());
+        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
         if(linkTransactionMetadata == null || linkTransactionMetadata.getTransactionId() == null)
             throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
 
@@ -115,13 +118,13 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         log.info("Valid link-code provided, proceeding to generate linkTransactionId");
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
-        //if valid, generate link-transaction-id and move transaction from preauth-sessions to linked-sessions cache
+        //if valid, generate link-transaction-id and move transaction from preauth to linked cache
         String linkedTransactionId = IdentityProviderUtil.createTransactionId(transaction.getNonce());
         transaction.setLinkedTransactionId(linkedTransactionId);
-        transaction.setLinkCodeHash(linkCodeHash);
+        transaction.setLinkedCodeHash(linkCodeHash);
         transaction = cacheUtilService.setLinkedTransaction(linkTransactionMetadata.getTransactionId(), transaction);
         linkTransactionMetadata.setLinkedTransactionId(linkedTransactionId);
-        cacheUtilService.updateLinkCode(linkCodeHash, linkTransactionMetadata);
+        cacheUtilService.setLinkedCode(linkCodeHash, linkTransactionMetadata);
 
         LinkTransactionResponse linkTransactionResponse = new LinkTransactionResponse();
         linkTransactionResponse.setLinkTransactionId(linkedTransactionId);
@@ -184,20 +187,13 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         authorizationHelperService.validateAcceptedClaims(transaction, linkedConsentRequest.getAcceptedClaims());
         authorizationHelperService.validateAuthorizeScopes(transaction, linkedConsentRequest.getPermittedAuthorizeScopes());
-
-        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_MD5, UUID.randomUUID().toString());
-        // cache consent with auth-code-hash as key
-        transaction.setCodeHash(authorizationHelperService.getCacheKey(authCode));
+        // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
 
-        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(transaction.getLinkCodeHash());
-        linkTransactionMetadata.setAuthCode(authCode);
-        cacheUtilService.updateLinkCode(transaction.getLinkCodeHash(), linkTransactionMetadata);
-
         //Publish message after successfully saving the consent
-        kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkCodeHash());
+        kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
@@ -207,36 +203,37 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Async
     @Override
     public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException {
-        String linkCodeHash = authorizationHelperService.getCacheKey(linkStatusRequest.getLinkCode());
-        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
+        String linkCodeHash = authorizationHelperService.getKeyHash(linkStatusRequest.getLinkCode());
+        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
+        if(linkTransactionMetadata == null) {
+            //if its already linked
+            linkTransactionMetadata =  cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
+        }
+
         if (linkTransactionMetadata == null || !linkStatusRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()))
             throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
 
         if (linkTransactionMetadata.getLinkedTransactionId() != null) {
-            deferredResult.setResult(authorizationHelperService.createLinkStatusResponse(linkTransactionMetadata.getTransactionId(),
-                    LINKED_STATUS));
+            deferredResult.setResult(authorizationHelperService.getLinkStatusResponse(LINKED_STATUS));
         } else {
-            authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
+            authorizationHelperService.addEntryInLinkStatusDeferredResultMap(linkCodeHash, deferredResult);
         }
     }
 
     @Async
     @Override
     public void getLinkAuthCodeStatus(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException {
-        String linkCodeHash = authorizationHelperService.getCacheKey(linkAuthCodeRequest.getLinkedCode());
+        String linkCodeHash = authorizationHelperService.getKeyHash(linkAuthCodeRequest.getLinkedCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
         if(linkTransactionMetadata == null || !linkAuthCodeRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()) ||
                 linkTransactionMetadata.getLinkedTransactionId() == null)
             throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
 
-        if(linkTransactionMetadata.getAuthCode() != null) {
-            try {
-                deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getAuthCode()));
-            } catch (IdPException e) {
-                log.error("Cache hit failed to get the auth-code status for linkCode : {}", linkAuthCodeRequest.getLinkedCode());
-            }
+        IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
+        if(idPTransaction != null) {
+            deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), idPTransaction));
         } else {
-            authorizationHelperService.addEntryInDeferredResultMap(linkCodeHash, deferredResult);
+            authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
         }
     }
 }
