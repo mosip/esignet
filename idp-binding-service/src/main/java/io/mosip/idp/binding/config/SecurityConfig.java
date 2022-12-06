@@ -52,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
 				.antMatchers(HttpMethod.POST, servletPath + "/send-binding-otp/**").hasAuthority(sendBindingOtpApiScope)
-				.antMatchers(HttpMethod.PUT, servletPath + "/wallet-binding/**").hasAuthority(walletBindingApiScope)
+				.antMatchers(HttpMethod.POST, servletPath + "/wallet-binding/**").hasAuthority(walletBindingApiScope)
 				.antMatchers(HttpMethod.GET, servletPath + "/system-info/**").hasAuthority(getCertificateApiScope)
 				.anyRequest().authenticated()
                 .and()
