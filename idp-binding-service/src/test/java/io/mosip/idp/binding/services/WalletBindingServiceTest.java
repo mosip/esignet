@@ -277,9 +277,7 @@ public class WalletBindingServiceTest {
 		publicKeyRegistry.setPsuToken("psutoken123");
 		publicKeyRegistry.setWalletBindingId("tXOFGPKly4L_9VI8NYvYXJe5ZNrgOIUnfFdLkNKYdTE");
 		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = Optional.of(publicKeyRegistry);
-		when(publicKeyRegistryRepository.findByPsuToken(Mockito.any())).thenReturn(optionalPublicKeyRegistry);
-		when(publicKeyRegistryRepository.save(Mockito.any())).thenReturn(publicKeyRegistry);
-
+		when(publicKeyRegistryRepository.findOneByPsuToken(Mockito.any())).thenReturn(optionalPublicKeyRegistry);
 		Assert.assertNotNull(walletBindingServiceImpl.bindWallet(walletBindingRequest));
 	}
 

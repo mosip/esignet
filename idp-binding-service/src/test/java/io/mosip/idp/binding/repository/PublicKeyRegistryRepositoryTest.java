@@ -171,9 +171,9 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
-		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findByPsuToken("test_token");
+		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findOneByPsuToken("test_token");
 		Assert.assertTrue(result.isPresent());
-		result = publicKeyRegistryRepository.findByPsuToken("test_token_2");
+		result = publicKeyRegistryRepository.findOneByPsuToken("test_token_2");
 		Assert.assertFalse(result.isPresent());
 	}
 
@@ -194,4 +194,5 @@ public class PublicKeyRegistryRepositoryTest {
 				.findByPublicKeyHashNotEqualToPsuToken("test_public_key_hash", "test_token_2");
 		Assert.assertTrue(result.isPresent());
 	}
+
 }
