@@ -9,7 +9,10 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,27 +29,33 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jwt.proc.BadJWTException;
 
 import io.mosip.idp.authwrapper.service.MockAuthenticationService;
 import io.mosip.idp.binding.TestUtil;
 import io.mosip.idp.binding.dto.BindingTransaction;
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
-import io.mosip.idp.binding.repository.IdTokenMappingRepository;
 import io.mosip.idp.binding.repository.PublicKeyRegistryRepository;
 import io.mosip.idp.core.dto.AuthChallenge;
+import io.mosip.idp.core.dto.BindingOtpRequest;
 import io.mosip.idp.core.dto.KycAuthResult;
+import io.mosip.idp.core.dto.SendOtpResult;
+import io.mosip.idp.core.dto.ValidateBindingRequest;
 import io.mosip.idp.core.dto.WalletBindingRequest;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.KycAuthException;
-import io.mosip.idp.core.spi.ClientManagementService;
-import io.mosip.idp.core.spi.TokenService;
+import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
+import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
+import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
+import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WalletBindingServiceTest {
+	
 	@InjectMocks
 	WalletBindingServiceImpl walletBindingServiceImpl;
 
@@ -57,12 +66,6 @@ public class WalletBindingServiceTest {
 	private SignatureService signatureService;
 
 	@Mock
-	private TokenService tokenService;
-
-	@Mock
-	private ClientManagementService clientManagementService;
-
-	@Mock
 	private KeymanagerService keymanagerService;
 
 	@Mock
@@ -70,9 +73,6 @@ public class WalletBindingServiceTest {
 
 	@Mock
 	private PublicKeyRegistryRepository publicKeyRegistryRepository;
-
-	@Mock
-	private IdTokenMappingRepository idTokenMappingRepository;
 
 	@Mock
 	MockAuthenticationService authenticationWrapper;
@@ -89,6 +89,82 @@ public class WalletBindingServiceTest {
 		ReflectionTestUtils.setField(walletBindingServiceImpl, "saltLength", 16);
 	}
 
+	private void initiateMockAuthenticationService() throws IOException {
+		authenticationWrapper = new MockAuthenticationService("src/test/resources/mockida/",
+				"src/test/resources/mockida/", "src/test/resources/mockida/claims_attributes_mapping.json", 0, false,
+				signatureService, objectMapper, keymanagerService);
+		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
+	}
+	
+	@Test
+	public void sendBindingOtp_withValidDetails_thenPass() throws IdPException, IOException {
+		initiateMockAuthenticationService();
+
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		otpRequest.setCaptchaToken("7893J");
+
+		BindingTransaction transaction = new BindingTransaction();
+		transaction.setIndividualId(otpRequest.getIndividualId());
+		transaction.setAuthTransactionId("909422113");
+		transaction.setAuthChallengeType("OTP");
+
+		when(cacheUtilService.setTransaction(Mockito.anyString(), Mockito.any())).thenReturn(transaction);
+
+		Assert.assertNotNull(walletBindingServiceImpl.sendBindingOtp(otpRequest));
+	}
+
+	@Test
+	public void sendBindingOtp_withInvalidIndividualId_thenFail() throws IOException {
+		initiateMockAuthenticationService();
+
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("123456789");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		otpRequest.setCaptchaToken("7893J");
+
+		BindingTransaction transaction = new BindingTransaction();
+		transaction.setIndividualId(otpRequest.getIndividualId());
+		transaction.setAuthTransactionId("909422113");
+		transaction.setAuthChallengeType("OTP");
+
+		when(cacheUtilService.setTransaction(Mockito.anyString(), Mockito.any())).thenReturn(transaction);
+
+		try {
+			walletBindingServiceImpl.sendBindingOtp(otpRequest);
+			Assert.fail();
+		} catch (IdPException e) {
+			Assert.assertTrue(e.getErrorCode().equals("mock-ida-001"));
+		}
+	}
+
+	@Test
+	public void sendBindingOtp_withMismatchedTransactionId_thenFail() throws SendOtpException {
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		otpRequest.setCaptchaToken("7893J");
+
+		BindingTransaction transaction = new BindingTransaction();
+		transaction.setIndividualId(otpRequest.getIndividualId());
+		transaction.setAuthTransactionId("909422113");
+		transaction.setAuthChallengeType("OTP");
+
+		SendOtpResult sendOtpResult = new SendOtpResult("13901911", "test@gmail.com", "9090909090");
+
+		when(cacheUtilService.setTransaction(Mockito.anyString(), Mockito.any())).thenReturn(transaction);
+		when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+				.thenReturn(sendOtpResult);
+
+		try {
+			walletBindingServiceImpl.sendBindingOtp(otpRequest);
+			Assert.fail();
+		} catch (IdPException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.SEND_OTP_FAILED));
+		}
+	}
+	
 	@Test
 	public void bindWallet_withValidDetails_thenPass() throws IOException, KycAuthException, IdPException {
 		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
@@ -100,7 +176,9 @@ public class WalletBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("111111");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		walletBindingRequest
 				.setPublicKey(
 						(Map<String, Object>) objectMappertest.readValue(clientJWK.toJSONString(), HashMap.class));
@@ -137,7 +215,9 @@ public class WalletBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("111111");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		walletBindingRequest.setPublicKey(
 				(Map<String, Object>) objectMappertest.readValue(clientJWK.toJSONString(), HashMap.class));
 		BindingTransaction transaction = new BindingTransaction();
@@ -165,7 +245,9 @@ public class WalletBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("111111");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		walletBindingRequest.setPublicKey(
 				(Map<String, Object>) objectMappertest.readValue(clientJWK.toJSONString(), HashMap.class));
 		when(cacheUtilService.getTransaction(Mockito.anyString())).thenReturn(null);
@@ -189,7 +271,9 @@ public class WalletBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("demo");
 		authChallenge.setChallenge("111111");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		walletBindingRequest.setPublicKey(
 				(Map<String, Object>) objectMappertest.readValue(clientJWK.toJSONString(), HashMap.class));
 		BindingTransaction transaction = new BindingTransaction();
@@ -207,7 +291,7 @@ public class WalletBindingServiceTest {
 	}
 
 	@Test
-	public void bindWallet_withAuthFail_thenFail() throws IOException, KycAuthException, IdPException {
+	public void bindWallet_withAuthFail() throws IOException, KycAuthException, IdPException {
 		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
 		ObjectMapper objectMappertest = new ObjectMapper();
 
@@ -217,7 +301,9 @@ public class WalletBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("111111");
-		walletBindingRequest.setAuthChallenge(authChallenge);
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
 		walletBindingRequest.setPublicKey(
 				(Map<String, Object>) objectMappertest.readValue(clientJWK.toJSONString(), HashMap.class));
 		BindingTransaction transaction = new BindingTransaction();
@@ -272,6 +358,85 @@ public class WalletBindingServiceTest {
 		when(publicKeyRegistryRepository.findOneByPsuToken(Mockito.any())).thenReturn(optionalPublicKeyRegistry);
 		when(publicKeyRegistryRepository.save(Mockito.any())).thenReturn(publicKeyRegistry);
 		Assert.assertNotNull(walletBindingServiceImpl.bindWallet(walletBindingRequest));
+	}
+	
+	@Test
+	public void validateBinding_withValidDetails_thenPass() throws IdPException, IOException, BadJWTException {
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("8267411571", "test-psu-token", "test-public-key",
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", LocalDateTime.now());
+		Optional<PublicKeyRegistry> optionalRegistry = Optional.of(publicKeyRegistry);
+		when(publicKeyRegistryRepository.findByIdHash(Mockito.anyString())).thenReturn(optionalRegistry);
+
+		JWTSignatureVerifyResponseDto responseDto = new JWTSignatureVerifyResponseDto(true, "", "");
+		when(signatureService.jwtVerify(Mockito.any(JWTSignatureVerifyRequestDto.class))).thenReturn(responseDto);
+		
+		JWTSignatureResponseDto signResponseDto = new JWTSignatureResponseDto("test-signed-data", LocalDateTime.now());
+		when(signatureService.jwtSign(Mockito.any(JWTSignatureRequestDto.class))).thenReturn(signResponseDto);
+		
+		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
+		validateBindingRequest.setIndividualId("8267411571");
+		validateBindingRequest.setWfaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgwODcvdjEvaWRwYmluZGluZyIsInN1YiI6IjgyNjc0MTE1NzEiLCJpc3MiOiJJc3N1ZXIiLCJleHAiOjIyMzg0MDAwMzksImlhdCI6MTY3MDMyMDAzOX0.Y-JR5wI_f-4aybYj2EZQ4qyoyuNO6AoSYCIUezDSoWQ");
+		Assert.assertNotNull(walletBindingServiceImpl.validateBinding(validateBindingRequest));
+	}
+	
+	@Test
+	public void validateBinding_withInvalidIndividualId_thenFail() throws IdPException, IOException, BadJWTException {
+		when(publicKeyRegistryRepository.findByIdHash(Mockito.anyString())).thenReturn(Optional.empty());
+		
+		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
+		validateBindingRequest.setIndividualId("8267411571");
+		validateBindingRequest.setWfaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN1YiI6IjgyNjc0MTE1NzEiLCJpc3MiOiJJc3N1ZXIiLCJleHAiOjE3MzMzODQ2MjUsImlhdCI6MTY3MDIyNjIyNX0.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
+		
+		try {
+			walletBindingServiceImpl.validateBinding(validateBindingRequest);
+			Assert.fail();
+		} catch (IdPException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_INDIVIDUAL_ID));
+		}
+	}
+	
+	@Test
+	public void validateBinding_withInvalidSignature_thenFail() throws IdPException, IOException, BadJWTException {
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("8267411571", "test-psu-token", "test-public-key",
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", LocalDateTime.now());
+		Optional<PublicKeyRegistry> optionalRegistry = Optional.of(publicKeyRegistry);
+		when(publicKeyRegistryRepository.findByIdHash(Mockito.anyString())).thenReturn(optionalRegistry);
+		
+		JWTSignatureVerifyResponseDto responseDto = new JWTSignatureVerifyResponseDto(false, "", "");
+		when(signatureService.jwtVerify(Mockito.any(JWTSignatureVerifyRequestDto.class))).thenReturn(responseDto);
+
+		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
+		validateBindingRequest.setIndividualId("8267411571");
+		validateBindingRequest.setWfaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN1YiI6IjgyNjc0MTE1NzEiLCJpc3MiOiJJc3N1ZXIiLCJleHAiOjE3MzMzODQ2MjUsImlhdCI6MTY3MDIyNjIyNX0.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
+
+		try {
+			walletBindingServiceImpl.validateBinding(validateBindingRequest);
+			Assert.fail();
+		} catch (IdPException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_TOKEN));
+		}
+	}
+	
+	@Test
+	public void validateBinding_withInvalidClaims_thenFail() throws IdPException, IOException, BadJWTException {
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("8267411571", "test-psu-token", "test-public-key",
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", LocalDateTime.now());
+		Optional<PublicKeyRegistry> optionalRegistry = Optional.of(publicKeyRegistry);
+		when(publicKeyRegistryRepository.findByIdHash(Mockito.anyString())).thenReturn(optionalRegistry);
+		
+		JWTSignatureVerifyResponseDto responseDto = new JWTSignatureVerifyResponseDto(true, "", "");
+		when(signatureService.jwtVerify(Mockito.any(JWTSignatureVerifyRequestDto.class))).thenReturn(responseDto);
+
+		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
+		validateBindingRequest.setIndividualId("8267411571");
+		validateBindingRequest.setWfaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
+
+		try {
+			walletBindingServiceImpl.validateBinding(validateBindingRequest);
+			Assert.fail();
+		} catch (IdPException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_TOKEN));
+		}
 	}
 
 }

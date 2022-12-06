@@ -33,6 +33,8 @@ import com.nimbusds.jose.jwk.JWK;
 import io.mosip.idp.binding.TestUtil;
 import io.mosip.idp.core.dto.AuthChallenge;
 import io.mosip.idp.core.dto.RequestWrapper;
+import io.mosip.idp.core.dto.ValidateBindingRequest;
+import io.mosip.idp.core.dto.ValidateBindingResponse;
 import io.mosip.idp.core.dto.WalletBindingRequest;
 import io.mosip.idp.core.dto.WalletBindingResponse;
 import io.mosip.idp.core.spi.WalletBindingService;
@@ -54,7 +56,32 @@ public class WalletBindingControllerTest {
 
 	@InjectMocks
 	WalletBindingController walletBindingController;
+	
+//	@MockBean
+//	OtpChannelValidator mockValidator;
 
+//	@Test
+//	public void sendBindingOtp_withValidRequest_returnSuccessResponse() throws Exception {
+//		Set<ConstraintViolation<Object>> violations = new HashSet<>();
+//		when(mockValidator.isValid(Mockito.any(), Mockito.any())).thenReturn(true);
+//		
+//		BindingOtpRequest otpRequest = new BindingOtpRequest();
+//		otpRequest.setIndividualId("8267411571");
+//		otpRequest.setOtpChannels(Arrays.asList("mobile"));
+//		otpRequest.setCaptchaToken("234TY");
+//		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+//		RequestWrapper wrapper = new RequestWrapper<>();
+//		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+//		wrapper.setRequest(otpRequest);
+//
+//		OtpResponse otpResponse = new OtpResponse();
+//		otpResponse.setTransactionId("qwertyId");
+//		when(walletBindingService.sendBindingOtp(otpRequest)).thenReturn(otpResponse);
+//
+//		mockMvc.perform(post("/send-binding-otp").content(objectMapper.writeValueAsString(wrapper))
+//				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+//				.andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+//	}
 
 	@Test
 	public void bindWallet_withValidDetails_returnSuccessResponse() throws Exception {
@@ -171,4 +198,56 @@ public class WalletBindingControllerTest {
 				.andExpect(jsonPath("$.errors").isNotEmpty())
 				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_AUTH_CHALLENGE));
 	}
+	
+	@Test
+	public void validateBinding_withValidRequest_returnSuccessResponse() throws Exception {
+		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
+		bindingRequest.setIndividualId("8267411571");
+		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
+		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+		RequestWrapper wrapper = new RequestWrapper<>();
+		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+		wrapper.setRequest(bindingRequest);
+
+		ValidateBindingResponse bindingResponse = new ValidateBindingResponse();
+		bindingResponse.setBavToken("eyJhbGciOiJIUzI1N");
+		when(walletBindingService.validateBinding(bindingRequest)).thenReturn(bindingResponse);
+
+		mockMvc.perform(post("/validate-binding").content(objectMapper.writeValueAsString(wrapper))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.response.bavToken").value("eyJhbGciOiJIUzI1N"));
+	}
+	
+	@Test
+	public void validateBinding_withInvalidIndividualId_returnFailureResponse() throws Exception {
+		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
+		bindingRequest.setIndividualId("");
+		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
+		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+		RequestWrapper wrapper = new RequestWrapper<>();
+		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+		wrapper.setRequest(bindingRequest);
+
+		mockMvc.perform(post("/validate-binding").content(objectMapper.writeValueAsString(wrapper))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.errors").isNotEmpty())
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_INDIVIDUAL_ID));
+	}
+	
+	@Test
+	public void validateBinding_withInvalidWfaToken_returnFailureResponse() throws Exception {
+		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
+		bindingRequest.setIndividualId("8267411571");
+		bindingRequest.setWfaToken("");
+		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+		RequestWrapper wrapper = new RequestWrapper<>();
+		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+		wrapper.setRequest(bindingRequest);
+
+		mockMvc.perform(post("/validate-binding").content(objectMapper.writeValueAsString(wrapper))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.errors").isNotEmpty())
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_WFA_TOKEN));
+	}
+	
 }
