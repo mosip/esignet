@@ -36,9 +36,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Value("${mosip.idp.binding.wallet-binding}")
 	private String walletBindingApiScope;
-	
-	@Value("${mosip.idp.binding.validate-binding}")
-	private String validateBindingApiScope;
 
 	@Value("${mosip.idp.binding.systeminfo.get-certificate}")
 	private String getCertificateApiScope;
@@ -56,7 +53,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
 				.antMatchers(HttpMethod.POST, servletPath + "/send-binding-otp/**").hasAuthority(sendBindingOtpApiScope)
 				.antMatchers(HttpMethod.POST, servletPath + "/wallet-binding/**").hasAuthority(walletBindingApiScope)
-				.antMatchers(HttpMethod.POST, servletPath + "/validate-binding/**").hasAuthority(validateBindingApiScope)
 				.antMatchers(HttpMethod.GET, servletPath + "/system-info/**").hasAuthority(getCertificateApiScope)
 				.anyRequest().authenticated()
                 .and()
