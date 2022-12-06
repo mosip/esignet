@@ -38,7 +38,7 @@ public interface LinkedAuthorizationService {
      * @param linkAuthCodeRequest
      * @return
      */
-    void getLinkAuthCodeStatus(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException;
+    void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException;
 
     /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel

@@ -11,7 +11,6 @@ import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.spi.LinkedAuthorizationService;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.idp.services.AuthorizationHelperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -100,12 +99,12 @@ public class LinkedAuthorizationController {
     }
 
     @PostMapping("/link-auth-code")
-    public DeferredResult<ResponseWrapper<LinkAuthCodeResponse>> getAuthCodeStatus(@Valid @RequestBody RequestWrapper<LinkAuthCodeRequest>
+    public DeferredResult<ResponseWrapper<LinkAuthCodeResponse>> getAuthCode(@Valid @RequestBody RequestWrapper<LinkAuthCodeRequest>
                                                                                            requestWrapper) throws IdPException {
         DeferredResult deferredResult = new DeferredResult<>(linkAuthCodeDeferredResponseTimeout*1000);
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
-        linkedAuthorizationService.getLinkAuthCodeStatus(deferredResult, requestWrapper.getRequest());
+        linkedAuthorizationService.getLinkAuthCode(deferredResult, requestWrapper.getRequest());
         return deferredResult;
     }
 
