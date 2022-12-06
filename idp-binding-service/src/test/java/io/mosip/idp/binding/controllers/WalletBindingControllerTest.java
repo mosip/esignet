@@ -59,7 +59,7 @@ public class WalletBindingControllerTest {
 
 
 	@Test
-	public void bindWallet_returnSuccessResponse() throws Exception {
+	public void bindWallet_withValidDetails_returnSuccessResponse() throws Exception {
 		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
 		walletBindingRequest.setIndividualId("id1");
 		walletBindingRequest
