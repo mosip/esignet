@@ -59,5 +59,3 @@ public class ErrorConstants {
     public static final String INVALID_AUTH_CHALLENGE = "invalid_auth_challenge";
     public static final String DUPLICATE_PUBLIC_KEY = "duplicate_public_key";
 }
-
-}
