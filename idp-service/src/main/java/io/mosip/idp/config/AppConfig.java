@@ -8,6 +8,7 @@ package io.mosip.idp.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
@@ -47,6 +48,7 @@ public class AppConfig implements ApplicationRunner {
     public ObjectMapper objectMapper() {
         return JsonMapper.builder()
                 .addModule(new AfterburnerModule())
+                .addModule(new JavaTimeModule())
                 .build();
     }
 
