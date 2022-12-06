@@ -5,19 +5,32 @@
  */
 package io.mosip.idp.binding.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
 
 public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegistry, String> {
 	
 	/**
-	 * Query to fetch PublicKeyRegistry based on psuToken
+	 * Query to fetch PublicKeyRegistry based on idHash
 	 * 
 	 * @param psuToken
 	 * @return
 	 */
 	Optional<PublicKeyRegistry> findByIdHash(String idHash);
+
+    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
+	Optional<PublicKeyRegistry> findOneByPsuToken(String psuToken);
+
+    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
+    Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
+
+	@Modifying
+	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expiredtimes where pkr.psuToken= :psuToken")
+	void updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expiredtimes, String psuToken);
 }
