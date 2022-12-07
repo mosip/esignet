@@ -49,11 +49,8 @@ import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -371,22 +368,15 @@ public class WalletBindingServiceTest {
 	
 //	@Test
 //	public void validateBinding_withValidDetails_thenPass() throws IdPException, IOException, ParseException, BadJOSEException, JOSEException {
-////		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
-////		ObjectMapper objectMappertest = new ObjectMapper();
-////		
-////		Map<String, Object> pk = (Map<String, Object>) objectMappertest.readValue(clientJWK.toJSONString(), HashMap.class);
-////		String publicKey = IdentityProviderUtil.getJWKString(pk);
-//		
 //		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("8267411571", "test-psu-token", clientJWK.toJSONString(),
 //				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", LocalDateTime.now());
 //		Optional<PublicKeyRegistry> optionalRegistry = Optional.of(publicKeyRegistry);
 //		when(publicKeyRegistryRepository.findByIdHash(Mockito.anyString())).thenReturn(optionalRegistry);
 //		
-//		
 //		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
 //		validateBindingRequest.setTransactionId("909422113");
 //		validateBindingRequest.setIndividualId("8267411571");
-//		validateBindingRequest.setWfaToken("eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJJc3N1ZXIiLCJzdWIiOiI4MjY3NDExNTcxIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDg3L3YxL2lkcGJpbmRpbmcvdmFsaWRhdGUtYmluZGluZyIsImlhdCI6MTY3MDMzNTA4NywiZXhwIjoxNjcwMzM1Njg3fQ.RuufAmuGxH4TXVVsrZHbSRsh0w3pB8U4eN68M6NJvUq3lr6M5Ffb_CK3wExbhGM3HlFwrJtTIt5T2-wPjw0gs9cGmoJWb-0wCK8O0gz1uLnP_ECvpnKpqluak3q_ztIHABQKyYWT0GNCw_YrAeoxV3aLiEkru2HHz6yxNHokbI9MC7UvT-8p3UPd30LvHrEQ-ocK-x96QGQFroBvGk3lHhouJcQzzmamTgTZ9dhQUkNYHRTHrtjaDkFAn4BbTd3gkxKoLPgNmPudCuof_PgnN7Wtagcnwax3ZHzmkH6lzYTUh6jrHSd8qnLnc4cyFnkOkc6SN8NxXoeYOtrNv_umDg");
+//		validateBindingRequest.setWlaToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJJc3N1ZXIiLCJzdWIiOiI4MjY3NDExNTcxIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDg3L3YxL2lkcGJpbmRpbmcvdmFsaWRhdGUtYmluZGluZyIsImlhdCI6MTY3MDMzNTA4NywiZXhwIjoxNjcwMzM1Njg3fQ.pUiGaWKqdBzj7AK-dcnp07ghgXIf_gZk7oyVnnOHNB0fmjtXVAZz8lh_8-SRbknitm7KhjE9RaMh9o1o1jwbZkajd_iDwM8aip4QDihTLefQddirXVhZn-mCSXwMYLWnfwqGmXMadT6Kx5EHlRUIQt55XsNP3RyIhaCowp2wNbNKGFfJizRJvdLIwTrxBskl5rBu2ZspkLGpD33HSsA48qVatsQRvNKLifcJ4ZeQ4hHHNNZK1SAPm3Mq2oQG04n1cvMjPM2D9bnISedwPeykWuXfnEmbjnkyRLsZOjIFvui2K5ISHWj_hmsB0GhYPN9Gl_cFhwH1zkHdSnVN4dwpfg");
 //		Assert.assertEquals(walletBindingServiceImpl.validateBinding(validateBindingRequest).getTransactionId(), 909422113);
 //	}
 	
@@ -396,7 +386,7 @@ public class WalletBindingServiceTest {
 		
 		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
 		validateBindingRequest.setIndividualId("8267411571");
-		validateBindingRequest.setWfaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN1YiI6IjgyNjc0MTE1NzEiLCJpc3MiOiJJc3N1ZXIiLCJleHAiOjE3MzMzODQ2MjUsImlhdCI6MTY3MDIyNjIyNX0.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
+		validateBindingRequest.setWlaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN1YiI6IjgyNjc0MTE1NzEiLCJpc3MiOiJJc3N1ZXIiLCJleHAiOjE3MzMzODQ2MjUsImlhdCI6MTY3MDIyNjIyNX0.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
 		
 		try {
 			walletBindingServiceImpl.validateBinding(validateBindingRequest);
@@ -415,7 +405,7 @@ public class WalletBindingServiceTest {
 		
 		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
 		validateBindingRequest.setIndividualId("8267411571");
-		validateBindingRequest.setWfaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN1YiI6IjgyNjc0MTE1NzEiLCJpc3MiOiJJc3N1ZXIiLCJleHAiOjE3MzMzODQ2MjUsImlhdCI6MTY3MDIyNjIyNX0.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
+		validateBindingRequest.setWlaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN1YiI6IjgyNjc0MTE1NzEiLCJpc3MiOiJJc3N1ZXIiLCJleHAiOjE3MzMzODQ2MjUsImlhdCI6MTY3MDIyNjIyNX0.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
 
 		try {
 			walletBindingServiceImpl.validateBinding(validateBindingRequest);
@@ -434,7 +424,7 @@ public class WalletBindingServiceTest {
 		
 		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
 		validateBindingRequest.setIndividualId("8267411571");
-		validateBindingRequest.setWfaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
+		validateBindingRequest.setWlaToken("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJpZHAtZGV2LWlzc3Vlci1pZCIsInN.9qHJg2jT27ju4OWXUxgzaAfTO9Cs4JrEEJHehY4x9Qs");
 
 		try {
 			walletBindingServiceImpl.validateBinding(validateBindingRequest);
