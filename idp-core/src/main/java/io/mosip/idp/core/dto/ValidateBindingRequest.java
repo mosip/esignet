@@ -19,7 +19,7 @@ public class ValidateBindingRequest {
 	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
     private String individualId;
 	
-	@NotBlank(message = ErrorConstants.INVALID_WFA_TOKEN)
-    private String wfaToken;
+	@NotBlank(message = ErrorConstants.INVALID_WLA_TOKEN)
+    private String wlaToken;
 
 }

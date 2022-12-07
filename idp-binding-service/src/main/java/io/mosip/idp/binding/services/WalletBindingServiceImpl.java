@@ -94,15 +94,15 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 	@Value("${mosip.idp.binding.validate-binding-issuer-id}")
 	private String validateBindingIssuerId;
 	
-	private static Set<String> REQUIRED_WFA_CLAIMS;
+	private static Set<String> REQUIRED_WLA_CLAIMS;
 
 	static {
-		REQUIRED_WFA_CLAIMS = new HashSet<>();
-		REQUIRED_WFA_CLAIMS.add("sub");
-		REQUIRED_WFA_CLAIMS.add("aud");
-		REQUIRED_WFA_CLAIMS.add("exp");
-		REQUIRED_WFA_CLAIMS.add("iss");
-		REQUIRED_WFA_CLAIMS.add("iat");
+		REQUIRED_WLA_CLAIMS = new HashSet<>();
+		REQUIRED_WLA_CLAIMS.add("sub");
+		REQUIRED_WLA_CLAIMS.add("aud");
+		REQUIRED_WLA_CLAIMS.add("exp");
+		REQUIRED_WLA_CLAIMS.add("iss");
+		REQUIRED_WLA_CLAIMS.add("iat");
 	}
 
 	@Override
@@ -194,14 +194,14 @@ public class WalletBindingServiceImpl implements WalletBindingService {
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(validateBindingIssuerId)
                     .subject(individualId)
-                    .build(), REQUIRED_WFA_CLAIMS);
+                    .build(), REQUIRED_WLA_CLAIMS);
 
             ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
             jwtProcessor.setJWSKeySelector(keySelector);
             jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
-            jwtProcessor.process(validateBindingRequest.getWfaToken(), null); //If invalid throws exception
+            jwtProcessor.process(validateBindingRequest.getWlaToken(), null); //If invalid throws exception
         } catch (Exception e) {
-            log.error("Failed to verify WFA token", e);
+            log.error("Failed to verify WLA token", e);
             throw new IdPException(ErrorConstants.INVALID_AUTH_TOKEN);
         }
 		
