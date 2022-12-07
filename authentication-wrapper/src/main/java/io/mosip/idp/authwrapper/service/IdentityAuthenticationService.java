@@ -179,7 +179,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             }
 
             log.error("Error response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
-        } catch (Exception e) {
+        } catch (KycAuthException e) { throw e; } catch (Exception e) {
             log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthRequest.getTransactionId(),
                     clientId, e);
         }
@@ -225,7 +225,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             }
 
             log.error("Error response received from IDA (Kyc-exchange) with status : {}", responseEntity.getStatusCode());
-        } catch (Exception e) {
+        } catch (KycExchangeException e) { throw e; } catch (Exception e) {
             log.error("IDA Kyc-exchange failed with clientId : {}", clientId, e);
         }
         throw new KycExchangeException(UNKNOWN_ERROR);
@@ -267,7 +267,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             }
 
             log.error("Error response received from IDA (send-otp) with status : {}", responseEntity.getStatusCode());
-        } catch (Exception e) {
+        } catch (SendOtpException e) { throw e; } catch (Exception e) {
             log.error("send-otp failed with clientId : {}", clientId, e);
         }
         throw new SendOtpException(SEND_OTP_FAILED);
