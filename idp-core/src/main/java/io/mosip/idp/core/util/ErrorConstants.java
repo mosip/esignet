@@ -58,5 +58,5 @@ public class ErrorConstants {
     public static final String JSON_PROCESSING_ERROR = "json_processing_error";
     public static final String INVALID_AUTH_CHALLENGE = "invalid_auth_challenge";
     public static final String DUPLICATE_PUBLIC_KEY = "duplicate_public_key";
-    public static final String INVALID_WFA_TOKEN = "invalid_wfa_token";
+    public static final String INVALID_WLA_TOKEN = "invalid_wla_token";
 }

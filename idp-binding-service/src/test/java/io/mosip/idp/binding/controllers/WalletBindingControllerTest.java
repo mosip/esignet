@@ -204,7 +204,7 @@ public class WalletBindingControllerTest {
 		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
 		bindingRequest.setTransactionId("9043211571");
 		bindingRequest.setIndividualId("8267411571");
-		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
+		bindingRequest.setWlaToken("eyJzdWIiOiIxM");
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -225,7 +225,7 @@ public class WalletBindingControllerTest {
 		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
 		bindingRequest.setTransactionId("9043211571");
 		bindingRequest.setIndividualId("");
-		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
+		bindingRequest.setWlaToken("eyJzdWIiOiIxM");
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -242,7 +242,7 @@ public class WalletBindingControllerTest {
 		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
 		bindingRequest.setTransactionId("9043211571");
 		bindingRequest.setIndividualId("8267411571");
-		bindingRequest.setWfaToken("");
+		bindingRequest.setWlaToken("");
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -251,7 +251,7 @@ public class WalletBindingControllerTest {
 		mockMvc.perform(post("/validate-binding").content(objectMapper.writeValueAsString(wrapper))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.errors").isNotEmpty())
-				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_WFA_TOKEN));
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_WLA_TOKEN));
 	}
 	
 	@Test
@@ -259,7 +259,7 @@ public class WalletBindingControllerTest {
 		ValidateBindingRequest bindingRequest = new ValidateBindingRequest();
 		bindingRequest.setTransactionId("");
 		bindingRequest.setIndividualId("8267411571");
-		bindingRequest.setWfaToken("eyJzdWIiOiIxM");
+		bindingRequest.setWlaToken("eyJzdWIiOiIxM");
 		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
