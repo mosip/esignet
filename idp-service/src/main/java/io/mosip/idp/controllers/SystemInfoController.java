@@ -8,14 +8,14 @@ package io.mosip.idp.controllers;
 import io.mosip.idp.core.dto.ResponseWrapper;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateResponseDto;
+import io.mosip.kernel.keymanagerservice.dto.UploadCertificateRequestDto;
+import io.mosip.kernel.keymanagerservice.dto.UploadCertificateResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 /**
@@ -35,6 +35,15 @@ public class SystemInfoController {
             @RequestParam("referenceId") Optional<String> referenceId) {
         ResponseWrapper<KeyPairGenerateResponseDto> responseWrapper = new ResponseWrapper<>();
         responseWrapper.setResponse(keymanagerService.getCertificate(applicationId, referenceId));
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        return responseWrapper;
+    }
+
+    @PostMapping(value = "/uploadCertificate")
+    public ResponseWrapper<UploadCertificateResponseDto> uploadSignedCertificate(
+            @Valid UploadCertificateRequestDto uploadCertificateRequestDto) {
+        ResponseWrapper<UploadCertificateResponseDto> responseWrapper = new ResponseWrapper<>();
+        responseWrapper.setResponse(keymanagerService.uploadCertificate(uploadCertificateRequestDto));
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         return responseWrapper;
     }
