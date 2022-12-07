@@ -56,12 +56,15 @@ import static io.mosip.idp.core.util.ErrorConstants.*;
 @Slf4j
 public class IdentityAuthenticationService implements AuthenticationWrapper {
 
-    public static final String KYC_EXCHANGE_PATH_NAME = "oidc";
+    public static final String KYC_EXCHANGE_TYPE = "oidc";
     public static final String SIGNATURE_HEADER_NAME = "signature";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
     @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycauth}")
-    private String idaId;
+    private String kycAuthId;
+
+    @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycexchange}")
+    private String kycExchangeId;
 
     @Value("${mosip.idp.authn.wrapper.ida-send-otp-id:mosip.identity.otp}")
     private String sendOtpId;
@@ -123,7 +126,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 kycAuthRequest.getTransactionId(), clientId);
         try {
             IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
-            idaKycAuthRequest.setId(idaId);
+            idaKycAuthRequest.setId(kycAuthId);
             idaKycAuthRequest.setVersion(idaVersion);
             idaKycAuthRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
             idaKycAuthRequest.setDomainUri(idaDomainUri);
@@ -188,21 +191,21 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         log.info("Started to build kyc-exchange request with transactionId : {} && clientId : {}",
                 kycExchangeRequest.getTransactionId(), clientId);
         try {
-            IdaRequestWrapper<IdaKycExchangeRequest> requestWrapper = new IdaRequestWrapper<>();
             IdaKycExchangeRequest idaKycExchangeRequest = new IdaKycExchangeRequest();
+            idaKycExchangeRequest.setId(kycExchangeId);
+            idaKycExchangeRequest.setVersion(idaVersion);
+            idaKycExchangeRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
             idaKycExchangeRequest.setKycToken(kycExchangeRequest.getKycToken());
             idaKycExchangeRequest.setConsentObtained(kycExchangeRequest.getAcceptedClaims());
             idaKycExchangeRequest.setLocales(Arrays.asList(kycExchangeRequest.getClaimsLocales()));
-            requestWrapper.setId(idaId);
-            requestWrapper.setVersion(idaVersion);
-            requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-            requestWrapper.setRequest(idaKycExchangeRequest);
+            idaKycExchangeRequest.setRespType(KYC_EXCHANGE_TYPE);
+            idaKycExchangeRequest.setIndividualId(kycExchangeRequest.getIndividualId());
 
             //set signature header, body and invoke kyc exchange endpoint
-            String requestBody = objectMapper.writeValueAsString(requestWrapper);
+            String requestBody = objectMapper.writeValueAsString(idaKycExchangeRequest);
             RequestEntity requestEntity = RequestEntity
                     .post(UriComponentsBuilder.fromUriString(kycExchangeUrl).pathSegment(relyingPartyId,
-                            clientId, KYC_EXCHANGE_PATH_NAME).build().toUri())
+                            clientId).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .header(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody))
                     .header(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME)
