@@ -5,6 +5,7 @@
  */
 package io.mosip.idp.controllers;
 
+import io.mosip.idp.core.dto.RequestWrapper;
 import io.mosip.idp.core.dto.ResponseWrapper;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateResponseDto;
@@ -41,9 +42,9 @@ public class SystemInfoController {
 
     @PostMapping(value = "/uploadCertificate")
     public ResponseWrapper<UploadCertificateResponseDto> uploadSignedCertificate(
-            @Valid UploadCertificateRequestDto uploadCertificateRequestDto) {
+            @Valid @RequestBody RequestWrapper<UploadCertificateRequestDto> requestWrapper) {
         ResponseWrapper<UploadCertificateResponseDto> responseWrapper = new ResponseWrapper<>();
-        responseWrapper.setResponse(keymanagerService.uploadCertificate(uploadCertificateRequestDto));
+        responseWrapper.setResponse(keymanagerService.uploadCertificate(requestWrapper.getRequest()));
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         return responseWrapper;
     }
