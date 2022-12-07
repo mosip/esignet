@@ -314,6 +314,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         jwtSignatureRequestDto.setIncludeCertificate(true);
         jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(request));
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
+        log.info("Request signature ---> {}", responseDto.getJwtSignedData());
         return responseDto.getJwtSignedData();
     }
 }
