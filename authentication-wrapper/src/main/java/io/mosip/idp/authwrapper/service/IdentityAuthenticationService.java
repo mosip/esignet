@@ -36,6 +36,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -92,6 +93,9 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Value("${mosip.idp.authn.ida.otp-channels}")
     private List<String> otpChannels;
 
+    @Value("${mosip.idp.authn.ida.cert-url}")
+    private String idaPartnerCertificateUrl;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -109,6 +113,8 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
 
     @Autowired
     private CryptoCore cryptoCore;
+
+    private String idaPartnerCertificate;
 
     @Override
     public KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest)
@@ -139,9 +145,9 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     request.getBytes(StandardCharsets.UTF_8))));
             idaKycAuthRequest.setRequestHMAC(IdentityProviderUtil.b64Encode(CryptoUtil.symmetricEncrypt(symmetricKey,
                     hexEncodedHash.getBytes(StandardCharsets.UTF_8))));
-            KeyPairGenerateResponseDto responseDto = keymanagerService.getCertificate(Constants.IDP_PARTNER_APP_ID, Optional.empty());
-            Certificate certificate = keymanagerUtil.convertToCertificate(responseDto.getCertificate());
+            Certificate certificate = keymanagerUtil.convertToCertificate(getIdaPartnerCertificateData());
             idaKycAuthRequest.setThumbprint(IdentityProviderUtil.b64Encode(getCertificateThumbprint(certificate)));
+            log.info("IDA certificate thumbprint {}", idaKycAuthRequest.getThumbprint());
             idaKycAuthRequest.setRequestSessionKey(IdentityProviderUtil.b64Encode(
                     cryptoCore.asymmetricEncrypt(certificate.getPublicKey(), symmetricKey.getEncoded())));
 
@@ -316,5 +322,13 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         log.info("Request signature ---> {}", responseDto.getJwtSignedData());
         return responseDto.getJwtSignedData();
+    }
+
+    private String getIdaPartnerCertificateData() {
+        if(StringUtils.isEmpty(idaPartnerCertificate)) {
+            log.info("Fetching IDA partner certificate from : {}", idaPartnerCertificateUrl);
+            idaPartnerCertificate = restTemplate.getForObject(idaPartnerCertificateUrl, String.class);
+        }
+        return idaPartnerCertificate;
     }
 }
