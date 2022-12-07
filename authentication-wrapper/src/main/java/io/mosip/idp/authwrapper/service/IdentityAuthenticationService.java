@@ -137,6 +137,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .filter( auth -> auth != null &&  auth.getAuthFactorType() != null)
                     .forEach( auth -> { buildAuthRequest(auth.getAuthFactorType(), auth.getChallenge(), authRequest); });
 
+            authRequest.setTimestamp(IdentityProviderUtil.getUTCDateTime());
             KeyGenerator keyGenerator = KeyGeneratorUtils.getKeyGenerator(symmetricAlgorithm, symmetricKeyLength);
             final SecretKey symmetricKey = keyGenerator.generateKey();
             String request = objectMapper.writeValueAsString(authRequest);
