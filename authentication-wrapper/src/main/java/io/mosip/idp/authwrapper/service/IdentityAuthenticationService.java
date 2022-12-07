@@ -240,6 +240,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .post(UriComponentsBuilder.fromUriString(sendOtpUrl).pathSegment(relyingPartyId, clientId).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .header(SIGNATURE_HEADER_NAME, getRequestSignature(requestBody))
+                    .header(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME)
                     .body(requestBody);
             ResponseEntity<IdaSendOtpResponse> responseEntity = restTemplate.exchange(requestEntity,
                             IdaSendOtpResponse.class);
