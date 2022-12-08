@@ -75,8 +75,8 @@ springServicePort: 8088
 startupProbe:
   enabled: true
   httpGet:
-    path: /v1/idp-binding-service/actuator/health
-    port: 8088
+    path: /v1/idpbinding/actuator/health
+    port: 8087
   initialDelaySeconds: 0
   periodSeconds: 10
   timeoutSeconds: 5
@@ -86,8 +86,8 @@ startupProbe:
 livenessProbe:
   enabled: true
   httpGet:
-    path: /v1/idp-binding-service/actuator/health
-    port: 8088
+    path: /v1/idpbinding/actuator/health
+    port: 8087
   initialDelaySeconds: 20
   periodSeconds: 10
   timeoutSeconds: 5
@@ -97,8 +97,8 @@ livenessProbe:
 readinessProbe:
   enabled: true
   httpGet:
-    path: /v1/idp-binding-service/actuator/health
-    port: 8088
+    path: /v1/idpbinding/actuator/health
+    port: 8087
   initialDelaySeconds: 0
   periodSeconds: 10
   timeoutSeconds: 5
@@ -420,4 +420,4 @@ istio:
   enabled: true
   gateways:
     - istio-system/public
-  prefix: /v1/idp-binding-service
+  prefix: /v1/idpbinding
