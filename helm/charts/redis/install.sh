@@ -22,4 +22,4 @@ helm repo update
 echo Installing redis
 helm -n $NS install redis bitnami/redis --wait --version $CHART_VERSION
 
-Echo Installed redis service
+echo Installed redis service
