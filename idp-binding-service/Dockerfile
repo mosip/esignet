@@ -93,8 +93,7 @@ RUN chown -R ${container_user}:${container_user} /home/${container_user}
 # select container user for all tasks
 USER ${container_user_uid}:${container_user_gid}
 
-EXPOSE 8088
-EXPOSE 9010
+EXPOSE 8087
 
 ENTRYPOINT [ "./configure_start.sh" ]
 CMD if [ "$is_glowroot_env" = "present" ]; then \
