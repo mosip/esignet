@@ -303,7 +303,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     if(biometrics != null && !biometrics.isEmpty()) {
                         JWT jwt = JWTParser.parse(authRequest.getBiometrics().get(0).getData());
                         idaKycAuthRequest.setTransactionID(jwt.getJWTClaimsSet().getStringClaim("transactionId"));
-                        idaKycAuthRequest.setRequestTime(jwt.getJWTClaimsSet().getStringClaim("timestamp"));
                     }
                 } catch (Exception e) {
                     log.error("Failed to parse biometric capture response", e);
