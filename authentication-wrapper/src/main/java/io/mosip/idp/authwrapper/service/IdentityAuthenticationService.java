@@ -140,6 +140,14 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .filter( auth -> auth != null &&  auth.getAuthFactorType() != null)
                     .forEach( auth -> { buildAuthRequest(auth.getAuthFactorType(), auth.getChallenge(), authRequest); });
 
+            //TODO - Need to check how should we handle this?
+            if(authRequest.getBiometrics() != null && !authRequest.getBiometrics().isEmpty()) {
+                String data = authRequest.getBiometrics().get(0).getData();
+                JWT jwt = JWTParser.parse(data);
+                idaKycAuthRequest.setTransactionID(jwt.getJWTClaimsSet().getStringClaim("transactionId"));
+                idaKycAuthRequest.setRequestTime(jwt.getJWTClaimsSet().getStringClaim("timestamp"));
+            }
+            
             authRequest.setTimestamp(IdentityProviderUtil.getUTCDateTime());
             KeyGenerator keyGenerator = KeyGeneratorUtils.getKeyGenerator(symmetricAlgorithm, symmetricKeyLength);
             final SecretKey symmetricKey = keyGenerator.generateKey();
