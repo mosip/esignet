@@ -138,19 +138,11 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             idaKycAuthRequest.setTransactionID(kycAuthRequest.getTransactionId());
 
             IdaKycAuthRequest.AuthRequest authRequest = new IdaKycAuthRequest.AuthRequest();
+            authRequest.setTimestamp(IdentityProviderUtil.getUTCDateTime());
             kycAuthRequest.getChallengeList().stream()
                     .filter( auth -> auth != null &&  auth.getAuthFactorType() != null)
-                    .forEach( auth -> { buildAuthRequest(auth.getAuthFactorType(), auth.getChallenge(), authRequest); });
+                    .forEach( auth -> { buildAuthRequest(auth.getAuthFactorType(), auth.getChallenge(), authRequest, idaKycAuthRequest); });
 
-            //TODO - Need to check how should we handle this?
-            if(authRequest.getBiometrics() != null && !authRequest.getBiometrics().isEmpty()) {
-                String data = authRequest.getBiometrics().get(0).getData();
-                JWT jwt = JWTParser.parse(data);
-                idaKycAuthRequest.setTransactionID(jwt.getJWTClaimsSet().getStringClaim("transactionId"));
-                idaKycAuthRequest.setRequestTime(jwt.getJWTClaimsSet().getStringClaim("timestamp"));
-            }
-            
-            authRequest.setTimestamp(IdentityProviderUtil.getUTCDateTime());
             KeyGenerator keyGenerator = KeyGeneratorUtils.getKeyGenerator(symmetricAlgorithm, symmetricKeyLength);
             final SecretKey symmetricKey = keyGenerator.generateKey();
             String request = objectMapper.writeValueAsString(authRequest);
@@ -295,7 +287,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     }
 
     private void buildAuthRequest(String authFactor, String authChallenge,
-                                  IdaKycAuthRequest.AuthRequest authRequest) {
+                                  IdaKycAuthRequest.AuthRequest authRequest, IdaKycAuthRequest idaKycAuthRequest) {
         log.info("Build kyc-auth request with authFactor : {}",  authFactor);
         switch (authFactor.toUpperCase()) {
             case "OTP" : authRequest.setOtp(authChallenge);
@@ -308,7 +300,12 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     List<IdaKycAuthRequest.Biometric> biometrics = objectMapper.readValue(decodedBio,
                             new TypeReference<List<IdaKycAuthRequest.Biometric>>(){});
                     authRequest.setBiometrics(biometrics);
-                } catch (IOException e) {
+                    if(biometrics != null && !biometrics.isEmpty()) {
+                        JWT jwt = JWTParser.parse(authRequest.getBiometrics().get(0).getData());
+                        idaKycAuthRequest.setTransactionID(jwt.getJWTClaimsSet().getStringClaim("transactionId"));
+                        idaKycAuthRequest.setRequestTime(jwt.getJWTClaimsSet().getStringClaim("timestamp"));
+                    }
+                } catch (Exception e) {
                     log.error("Failed to parse biometric capture response", e);
                 }
                 break;
