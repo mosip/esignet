@@ -2,7 +2,7 @@
 # Copy configmaps from other namespaces
 # DST_NS: Destination namespace
 
-COPY_UTIL=../../copy_cm_func.sh
+COPY_UTIL=../copy_cm_func.sh
 DST_NS=idp
 
 
