@@ -6,7 +6,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=idp
-kubectl -n $NS rollout restart deploy
+kubectl -n $NS rollout restart deploy  idp
 
 kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
