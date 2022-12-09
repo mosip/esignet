@@ -19,8 +19,6 @@ helm repo update
 echo Copy configmaps
 ./copy_cm.sh
 
-IDP_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-idp-host})
-
 echo "Create configmaps idp-ui-cm, delete if exists"
 kubectl -n $NS delete --ignore-not-found=true configmap idp-ui-cm
 kubectl -n $NS create configmap idp-ui-cm --from-literal="REACT_APP_API_BASE_URL=http://$IDP_HOST/v1/idp" --from-literal="REACT_APP_SBI_DOMAIN_URI=http://$IDP_HOST"
