@@ -20,21 +20,14 @@ IDP is part of the IDP modules, but has a separate Helm chart so as to install a
 - PV provisioner support in the underlying infrastructure
 - ReadWriteMany volumes for deployment scaling
 
-## Installing the Chart
+## Overview
+Refer [Commons](https://docs.mosip.io/1.2.0/modules/commons).
 
-To install the chart with the release name `idp`.
-
-```console
-helm install my-release mosip/idp
+## Install 
 ```
-
-> **Tip**: List all releases using `helm list`
-
-## Uninstalling the Chart
-
-To uninstall/delete the `my-release` deployment:
-
-```console
-helm delete my-release
+./install.sh
 ```
-
+## Uninstall
+```
+./delete.sh
+```
