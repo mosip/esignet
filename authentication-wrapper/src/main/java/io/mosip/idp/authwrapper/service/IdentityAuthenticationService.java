@@ -7,6 +7,8 @@ package io.mosip.idp.authwrapper.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import io.mosip.idp.authwrapper.dto.*;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.KycAuthException;
