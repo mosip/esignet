@@ -10,11 +10,11 @@ This repository contains the implementation of Authorization Code flow of OAuth 
 
 IdP repository contains following:
 
-1. idp-core
-2. idp-service
-3. db_scripts
-4. authentication-wrapper
-5. idp-binding-service
+1. idp-core - Library containing all the common interfaces, DTOs and utils that is used as dependency in the other IdP module libraries and services
+2. idp-service - Deployable API service containing all the OIDC and UI APIs
+3. db_scripts - Contains all the db scripts required to setup or upgrade the DB for IdP module
+4. authentication-wrapper - Library containing the implementations of AuthenticationWrapper interface to intergrate into MOSIP's IDA module and mock authentication service
+5. idp-binding-service - Deployable API service containing the binding APIs
 
 
 ## Databases
