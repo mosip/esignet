@@ -24,7 +24,7 @@ kubectl -n $NS create cm mock-auth-data --from-file=./mock-auth-data/
 
 echo Installing IDP-BINDING-SERVICE
 
-helm -n $NS install idp-binding ./charts/idp-binding-service --version $CHART_VERSION
+helm -n $NS install idp-binding ./helm/charts/idp-binding-service --version $CHART_VERSION
 
 kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
