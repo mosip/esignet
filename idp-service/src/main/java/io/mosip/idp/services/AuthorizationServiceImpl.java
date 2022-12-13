@@ -23,7 +23,6 @@ import java.util.*;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.*;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
@@ -50,6 +49,9 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
     @Value("#{${mosip.idp.openid.scope.claims}}")
     private Map<String, List<String>> claims;
+
+    @Value("${mosip.idp.auth-txn-id-length:10}")
+    private int authTransactionIdLength;
 
 
 
@@ -92,7 +94,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         idPTransaction.setNonce(oauthDetailReqDto.getNonce());
         idPTransaction.setState(oauthDetailReqDto.getState());
         idPTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
-        idPTransaction.setAuthTransactionId(IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce()));
+        idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
         cacheUtilService.setTransaction(transactionId, idPTransaction);
         return oauthDetailResponse;
     }
@@ -125,6 +127,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
+        transaction.setIndividualId(kycAuthRequest.getIndividualId());
         cacheUtilService.setAuthenticatedTransaction(kycAuthRequest.getTransactionId(), transaction);
 
         AuthResponse authRespDto = new AuthResponse();

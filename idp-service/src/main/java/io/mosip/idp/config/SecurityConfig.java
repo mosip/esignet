@@ -39,6 +39,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${mosip.idp.systeminfo.get-certificate}")
     private String getCertificateApiScope;
 
+    @Value("${mosip.idp.systeminfo.upload-certificate}")
+    private String uploadCertificateApiScope;
+
     @Value("${mosip.idp.auth-ignore-urls}")
     private String[] authIgnoreUrls;
 
@@ -53,6 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, servletPath+"/client-mgmt/**").hasAuthority(createClientApiScope)
                 .antMatchers(HttpMethod.PUT, servletPath+"/client-mgmt/**").hasAuthority(updateClientApiScope)
                 .antMatchers(HttpMethod.GET, servletPath+"/system-info/**").hasAuthority(getCertificateApiScope)
+                .antMatchers(HttpMethod.POST, servletPath+"/system-info/**").hasAuthority(uploadCertificateApiScope)
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt())
