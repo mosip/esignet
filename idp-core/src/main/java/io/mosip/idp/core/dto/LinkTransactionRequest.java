@@ -5,10 +5,14 @@
  */
 package io.mosip.idp.core.dto;
 
+import io.mosip.idp.core.util.ErrorConstants;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 @Data
 public class LinkTransactionRequest {
 
+    @NotBlank(message = ErrorConstants.INVALID_LINK_CODE)
     private String linkCode;
 }

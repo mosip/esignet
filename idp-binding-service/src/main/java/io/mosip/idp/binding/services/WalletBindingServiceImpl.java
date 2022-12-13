@@ -93,6 +93,9 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 	
 	@Value("${mosip.idp.binding.validate-binding-issuer-id}")
 	private String validateBindingIssuerId;
+
+	@Value("${mosip.idp.binding.encrypt-binding-id:true}")
+	private boolean encryptBindingId;
 	
 	private static Set<String> REQUIRED_WLA_CLAIMS;
 
@@ -168,9 +171,9 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		walletBindingResponse.setExpireDateTime(
 				publicKeyRegistry.getExpiredtimes().format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
 		// TODO need to call Keymanager publickey-JWE encryption
-		walletBindingResponse.setEncryptedWalletBindingId(
+		walletBindingResponse.setEncryptedWalletBindingId( encryptBindingId ?
 				getEncryptedWalletBindingId(walletBindingRequest, publicKeyRegistry,
-						publicKeyRegistry.getWalletBindingId()));
+						publicKeyRegistry.getWalletBindingId()) : publicKeyRegistry.getWalletBindingId());
 
 		return walletBindingResponse;
 
@@ -202,7 +205,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
             jwtProcessor.process(validateBindingRequest.getWlaToken(), null); //If invalid throws exception
         } catch (Exception e) {
             log.error("Failed to verify WLA token", e);
-            throw new IdPException(ErrorConstants.INVALID_AUTH_TOKEN);
+            throw new IdPException(ErrorConstants.INVALID_WLA_TOKEN);
         }
 		
 		ValidateBindingResponse validateBindingResponse = new ValidateBindingResponse();

@@ -37,7 +37,7 @@ public class ClientDetailCreateRequest {
     private String relyingPartyId;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)
-    @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)
+    @Size(message = ErrorConstants.INVALID_CLAIM, max = 30)
     private List<@OIDCClaim String> userClaims;
 
     @NotNull(message = ErrorConstants.INVALID_ACR)

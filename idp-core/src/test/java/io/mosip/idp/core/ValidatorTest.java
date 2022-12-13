@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.ZoneOffset;
@@ -23,8 +24,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -35,6 +38,9 @@ public class ValidatorTest {
 
     @Mock
     AuthenticationWrapper authenticationWrapper;
+
+    @Mock
+    Environment environment;
 
     @Before
     public void setup() throws IdPException {
@@ -302,13 +308,23 @@ public class ValidatorTest {
     @Test
     public void test_RequestTimeValidator_validValue_thenPass() {
         RequestTimeValidator validator = new RequestTimeValidator();
+        ReflectionTestUtils.setField(validator, "leewayInMinutes", 2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        Assert.assertTrue(validator.isValid(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)), null));
+
+        requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        requestTime = requestTime.plusMinutes(1);
+        Assert.assertTrue(validator.isValid(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)), null));
+
+        requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        requestTime = requestTime.minusMinutes(1);
         Assert.assertTrue(validator.isValid(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)), null));
     }
 
     @Test
     public void test_RequestTimeValidator_futureDateValue_thenFail() {
         RequestTimeValidator validator = new RequestTimeValidator();
+        ReflectionTestUtils.setField(validator, "leewayInMinutes", 2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         requestTime = requestTime.plusMinutes(4);
         Assert.assertFalse(validator.isValid(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)), null));
@@ -317,6 +333,7 @@ public class ValidatorTest {
     @Test
     public void test_RequestTimeValidator_oldDateValue_thenFail() {
         RequestTimeValidator validator = new RequestTimeValidator();
+        ReflectionTestUtils.setField(validator, "leewayInMinutes", 2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         requestTime = requestTime.minusMinutes(5);
         Assert.assertFalse(validator.isValid(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)), null));
@@ -367,10 +384,10 @@ public class ValidatorTest {
         Assert.assertFalse(validator.isValid("   email ", null));
     }
 
-    //============================ IdFormat Validator =========================
+    //============================ Format Validator =========================
 
     @Test
-    public void test_IdFormatValidator_nullValue_thenFail() {
+    public void test_FormatValidator_nullValue_thenFail() {
         IdFormatValidator validator = new IdFormatValidator();
         Assert.assertFalse(validator.isValid(null, null));
         Assert.assertFalse(validator.isValid("", null));
@@ -378,13 +395,13 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_IdFormatValidator_validValue_thenPass() {
+    public void test_FormatValidator_validValue_thenPass() {
         IdFormatValidator validator = new IdFormatValidator();
         Assert.assertTrue(validator.isValid("id-#4_$%", null));
     }
 
     @Test
-    public void test_IdFormatValidator_withInvalidValue_thenFail() {
+    public void test_FormatValidator_withInvalidValue_thenFail() {
         IdFormatValidator validator = new IdFormatValidator();
         Assert.assertFalse(validator.isValid("  id#4$%", null));
         Assert.assertFalse(validator.isValid("id#4$% ", null));

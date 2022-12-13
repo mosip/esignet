@@ -6,11 +6,17 @@
 package io.mosip.idp.core.dto;
 
 
+import io.mosip.idp.core.util.ErrorConstants;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 
 @Data
 public class LinkStatusRequest {
 
+    @NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;
+
+    @NotBlank(message = ErrorConstants.INVALID_LINK_CODE)
     private String linkCode;
 }
