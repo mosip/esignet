@@ -402,7 +402,7 @@ public class WalletBindingServiceTest {
 			walletBindingServiceImpl.validateBinding(validateBindingRequest);
 			Assert.fail();
 		} catch (IdPException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_TOKEN));
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_WLA_TOKEN));
 		}
 	}
 	
@@ -421,7 +421,7 @@ public class WalletBindingServiceTest {
 			walletBindingServiceImpl.validateBinding(validateBindingRequest);
 			Assert.fail();
 		} catch (IdPException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_TOKEN));
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_WLA_TOKEN));
 		}
 	}
 
