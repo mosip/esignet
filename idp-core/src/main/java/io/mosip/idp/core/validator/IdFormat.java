@@ -21,6 +21,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface IdFormat {
 
+    String DEFAULT_SUPPORTED_REGEX = "\\S*";
+
+    String formatRegexProperty() default DEFAULT_SUPPORTED_REGEX;
+
     String message() default UNSUPPORTED_ID_FORMAT;
 
     Class<?>[] groups() default {};

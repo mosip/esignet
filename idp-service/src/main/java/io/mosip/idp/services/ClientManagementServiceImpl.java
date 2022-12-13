@@ -139,7 +139,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         dto.setPublicKey(result.get().getPublicKey());
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
-            dto.setClaims(objectMapper.readValue(result.get().getClaims(), typeReference));
+            if(result.get().getClaims() != null)
+                dto.setClaims(objectMapper.readValue(result.get().getClaims(), typeReference));
             dto.setAcrValues(objectMapper.readValue(result.get().getAcrValues(), typeReference));
             dto.setRedirectUris(objectMapper.readValue(result.get().getRedirectUris(), typeReference));
             dto.setGrantTypes(objectMapper.readValue(result.get().getGrantTypes(), typeReference));
