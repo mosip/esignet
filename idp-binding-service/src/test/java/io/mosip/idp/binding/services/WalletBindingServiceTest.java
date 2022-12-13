@@ -66,12 +66,6 @@ public class WalletBindingServiceTest {
 	private SignatureService signatureService;
 
 	@Mock
-	private TokenService tokenService;
-
-	@Mock
-	private ClientManagementService clientManagementService;
-
-	@Mock
 	private KeymanagerService keymanagerService;
 
 	@Mock
@@ -297,7 +291,7 @@ public class WalletBindingServiceTest {
 	}
 
 	@Test
-	public void bindWallet_withAuthFail() throws IOException, KycAuthException, IdPException {
+	public void bindWallet_withNullKycAuthResult_thenFail() throws IOException, KycAuthException, IdPException {
 		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
 		ObjectMapper objectMappertest = new ObjectMapper();
 
