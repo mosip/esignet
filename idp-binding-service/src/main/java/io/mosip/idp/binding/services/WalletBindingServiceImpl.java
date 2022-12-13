@@ -202,7 +202,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
             jwtProcessor.process(validateBindingRequest.getWlaToken(), null); //If invalid throws exception
         } catch (Exception e) {
             log.error("Failed to verify WLA token", e);
-            throw new IdPException(ErrorConstants.INVALID_AUTH_TOKEN);
+            throw new IdPException(ErrorConstants.INVALID_WLA_TOKEN);
         }
 		
 		ValidateBindingResponse validateBindingResponse = new ValidateBindingResponse();

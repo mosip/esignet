@@ -147,7 +147,7 @@ public class ClientMgmtControllerParameterizedTest {
                     "rp-id", Arrays.asList(),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
+                    Arrays.asList("private_key_jwt")), null, null, null},
             { "With invalid user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
                     "rp-id", Arrays.asList(null, "given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",

@@ -111,7 +111,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(linkTransactionMetadata.getTransactionId());
         if(transaction == null)
-            throw new IdPException(ErrorConstants.TRANSACTION_NOT_FOUND);
+            throw new InvalidTransactionException();
 
         log.info("Valid link-code provided, proceeding to generate linkTransactionId");
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
