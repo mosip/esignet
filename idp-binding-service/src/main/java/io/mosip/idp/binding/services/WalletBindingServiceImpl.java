@@ -230,8 +230,10 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		String walletBindingId = null;
 		if (optionalPublicKeyRegistry.isPresent()) {
 			walletBindingId = optionalPublicKeyRegistry.get().getWalletBindingId();
-			publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash, expiredtimes,
+			int noOfUpdatedRecords = publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash,
+					expiredtimes,
 					partnerSpecificUserToken);
+			log.info("Number of records updated successfully {}", noOfUpdatedRecords);
 		}
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIdHash(

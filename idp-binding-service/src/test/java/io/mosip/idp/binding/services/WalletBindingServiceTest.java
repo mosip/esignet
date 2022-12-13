@@ -8,7 +8,6 @@ package io.mosip.idp.binding.services;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,9 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.proc.BadJWTException;
 
 import io.mosip.idp.authwrapper.service.MockAuthenticationService;
@@ -291,7 +288,7 @@ public class WalletBindingServiceTest {
 	}
 
 	@Test
-	public void bindWallet_withAuthFail() throws IOException, KycAuthException, IdPException {
+	public void bindWallet_withNullKycAuthResult_thenFail() throws IOException, KycAuthException, IdPException {
 		ReflectionTestUtils.setField(walletBindingServiceImpl, "authenticationWrapper", authenticationWrapper);
 		ObjectMapper objectMappertest = new ObjectMapper();
 
