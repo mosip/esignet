@@ -388,9 +388,7 @@ public class ValidatorTest {
 
     @Test
     public void test_FormatValidator_nullValue_thenFail() {
-        Pattern pattern = java.util.regex.Pattern.compile("\\S*");
         IdFormatValidator validator = new IdFormatValidator();
-        ReflectionTestUtils.setField(validator, "pattern", pattern);
         Assert.assertFalse(validator.isValid(null, null));
         Assert.assertFalse(validator.isValid("", null));
         Assert.assertFalse(validator.isValid("  ", null));
@@ -398,17 +396,13 @@ public class ValidatorTest {
 
     @Test
     public void test_FormatValidator_validValue_thenPass() {
-        Pattern pattern = java.util.regex.Pattern.compile("\\S*");
         IdFormatValidator validator = new IdFormatValidator();
-        ReflectionTestUtils.setField(validator, "pattern", pattern);
         Assert.assertTrue(validator.isValid("id-#4_$%", null));
     }
 
     @Test
     public void test_FormatValidator_withInvalidValue_thenFail() {
-        Pattern pattern = java.util.regex.Pattern.compile("\\S*");
         IdFormatValidator validator = new IdFormatValidator();
-        ReflectionTestUtils.setField(validator, "pattern", pattern);
         Assert.assertFalse(validator.isValid("  id#4$%", null));
         Assert.assertFalse(validator.isValid("id#4$% ", null));
         Assert.assertFalse(validator.isValid("id #4$%", null));
