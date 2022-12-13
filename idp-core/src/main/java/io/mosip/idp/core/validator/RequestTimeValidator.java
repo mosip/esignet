@@ -20,12 +20,8 @@ import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 @Component
 public class RequestTimeValidator implements ConstraintValidator<RequestTime, String> {
 
-    @Value("${mosip.idp.reqtime.maxlimit:-2}")
-    private int maxMinutes;
-
-    @Value("${mosip.idp.reqtime.minlimit:2}")
-    private int minMinutes;
-
+    @Value("${mosip.idp.reqtime.leeway-minutes:2}")
+    private int leewayInMinutes;
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
@@ -33,9 +29,10 @@ public class RequestTimeValidator implements ConstraintValidator<RequestTime, St
             return false;
 
         try {
-            LocalDateTime localDateTime = LocalDateTime.parse(value, DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
-            long diff = localDateTime.until(LocalDateTime.now(ZoneOffset.UTC), ChronoUnit.MINUTES);
-            return (diff <= minMinutes && diff >= maxMinutes);
+            LocalDateTime providedDt = LocalDateTime.parse(value, DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
+            LocalDateTime futureDt = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(leewayInMinutes);
+            LocalDateTime oldDt = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(leewayInMinutes);
+            return (providedDt.isAfter(oldDt) && providedDt.isBefore(futureDt));
         } catch (Exception ex) {}
 
         return false;
