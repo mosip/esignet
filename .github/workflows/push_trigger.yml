@@ -329,12 +329,10 @@ jobs:
           sudo apt-get install libxml2-utils
       - name: Build with Maven
         run: |
-          cd idp-binding-service
           mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
       - name: Publish the maven package
         run: |
-          cd idp-binding-service
           mvn deploy -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
@@ -389,7 +387,6 @@ jobs:
 
       - name: Analyze with SonarCloud
         run: |
-          cd idp-service
           mvn -B -Dgpg.skip verify sonar:sonar -Dsonar.projectKey=mosip_${{ github.event.repository.name }} -Dsonar.organization=${{ secrets.ORG_KEY }} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
