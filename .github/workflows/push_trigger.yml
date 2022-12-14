@@ -196,12 +196,10 @@ jobs:
         sudo apt-get install libxml2-utils
     - name: Build with Maven
       run: |
-        cd idp-service
         mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
     - name: Publish the maven package
       run: |
-        cd idp-service
         mvn deploy -DaltDeploymentRepository=ossrh::default::${{ secrets.OSSRH_SNAPSHOT_URL }} -s $GITHUB_WORKSPACE/settings.xml -f pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
