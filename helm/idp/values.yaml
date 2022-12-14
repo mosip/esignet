@@ -420,4 +420,4 @@ istio:
   enabled: true
   gateways:
     - istio-system/public
-  prefix: /v1/idp
+  prefix: /v1/idp/
