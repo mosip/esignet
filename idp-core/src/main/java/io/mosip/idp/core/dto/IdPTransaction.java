@@ -36,6 +36,4 @@ public class IdPTransaction implements Serializable {
 
     String nonce;
     String state;
-
-    String individualId; //TODO need to encrypt (required for IDA kyc-exchange call)
 }
