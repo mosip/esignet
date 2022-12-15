@@ -16,5 +16,4 @@ public class KycExchangeRequest {
     private List<String> acceptedClaims;
     private String kycToken;
     private String[] claimsLocales;
-    private String individualId;
 }
