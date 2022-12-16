@@ -182,7 +182,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 IdaResponseWrapper<IdaKycAuthResponse> responseWrapper = responseEntity.getBody();
                 if(responseWrapper.getResponse() != null && responseWrapper.getResponse().isKycStatus() && responseWrapper.getResponse().getKycToken() != null) {
-                    setIndividualIdInCache(kycAuthRequest.getTransactionId(), kycAuthRequest.getIndividualId());
                     return new KycAuthResult(responseEntity.getBody().getResponse().getKycToken(),
                             responseEntity.getBody().getResponse().getAuthToken());
                 }
@@ -214,7 +213,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             idaKycExchangeRequest.setConsentObtained(kycExchangeRequest.getAcceptedClaims());
             idaKycExchangeRequest.setLocales(Arrays.asList(kycExchangeRequest.getClaimsLocales()));
             idaKycExchangeRequest.setRespType(KYC_EXCHANGE_TYPE);
-            idaKycExchangeRequest.setIndividualId(getIndividualIdFromCache(kycExchangeRequest.getTransactionId()));
+            idaKycExchangeRequest.setIndividualId(kycExchangeRequest.getIndividualId());
 
             //set signature header, body and invoke kyc exchange endpoint
             String requestBody = objectMapper.writeValueAsString(idaKycExchangeRequest);
@@ -296,18 +295,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     public List<KycSigningCertificateData> getAllKycSigningCertificates() {
         List<KycSigningCertificateData> certs = new ArrayList<>();
         return certs;
-    }
-
-    @CacheEvict(value = WRAPPER_CACHE, key = "#transactionId")
-    private String getIndividualIdFromCache(String transactionId) {
-        String encryptedId = cacheManager.getCache(WRAPPER_CACHE).get(transactionId, String.class);
-        return encryptedId; //TODO decrypt and then return
-    }
-
-    @Cacheable(value = WRAPPER_CACHE, key = "#transactionId")
-    private String setIndividualIdInCache(String transactionId, String individualId) {
-        String encryptedId = individualId; //TODO encrypt
-        return encryptedId;
     }
 
     private void buildAuthRequest(String authFactor, String authChallenge,

@@ -36,4 +36,6 @@ public class IdPTransaction implements Serializable {
 
     String nonce;
     String state;
+
+    String individualId;
 }
