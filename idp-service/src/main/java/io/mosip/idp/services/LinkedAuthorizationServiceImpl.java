@@ -169,6 +169,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
+        transaction.setIndividualId(linkedKycAuthRequest.getIndividualId());
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
 
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
