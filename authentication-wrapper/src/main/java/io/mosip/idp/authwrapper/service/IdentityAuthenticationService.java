@@ -21,8 +21,6 @@ import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.kernel.keygenerator.bouncycastle.util.KeyGeneratorUtils;
-import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
-import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import io.mosip.kernel.partnercertservice.util.PartnerCertificateManagerUtil;
@@ -36,9 +34,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -66,8 +61,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     public static final String KYC_EXCHANGE_TYPE = "oidc";
     public static final String SIGNATURE_HEADER_NAME = "signature";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
-    public static final String WRAPPER_CACHE = "wrapper_ids";
-    private static final String WRAPPER_REF_ID = "INDIVIDUAL_ID";
     public static final String INVALID_PARTNER_CERTIFICATE = "invalid_partner_cert";
 
     @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycauth}")
@@ -126,9 +119,6 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
 
     @Autowired
     private CryptoCore cryptoCore;
-
-    @Autowired
-    CacheManager cacheManager;
 
     private Certificate idaPartnerCertificate;
 

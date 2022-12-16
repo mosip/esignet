@@ -251,13 +251,6 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     private void setupMockIDAKey() {
-        try {
-            keymanagerService.getCertificate(APPLICATION_ID, Optional.empty());
-            //Nothing to do as key is already present.
-            return;
-        } catch (KeymanagerServiceException ex) {
-            log.error("Failed while getting MOCK IDA signing certificate", ex);
-        }
         KeyPairGenerateRequestDto mockIDAMasterKeyRequest = new KeyPairGenerateRequestDto();
         mockIDAMasterKeyRequest.setApplicationId(APPLICATION_ID);
         keymanagerService.generateMasterKey("CSR", mockIDAMasterKeyRequest);

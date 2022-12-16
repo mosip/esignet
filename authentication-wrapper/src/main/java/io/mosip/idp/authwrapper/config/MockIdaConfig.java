@@ -8,9 +8,6 @@ package io.mosip.idp.authwrapper.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.authwrapper.service.MockAuthenticationService;
-import io.mosip.idp.core.spi.ClientManagementService;
-import io.mosip.idp.core.spi.TokenService;
-import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
