@@ -46,7 +46,7 @@ public class LoggerAuditService implements AuditWrapper {
             MDC.put("relyingPartyId", auditDTO.getRelyingPartyId());
             MDC.put("state", auditDTO.getState());
             MDC.put("authCodeGenerated", String.valueOf(auditDTO.getCodeHash()!=null));
-            MDC.put("tokenGenerated", String.valueOf(auditDTO.getAHash()!=null));
+            MDC.put("tokenGenerated", String.valueOf(auditDTO.getAccessTokenHash()!=null));
         }
     }
 }
