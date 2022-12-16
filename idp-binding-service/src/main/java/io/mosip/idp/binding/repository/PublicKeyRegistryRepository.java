@@ -13,13 +13,16 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+@Repository
 public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegistry, String> {
 	
 	/**
 	 * Query to fetch PublicKeyRegistry based on idHash
 	 * 
-	 * @param psuToken
+	 * @param idHash
 	 * @return
 	 */
 	Optional<PublicKeyRegistry> findByIdHash(String idHash);

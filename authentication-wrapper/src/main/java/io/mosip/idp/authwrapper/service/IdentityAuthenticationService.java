@@ -21,9 +21,9 @@ import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.kernel.keygenerator.bouncycastle.util.KeyGeneratorUtils;
-import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
+import io.mosip.kernel.partnercertservice.util.PartnerCertificateManagerUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
@@ -44,10 +44,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static io.mosip.idp.core.util.ErrorConstants.*;
@@ -61,6 +61,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     public static final String KYC_EXCHANGE_TYPE = "oidc";
     public static final String SIGNATURE_HEADER_NAME = "signature";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+    public static final String INVALID_PARTNER_CERTIFICATE = "invalid_partner_cert";
 
     @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycauth}")
     private String kycAuthId;
@@ -119,7 +120,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Autowired
     private CryptoCore cryptoCore;
 
-    private String idaPartnerCertificate;
+    private Certificate idaPartnerCertificate;
 
     @Override
     public KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest)
@@ -151,7 +152,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     request.getBytes(StandardCharsets.UTF_8))));
             idaKycAuthRequest.setRequestHMAC(IdentityProviderUtil.b64Encode(CryptoUtil.symmetricEncrypt(symmetricKey,
                     hexEncodedHash.getBytes(StandardCharsets.UTF_8))));
-            Certificate certificate = keymanagerUtil.convertToCertificate(getIdaPartnerCertificateData());
+            Certificate certificate = getIdaPartnerCertificate();
             idaKycAuthRequest.setThumbprint(IdentityProviderUtil.b64Encode(getCertificateThumbprint(certificate)));
             log.info("IDA certificate thumbprint {}", idaKycAuthRequest.getThumbprint());
             idaKycAuthRequest.setRequestSessionKey(IdentityProviderUtil.b64Encode(
@@ -185,7 +186,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthRequest.getTransactionId(),
                     clientId, e);
         }
-        throw new KycAuthException(UNKNOWN_ERROR);
+        throw new KycAuthException();
     }
 
     @Override
@@ -230,7 +231,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         } catch (KycExchangeException e) { throw e; } catch (Exception e) {
             log.error("IDA Kyc-exchange failed with clientId : {}", clientId, e);
         }
-        throw new KycExchangeException(UNKNOWN_ERROR);
+        throw new KycExchangeException();
     }
 
     @Override
@@ -272,7 +273,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         } catch (SendOtpException e) { throw e; } catch (Exception e) {
             log.error("send-otp failed with clientId : {}", clientId, e);
         }
-        throw new SendOtpException(SEND_OTP_FAILED);
+        throw new SendOtpException();
     }
 
     @Override
@@ -330,15 +331,25 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         jwtSignatureRequestDto.setIncludeCertificate(true);
         jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(request));
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
-        log.info("Request signature ---> {}", responseDto.getJwtSignedData());
+        log.debug("Request signature ---> {}", responseDto.getJwtSignedData());
         return responseDto.getJwtSignedData();
     }
 
-    private String getIdaPartnerCertificateData() {
+    private Certificate getIdaPartnerCertificate() throws KycAuthException {
         if(StringUtils.isEmpty(idaPartnerCertificate)) {
             log.info("Fetching IDA partner certificate from : {}", idaPartnerCertificateUrl);
-            idaPartnerCertificate = restTemplate.getForObject(idaPartnerCertificateUrl, String.class);
+            idaPartnerCertificate = keymanagerUtil.convertToCertificate(restTemplate.getForObject(idaPartnerCertificateUrl,
+                    String.class));
         }
-        return idaPartnerCertificate;
+        if(PartnerCertificateManagerUtil.isCertificateDatesValid((X509Certificate)idaPartnerCertificate))
+            return idaPartnerCertificate;
+
+        log.info("PARTNER CERTIFICATE IS NOT VALID, Downloading the certificate again");
+        idaPartnerCertificate = keymanagerUtil.convertToCertificate(restTemplate.getForObject(idaPartnerCertificateUrl,
+                String.class));
+        if(PartnerCertificateManagerUtil.isCertificateDatesValid((X509Certificate)idaPartnerCertificate))
+            return idaPartnerCertificate;
+
+        throw new KycAuthException(INVALID_PARTNER_CERTIFICATE);
     }
 }
