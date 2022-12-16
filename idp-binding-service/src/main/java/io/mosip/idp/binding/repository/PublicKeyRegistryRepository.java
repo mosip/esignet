@@ -34,7 +34,6 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
     Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
 
 	@Modifying
-	@Transactional
 	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expiredtimes where pkr.psuToken= :psuToken")
 	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expiredtimes, String psuToken);
 }
