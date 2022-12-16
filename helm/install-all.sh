@@ -9,6 +9,12 @@ fi
 
 ROOT_DIR=`pwd`
 
+CHART_VERSION=12.0.1-B2
+echo Installing Softhsm for IDP
+helm -n $NS install softhsm-idp mosip/softhsm -f softhsm-values.yaml --version $CHART_VERSION --wait
+echo Installed Softhsm for IDP
+
+
 declare -a module=("redis"
                    "idp"
                    "idp-binding"
