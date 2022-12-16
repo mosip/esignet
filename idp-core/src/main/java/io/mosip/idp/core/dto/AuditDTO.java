@@ -12,7 +12,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class AuditableIdPTransaction {
+public class AuditDTO {
 
     String transactionId;
     String clientId;
@@ -33,12 +33,12 @@ public class AuditableIdPTransaction {
     String state;
 
 
-    public AuditableIdPTransaction(String clientId, String relyingPartyId) {
+    public AuditDTO(String clientId, String relyingPartyId) {
         this.relyingPartyId = relyingPartyId;
         this.clientId = clientId;
     }
 
-    public AuditableIdPTransaction(String transactionId, IdPTransaction idPTransaction) {
+    public AuditDTO(String transactionId, IdPTransaction idPTransaction) {
         this.transactionId = transactionId;
         this.relyingPartyId = idPTransaction.getRelyingPartyId();
         this.clientId = idPTransaction.getClientId();
