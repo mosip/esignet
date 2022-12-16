@@ -26,7 +26,7 @@ public class AuditDTO {
     String codeHash;
     List<String> acceptedClaims;
     List<String> permittedScopes;
-    String aHash;
+    String accessTokenHash;
     String linkedCodeHash;
     String linkedTransactionId;
     String nonce;
@@ -51,7 +51,7 @@ public class AuditDTO {
         this.codeHash = idPTransaction.getCodeHash();
         this.acceptedClaims = idPTransaction.getAcceptedClaims();
         this.permittedScopes = idPTransaction.getPermittedScopes();
-        this.aHash = idPTransaction.getAHash();
+        this.accessTokenHash = idPTransaction.getAHash();
         this.linkedCodeHash = idPTransaction.getLinkedCodeHash();
         this.linkedTransactionId = idPTransaction.getLinkedTransactionId();
         this.nonce = idPTransaction.getNonce();
