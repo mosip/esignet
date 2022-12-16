@@ -162,7 +162,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     request.getBytes(StandardCharsets.UTF_8))));
             idaKycAuthRequest.setRequestHMAC(IdentityProviderUtil.b64Encode(CryptoUtil.symmetricEncrypt(symmetricKey,
                     hexEncodedHash.getBytes(StandardCharsets.UTF_8))));
-            Certificate certificate = getIdaPartnerCertificateData();
+            Certificate certificate = getIdaPartnerCertificate();
             idaKycAuthRequest.setThumbprint(IdentityProviderUtil.b64Encode(getCertificateThumbprint(certificate)));
             log.info("IDA certificate thumbprint {}", idaKycAuthRequest.getThumbprint());
             idaKycAuthRequest.setRequestSessionKey(IdentityProviderUtil.b64Encode(
@@ -345,7 +345,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         return responseDto.getJwtSignedData();
     }
 
-    private Certificate getIdaPartnerCertificateData() throws KycAuthException {
+    private Certificate getIdaPartnerCertificate() throws KycAuthException {
         if(StringUtils.isEmpty(idaPartnerCertificate)) {
             log.info("Fetching IDA partner certificate from : {}", idaPartnerCertificateUrl);
             idaPartnerCertificate = keymanagerUtil.convertToCertificate(restTemplate.getForObject(idaPartnerCertificateUrl,
