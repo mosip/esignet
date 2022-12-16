@@ -15,8 +15,8 @@ public interface AuditWrapper {
      + Wrapper method to audit all the actions in Idp service.
      +
      +  @param action Action to audit @{@link Action}
-     +  @param transaction @{@link AuditDTO} during this action
+     +  @param audit @{@link AuditDTO} during this action
      +  @param t Any error / exception occurred during this action, null if no errors / exception found.
      */
-    void logAudit(Action action, ActionStatus status, AuditDTO transaction, Throwable t);
+    void logAudit(Action action, ActionStatus status, AuditDTO audit, Throwable t);
 }
