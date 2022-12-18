@@ -33,7 +33,6 @@ public class TokenRequest {
     /**
      * Client ID of the OIDC client.
      */
-    @NotBlank(message = INVALID_CLIENT_ID)
     private String client_id;
 
     /**

@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -26,8 +27,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static io.mosip.idp.core.util.Constants.*;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_MD5;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @Slf4j
 @Service
@@ -66,13 +65,13 @@ public class OAuthServiceImpl implements OAuthService {
         if(transaction.getKycToken() == null)
             throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
 
-        if(!transaction.getClientId().equals(tokenRequest.getClient_id()))
+        if(!StringUtils.isEmpty(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
             throw new InvalidClientException();
 
         if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
             throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
 
-        io.mosip.idp.core.dto.ClientDetail clientDetailDto = clientManagementService.getClientDetails(tokenRequest.getClient_id());
+        io.mosip.idp.core.dto.ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
         authenticateClient(tokenRequest, clientDetailDto);
 
