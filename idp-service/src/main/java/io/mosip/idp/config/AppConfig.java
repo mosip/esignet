@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
+import io.mosip.kernel.keymanagerservice.dto.SymmetricKeyGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -25,6 +26,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -40,6 +42,8 @@ public class AppConfig implements ApplicationRunner {
     @Value("${mosip.idp.default.httpclient.connections.max:100}")
     private int defaultTotalMaxConnection;
 
+    @Value("${mosip.idp.cache.security.secretkey.reference-id}")
+    private String cacheSecretKeyRefId;
 
     @Autowired
     private KeymanagerService keymanagerService;
@@ -74,6 +78,16 @@ public class AppConfig implements ApplicationRunner {
         KeyPairGenerateRequestDto masterKeyRequest = new KeyPairGenerateRequestDto();
         masterKeyRequest.setApplicationId(Constants.IDP_SERVICE_APP_ID);
         keymanagerService.generateMasterKey(objectType, masterKeyRequest);
+
+        if(!StringUtils.isEmpty(cacheSecretKeyRefId)) {
+            SymmetricKeyGenerateRequestDto symmetricKeyGenerateRequestDto = new SymmetricKeyGenerateRequestDto();
+            symmetricKeyGenerateRequestDto.setApplicationId(Constants.IDP_SERVICE_APP_ID);
+            symmetricKeyGenerateRequestDto.setReferenceId(cacheSecretKeyRefId);
+            symmetricKeyGenerateRequestDto.setForce(false);
+            keymanagerService.generateSymmetricKey(symmetricKeyGenerateRequestDto);
+            log.info("============= IDP_SERVICE CACHE SYMMETRIC KEY CHECK COMPLETED =============");
+        }
+
         log.info("===================== IDP_PARTNER MASTER KEY CHECK ========================");
         KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
         partnerMasterKeyRequest.setApplicationId(Constants.IDP_PARTNER_APP_ID);
