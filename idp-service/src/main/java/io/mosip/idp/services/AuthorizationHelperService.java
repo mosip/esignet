@@ -200,20 +200,25 @@ public class AuthorizationHelperService {
         return sendOtpResult;
     }
 
-    protected void validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+    protected Set<List<AuthenticationFactor>> validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
                 transaction.getRequestedClaims().getId_token().get(ACR).getValues());
         List<String> providedAuthFactors = challengeList.stream()
                 .map(AuthChallenge::getAuthFactorType)
                 .collect(Collectors.toList());
 
-        boolean result = resolvedAuthFactors.stream().anyMatch( acrFactors ->
-                providedAuthFactors.containsAll(acrFactors.stream().map(AuthenticationFactor::getType).collect(Collectors.toList())));
+        Set<List<AuthenticationFactor>> result = resolvedAuthFactors.stream()
+                .filter( acrFactors ->
+                providedAuthFactors.containsAll(acrFactors.stream()
+                        .map(AuthenticationFactor::getType)
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toSet());
 
-        if(!result) {
+        if(CollectionUtils.isEmpty(result)) {
             log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
             throw new IdPException(AUTH_FACTOR_MISMATCH);
         }
+        return result;
     }
 
     protected ResponseWrapper<LinkStatusResponse> getLinkStatusResponse(String status){

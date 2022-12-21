@@ -27,6 +27,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.*;
@@ -162,14 +164,17 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
             throw new InvalidTransactionException();
 
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
-        authorizationHelperService.validateProvidedAuthFactors(transaction, linkedKycAuthRequest.getChallengeList());
+        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.validateProvidedAuthFactors(transaction, linkedKycAuthRequest.getChallengeList());
         KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(linkedKycAuthRequest.getLinkedTransactionId(),
                 linkedKycAuthRequest.getIndividualId(), linkedKycAuthRequest.getChallengeList(), transaction);
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
-        transaction.setIndividualId(linkedKycAuthRequest.getIndividualId());
+        authorizationHelperService.setIndividualId(linkedKycAuthRequest.getIndividualId(), transaction);
+        transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
+                .map(AuthenticationFactor::getType)
+                .collect(Collectors.toList())).collect(Collectors.toSet()));
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
 
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();

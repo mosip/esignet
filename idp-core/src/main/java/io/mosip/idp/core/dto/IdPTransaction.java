@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.util.List;
 import java.io.Serializable;
+import java.util.Set;
 
 @Data
 public class IdPTransaction implements Serializable {
@@ -21,6 +22,7 @@ public class IdPTransaction implements Serializable {
     String[] claimsLocales;
     String authTransactionId;
 
+    Set<List<String>> providedAuthFactors;
     String kycToken;
     String partnerSpecificUserToken;
     long authTimeInSeconds;
