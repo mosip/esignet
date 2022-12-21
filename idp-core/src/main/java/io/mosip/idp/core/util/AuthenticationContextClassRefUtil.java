@@ -105,9 +105,9 @@ public class AuthenticationContextClassRefUtil {
 
         List<String> amrs = new ArrayList<>();
         for(Map.Entry<String, List<AuthenticationFactor>> entry : getAllAMRs().entrySet()) {
-            if(authFactorTypesSet.stream().filter(authFactorTypes -> authFactorTypes.containsAll(entry.getValue().stream()
+            if(authFactorTypesSet.stream().anyMatch(authFactorTypes -> authFactorTypes.containsAll(entry.getValue().stream()
                     .map(AuthenticationFactor::getType)
-                    .collect(Collectors.toList()))).count() == 1) {
+                    .collect(Collectors.toList())))) {
                 amrs.add(entry.getKey());
             }
         }
