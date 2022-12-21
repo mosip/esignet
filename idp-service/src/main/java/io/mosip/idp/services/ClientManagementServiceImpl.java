@@ -18,6 +18,7 @@ import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.lang.JoseException;
 import org.json.simple.JSONArray;
@@ -79,7 +80,13 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
         clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
-        clientDetail = clientDetailRepository.save(clientDetail);
+
+        try {
+            clientDetail = clientDetailRepository.save(clientDetail);
+        } catch (ConstraintViolationException cve) {
+            log.error("Failed to create client details", cve);
+            throw new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+        }
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
