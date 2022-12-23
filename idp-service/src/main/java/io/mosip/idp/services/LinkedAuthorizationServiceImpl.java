@@ -164,7 +164,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
             throw new InvalidTransactionException();
 
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
-        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.validateProvidedAuthFactors(transaction, linkedKycAuthRequest.getChallengeList());
+        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction, linkedKycAuthRequest.getChallengeList());
         KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(linkedKycAuthRequest.getLinkedTransactionId(),
                 linkedKycAuthRequest.getIndividualId(), linkedKycAuthRequest.getChallengeList(), transaction);
         //cache tokens on successful response
