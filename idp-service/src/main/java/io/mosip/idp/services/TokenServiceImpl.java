@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,7 @@ import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Service
@@ -58,6 +60,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
     @Value("${mosip.idp.id-token-expire-seconds:60}")
     private int idTokenExpireSeconds;
@@ -98,7 +103,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(EXP, issueTime + (idTokenExpireSeconds<=0 ? 3600 : idTokenExpireSeconds));
         payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
         payload.put(NONCE, transaction.getNonce());
-        String[] acrs = transaction.getRequestedClaims().getId_token().get(ACR).getValues();
+        List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
         payload.put(ACR, String.join(SPACE, acrs));
         payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
         return getSignedJWT(Constants.IDP_SERVICE_APP_ID, payload);
@@ -113,7 +118,7 @@ public class TokenServiceImpl implements TokenService {
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
-        if(transaction.getPermittedScopes() != null)
+        if(!CollectionUtils.isEmpty(transaction.getPermittedScopes()))
             payload.put(SCOPE, String.join(SPACE, transaction.getPermittedScopes()));
         payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
         return getSignedJWT(Constants.IDP_SERVICE_APP_ID, payload);

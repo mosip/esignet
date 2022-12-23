@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,6 +27,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -95,6 +97,28 @@ public class AuthenticationContextClassRefUtil {
             }
         }
         return result;
+    }
+
+    public List<String> getACRs(Set<List<String>> authFactorTypesSet) {
+        if(CollectionUtils.isEmpty(authFactorTypesSet))
+            return Collections.emptyList();
+
+        List<String> amrs = new ArrayList<>();
+        for(Map.Entry<String, List<AuthenticationFactor>> entry : getAllAMRs().entrySet()) {
+            if(authFactorTypesSet.stream().anyMatch(authFactorTypes -> authFactorTypes.containsAll(entry.getValue().stream()
+                    .map(AuthenticationFactor::getType)
+                    .collect(Collectors.toList())))) {
+                amrs.add(entry.getKey());
+            }
+        }
+
+        List<String> acrs = new ArrayList<>();
+        for(Map.Entry<String, List<String>> entry : getAllACR_AMR_Mapping().entrySet()) {
+            if(entry.getValue().stream().allMatch(amr -> amrs.contains(amr))) {
+                acrs.add(entry.getKey());
+            }
+        }
+        return acrs;
     }
 
 }

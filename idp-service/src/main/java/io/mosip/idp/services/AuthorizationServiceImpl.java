@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
 import static io.mosip.idp.core.util.Constants.*;
@@ -120,14 +121,18 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new InvalidTransactionException();
 
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
-        authorizationHelperService.validateProvidedAuthFactors(transaction, kycAuthRequest.getChallengeList());
+        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
+                kycAuthRequest.getChallengeList());
         KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(kycAuthRequest.getTransactionId(),
                 kycAuthRequest.getIndividualId(), kycAuthRequest.getChallengeList(), transaction);
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
-        transaction.setIndividualId(kycAuthRequest.getIndividualId());
+        transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
+                        .map(AuthenticationFactor::getType)
+                        .collect(Collectors.toList())).collect(Collectors.toSet()));
+        authorizationHelperService.setIndividualId(kycAuthRequest.getIndividualId(), transaction);
         cacheUtilService.setAuthenticatedTransaction(kycAuthRequest.getTransactionId(), transaction);
 
         AuthResponse authRespDto = new AuthResponse();
