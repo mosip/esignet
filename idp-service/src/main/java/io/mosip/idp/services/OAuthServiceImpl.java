@@ -83,7 +83,7 @@ public class OAuthServiceImpl implements OAuthService {
             kycExchangeRequest.setKycToken(transaction.getKycToken());
             kycExchangeRequest.setAcceptedClaims(transaction.getAcceptedClaims());
             kycExchangeRequest.setClaimsLocales(transaction.getClaimsLocales());
-            kycExchangeRequest.setIndividualId(transaction.getIndividualId());
+            kycExchangeRequest.setIndividualId(authorizationHelperService.getIndividualId(transaction));
             kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
                     transaction.getClientId(), kycExchangeRequest);
         } catch (KycExchangeException e) {

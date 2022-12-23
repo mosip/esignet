@@ -56,4 +56,7 @@ public class ErrorConstants {
     public static final String DUPLICATE_PUBLIC_KEY = "duplicate_public_key";
     public static final String INVALID_WLA_TOKEN = "invalid_wla_token";
     public static final String FAILED_TO_CREATE_JWE = "failed_to_create_jwe";
+    public static final String NO_UNIQUE_ALIAS = "no_unique_alias";
+    public static final String AES_CIPHER_FAILED = "aes_cipher_failed";
+
 }

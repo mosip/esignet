@@ -8,7 +8,6 @@ package io.mosip.idp.binding.services;
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA_256;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

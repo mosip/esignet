@@ -8,7 +8,12 @@ import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.Constants;
+import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.kernel.core.keymanager.spi.KeyStore;
+import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
+import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
+import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +23,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import javax.crypto.Cipher;
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,8 +54,26 @@ public class AuthorizationHelperService {
     @Autowired
     private CacheUtilService cacheUtilService;
 
+    @Autowired
+    private KeyStore keyStore;
+
+    @Autowired
+    private KeymanagerDBHelper dbHelper;
+
     @Value("#{${mosip.idp.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
+
+    @Value("${mosip.idp.cache.security.secretkey.reference-id}")
+    private String cacheSecretKeyRefId;
+
+    @Value("${mosip.idp.cache.security.algorithm-name}")
+    private String aesECBTransformation;
+
+    @Value("${mosip.idp.cache.secure.individual-id}")
+    private boolean secureIndividualId;
+
+    @Value("${mosip.idp.cache.store.individual-id}")
+    private boolean storeIndividualId;
 
 
     protected void addEntryInLinkStatusDeferredResultMap(String key, DeferredResult deferredResult) {
@@ -172,20 +200,25 @@ public class AuthorizationHelperService {
         return sendOtpResult;
     }
 
-    protected void validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+    protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
                 transaction.getRequestedClaims().getId_token().get(ACR).getValues());
         List<String> providedAuthFactors = challengeList.stream()
                 .map(AuthChallenge::getAuthFactorType)
                 .collect(Collectors.toList());
 
-        boolean result = resolvedAuthFactors.stream().anyMatch( acrFactors ->
-                providedAuthFactors.containsAll(acrFactors.stream().map(AuthenticationFactor::getType).collect(Collectors.toList())));
+        Set<List<AuthenticationFactor>> result = resolvedAuthFactors.stream()
+                .filter( acrFactors ->
+                providedAuthFactors.containsAll(acrFactors.stream()
+                        .map(AuthenticationFactor::getType)
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toSet());
 
-        if(!result) {
+        if(CollectionUtils.isEmpty(result)) {
             log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
             throw new IdPException(AUTH_FACTOR_MISMATCH);
         }
+        return result;
     }
 
     protected ResponseWrapper<LinkStatusResponse> getLinkStatusResponse(String status){
@@ -217,5 +250,59 @@ public class AuthorizationHelperService {
 
     protected String getKeyHash(@NotNull String value) {
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, value);
+    }
+
+    protected void setIndividualId(String individualId, IdPTransaction transaction) {
+        if(!storeIndividualId)
+            return;
+        transaction.setIndividualId(secureIndividualId ? encryptIndividualId(individualId) : individualId);
+    }
+
+    protected String getIndividualId(IdPTransaction transaction) {
+        if(!storeIndividualId)
+            return null;
+        return secureIndividualId ? decryptIndividualId(transaction.getIndividualId()) : transaction.getIndividualId();
+    }
+
+    private String encryptIndividualId(String individualId) {
+        try {
+            Cipher cipher = Cipher.getInstance(aesECBTransformation);
+            byte[] secretDataBytes = individualId.getBytes(StandardCharsets.UTF_8);
+            cipher.init(Cipher.ENCRYPT_MODE, getSecretKeyFromHSM());
+            return IdentityProviderUtil.b64Encode(cipher.doFinal(secretDataBytes, 0, secretDataBytes.length));
+        } catch(Exception e) {
+            log.error("Error Cipher Operations of provided secret data.", e);
+            throw new IdPException(ErrorConstants.AES_CIPHER_FAILED);
+        }
+    }
+
+    private String decryptIndividualId(String encryptedIndividualId) {
+        try {
+            Cipher cipher = Cipher.getInstance(aesECBTransformation);
+            byte[] decodedBytes = IdentityProviderUtil.b64Decode(encryptedIndividualId);
+            cipher.init(Cipher.DECRYPT_MODE, getSecretKeyFromHSM());
+            return new String(cipher.doFinal(decodedBytes, 0, decodedBytes.length));
+        } catch(Exception e) {
+            log.error("Error Cipher Operations of provided secret data.", e);
+            throw new IdPException(ErrorConstants.AES_CIPHER_FAILED);
+        }
+    }
+
+    private Key getSecretKeyFromHSM() {
+        String keyAlias = getKeyAlias(IDP_SERVICE_APP_ID, cacheSecretKeyRefId);
+        if (Objects.nonNull(keyAlias)) {
+            return keyStore.getSymmetricKey(keyAlias);
+        }
+        throw new IdPException(ErrorConstants.NO_UNIQUE_ALIAS);
+    }
+
+    private String getKeyAlias(String keyAppId, String keyRefId) {
+        Map<String, List<KeyAlias>> keyAliasMap = dbHelper.getKeyAliases(keyAppId, keyRefId, LocalDateTime.now(ZoneOffset.UTC));
+        List<KeyAlias> currentKeyAliases = keyAliasMap.get(KeymanagerConstant.CURRENTKEYALIAS);
+        if (!currentKeyAliases.isEmpty() && currentKeyAliases.size() == 1) {
+            return currentKeyAliases.get(0).getAlias();
+        }
+        log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
+        throw new IdPException(ErrorConstants.NO_UNIQUE_ALIAS);
     }
 }
