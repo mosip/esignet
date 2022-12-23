@@ -200,7 +200,7 @@ public class AuthorizationHelperService {
         return sendOtpResult;
     }
 
-    protected Set<List<AuthenticationFactor>> validateProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+    protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
                 transaction.getRequestedClaims().getId_token().get(ACR).getValues());
         List<String> providedAuthFactors = challengeList.stream()
