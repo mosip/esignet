@@ -121,7 +121,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
             throw new InvalidTransactionException();
 
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
-        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.validateProvidedAuthFactors(transaction,
+        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
                 kycAuthDTO.getChallengeList());
         KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(kycAuthDTO.getTransactionId(),
                 kycAuthDTO.getIndividualId(), kycAuthDTO.getChallengeList(), transaction);
