@@ -5,12 +5,17 @@
  */
 package io.mosip.idp.core.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class WalletBindingResponse {
 
 	private String transactionId;
     private String encryptedWalletBindingId;
+    private String signedCertificate;
     private String expireDateTime;
 }

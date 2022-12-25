@@ -46,7 +46,15 @@ public class PublicKeyRegistry {
 	@Column(name = "public_key_hash")
 	private String publicKeyHash;
 
+	@NotBlank
+	@Column(name = "certificate")
+	private String certificate;
+
 	@Column(name = "cr_dtimes")
     private LocalDateTime createdtimes;
+
+	@NotBlank
+	@Column(name = "auth_factors")
+	private String authFactors;
 
 }

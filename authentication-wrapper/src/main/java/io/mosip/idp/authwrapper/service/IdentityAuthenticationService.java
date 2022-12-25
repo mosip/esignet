@@ -123,10 +123,10 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     private Certificate idaPartnerCertificate;
 
     @Override
-    public KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest)
+    public KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthDTO kycAuthDTO)
             throws KycAuthException {
         log.info("Started to build kyc-auth request with transactionId : {} && clientId : {}",
-                kycAuthRequest.getTransactionId(), clientId);
+                kycAuthDTO.getTransactionId(), clientId);
         try {
             IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
             idaKycAuthRequest.setId(kycAuthId);
@@ -135,12 +135,12 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             idaKycAuthRequest.setDomainUri(idaDomainUri);
             idaKycAuthRequest.setEnv(idaEnv);
             idaKycAuthRequest.setConsentObtained(true);
-            idaKycAuthRequest.setIndividualId(kycAuthRequest.getIndividualId());
-            idaKycAuthRequest.setTransactionID(kycAuthRequest.getTransactionId());
+            idaKycAuthRequest.setIndividualId(kycAuthDTO.getIndividualId());
+            idaKycAuthRequest.setTransactionID(kycAuthDTO.getTransactionId());
 
             IdaKycAuthRequest.AuthRequest authRequest = new IdaKycAuthRequest.AuthRequest();
             authRequest.setTimestamp(IdentityProviderUtil.getUTCDateTime());
-            kycAuthRequest.getChallengeList().stream()
+            kycAuthDTO.getChallengeList().stream()
                     .filter( auth -> auth != null &&  auth.getAuthFactorType() != null)
                     .forEach( auth -> { buildAuthRequest(auth.getAuthFactorType(), auth.getChallenge(), authRequest, idaKycAuthRequest); });
 
@@ -183,27 +183,27 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
 
             log.error("Error response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
         } catch (KycAuthException e) { throw e; } catch (Exception e) {
-            log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthRequest.getTransactionId(),
+            log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthDTO.getTransactionId(),
                     clientId, e);
         }
         throw new KycAuthException();
     }
 
     @Override
-    public KycExchangeResult doKycExchange(String relyingPartyId, String clientId, KycExchangeRequest kycExchangeRequest)
+    public KycExchangeResult doKycExchange(String relyingPartyId, String clientId, KycExchangeDTO kycExchangeDTO)
             throws KycExchangeException {
         log.info("Started to build kyc-exchange request with transactionId : {} && clientId : {}",
-                kycExchangeRequest.getTransactionId(), clientId);
+                kycExchangeDTO.getTransactionId(), clientId);
         try {
             IdaKycExchangeRequest idaKycExchangeRequest = new IdaKycExchangeRequest();
             idaKycExchangeRequest.setId(kycExchangeId);
             idaKycExchangeRequest.setVersion(idaVersion);
             idaKycExchangeRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-            idaKycExchangeRequest.setKycToken(kycExchangeRequest.getKycToken());
-            idaKycExchangeRequest.setConsentObtained(kycExchangeRequest.getAcceptedClaims());
-            idaKycExchangeRequest.setLocales(Arrays.asList(kycExchangeRequest.getClaimsLocales()));
+            idaKycExchangeRequest.setKycToken(kycExchangeDTO.getKycToken());
+            idaKycExchangeRequest.setConsentObtained(kycExchangeDTO.getAcceptedClaims());
+            idaKycExchangeRequest.setLocales(Arrays.asList(kycExchangeDTO.getClaimsLocales()));
             idaKycExchangeRequest.setRespType(KYC_EXCHANGE_TYPE);
-            idaKycExchangeRequest.setIndividualId(kycExchangeRequest.getIndividualId());
+            idaKycExchangeRequest.setIndividualId(kycExchangeDTO.getIndividualId());
 
             //set signature header, body and invoke kyc exchange endpoint
             String requestBody = objectMapper.writeValueAsString(idaKycExchangeRequest);
@@ -235,14 +235,14 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     }
 
     @Override
-    public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)  throws SendOtpException {
+    public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpDTO sendOtpDTO)  throws SendOtpException {
         log.info("Started to build send-otp request with transactionId : {} && clientId : {}",
-                sendOtpRequest.getTransactionId(), clientId);
+                sendOtpDTO.getTransactionId(), clientId);
         try {
             IdaSendOtpRequest idaSendOtpRequest = new IdaSendOtpRequest();
-            idaSendOtpRequest.setOtpChannel(sendOtpRequest.getOtpChannels());
-            idaSendOtpRequest.setIndividualId(sendOtpRequest.getIndividualId());
-            idaSendOtpRequest.setTransactionID(sendOtpRequest.getTransactionId());
+            idaSendOtpRequest.setOtpChannel(sendOtpDTO.getOtpChannels());
+            idaSendOtpRequest.setIndividualId(sendOtpDTO.getIndividualId());
+            idaSendOtpRequest.setTransactionID(sendOtpDTO.getTransactionId());
             idaSendOtpRequest.setId(sendOtpId);
             idaSendOtpRequest.setVersion(idaVersion);
             idaSendOtpRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());

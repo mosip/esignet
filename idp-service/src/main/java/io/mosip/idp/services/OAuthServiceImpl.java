@@ -79,13 +79,13 @@ public class OAuthServiceImpl implements OAuthService {
 
         KycExchangeResult kycExchangeResult;
         try {
-            KycExchangeRequest kycExchangeRequest = new KycExchangeRequest();
-            kycExchangeRequest.setKycToken(transaction.getKycToken());
-            kycExchangeRequest.setAcceptedClaims(transaction.getAcceptedClaims());
-            kycExchangeRequest.setClaimsLocales(transaction.getClaimsLocales());
-            kycExchangeRequest.setIndividualId(authorizationHelperService.getIndividualId(transaction));
+            KycExchangeDTO kycExchangeDTO = new KycExchangeDTO();
+            kycExchangeDTO.setKycToken(transaction.getKycToken());
+            kycExchangeDTO.setAcceptedClaims(transaction.getAcceptedClaims());
+            kycExchangeDTO.setClaimsLocales(transaction.getClaimsLocales());
+            kycExchangeDTO.setIndividualId(authorizationHelperService.getIndividualId(transaction));
             kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
-                    transaction.getClientId(), kycExchangeRequest);
+                    transaction.getClientId(), kycExchangeDTO);
         } catch (KycExchangeException e) {
             log.error("KYC exchange failed", e);
             throw new IdPException(e.getErrorCode());

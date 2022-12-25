@@ -8,6 +8,7 @@ package io.mosip.idp.binding.repository;
 import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import javax.validation.ConstraintViolationException;
@@ -34,21 +35,36 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setIdHash("test_id_hash");
 		publicKeyRegistry.setPsuToken("test_token");
 		publicKeyRegistry.setPublicKey("test_public_key");
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+		publicKeyRegistry.setExpiredtimes(LocalDateTime.now().plus(5, ChronoUnit.DAYS));
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[]");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
         Assert.assertNotNull(publicKeyRegistry);
 
-		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findByIdHash("test_id_hash");
+		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("test_id_hash",
+                LocalDateTime.now());
+        Assert.assertTrue(result.isPresent());
+
+        result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("test_id_hash",
+                LocalDateTime.now().plus(4, ChronoUnit.DAYS));
         Assert.assertTrue(result.isPresent());
         
 		result = publicKeyRegistryRepository.findById("test_id_hash");
         Assert.assertTrue(result.isPresent());
 
-		result = publicKeyRegistryRepository.findByIdHash("test_id_hash_2");
+		result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("test_id_hash_2", LocalDateTime.now());
+        Assert.assertFalse(result.isPresent());
+
+        result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("test_id_hash",
+                LocalDateTime.now().plus(5, ChronoUnit.DAYS));
+        Assert.assertFalse(result.isPresent());
+
+        result = publicKeyRegistryRepository.findByIdHashAndExpiredtimesGreaterThan("test_id_hash",
+                LocalDateTime.now().plus(10, ChronoUnit.DAYS));
         Assert.assertFalse(result.isPresent());
     }
 	
@@ -62,6 +78,8 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[]");
 		try {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
@@ -86,6 +104,8 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+		publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[]");
 		try {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
@@ -107,6 +127,8 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[]");
 		try {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
@@ -128,6 +150,8 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[]");
 		try {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
@@ -149,6 +173,8 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId(null);
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[]");
 		try {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
@@ -160,22 +186,108 @@ public class PublicKeyRegistryRepositoryTest {
 		Assert.fail();
 	}
 
+    @Test
+    public void createPublicKeyRegistry_withNullCertificate_thenFail() {
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+        publicKeyRegistry.setIdHash("test_id_hash");
+        publicKeyRegistry.setPsuToken("test_token");
+        publicKeyRegistry.setPublicKey("test_public_key");
+        publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
+        publicKeyRegistry.setWalletBindingId(null);
+        publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate(null);
+        publicKeyRegistry.setAuthFactors("[]");
+        try {
+            publicKeyRegistryRepository.save(publicKeyRegistry);
+            publicKeyRegistryRepository.flush();
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("certificate")));
+            return;
+        }
+        Assert.fail();
+    }
+
+    @Test
+    public void createPublicKeyRegistry_withNullAuthFactors_thenFail() {
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+        publicKeyRegistry.setIdHash("test_id_hash");
+        publicKeyRegistry.setPsuToken("test_token");
+        publicKeyRegistry.setPublicKey("test_public_key");
+        publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
+        publicKeyRegistry.setWalletBindingId(null);
+        publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors(null);
+        try {
+            publicKeyRegistryRepository.save(publicKeyRegistry);
+            publicKeyRegistryRepository.flush();
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("authFactors")));
+            return;
+        }
+        Assert.fail();
+    }
+
+    @Test
+    public void createPublicKeyRegistry_withBlankCertificate_thenFail() {
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+        publicKeyRegistry.setIdHash("test_id_hash");
+        publicKeyRegistry.setPsuToken("test_token");
+        publicKeyRegistry.setPublicKey("test_public_key");
+        publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
+        publicKeyRegistry.setWalletBindingId(null);
+        publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("");
+        publicKeyRegistry.setAuthFactors("[\"WLA\"]");
+        try {
+            publicKeyRegistryRepository.save(publicKeyRegistry);
+            publicKeyRegistryRepository.flush();
+        } catch (ConstraintViolationException e) {
+            Assert.assertTrue(e.getConstraintViolations().stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("certificate")));
+            return;
+        }
+        Assert.fail();
+    }
+
 	@Test
 	public void findWalletBindingIdWithPsuToken_withValidDetail_thenPass() {
+        String psu_token = "test_token";
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIdHash("test_id_hash");
-		publicKeyRegistry.setPsuToken("test_token");
+		publicKeyRegistry.setPsuToken(psu_token);
 		publicKeyRegistry.setPublicKey("test_public_key");
 		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[\"WLA\"]");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
-		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findOneByPsuToken("test_token");
+        publicKeyRegistry = new PublicKeyRegistry();
+        publicKeyRegistry.setIdHash("test_id_hash_2");
+        publicKeyRegistry.setPsuToken(psu_token);
+        publicKeyRegistry.setPublicKey("test_public_key");
+        publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+        publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
+        publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
+        publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+        publicKeyRegistry.setCertificate("certificate");
+        publicKeyRegistry.setAuthFactors("[\"WLA\"]");
+        publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
+        Assert.assertNotNull(publicKeyRegistry);
+
+		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findOneByPsuToken(psu_token);
 		Assert.assertTrue(result.isPresent());
-		result = publicKeyRegistryRepository.findOneByPsuToken("test_token_2");
+
+		result = publicKeyRegistryRepository.findOneByPsuToken(psu_token+" ");
 		Assert.assertFalse(result.isPresent());
 	}
 
@@ -189,6 +301,8 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+		publicKeyRegistry.setCertificate("certificate");
+		publicKeyRegistry.setAuthFactors("[\"WLA\"]");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
@@ -207,14 +321,15 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCreatedtimes(LocalDateTime.now());
 		publicKeyRegistry.setWalletBindingId("test_wallet_binding_id");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+		publicKeyRegistry.setCertificate("certificate");
+		publicKeyRegistry.setAuthFactors("[\"WLA\"]");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
 		Assert.assertNotNull(publicKeyRegistry);
 		int updatedRows = publicKeyRegistryRepository.updatePublicKeyRegistry("test_public_key_updated",
-				"test_public_key_hash_updated",
-				LocalDateTime.now(), "test_token");
+				"test_public_key_hash_updated",	LocalDateTime.now(), "test_token",
+				"certificate2", "[\"WLA\",\"WLA1\"]");
 		assertEquals(1, updatedRows);
-
 	}
 
 }

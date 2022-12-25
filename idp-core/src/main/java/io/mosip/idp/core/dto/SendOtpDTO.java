@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
-public class SendOtpRequest {
+public class SendOtpDTO {
 
     @NotBlank(message = ErrorConstants.INVALID_TRANSACTION)
     private String transactionId;

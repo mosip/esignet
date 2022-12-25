@@ -7,16 +7,20 @@ package io.mosip.idp.binding;
 
 import com.nimbusds.jose.jwk.*;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.x509.V1TBSCertificateGenerator;
+import org.bouncycastle.x509.X509V1CertificateGenerator;
+import org.bouncycastle.x509.X509V3CertificateGenerator;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import javax.security.auth.x500.X500Principal;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 public class TestUtil {
@@ -27,13 +31,14 @@ public class TestUtil {
             KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
             gen.initialize(2048);
             KeyPair keyPair = gen.generateKeyPair();
+
             // Convert public key to JWK format
             return new RSAKey.Builder((RSAPublicKey)keyPair.getPublic())
                     .privateKey((RSAPrivateKey)keyPair.getPrivate())
                     .keyUse(KeyUse.SIGNATURE)
                     .keyID(UUID.randomUUID().toString())
                     .build();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             log.error("generateJWK_RSA failed", e);
         }
         return null;

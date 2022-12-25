@@ -15,6 +15,7 @@ import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.ErrorConstants;
+import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId(clientDetailCreateRequest.getClientId());
-        clientDetail.setPublicKey(getJWKString(clientDetailCreateRequest.getPublicKey()));
+        clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequest.getPublicKey()));
         clientDetail.setName(clientDetailCreateRequest.getClientName());
         clientDetail.setRpId(clientDetailCreateRequest.getRelyingPartyId());
         clientDetail.setLogoUri(clientDetailCreateRequest.getLogoUri());
@@ -157,15 +158,5 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new InvalidClientException();
         }
         return dto;
-    }
-
-    private String getJWKString(Map<String, Object> jwk) throws IdPException {
-        try {
-            RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
-            return jsonWebKey.toJson();
-        } catch (JoseException e) {
-            log.error(ErrorConstants.INVALID_PUBLIC_KEY, e);
-            throw new IdPException(ErrorConstants.INVALID_PUBLIC_KEY);
-        }
     }
 }

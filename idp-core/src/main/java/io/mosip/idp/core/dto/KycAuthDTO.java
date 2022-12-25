@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class KycAuthRequest {
+public class KycAuthDTO {
 
     @NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;

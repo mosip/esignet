@@ -5,7 +5,6 @@
  */
 package io.mosip.idp.flows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
@@ -390,17 +389,17 @@ public class AuthorizationAPIFlowTest {
     }
 
     private ResponseWrapper<AuthResponse> authenticateWithInvalidPin(String transactionId) throws Exception {
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setIndividualId("8267411571");
+        KycAuthDTO kycAuthDTO = new KycAuthDTO();
+        kycAuthDTO.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
         authChallenge.setChallenge("1234453");
-        kycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
-        kycAuthRequest.setTransactionId(transactionId);
+        kycAuthDTO.setChallengeList(Arrays.asList(authChallenge));
+        kycAuthDTO.setTransactionId(transactionId);
 
-        RequestWrapper<KycAuthRequest> wrapper = new RequestWrapper<>();
+        RequestWrapper<KycAuthDTO> wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
-        wrapper.setRequest(kycAuthRequest);
+        wrapper.setRequest(kycAuthDTO);
 
         MvcResult result = mockMvc.perform(post("/authorization/authenticate")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -414,17 +413,17 @@ public class AuthorizationAPIFlowTest {
     }
 
     private ResponseWrapper<AuthResponse> authenticate(String transactionId) throws Exception {
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setIndividualId("8267411571");
+        KycAuthDTO kycAuthDTO = new KycAuthDTO();
+        kycAuthDTO.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
         authChallenge.setChallenge("34789");
-        kycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
-        kycAuthRequest.setTransactionId(transactionId);
+        kycAuthDTO.setChallengeList(Arrays.asList(authChallenge));
+        kycAuthDTO.setTransactionId(transactionId);
 
-        RequestWrapper<KycAuthRequest> wrapper = new RequestWrapper<>();
+        RequestWrapper<KycAuthDTO> wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
-        wrapper.setRequest(kycAuthRequest);
+        wrapper.setRequest(kycAuthDTO);
 
         MvcResult result = mockMvc.perform(post("/authorization/authenticate")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)

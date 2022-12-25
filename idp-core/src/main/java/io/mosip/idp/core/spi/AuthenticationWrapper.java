@@ -18,33 +18,33 @@ public interface AuthenticationWrapper {
      * Delegate request to authenticate the user, and get KYC token
      * @param relyingPartyId relying Party (RP) ID. This ID will be provided during partner self registration process
      * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
-     * @param kycAuthRequest
+     * @param kycAuthDTO
      * @return KYC Token and Partner specific User Token (PSUT)
      * @throws KycAuthException
      */
-    KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthRequest kycAuthRequest)
+    KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthDTO kycAuthDTO)
             throws KycAuthException;
 
     /**
      * Delegate request to exchange KYC token with encrypted user data
      * @param relyingPartyId relying Party (RP) ID. This ID will be provided during partner self registration process
      * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
-     * @param kycExchangeRequest
+     * @param kycExchangeDTO
      * @return signed and encrypted kyc data.
      * @throws KycExchangeException
      */
-    KycExchangeResult doKycExchange(String relyingPartyId, String clientId, KycExchangeRequest kycExchangeRequest)
+    KycExchangeResult doKycExchange(String relyingPartyId, String clientId, KycExchangeDTO kycExchangeDTO)
             throws KycExchangeException;
 
     /**
      * Delegate request to send out OTP to provided individual Id on the configured channel
      * @param relyingPartyId relying Party (RP) ID. This ID will be provided during partner self registration process
      * @param clientId OIDC client Id. Auto generated while creating OIDC client in PMS
-     * @param sendOtpRequest
+     * @param sendOtpDTO
      * @return status of send otp response.
      * @throws SendOtpException
      */
-    SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
+    SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpDTO sendOtpDTO)
             throws SendOtpException;
 
     /**

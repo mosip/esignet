@@ -5,6 +5,8 @@ CREATE TABLE public_key_registry(
 	expire_dtimes timestamp NOT NULL,
 	wallet_binding_id character varying(256) NOT NULL,
 	public_key_hash character varying(100) NOT NULL,
+    certificate character varying NOT NULL,
+    auth_factors character varying NOT NULL,
 	cr_dtimes timestamp NOT NULL,
 	CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash)
 );

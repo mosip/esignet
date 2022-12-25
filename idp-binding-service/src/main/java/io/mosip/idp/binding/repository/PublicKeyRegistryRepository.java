@@ -25,15 +25,17 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	 * @param idHash
 	 * @return
 	 */
-	Optional<PublicKeyRegistry> findByIdHash(String idHash);
+	Optional<PublicKeyRegistry> findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDateTime);
 
-    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.psuToken= :psuToken")
+    @Query(value = "SELECT * FROM public_key_registry WHERE psu_token= :psuToken ORDER BY expire_dtimes DESC LIMIT 1", nativeQuery = true)
 	Optional<PublicKeyRegistry> findOneByPsuToken(String psuToken);
 
     @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
     Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
 
 	@Modifying
-	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expiredtimes where pkr.psuToken= :psuToken")
-	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expiredtimes, String psuToken);
+	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expireDTimes, " +
+			"pkr.certificate= :certificate, pkr.authFactors= :authFactors where pkr.psuToken= :psuToken")
+	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expireDTimes, String psuToken,
+								String certificate, String authFactors);
 }

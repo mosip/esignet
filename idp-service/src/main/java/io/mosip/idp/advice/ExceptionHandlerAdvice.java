@@ -168,7 +168,6 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             String errorCode = ((IdPException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
         }
-        log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -219,7 +218,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         try {
             messageSource.getMessage(errorCode, null, Locale.getDefault());
         } catch (NoSuchMessageException ex) {
-            log.error("Message not found in the i18n bundle", ex);
+            log.error("Message not found in the i18n bundle {}", ex.getMessage());
         }
         return errorCode;
     }

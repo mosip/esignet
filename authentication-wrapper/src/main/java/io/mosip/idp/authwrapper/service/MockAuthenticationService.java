@@ -25,7 +25,6 @@ import io.mosip.idp.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
-import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
@@ -117,12 +116,12 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     @Validated
     @Override
     public KycAuthResult doKycAuth(@NotBlank String relyingPartyId, @NotBlank String clientId,
-                                                    @NotNull @Valid KycAuthRequest kycAuthRequest) throws KycAuthException {
+                                                    @NotNull @Valid KycAuthDTO kycAuthDTO) throws KycAuthException {
         List<String> authMethods = resolveAuthMethods(relyingPartyId);
-        boolean result = kycAuthRequest.getChallengeList()
+        boolean result = kycAuthDTO.getChallengeList()
                 .stream()
                 .allMatch(authChallenge -> authMethods.contains(authChallenge.getAuthFactorType()) &&
-                        authenticateUser(kycAuthRequest.getIndividualId(), authChallenge));
+                        authenticateUser(kycAuthDTO.getIndividualId(), authChallenge));
         log.info("Auth methods as per partner policy : {}, KYC auth result : {}",authMethods, result);
         if(!result) {
             throw new KycAuthException(ErrorConstants.AUTH_FAILED);
@@ -131,12 +130,12 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         String psut;
         try {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
-                    String.format(PSUT_FORMAT, kycAuthRequest.getIndividualId(), relyingPartyId));
+                    String.format(PSUT_FORMAT, kycAuthDTO.getIndividualId(), relyingPartyId));
         } catch (IdPException e) {
             log.error("Failed to generate PSUT",authMethods, e);
             throw new KycAuthException("mock-ida-006", "Failed to generate Partner specific user token");
         }
-        String kycToken = getKycToken(kycAuthRequest.getIndividualId(), clientId, relyingPartyId, psut);
+        String kycToken = getKycToken(kycAuthDTO.getIndividualId(), clientId, relyingPartyId, psut);
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken(kycToken);
         kycAuthResult.setPartnerSpecificUserToken(psut);
@@ -147,18 +146,18 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Override
     public KycExchangeResult doKycExchange(@NotBlank String relyingPartyId, @NotBlank String clientId,
-                                                            @NotNull @Valid KycExchangeRequest kycExchangeRequest)
+                                                            @NotNull @Valid KycExchangeDTO kycExchangeDTO)
             throws KycExchangeException {
-        log.info("Accepted claims : {} and locales : {}", kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
+        log.info("Accepted claims : {} and locales : {}", kycExchangeDTO.getAcceptedClaims(), kycExchangeDTO.getClaimsLocales());
         try {
-            JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeRequest.getKycToken());
+            JWTClaimsSet jwtClaimsSet = verifyAndGetClaims(kycExchangeDTO.getKycToken());
             log.info("KYC token claim set : {}", jwtClaimsSet);
             String clientIdClaim = jwtClaimsSet.getStringClaim(CID_CLAIM);
             if(!clientId.equals(clientIdClaim) || jwtClaimsSet.getStringClaim(PSUT_CLAIM) == null) {
                 throw new KycExchangeException("mock-ida-008", "Provided invalid KYC token");
             }
             Map<String,Object> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
-                    kycExchangeRequest.getAcceptedClaims(), kycExchangeRequest.getClaimsLocales());
+                    kycExchangeDTO.getAcceptedClaims(), kycExchangeDTO.getClaimsLocales());
             kyc.put(SUB_CLAIM, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
             kycExchangeResult.setEncryptedKyc(this.encryptKyc ? getJWE(relyingPartyId, signKyc(kyc)) : signKyc(kyc));
@@ -258,18 +257,18 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     }
 
     @Override
-    public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpRequest sendOtpRequest)
+    public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpDTO sendOtpDTO)
             throws SendOtpException {
-        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, sendOtpRequest.getIndividualId());
+        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, sendOtpDTO.getIndividualId());
         try {
             if(FileUtils.directoryContains(personaDir, new File(personaDir.getAbsolutePath(), filename))) {
                 DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
                 String maskedEmailId = context.read("$.maskedEmailId", String.class);
                 String maskedMobile = context.read("$.maskedMobile", String.class);
-                return new SendOtpResult(sendOtpRequest.getTransactionId(), maskedEmailId, maskedMobile);
+                return new SendOtpResult(sendOtpDTO.getTransactionId(), maskedEmailId, maskedMobile);
             }
 
-            log.error("Provided identity is not found {}", sendOtpRequest.getIndividualId());
+            log.error("Provided identity is not found {}", sendOtpDTO.getIndividualId());
             throw new SendOtpException("mock-ida-001");
         } catch (IOException e) {
             log.error("authenticateIndividualWithPin failed {}", filename, e);

@@ -10,7 +10,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class KycExchangeRequest {
+public class KycExchangeDTO {
 
     private String transactionId;
     private List<String> acceptedClaims;

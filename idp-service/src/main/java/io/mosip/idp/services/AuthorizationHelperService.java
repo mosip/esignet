@@ -139,7 +139,7 @@ public class AuthorizationHelperService {
         KycAuthResult kycAuthResult;
         try {
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    new KycAuthRequest(transaction.getAuthTransactionId(), individualId, challengeList));
+                    new KycAuthDTO(transaction.getAuthTransactionId(), individualId, challengeList));
         } catch (KycAuthException e) {
             log.error("KYC auth failed for transaction : {}", transactionId, e);
             throw new IdPException(e.getErrorCode());
@@ -181,12 +181,12 @@ public class AuthorizationHelperService {
     protected SendOtpResult delegateSendOtpRequest(OtpRequest otpRequest, IdPTransaction transaction) {
         SendOtpResult sendOtpResult;
         try {
-            SendOtpRequest sendOtpRequest = new SendOtpRequest();
-            sendOtpRequest.setTransactionId(transaction.getAuthTransactionId());
-            sendOtpRequest.setIndividualId(otpRequest.getIndividualId());
-            sendOtpRequest.setOtpChannels(otpRequest.getOtpChannels());
+            SendOtpDTO sendOtpDTO = new SendOtpDTO();
+            sendOtpDTO.setTransactionId(transaction.getAuthTransactionId());
+            sendOtpDTO.setIndividualId(otpRequest.getIndividualId());
+            sendOtpDTO.setOtpChannels(otpRequest.getOtpChannels());
             sendOtpResult = authenticationWrapper.sendOtp(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    sendOtpRequest);
+                    sendOtpDTO);
         } catch (SendOtpException e) {
             log.error("Failed to send otp for transaction : {}", otpRequest.getTransactionId(), e);
             throw new IdPException(e.getErrorCode());

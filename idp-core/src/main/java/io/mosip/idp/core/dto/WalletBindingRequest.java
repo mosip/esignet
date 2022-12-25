@@ -9,6 +9,7 @@ package io.mosip.idp.core.dto;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -32,8 +33,12 @@ public class WalletBindingRequest {
 
 	@NotNull(message = ErrorConstants.INVALID_CHALLENGE_LIST)
 	@Size(min = 1, max = 5, message = ErrorConstants.INVALID_CHALLENGE_LIST)
-	private List<AuthChallenge> challengeList;
+	private List<@Valid KeyBindingAuthChallenge> challengeList;
     
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
     private Map<String, Object> publicKey;
+
+	@NotEmpty(message = ErrorConstants.INVALID_AUTH_FACTOR_TYPE)
+	@Size(min = 1, max = 10, message = ErrorConstants.INVALID_AUTH_FACTOR_TYPE)
+	private List<String> authFactorTypes; //auth factors to allow in validate-binding request
 }
