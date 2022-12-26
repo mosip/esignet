@@ -31,7 +31,6 @@ public class OpenIdConnectController {
      * @throws IdPException
      */
     @GetMapping(value = "/userinfo",produces = "application/jwt")
-    @CrossOrigin
     public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws IdPException {
         return openIdConnectService.getUserInfo(bearerToken);
     }
