@@ -27,10 +27,10 @@ public interface AuthorizationService {
 
     /**
      * Authentication request for the required auth-factors
-     * @param kycAuthRequest
+     * @param authRequest
      * @return
      */
-    AuthResponse authenticateUser(KycAuthRequest kycAuthRequest) throws IdPException;
+    AuthResponse authenticateUser(AuthRequest authRequest) throws IdPException;
 
     /**
      * Accepted claims are verified and KYC exchange is performed
