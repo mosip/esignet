@@ -92,8 +92,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, new AuditDTO(clientDetailCreateRequest.getClientId(),
-                clientDetailCreateRequest.getRelyingPartyId()), null);
+        auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, new AuditDTO(clientDetailCreateRequest.getClientId()), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
@@ -131,8 +130,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, new AuditDTO(clientId,
-                clientDetail.getRpId()), null);
+        auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, new AuditDTO(clientId), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());

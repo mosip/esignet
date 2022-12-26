@@ -87,6 +87,7 @@ public class OAuthServiceImpl implements OAuthService {
                     transaction.getClientId(), kycExchangeDto);
         } catch (KycExchangeException e) {
             log.error("KYC exchange failed", e);
+            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, new AuditDTO(codeHash, transaction), e);
             throw new IdPException(e.getErrorCode());
         }
 

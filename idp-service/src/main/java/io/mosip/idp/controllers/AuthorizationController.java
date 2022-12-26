@@ -7,7 +7,10 @@ package io.mosip.idp.controllers;
 
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.AuthorizationService;
+import io.mosip.idp.core.util.Action;
+import io.mosip.idp.core.util.ActionStatus;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +26,20 @@ public class AuthorizationController {
     @Autowired
     AuthorizationService authorizationService;
 
+    @Autowired
+    AuditWrapper auditWrapper;
+
     @PostMapping("/oauth-details")
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                             requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
+        try {
+            responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, new AuditDTO(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
 
@@ -37,7 +48,12 @@ public class AuthorizationController {
             throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(authorizationService.sendOtp(requestWrapper.getRequest()));
+        try {
+            responseWrapper.setResponse(authorizationService.sendOtp(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.SEND_OTP, ActionStatus.ERROR, new AuditDTO(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
 
@@ -46,7 +62,12 @@ public class AuthorizationController {
                                                                         requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(authorizationService.authenticateUser(requestWrapper.getRequest()));
+        try {
+            responseWrapper.setResponse(authorizationService.authenticateUser(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, new AuditDTO(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
 
@@ -55,7 +76,12 @@ public class AuthorizationController {
                                                                               requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(authorizationService.getAuthCode(requestWrapper.getRequest()));
+        try {
+            responseWrapper.setResponse(authorizationService.getAuthCode(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.ERROR, new AuditDTO(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
 }
