@@ -6,6 +6,7 @@
 package io.mosip.idp.controllers;
 
 import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.OpenIdConnectService;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.services.CacheUtilService;
@@ -48,6 +49,9 @@ public class OpenIdConnectControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+
+    @MockBean
+    AuditWrapper auditWrapper;
 
 
     @Test
