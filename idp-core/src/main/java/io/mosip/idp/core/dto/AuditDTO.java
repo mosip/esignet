@@ -33,28 +33,29 @@ public class AuditDTO {
     String state;
 
 
-    public AuditDTO(String clientId, String relyingPartyId) {
-        this.relyingPartyId = relyingPartyId;
+    public AuditDTO(String clientId) {
         this.clientId = clientId;
     }
 
     public AuditDTO(String transactionId, IdPTransaction idPTransaction) {
         this.transactionId = transactionId;
-        this.relyingPartyId = idPTransaction.getRelyingPartyId();
-        this.clientId = idPTransaction.getClientId();
-        this.requestedClaims = idPTransaction.getRequestedClaims();
-        this.requestedAuthorizeScopes = idPTransaction.getRequestedAuthorizeScopes();
-        this.redirectUri = idPTransaction.getRedirectUri();
-        this.claimsLocales = idPTransaction.getClaimsLocales();
-        this.authTransactionId = idPTransaction.getAuthTransactionId();
-        this.authTimeInSeconds = idPTransaction.getAuthTimeInSeconds();
-        this.codeHash = idPTransaction.getCodeHash();
-        this.acceptedClaims = idPTransaction.getAcceptedClaims();
-        this.permittedScopes = idPTransaction.getPermittedScopes();
-        this.accessTokenHash = idPTransaction.getAHash();
-        this.linkedCodeHash = idPTransaction.getLinkedCodeHash();
-        this.linkedTransactionId = idPTransaction.getLinkedTransactionId();
-        this.nonce = idPTransaction.getNonce();
-        this.state = idPTransaction.getState();
+        if(idPTransaction != null) {
+            this.relyingPartyId = idPTransaction.getRelyingPartyId();
+            this.clientId = idPTransaction.getClientId();
+            this.requestedClaims = idPTransaction.getRequestedClaims();
+            this.requestedAuthorizeScopes = idPTransaction.getRequestedAuthorizeScopes();
+            this.redirectUri = idPTransaction.getRedirectUri();
+            this.claimsLocales = idPTransaction.getClaimsLocales();
+            this.authTransactionId = idPTransaction.getAuthTransactionId();
+            this.authTimeInSeconds = idPTransaction.getAuthTimeInSeconds();
+            this.codeHash = idPTransaction.getCodeHash();
+            this.acceptedClaims = idPTransaction.getAcceptedClaims();
+            this.permittedScopes = idPTransaction.getPermittedScopes();
+            this.accessTokenHash = idPTransaction.getAHash();
+            this.linkedCodeHash = idPTransaction.getLinkedCodeHash();
+            this.linkedTransactionId = idPTransaction.getLinkedTransactionId();
+            this.nonce = idPTransaction.getNonce();
+            this.state = idPTransaction.getState();
+        }
     }
 }

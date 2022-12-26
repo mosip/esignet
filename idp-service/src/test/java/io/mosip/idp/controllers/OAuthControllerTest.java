@@ -10,6 +10,7 @@ import io.mosip.idp.core.dto.TokenRequest;
 import io.mosip.idp.core.dto.TokenResponse;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidRequestException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.OAuthService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +41,9 @@ public class OAuthControllerTest {
 
     @MockBean
     private OAuthService oAuthServiceImpl;
+
+    @MockBean
+    AuditWrapper auditWrapper;
 
     @Test
     public void getAllJwks_thenPass() throws Exception {
