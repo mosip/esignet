@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.idp.core.dto.TokenRequest;
 import io.mosip.idp.core.dto.TokenResponse;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.exception.InvalidRequestException;
 import io.mosip.idp.core.spi.OAuthService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,16 +79,22 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withInvalidInput_thenFail() throws Exception {
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(InvalidRequestException.class);
+        mockMvc.perform(post("/oauth/token")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getToken_withRuntimeFailure_thenFail() throws Exception {
         Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(IdPException.class);
         mockMvc.perform(post("/oauth/token")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                        .param("code", "code"))
-                .andExpect(status().isBadRequest());
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isInternalServerError());
 
         Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                        .param("code", "code"))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isInternalServerError());
     }
 }

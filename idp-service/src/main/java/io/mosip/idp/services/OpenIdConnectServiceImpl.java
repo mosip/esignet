@@ -5,10 +5,14 @@
  */
 package io.mosip.idp.services;
 
+import io.mosip.idp.core.dto.AuditDTO;
 import io.mosip.idp.core.dto.IdPTransaction;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
+import io.mosip.idp.core.util.Action;
+import io.mosip.idp.core.util.ActionStatus;
 import io.mosip.idp.core.util.Constants;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +31,9 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
 
     @Autowired
     private CacheUtilService cacheUtilService;
+
+    @Autowired
+    private AuditWrapper auditWrapper;
 
     @Value("#{${mosip.idp.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
@@ -50,6 +57,8 @@ public class OpenIdConnectServiceImpl implements io.mosip.idp.core.spi.OpenIdCon
             throw new NotAuthenticatedException();
 
         tokenService.verifyAccessToken(transaction.getClientId(), transaction.getPartnerSpecificUserToken(), tokenParts[1]);
+        auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.SUCCESS, new AuditDTO(accessTokenHash,
+                transaction), null);
         return transaction.getEncryptedKyc();
     }
 
