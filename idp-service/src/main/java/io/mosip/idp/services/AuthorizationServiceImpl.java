@@ -115,16 +115,16 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
     }
 
     @Override
-    public AuthResponse authenticateUser(KycAuthRequest kycAuthRequest)  throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(kycAuthRequest.getTransactionId());
+    public AuthResponse authenticateUser(AuthRequest authRequest)  throws IdPException {
+        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
         Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
-                kycAuthRequest.getChallengeList());
-        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(kycAuthRequest.getTransactionId(),
-                kycAuthRequest.getIndividualId(), kycAuthRequest.getChallengeList(), transaction);
+                authRequest.getChallengeList());
+        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
+                authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
@@ -132,11 +132,11 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                         .map(AuthenticationFactor::getType)
                         .collect(Collectors.toList())).collect(Collectors.toSet()));
-        authorizationHelperService.setIndividualId(kycAuthRequest.getIndividualId(), transaction);
-        cacheUtilService.setAuthenticatedTransaction(kycAuthRequest.getTransactionId(), transaction);
+        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
+        cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
 
         AuthResponse authRespDto = new AuthResponse();
-        authRespDto.setTransactionId(kycAuthRequest.getTransactionId());
+        authRespDto.setTransactionId(authRequest.getTransactionId());
         return authRespDto;
     }
 
