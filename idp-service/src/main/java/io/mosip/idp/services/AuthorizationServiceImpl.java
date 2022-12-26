@@ -7,13 +7,11 @@ package io.mosip.idp.services;
 
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.InvalidTransactionException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
-import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.idp.core.util.*;
 import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.spi.TokenService.ACR;
+import static io.mosip.idp.core.util.Action.*;
 import static io.mosip.idp.core.util.Constants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
@@ -44,6 +43,9 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
 
     @Autowired
     private AuthorizationHelperService authorizationHelperService;
+
+    @Autowired
+    private AuditWrapper auditWrapper;
 
     @Value("#{${mosip.idp.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
@@ -97,6 +99,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         idPTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
         idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
         cacheUtilService.setTransaction(transactionId, idPTransaction);
+        auditWrapper.logAudit(TRANSACTION_STARTED, ActionStatus.SUCCESS, new AuditDTO(transactionId, idPTransaction), null);
         return oauthDetailResponse;
     }
 
@@ -111,6 +114,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         otpResponse.setTransactionId(otpRequest.getTransactionId());
         otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
         otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
+        auditWrapper.logAudit(SEND_OTP, ActionStatus.SUCCESS, new AuditDTO(otpRequest.getTransactionId(), transaction), null);
         return otpResponse;
     }
 
@@ -135,6 +139,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
 
+        auditWrapper.logAudit(AUTHENTICATE, ActionStatus.SUCCESS, new AuditDTO(authRequest.getTransactionId(), transaction), null);
+
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(authRequest.getTransactionId());
         return authRespDto;
@@ -156,6 +162,8 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
+
+        auditWrapper.logAudit(GET_AUTH_CODE, ActionStatus.SUCCESS, new AuditDTO(authCodeRequest.getTransactionId(), transaction), null);
 
         AuthCodeResponse authCodeResponse = new AuthCodeResponse();
         authCodeResponse.setCode(authCode);
