@@ -10,6 +10,7 @@ import io.mosip.idp.core.dto.OAuthError;
 import io.mosip.idp.core.dto.ResponseWrapper;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
+import io.mosip.idp.core.exception.InvalidRequestException;
 import io.mosip.idp.core.exception.NotAuthenticatedException;
 import io.mosip.idp.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -164,9 +165,13 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
             return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof IdPException) {
+        if(ex instanceof InvalidRequestException) {
             String errorCode = ((IdPException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
+        }
+        if(ex instanceof IdPException) {
+            String errorCode = ((IdPException) ex).getErrorCode();
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

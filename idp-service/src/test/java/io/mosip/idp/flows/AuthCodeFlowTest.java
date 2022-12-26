@@ -18,6 +18,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.idp.TestUtil;
 import io.mosip.idp.core.dto.*;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
@@ -91,6 +92,9 @@ public class AuthCodeFlowTest {
 
     @Autowired
     RestTemplate restTemplate;
+
+    @Autowired
+    AuditWrapper auditWrapper;
 
     @Value("${mosip.idp.amr-acr-mapping-file-url}")
     private String mappingFileUrl;

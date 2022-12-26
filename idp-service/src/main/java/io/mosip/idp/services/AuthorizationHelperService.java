@@ -5,11 +5,9 @@ import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidTransactionException;
 import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.exception.SendOtpException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
-import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.idp.core.util.*;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
@@ -59,6 +57,9 @@ public class AuthorizationHelperService {
 
     @Autowired
     private KeymanagerDBHelper dbHelper;
+
+    @Autowired
+    private AuditWrapper auditWrapper;
 
     @Value("#{${mosip.idp.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
@@ -150,6 +151,8 @@ public class AuthorizationHelperService {
             log.error("** authenticationWrapper : {} returned empty tokens received **", authenticationWrapper);
             throw new IdPException(AUTH_FAILED);
         }
+
+        auditWrapper.logAudit(Action.DO_KYC_AUTH, ActionStatus.SUCCESS, new AuditDTO(transactionId, transaction), null);
         return kycAuthResult;
     }
 

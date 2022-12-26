@@ -5,30 +5,38 @@
  */
 package io.mosip.idp.core.util;
 
-import com.nimbusds.jose.util.ByteUtils;
-import io.mosip.idp.core.exception.IdPException;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
+import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import static io.mosip.idp.core.util.ErrorConstants.INVALID_PUBLIC_KEY;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
+import io.mosip.idp.core.exception.InvalidRequestException;
+import org.apache.commons.codec.binary.Hex;
+import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
+import com.nimbusds.jose.util.ByteUtils;
+
+import io.mosip.idp.core.exception.IdPException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class IdentityProviderUtil {
@@ -140,7 +148,7 @@ public class IdentityProviderUtil {
             return;
 
         log.error("Invalid redirect URI registered : {}, requested: {}", registeredRedirectUris, requestedRedirectUri);
-        throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
+        throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 
     public static String createTransactionId(String nonce) throws IdPException {
@@ -178,4 +186,34 @@ public class IdentityProviderUtil {
         }
         return false;
     }
+    
+	public static byte[] generateSalt(int bytes) {
+		SecureRandom random = new SecureRandom();
+		byte[] randomBytes = new byte[bytes];
+		random.nextBytes(randomBytes);
+		return randomBytes;
+	}
+
+	public static String digestAsPlainTextWithSalt(final byte[] password, final byte[] salt) throws IdPException {
+		MessageDigest messageDigest = null;
+		try {
+			messageDigest = MessageDigest.getInstance(ALGO_SHA_256);
+			messageDigest.update(password);
+			messageDigest.update(salt);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+		}
+
+		return b64Encode(messageDigest.digest());
+	}
+
+	public static String getJWKString(Map<String, Object> jwk) throws IdPException {
+		try {
+			RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
+			return jsonWebKey.toJson();
+		} catch (JoseException e) {
+			log.error(INVALID_PUBLIC_KEY, e);
+			throw new IdPException(INVALID_PUBLIC_KEY);
+		}
+	}
 }
