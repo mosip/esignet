@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import io.mosip.idp.core.exception.InvalidRequestException;
 import org.apache.commons.codec.binary.Hex;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.lang.JoseException;
@@ -147,7 +148,7 @@ public class IdentityProviderUtil {
             return;
 
         log.error("Invalid redirect URI registered : {}, requested: {}", registeredRedirectUris, requestedRedirectUri);
-        throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
+        throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 
     public static String createTransactionId(String nonce) throws IdPException {

@@ -10,9 +10,7 @@ import com.nimbusds.jose.jwk.JWK;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.*;
-import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.idp.core.util.*;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -30,6 +29,7 @@ import static io.mosip.idp.core.util.Constants.*;
 
 @Slf4j
 @Service
+@Validated
 public class OAuthServiceImpl implements OAuthService {
 
 
@@ -51,7 +51,10 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private KeymanagerService keymanagerService;
 
-    @Value("${mosip.idp.access-token.expire.seconds:60}")
+    @Autowired
+    private AuditWrapper auditWrapper;
+
+    @Value("${mosip.idp.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
 
@@ -59,33 +62,29 @@ public class OAuthServiceImpl implements OAuthService {
     public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         IdPTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
-        if(transaction == null)
-            throw new InvalidTransactionException();
-
-        if(transaction.getKycToken() == null)
-            throw new IdPException(ErrorConstants.INVALID_TRANSACTION);
+        if(transaction == null || transaction.getKycToken() == null)
+            throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
         if(!StringUtils.isEmpty(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
-            throw new InvalidClientException();
+            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
 
         if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
-            throw new IdPException(ErrorConstants.INVALID_REDIRECT_URI);
+            throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
 
         io.mosip.idp.core.dto.ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto);
 
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
-
         KycExchangeResult kycExchangeResult;
         try {
-            KycExchangeRequest kycExchangeRequest = new KycExchangeRequest();
-            kycExchangeRequest.setKycToken(transaction.getKycToken());
-            kycExchangeRequest.setAcceptedClaims(transaction.getAcceptedClaims());
-            kycExchangeRequest.setClaimsLocales(transaction.getClaimsLocales());
-            kycExchangeRequest.setIndividualId(authorizationHelperService.getIndividualId(transaction));
+            KycExchangeDto kycExchangeDto = new KycExchangeDto();
+            kycExchangeDto.setKycToken(transaction.getKycToken());
+            kycExchangeDto.setAcceptedClaims(transaction.getAcceptedClaims());
+            kycExchangeDto.setClaimsLocales(transaction.getClaimsLocales());
+            kycExchangeDto.setIndividualId(authorizationHelperService.getIndividualId(transaction));
             kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
-                    transaction.getClientId(), kycExchangeRequest);
+                    transaction.getClientId(), kycExchangeDto);
         } catch (KycExchangeException e) {
             log.error("KYC exchange failed", e);
             throw new IdPException(e.getErrorCode());
@@ -93,6 +92,8 @@ public class OAuthServiceImpl implements OAuthService {
 
         if(kycExchangeResult == null || kycExchangeResult.getEncryptedKyc() == null)
             throw new IdPException(ErrorConstants.DATA_EXCHANGE_FAILED);
+
+        auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, new AuditDTO(codeHash, transaction), null);
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
@@ -106,6 +107,8 @@ public class OAuthServiceImpl implements OAuthService {
         transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
         cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
 
+        auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, new AuditDTO(codeHash,
+                transaction), null);
         return tokenResponse;
     }
 
@@ -161,14 +164,14 @@ public class OAuthServiceImpl implements OAuthService {
                 validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion());
                 break;
             default:
-                throw new IdPException(ErrorConstants.INVALID_ASSERTION_TYPE);
+                throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);
         }
     }
 
 
     private void validateJwtClientAssertion(String ClientId, String jwk, String clientAssertion) throws IdPException {
         if(clientAssertion == null || clientAssertion.isBlank())
-            throw new IdPException(ErrorConstants.INVALID_ASSERTION);
+            throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
 
         //verify signature
         //on valid signature, verify each claims on JWT payload

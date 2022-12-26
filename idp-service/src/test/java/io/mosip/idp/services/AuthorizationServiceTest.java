@@ -11,6 +11,7 @@ import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
 import io.mosip.idp.core.exception.KycAuthException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.repository.ClientDetailRepository;
@@ -63,6 +64,9 @@ public class AuthorizationServiceTest {
     @Mock
     Resource mappingFile;
 
+    @Mock
+    AuditWrapper auditWrapper;
+
 
 
     @Before
@@ -76,6 +80,7 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("resident-service"));
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationContextClassRefUtil", authenticationContextClassRefUtil);
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationWrapper", authenticationWrapper);
+        ReflectionTestUtils.setField(authorizationHelperService, "auditWrapper", auditWrapper);
 
         ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);
@@ -390,10 +395,10 @@ public class AuthorizationServiceTest {
         String transactionId = "test-transaction";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(null);
 
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setTransactionId(transactionId);
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
         try {
-            authorizationServiceImpl.authenticateUser(kycAuthRequest);
+            authorizationServiceImpl.authenticateUser(authRequest);
             Assert.fail();
         } catch (IdPException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
@@ -417,14 +422,14 @@ public class AuthorizationServiceTest {
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
         when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
 
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setTransactionId(transactionId);
-        kycAuthRequest.setIndividualId("23423434234");
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
-        kycAuthRequest.setChallengeList(authChallenges);
+        authRequest.setChallengeList(authChallenges);
 
-        AuthResponse authResponse = authorizationServiceImpl.authenticateUser(kycAuthRequest);
+        AuthResponse authResponse = authorizationServiceImpl.authenticateUser(authRequest);
         Assert.assertNotNull(authResponse);
         Assert.assertEquals(transactionId, authResponse.getTransactionId());
     }
@@ -441,15 +446,15 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
                 "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
 
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setTransactionId(transactionId);
-        kycAuthRequest.setIndividualId("23423434234");
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("BIO"));
-        kycAuthRequest.setChallengeList(authChallenges);
+        authRequest.setChallengeList(authChallenges);
 
         try {
-            authorizationServiceImpl.authenticateUser(kycAuthRequest);
+            authorizationServiceImpl.authenticateUser(authRequest);
             Assert.fail();
         } catch (IdPException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
@@ -473,15 +478,15 @@ public class AuthorizationServiceTest {
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
         when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
 
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setTransactionId(transactionId);
-        kycAuthRequest.setIndividualId("23423434234");
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
         authChallenges.add(getAuthChallengeDto("BIO"));
-        kycAuthRequest.setChallengeList(authChallenges);
+        authRequest.setChallengeList(authChallenges);
 
-        AuthResponse authResponse = authorizationServiceImpl.authenticateUser(kycAuthRequest);
+        AuthResponse authResponse = authorizationServiceImpl.authenticateUser(authRequest);
         Assert.assertNotNull(authResponse);
         Assert.assertEquals(transactionId, authResponse.getTransactionId());
     }
@@ -498,16 +503,16 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:biometrics-generated-code",
                 "mosip:idp:acr:linked-wallet"})).thenReturn(allAuthFactors);
 
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setTransactionId(transactionId);
-        kycAuthRequest.setIndividualId("23423434234");
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
         authChallenges.add(getAuthChallengeDto("PIN"));
-        kycAuthRequest.setChallengeList(authChallenges);
+        authRequest.setChallengeList(authChallenges);
 
         try {
-            authorizationServiceImpl.authenticateUser(kycAuthRequest);
+            authorizationServiceImpl.authenticateUser(authRequest);
             Assert.fail();
         } catch (IdPException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));

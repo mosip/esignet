@@ -12,6 +12,7 @@ import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.entity.ClientDetail;
@@ -42,6 +43,9 @@ public class ClientManagementServiceTest {
 
     @Mock
     ObjectMapper objectMapper = new ObjectMapper();
+
+    @Mock
+    AuditWrapper auditWrapper;
 
     Map<String, Object> PUBLIC_KEY;
 

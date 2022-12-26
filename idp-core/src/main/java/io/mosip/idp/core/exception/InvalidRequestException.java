@@ -5,18 +5,11 @@
  */
 package io.mosip.idp.core.exception;
 
-import io.mosip.idp.core.util.ErrorConstants;
-
-public class SendOtpException extends Exception {
+public class InvalidRequestException extends IdPException {
 
     private String errorCode;
 
-    public SendOtpException() {
-        super(ErrorConstants.SEND_OTP_FAILED);
-        this.errorCode = ErrorConstants.SEND_OTP_FAILED;
-    }
-
-    public SendOtpException(String errorCode) {
+    public InvalidRequestException(String errorCode) {
         super(errorCode);
         this.errorCode = errorCode;
     }
@@ -24,4 +17,5 @@ public class SendOtpException extends Exception {
     public String getErrorCode() {
         return errorCode;
     }
+
 }

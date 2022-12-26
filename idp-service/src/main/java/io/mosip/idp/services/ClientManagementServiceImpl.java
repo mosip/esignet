@@ -7,14 +7,15 @@ package io.mosip.idp.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.idp.core.dto.AuditDTO;
 import io.mosip.idp.core.dto.ClientDetailCreateRequest;
 import io.mosip.idp.core.dto.ClientDetailResponse;
 import io.mosip.idp.core.dto.ClientDetailUpdateRequest;
 import io.mosip.idp.core.exception.IdPException;
 import io.mosip.idp.core.exception.InvalidClientException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.ClientManagementService;
-import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
+import io.mosip.idp.core.util.*;
 import io.mosip.idp.entity.ClientDetail;
 import io.mosip.idp.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    AuditWrapper auditWrapper;
+
     private List<String> NULL = Collections.singletonList(null);
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
@@ -58,7 +62,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId(clientDetailCreateRequest.getClientId());
-        clientDetail.setPublicKey(getJWKString(clientDetailCreateRequest.getPublicKey()));
+        clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequest.getPublicKey()));
         clientDetail.setName(clientDetailCreateRequest.getClientName());
         clientDetail.setRpId(clientDetailCreateRequest.getRelyingPartyId());
         clientDetail.setLogoUri(clientDetailCreateRequest.getLogoUri());
@@ -87,6 +91,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             log.error("Failed to create client details", cve);
             throw new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
+
+        auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, new AuditDTO(clientDetailCreateRequest.getClientId(),
+                clientDetailCreateRequest.getRelyingPartyId()), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
@@ -124,6 +131,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
+        auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, new AuditDTO(clientId,
+                clientDetail.getRpId()), null);
+
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
         response.setStatus(clientDetail.getStatus());
@@ -157,15 +167,5 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new InvalidClientException();
         }
         return dto;
-    }
-
-    private String getJWKString(Map<String, Object> jwk) throws IdPException {
-        try {
-            RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
-            return jsonWebKey.toJson();
-        } catch (JoseException e) {
-            log.error(ErrorConstants.INVALID_PUBLIC_KEY, e);
-            throw new IdPException(ErrorConstants.INVALID_PUBLIC_KEY);
-        }
     }
 }

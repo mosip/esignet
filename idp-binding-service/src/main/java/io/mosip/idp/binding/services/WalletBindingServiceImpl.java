@@ -44,10 +44,10 @@ import io.mosip.idp.binding.dto.BindingTransaction;
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
 import io.mosip.idp.binding.repository.PublicKeyRegistryRepository;
 import io.mosip.idp.core.dto.BindingOtpRequest;
-import io.mosip.idp.core.dto.KycAuthRequest;
+import io.mosip.idp.core.dto.KycAuthDto;
 import io.mosip.idp.core.dto.KycAuthResult;
 import io.mosip.idp.core.dto.OtpResponse;
-import io.mosip.idp.core.dto.SendOtpRequest;
+import io.mosip.idp.core.dto.SendOtpDto;
 import io.mosip.idp.core.dto.SendOtpResult;
 import io.mosip.idp.core.dto.ValidateBindingRequest;
 import io.mosip.idp.core.dto.ValidateBindingResponse;
@@ -118,11 +118,11 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 
 		SendOtpResult sendOtpResult;
 		try {
-			SendOtpRequest sendOtpRequest = new SendOtpRequest();
-			sendOtpRequest.setTransactionId(transaction.getAuthTransactionId());
-			sendOtpRequest.setIndividualId(otpRequest.getIndividualId());
-			sendOtpRequest.setOtpChannels(otpRequest.getOtpChannels());
-			sendOtpResult = authenticationWrapper.sendOtp(authPartnerId, apiKey, sendOtpRequest);
+			SendOtpDto sendOtpDto = new SendOtpDto();
+			sendOtpDto.setTransactionId(transaction.getAuthTransactionId());
+			sendOtpDto.setIndividualId(otpRequest.getIndividualId());
+			sendOtpDto.setOtpChannels(otpRequest.getOtpChannels());
+			sendOtpResult = authenticationWrapper.sendOtp(authPartnerId, apiKey, sendOtpDto);
 		} catch (SendOtpException e) {
 			log.error("Failed to send otp for transaction : {}", transactionId, e);
 			throw new IdPException(e.getErrorCode());
@@ -259,7 +259,7 @@ public class WalletBindingServiceImpl implements WalletBindingService {
 		KycAuthResult kycAuthResult;
 		try {
 			kycAuthResult = authenticationWrapper.doKycAuth(authPartnerId, apiKey,
-					new KycAuthRequest(bindingTransaction.getAuthTransactionId(),
+					new KycAuthDto(bindingTransaction.getAuthTransactionId(),
 							walletBindingRequest.getIndividualId(), walletBindingRequest.getChallengeList()));
 		} catch (KycAuthException e) {
 			log.error("KYC auth failed for transaction : {}", bindingTransaction.getAuthTransactionId(), e);

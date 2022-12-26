@@ -18,11 +18,11 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.idp.TestUtil;
 import io.mosip.idp.core.dto.*;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.AuthenticationWrapper;
 import io.mosip.idp.core.spi.TokenService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.idp.repository.ClientDetailRepository;
 import io.mosip.idp.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,9 +45,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
 import java.security.PrivateKey;
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -95,6 +92,9 @@ public class AuthCodeFlowTest {
 
     @Autowired
     RestTemplate restTemplate;
+
+    @Autowired
+    AuditWrapper auditWrapper;
 
     @Value("${mosip.idp.amr-acr-mapping-file-url}")
     private String mappingFileUrl;
@@ -263,17 +263,17 @@ public class AuthCodeFlowTest {
     }
 
     private ResponseWrapper<AuthResponse> authenticate(String transactionId) throws Exception {
-        KycAuthRequest kycAuthRequest = new KycAuthRequest();
-        kycAuthRequest.setIndividualId("8267411571");
+        KycAuthDto kycAuthDto = new KycAuthDto();
+        kycAuthDto.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
         authChallenge.setChallenge("34789");
-        kycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
-        kycAuthRequest.setTransactionId(transactionId);
+        kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
+        kycAuthDto.setTransactionId(transactionId);
 
-        RequestWrapper<KycAuthRequest> wrapper = new RequestWrapper<>();
+        RequestWrapper<KycAuthDto> wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
-        wrapper.setRequest(kycAuthRequest);
+        wrapper.setRequest(kycAuthDto);
 
         MvcResult result = mockMvc.perform(post("/authorization/authenticate")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
