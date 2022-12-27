@@ -20,7 +20,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -45,11 +44,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("#{${mosip.idp.security.auth.get-urls}}")
     private Map<String, List<String>> secureGetUrls;
 
-    @Value("${mosip.idp.security.no-filter-urls}")
-    private String[] noSecurityFilterUrls;
+    @Value("${mosip.idp.security.ignore-filter-urls}")
+    private String[] ignoreSecurityFilterUrls;
 
-    @Value("${mosip.idp.security.no-auth-urls}")
-    private String[] noAuthUrls;
+    @Value("${mosip.idp.security.ignore-auth-urls}")
+    private String[] ignoreAuthUrls;
+
+    @Value("${mosip.idp.security.ignore-csrf-urls}")
+    private String[] ignoreCsrfCheckUrls;
 
 
     @Override
@@ -58,7 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry urlRegistry = http
                 .csrf()
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringAntMatchers(noSecurityFilterUrls)
+                .ignoringAntMatchers(ignoreCsrfCheckUrls)
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -66,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(idpAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers(noAuthUrls).permitAll();
+                .antMatchers(ignoreAuthUrls).permitAll();
 
         if(CollectionUtils.isEmpty(securePostUrls) && CollectionUtils.isEmpty(securePutUrls) && CollectionUtils.isEmpty(secureGetUrls)) {
             return;
@@ -98,6 +100,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity webSecurity) throws Exception {
         //Nullifying security filters
-        webSecurity.ignoring().antMatchers(noSecurityFilterUrls);
+        webSecurity.ignoring().antMatchers(ignoreSecurityFilterUrls);
     }
 }
