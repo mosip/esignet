@@ -35,6 +35,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private IdpAuthenticationEntryPoint idpAuthenticationEntryPoint;
 
+    @Value("${server.servlet.path}")
+    private String servletPath;
+
     @Value("#{${mosip.idp.security.auth.post-urls}}")
     private Map<String, List<String>> securePostUrls;
 
@@ -43,9 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Value("#{${mosip.idp.security.auth.get-urls}}")
     private Map<String, List<String>> secureGetUrls;
-
-    @Value("${mosip.idp.security.ignore-filter-urls}")
-    private String[] ignoreSecurityFilterUrls;
 
     @Value("${mosip.idp.security.ignore-auth-urls}")
     private String[] ignoreAuthUrls;
@@ -100,6 +100,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity webSecurity) throws Exception {
         //Nullifying security filters
-        webSecurity.ignoring().antMatchers(ignoreSecurityFilterUrls);
+        webSecurity.ignoring().antMatchers(servletPath+"/oidc/userinfo");
     }
 }
