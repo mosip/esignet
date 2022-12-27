@@ -99,7 +99,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity webSecurity) throws Exception {
-        //Nullifying security filters
+        //Nullifying security filters on userinfo endpoint.
+        //Reason:
+        //Even though oidc/** is part of ignore-auth-urls, bearer token is getting validated in the security filters and fails with 401 error.
+        //Bearer token of the userinfo endpoint is signed with IDP keys.
+        //We currently donot have a way to set 2 different authentication providers in spring security.
         webSecurity.ignoring().antMatchers(servletPath+"/oidc/userinfo");
     }
 }
