@@ -1,14 +1,8 @@
 {
 	"pin" : "34789",
-	"introducerBiometrics": "null",
 	"maskedEmailId" : "****sdf@gmsil.com",
 	"maskedMobile" : "****33478",
 	"identity": {
-		"proofOfAddress": {
-			"format": "pdf",
-			"type": "RNC",
-			"value": "proofOfAddress"
-		},
 		"gender": [{
 			"language": "fra",
 			"value": "Mâle"
@@ -38,16 +32,6 @@
 			"value": "ltcoxrcxyyjwhpm ibazlnrxoivlbof"
 		}],
 		"dateOfBirth": "1930/11/25",
-		"proofOfIdentity": {
-			"format": "pdf",
-			"type": "CIN",
-			"value": "proofOfIdentity"
-		},
-		"individualBiometrics": {
-			"format": "cbeff",
-			"version": 1,
-			"value": "individualBiometrics_bio_CBEFF"
-		},
 		"IDSchemaVersion": 0.2,
 		"province": [{
 			"language": "fra",
@@ -90,11 +74,6 @@
 			"language": "eng",
 			"value": "yuan wee"
 		}],
-		"proofOfRelationship": {
-			"format": "pdf",
-			"type": "DOC001",
-			"value": "proofOfRelationship"
-		},
 		"addressLine3": [{
 			"language": "fra",
 			"value": "yuān 3"
