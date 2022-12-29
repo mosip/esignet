@@ -8,12 +8,12 @@
 	<parent>
 		<groupId>io.mosip.idp</groupId>
 		<artifactId>idp-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.9-SNAPSHOT</version>
 	</parent>
 
 	<groupId>io.mosip.idp</groupId>
 	<artifactId>idp-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.9-SNAPSHOT</version>
 	<name>idp-service</name>
 	<description>Identity Provider Service</description>
 	
@@ -137,12 +137,12 @@
 		<dependency>
 			<groupId>io.mosip.idp</groupId>
 			<artifactId>idp-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.idp</groupId>
 			<artifactId>authentication-wrapper</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.9-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

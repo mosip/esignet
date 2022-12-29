@@ -13,7 +13,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.idp</groupId>
 	<artifactId>idp-parent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>idp</name>
 	<description>Parent project of MOSIP IdP</description>
@@ -100,7 +100,7 @@
 		<module>idp-core</module>
 		<module>authentication-wrapper</module>
 		<module>idp-service</module>
-    <module>idp-binding-service</module>
+		<!--<module>idp-binding-service</module>-->
   </modules>
 
 	<profiles>
