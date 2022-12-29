@@ -9,12 +9,12 @@
 	<parent>
 		<groupId>io.mosip.idp</groupId>
 		<artifactId>idp-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.9-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>io.mosip.idp</groupId>
 	<artifactId>authentication-wrapper</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.9-SNAPSHOT</version>
 	<name>authentication-wrapper</name>
 	<description>IdP Authentication Wrapper</description>
 	
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>io.mosip.idp</groupId>
 			<artifactId>idp-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

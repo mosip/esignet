@@ -11,7 +11,6 @@ ROOT_DIR=`pwd`
 
 declare -a module=("redis"
                    "idp"
-                   "idp-binding"
                    )
 
 echo restarting IDP services

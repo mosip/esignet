@@ -17,8 +17,7 @@ echo Installed Softhsm for IDP
 
 declare -a module=("redis"
                    "idp"
-                   "idp-binding"
-                   )
+                  )
 
 echo Installing IDP services
 
