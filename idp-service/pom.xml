@@ -139,10 +139,12 @@
 			<artifactId>idp-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+
 		<dependency>
 			<groupId>io.mosip.idp</groupId>
 			<artifactId>authentication-wrapper</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
