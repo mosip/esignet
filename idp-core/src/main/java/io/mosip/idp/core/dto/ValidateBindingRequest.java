@@ -5,7 +5,9 @@
  */
 package io.mosip.idp.core.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import io.mosip.idp.core.util.ErrorConstants;
 import lombok.Data;
@@ -18,8 +20,8 @@ public class ValidateBindingRequest {
 	
 	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
     private String individualId;
-	
-	@NotBlank(message = ErrorConstants.INVALID_WLA_TOKEN)
-    private String wlaToken;
+
+    @NotNull(message = ErrorConstants.INVALID_AUTH_CHALLENGE)
+    private @Valid AuthChallenge challenge;
 
 }

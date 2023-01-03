@@ -196,6 +196,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 kycExchangeDto.getTransactionId(), clientId);
         try {
             IdaKycExchangeRequest idaKycExchangeRequest = new IdaKycExchangeRequest();
+            //TODO add transaction Id in IdaKycExchangeRequest
             idaKycExchangeRequest.setId(kycExchangeId);
             idaKycExchangeRequest.setVersion(idaVersion);
             idaKycExchangeRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
@@ -309,6 +310,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     log.error("Failed to parse biometric capture response", e);
                 }
                 break;
+
             default:
                 throw new NotImplementedException("KYC auth not implemented");
         }
