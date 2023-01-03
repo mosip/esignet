@@ -13,11 +13,13 @@ import io.mosip.idp.core.dto.WalletBindingRequest;
 import io.mosip.idp.core.dto.WalletBindingResponse;
 import io.mosip.idp.core.exception.IdPException;
 
-public interface WalletBindingService {
+import java.util.Map;
 
-	OtpResponse sendBindingOtp(BindingOtpRequest otpRequest) throws IdPException;
+public interface KeyBindingService {
 
-    WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest) throws IdPException;
+	OtpResponse sendBindingOtp(BindingOtpRequest otpRequest, Map<String, String> headers) throws IdPException;
+
+    WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> headers) throws IdPException;
 
     ValidateBindingResponse validateBinding(ValidateBindingRequest validateBindingRequest) throws IdPException;
 }
