@@ -20,10 +20,8 @@ public class BindingOtpRequest {
 
 	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
     private String individualId;
-	
-	private String captchaToken;
 
     @NotNull(message = ErrorConstants.INVALID_OTP_CHANNEL)
     @Size(min = 1, message = ErrorConstants.INVALID_OTP_CHANNEL)
-    private List<@OtpChannel String> otpChannels;
+    private List<String> otpChannels;
 }

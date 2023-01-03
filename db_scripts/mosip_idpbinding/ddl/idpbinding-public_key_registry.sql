@@ -22,6 +22,8 @@ CREATE TABLE public_key_registry(
 	expire_dtimes timestamp NOT NULL,
 	wallet_binding_id character varying(256) NOT NULL,
 	public_key_hash character varying(100) NOT NULL,
+	certificate character varying NOT NULL,
+    auth_factors character varying NOT NULL,
 	cr_dtimes timestamp NOT NULL,
 	CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash)
 );
@@ -34,5 +36,7 @@ COMMENT ON COLUMN public_key_registry.public_key IS 'Public Key: Used to validat
 COMMENT ON COLUMN public_key_registry.expire_dtimes IS 'Expiry DateTimestamp : Date and Timestamp of the expiry of the binding entry.';
 COMMENT ON COLUMN public_key_registry.wallet_binding_id IS 'Wallet Binding Id: hash of PSU  Token and salt.';
 COMMENT ON COLUMN public_key_registry.public_key_hash IS 'Public Key Hash: Hash of  Public Key.';
+COMMENT ON COLUMN public_key_registry.auth_factors IS 'Supported auth factor types.';
+COMMENT ON COLUMN public_key_registry.certificate IS 'Signed certificate';
 COMMENT ON COLUMN public_key_registry.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted.';
 -- ddl-end --
