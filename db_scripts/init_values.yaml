@@ -1,0 +1,65 @@
+#dbUserPasswords:
+#  dbuserPassword: ""
+
+databases:
+  mosip_toolkit:
+    enabled: false
+  
+  mosip_master:
+    enabled: false
+  
+  mosip_audit:
+    enabled: false
+  
+  mosip_keymgr:
+    enabled: false
+  
+  mosip_kernel:
+    enabled: false
+  
+  mosip_idmap:
+    enabled: false
+  
+  mosip_prereg:
+    enabled: false
+  
+  mosip_idrepo:
+    enabled: false
+  
+  mosip_ida:
+    enabled: false
+  
+  mosip_credential:
+    enabled: false
+  
+  mosip_regprc:
+    enabled: false
+  
+  mosip_regdevice:
+    enabled: false
+  
+  mosip_authdevice:
+    enabled: false
+  
+  mosip_pms:
+    enabled: false
+  
+  mosip_hotlist:
+    enabled: false
+  
+  mosip_resident:
+    enabled: false
+  
+  mosip_digitalcard:
+    enabled: false
+  
+  mosip_idp:
+    enabled: true
+    host: "postgres-postgresql.postgres"
+    port: 5432
+    su:
+      user: postgres
+      secret:
+        name: postgres-postgresql
+        key: postgresql-password
+    dml: 0
