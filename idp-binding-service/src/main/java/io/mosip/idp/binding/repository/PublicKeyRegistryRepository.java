@@ -14,7 +14,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegistry, String> {
@@ -28,7 +27,7 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	Optional<PublicKeyRegistry> findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDateTime);
 
 	@Query(value = "SELECT * FROM public_key_registry WHERE psu_token= :psuToken ORDER BY expire_dtimes DESC LIMIT 1", nativeQuery = true)
-	Optional<PublicKeyRegistry> findOneByPsuToken(String psuToken);
+	Optional<PublicKeyRegistry> findLatestByPsuToken(String psuToken);
 
     @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
     Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);

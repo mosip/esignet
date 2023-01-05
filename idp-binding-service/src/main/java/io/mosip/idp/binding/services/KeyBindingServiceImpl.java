@@ -9,8 +9,6 @@ import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.idp.core.util.ErrorConstants.*;
 import static io.mosip.idp.core.util.IdentityProviderUtil.*;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,7 +25,6 @@ import io.mosip.idp.core.exception.*;
 import io.mosip.idp.core.spi.KeyBindingWrapper;
 import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
-import org.bouncycastle.util.io.pem.PemReader;
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers;
@@ -105,7 +102,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	}
 
 	@Override
-	public OtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> headers) throws IdPException {
+	public OtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws IdPException {
 		// Start and Cache the transaction
 		final String transactionId = IdentityProviderUtil.createTransactionId(null);
 		BindingTransaction transaction = new BindingTransaction();
@@ -117,7 +114,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		SendOtpResult sendOtpResult;
 		try {
 			sendOtpResult = keyBindingWrapper.sendBindingOtp(transaction.getAuthTransactionId(),
-					bindingOtpRequest.getIndividualId(), bindingOtpRequest.getOtpChannels(), headers);
+					bindingOtpRequest.getIndividualId(), bindingOtpRequest.getOtpChannels(), requestHeaders);
 		} catch (SendOtpException e) {
 			log.error("Failed to send otp for transaction : {}", transactionId, e);
 			throw new IdPException(e.getErrorCode());
@@ -136,7 +133,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	}
 
 	@Override
-	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> headers) throws IdPException {
+	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws IdPException {
 		BindingTransaction bindingTransaction = cacheUtilService.getTransaction(walletBindingRequest.getTransactionId());
 		if (bindingTransaction == null)
 			throw new InvalidTransactionException();
@@ -154,19 +151,19 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		try {
 			keyBindingResult = keyBindingWrapper.doKeyBinding(bindingTransaction.getAuthTransactionId(),
 					walletBindingRequest.getIndividualId(), walletBindingRequest.getChallengeList(),
-					walletBindingRequest.getPublicKey(), headers);
+					walletBindingRequest.getPublicKey(), requestHeaders);
 		} catch (KeyBindingException e) {
 			log.error("Failed to bind the key : {}", walletBindingRequest.getTransactionId(), e);
 			throw new IdPException(e.getErrorCode());
 		}
 
-		if (keyBindingResult == null || keyBindingResult.getCertificate() == null || keyBindingResult.getPartnerSpecificToken() == null) {
+		if (keyBindingResult == null || keyBindingResult.getCertificate() == null || keyBindingResult.getPartnerSpecificUserToken() == null) {
 			log.error("wallet binding failed with result : {}", keyBindingResult);
 			throw new IdPException(KEY_BINDING_FAILED);
 		}
 
 		PublicKeyRegistry publicKeyRegistry = storeKeyBindingDetailsInRegistry(walletBindingRequest.getIndividualId(),
-				keyBindingResult.getPartnerSpecificToken(), publicKey, keyBindingResult.getCertificate(),
+				keyBindingResult.getPartnerSpecificUserToken(), publicKey, keyBindingResult.getCertificate(),
 				walletBindingRequest.getAuthFactorTypes());
 
 		return new WalletBindingResponse(walletBindingRequest.getTransactionId(),
@@ -266,7 +263,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		String walletBindingId = null;
 		LocalDateTime expireDTimes = calculateExpiresDTimes();
 		String supportedAuthFactorTypes = JSONArray.toJSONString(authFactors);
-		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findOneByPsuToken(partnerSpecificUserToken);
+		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findLatestByPsuToken(partnerSpecificUserToken);
 		//Entry exists, consider to use same wallet-binding-id. Only update public-key & expireDT
 		if (optionalPublicKeyRegistry.isPresent()) {
 			walletBindingId = optionalPublicKeyRegistry.get().getWalletBindingId();

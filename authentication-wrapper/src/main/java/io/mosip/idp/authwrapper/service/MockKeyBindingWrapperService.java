@@ -34,13 +34,13 @@ public class MockKeyBindingWrapperService implements KeyBindingWrapper {
 
     @Override
     public KeyBindingResult doKeyBinding(String transactionId, String individualId, List<KeyBindingAuthChallenge> challengeList,
-                                         Map<String, Object> jwk, Map<String, String> requestHeaders) throws KeyBindingException {
+                                         Map<String, Object> publicKeyJWK, Map<String, String> requestHeaders) throws KeyBindingException {
         KeyBindingResult keyBindingResult = new KeyBindingResult();
         //TODO
         //create a signed certificate, with cn as username
         //certificate validity based on configuration
         keyBindingResult.setCertificate("");
-        keyBindingResult.setPartnerSpecificToken("");
+        keyBindingResult.setPartnerSpecificUserToken("");
         return keyBindingResult;
     }
 }

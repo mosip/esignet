@@ -36,12 +36,12 @@ public interface KeyBindingWrapper {
      * @param transactionId
      * @param individualId
      * @param challengeList
-     * @param jwk
+     * @param publicKeyJWK
      * @param requestHeaders
      * @return
      * @throws KeyBindingException
      */
     KeyBindingResult doKeyBinding(String transactionId, String individualId, List<KeyBindingAuthChallenge> challengeList,
-                                  Map<String, Object> jwk, Map<String, String> requestHeaders) throws KeyBindingException;
+                                  Map<String, Object> publicKeyJWK, Map<String, String> requestHeaders) throws KeyBindingException;
 
 }
