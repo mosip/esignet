@@ -77,7 +77,7 @@ public class KeyBindingControllerTest {
 		headers.put("Content-Length", "106");
 		when(keyBindingService.sendBindingOtp(otpRequest, headers)).thenReturn(otpResponse);
 
-		mockMvc.perform(post("/send-binding-otp").content(objectMapper.writeValueAsString(wrapper))
+		mockMvc.perform(post("/binding-otp").content(objectMapper.writeValueAsString(wrapper))
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.response.transactionId").value(otpResponse.getTransactionId()));
 	}
@@ -274,7 +274,7 @@ public class KeyBindingControllerTest {
 	}
 
 	@Test
-	public void validateBinding_withInvalidTransactionId_returnFailureResponse() throws Exception {
+	public void validateBinding_withInvalidTransactionId_thenFail() throws Exception {
 		ValidateBindingRequest validateBindingRequest = getValidateBindingRequest();
 		validateBindingRequest.setTransactionId(null);
 		RequestWrapper wrapper = new RequestWrapper<>();

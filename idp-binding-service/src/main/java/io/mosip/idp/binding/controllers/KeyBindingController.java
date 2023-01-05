@@ -34,7 +34,7 @@ public class KeyBindingController {
     @Autowired
     private KeyBindingService keyBindingService;
     
-    @PostMapping(value = "send-binding-otp", consumes = {MediaType.APPLICATION_JSON_VALUE},
+    @PostMapping(value = "binding-otp", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseWrapper<OtpResponse> sendBindingOtp(@Valid @RequestBody RequestWrapper<BindingOtpRequest> requestWrapper,
                                                        @RequestHeader Map<String, String> headers)

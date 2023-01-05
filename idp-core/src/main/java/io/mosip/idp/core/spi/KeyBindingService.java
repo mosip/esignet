@@ -17,9 +17,9 @@ import java.util.Map;
 
 public interface KeyBindingService {
 
-	OtpResponse sendBindingOtp(BindingOtpRequest otpRequest, Map<String, String> headers) throws IdPException;
+	OtpResponse sendBindingOtp(BindingOtpRequest otpRequest, Map<String, String> requestHeaders) throws IdPException;
 
-    WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> headers) throws IdPException;
+    WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws IdPException;
 
     ValidateBindingResponse validateBinding(ValidateBindingRequest validateBindingRequest) throws IdPException;
 }
