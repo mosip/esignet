@@ -23,6 +23,12 @@ IDP is part of the IDP modules, but has a separate Helm chart so as to install a
 ## Overview
 Refer [Commons](https://docs.mosip.io/1.2.0/modules/commons).
 
+## Initialize keycloak for IDP
+* To initialize keycloak for IDP, run below script.
+  ```sh
+  ./keycloak-init.sh
+  ```
+
 ## Install 
 ```
 ./install.sh
