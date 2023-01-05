@@ -5,8 +5,6 @@
  */
 package io.mosip.idp.binding.services;
 
-import static io.mosip.idp.core.util.Constants.SPACE;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA_256;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -15,34 +13,20 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.security.PrivateKey;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.util.Base64;
-import com.nimbusds.jose.util.Base64URL;
-import com.nimbusds.jose.util.X509CertUtils;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import io.mosip.idp.authwrapper.service.MockKeyBindingWrapperService;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.exception.KeyBindingException;
 import io.mosip.idp.core.util.IdentityProviderUtil;
-import io.mosip.kernel.keymanagerservice.constant.KeymanagerErrorConstant;
 import io.mosip.kernel.keymanagerservice.exception.KeymanagerServiceException;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.lang.JoseException;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,21 +41,17 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jwt.proc.BadJWTException;
 
-import io.mosip.idp.authwrapper.service.MockAuthenticationService;
 import io.mosip.idp.binding.TestUtil;
 import io.mosip.idp.binding.dto.BindingTransaction;
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
 import io.mosip.idp.binding.repository.PublicKeyRegistryRepository;
 import io.mosip.idp.core.exception.IdPException;
-import io.mosip.idp.core.exception.KycAuthException;
 import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.util.ErrorConstants;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
-import org.springframework.util.CollectionUtils;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -205,7 +185,7 @@ public class KeyBindingServiceTest {
 		transaction.setAuthChallengeTypes(Arrays.asList("OTP"));
 
 		KeyBindingResult keyBindingResult = new KeyBindingResult();
-		keyBindingResult.setPartnerSpecificToken("psutoken123");
+		keyBindingResult.setPartnerSpecificUserToken("psutoken123");
 		keyBindingResult.setCertificate("certificate");
 		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(keyBindingResult);
@@ -358,7 +338,7 @@ public class KeyBindingServiceTest {
 
 		KeyBindingResult keyBindingResult = new KeyBindingResult();
 		keyBindingResult.setCertificate("data");
-		keyBindingResult.setPartnerSpecificToken("psut");
+		keyBindingResult.setPartnerSpecificUserToken("psut");
 		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(keyBindingResult);
 
@@ -393,7 +373,7 @@ public class KeyBindingServiceTest {
 
 		KeyBindingResult keyBindingResult = new KeyBindingResult();
 		keyBindingResult.setCertificate("data");
-		keyBindingResult.setPartnerSpecificToken("psut");
+		keyBindingResult.setPartnerSpecificUserToken("psut");
 		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(keyBindingResult);
 
@@ -403,7 +383,7 @@ public class KeyBindingServiceTest {
 		publicKeyRegistry.setPsuToken("psutoken123");
 		publicKeyRegistry.setWalletBindingId("tXOFGPKly4L_9VI8NYvYXJe5ZNrgOIUnfFdLkNKYdTE");
 		Optional<PublicKeyRegistry> optionalPublicKeyRegistry = Optional.of(publicKeyRegistry);
-		when(publicKeyRegistryRepository.findOneByPsuToken(Mockito.any())).thenReturn(optionalPublicKeyRegistry);
+		when(publicKeyRegistryRepository.findLatestByPsuToken(Mockito.any())).thenReturn(optionalPublicKeyRegistry);
 		when(publicKeyRegistryRepository.save(Mockito.any())).thenReturn(publicKeyRegistry);
 		Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 	}

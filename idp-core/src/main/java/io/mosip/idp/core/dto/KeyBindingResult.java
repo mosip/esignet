@@ -11,5 +11,5 @@ import lombok.Data;
 public class KeyBindingResult {
 
     private String certificate;
-    private String partnerSpecificToken;
+    private String partnerSpecificUserToken;
 }
