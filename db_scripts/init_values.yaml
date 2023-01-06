@@ -62,4 +62,4 @@ databases:
       secret:
         name: postgres-postgresql
         key: postgresql-password
-    dml: 0
+    dml: 1
