@@ -1,0 +1,43 @@
+name: Tagging of repos
+
+env:
+  tag: v1.2.3
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to be published'
+        required: true
+        default: 'v1.2.3'
+        type: string
+      body:
+        description: 'Release body message'
+        required: true
+        default: 'Changes in this Release'
+        type: string
+      pre-release:
+        description: 'Pre-release? True/False'
+        required: true
+        default: False
+        type: string
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          release_name: ${{ github.event.inputs.tag }}
+          body: |
+            ${{ github.event.inputs.body }}
+          draft: false
+          prerelease: ${{fromJSON(github.event.inputs.pre-release)}}
