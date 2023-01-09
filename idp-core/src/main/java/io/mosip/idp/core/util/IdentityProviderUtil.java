@@ -14,6 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,12 +40,15 @@ import com.nimbusds.jose.util.ByteUtils;
 import io.mosip.idp.core.exception.IdPException;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.xml.bind.DatatypeConverter;
+
 @Slf4j
 public class IdentityProviderUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
     public static final String ALGO_SHA3_256 = "SHA3-256";
     public static final String ALGO_SHA_256 = "SHA-256";
+    public static final String ALGO_SHA_1 = "SHA-1";
     public static final String ALGO_MD5 = "MD5";
     public static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -194,19 +199,6 @@ public class IdentityProviderUtil {
 		return randomBytes;
 	}
 
-	public static String digestAsPlainTextWithSalt(final byte[] password, final byte[] salt) throws IdPException {
-		MessageDigest messageDigest = null;
-		try {
-			messageDigest = MessageDigest.getInstance(ALGO_SHA_256);
-			messageDigest.update(password);
-			messageDigest.update(salt);
-		} catch (NoSuchAlgorithmException e) {
-			throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
-		}
-
-		return b64Encode(messageDigest.digest());
-	}
-
 	public static String getJWKString(Map<String, Object> jwk) throws IdPException {
 		try {
 			RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
@@ -216,4 +208,14 @@ public class IdentityProviderUtil {
 			throw new IdPException(INVALID_PUBLIC_KEY);
 		}
 	}
+
+    public static String getCertificateThumbprint(String algorithm, X509Certificate cert) {
+        try {
+            MessageDigest md = MessageDigest.getInstance(algorithm);
+            md.update(cert.getEncoded());
+            return DatatypeConverter.printHexBinary(md.digest()).toLowerCase();
+        } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
+            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+        }
+    }
 }

@@ -398,6 +398,7 @@ public class AuthorizationAPIFlowTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
         authChallenge.setChallenge("1234453");
+        authChallenge.setFormat("number");
         kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
         kycAuthDto.setTransactionId(transactionId);
 
@@ -422,6 +423,7 @@ public class AuthorizationAPIFlowTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
         authChallenge.setChallenge("34789");
+        authChallenge.setFormat("number");
         kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
         kycAuthDto.setTransactionId(transactionId);
 
