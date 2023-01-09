@@ -6,8 +6,7 @@
 package io.mosip.idp.binding.controllers;
 
 import static io.mosip.idp.core.util.Constants.UTC_DATETIME_PATTERN;
-import static io.mosip.idp.core.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE;
-import static io.mosip.idp.core.util.ErrorConstants.INVALID_CHALLENGE;
+import static io.mosip.idp.core.util.ErrorConstants.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.mosip.idp.binding.services.KeyBindingValidatorService;
 import io.mosip.idp.core.dto.*;
 import io.mosip.idp.core.dto.Error;
 import io.mosip.idp.core.util.ErrorConstants;
@@ -55,6 +55,9 @@ public class KeyBindingControllerTest {
 	@MockBean
 	private KeyBindingService keyBindingService;
 
+	@MockBean
+	private KeyBindingValidatorService keyBindingValidatorService;
+
 	@InjectMocks
 	KeyBindingController keyBindingController;
 
@@ -70,8 +73,49 @@ public class KeyBindingControllerTest {
 		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
 		wrapper.setRequest(otpRequest);
 
-		OtpResponse otpResponse = new OtpResponse();
-		otpResponse.setTransactionId("qwertyId");
+		BindingOtpResponse otpResponse = new BindingOtpResponse();
+		Map<String, String> headers = new HashMap<>();
+		headers.put("Content-Type", "application/json;charset=UTF-8");
+		headers.put("Content-Length", "106");
+		when(keyBindingService.sendBindingOtp(otpRequest, headers)).thenReturn(otpResponse);
+
+		mockMvc.perform(post("/binding-otp").content(objectMapper.writeValueAsString(wrapper))
+						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+	}
+
+	@Test
+	public void sendBindingOtp_withInvalidIndividualId_thenPass() throws Exception {
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("");
+		otpRequest.setOtpChannels(Arrays.asList("email"));
+		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+		RequestWrapper wrapper = new RequestWrapper<>();
+		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+		wrapper.setRequest(otpRequest);
+
+		BindingOtpResponse otpResponse = new BindingOtpResponse();
+		Map<String, String> headers = new HashMap<>();
+		headers.put("Content-Type", "application/json;charset=UTF-8");
+		headers.put("Content-Length", "106");
+		when(keyBindingService.sendBindingOtp(otpRequest, headers)).thenReturn(otpResponse);
+
+		mockMvc.perform(post("/binding-otp").content(objectMapper.writeValueAsString(wrapper))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.errors").isNotEmpty())
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_INDIVIDUAL_ID));
+	}
+
+	@Test
+	public void sendBindingOtp_withInvalidChannel_thenPass() throws Exception {
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("121323123s");
+		otpRequest.setOtpChannels(Arrays.asList());
+		ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+		RequestWrapper wrapper = new RequestWrapper<>();
+		wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+		wrapper.setRequest(otpRequest);
+
+		BindingOtpResponse otpResponse = new BindingOtpResponse();
 		Map<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", "application/json;charset=UTF-8");
 		headers.put("Content-Length", "106");
@@ -79,7 +123,8 @@ public class KeyBindingControllerTest {
 
 		mockMvc.perform(post("/binding-otp").content(objectMapper.writeValueAsString(wrapper))
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.response.transactionId").value(otpResponse.getTransactionId()));
+				.andExpect(jsonPath("$.errors").isNotEmpty())
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_OTP_CHANNEL));
 	}
 
 	@Test
@@ -90,7 +135,6 @@ public class KeyBindingControllerTest {
 		wrapper.setRequest(walletBindingRequest);
 
 		WalletBindingResponse walletBindingResponse = new WalletBindingResponse();
-		walletBindingResponse.setTransactionId("123456789");
 		Map<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", "application/json;charset=UTF-8");
 		headers.put("Content-Length", "1877");
@@ -99,23 +143,9 @@ public class KeyBindingControllerTest {
 		mockMvc.perform(post("/wallet-binding")
 						.content(objectMapper.writeValueAsString(wrapper))
 						.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.response.transactionId").value(walletBindingResponse.getTransactionId()));
+				.andExpect(status().isOk());
 	}
 
-	@Test
-	public void bindWallet_withBlankTransaction_thenFail() throws Exception {
-		WalletBindingRequest walletBindingRequest = getWalletBindingRequest();
-		walletBindingRequest.setTransactionId("");
-		RequestWrapper wrapper = new RequestWrapper<>();
-		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-		wrapper.setRequest(walletBindingRequest);
-
-		mockMvc.perform(post("/wallet-binding").content(objectMapper.writeValueAsString(wrapper))
-						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.errors").isNotEmpty())
-				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID));
-	}
 
 	@Test
 	public void bindWallet_withBlankIndividualId_thenFail() throws Exception {
@@ -188,10 +218,25 @@ public class KeyBindingControllerTest {
 	}
 
 	@Test
+	public void bindWallet_withEmptyFormat_thenFail() throws Exception {
+		WalletBindingRequest walletBindingRequest = getWalletBindingRequest();
+		walletBindingRequest.setFormat("");
+		RequestWrapper wrapper = new RequestWrapper<>();
+		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+		wrapper.setRequest(walletBindingRequest);
+
+		mockMvc.perform(post("/wallet-binding").content(objectMapper.writeValueAsString(wrapper))
+						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.errors").isNotEmpty())
+				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT));
+	}
+
+	@Test
 	public void bindWallet_withAuthChallengeEmptyFactorAndEmptyChallenge_thenFail() throws Exception {
 		WalletBindingRequest walletBindingRequest = getWalletBindingRequest();
 		walletBindingRequest.getChallengeList().get(0).setChallenge("");
 		walletBindingRequest.getChallengeList().get(0).setAuthFactorType("");
+		walletBindingRequest.getChallengeList().get(0).setFormat("");
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
 		wrapper.setRequest(walletBindingRequest);
@@ -201,11 +246,12 @@ public class KeyBindingControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.errors").isNotEmpty()).andReturn();
 
-		List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE);
+		List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE, INVALID_CHALLENGE_FORMAT);
 		ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-		Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+		Assert.assertTrue(responseWrapper.getErrors().size() == 3);
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
 	}
 
 	@Test
@@ -218,7 +264,7 @@ public class KeyBindingControllerTest {
 		ValidateBindingResponse bindingResponse = new ValidateBindingResponse();
 		bindingResponse.setTransactionId(validateBindingRequest.getTransactionId());
 		bindingResponse.setIndividualId(validateBindingRequest.getIndividualId());
-		when(keyBindingService.validateBinding(validateBindingRequest)).thenReturn(bindingResponse);
+		when(keyBindingValidatorService.validateBinding(validateBindingRequest)).thenReturn(bindingResponse);
 
 		mockMvc.perform(post("/validate-binding").content(objectMapper.writeValueAsString(wrapper))
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
@@ -242,7 +288,7 @@ public class KeyBindingControllerTest {
 	@Test
 	public void validateBinding_withNullChallenge_thenFail() throws Exception {
 		ValidateBindingRequest validateBindingRequest = getValidateBindingRequest();
-		validateBindingRequest.setChallenge(null);
+		validateBindingRequest.setChallenges(null);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
 		wrapper.setRequest(validateBindingRequest);
@@ -256,8 +302,9 @@ public class KeyBindingControllerTest {
 	@Test
 	public void validateBinding_withInvalidChallenge_thenFail() throws Exception {
 		ValidateBindingRequest validateBindingRequest = getValidateBindingRequest();
-		validateBindingRequest.getChallenge().setAuthFactorType(null);
-		validateBindingRequest.getChallenge().setChallenge(null);
+		validateBindingRequest.getChallenges().get(0).setAuthFactorType(null);
+		validateBindingRequest.getChallenges().get(0).setChallenge(null);
+		validateBindingRequest.getChallenges().get(0).setFormat(null);
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
 		wrapper.setRequest(validateBindingRequest);
@@ -266,11 +313,12 @@ public class KeyBindingControllerTest {
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.errors").isNotEmpty()).andReturn();
 
-		List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE);
+		List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE, INVALID_CHALLENGE_FORMAT);
 		ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-		Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+		Assert.assertTrue(responseWrapper.getErrors().size() == 3);
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
 	}
 
 	@Test
@@ -291,12 +339,13 @@ public class KeyBindingControllerTest {
 		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
 		walletBindingRequest.setIndividualId("id1");
 		walletBindingRequest.setPublicKey((Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
-		walletBindingRequest.setTransactionId("123456789");
-		walletBindingRequest.setAuthFactorTypes(Arrays.asList("WLA"));
-		KeyBindingAuthChallenge authChallenge = new KeyBindingAuthChallenge();
+		walletBindingRequest.setAuthFactorType("WLA");
+		walletBindingRequest.setFormat("jwt");
+		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("12345");
-		List<KeyBindingAuthChallenge> authChallengeList = new ArrayList();
+		authChallenge.setFormat("alpha-numeric");
+		List<AuthChallenge> authChallengeList = new ArrayList();
 		authChallengeList.add(authChallenge);
 		walletBindingRequest.setChallengeList(authChallengeList);
 		return walletBindingRequest;
@@ -309,9 +358,9 @@ public class KeyBindingControllerTest {
 		validateBindingRequest.setIndividualId("8267411571");
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("WLA");
-		authChallenge.setFormat("JWT");
+		authChallenge.setFormat("jwt");
 		authChallenge.setChallenge("eyJzdWIiOiIxM");
-		validateBindingRequest.setChallenge(authChallenge);
+		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 		return validateBindingRequest;
 	}
 

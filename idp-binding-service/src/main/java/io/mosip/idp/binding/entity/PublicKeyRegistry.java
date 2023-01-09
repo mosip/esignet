@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@IdClass(RegistryId.class)
 @NoArgsConstructor
 @AllArgsConstructor
 public class PublicKeyRegistry {
@@ -26,6 +28,11 @@ public class PublicKeyRegistry {
 	@NotBlank
 	@Column(name = "id_hash")
 	private String idHash;
+
+	@Id
+	@NotBlank
+	@Column(name = "auth_factor")
+	private String authFactor;
 
 	@NotBlank
 	@Column(name = "psu_token")
@@ -52,9 +59,5 @@ public class PublicKeyRegistry {
 
 	@Column(name = "cr_dtimes")
 	private LocalDateTime createdtimes;
-
-	@NotBlank
-	@Column(name = "auth_factors")
-	private String authFactors;
 
 }
