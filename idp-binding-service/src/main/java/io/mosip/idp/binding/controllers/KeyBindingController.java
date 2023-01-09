@@ -7,6 +7,7 @@ package io.mosip.idp.binding.controllers;
 
 import javax.validation.Valid;
 
+import io.mosip.idp.binding.services.KeyBindingValidatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,9 @@ public class KeyBindingController {
 
     @Autowired
     private KeyBindingService keyBindingService;
+
+    @Autowired
+    private KeyBindingValidatorService keyBindingValidatorService;
     
     @PostMapping(value = "binding-otp", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -58,12 +62,11 @@ public class KeyBindingController {
     
     @PostMapping(value = "validate-binding", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseWrapper<ValidateBindingResponse> validateBinding(@Valid @RequestBody RequestWrapper<ValidateBindingRequest> requestWrapper,
-                                                                    @RequestHeader Map<String, String> headers)
+    public ResponseWrapper<ValidateBindingResponse> validateBinding(@Valid @RequestBody RequestWrapper<ValidateBindingRequest> requestWrapper)
             throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(keyBindingService.validateBinding(requestWrapper.getRequest()));
+        responseWrapper.setResponse(keyBindingValidatorService.validateBinding(requestWrapper.getRequest()));
         return responseWrapper;
     }
 }

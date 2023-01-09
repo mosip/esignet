@@ -199,19 +199,6 @@ public class IdentityProviderUtil {
 		return randomBytes;
 	}
 
-	public static String digestAsPlainTextWithSalt(final byte[] password, final byte[] salt) throws IdPException {
-		MessageDigest messageDigest = null;
-		try {
-			messageDigest = MessageDigest.getInstance(ALGO_SHA_256);
-			messageDigest.update(password);
-			messageDigest.update(salt);
-		} catch (NoSuchAlgorithmException e) {
-			throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
-		}
-
-		return b64Encode(messageDigest.digest());
-	}
-
 	public static String getJWKString(Map<String, Object> jwk) throws IdPException {
 		try {
 			RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);

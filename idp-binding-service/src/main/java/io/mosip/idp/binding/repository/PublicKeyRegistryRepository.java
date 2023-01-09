@@ -6,8 +6,11 @@
 package io.mosip.idp.binding.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import io.mosip.idp.binding.entity.RegistryId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,25 +19,17 @@ import io.mosip.idp.binding.entity.PublicKeyRegistry;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegistry, String> {
-	
-	/**
-	 * Query to fetch PublicKeyRegistry based on idHash
-	 * 
-	 * @param idHash
-	 * @return
-	 */
-	Optional<PublicKeyRegistry> findByIdHashAndExpiredtimesGreaterThan(String idHash, LocalDateTime currentDateTime);
+public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegistry, RegistryId> {
 
-	@Query(value = "SELECT * FROM public_key_registry WHERE psu_token= :psuToken ORDER BY expire_dtimes DESC LIMIT 1", nativeQuery = true)
-	Optional<PublicKeyRegistry> findLatestByPsuToken(String psuToken);
+	List<PublicKeyRegistry> findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(String idHash, Set<String> authFactor, LocalDateTime currentDateTime);
 
-    @Query("SELECT pkr FROM PublicKeyRegistry pkr WHERE pkr.publicKeyHash= :publicKeyHash and pkr.psuToken!= :psuToken")
-    Optional<PublicKeyRegistry> findByPublicKeyHashNotEqualToPsuToken(String publicKeyHash, String psuToken);
+	@Query(value = "SELECT * FROM public_key_registry WHERE psu_token= :psuToken and auth_factor= :authFactor ORDER BY expire_dtimes DESC LIMIT 1", nativeQuery = true)
+	Optional<PublicKeyRegistry> findLatestByPsuTokenAndAuthFactor(String psuToken, String authFactor);
+
+    Optional<PublicKeyRegistry> findOptionalByPublicKeyHashAndPsuTokenNot(String publicKeyHash, String psuToken);
 
 	@Modifying
 	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expireDTimes, " +
-			"pkr.certificate= :certificate, pkr.authFactors= :authFactors where pkr.psuToken= :psuToken")
-	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expireDTimes, String psuToken,
-								String certificate, String authFactors);
+			"pkr.certificate= :certificate where pkr.psuToken= :psuToken and pkr.authFactor= :authFactor")
+	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expireDTimes, String psuToken, String certificate, String authFactor);
 }

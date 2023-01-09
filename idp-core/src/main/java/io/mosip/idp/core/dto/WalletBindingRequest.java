@@ -24,21 +24,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WalletBindingRequest {
-	
-	@NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
-    private String transactionId;
 
 	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
     private String individualId;
 
 	@NotNull(message = ErrorConstants.INVALID_CHALLENGE_LIST)
 	@Size(min = 1, max = 5, message = ErrorConstants.INVALID_CHALLENGE_LIST)
-	private List<@Valid KeyBindingAuthChallenge> challengeList;
+	private List<@Valid AuthChallenge> challengeList;
     
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
     private Map<String, Object> publicKey;
 
 	@NotEmpty(message = ErrorConstants.INVALID_AUTH_FACTOR_TYPE)
-	@Size(min = 1, max = 10, message = ErrorConstants.INVALID_AUTH_FACTOR_TYPE)
-	private List<String> authFactorTypes; //auth factors to allow in validate-binding request
+	private String authFactorType; //bind a key to a single auth-factor-type
+
+	@NotEmpty(message = ErrorConstants.INVALID_CHALLENGE_FORMAT)
+	private String format;
+
 }

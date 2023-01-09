@@ -64,5 +64,6 @@ public class ErrorConstants {
     public static final String UNKNOWN_WLA_FORMAT = "unknown_wla_format";
     public static final String UNBOUND_AUTH_FACTOR = "unbound_auth_factor";
     public static final String INVALID_CERTIFICATE = "invalid_certificate";
+    public static final String INVALID_CHALLENGE_FORMAT = "unsupported_challenge_format";
 
 }
