@@ -12,16 +12,26 @@ import io.mosip.idp.core.dto.SendOtpResult;
 import io.mosip.idp.core.exception.KeyBindingException;
 import io.mosip.idp.core.exception.SendOtpException;
 import io.mosip.idp.core.spi.KeyBindingWrapper;
+import io.mosip.idp.core.util.Constants;
+import io.mosip.kernel.core.util.DateUtils;
+import io.mosip.kernel.keymanagerservice.dto.SignatureCertificate;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.security.PrivateKey;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @ConditionalOnProperty(value = "mosip.idp.binding.wrapper.impl", havingValue = "MockKeyBindingWrapperService")
@@ -29,12 +39,19 @@ import java.util.*;
 @Slf4j
 public class MockKeyBindingWrapperService implements KeyBindingWrapper {
 
+    @Autowired
+    private KeymanagerService keymanagerService;
+
+    @Value("${mosip.idp.binding.key-expire-days}")
+    private int expireInDays;
+
     private static final Map<String, List<String>> supportedFormats = new HashMap<>();
 
     static {
         supportedFormats.put("OTP", Arrays.asList("alpha-numeric"));
         supportedFormats.put("PIN", Arrays.asList("number"));
         supportedFormats.put("BIO", Arrays.asList("encoded-json"));
+        supportedFormats.put("WLA", Arrays.asList("jwt"));
     }
 
 
@@ -56,18 +73,23 @@ public class MockKeyBindingWrapperService implements KeyBindingWrapper {
         try {
             RSAKey rsaKey = RSAKey.parse(new JSONObject(publicKeyJWK));
             X509V3CertificateGenerator generator = new X509V3CertificateGenerator();
-            X500Principal dnName = new X500Principal("CN=Test");
-            generator.setSubjectDN(dnName);
-            generator.setIssuerDN(dnName); // use the same
-            generator.setNotBefore(new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000));
-            generator.setNotAfter(new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000));
+            generator.setSubjectDN(new X500Principal("CN=Mock-user-name"));
+            generator.setIssuerDN( new X500Principal("CN=Mock-IDA"));
+            LocalDateTime notBeforeDate = DateUtils.getUTCCurrentDateTime();
+            LocalDateTime notAfterDate = notBeforeDate.plus(expireInDays, ChronoUnit.DAYS);
+            generator.setNotBefore(Timestamp.valueOf(notBeforeDate));
+            generator.setNotAfter(Timestamp.valueOf(notAfterDate));
             generator.setPublicKey(rsaKey.toPublicKey());
             generator.setSignatureAlgorithm("SHA256WITHRSA");
             generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
 
+
+            SignatureCertificate signatureCertificate = keymanagerService.getSignatureCertificate(Constants.IDP_BINDING_SERVICE_APP_ID, Optional.empty(),
+                    DateUtils.getUTCCurrentDateTimeString());
+            PrivateKey privateKey = signatureCertificate.getCertificateEntry().getPrivateKey();
             StringWriter stringWriter = new StringWriter();
             try (JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter)) {
-                pemWriter.writeObject(generator.generate(rsaKey.toPrivateKey()));
+                pemWriter.writeObject(generator.generate(privateKey));
                 pemWriter.flush();
                 keyBindingResult.setCertificate(stringWriter.toString());
             }
