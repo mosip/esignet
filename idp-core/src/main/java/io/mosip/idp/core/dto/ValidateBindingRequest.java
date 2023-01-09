@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 import io.mosip.idp.core.util.ErrorConstants;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ValidateBindingRequest {
 	
@@ -22,6 +24,6 @@ public class ValidateBindingRequest {
     private String individualId;
 
     @NotNull(message = ErrorConstants.INVALID_AUTH_CHALLENGE)
-    private @Valid AuthChallenge challenge;
+    private List<@Valid AuthChallenge> challenges;
 
 }
