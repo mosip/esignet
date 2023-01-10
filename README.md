@@ -32,7 +32,7 @@ The project requires JDK 11.
     ```
 ## Installing in MOSIP's k8s cluster using helm
 ### Pre-requisites
-1. MOSIP's 1.2.0.1-B2 version already deployed with IDA and PMP installed with its DB and keycloak dependencies.
+1. MOSIP's 1.2.0.1-B2 version already deployed with IDA, PMP installed with its DB and keycloak dependencies.
 1. Make sure kube config file of the Mosip cluster having dependent services is set correctly in PC.
 1. Make sure [DB setup](db_scripts#initialize-idp-db) is done.
 1. Add below mentioned property files to your config branch from [1.2.0.1-B2](https://github.com/mosip/mosip-config/tree/v1.2.0.1-B2).
