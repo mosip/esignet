@@ -82,8 +82,8 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private File personaDir;
     private File policyDir;
 
-    @Value("${mosip.idp.authn.mock.impl.token-expire-sec:30}")
-    private int tokenExpireInSeconds;
+    @Value("${mosip.idp.authn.mock.impl.kyc-token-expire-sec:30}")
+    private int kycTokenExpireInSeconds;
 
     @Value("${mosip.idp.authn.mock.impl.persona-repo:/mockida/personas/}")
     private String personaRepoDirPath;
@@ -222,7 +222,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         payload.put(AUD_CLAIM, Constants.IDP_SERVICE_APP_ID);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT_CLAIM, issueTime);
-        payload.put(EXP_CLAIM, issueTime +tokenExpireInSeconds);
+        payload.put(EXP_CLAIM, issueTime +kycTokenExpireInSeconds);
         try {
             return signKyc(payload);
         } catch (JsonProcessingException e) {
