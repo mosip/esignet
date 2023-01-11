@@ -49,6 +49,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.mosip.idp.core.util.ErrorConstants.*;
 
@@ -62,6 +63,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     public static final String SIGNATURE_HEADER_NAME = "signature";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     public static final String INVALID_PARTNER_CERTIFICATE = "invalid_partner_cert";
+    private static final List<String> keyBoundAuthFactorTypes = Arrays.asList("WLA");
 
     @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycauth}")
     private String kycAuthId;
@@ -120,6 +122,9 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Autowired
     private CryptoCore cryptoCore;
 
+    @Autowired
+    private MockHelperService mockHelperService;
+
     private Certificate idaPartnerCertificate;
 
     @Override
@@ -128,6 +133,18 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
         log.info("Started to build kyc-auth request with transactionId : {} && clientId : {}",
                 kycAuthDto.getTransactionId(), clientId);
         try {
+
+            List<AuthChallenge> keyBoundChallenges = kycAuthDto.getChallengeList().stream()
+                    .filter( authChallenge -> keyBoundAuthFactorTypes.contains(authChallenge.getAuthFactorType()) )
+                    .collect(Collectors.toList());
+
+            //throws exception if fails
+            mockHelperService.validateKeyBoundAuth(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), keyBoundChallenges);
+
+            List<AuthChallenge> nonKeyBoundChallenges = kycAuthDto.getChallengeList().stream()
+                    .filter( authChallenge -> !keyBoundAuthFactorTypes.contains(authChallenge.getAuthFactorType()) )
+                    .collect(Collectors.toList());
+
             IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
             idaKycAuthRequest.setId(kycAuthId);
             idaKycAuthRequest.setVersion(idaVersion);
@@ -140,7 +157,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
 
             IdaKycAuthRequest.AuthRequest authRequest = new IdaKycAuthRequest.AuthRequest();
             authRequest.setTimestamp(IdentityProviderUtil.getUTCDateTime());
-            kycAuthDto.getChallengeList().stream()
+            nonKeyBoundChallenges.stream()
                     .filter( auth -> auth != null &&  auth.getAuthFactorType() != null)
                     .forEach( auth -> { buildAuthRequest(auth.getAuthFactorType(), auth.getChallenge(), authRequest, idaKycAuthRequest); });
 
@@ -186,7 +203,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthDto.getTransactionId(),
                     clientId, e);
         }
-        throw new KycAuthException();
+        throw new KycAuthException(AUTH_FAILED);
     }
 
     @Override

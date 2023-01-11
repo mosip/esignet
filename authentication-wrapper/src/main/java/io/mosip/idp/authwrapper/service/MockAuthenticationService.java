@@ -37,8 +37,13 @@ import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -52,6 +57,8 @@ import static io.mosip.idp.core.util.ErrorConstants.INVALID_INPUT;
 import static io.mosip.idp.core.util.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
+@ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "MockAuthenticationService")
+@Component
 @Slf4j
 public class MockAuthenticationService implements AuthenticationWrapper {
 
@@ -71,15 +78,36 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static Map<String, RSAKey> relyingPartyPublicKeys;
     private static Map<String, String> localesMapping;
     private static Set<String> REQUIRED_CLAIMS;
-    private int tokenExpireInSeconds;
-    private SignatureService signatureService;
-    private ObjectMapper objectMapper;
-    private KeymanagerService keymanagerService;
     private DocumentContext mappingDocumentContext;
     private File personaDir;
     private File policyDir;
 
+    @Value("${mosip.idp.authn.mock.impl.kyc-token-expire-sec:30}")
+    private int kycTokenExpireInSeconds;
+
+    @Value("${mosip.idp.authn.mock.impl.persona-repo:/mockida/personas/}")
+    private String personaRepoDirPath;
+
+    @Value("${mosip.idp.authn.mock.impl.policy-repo:/mockida/policies/}")
+    private String policyRepoDirPath;
+
+    @Value("${mosip.idp.authn.mock.impl.claims-mapping-file:claims_attributes_mapping.json}")
+    private String claimsMappingFilePath;
+
+    @Value("${mosip.idp.authn.mock.impl.encrypt-kyc:false}")
     private boolean encryptKyc;
+
+    @Autowired
+    private SignatureService signatureService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private KeymanagerService keymanagerService;
+
+    @Autowired
+    private MockHelperService mockHelperService;
 
 
     static {
@@ -96,20 +124,13 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         relyingPartyPublicKeys = new HashMap<>();
     }
 
-    public MockAuthenticationService(String personaDirPath, String policyDirPath, String claimsMappingFilePath,
-                                     int kycTokenExpireSeconds, boolean encryptKyc, SignatureService signatureService,
-                                     ObjectMapper objectMapper, KeymanagerService keymanagerService) throws IOException {
-        this.signatureService = signatureService;
-        this.objectMapper = objectMapper;
-        this.keymanagerService = keymanagerService;
-        this.encryptKyc = encryptKyc;
-
+    @PostConstruct
+    public void initialize() throws IOException {
         log.info("Started to setup MOCK IDA");
-        personaDir = new File(personaDirPath);
-        policyDir = new File(policyDirPath);
+        personaDir = new File(personaRepoDirPath);
+        policyDir = new File(policyRepoDirPath);
         mappingDocumentContext = JsonPath.parse(new File(claimsMappingFilePath));
-        tokenExpireInSeconds = kycTokenExpireSeconds;
-        log.info("Completed MOCK IDA setup with {}, {}, {}", personaDirPath, policyDirPath,
+        log.info("Completed MOCK IDA setup with {}, {}, {}", personaRepoDirPath, policyRepoDirPath,
                 claimsMappingFilePath);
     }
 
@@ -121,7 +142,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         boolean result = kycAuthDto.getChallengeList()
                 .stream()
                 .allMatch(authChallenge -> authMethods.contains(authChallenge.getAuthFactorType()) &&
-                        authenticateUser(kycAuthDto.getIndividualId(), authChallenge));
+                        authenticateUser(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), authChallenge));
         log.info("Auth methods as per partner policy : {}, KYC auth result : {}",authMethods, result);
         if(!result) {
             throw new KycAuthException(ErrorConstants.AUTH_FAILED);
@@ -201,7 +222,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         payload.put(AUD_CLAIM, Constants.IDP_SERVICE_APP_ID);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT_CLAIM, issueTime);
-        payload.put(EXP_CLAIM, issueTime +tokenExpireInSeconds);
+        payload.put(EXP_CLAIM, issueTime +kycTokenExpireInSeconds);
         try {
             return signKyc(payload);
         } catch (JsonProcessingException e) {
@@ -293,7 +314,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return certs;
     }
 
-    private boolean authenticateUser(String individualId, AuthChallenge authChallenge) {
+    private boolean authenticateUser(String transactionId, String individualId, AuthChallenge authChallenge) {
         switch (authChallenge.getAuthFactorType()) {
             case "PIN" :
                 return authenticateIndividualWithPin(individualId, authChallenge.getChallenge());
@@ -301,6 +322,14 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                 return authenticateIndividualWithOTP(individualId, authChallenge.getChallenge());
             case "BIO" :
                 return authenticateIndividualWithBio(individualId);
+            case "WLA" :
+                try {
+                    mockHelperService.validateKeyBoundAuth(transactionId, individualId, Arrays.asList(authChallenge));
+                    return true;
+                } catch (KycAuthException e) {
+                    log.error("key bound auth failed", e);
+                }
+                return false;
         }
         return false;
     }
