@@ -33,7 +33,7 @@ public class TestUtil {
                     .keyUse(KeyUse.SIGNATURE)
                     .keyID(UUID.randomUUID().toString())
                     .build();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             log.error("generateJWK_RSA failed", e);
         }
         return null;

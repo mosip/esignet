@@ -18,4 +18,7 @@ public class AuthChallenge {
 
     @NotBlank(message = ErrorConstants.INVALID_CHALLENGE)
     private String challenge;
+
+    @NotBlank(message = ErrorConstants.INVALID_CHALLENGE_FORMAT)
+    private String format;
 }

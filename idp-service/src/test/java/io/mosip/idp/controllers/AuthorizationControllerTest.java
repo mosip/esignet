@@ -10,6 +10,7 @@ import io.mosip.idp.core.dto.OAuthDetailRequest;
 import io.mosip.idp.core.dto.OAuthDetailResponse;
 import io.mosip.idp.core.dto.RequestWrapper;
 import io.mosip.idp.core.exception.IdPException;
+import io.mosip.idp.core.spi.AuditWrapper;
 import io.mosip.idp.core.spi.LinkedAuthorizationService;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.idp.core.util.ErrorConstants;
@@ -18,6 +19,7 @@ import io.mosip.idp.services.AuthorizationServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -51,6 +53,9 @@ public class AuthorizationControllerTest {
 
     @MockBean
     AuthorizationHelperService authorizationHelperService;
+
+    @MockBean
+    AuditWrapper auditWrapper;
 
     ObjectMapper objectMapper = new ObjectMapper();
 

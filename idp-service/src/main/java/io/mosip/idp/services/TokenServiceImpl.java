@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.mosip.idp.core.exception.InvalidRequestException;
 import io.mosip.idp.core.util.AuthenticationContextClassRefUtil;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,7 +146,7 @@ public class TokenServiceImpl implements TokenService {
             jwtProcessor.process(clientAssertion, null); //If invalid throws exception
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            throw new IdPException(ErrorConstants.INVALID_ASSERTION);
+            throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
         }
     }
 

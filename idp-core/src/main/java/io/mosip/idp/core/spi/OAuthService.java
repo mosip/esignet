@@ -11,6 +11,7 @@ import io.mosip.idp.core.dto.TokenResponse;
 import io.mosip.idp.core.exception.IdPException;
 import org.jose4j.jwk.JsonWebKeySet;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 public interface OAuthService {
@@ -32,7 +33,7 @@ public interface OAuthService {
      * @return
      * @throws IdPException
      */
-    TokenResponse getTokens(TokenRequest tokenRequest) throws IdPException;
+    TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException;
 
     /**
      * API to get list of IdP public keys

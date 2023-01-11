@@ -1,13 +1,16 @@
 CREATE TABLE public_key_registry(
     id_hash character varying(100) NOT NULL,
+    auth_factor character varying(25) NOT NULL,
 	psu_token character varying(256) NOT NULL,
 	public_key character varying NOT NULL,
 	expire_dtimes timestamp NOT NULL,
 	wallet_binding_id character varying(256) NOT NULL,
 	public_key_hash character varying(100) NOT NULL,
+	certificate character varying NOT NULL,
 	cr_dtimes timestamp NOT NULL,
-	CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash)
+	CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash, auth_factor)
 );
+
 CREATE TABLE key_alias(
     id character varying(36) NOT NULL,
     app_id character varying(36) NOT NULL,
