@@ -60,10 +60,9 @@ public class ErrorConstants {
     public static final String AES_CIPHER_FAILED = "aes_cipher_failed";
     public static final String KEY_BINDING_FAILED = "key_binding_failed";
     public static final String KEY_BINDING_NOT_FOUND = "binding_not_found";
-    public static final String UNKNOWN_BINDING_CHALLENGE = "unknown_binding_challenge";
     public static final String UNKNOWN_WLA_FORMAT = "unknown_wla_format";
     public static final String UNBOUND_AUTH_FACTOR = "unbound_auth_factor";
-    public static final String INVALID_CERTIFICATE = "invalid_certificate";
+    public static final String SHA256_THUMBPRINT_HEADER_MISSING = "sha256_thumbprint_header_missing";
     public static final String INVALID_CHALLENGE_FORMAT = "unsupported_challenge_format";
 
 }
