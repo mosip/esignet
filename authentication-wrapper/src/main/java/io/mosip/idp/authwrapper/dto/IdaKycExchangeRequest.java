@@ -15,6 +15,7 @@ public class IdaKycExchangeRequest {
     private String id;
     private String version;
     private String requestTime;
+    private String transactionId;
     private String kycToken;
     private List<String> consentObtained;
     private List<String> locales;
