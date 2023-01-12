@@ -139,7 +139,8 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .collect(Collectors.toList());
 
             //throws exception if fails
-            mockHelperService.validateKeyBoundAuth(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), keyBoundChallenges);
+            if(!CollectionUtils.isEmpty(keyBoundChallenges))
+                mockHelperService.validateKeyBoundAuth(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), keyBoundChallenges);
 
             List<AuthChallenge> nonKeyBoundChallenges = kycAuthDto.getChallengeList().stream()
                     .filter( authChallenge -> !keyBoundAuthFactorTypes.contains(authChallenge.getAuthFactorType()) )
