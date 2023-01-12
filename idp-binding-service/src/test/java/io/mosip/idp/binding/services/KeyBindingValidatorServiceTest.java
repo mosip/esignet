@@ -1,6 +1,8 @@
 package io.mosip.idp.binding.services;
 
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import io.mosip.idp.binding.TestUtil;
 import io.mosip.idp.binding.entity.PublicKeyRegistry;
 import io.mosip.idp.binding.repository.PublicKeyRegistryRepository;
@@ -82,8 +84,8 @@ public class KeyBindingValidatorServiceTest {
 		authChallenge.setAuthFactorType("WLA");
 		authChallenge.setFormat("jwt");
 
-		X509Certificate certificate = getCertificate();
-		String wlaToken = signJwt(validateBindingRequest.getIndividualId(), certificate);
+		X509Certificate certificate = getCertificate(clientJWK);
+		String wlaToken = signJwt(validateBindingRequest.getIndividualId(), certificate, true);
 		authChallenge.setChallenge(wlaToken);
 		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 
@@ -96,6 +98,68 @@ public class KeyBindingValidatorServiceTest {
 
 		ValidateBindingResponse validateBindingResponse = keyBindingValidatorService.validateBinding(validateBindingRequest);
 		Assert.assertEquals(validateBindingResponse.getTransactionId(), validateBindingRequest.getTransactionId());
+	}
+
+	@Test
+	public void validateBinding_withInvalidSha256Thumbprint_thenFail() throws Exception {
+		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
+		validateBindingRequest.setTransactionId("909422113");
+		validateBindingRequest.setIndividualId("8267411571");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("WLA");
+		authChallenge.setFormat("jwt");
+
+		X509Certificate certificate = getCertificate(clientJWK);
+		String wlaToken = signJwt(validateBindingRequest.getIndividualId(), certificate, true);
+		JWT jwt = JWTParser.parse(wlaToken);
+		net.minidev.json.JSONObject headerJson = jwt.getHeader().toJSONObject();
+		headerJson.put("x5t#S256", "test-header");
+		String[] chunks = wlaToken.split("\\.");
+		authChallenge.setChallenge(IdentityProviderUtil.b64Encode(headerJson.toJSONString())+"."+chunks[1]+"."+chunks[2]);
+		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
+
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
+				getPemData(certificate), LocalDateTime.now());
+		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
+				.thenReturn(Arrays.asList(publicKeyRegistry));
+		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
+
+		try {
+			keyBindingValidatorService.validateBinding(validateBindingRequest);
+			Assert.fail();
+		} catch (IdPException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+		}
+	}
+
+	@Test
+	public void validateBinding_withoutSha256Thumbprint_thenFail() throws Exception {
+		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
+		validateBindingRequest.setTransactionId("909422113");
+		validateBindingRequest.setIndividualId("8267411571");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("WLA");
+		authChallenge.setFormat("jwt");
+
+		X509Certificate certificate = getCertificate(clientJWK);
+		String wlaToken = signJwt(validateBindingRequest.getIndividualId(), certificate, false);
+		authChallenge.setChallenge(wlaToken);
+		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
+
+		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
+				getPemData(certificate), LocalDateTime.now());
+		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
+				.thenReturn(Arrays.asList(publicKeyRegistry));
+		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
+
+		try {
+			keyBindingValidatorService.validateBinding(validateBindingRequest);
+			Assert.fail();
+		} catch (IdPException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+		}
 	}
 
 	@Test
@@ -171,20 +235,20 @@ public class KeyBindingValidatorServiceTest {
 		}
 	}
 
-	private X509Certificate getCertificate() throws Exception {
+	private X509Certificate getCertificate(JWK jwk) throws Exception {
 		X509V3CertificateGenerator generator = new X509V3CertificateGenerator();
 		X500Principal dnName = new X500Principal("CN=Test");
 		generator.setSubjectDN(dnName);
 		generator.setIssuerDN(dnName); // use the same
 		generator.setNotBefore(new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000));
 		generator.setNotAfter(new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000));
-		generator.setPublicKey(clientJWK.toRSAKey().toPublicKey());
+		generator.setPublicKey(jwk.toRSAKey().toPublicKey());
 		generator.setSignatureAlgorithm("SHA256WITHRSA");
 		generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
-		return generator.generate(clientJWK.toRSAKey().toPrivateKey());
+		return generator.generate(jwk.toRSAKey().toPrivateKey());
 	}
 
-	private String signJwt(String individualId, X509Certificate certificate) throws Exception {
+	private String signJwt(String individualId, X509Certificate certificate, boolean addSha256Thumbprint) throws Exception {
 		JSONObject payload = new JSONObject();
 		payload.put("iss", "test-app");
 		payload.put("aud", validateBindingUrl);
@@ -194,7 +258,9 @@ public class KeyBindingValidatorServiceTest {
 
 		JsonWebSignature jwSign = new JsonWebSignature();
 		jwSign.setKeyIdHeaderValue(certificate.getSerialNumber().toString(10));
-		jwSign.setX509CertSha256ThumbprintHeaderValue(certificate);
+		if(addSha256Thumbprint) {
+			jwSign.setX509CertSha256ThumbprintHeaderValue(certificate);
+		}
 		jwSign.setPayload(payload.toJSONString());
 		jwSign.setAlgorithmHeaderValue("RS256");
 		jwSign.setKey(clientJWK.toRSAKey().toPrivateKey());
