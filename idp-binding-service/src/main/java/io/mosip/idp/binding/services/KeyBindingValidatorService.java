@@ -6,7 +6,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
@@ -31,7 +33,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.idp.core.util.ErrorConstants.UNKNOWN_WLA_FORMAT;
+import static io.mosip.idp.core.util.ErrorConstants.*;
 
 @Component
 @Slf4j
@@ -109,6 +111,11 @@ public class KeyBindingValidatorService {
                     X509Certificate x509Certificate = (X509Certificate) keymanagerUtil.convertToCertificate(publicKeyRegistry.getCertificate());
                     JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
                             new ImmutableJWKSet(new JWKSet(RSAKey.parse(x509Certificate))));
+
+                    JWT jwt = JWTParser.parse(wlaToken);
+                    if(!jwt.getHeader().toJSONObject().containsKey("x5t#S256"))
+                        throw new IdPException(SHA256_THUMBPRINT_HEADER_MISSING);
+
                     JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                             .audience(validateBindingUrl)
                             .subject(individualId)
@@ -117,9 +124,9 @@ public class KeyBindingValidatorService {
                     ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
                     jwtProcessor.setJWSKeySelector(keySelector);
                     jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
-                    jwtProcessor.process(wlaToken, null); //If invalid throws exception
+                    jwtProcessor.process(jwt, null); //If invalid throws exception
                     return true;
-                } catch (Exception e) {
+                } catch (IdPException e) { throw e; } catch (Exception e) {
                     log.error("Failed to verify WLA token", e);
                 }
                 throw new IdPException(ErrorConstants.INVALID_WLA_TOKEN);
