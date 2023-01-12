@@ -20,6 +20,7 @@ on:
     branches:
       - develop
       - 1.*
+      - master
   #schedule:
   #  - cron: '18 5 * * 3'
 
