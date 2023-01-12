@@ -126,7 +126,9 @@ public class KeyBindingValidatorService {
                     jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
                     jwtProcessor.process(jwt, null); //If invalid throws exception
                     return true;
-                } catch (IdPException e) { throw e; } catch (Exception e) {
+                } catch (IdPException e) { 
+                    throw e;
+                } catch (Exception e) {
                     log.error("Failed to verify WLA token", e);
                 }
                 throw new IdPException(ErrorConstants.INVALID_WLA_TOKEN);
