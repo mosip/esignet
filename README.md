@@ -4,6 +4,7 @@
 
 # Identity Provider Project
 
+
 ## Overview
 
 This repository contains the implementation of Authorization Code flow of OAuth 2.0. Supports all the mandatory features of OIDC (Open ID Connect) specification.
