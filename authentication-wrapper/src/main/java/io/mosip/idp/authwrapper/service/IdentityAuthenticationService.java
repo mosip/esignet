@@ -213,10 +213,10 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                 kycExchangeDto.getTransactionId(), clientId);
         try {
             IdaKycExchangeRequest idaKycExchangeRequest = new IdaKycExchangeRequest();
-            //TODO add transaction Id in IdaKycExchangeRequest
             idaKycExchangeRequest.setId(kycExchangeId);
             idaKycExchangeRequest.setVersion(idaVersion);
             idaKycExchangeRequest.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+            idaKycExchangeRequest.setTransactionId(kycExchangeDto.getTransactionId());
             idaKycExchangeRequest.setKycToken(kycExchangeDto.getKycToken());
             idaKycExchangeRequest.setConsentObtained(kycExchangeDto.getAcceptedClaims());
             idaKycExchangeRequest.setLocales(Arrays.asList(kycExchangeDto.getClaimsLocales()));
