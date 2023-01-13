@@ -386,10 +386,9 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             sendOtpDto.setTransactionId(transactionId);
             sendOtpDto.setIndividualId(individualId);
             sendOtpDto.setOtpChannels(Arrays.asList("email"));
-            sendOtpResult = authenticationWrapper.sendOtp(relyingPartyId, clientId, sendOtpDto);
+            sendOtp(relyingPartyId, clientId, sendOtpDto);
         } catch (SendOtpException e) {
-            log.error("Failed to send otp for transaction : {}", otpRequest.getTransactionId(), e);
-            throw new IdPException(e.getErrorCode());
+            log.error("Failed to send otp for transaction : {}", transactionId, e);
         }
     }
 }
