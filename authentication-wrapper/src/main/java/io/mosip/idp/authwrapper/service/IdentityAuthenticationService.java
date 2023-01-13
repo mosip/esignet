@@ -139,7 +139,15 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
                     .collect(Collectors.toList());
 
             //throws exception if fails
-            mockHelperService.validateKeyBoundAuth(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), keyBoundChallenges);
+            if(!CollectionUtils.isEmpty(keyBoundChallenges)) {
+                sendOtpRequest(relyingPartyId, clientId, kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId());
+                AuthChallenge authChallenge = new AuthChallenge();
+                authChallenge.setAuthFactorType("OTP");
+                authChallenge.setChallenge("111111");
+                authChallenge.setFormat("alpha-numeric");
+                kycAuthDto.getChallengeList().add(authChallenge);
+                mockHelperService.validateKeyBoundAuth(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), keyBoundChallenges);
+            }
 
             List<AuthChallenge> nonKeyBoundChallenges = kycAuthDto.getChallengeList().stream()
                     .filter( authChallenge -> !keyBoundAuthFactorTypes.contains(authChallenge.getAuthFactorType()) )
@@ -370,5 +378,18 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
             return idaPartnerCertificate;
 
         throw new KycAuthException(INVALID_PARTNER_CERTIFICATE);
+    }
+    
+    private void sendOtpRequest(String relyingPartyId, String clientId, String transactionId, String individualId) {
+        try {
+            SendOtpDto sendOtpDto = new SendOtpDto();
+            sendOtpDto.setTransactionId(transactionId);
+            sendOtpDto.setIndividualId(individualId);
+            sendOtpDto.setOtpChannels(Arrays.asList("email"));
+            sendOtpResult = authenticationWrapper.sendOtp(relyingPartyId, clientId, sendOtpDto);
+        } catch (SendOtpException e) {
+            log.error("Failed to send otp for transaction : {}", otpRequest.getTransactionId(), e);
+            throw new IdPException(e.getErrorCode());
+        }
     }
 }
