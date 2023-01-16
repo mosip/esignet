@@ -6,13 +6,13 @@
 package io.mosip.idp.authwrapper.service;
 
 import com.nimbusds.jose.jwk.RSAKey;
-import io.mosip.idp.core.dto.AuthChallenge;
-import io.mosip.idp.core.dto.KeyBindingResult;
-import io.mosip.idp.core.dto.SendOtpResult;
-import io.mosip.idp.core.exception.KeyBindingException;
-import io.mosip.idp.core.exception.SendOtpException;
-import io.mosip.idp.core.spi.KeyBindingWrapper;
-import io.mosip.idp.core.util.Constants;
+import io.mosip.esignet.core.dto.AuthChallenge;
+import io.mosip.esignet.core.dto.KeyBindingResult;
+import io.mosip.esignet.core.dto.SendOtpResult;
+import io.mosip.esignet.core.exception.KeyBindingException;
+import io.mosip.esignet.core.exception.SendOtpException;
+import io.mosip.esignet.core.spi.KeyBindingWrapper;
+import io.mosip.esignet.core.util.Constants;
 import io.mosip.kernel.core.util.DateUtils;
 import io.mosip.kernel.keymanagerservice.dto.SignatureCertificate;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;

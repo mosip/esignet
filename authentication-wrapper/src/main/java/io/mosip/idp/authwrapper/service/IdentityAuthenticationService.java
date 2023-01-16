@@ -9,14 +9,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.idp.authwrapper.dto.*;
-import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.exception.KycAuthException;
-import io.mosip.idp.core.exception.KycExchangeException;
-import io.mosip.idp.core.exception.SendOtpException;
-import io.mosip.idp.core.spi.AuthenticationWrapper;
-import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.exception.KycAuthException;
+import io.mosip.esignet.core.exception.KycExchangeException;
+import io.mosip.esignet.core.exception.SendOtpException;
+import io.mosip.esignet.core.spi.AuthenticationWrapper;
+import io.mosip.esignet.core.util.Constants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
@@ -51,7 +51,7 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.idp.core.util.ErrorConstants.*;
+import static io.mosip.esignet.core.util.ErrorConstants.*;
 
 
 @ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "IdentityAuthenticationService")

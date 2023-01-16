@@ -1,9 +1,9 @@
 package io.mosip.idp.authwrapper.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.exception.KycAuthException;
-import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.exception.KycAuthException;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +18,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static io.mosip.idp.core.util.ErrorConstants.AUTH_FAILED;
+import static io.mosip.esignet.core.util.ErrorConstants.AUTH_FAILED;
 
 @Component
 @Slf4j
