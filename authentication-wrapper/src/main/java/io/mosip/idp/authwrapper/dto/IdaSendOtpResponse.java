@@ -5,7 +5,7 @@
  */
 package io.mosip.idp.authwrapper.dto;
 
-import io.mosip.idp.core.dto.Error;
+import io.mosip.esignet.core.dto.Error;
 import lombok.Data;
 
 import java.util.List;

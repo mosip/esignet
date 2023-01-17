@@ -15,13 +15,13 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.exception.*;
 import io.mosip.idp.authwrapper.dto.PathInfo;
-import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.exception.*;
-import io.mosip.idp.core.spi.AuthenticationWrapper;
-import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.spi.AuthenticationWrapper;
+import io.mosip.esignet.core.util.Constants;
+import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
@@ -53,9 +53,9 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.idp.core.util.ErrorConstants.INVALID_INPUT;
-import static io.mosip.idp.core.util.ErrorConstants.SEND_OTP_FAILED;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
+import static io.mosip.esignet.core.util.ErrorConstants.INVALID_INPUT;
+import static io.mosip.esignet.core.util.ErrorConstants.SEND_OTP_FAILED;
+import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "MockAuthenticationService")
 @Component
@@ -137,7 +137,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     @Validated
     @Override
     public KycAuthResult doKycAuth(@NotBlank String relyingPartyId, @NotBlank String clientId,
-                                                    @NotNull @Valid KycAuthDto kycAuthDto) throws KycAuthException {
+                                   @NotNull @Valid KycAuthDto kycAuthDto) throws KycAuthException {
         List<String> authMethods = resolveAuthMethods(relyingPartyId);
         boolean result = kycAuthDto.getChallengeList()
                 .stream()
@@ -167,7 +167,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Override
     public KycExchangeResult doKycExchange(@NotBlank String relyingPartyId, @NotBlank String clientId,
-                                                            @NotNull @Valid KycExchangeDto kycExchangeDto)
+                                           @NotNull @Valid KycExchangeDto kycExchangeDto)
             throws KycExchangeException {
         log.info("Accepted claims : {} and locales : {}", kycExchangeDto.getAcceptedClaims(), kycExchangeDto.getClaimsLocales());
         try {
