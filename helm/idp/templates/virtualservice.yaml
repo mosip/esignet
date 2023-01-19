@@ -31,4 +31,10 @@ spec:
       request:
         set:
           x-forwarded-proto: https
+      response:
+        set:
+          Cache-control: no-store
+          Pragma: no-cache
+          Strict-Transport-Security: max-age=31536000; includeSubDomains
+          X-Frame-Options: SAMEORIGIN    
 {{- end }}
