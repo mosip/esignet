@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class OIDCPromptValidator implements ConstraintValidator<OIDCPrompt, String> {
 
-    @Value("#{${mosip.idp.supported.ui.prompts}}")
+    @Value("#{${mosip.esignet.supported.ui.prompts}}")
     private List<String> supportedPrompts;
 
     @Override

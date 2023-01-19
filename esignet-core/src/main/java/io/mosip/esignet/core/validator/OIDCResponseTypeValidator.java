@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class OIDCResponseTypeValidator implements ConstraintValidator<OIDCResponseType, String> {
 
-    @Value("#{${mosip.idp.supported.response.types}}")
+    @Value("#{${mosip.esignet.supported.response.types}}")
     private List<String> supportedResponseTypes;
 
     @Override

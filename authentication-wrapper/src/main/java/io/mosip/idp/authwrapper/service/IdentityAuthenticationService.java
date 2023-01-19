@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 import static io.mosip.esignet.core.util.ErrorConstants.*;
 
 
-@ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "IdentityAuthenticationService")
+@ConditionalOnProperty(value = "mosip.esignet.authn.wrapper.impl", havingValue = "IdentityAuthenticationService")
 @Component
 @Slf4j
 public class IdentityAuthenticationService implements AuthenticationWrapper {
@@ -65,22 +65,22 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     public static final String INVALID_PARTNER_CERTIFICATE = "invalid_partner_cert";
     private static final List<String> keyBoundAuthFactorTypes = Arrays.asList("WLA");
 
-    @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycauth}")
+    @Value("${mosip.esignet.authn.wrapper.ida-id:mosip.identity.kycauth}")
     private String kycAuthId;
 
-    @Value("${mosip.idp.authn.wrapper.ida-id:mosip.identity.kycexchange}")
+    @Value("${mosip.esignet.authn.wrapper.ida-id:mosip.identity.kycexchange}")
     private String kycExchangeId;
 
-    @Value("${mosip.idp.authn.wrapper.ida-send-otp-id:mosip.identity.otp}")
+    @Value("${mosip.esignet.authn.wrapper.ida-send-otp-id:mosip.identity.otp}")
     private String sendOtpId;
 
-    @Value("${mosip.idp.authn.wrapper.ida-version:1.0}")
+    @Value("${mosip.esignet.authn.wrapper.ida-version:1.0}")
     private String idaVersion;
 
-    @Value("${mosip.idp.authn.wrapper.ida-domainUri}")
+    @Value("${mosip.esignet.authn.wrapper.ida-domainUri}")
     private String idaDomainUri;
 
-    @Value("${mosip.idp.authn.wrapper.ida-env:Staging}")
+    @Value("${mosip.esignet.authn.wrapper.ida-env:Staging}")
     private String idaEnv;
 
     @Value("${mosip.kernel.keygenerator.symmetric-algorithm-name}")
@@ -89,19 +89,19 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Value("${mosip.kernel.keygenerator.symmetric-key-length}")
     private int symmetricKeyLength;
 
-    @Value("${mosip.idp.authn.ida.kyc-auth-url}")
+    @Value("${mosip.esignet.authn.ida.kyc-auth-url}")
     private String kycAuthUrl;
 
-    @Value("${mosip.idp.authn.ida.kyc-exchange-url}")
+    @Value("${mosip.esignet.authn.ida.kyc-exchange-url}")
     private String kycExchangeUrl;
 
-    @Value("${mosip.idp.authn.ida.send-otp-url}")
+    @Value("${mosip.esignet.authn.ida.send-otp-url}")
     private String sendOtpUrl;
 
-    @Value("${mosip.idp.authn.ida.otp-channels}")
+    @Value("${mosip.esignet.authn.ida.otp-channels}")
     private List<String> otpChannels;
 
-    @Value("${mosip.idp.authn.ida.cert-url}")
+    @Value("${mosip.esignet.authn.ida.cert-url}")
     private String idaPartnerCertificateUrl;
 
     @Autowired

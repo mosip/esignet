@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class OIDCClaimValidator implements ConstraintValidator<OIDCClaim, String> {
 
-    @Value("#{${mosip.idp.discovery.key-values}}")
+    @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
     @Override

@@ -57,7 +57,7 @@ import static io.mosip.esignet.core.util.ErrorConstants.INVALID_INPUT;
 import static io.mosip.esignet.core.util.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
-@ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "MockAuthenticationService")
+@ConditionalOnProperty(value = "mosip.esignet.authn.wrapper.impl", havingValue = "MockAuthenticationService")
 @Component
 @Slf4j
 public class MockAuthenticationService implements AuthenticationWrapper {
@@ -82,19 +82,19 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private File personaDir;
     private File policyDir;
 
-    @Value("${mosip.idp.authn.mock.impl.kyc-token-expire-sec:30}")
+    @Value("${mosip.esignet.authn.mock.impl.kyc-token-expire-sec:30}")
     private int kycTokenExpireInSeconds;
 
-    @Value("${mosip.idp.authn.mock.impl.persona-repo:/mockida/personas/}")
+    @Value("${mosip.esignet.authn.mock.impl.persona-repo:/mockida/personas/}")
     private String personaRepoDirPath;
 
-    @Value("${mosip.idp.authn.mock.impl.policy-repo:/mockida/policies/}")
+    @Value("${mosip.esignet.authn.mock.impl.policy-repo:/mockida/policies/}")
     private String policyRepoDirPath;
 
-    @Value("${mosip.idp.authn.mock.impl.claims-mapping-file:claims_attributes_mapping.json}")
+    @Value("${mosip.esignet.authn.mock.impl.claims-mapping-file:claims_attributes_mapping.json}")
     private String claimsMappingFilePath;
 
-    @Value("${mosip.idp.authn.mock.impl.encrypt-kyc:false}")
+    @Value("${mosip.esignet.authn.mock.impl.encrypt-kyc:false}")
     private boolean encryptKyc;
 
     @Autowired

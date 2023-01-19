@@ -30,16 +30,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${server.servlet.path}")
     private String servletPath;
 
-	@Value("${mosip.idp.binding.send-binding-otp}")
+	@Value("${mosip.esignet.binding.send-binding-otp}")
 	private String sendBindingOtpApiScope;
 
-	@Value("${mosip.idp.binding.wallet-binding}")
+	@Value("${mosip.esignet.binding.wallet-binding}")
 	private String walletBindingApiScope;
 
-	@Value("${mosip.idp.binding.systeminfo.get-certificate}")
+	@Value("${mosip.esignet.binding.systeminfo.get-certificate}")
 	private String getCertificateApiScope;
 
-	@Value("${mosip.idp.binding.auth-ignore-urls}")
+	@Value("${mosip.esignet.binding.auth-ignore-urls}")
     private String[] authIgnoreUrls;
 
 

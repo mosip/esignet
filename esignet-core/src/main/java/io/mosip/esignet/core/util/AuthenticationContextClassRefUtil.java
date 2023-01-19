@@ -30,7 +30,7 @@ public class AuthenticationContextClassRefUtil {
     private static final String AMR_KEY = "amr";
     private static final String ACR_AMR = "acr_amr";
 
-    @Value("${mosip.idp.amr-acr-mapping-file-url:}")
+    @Value("${mosip.esignet.amr-acr-mapping-file-url:}")
     private String mappingFileUrl;
 
     @Autowired

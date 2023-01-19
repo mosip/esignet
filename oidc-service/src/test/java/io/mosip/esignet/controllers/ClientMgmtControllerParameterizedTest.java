@@ -68,7 +68,7 @@ public class ClientMgmtControllerParameterizedTest {
     @InjectMocks
     ClientManagementServiceImpl clientManagementService;
 
-    @Value("${mosip.idp.amr-acr-mapping-file-url}")
+    @Value("${mosip.esignet.amr-acr-mapping-file-url}")
     private String mappingFileUrl;
 
     @Autowired

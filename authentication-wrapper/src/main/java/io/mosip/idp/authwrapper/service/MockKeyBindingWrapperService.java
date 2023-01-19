@@ -34,7 +34,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-@ConditionalOnProperty(value = "mosip.idp.binding.wrapper.impl", havingValue = "MockKeyBindingWrapperService")
+@ConditionalOnProperty(value = "mosip.esignet.binding.wrapper.impl", havingValue = "MockKeyBindingWrapperService")
 @Component
 @Slf4j
 public class MockKeyBindingWrapperService implements KeyBindingWrapper {
@@ -42,7 +42,7 @@ public class MockKeyBindingWrapperService implements KeyBindingWrapper {
     @Autowired
     private KeymanagerService keymanagerService;
 
-    @Value("${mosip.idp.binding.key-expire-days}")
+    @Value("${mosip.esignet.binding.key-expire-days}")
     private int expireInDays;
 
     private static final Map<String, List<String>> supportedFormats = new HashMap<>();

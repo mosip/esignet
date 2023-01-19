@@ -56,7 +56,7 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private AuditWrapper auditWrapper;
 
-    @Value("${mosip.idp.access-token-expire-seconds:60}")
+    @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
 

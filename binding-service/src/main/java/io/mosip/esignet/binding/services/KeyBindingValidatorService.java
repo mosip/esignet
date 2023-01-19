@@ -48,7 +48,7 @@ public class KeyBindingValidatorService {
     @Autowired
     private KeymanagerUtil keymanagerUtil;
 
-    @Value("${mosip.idp.binding.validate-binding-url}")
+    @Value("${mosip.esignet.binding.validate-binding-url}")
     private String validateBindingUrl;
 
     private static Set<String> REQUIRED_WLA_CLAIMS;

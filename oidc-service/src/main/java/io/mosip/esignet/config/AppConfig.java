@@ -35,13 +35,13 @@ import org.springframework.web.client.RestTemplate;
 public class AppConfig implements ApplicationRunner {
 
 
-    @Value("${mosip.idp.default.httpclient.connections.max.per.host:20}")
+    @Value("${mosip.esignet.default.httpclient.connections.max.per.host:20}")
     private int defaultMaxConnectionPerRoute;
 
-    @Value("${mosip.idp.default.httpclient.connections.max:100}")
+    @Value("${mosip.esignet.default.httpclient.connections.max:100}")
     private int defaultTotalMaxConnection;
 
-    @Value("${mosip.idp.cache.security.secretkey.reference-id}")
+    @Value("${mosip.esignet.cache.security.secretkey.reference-id}")
     private String cacheSecretKeyRefId;
 
     @Autowired

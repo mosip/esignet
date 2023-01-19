@@ -92,10 +92,10 @@ public class AuthorizationAPIFlowTest {
     @Autowired
     AuditWrapper auditWrapper;
 
-    @Value("${mosip.idp.amr-acr-mapping-file-url}")
+    @Value("${mosip.esignet.amr-acr-mapping-file-url}")
     private String mappingFileUrl;
 
-    @Value("${mosip.idp.authn.mock.impl.policy-repo}")
+    @Value("${mosip.esignet.authn.mock.impl.policy-repo}")
     private String policyDir;
 
     private MockRestServiceServer mockRestServiceServer;

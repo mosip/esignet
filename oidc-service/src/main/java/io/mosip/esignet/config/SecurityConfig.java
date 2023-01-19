@@ -38,19 +38,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${server.servlet.path}")
     private String servletPath;
 
-    @Value("#{${mosip.idp.security.auth.post-urls}}")
+    @Value("#{${mosip.esignet.security.auth.post-urls}}")
     private Map<String, List<String>> securePostUrls;
 
-    @Value("#{${mosip.idp.security.auth.put-urls}}")
+    @Value("#{${mosip.esignet.security.auth.put-urls}}")
     private Map<String, List<String>> securePutUrls;
 
-    @Value("#{${mosip.idp.security.auth.get-urls}}")
+    @Value("#{${mosip.esignet.security.auth.get-urls}}")
     private Map<String, List<String>> secureGetUrls;
 
-    @Value("${mosip.idp.security.ignore-auth-urls}")
+    @Value("${mosip.esignet.security.ignore-auth-urls}")
     private String[] ignoreAuthUrls;
 
-    @Value("${mosip.idp.security.ignore-csrf-urls}")
+    @Value("${mosip.esignet.security.ignore-csrf-urls}")
     private String[] ignoreCsrfCheckUrls;
 
 

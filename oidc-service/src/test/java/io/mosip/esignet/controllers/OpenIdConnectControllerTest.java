@@ -32,10 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(value = OpenIdConnectController.class)
 public class OpenIdConnectControllerTest {
 
-    @Value("#{${mosip.idp.discovery.key-values}}")
+    @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
-    @Value("${mosip.idp.discovery.issuer-id}")
+    @Value("${mosip.esignet.discovery.issuer-id}")
     private String issuerId;
 
     @Autowired
