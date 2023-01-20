@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class RequestTimeValidator implements ConstraintValidator<RequestTime, String> {
 
-    @Value("${mosip.idp.reqtime.leeway-minutes:2}")
+    @Value("${mosip.esignet.reqtime.leeway-minutes:2}")
     private int leewayInMinutes;
 
     @Override

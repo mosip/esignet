@@ -37,10 +37,10 @@ public class LinkedAuthorizationController {
     @Autowired
     MessageSource messageSource;
 
-    @Value("${mosip.idp.link-status-deferred-response-timeout-secs:25}")
+    @Value("${mosip.esignet.link-status-deferred-response-timeout-secs:25}")
     private long linkStatusDeferredResponseTimeout;
 
-    @Value("${mosip.idp.link-auth-code-deferred-response-timeout-secs:25}")
+    @Value("${mosip.esignet.link-auth-code-deferred-response-timeout-secs:25}")
     private long linkAuthCodeDeferredResponseTimeout;
 
     @PostMapping("/link-code")

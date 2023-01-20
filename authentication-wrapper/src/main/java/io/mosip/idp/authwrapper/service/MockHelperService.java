@@ -31,7 +31,7 @@ public class MockHelperService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${mosip.idp.authn.wrapper.validate-binding-url}")
+    @Value("${mosip.esignet.authn.wrapper.validate-binding-url}")
     private String validateBindingUrl;
 
     private static final List<String> keyBoundAuthFactorTypes = Arrays.asList("WLA");

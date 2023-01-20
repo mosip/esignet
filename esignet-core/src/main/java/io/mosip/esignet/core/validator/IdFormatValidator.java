@@ -14,7 +14,7 @@ import javax.validation.ConstraintValidatorContext;
 @Component
 public class IdFormatValidator implements ConstraintValidator<IdFormat, String> {
 
-    @Value("${mosip.idp.supported-id-regex}")
+    @Value("${mosip.esignet.supported-id-regex}")
     private String supportedRegex;
 
     private static final String DEFAULT_SUPPORTED_REGEX = "\\S*";

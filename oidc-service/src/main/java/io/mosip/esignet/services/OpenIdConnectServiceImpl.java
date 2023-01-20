@@ -36,7 +36,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
     @Autowired
     private AuditWrapper auditWrapper;
 
-    @Value("#{${mosip.idp.discovery.key-values}}")
+    @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
 

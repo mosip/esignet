@@ -25,13 +25,13 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class SimpleCacheConfig extends CachingConfigurerSupport {
 
-    @Value("${mosip.idp.cache.names}")
+    @Value("${mosip.esignet.cache.names}")
     private List<String> cacheNames;
 
-    @Value("#{${mosip.idp.cache.size}}")
+    @Value("#{${mosip.esignet.cache.size}}")
     private Map<String, Integer> cacheMaxSize;
 
-    @Value("#{${mosip.idp.cache.expire-in-seconds}}")
+    @Value("#{${mosip.esignet.cache.expire-in-seconds}}")
     private Map<String, Integer> cacheExpireInSeconds;
 
 

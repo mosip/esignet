@@ -51,7 +51,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	@Autowired
 	private KeyBindingHelperService keyBindingHelperService;
 
-	@Value("${mosip.idp.binding.encrypt-binding-id:true}")
+	@Value("${mosip.esignet.binding.encrypt-binding-id:true}")
 	private boolean encryptBindingId;
 
 
@@ -99,6 +99,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 			throw new IdPException(KEY_BINDING_FAILED);
 		}
 
+		//We will always keep this in binding-service control, as future features will be based on this registry.
 		PublicKeyRegistry publicKeyRegistry = keyBindingHelperService.storeKeyBindingDetailsInRegistry(walletBindingRequest.getIndividualId(),
 				keyBindingResult.getPartnerSpecificUserToken(), publicKey, keyBindingResult.getCertificate(),
 				walletBindingRequest.getAuthFactorType());

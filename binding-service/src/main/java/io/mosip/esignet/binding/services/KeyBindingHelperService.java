@@ -33,7 +33,7 @@ public class KeyBindingHelperService {
     @Autowired
     private KeymanagerUtil keymanagerUtil;
 
-    @Value("${mosip.idp.binding.salt-length}")
+    @Value("${mosip.esignet.binding.salt-length}")
     private int saltLength;
 
     protected String getIndividualIdHash(String individualId) {

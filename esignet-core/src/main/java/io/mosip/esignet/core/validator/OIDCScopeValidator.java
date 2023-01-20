@@ -18,10 +18,10 @@ import java.util.List;
 @Component
 public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String>  {
 
-    @Value("#{${mosip.idp.supported.authorize.scopes}}")
+    @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
 
-    @Value("#{${mosip.idp.supported.openid.scopes}}")
+    @Value("#{${mosip.esignet.supported.openid.scopes}}")
     private List<String> openidScopes;
 
     /**

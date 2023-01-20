@@ -65,19 +65,19 @@ public class TokenServiceImpl implements TokenService {
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
-    @Value("${mosip.idp.id-token-expire-seconds:60}")
+    @Value("${mosip.esignet.id-token-expire-seconds:60}")
     private int idTokenExpireSeconds;
 
-    @Value("${mosip.idp.access-token-expire-seconds:60}")
+    @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
-    @Value("${mosip.idp.discovery.issuer-id}")
+    @Value("${mosip.esignet.discovery.issuer-id}")
     private String issuerId;
 
-    @Value("#{${mosip.idp.openid.scope.claims}}")
+    @Value("#{${mosip.esignet.openid.scope.claims}}")
     private Map<String, List<String>> claims;
 
-    @Value("#{${mosip.idp.discovery.key-values}}")
+    @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
     
     

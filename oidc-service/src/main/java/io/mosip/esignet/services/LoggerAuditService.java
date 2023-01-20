@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 
-@ConditionalOnProperty(value = "mosip.idp.audit.wrapper.impl", havingValue = "LoggerAuditService")
+@ConditionalOnProperty(value = "mosip.esignet.audit.wrapper.impl", havingValue = "LoggerAuditService")
 @Component
 @Slf4j
 public class LoggerAuditService implements AuditWrapper {

@@ -52,19 +52,19 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Autowired
     private KafkaHelperService kafkaHelperService;
 
-    @Value("${mosip.idp.link-code-expire-in-secs}")
+    @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
 
-    @Value("#{${mosip.idp.ui.config.key-values}}")
+    @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
 
-    @Value("${mosip.idp.kafka.linked-session.topic}")
+    @Value("${mosip.esignet.kafka.linked-session.topic}")
     private String linkedSessionTopicName;
 
-    @Value("${mosip.idp.kafka.linked-auth-code.topic}")
+    @Value("${mosip.esignet.kafka.linked-auth-code.topic}")
     private String linkedAuthCodeTopicName;
 
-    @Value("${mosip.idp.link-code-length:15}")
+    @Value("${mosip.esignet.link-code-length:15}")
     private int linkCodeLength;
 
 

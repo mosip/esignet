@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class OIDCClientAssertionTypeValidator implements ConstraintValidator<OIDCClientAssertionType, String> {
 
-    @Value("#{${mosip.idp.supported.client.assertion.types}}")
+    @Value("#{${mosip.esignet.supported.client.assertion.types}}")
     private List<String> supportedAssertionTypes;
 
     @Override

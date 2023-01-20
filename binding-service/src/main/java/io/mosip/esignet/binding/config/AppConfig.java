@@ -21,16 +21,16 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {"io.mosip.idp.binding.repository", "io.mosip.kernel.keymanagerservice.repository"})
-@EntityScan(basePackages = {"io.mosip.idp.binding.entity", "io.mosip.kernel.keymanagerservice.entity"})
+@EnableJpaRepositories(basePackages = {"io.mosip.esignet.binding.repository", "io.mosip.kernel.keymanagerservice.repository"})
+@EntityScan(basePackages = {"io.mosip.esignet.binding.entity", "io.mosip.kernel.keymanagerservice.entity"})
 @Slf4j
 public class AppConfig implements ApplicationRunner {
 
 
-    @Value("${mosip.idp.default.httpclient.connections.max.per.host:20}")
+    @Value("${mosip.esignet.default.httpclient.connections.max.per.host:20}")
     private int defaultMaxConnectionPerRoute;
 
-    @Value("${mosip.idp.default.httpclient.connections.max:100}")
+    @Value("${mosip.esignet.default.httpclient.connections.max:100}")
     private int defaultTotalMaxConnection;
 
 

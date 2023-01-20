@@ -48,13 +48,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private AuditWrapper auditWrapper;
 
-    @Value("#{${mosip.idp.ui.config.key-values}}")
+    @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
 
-    @Value("#{${mosip.idp.openid.scope.claims}}")
+    @Value("#{${mosip.esignet.openid.scope.claims}}")
     private Map<String, List<String>> claims;
 
-    @Value("${mosip.idp.auth-txn-id-length:10}")
+    @Value("${mosip.esignet.auth-txn-id-length:10}")
     private int authTransactionIdLength;
 
 

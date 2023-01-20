@@ -60,19 +60,19 @@ public class AuthorizationHelperService {
     @Autowired
     private AuditWrapper auditWrapper;
 
-    @Value("#{${mosip.idp.supported.authorize.scopes}}")
+    @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
 
-    @Value("${mosip.idp.cache.security.secretkey.reference-id}")
+    @Value("${mosip.esignet.cache.security.secretkey.reference-id}")
     private String cacheSecretKeyRefId;
 
-    @Value("${mosip.idp.cache.security.algorithm-name}")
+    @Value("${mosip.esignet.cache.security.algorithm-name}")
     private String aesECBTransformation;
 
-    @Value("${mosip.idp.cache.secure.individual-id}")
+    @Value("${mosip.esignet.cache.secure.individual-id}")
     private boolean secureIndividualId;
 
-    @Value("${mosip.idp.cache.store.individual-id}")
+    @Value("${mosip.esignet.cache.store.individual-id}")
     private boolean storeIndividualId;
 
 
@@ -84,7 +84,7 @@ public class AuthorizationHelperService {
         LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
     }
 
-    @KafkaListener(id = "link-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-session.topic}")
+    @KafkaListener(id = "link-status-consumer", autoStartup = "true", topics = "${mosip.esignet.kafka.linked-session.topic}")
     public void consumeLinkStatus(String linkCodeHash) {
         DeferredResult deferredResult = LINK_STATUS_DEFERRED_RESULT_MAP.get(linkCodeHash);
         if(deferredResult != null) {
@@ -94,7 +94,7 @@ public class AuthorizationHelperService {
         }
     }
 
-    @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "true", topics = "${mosip.idp.kafka.linked-auth-code.topic}")
+    @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "true", topics = "${mosip.esignet.kafka.linked-auth-code.topic}")
     public void consumeLinkAuthCodeStatus(String linkTransactionId) {
         DeferredResult deferredResult = LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.get(linkTransactionId);
         if(deferredResult != null) {
