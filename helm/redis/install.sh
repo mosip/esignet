@@ -22,8 +22,8 @@ helm repo update
 echo Installing redis
 helm -n $NS install redis bitnami/redis --wait --version $CHART_VERSION
 
-./copy_cm_func.sh secret softhsm-idp softhsm config-server
+./copy_cm_func.sh secret redis redis config-server
 
-kubectl -n config-server set env --keys=security-pin --from secret/redis deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_REDIS_PASSWORD_
+kubectl -n config-server set env --keys=redis-password --from secret/redis deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
 
 echo Installed redis service
