@@ -96,7 +96,7 @@ public class MockKeyBindingWrapperService implements KeyBinder {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        keyBindingResult.setPartnerSpecificUserToken("mock_psut");
+        keyBindingResult.setPartnerSpecificUserToken(individualId);
         return keyBindingResult;
     }
 
