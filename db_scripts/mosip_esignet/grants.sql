@@ -1,0 +1,17 @@
+\c mosip_esignet
+
+GRANT CONNECT
+   ON DATABASE mosip_esignet
+   TO esignetuser;
+
+GRANT USAGE
+   ON SCHEMA esignet
+   TO esignetuser;
+
+GRANT SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES
+   ON ALL TABLES IN SCHEMA esignet
+   TO esignetuser;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA esignet
+	GRANT SELECT,INSERT,UPDATE,DELETE,REFERENCES ON TABLES TO esignetuser;
+

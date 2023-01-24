@@ -19,8 +19,8 @@ import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.*;
 import io.mosip.idp.authwrapper.dto.PathInfo;
 import io.mosip.esignet.core.spi.AuthenticationWrapper;
-import io.mosip.esignet.core.util.Constants;
-import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
@@ -53,11 +53,11 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.esignet.core.util.ErrorConstants.INVALID_INPUT;
-import static io.mosip.esignet.core.util.ErrorConstants.SEND_OTP_FAILED;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_INPUT;
+import static io.mosip.esignet.core.constants.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
-@ConditionalOnProperty(value = "mosip.esignet.authn.wrapper.impl", havingValue = "MockAuthenticationService")
+@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "MockAuthenticationService")
 @Component
 @Slf4j
 public class MockAuthenticationService implements AuthenticationWrapper {
@@ -82,19 +82,19 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private File personaDir;
     private File policyDir;
 
-    @Value("${mosip.esignet.authn.mock.impl.kyc-token-expire-sec:30}")
+    @Value("${mosip.esignet.mock.authenticator.kyc-token-expire-sec:30}")
     private int kycTokenExpireInSeconds;
 
-    @Value("${mosip.esignet.authn.mock.impl.persona-repo:/mockida/personas/}")
+    @Value("${mosip.esignet.mock.authenticator.persona-repo:/mockida/personas/}")
     private String personaRepoDirPath;
 
-    @Value("${mosip.esignet.authn.mock.impl.policy-repo:/mockida/policies/}")
+    @Value("${mosip.esignet.mock.authenticator.policy-repo:/mockida/policies/}")
     private String policyRepoDirPath;
 
-    @Value("${mosip.esignet.authn.mock.impl.claims-mapping-file:claims_attributes_mapping.json}")
+    @Value("${mosip.esignet.mock.authenticator.claims-mapping-file:claims_attributes_mapping.json}")
     private String claimsMappingFilePath;
 
-    @Value("${mosip.esignet.authn.mock.impl.encrypt-kyc:false}")
+    @Value("${mosip.esignet.mock.authenticator.encrypt-kyc:false}")
     private boolean encryptKyc;
 
     @Autowired
@@ -219,7 +219,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         payload.put(CID_CLAIM, clientId);
         payload.put(PSUT_CLAIM, psut);
         payload.put(RID_CLAIM, relyingPartyId);
-        payload.put(AUD_CLAIM, Constants.IDP_SERVICE_APP_ID);
+        payload.put(AUD_CLAIM, Constants.OIDC_SERVICE_APP_ID);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT_CLAIM, issueTime);
         payload.put(EXP_CLAIM, issueTime +kycTokenExpireInSeconds);
@@ -244,7 +244,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         try {
             JWT jwt = JWTParser.parse(kycToken);
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                    .audience(Constants.IDP_SERVICE_APP_ID)
+                    .audience(Constants.OIDC_SERVICE_APP_ID)
                     .issuer(APPLICATION_ID)
                     .build(), REQUIRED_CLAIMS);
             ((DefaultJWTClaimsVerifier<?>) claimsSetVerifier).setMaxClockSkew(5);

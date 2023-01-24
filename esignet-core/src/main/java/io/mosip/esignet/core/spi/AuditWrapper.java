@@ -5,8 +5,8 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.util.Action;
-import io.mosip.esignet.core.util.ActionStatus;
+import io.mosip.esignet.core.constants.Action;
+import io.mosip.esignet.core.constants.ActionStatus;
 import io.mosip.esignet.core.dto.AuditDTO;
 
 public interface AuditWrapper {

@@ -12,7 +12,7 @@ import io.mosip.esignet.core.dto.SendOtpResult;
 import io.mosip.esignet.core.exception.KeyBindingException;
 import io.mosip.esignet.core.exception.SendOtpException;
 import io.mosip.esignet.core.spi.KeyBindingWrapper;
-import io.mosip.esignet.core.util.Constants;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.kernel.core.util.DateUtils;
 import io.mosip.kernel.keymanagerservice.dto.SignatureCertificate;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
@@ -34,7 +34,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-@ConditionalOnProperty(value = "mosip.esignet.binding.wrapper.impl", havingValue = "MockKeyBindingWrapperService")
+@ConditionalOnProperty(value = "mosip.esignet.integration.key-binder", havingValue = "MockKeyBindingWrapperService")
 @Component
 @Slf4j
 public class MockKeyBindingWrapperService implements KeyBindingWrapper {
@@ -84,7 +84,7 @@ public class MockKeyBindingWrapperService implements KeyBindingWrapper {
             generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
 
 
-            SignatureCertificate signatureCertificate = keymanagerService.getSignatureCertificate(Constants.IDP_BINDING_SERVICE_APP_ID, Optional.empty(),
+            SignatureCertificate signatureCertificate = keymanagerService.getSignatureCertificate(Constants.BINDING_SERVICE_APP_ID, Optional.empty(),
                     DateUtils.getUTCCurrentDateTimeString());
             PrivateKey privateKey = signatureCertificate.getCertificateEntry().getPrivateKey();
             StringWriter stringWriter = new StringWriter();

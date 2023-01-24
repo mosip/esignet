@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.Data;
 
 import java.util.List;

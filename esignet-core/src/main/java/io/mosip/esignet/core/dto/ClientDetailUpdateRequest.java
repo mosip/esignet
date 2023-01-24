@@ -5,12 +5,11 @@
  */
 package io.mosip.esignet.core.dto;
 
-import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.AuthContextRef;
 import io.mosip.esignet.core.validator.OIDCClaim;
 import io.mosip.esignet.core.validator.OIDCClientAuth;
 import io.mosip.esignet.core.validator.OIDCGrantType;
-import io.mosip.esignet.core.validator.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 

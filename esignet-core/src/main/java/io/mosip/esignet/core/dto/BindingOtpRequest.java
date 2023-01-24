@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.Data;
 
 @Data

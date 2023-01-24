@@ -6,7 +6,7 @@
 package io.mosip.esignet.core;
 
 import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.util.Constants;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.spi.AuthenticationWrapper;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.validator.*;

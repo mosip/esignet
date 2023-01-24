@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.exception;
 
-import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 
 public class SendOtpException extends Exception {
 
