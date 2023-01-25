@@ -1,9 +1,9 @@
 package io.mosip.idp.authwrapper.service;
 
-import io.mosip.esignet.core.dto.AuditDTO;
-import io.mosip.esignet.core.spi.AuditWrapper;
-import io.mosip.esignet.core.constants.Action;
-import io.mosip.esignet.core.constants.ActionStatus;
+import io.mosip.esignet.api.dto.AuditDTO;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @ConditionalOnProperty(value = "mosip.esignet.integration.audit-plugin", havingValue = "LoggerAuditService")
 @Component
 @Slf4j
-public class LoggerAuditService implements AuditWrapper {
+public class LoggerAuditService implements AuditPlugin {
 
     @Async
     @Override

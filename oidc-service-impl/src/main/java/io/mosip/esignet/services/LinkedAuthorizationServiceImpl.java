@@ -5,6 +5,8 @@
  */
 package io.mosip.esignet.services;
 
+import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.exception.IdPException;

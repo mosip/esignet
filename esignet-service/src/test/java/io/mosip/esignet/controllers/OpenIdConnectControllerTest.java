@@ -5,8 +5,8 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
-import io.mosip.esignet.core.spi.AuditWrapper;
 import io.mosip.esignet.core.spi.OpenIdConnectService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.services.CacheUtilService;
@@ -51,7 +51,7 @@ public class OpenIdConnectControllerTest {
     CacheUtilService cacheUtilService;
 
     @MockBean
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
 
     @Test

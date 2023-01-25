@@ -3,11 +3,11 @@ package io.mosip.esignet;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import io.mosip.esignet.api.dto.BindingAuthResult;
+import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
-import io.mosip.esignet.core.dto.AuthChallenge;
-import io.mosip.esignet.core.dto.ValidateBindingRequest;
-import io.mosip.esignet.core.dto.ValidateBindingResponse;
+import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -79,17 +79,15 @@ public class BindingValidatorServiceImplTest {
 
     @Test
 	public void validateBinding_withValidDetails_thenPass() throws Exception {
-		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
-		validateBindingRequest.setTransactionId("909422113");
-		validateBindingRequest.setIndividualId("8267411571");
+		String transactionId = "909422113";
+		String individualId  = "8267411571";
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("WLA");
 		authChallenge.setFormat("jwt");
 
 		X509Certificate certificate = getCertificate(clientJWK);
-		String wlaToken = signJwt(validateBindingRequest.getIndividualId(), certificate, true);
+		String wlaToken = signJwt(individualId, certificate, true);
 		authChallenge.setChallenge(wlaToken);
-		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
 				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
@@ -98,27 +96,25 @@ public class BindingValidatorServiceImplTest {
 				.thenReturn(Arrays.asList(publicKeyRegistry));
 		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
 
-		ValidateBindingResponse validateBindingResponse = bindingValidatorServiceImpl.validateBinding(validateBindingRequest);
-		Assert.assertEquals(validateBindingResponse.getTransactionId(), validateBindingRequest.getTransactionId());
+		BindingAuthResult bindingAuthResult = bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
+		Assert.assertEquals(bindingAuthResult.getTransactionId(), transactionId);
 	}
 
 	@Test
 	public void validateBinding_withInvalidSha256Thumbprint_thenFail() throws Exception {
-		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
-		validateBindingRequest.setTransactionId("909422113");
-		validateBindingRequest.setIndividualId("8267411571");
+		String transactionId = "909422113";
+		String individualId  = "8267411571";
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("WLA");
 		authChallenge.setFormat("jwt");
 
 		X509Certificate certificate = getCertificate(clientJWK);
-		String wlaToken = signJwt(validateBindingRequest.getIndividualId(), certificate, true);
+		String wlaToken = signJwt(individualId, certificate, true);
 		JWT jwt = JWTParser.parse(wlaToken);
 		net.minidev.json.JSONObject headerJson = jwt.getHeader().toJSONObject();
 		headerJson.put("x5t#S256", "test-header");
 		String[] chunks = wlaToken.split("\\.");
 		authChallenge.setChallenge(IdentityProviderUtil.b64Encode(headerJson.toJSONString())+"."+chunks[1]+"."+chunks[2]);
-		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
 				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
@@ -128,26 +124,24 @@ public class BindingValidatorServiceImplTest {
 		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
 
 		try {
-			bindingValidatorServiceImpl.validateBinding(validateBindingRequest);
+			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (KycAuthException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
 		}
 	}
 
 	@Test
 	public void validateBinding_withoutSha256Thumbprint_thenFail() throws Exception {
-		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
-		validateBindingRequest.setTransactionId("909422113");
-		validateBindingRequest.setIndividualId("8267411571");
+		String transactionId = "909422113";
+		String individualId  = "8267411571";
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("WLA");
 		authChallenge.setFormat("jwt");
 
 		X509Certificate certificate = getCertificate(clientJWK);
-		String wlaToken = signJwt(validateBindingRequest.getIndividualId(), certificate, false);
+		String wlaToken = signJwt(individualId, certificate, false);
 		authChallenge.setChallenge(wlaToken);
-		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
 				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
@@ -157,9 +151,9 @@ public class BindingValidatorServiceImplTest {
 		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
 
 		try {
-			bindingValidatorServiceImpl.validateBinding(validateBindingRequest);
+			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (KycAuthException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
 		}
 	}
@@ -168,19 +162,17 @@ public class BindingValidatorServiceImplTest {
 	public void validateBinding_withUnBoundId_thenFail() throws IdPException {
 		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList());
 
-		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
-		validateBindingRequest.setTransactionId("909422113");
-		validateBindingRequest.setIndividualId("8267411571");
+		String transactionId = "909422113";
+		String individualId  = "8267411571";
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("WLA");
 		authChallenge.setFormat("jwt");
 		authChallenge.setChallenge("wlaToken");
-		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 
 		try {
-			bindingValidatorServiceImpl.validateBinding(validateBindingRequest);
+			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (KycAuthException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_NOT_FOUND));
 		}
 	}
@@ -192,9 +184,8 @@ public class BindingValidatorServiceImplTest {
 				"certificate", LocalDateTime.now());
 		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList(publicKeyRegistry));
 
-		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
-		validateBindingRequest.setTransactionId("909422113");
-		validateBindingRequest.setIndividualId("8267411571");
+		String transactionId = "909422113";
+		String individualId  = "8267411571";
 		AuthChallenge authChallengeWLA = new AuthChallenge();
         authChallengeWLA.setAuthFactorType("WLA");
         authChallengeWLA.setFormat("jwt");
@@ -203,12 +194,11 @@ public class BindingValidatorServiceImplTest {
         authChallengeHWA.setAuthFactorType("HLA");
         authChallengeHWA.setFormat("jwt");
         authChallengeHWA.setChallenge("hlaToken");
-		validateBindingRequest.setChallenges(Arrays.asList(authChallengeWLA, authChallengeHWA));
 
 		try {
-			bindingValidatorServiceImpl.validateBinding(validateBindingRequest);
+			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallengeWLA, authChallengeHWA));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (KycAuthException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.UNBOUND_AUTH_FACTOR));
 		}
 	}
@@ -220,19 +210,17 @@ public class BindingValidatorServiceImplTest {
                 "certificate", LocalDateTime.now());
         when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList(publicKeyRegistry));
 
-		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
-		validateBindingRequest.setTransactionId("909422113");
-		validateBindingRequest.setIndividualId("8267411571");
+		String transactionId = "909422113";
+		String individualId  = "8267411571";
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("WLA");
 		authChallenge.setFormat("jwt");
 		authChallenge.setChallenge("wlaToken");
-		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 
 		try {
-			bindingValidatorServiceImpl.validateBinding(validateBindingRequest);
+			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (KycAuthException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
 		}
 	}

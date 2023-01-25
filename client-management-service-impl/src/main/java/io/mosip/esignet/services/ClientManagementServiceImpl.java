@@ -7,17 +7,16 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.esignet.core.constants.Action;
-import io.mosip.esignet.core.constants.ActionStatus;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.AuditDTO;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 import io.mosip.esignet.core.dto.ClientDetailResponse;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidClientException;
-import io.mosip.esignet.core.spi.AuditWrapper;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.*;
 import io.mosip.esignet.entity.ClientDetail;
@@ -49,7 +48,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     ObjectMapper objectMapper;
 
     @Autowired
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
     private List<String> NULL = Collections.singletonList(null);
 
@@ -93,7 +92,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, new AuditDTO(clientDetailCreateRequest.getClientId()), null);
+        auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
@@ -131,7 +130,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, new AuditDTO(clientId), null);
+        auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());

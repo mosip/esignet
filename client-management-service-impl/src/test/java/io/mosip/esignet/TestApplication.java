@@ -1,9 +1,9 @@
 package io.mosip.esignet;
 
-import io.mosip.esignet.core.dto.AuditDTO;
-import io.mosip.esignet.core.spi.AuditWrapper;
-import io.mosip.esignet.core.constants.Action;
-import io.mosip.esignet.core.constants.ActionStatus;
+import io.mosip.esignet.api.dto.AuditDTO;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,8 +21,8 @@ public class TestApplication {
     }
 
     @Bean
-    public AuditWrapper loggerAuditWrapper() {
-        return new AuditWrapper() {
+    public AuditPlugin loggerAuditWrapper() {
+        return new AuditPlugin() {
             @Override
             public void logAudit(Action action, ActionStatus status, AuditDTO audit, Throwable t) {
                 //do nothing

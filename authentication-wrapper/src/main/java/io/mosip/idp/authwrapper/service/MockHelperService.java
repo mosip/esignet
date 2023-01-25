@@ -1,8 +1,9 @@
 package io.mosip.idp.authwrapper.service;
 
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.KycAuthException;
-import io.mosip.esignet.core.spi.KeyBindingValidator;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.BindingAuthResult;
+import io.mosip.esignet.api.exception.KycAuthException;
+import io.mosip.esignet.api.spi.KeyBindingValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,13 +21,9 @@ public class MockHelperService {
 
     public void validateKeyBoundAuth(String transactionId, String individualId, List<AuthChallenge> challengeList)
             throws KycAuthException {
-        ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
-        validateBindingRequest.setIndividualId(individualId);
-        validateBindingRequest.setTransactionId(transactionId);
-        validateBindingRequest.setChallenges(challengeList);
 
-        ValidateBindingResponse validateBindingResponse = keyBindingValidator.validateBinding(validateBindingRequest);
-        if(validateBindingResponse == null || transactionId.equals(validateBindingResponse.getTransactionId())) {
+        BindingAuthResult bindingAuthResult = keyBindingValidator.validateBindingAuth(transactionId,individualId, challengeList);
+        if(bindingAuthResult == null || transactionId.equals(bindingAuthResult.getTransactionId())) {
             log.error("Failed validate binding");
             throw new KycAuthException(AUTH_FAILED);
         }

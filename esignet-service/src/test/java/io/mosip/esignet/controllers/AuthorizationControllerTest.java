@@ -6,11 +6,11 @@
 package io.mosip.esignet.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.OAuthDetailRequest;
 import io.mosip.esignet.core.dto.OAuthDetailResponse;
 import io.mosip.esignet.core.dto.RequestWrapper;
 import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.spi.AuditWrapper;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -53,7 +53,7 @@ public class AuthorizationControllerTest {
     AuthorizationHelperService authorizationHelperService;
 
     @MockBean
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
     ObjectMapper objectMapper = new ObjectMapper();
 

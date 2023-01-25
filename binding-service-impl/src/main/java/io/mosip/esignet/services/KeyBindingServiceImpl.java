@@ -11,11 +11,13 @@ import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import io.mosip.esignet.api.dto.KeyBindingResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.exception.KeyBindingException;
+import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.exception.KeyBindingException;
-import io.mosip.esignet.core.exception.SendOtpException;
-import io.mosip.esignet.core.spi.KeyBindingWrapper;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
@@ -40,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class KeyBindingServiceImpl implements KeyBindingService {
 
 	@Autowired
-	private KeyBindingWrapper keyBindingWrapper;
+	private KeyBinder keyBindingWrapper;
 
 	@Autowired
 	private PublicKeyRegistryRepository publicKeyRegistryRepository;

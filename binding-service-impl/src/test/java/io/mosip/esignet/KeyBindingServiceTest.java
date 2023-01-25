@@ -21,13 +21,16 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.KeyBindingResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.exception.KeyBindingException;
+import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.exception.KeyBindingException;
-import io.mosip.esignet.core.exception.SendOtpException;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.spi.KeyBindingWrapper;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.KeyBindingHelperService;
 import io.mosip.esignet.services.KeyBindingServiceImpl;
@@ -61,7 +64,7 @@ public class KeyBindingServiceTest {
 	KeyBindingHelperService keyBindingHelperService;
 
 	@Mock
-	KeyBindingWrapper mockKeyBindingWrapperService;
+	KeyBinder mockKeyBindingWrapperService;
 
 	@Mock
 	KeymanagerUtil keymanagerUtil;
@@ -75,7 +78,7 @@ public class KeyBindingServiceTest {
 		MockitoAnnotations.initMocks(this);
 		ReflectionTestUtils.setField(keyBindingService, "encryptBindingId", true);
 
-		mockKeyBindingWrapperService = mock(KeyBindingWrapper.class);
+		mockKeyBindingWrapperService = mock(KeyBinder.class);
 		when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
 				.thenReturn(Arrays.asList("jwt", "alpha-numeric"));
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingWrapper", mockKeyBindingWrapperService);
@@ -86,26 +89,6 @@ public class KeyBindingServiceTest {
 		ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
 
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
-	}
-
-	private KeyBindingWrapper getKeyBindingWrapper() {
-		return new KeyBindingWrapper() {
-
-			@Override
-			public SendOtpResult sendBindingOtp(String individualId, List<String> otpChannels, Map<String, String> requestHeaders) throws SendOtpException {
-				return null;
-			}
-
-			@Override
-			public KeyBindingResult doKeyBinding(String individualId, List<AuthChallenge> challengeList, Map<String, Object> publicKeyJWK, Map<String, String> requestHeaders) throws KeyBindingException {
-				return null;
-			}
-
-			@Override
-			public List<String> getSupportedChallengeFormats(String authFactorType) {
-				return Arrays.asList("jwt", "alpha-numeric");
-			}
-		};
 	}
 
 	@Test

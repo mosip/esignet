@@ -6,12 +6,12 @@
 package io.mosip.idp.authwrapper.service;
 
 import com.nimbusds.jose.jwk.RSAKey;
-import io.mosip.esignet.core.dto.AuthChallenge;
-import io.mosip.esignet.core.dto.KeyBindingResult;
-import io.mosip.esignet.core.dto.SendOtpResult;
-import io.mosip.esignet.core.exception.KeyBindingException;
-import io.mosip.esignet.core.exception.SendOtpException;
-import io.mosip.esignet.core.spi.KeyBindingWrapper;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.KeyBindingResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.exception.KeyBindingException;
+import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.kernel.core.util.DateUtils;
 import io.mosip.kernel.keymanagerservice.dto.SignatureCertificate;
@@ -37,7 +37,7 @@ import java.util.*;
 @ConditionalOnProperty(value = "mosip.esignet.integration.key-binder", havingValue = "MockKeyBindingWrapperService")
 @Component
 @Slf4j
-public class MockKeyBindingWrapperService implements KeyBindingWrapper {
+public class MockKeyBindingWrapperService implements KeyBinder {
 
     @Autowired
     private KeymanagerService keymanagerService;

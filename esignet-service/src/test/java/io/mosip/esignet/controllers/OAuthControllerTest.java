@@ -6,11 +6,11 @@
 package io.mosip.esignet.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
-import io.mosip.esignet.core.spi.AuditWrapper;
 import io.mosip.esignet.core.spi.OAuthService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +43,7 @@ public class OAuthControllerTest {
     private OAuthService oAuthServiceImpl;
 
     @MockBean
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
     @Test
     public void getAllJwks_thenPass() throws Exception {

@@ -15,10 +15,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.*;
+import io.mosip.esignet.api.dto.*;
+import io.mosip.esignet.api.exception.*;
+import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.idp.authwrapper.dto.PathInfo;
-import io.mosip.esignet.core.spi.AuthenticationWrapper;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -60,7 +60,7 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "MockAuthenticationService")
 @Component
 @Slf4j
-public class MockAuthenticationService implements AuthenticationWrapper {
+public class MockAuthenticationService implements Authenticator {
 
     private static final String APPLICATION_ID = "MOCK_IDA_SERVICES";
     private static final String PSUT_FORMAT = "%s%s";
@@ -74,6 +74,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static final String EXP_CLAIM = "exp";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
+    private static final String NOT_AUTHENTICATED = "not_authenticated";
     private static Map<String, List<String>> policyContextMap;
     private static Map<String, RSAKey> relyingPartyPublicKeys;
     private static Map<String, String> localesMapping;
@@ -152,7 +153,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         try {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
                     String.format(PSUT_FORMAT, kycAuthDto.getIndividualId(), relyingPartyId));
-        } catch (IdPException e) {
+        } catch (Exception e) {
             log.error("Failed to generate PSUT",authMethods, e);
             throw new KycAuthException("mock-ida-006", "Failed to generate Partner specific user token");
         }
@@ -231,7 +232,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return null;
     }
 
-    private JWTClaimsSet verifyAndGetClaims(String kycToken) throws IdPException {
+    private JWTClaimsSet verifyAndGetClaims(String kycToken) throws KycExchangeException {
         JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
         signatureVerifyRequestDto.setApplicationId(APPLICATION_ID);
         signatureVerifyRequestDto.setReferenceId("");
@@ -239,7 +240,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
         if(!responseDto.isSignatureValid()) {
             log.error("Kyc token verification failed");
-            throw new IdPException(INVALID_INPUT);
+            throw new KycExchangeException(INVALID_INPUT);
         }
         try {
             JWT jwt = JWTParser.parse(kycToken);
@@ -252,7 +253,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             return jwt.getJWTClaimsSet();
         } catch (Exception e) {
             log.error("kyc token claims verification failed", e);
-            throw new NotAuthenticatedException();
+            throw new KycExchangeException(NOT_AUTHENTICATED);
         }
     }
 

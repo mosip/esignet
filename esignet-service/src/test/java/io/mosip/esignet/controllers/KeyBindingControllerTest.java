@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
 import io.mosip.esignet.TestUtil;
+import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.*;
@@ -346,7 +347,7 @@ public class KeyBindingControllerTest {
 	}
 
 
-	private ValidateBindingRequest getValidateBindingRequest() {
+	/*private ValidateBindingRequest getValidateBindingRequest() {
 		ValidateBindingRequest validateBindingRequest = new ValidateBindingRequest();
 		validateBindingRequest.setTransactionId("9043211571");
 		validateBindingRequest.setIndividualId("8267411571");
@@ -356,6 +357,6 @@ public class KeyBindingControllerTest {
 		authChallenge.setChallenge("eyJzdWIiOiIxM");
 		validateBindingRequest.setChallenges(Arrays.asList(authChallenge));
 		return validateBindingRequest;
-	}
+	}*/
 
 }

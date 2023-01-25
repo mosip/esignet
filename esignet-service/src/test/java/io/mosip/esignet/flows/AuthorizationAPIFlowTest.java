@@ -17,11 +17,15 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.ClaimDetail;
+import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.KycAuthDto;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.TestUtil;
-import io.mosip.esignet.core.spi.AuditWrapper;
-import io.mosip.esignet.core.spi.AuthenticationWrapper;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
@@ -78,7 +82,7 @@ public class AuthorizationAPIFlowTest {
     private ClientDetailRepository clientDetailRepository;
 
     @Autowired
-    private AuthenticationWrapper authenticationWrapper;
+    private Authenticator authenticationWrapper;
 
     @Autowired
     private CacheUtilService cacheUtilService;
@@ -90,7 +94,7 @@ public class AuthorizationAPIFlowTest {
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
     @Autowired
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
     @Value("${mosip.esignet.amr-acr-mapping-file-url}")
     private String mappingFileUrl;

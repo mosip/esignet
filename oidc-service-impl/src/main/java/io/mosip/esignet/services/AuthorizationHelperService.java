@@ -1,16 +1,17 @@
 package io.mosip.esignet.services;
 
-import io.mosip.esignet.core.constants.Action;
-import io.mosip.esignet.core.constants.ActionStatus;
+import io.mosip.esignet.api.dto.*;
+import io.mosip.esignet.api.exception.KycAuthException;
+import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
-import io.mosip.esignet.core.exception.KycAuthException;
-import io.mosip.esignet.core.exception.SendOtpException;
-import io.mosip.esignet.core.spi.AuditWrapper;
-import io.mosip.esignet.core.spi.AuthenticationWrapper;
 import io.mosip.esignet.core.util.*;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
@@ -50,7 +51,7 @@ public class AuthorizationHelperService {
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
     @Autowired
-    private AuthenticationWrapper authenticationWrapper;
+    private Authenticator authenticationWrapper;
 
     @Autowired
     private CacheUtilService cacheUtilService;
@@ -62,7 +63,7 @@ public class AuthorizationHelperService {
     private KeymanagerDBHelper dbHelper;
 
     @Autowired
-    private AuditWrapper auditWrapper;
+    private AuditPlugin auditWrapper;
 
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
@@ -155,7 +156,7 @@ public class AuthorizationHelperService {
             throw new IdPException(AUTH_FAILED);
         }
 
-        auditWrapper.logAudit(Action.DO_KYC_AUTH, ActionStatus.SUCCESS, new AuditDTO(transactionId, transaction), null);
+        auditWrapper.logAudit(Action.DO_KYC_AUTH, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, transaction), null);
         return kycAuthResult;
     }
 

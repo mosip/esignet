@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
+import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.AllArgsConstructor;
 import lombok.Data;

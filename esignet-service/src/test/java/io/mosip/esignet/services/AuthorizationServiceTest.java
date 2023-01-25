@@ -6,12 +6,16 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.ClaimDetail;
+import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.exception.KycAuthException;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.idp.authwrapper.service.MockAuthenticationService;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidClientException;
-import io.mosip.esignet.core.exception.KycAuthException;
-import io.mosip.esignet.core.spi.AuditWrapper;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.repository.ClientDetailRepository;
@@ -65,7 +69,7 @@ public class AuthorizationServiceTest {
     Resource mappingFile;
 
     @Mock
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
 
 

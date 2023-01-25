@@ -9,14 +9,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.idp.authwrapper.dto.*;
-import io.mosip.esignet.core.exception.KycAuthException;
-import io.mosip.esignet.core.exception.KycExchangeException;
-import io.mosip.esignet.core.exception.SendOtpException;
-import io.mosip.esignet.core.spi.AuthenticationWrapper;
+import io.mosip.esignet.api.exception.KycAuthException;
+import io.mosip.esignet.api.exception.KycExchangeException;
+import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.idp.authwrapper.dto.*;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
@@ -57,7 +57,7 @@ import static io.mosip.esignet.core.constants.ErrorConstants.*;
 @ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "IdentityAuthenticationService")
 @Component
 @Slf4j
-public class IdentityAuthenticationService implements AuthenticationWrapper {
+public class IdentityAuthenticationService implements Authenticator {
 
     public static final String KYC_EXCHANGE_TYPE = "oidc";
     public static final String SIGNATURE_HEADER_NAME = "signature";

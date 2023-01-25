@@ -5,9 +5,9 @@
  */
 package io.mosip.esignet.core;
 
+import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.spi.AuthenticationWrapper;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.validator.*;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class ValidatorTest {
     AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
     @Mock
-    AuthenticationWrapper authenticationWrapper;
+    Authenticator authenticator;
 
     @Mock
     Environment environment;
@@ -48,7 +48,7 @@ public class ValidatorTest {
         mockACRs.add("level3");
         mockACRs.add("level4");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(mockACRs);
-        when(authenticationWrapper.isSupportedOtpChannel("email")).thenReturn(true);
+        when(authenticator.isSupportedOtpChannel("email")).thenReturn(true);
     }
 
     //============================ Display Validator =========================
@@ -350,35 +350,35 @@ public class ValidatorTest {
     @Test
     public void test_OtpChannelValidator_valid_thenPass() {
         OtpChannelValidator validator = new OtpChannelValidator();
-        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
+        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticator);
         Assert.assertTrue(validator.isValid("email", null));
     }
 
     @Test
     public void test_OtpChannelValidator_null_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
-        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
+        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticator);
         Assert.assertFalse(validator.isValid(null, null));
     }
 
     @Test
     public void test_OtpChannelValidator_invalid_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
-        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
+        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticator);
         Assert.assertFalse(validator.isValid("mobile", null));
     }
 
     @Test
     public void test_OtpChannelValidator_blank_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
-        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
+        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticator);
         Assert.assertFalse(validator.isValid("   ", null));
     }
 
     @Test
     public void test_OtpChannelValidator_spaceAppended_thenFail() {
         OtpChannelValidator validator = new OtpChannelValidator();
-        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticationWrapper);
+        ReflectionTestUtils.setField(validator, "authenticationWrapper", authenticator);
         Assert.assertFalse(validator.isValid("   email ", null));
     }
 

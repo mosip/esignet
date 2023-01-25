@@ -5,12 +5,13 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.spi.AuditWrapper;
 import io.mosip.esignet.core.spi.ClientManagementService;
-import io.mosip.esignet.core.constants.Action;
-import io.mosip.esignet.core.constants.ActionStatus;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -19,9 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 
-/**
- * TODO - Add scope based pre-authorize annotations after integrating with auth-adapter
- */
 @RestController
 public class ClientManagementController {
 
@@ -29,7 +27,7 @@ public class ClientManagementController {
     ClientManagementService clientManagementService;
 
     @Autowired
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
     @RequestMapping(value = "/client-mgmt/oidc-client", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,7 +37,7 @@ public class ClientManagementController {
         try {
             response.setResponse(clientManagementService.createOIDCClient(requestWrapper.getRequest()));
         } catch (IdPException ex) {
-            auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, new AuditDTO(requestWrapper.getRequest().getClientId()), ex);
+            auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;
         }
         response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -54,7 +52,7 @@ public class ClientManagementController {
         try {
             response.setResponse(clientManagementService.updateOIDCClient(clientId, requestWrapper.getRequest()));
         } catch (IdPException ex) {
-            auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, new AuditDTO(clientId), ex);
+            auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
             throw ex;
         }
         response.setResponseTime(IdentityProviderUtil.getUTCDateTime());

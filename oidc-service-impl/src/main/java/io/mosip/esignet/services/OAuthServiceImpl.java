@@ -7,14 +7,19 @@ package io.mosip.esignet.services;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
-import io.mosip.esignet.core.constants.Action;
-import io.mosip.esignet.core.constants.ActionStatus;
+import io.mosip.esignet.api.dto.KycExchangeDto;
+import io.mosip.esignet.api.dto.KycExchangeResult;
+import io.mosip.esignet.api.dto.KycSigningCertificateData;
+import io.mosip.esignet.api.exception.KycExchangeException;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
-import io.mosip.esignet.core.exception.KycExchangeException;
 import io.mosip.esignet.core.spi.*;
 import io.mosip.esignet.core.util.*;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
@@ -46,7 +51,7 @@ public class OAuthServiceImpl implements OAuthService {
     private AuthorizationHelperService authorizationHelperService;
 
     @Autowired
-    private AuthenticationWrapper authenticationWrapper;
+    private Authenticator authenticationWrapper;
 
     @Autowired
     private TokenService tokenService;
@@ -58,7 +63,7 @@ public class OAuthServiceImpl implements OAuthService {
     private KeymanagerService keymanagerService;
 
     @Autowired
-    private AuditWrapper auditWrapper;
+    private AuditPlugin auditWrapper;
 
     @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
@@ -94,14 +99,14 @@ public class OAuthServiceImpl implements OAuthService {
                     transaction.getClientId(), kycExchangeDto);
         } catch (KycExchangeException e) {
             log.error("KYC exchange failed", e);
-            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, new AuditDTO(codeHash, transaction), e);
+            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, AuditHelper.buildAuditDto(codeHash, transaction), e);
             throw new IdPException(e.getErrorCode());
         }
 
         if(kycExchangeResult == null || kycExchangeResult.getEncryptedKyc() == null)
             throw new IdPException(ErrorConstants.DATA_EXCHANGE_FAILED);
 
-        auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, new AuditDTO(codeHash, transaction), null);
+        auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(codeHash, transaction), null);
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
@@ -115,7 +120,7 @@ public class OAuthServiceImpl implements OAuthService {
         transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
         cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
 
-        auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, new AuditDTO(codeHash,
+        auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(codeHash,
                 transaction), null);
         return tokenResponse;
     }

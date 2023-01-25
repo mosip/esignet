@@ -5,14 +5,19 @@
  */
 package io.mosip.esignet.services;
 
-import io.mosip.esignet.core.constants.ActionStatus;
+import io.mosip.esignet.api.dto.ClaimDetail;
+import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
-import io.mosip.esignet.core.spi.AuditWrapper;
-import io.mosip.esignet.core.spi.AuthenticationWrapper;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.*;
@@ -25,7 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
-import static io.mosip.esignet.core.constants.Action.*;
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
@@ -37,7 +41,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private ClientManagementService clientManagementService;
 
     @Autowired
-    private AuthenticationWrapper authenticationWrapper;
+    private Authenticator authenticationWrapper;
 
     @Autowired
     private CacheUtilService cacheUtilService;
@@ -49,7 +53,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private AuthorizationHelperService authorizationHelperService;
 
     @Autowired
-    private AuditWrapper auditWrapper;
+    private AuditPlugin auditWrapper;
 
     @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
@@ -103,7 +107,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         idPTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
         idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
         cacheUtilService.setTransaction(transactionId, idPTransaction);
-        auditWrapper.logAudit(TRANSACTION_STARTED, ActionStatus.SUCCESS, new AuditDTO(transactionId, idPTransaction), null);
+        auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, idPTransaction), null);
         return oauthDetailResponse;
     }
 
@@ -118,7 +122,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         otpResponse.setTransactionId(otpRequest.getTransactionId());
         otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
         otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
-        auditWrapper.logAudit(SEND_OTP, ActionStatus.SUCCESS, new AuditDTO(otpRequest.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(otpRequest.getTransactionId(), transaction), null);
         return otpResponse;
     }
 
@@ -143,7 +147,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
 
-        auditWrapper.logAudit(AUTHENTICATE, ActionStatus.SUCCESS, new AuditDTO(authRequest.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
 
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(authRequest.getTransactionId());
@@ -167,7 +171,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
 
-        auditWrapper.logAudit(GET_AUTH_CODE, ActionStatus.SUCCESS, new AuditDTO(authCodeRequest.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
 
         AuthCodeResponse authCodeResponse = new AuthCodeResponse();
         authCodeResponse.setCode(authCode);

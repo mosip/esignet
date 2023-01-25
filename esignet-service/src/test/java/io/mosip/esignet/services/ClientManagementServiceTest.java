@@ -8,11 +8,11 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.TestUtil;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 import io.mosip.esignet.core.dto.ClientDetailResponse;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
 import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.spi.AuditWrapper;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
@@ -44,7 +44,7 @@ public class ClientManagementServiceTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    AuditWrapper auditWrapper;
+    AuditPlugin auditWrapper;
 
     Map<String, Object> PUBLIC_KEY;
 
