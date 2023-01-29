@@ -42,8 +42,8 @@ ENV is_glowroot_env=${is_glowroot}
 # environment variable to pass artifactory url, at docker runtime
 ENV artifactory_url_env=${artifactory_url}
 
-# environment variable to pass auth_wrapper url, at docker runtime
-ENV auth_wrapper_url_env=${auth_wrapper_url}
+# environment variable to pass esignet_wrapper url(may be zip or jar), at docker runtime
+ENV esignet_wrapper_url_env=${esignet_wrapper_url}
 
 # environment variable to pass hsm client zip file path, at docker runtime
 ENV hsm_zip_file_path=${hsm_client_zip_path}
@@ -66,7 +66,7 @@ ENV hsm_local_dir_name=${hsm_local_dir}
 
 # install packages and create user
 RUN apt-get -y update \
-&& apt-get install -y unzip sudo\
+&& apt-get install -y unzip file sudo basename\
 && groupadd -g ${container_user_gid} ${container_user_group} \
 && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
 && adduser ${container_user} sudo \
@@ -105,9 +105,7 @@ CMD if [ "$is_glowroot_env" = "present" ]; then \
     unzip glowroot.zip ; \
     rm -rf glowroot.zip ; \
     sed -i 's/<service_name>/idp-service/g' glowroot/glowroot.properties ; \
-    wget -q "${auth_wrapper_url_env}" -O "${loader_path_env}"/authentication-wrapper.jar; \
     java -jar -javaagent:glowroot/glowroot.jar -Dloader.path="${loader_path_env}" -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" idp-service.jar ; \
     else \
-    wget -q "${auth_wrapper_url_env}" -O "${loader_path_env}"/authentication-wrapper.jar; \
     java -jar -Dloader.path="${loader_path_env}" -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" idp-service.jar ; \
     fi
