@@ -1,0 +1,5 @@
+app_id,key_validity_duration,pre_expire_days,access_allowed,is_active,cr_by,cr_dtimes
+ROOT,2920,1125,NA,TRUE,mosipadmin,now()
+OIDC_SERVICE,1095,60,NA,TRUE,mosipadmin,now()
+OIDC_PARTNER,1095,60,NA,TRUE,mosipadmin,now()
+BINDING_SERVICE,1095,60,NA,TRUE,mosipadmin,now()

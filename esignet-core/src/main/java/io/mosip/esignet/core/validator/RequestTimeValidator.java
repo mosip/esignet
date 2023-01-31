@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.validator;
 
-import io.mosip.esignet.core.util.Constants;
+import io.mosip.esignet.core.constants.Constants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

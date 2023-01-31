@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
+import io.mosip.esignet.api.dto.Claims;
 import lombok.Data;
 
 import java.util.List;

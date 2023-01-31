@@ -5,19 +5,19 @@
  */
 package io.mosip.esignet.core.dto;
 
+import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.core.validator.OIDCDisplay;
 import io.mosip.esignet.core.validator.OIDCPrompt;
 import io.mosip.esignet.core.validator.OIDCResponseType;
 import io.mosip.esignet.core.validator.OIDCScope;
-import io.mosip.esignet.core.validator.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static io.mosip.esignet.core.util.ErrorConstants.INVALID_CLIENT_ID;
-import static io.mosip.esignet.core.util.ErrorConstants.INVALID_REDIRECT_URI;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_REDIRECT_URI;
 
 @Data
 public class OAuthDetailRequest {

@@ -6,7 +6,7 @@
 package io.mosip.esignet.core.dto;
 
 
-import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

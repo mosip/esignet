@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
-import io.mosip.esignet.core.util.ErrorConstants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.OIDCGrantType;
 import io.mosip.esignet.core.validator.OIDCClientAssertionType;
 import lombok.Data;

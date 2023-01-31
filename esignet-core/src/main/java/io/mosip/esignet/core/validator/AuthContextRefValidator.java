@@ -7,7 +7,7 @@ package io.mosip.esignet.core.validator;
 
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.Constants;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -9,14 +9,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.idp.authwrapper.dto.*;
-import io.mosip.esignet.core.exception.KycAuthException;
-import io.mosip.esignet.core.exception.KycExchangeException;
-import io.mosip.esignet.core.exception.SendOtpException;
-import io.mosip.esignet.core.spi.AuthenticationWrapper;
-import io.mosip.esignet.core.util.Constants;
+import io.mosip.esignet.api.exception.KycAuthException;
+import io.mosip.esignet.api.exception.KycExchangeException;
+import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.dto.*;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.idp.authwrapper.dto.*;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
@@ -51,13 +51,13 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.esignet.core.util.ErrorConstants.*;
+import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
 
-@ConditionalOnProperty(value = "mosip.esignet.authn.wrapper.impl", havingValue = "IdentityAuthenticationService")
+@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "IdentityAuthenticationService")
 @Component
 @Slf4j
-public class IdentityAuthenticationService implements AuthenticationWrapper {
+public class IdentityAuthenticationService implements Authenticator {
 
     public static final String KYC_EXCHANGE_TYPE = "oidc";
     public static final String SIGNATURE_HEADER_NAME = "signature";
@@ -65,22 +65,22 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     public static final String INVALID_PARTNER_CERTIFICATE = "invalid_partner_cert";
     private static final List<String> keyBoundAuthFactorTypes = Arrays.asList("WLA");
 
-    @Value("${mosip.esignet.authn.wrapper.ida-id:mosip.identity.kycauth}")
+    @Value("${mosip.esignet.authenticator.ida-id:mosip.identity.kycauth}")
     private String kycAuthId;
 
-    @Value("${mosip.esignet.authn.wrapper.ida-id:mosip.identity.kycexchange}")
+    @Value("${mosip.esignet.authenticator.ida-id:mosip.identity.kycexchange}")
     private String kycExchangeId;
 
-    @Value("${mosip.esignet.authn.wrapper.ida-send-otp-id:mosip.identity.otp}")
+    @Value("${mosip.esignet.authenticator.ida-send-otp-id:mosip.identity.otp}")
     private String sendOtpId;
 
-    @Value("${mosip.esignet.authn.wrapper.ida-version:1.0}")
+    @Value("${mosip.esignet.authenticator.ida-version:1.0}")
     private String idaVersion;
 
-    @Value("${mosip.esignet.authn.wrapper.ida-domainUri}")
+    @Value("${mosip.esignet.authenticator.ida-domainUri}")
     private String idaDomainUri;
 
-    @Value("${mosip.esignet.authn.wrapper.ida-env:Staging}")
+    @Value("${mosip.esignet.authenticator.ida-env:Staging}")
     private String idaEnv;
 
     @Value("${mosip.kernel.keygenerator.symmetric-algorithm-name}")
@@ -89,19 +89,19 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
     @Value("${mosip.kernel.keygenerator.symmetric-key-length}")
     private int symmetricKeyLength;
 
-    @Value("${mosip.esignet.authn.ida.kyc-auth-url}")
+    @Value("${mosip.esignet.authenticator.ida.kyc-auth-url}")
     private String kycAuthUrl;
 
-    @Value("${mosip.esignet.authn.ida.kyc-exchange-url}")
+    @Value("${mosip.esignet.authenticator.ida.kyc-exchange-url}")
     private String kycExchangeUrl;
 
-    @Value("${mosip.esignet.authn.ida.send-otp-url}")
+    @Value("${mosip.esignet.authenticator.ida.send-otp-url}")
     private String sendOtpUrl;
 
-    @Value("${mosip.esignet.authn.ida.otp-channels}")
+    @Value("${mosip.esignet.authenticator.ida.otp-channels}")
     private List<String> otpChannels;
 
-    @Value("${mosip.esignet.authn.ida.cert-url}")
+    @Value("${mosip.esignet.authenticator.ida.cert-url}")
     private String idaPartnerCertificateUrl;
 
     @Autowired
@@ -352,7 +352,7 @@ public class IdentityAuthenticationService implements AuthenticationWrapper {
 
     private String getRequestSignature(String request) {
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(Constants.IDP_PARTNER_APP_ID);
+        jwtSignatureRequestDto.setApplicationId(Constants.OIDC_PARTNER_APP_ID);
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(false);
         jwtSignatureRequestDto.setIncludeCertificate(true);

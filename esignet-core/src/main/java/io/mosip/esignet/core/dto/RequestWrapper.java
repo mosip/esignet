@@ -11,7 +11,7 @@ import lombok.Data;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import static io.mosip.esignet.core.util.ErrorConstants.INVALID_REQUEST;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_REQUEST;
 
 @Data
 public class RequestWrapper<T> {
