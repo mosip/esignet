@@ -135,7 +135,8 @@ public class IdentityProviderUtil {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGO_SHA_256);
             byte[] hash = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
-            byte[] leftMost128Bits = ByteUtils.subArray(hash, 0, 32);
+            //taking only 16 bytes (=128 bits)
+            byte[] leftMost128Bits = ByteUtils.subArray(hash, 0, 16);
             return urlSafeEncoder.encodeToString(leftMost128Bits);
         } catch (NoSuchAlgorithmException ex) {
             log.error("Access token hashing failed with alg:{}", ALGO_SHA_256, ex);
