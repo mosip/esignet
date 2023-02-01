@@ -6,11 +6,13 @@
 package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.Data;
 
 import java.util.List;
 import java.io.Serializable;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 @Data
 public class IdPTransaction implements Serializable {
@@ -33,6 +35,9 @@ public class IdPTransaction implements Serializable {
     List<String> permittedScopes;
     String encryptedKyc;
     String aHash;
+
+    LinkCodeQueue linkCodeQueue;
+    int currentLinkCodeLimit;
 
     String linkedCodeHash;
     String linkedTransactionId;
