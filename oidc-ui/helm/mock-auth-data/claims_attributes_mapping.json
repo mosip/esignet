@@ -1,0 +1,42 @@
+{
+	"locales": {"en" :  "eng", "fr":  "fra", "ar":  "ara" },
+	"attributes" : {
+			"fullName" : { "path": "$.identity.fullName[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"dateOfBirth" : { "path": "$.identity.dateOfBirth"},
+			"gender" : { "path": "$.identity.gender[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"email" : { "path": "$.identity.email"},
+			"phone" : { "path": "$.identity.phone"},
+			"individualId" : { "path": "$.identity.individualId"},
+			"addressLine1" : { "path": "$.identity.addressLine1[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"addressLine2" : { "path": "$.identity.addressLine2[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"addressLine3" : { "path": "$.identity.addressLine3[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"province" : { "path": "$.identity.province[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"region" : { "path": "$.identity.region[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"postal_code" : { "path": "$.identity.postalCode" },
+			"zone" : { "path": "$.identity.zone[?(@.language=='_LOCALE_')].value", "defaultLocale" : "en" },
+			"encodedPhoto" : { "path": "$.identity.encodedPhoto"}
+	},
+	"claims" : {
+			"given_name" : "fullName",
+			"name" : "fullName",
+			"middle_name" : "",
+			"preferred_username" : "fullName",
+			"nickname" : "fullName",
+			"family_name" : "",
+			"gender" : "gender",
+			"birthdate" : "dateOfBirth",			
+			"email" : "email",
+			"phone_number" : "phone",
+			"phone" : "phone",
+			"individual_id" : "individualId",
+			"locale" : "",
+			"email_verified" : "",	
+			"phone_number_verified" : "",
+			"picture": "encodedPhoto",
+			"zoneinfo" : "",
+			"updated_at" : "",
+			"address" : { "street_address" : "",  "locality" : "province", "region" : "region",
+				"postal_code": "postalCode", "country" : "",
+				"formatted" : ["addressLine1", "addressLine2", "addressLine3"] }
+	}	
+}
