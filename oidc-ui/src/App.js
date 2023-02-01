@@ -4,10 +4,10 @@ import LoginPage from "./pages/Login";
 import AuthorizePage from "./pages/Authorize";
 import ConsentPage from "./pages/Consent";
 import NavHeader from "./components/NavHeader";
-import IdpDetailsPage from "./pages/IdpDetails";
 import langConfigService from "./services/langConfigService";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import EsignetDetailsPage from "./pages/EsignetDetails";
 
 function App() {
   const { i18n } = useTranslation();
@@ -52,7 +52,7 @@ function App() {
       <NavHeader langOptions={langOptions} />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<IdpDetailsPage />} />
+          <Route path="/" element={<EsignetDetailsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/authorize" element={<AuthorizePage />} />
           <Route path="/consent" element={<ConsentPage />} />

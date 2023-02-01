@@ -48,7 +48,7 @@ class openIDConnectService {
    * @param {string} configKey
    * @returns configuration value of the given config key
    */
-  getIdpConfiguration = (configKey) => {
+  getEsignetConfiguration = (configKey) => {
     return this.oAuthDetails.configs[configKey];
   };
 

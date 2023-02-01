@@ -24,7 +24,7 @@ export default function LoginQRCode({
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [error, setError] = useState(null);
   const timeoutInSeconds =
-    openIDConnectService.getIdpConfiguration(configurationKeys.linkCodeWaitTimeInSec) ??
+    openIDConnectService.getEsignetConfiguration(configurationKeys.linkCodeWaitTimeInSec) ??
     process.env.REACT_APP_LINK_CODE_TIMEOUT_IN_SEC;
 
   const GenerateQRCode = (text) => {
@@ -72,7 +72,7 @@ export default function LoginQRCode({
         });
       } else {
         let qrCodeDeepLinkURI =
-          openIDConnectService.getIdpConfiguration(configurationKeys.qrCodeDeepLinkURI) ??
+          openIDConnectService.getEsignetConfiguration(configurationKeys.qrCodeDeepLinkURI) ??
           process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
 
         qrCodeDeepLinkURI = qrCodeDeepLinkURI.replace(

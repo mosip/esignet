@@ -107,7 +107,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const oidcService = new openIDConnectService(JSON.parse(decodeOAuth), nonce, state);
 
-  let value = oidcService.getIdpConfiguration(
+  let value = oidcService.getEsignetConfiguration(
     configurationKeys.signInWithQRCodeEnable
   ) ?? process.env.REACT_APP_QRCODE_ENABLE
 
@@ -130,7 +130,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const loadComponent = () => {
     setAppDownloadURI(
-      oidcService.getIdpConfiguration(
+      oidcService.getEsignetConfiguration(
         configurationKeys.appDownloadURI
       ) ?? process.env.REACT_APP_QRCODE_APP_DOWNLOAD_URI
     );

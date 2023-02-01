@@ -93,8 +93,8 @@
     "WALLET": "إنجي",
     "OTP": "OTP"
   },
-  "idpDetails": {
-    "idp_details_heading": "واجهات برمجة التطبيقات Esignet معروفة جيدا",
+  "esignetDetails": {
+    "esignet_details_heading": "واجهات برمجة التطبيقات Esignet معروفة جيدا",
     "internal_api": "واجهة برمجة التطبيقات الداخلية",
     "wellknown_api": ".wellknown API"
   },

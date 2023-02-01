@@ -32,14 +32,14 @@ const IRIS_TYPE = "Iris";
 
 class sbiService {
   constructor(oAuthDetails) {
-    this.getIdpConfiguration = oAuthDetails.getIdpConfiguration;
+    this.getEsignetConfiguration = oAuthDetails.getEsignetConfiguration;
   }
 
   /**
    * Triggers capture request of SBI for auth capture
    * @param {url} host SBI is hosted on given host
    * @param {int} port port on which SBI is listening to.
-   * @param {string} transactionId same as idp transactionId
+   * @param {string} transactionId same as Esignet transactionId
    * @param {string} specVersion supported spec version
    * @param {string} type modality type
    * @param {string} deviceId
@@ -54,19 +54,19 @@ class sbiService {
     deviceId
   ) => {
     const env =
-      this.getIdpConfiguration(configurationKeys.sbiEnv) ??
+      this.getEsignetConfiguration(configurationKeys.sbiEnv) ??
       process.env.REACT_APP_SBI_ENV;
 
     const captureTimeout =
-      this.getIdpConfiguration(configurationKeys.sbiCAPTURETimeoutInSeconds) ??
+      this.getEsignetConfiguration(configurationKeys.sbiCAPTURETimeoutInSeconds) ??
       process.env.REACT_APP_SBI_CAPTURE_TIMEOUT;
 
     const irisBioSubtypes =
-      this.getIdpConfiguration(configurationKeys.sbiIrisBioSubtypes) ??
+      this.getEsignetConfiguration(configurationKeys.sbiIrisBioSubtypes) ??
       process.env.REACT_APP_SBI_IRIS_BIO_SUBTYPES;
 
     const fingerBioSubtypes =
-      this.getIdpConfiguration(configurationKeys.sbiFingerBioSubtypes) ??
+      this.getEsignetConfiguration(configurationKeys.sbiFingerBioSubtypes) ??
       process.env.REACT_APP_SBI_FINGER_BIO_SUBTYPES;
 
     let count = 1;
@@ -74,23 +74,23 @@ class sbiService {
     let bioSubType = ["UNKNOWN"];
     switch (type) {
       case FACE_TYPE:
-        count = this.getIdpConfiguration(configurationKeys.sbiFaceCaptureCount) ??
+        count = this.getEsignetConfiguration(configurationKeys.sbiFaceCaptureCount) ??
           process.env.REACT_APP_SBI_FACE_CAPTURE_COUNT;
-        requestedScore = this.getIdpConfiguration(configurationKeys.sbiFaceCaptureScore) ??
+        requestedScore = this.getEsignetConfiguration(configurationKeys.sbiFaceCaptureScore) ??
           process.env.REACT_APP_SBI_FACE_CAPTURE_SCORE;
         bioSubType = null; //For Face: No bioSubType
         break;
       case FINGER_TYPE:
-        count = this.getIdpConfiguration(configurationKeys.sbiFingerCaptureCount) ??
+        count = this.getEsignetConfiguration(configurationKeys.sbiFingerCaptureCount) ??
           process.env.REACT_APP_SBI_FINGER_CAPTURE_COUNT;
-        requestedScore = this.getIdpConfiguration(configurationKeys.sbiFingerCaptureScore) ??
+        requestedScore = this.getEsignetConfiguration(configurationKeys.sbiFingerCaptureScore) ??
           process.env.REACT_APP_SBI_FINGER_CAPTURE_SCORE;
         bioSubType = fingerBioSubtypes.split(",").map((x) => x.trim());
         break;
       case IRIS_TYPE:
-        count = this.getIdpConfiguration(configurationKeys.sbiIrisCaptureCount) ??
+        count = this.getEsignetConfiguration(configurationKeys.sbiIrisCaptureCount) ??
           process.env.REACT_APP_SBI_IRIS_CAPTURE_COUNT;
-        requestedScore = this.getIdpConfiguration(configurationKeys.sbiIrisCaptureScore) ??
+        requestedScore = this.getEsignetConfiguration(configurationKeys.sbiIrisCaptureScore) ??
           process.env.REACT_APP_SBI_IRIS_CAPTURE_SCORE;
         bioSubType = irisBioSubtypes.split(",").map((x) => x.trim());
         break;
@@ -143,13 +143,13 @@ class sbiService {
     clearDeviceInfos();
 
     const portRange =
-      this.getIdpConfiguration(configurationKeys.sbiPortRange) ??
+      this.getEsignetConfiguration(configurationKeys.sbiPortRange) ??
       process.env.REACT_APP_SBI_PORT_RANGE;
     const discTimeout =
-      this.getIdpConfiguration(configurationKeys.sbiDISCTimeoutInSeconds) ??
+      this.getEsignetConfiguration(configurationKeys.sbiDISCTimeoutInSeconds) ??
       process.env.REACT_APP_SBI_DISC_TIMEOUT;
     const dinfoTimeout =
-      this.getIdpConfiguration(configurationKeys.sbiDINFOTimeoutInSeconds) ??
+      this.getEsignetConfiguration(configurationKeys.sbiDINFOTimeoutInSeconds) ??
       process.env.REACT_APP_SBI_DINFO_TIMEOUT;
 
     let ports = portRange.split("-").map((x) => x.trim());

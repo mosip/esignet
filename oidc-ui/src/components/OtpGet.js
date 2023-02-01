@@ -23,18 +23,18 @@ export default function OtpGet({
   const post_SendOtp = authService.post_SendOtp;
 
   const commaSeparatedChannels =
-    openIDConnectService.getIdpConfiguration(configurationKeys.sendOtpChannels) ??
+    openIDConnectService.getEsignetConfiguration(configurationKeys.sendOtpChannels) ??
     process.env.REACT_APP_SEND_OTP_CHANNELS;
 
   const captchaEnableComponents =
-    openIDConnectService.getIdpConfiguration(configurationKeys.captchaEnableComponents) ??
+    openIDConnectService.getEsignetConfiguration(configurationKeys.captchaEnableComponents) ??
     process.env.REACT_APP_CAPTCHA_ENABLE;
 
   const captchaEnableComponentsList = captchaEnableComponents.split(",").map((x) => x.trim().toLowerCase());
   const showCaptcha = captchaEnableComponentsList.indexOf("otp") !== -1;
 
   const captchaSiteKey =
-    openIDConnectService.getIdpConfiguration(configurationKeys.captchaSiteKey) ??
+    openIDConnectService.getEsignetConfiguration(configurationKeys.captchaSiteKey) ??
     process.env.REACT_APP_CAPTCHA_SITE_KEY;
 
   const [loginState, setLoginState] = useState(fieldsState);

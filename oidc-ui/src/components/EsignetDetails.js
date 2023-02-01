@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { LoadingStates as states } from "../constants/states";
 
-export default function IdpDetails({ i18nKeyPrefix = "idpDetails" }) {
+export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
@@ -39,7 +39,7 @@ export default function IdpDetails({ i18nKeyPrefix = "idpDetails" }) {
             </div>
             <div className="w-full">
               <h1 className="flex justify-center title-font sm:text-3xl text-3xl mb-16 font-medium text-gray-900">
-                {t("idp_details_heading")}
+                {t("esignet_details_heading")}
               </h1>
             </div>
             <div className="w-full flex justify-center">

@@ -3,8 +3,8 @@ import localStorageService from "./local-storageService";
 
 const baseUrl =
   process.env.NODE_ENV === "development"
-    ? process.env.REACT_APP_IDP_API_URL
-    : window.origin + process.env.REACT_APP_IDP_API_URL;
+    ? process.env.REACT_APP_ESIGNET_API_URL
+    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
 
 const linkCodeGenerateEndPoint = "/linked-authorization/link-code";
 const linkStatusEndPoint = "/linked-authorization/link-status";
@@ -18,8 +18,8 @@ class linkAuthService {
   }
 
   /**
-   * Triggers /linked-authorization/link-code API on IDP service
-   * @param {string} transactionId same as idp transactionId
+   * Triggers /linked-authorization/link-code API on Esignet service
+   * @param {string} transactionId same as Esignet transactionId
    * @returns /linked-authorization/link-code API response
    */
   post_GenerateLinkCode = async (transactionId) => {
@@ -42,9 +42,9 @@ class linkAuthService {
   };
 
   /**
-   * Triggers /linked-authorization/link-status API on IDP service
-   * @param {string} transactionId same as idp transactionId
-   * @param {string} linkCode generated idp linkcode
+   * Triggers /linked-authorization/link-status API on Esignet service
+   * @param {string} transactionId same as Esignet transactionId
+   * @param {string} linkCode generated Esignet linkcode
    * @returns /linked-authorization/link-status API response
    */
   post_LinkStatus = async (transactionId, linkCode) => {
@@ -68,9 +68,9 @@ class linkAuthService {
   };
 
   /**
-   * Triggers /linked-authorization/authenticate API on IDP service
-   * @param {string} transactionId same as idp transactionId
-   * @param {string} linkedCode linked idp linkcode
+   * Triggers /linked-authorization/authenticate API on Esignet service
+   * @param {string} transactionId same as Esignet transactionId
+   * @param {string} linkedCode linked Esignet linkcode
    * @returns /linked-authorization/authenticate API response
    */
   post_AuthorizationCode = async (transactionId, linkedCode) => {

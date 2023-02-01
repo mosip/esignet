@@ -31,10 +31,10 @@ export default function OtpVerify({
   const post_AuthenticateUser = authService.post_AuthenticateUser;
 
   const resendOtpTimeout =
-    openIDConnectService.getIdpConfiguration(configurationKeys.resendOtpTimeout) ??
+    openIDConnectService.getEsignetConfiguration(configurationKeys.resendOtpTimeout) ??
     process.env.REACT_APP_RESEND_OTP_TIMEOUT_IN_SEC;
   const commaSeparatedChannels =
-    openIDConnectService.getIdpConfiguration(configurationKeys.sendOtpChannels) ??
+    openIDConnectService.getEsignetConfiguration(configurationKeys.sendOtpChannels) ??
     process.env.REACT_APP_SEND_OTP_CHANNELS;
 
   const [loginState, setLoginState] = useState(fieldsState);

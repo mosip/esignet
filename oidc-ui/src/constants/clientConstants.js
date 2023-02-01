@@ -61,8 +61,7 @@ const configurationKeys = {
   captchaEnableComponents: "captcha.enable", //comma separated list of components where captcha needs to be shown
   captchaSiteKey: "captcha.sitekey", //site key for ReCAPTCHA
 
-  //TODO inji should be removed and IDP should esignet in the keys and variable names
-  linkCodeWaitTimeInSec: "mosip.idp.link-code-expire-in-secs",
+  linkCodeWaitTimeInSec: "mosip.esignet.link-code-expire-in-secs",
   qrCodeDeepLinkURI: "mosip.esignet.qr-code.deep-link-uri",
   appDownloadURI: "mosip.esignet.qr-code.download-uri",
   signInWithQRCodeEnable: "mosip.esignet.qr-code.enable",

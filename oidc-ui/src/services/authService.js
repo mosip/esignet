@@ -3,8 +3,8 @@ import localStorageService from "./local-storageService";
 
 const baseUrl =
   process.env.NODE_ENV === "development"
-    ? process.env.REACT_APP_IDP_API_URL
-    : window.origin + process.env.REACT_APP_IDP_API_URL;
+    ? process.env.REACT_APP_ESIGNET_API_URL
+    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
 
 const sendOtpEndPoint = "/authorization/send-otp";
 const authenticateEndPoint = "/authorization/authenticate";
@@ -20,8 +20,8 @@ class authService {
   }
 
   /**
-   * Triggers /authenticate API on IDP service
-   * @param {string} transactionId same as idp transactionId
+   * Triggers /authenticate API on Esignet service
+   * @param {string} transactionId same as Esignet transactionId
    * @param {String} individualId UIN/VIN of the individual
    * @param {List<AuthChallenge>} challengeList challenge list based on the auth type(ie. BIO, PIN, INJI)
    * @returns /authenticate API response
@@ -53,7 +53,7 @@ class authService {
   };
 
   /**
-   * Triggers /auth-code API on IDP service
+   * Triggers /auth-code API on ESIGNET service
    * @param {string} nonce
    * @param {string} state
    * @param {string} clientId
@@ -115,7 +115,7 @@ class authService {
   };
 
   /**
-   * Triggers /auth-code API to IDP service
+   * Triggers /auth-code API to esignet service
    * @param {String} transactionId
    * @param {List<String>} acceptedClaims
    * @param {List<String>} permittedAuthorizeScopes
@@ -147,8 +147,8 @@ class authService {
   };
 
   /**
-   * Triggers /send-otp API on IDP service
-   * @param {string} transactionId idp transactionId
+   * Triggers /send-otp API on esignet service
+   * @param {string} transactionId esignet transactionId
    * @param {string} individualId UIN/VIN of the individual
    * @param {List<string>} otpChannels list of channels(ie. phone, email)
    * @returns /send-otp API response
@@ -178,7 +178,7 @@ class authService {
 
   /**
    * Gets triggered for the very first time, before any api call.
-   * Triggers /csrf/token API on IDP service
+   * Triggers /csrf/token API on esignet service
    * @returns csrf token.
   */
   get_CsrfToken = async () => {

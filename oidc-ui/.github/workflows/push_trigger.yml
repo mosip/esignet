@@ -3,18 +3,18 @@ name: NPM Package upon a push
 on:
   push:
     branches:
-      - '!release-branch'
+      - "!release-branch"
       - release-*
       - master
       - develop
 
 jobs:
-  build-idp-ui:
+  build-esignet-ui:
     runs-on: ubuntu-latest
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
-      SERVICE_NAME: idp-ui
-    
+      SERVICE_NAME: esignet-ui
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -58,7 +58,6 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
         if: failure() # Pick up events even if the job fails or is canceled.
 
-
   sonar_analysis:
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -67,7 +66,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: npm install
         run: npm install --ignore-scripts
@@ -85,7 +84,7 @@ jobs:
         run: |
           echo "sonar.host.url=https://sonarcloud.io/
              sonar.login=${{ secrets.SONAR_TOKEN }}
-             sonar.projectKey=mosip_idp-ui
+             sonar.projectKey=mosip_esignet-ui
              sonar.organization=${{ secrets.ORG_KEY }}
              sonar.sourceEncoding=UTF-8
              sonar.sources=src

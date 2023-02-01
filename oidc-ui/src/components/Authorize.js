@@ -127,35 +127,46 @@ export default function Authorize({
   };
 
   const redirectToLogin = async () => {
-    if (oAuthDetailResponse === null) {
+    if (!oAuthDetailResponse) {
       return;
     }
 
     const { response, errors } = oAuthDetailResponse;
 
+    if (!response) {
+      return;
+    }
+
     if (errors != null && errors.length > 0) {
       return;
     } else {
-      let nonce = searchParams.get("nonce");
-      let state = searchParams.get("state");
+      try {
+        let nonce = searchParams.get("nonce");
+        let state = searchParams.get("state");
 
-      let params = "?";
-      if (nonce) {
-        params = params + "nonce=" + nonce + "&";
+        let params = "?";
+        if (nonce) {
+          params = params + "nonce=" + nonce + "&";
+        }
+        if (state) {
+          params = params + "state=" + state + "&";
+        }
+
+        let responseStr = JSON.stringify(response);
+        let responseB64 = Buffer.from(responseStr).toString("base64");
+
+        //REQUIRED
+        params = params + "response=" + responseB64;
+
+        navigate("/login" + params, {
+          replace: true,
+        });
       }
-      if (state) {
-        params = params + "state=" + state + "&";
+      catch (error) {
+        setOAuthDetailResponse(null);
+        setError("Failed to load");
+        setStatus(states.ERROR);
       }
-
-      let responseStr = JSON.stringify(response);
-      let responseB64 = Buffer.from(responseStr).toString("base64");
-
-      //REQUIRED
-      params = params + "response=" + responseB64;
-
-      navigate("/login" + params, {
-        replace: true,
-      });
     }
   };
 
@@ -166,7 +177,7 @@ export default function Authorize({
       el = <LoadingIndicator size="medium" message={"loading_msg"} />;
       break;
     case states.LOADED:
-      if (oAuthDetailResponse === null) {
+      if (!oAuthDetailResponse) {
         el = (
           <ErrorIndicator
             errorCode="no_response_msg"
