@@ -71,12 +71,14 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     private int linkCodeLength;
 
 
-    //TODO limit on link-code generation
     @Override
     public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException {
         IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(linkCodeRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
+
+        if(transaction.getCurrentLinkCodeLimit() <= 0)
+            throw new IdPException(ErrorConstants.LINK_CODE_LIMIT_REACHED);
 
         //Duplicate link code is handled only once, duplicate exception on the second try is thrown out.
         String linkCode = null;
@@ -97,8 +99,13 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
                     new LinkTransactionMetadata(linkCodeRequest.getTransactionId(),null));
         }
 
-        expireDateTime = ZonedDateTime.now(ZoneOffset.UTC).plus(linkCodeExpiryInSeconds, ChronoUnit.SECONDS);
+        //add the new link-code to queue and pop/evict the oldest link-code from the queue & cache
+        String poppedLinkCode = transaction.getLinkCodeQueue().addLinkCode(linkCode);
+        transaction.setCurrentLinkCodeLimit(transaction.getCurrentLinkCodeLimit()-1);
+        cacheUtilService.updateTransactionAndEvictLinkCode(linkCodeRequest.getTransactionId(),
+                poppedLinkCode == null ? null : authorizationHelperService.getKeyHash(poppedLinkCode), transaction);
 
+        expireDateTime = ZonedDateTime.now(ZoneOffset.UTC).plus(linkCodeExpiryInSeconds, ChronoUnit.SECONDS);
         LinkCodeResponse linkCodeResponse = new LinkCodeResponse();
         linkCodeResponse.setLinkCode(linkCode);
         linkCodeResponse.setTransactionId(linkCodeRequest.getTransactionId());

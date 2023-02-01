@@ -50,8 +50,8 @@ public class BindingValidatorServiceImpl implements KeyBindingValidator {
     @Autowired
     private KeymanagerUtil keymanagerUtil;
 
-    @Value("${mosip.esignet.binding.validate-binding-url}")
-    private String validateBindingUrl;
+    @Value("${mosip.esignet.binding.audience-id}")
+    private String bindingAudienceId;
 
     private static Set<String> REQUIRED_WLA_CLAIMS;
 
@@ -118,7 +118,7 @@ public class BindingValidatorServiceImpl implements KeyBindingValidator {
                         throw new KycAuthException(SHA256_THUMBPRINT_HEADER_MISSING);
 
                     JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                            .audience(validateBindingUrl)
+                            .audience(bindingAudienceId)
                             .subject(individualId)
                             .build(), REQUIRED_WLA_CLAIMS);
 

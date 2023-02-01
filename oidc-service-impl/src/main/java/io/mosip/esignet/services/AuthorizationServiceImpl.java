@@ -64,6 +64,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.auth-txn-id-length:10}")
     private int authTransactionIdLength;
 
+    //Number of times generate-link-code could be invoked per transaction
+    @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
+    private int linkCodeLimitPerTransaction;
 
 
     @Override
@@ -106,6 +109,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         idPTransaction.setState(oauthDetailReqDto.getState());
         idPTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
         idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
+        idPTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
+        idPTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
         cacheUtilService.setTransaction(transactionId, idPTransaction);
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, idPTransaction), null);
         return oauthDetailResponse;

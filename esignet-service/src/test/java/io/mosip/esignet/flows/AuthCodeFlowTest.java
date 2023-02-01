@@ -194,7 +194,7 @@ public class AuthCodeFlowTest {
         Instant issuedInstant = Instant.now();
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .issuer(clientId)
-                .audience("http://localhost:8088/v1/idp/oauth/token")
+                .audience("http://localhost:8088/v1/esignet/oauth/token")
                 .subject(clientId)
                 .issueTime(Date.from(issuedInstant))
                 .expirationTime(Date.from(issuedInstant.plusSeconds(60)))

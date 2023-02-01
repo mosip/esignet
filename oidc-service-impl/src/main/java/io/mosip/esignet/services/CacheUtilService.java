@@ -98,6 +98,12 @@ public class CacheUtilService {
         return transactionMetadata;
     }
 
+    @CacheEvict(value = Constants.LINK_CODE_GENERATED_CACHE, key = "#linkCodeHash", condition = "#linkCodeHash != null")
+    @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
+    public IdPTransaction updateTransactionAndEvictLinkCode(String transactionId, String linkCodeHash, IdPTransaction idPTransaction) {
+        return idPTransaction;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     public IdPTransaction getPreAuthTransaction(String transactionId) {

@@ -27,7 +27,6 @@ public class Constants {
     public static final String ROOT_KEY = "ROOT";
     public static final String OIDC_PARTNER_APP_ID = "OIDC_PARTNER";
     public static final String OIDC_SERVICE_APP_ID = "OIDC_SERVICE";
-    public static final String BINDING_SERVICE_APP_ID = "BINDING_SERVICE";
 
     public static final String JWK_MODULUS = "n";
     public static final String JWK_EXPONENT = "e";
