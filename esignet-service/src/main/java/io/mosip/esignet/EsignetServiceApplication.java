@@ -26,9 +26,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 		"io.mosip.kernel.signature.service",
 		"io.mosip.kernel.partnercertservice.service",
 		"io.mosip.kernel.partnercertservice.helper"})
-public class OpenIdConnectServiceApplication {
+public class EsignetServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(OpenIdConnectServiceApplication.class, args);
+		SpringApplication.run(EsignetServiceApplication.class, args);
 	}
 }

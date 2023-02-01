@@ -60,12 +60,12 @@ public class BindingValidatorServiceImplTest {
 
     private JWK clientJWK = generateJWK_RSA();
 
-    private String validateBindingUrl = "http://localhost:8087/v1/idpbinding/validate-binding";
+    private String audienceId = "esignet-binding";
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        ReflectionTestUtils.setField(bindingValidatorServiceImpl, "validateBindingUrl", validateBindingUrl);
+        ReflectionTestUtils.setField(bindingValidatorServiceImpl, "bindingAudienceId", audienceId);
 
         keyBindingHelperService = mock(KeyBindingHelperService.class);
         ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
@@ -241,7 +241,7 @@ public class BindingValidatorServiceImplTest {
 	private String signJwt(String individualId, X509Certificate certificate, boolean addSha256Thumbprint) throws Exception {
 		JSONObject payload = new JSONObject();
 		payload.put("iss", "test-app");
-		payload.put("aud", validateBindingUrl);
+		payload.put("aud", audienceId);
 		payload.put("sub", individualId);
 		payload.put("iat", IdentityProviderUtil.getEpochSeconds());
 		payload.put("exp", IdentityProviderUtil.getEpochSeconds()+3600);

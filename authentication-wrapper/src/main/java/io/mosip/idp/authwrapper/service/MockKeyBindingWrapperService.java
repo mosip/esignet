@@ -14,6 +14,7 @@ import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.kernel.core.util.DateUtils;
+import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.dto.SignatureCertificate;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,8 @@ import java.util.*;
 @Component
 @Slf4j
 public class MockKeyBindingWrapperService implements KeyBinder {
+
+    public static final String BINDING_SERVICE_APP_ID = "MOCK_BINDING_SERVICE";
 
     @Autowired
     private KeymanagerService keymanagerService;
@@ -83,8 +86,8 @@ public class MockKeyBindingWrapperService implements KeyBinder {
             generator.setSignatureAlgorithm("SHA256WITHRSA");
             generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
 
-
-            SignatureCertificate signatureCertificate = keymanagerService.getSignatureCertificate(Constants.BINDING_SERVICE_APP_ID, Optional.empty(),
+            setupMockBindingKey();
+            SignatureCertificate signatureCertificate = keymanagerService.getSignatureCertificate(BINDING_SERVICE_APP_ID, Optional.empty(),
                     DateUtils.getUTCCurrentDateTimeString());
             PrivateKey privateKey = signatureCertificate.getCertificateEntry().getPrivateKey();
             StringWriter stringWriter = new StringWriter();
@@ -98,6 +101,13 @@ public class MockKeyBindingWrapperService implements KeyBinder {
         }
         keyBindingResult.setPartnerSpecificUserToken(individualId);
         return keyBindingResult;
+    }
+
+    private void setupMockBindingKey() {
+        KeyPairGenerateRequestDto mockBindingKeyRequest = new KeyPairGenerateRequestDto();
+        mockBindingKeyRequest.setApplicationId(BINDING_SERVICE_APP_ID);
+        keymanagerService.generateMasterKey("CSR", mockBindingKeyRequest);
+        log.info("===================== MOCK_BINDING_SERVICE KEY SETUP COMPLETED ========================");
     }
 
     @Override
