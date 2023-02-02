@@ -1,4 +1,4 @@
-FROM node:12.18.4-alpine as build_idp_ui
+FROM node:12.18.4-alpine as build_esignet_ui
 COPY package*.json ./
 RUN npm install
 #Copy the working directory
@@ -42,11 +42,11 @@ WORKDIR /home/${container_user}
 
 # install packages and create user
 RUN apt-get -y update \
-&& apt-get install -y curl npm python wget unzip zip \
-&& groupadd -g ${container_user_gid} ${container_user_group} \
-&& useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
-&& mkdir -p /var/run/nginx /var/tmp/nginx ${base_path}/locales \
-&& chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${base_path}/locales
+    && apt-get install -y curl npm python wget unzip zip \
+    && groupadd -g ${container_user_gid} ${container_user_group} \
+    && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
+    && mkdir -p /var/run/nginx /var/tmp/nginx ${base_path}/locales \
+    && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${base_path}/locales
 
 ADD configure_start.sh configure_start.sh
 
@@ -55,7 +55,7 @@ RUN chmod +x configure_start.sh
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 # copy build files to nginx html directory
-COPY --from=build_idp_ui /build /usr/share/nginx/html
+COPY --from=build_esignet_ui /build /usr/share/nginx/html
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
