@@ -5,13 +5,19 @@
  */
 package io.mosip.esignet.api.spi;
 
-import io.mosip.esignet.api.dto.*;
+import java.util.List;
+
+import io.mosip.esignet.api.dto.KycAuthDto;
+import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.dto.KycExchangeDto;
+import io.mosip.esignet.api.dto.KycExchangeResult;
+import io.mosip.esignet.api.dto.KycSigningCertificateData;
+import io.mosip.esignet.api.dto.SendOtpDto;
+import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.KycExchangeException;
+import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.exception.SendOtpException;
-import io.mosip.esignet.api.dto.*;
-
-import java.util.List;
 
 public interface Authenticator {
 
@@ -58,6 +64,6 @@ public interface Authenticator {
      * Get list of KYC signing certificate and its details.
      * @return list
      */
-    List<KycSigningCertificateData> getAllKycSigningCertificates();
+    List<KycSigningCertificateData> getAllKycSigningCertificates() throws KycSigningCertificateException;
 
 }
