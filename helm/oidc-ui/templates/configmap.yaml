@@ -35,7 +35,7 @@ data:
         gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
 
         location /v1/esignet {
-          proxy_pass         http://{{ .Values.oidc_ui.esignet_service_host }}/v1/esignet;
+          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/v1/esignet;
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;
