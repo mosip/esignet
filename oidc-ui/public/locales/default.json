@@ -1,0 +1,7 @@
+{
+  "languages": {
+    "en": "English",
+    "ar": "عربى"
+  },
+  "rtlLanguages": ["ara", "ar"]
+}
