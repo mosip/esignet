@@ -86,6 +86,7 @@ public class AuthorizationServiceImpl implements io.mosip.idp.core.spi.Authoriza
         oauthDetailResponse.setConfigs(uiConfigMap);
         oauthDetailResponse.setClientName(clientDetailDto.getName());
         oauthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
+        oauthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
         //Cache the transaction
         IdPTransaction idPTransaction = new IdPTransaction();

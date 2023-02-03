@@ -21,5 +21,6 @@ public class OAuthDetailResponse {
     private List<String> essentialClaims;
     private List<String> voluntaryClaims;
     private Map<String, Object> configs;
+    private String redirectUri;
 
 }
