@@ -102,6 +102,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oauthDetailResponse.setConfigs(uiConfigMap);
         oauthDetailResponse.setClientName(clientDetailDto.getName());
         oauthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
+        oauthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
         //Cache the transaction
         IdPTransaction idPTransaction = new IdPTransaction();
