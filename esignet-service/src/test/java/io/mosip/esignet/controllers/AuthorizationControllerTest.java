@@ -15,6 +15,7 @@ import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.services.AuthorizationHelperService;
+import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,9 @@ public class AuthorizationControllerTest {
     @MockBean
     AuditPlugin auditWrapper;
 
+    @MockBean
+    CacheUtilService cacheUtilService;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
@@ -75,6 +79,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setPrompt("login");
+
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
 

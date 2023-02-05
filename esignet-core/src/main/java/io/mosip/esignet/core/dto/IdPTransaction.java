@@ -46,4 +46,6 @@ public class IdPTransaction implements Serializable {
     String state;
 
     String individualId;
+
+    String oauthDetailsHash;
 }

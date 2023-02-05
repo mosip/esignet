@@ -12,6 +12,7 @@ import io.mosip.esignet.core.dto.TokenResponse;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
+import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -44,6 +45,9 @@ public class OAuthControllerTest {
 
     @MockBean
     AuditPlugin auditWrapper;
+
+    @MockBean
+    CacheUtilService cacheUtilService;
 
     @Test
     public void getAllJwks_thenPass() throws Exception {

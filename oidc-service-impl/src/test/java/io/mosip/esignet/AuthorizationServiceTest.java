@@ -88,6 +88,7 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "auditWrapper", auditWrapper);
 
         ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
+        ReflectionTestUtils.setField(authorizationServiceImpl, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);
     }
 

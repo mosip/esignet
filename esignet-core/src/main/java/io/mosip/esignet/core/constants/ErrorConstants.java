@@ -65,5 +65,6 @@ public class ErrorConstants {
     public static final String SHA256_THUMBPRINT_HEADER_MISSING = "sha256_thumbprint_header_missing";
     public static final String INVALID_CHALLENGE_FORMAT = "invalid_challenge_format";
     public static final String LINK_CODE_LIMIT_REACHED = "link_code_limit_reached";
+    public static final String FAILED_TO_GENERATE_HEADER_HASH = "failed_to_generate_header_hash";
 
 }

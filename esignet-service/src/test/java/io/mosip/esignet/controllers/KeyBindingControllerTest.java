@@ -15,6 +15,7 @@ import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.spi.KeyBindingService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +57,8 @@ public class KeyBindingControllerTest {
 	@InjectMocks
 	KeyBindingController keyBindingController;
 
-
+	@MockBean
+	CacheUtilService cacheUtilService;
 
 	@Test
 	public void sendBindingOtp_withValidRequest_thenPass() throws Exception {
