@@ -1,5 +1,6 @@
 import { Buffer } from "buffer";
-import { sha256 } from 'crypto-hash';
+import sha256 from 'crypto-js/sha256';
+import Base64 from 'crypto-js/enc-base64';
 
 class openIDConnectService {
   constructor(oAuthDetails, nonce, state) {
@@ -12,7 +13,7 @@ class openIDConnectService {
    * @returns redirectUri
    */
   getRedirectUri = () => {
-    return this.oAuthDetails.redirect_uri;
+    return this.oAuthDetails.redirectUri;
   };
 
   /**
@@ -62,17 +63,21 @@ class openIDConnectService {
     let objJsonB64 = Buffer.from(objJsonStr).toString("base64");
     return objJsonB64;
   };
-
+  
   /**
    * encodes a jsonObject into base64 string
    * @param {jsonObject} jsonObject
-   * @returns Base64 encoded SHA-256 hash of the oauth-details endpoint response.
+   * @returns Base64 URL encoded SHA-256 hash of the oauth-details endpoint response.
    */
   getOauthDetailsHash = async () => {
-    let oAuthDetailsStr = JSON.stringify(this.oAuthDetails);
-    let oAuthDetailsB64 = Buffer.from(oAuthDetailsStr).toString("base64");
-    return await sha256(oAuthDetailsB64);
+    let sha256Hash = sha256(JSON.stringify(this.oAuthDetails));
+    let hashB64 = Base64.stringify(sha256Hash);
+    // Remove padding characters
+    hashB64 = hashB64.replace(/=+$/, "");
+    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
+    hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
+    return hashB64;
   };
-};
+}
 
 export default openIDConnectService;

@@ -35,7 +35,8 @@ class linkAuthService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-hash": await this.oAuthDetails.getOauthDetailsHash()
+        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
+        "oauth-details-key": await this.oAuthDetails.getTransactionId()
       },
     });
     return response.data;
@@ -61,7 +62,8 @@ class linkAuthService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-hash": await this.oAuthDetails.getOauthDetailsHash()
+        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
+        "oauth-details-key": await this.oAuthDetails.getTransactionId()
       },
     });
     return response.data;
@@ -87,7 +89,8 @@ class linkAuthService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-hash": await this.oAuthDetails.getOauthDetailsHash()
+        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
+        "oauth-details-key": await this.oAuthDetails.getTransactionId()
       },
     });
     return response.data;
