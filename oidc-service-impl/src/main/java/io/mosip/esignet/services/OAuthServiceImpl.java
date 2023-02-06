@@ -11,6 +11,7 @@ import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
 import io.mosip.esignet.api.exception.KycExchangeException;
+import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.Action;
@@ -138,16 +139,21 @@ public class OAuthServiceImpl implements OAuthService {
             }
         });
 
-        List<KycSigningCertificateData> allAuthCerts = authenticationWrapper.getAllKycSigningCertificates();
-        if(allAuthCerts != null) {
-            allAuthCerts.stream().forEach( authCert -> {
-                try {
-                    jwkList.add(getJwk(authCert.getKeyId(), authCert.getCertificateData(), authCert.getExpiryAt()));
-                } catch (JOSEException e) {
-                    log.error("Failed to parse the auth certificate data", e);
-                }
-            });
+        try {
+            List<KycSigningCertificateData> allAuthCerts = authenticationWrapper.getAllKycSigningCertificates();
+            if(allAuthCerts != null) {
+                allAuthCerts.stream().forEach( authCert -> {
+                    try {
+                        jwkList.add(getJwk(authCert.getKeyId(), authCert.getCertificateData(), authCert.getExpiryAt()));
+                    } catch (JOSEException e) {
+                        log.error("Failed to parse the auth certificate data", e);
+                    }
+                });
+            }
+        } catch (KycSigningCertificateException e) {
+            log.error("Failed to fetch authenticator certificate data", e);
         }
+
         Map<String, Object> response = new HashMap<>();
         response.put("keys", jwkList);
         return response;

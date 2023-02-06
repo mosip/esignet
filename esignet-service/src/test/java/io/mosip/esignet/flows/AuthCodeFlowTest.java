@@ -24,6 +24,7 @@ import io.mosip.esignet.api.dto.KycAuthDto;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.repository.ClientDetailRepository;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -105,6 +106,7 @@ public class AuthCodeFlowTest {
 
     @Value("${mosip.esignet.mock.authenticator.policy-repo}")
     private String policyDir;
+
     private MockRestServiceServer mockRestServiceServer;
     private String clientId = "service-oidc-client";
     private String state = "er345agrR3T";
@@ -112,6 +114,9 @@ public class AuthCodeFlowTest {
     private String replyingPartyId = "mock-relying-party-id";
     private String redirectionUrl = "https://service.client.com/home";
     private JWK clientJWK = TestUtil.generateJWK_RSA();
+
+    private String oauthDetailsHashHeader = null;
+    private String oauthDetailsKeyHeader = null;
 
     @Before
     public void init() throws Exception {
@@ -145,6 +150,10 @@ public class AuthCodeFlowTest {
         ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         log.info("Successfully received oauth details : {}", oAuthDetailResponse);
+
+        oauthDetailsKeyHeader = oAuthDetailResponse.getTransactionId();
+        oauthDetailsHashHeader = IdentityProviderUtil.generateB64EncodedHash( IdentityProviderUtil.ALGO_SHA_256,
+                objectMapper.writeValueAsString(oAuthDetailResponse));
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
         AuthResponse authResponse = authResponseResponseWrapper.getResponse();
@@ -255,6 +264,8 @@ public class AuthCodeFlowTest {
 
         MvcResult result = mockMvc.perform(post("/authorization/auth-code")
                         .param("nonce", nonce).param("state", state)
+                        .header("oauth-details-key", oauthDetailsKeyHeader)
+                        .header("oauth-details-hash", oauthDetailsHashHeader)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())
@@ -281,6 +292,8 @@ public class AuthCodeFlowTest {
         wrapper.setRequest(kycAuthDto);
 
         MvcResult result = mockMvc.perform(post("/authorization/authenticate")
+                        .header("oauth-details-key", oauthDetailsKeyHeader)
+                        .header("oauth-details-hash", oauthDetailsHashHeader)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())

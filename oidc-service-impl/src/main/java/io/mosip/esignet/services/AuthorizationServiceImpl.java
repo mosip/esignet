@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
+import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 
 @Slf4j
 @Service
@@ -54,6 +56,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private AuditPlugin auditWrapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
@@ -97,6 +102,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oauthDetailResponse.setConfigs(uiConfigMap);
         oauthDetailResponse.setClientName(clientDetailDto.getName());
         oauthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
+        oauthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
         //Cache the transaction
         IdPTransaction idPTransaction = new IdPTransaction();
@@ -111,6 +117,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
         idPTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         idPTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
+        idPTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oauthDetailResponse));
         cacheUtilService.setTransaction(transactionId, idPTransaction);
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, idPTransaction), null);
         return oauthDetailResponse;
@@ -253,5 +260,15 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         log.info("Considering registered acrs as no valid acrs found in acr_values request param: {}", requestedAcr);
         claimDetail.setValues(registeredACRs.toArray(new String[0]));
         return claimDetail;
+    }
+
+    private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
+        try {
+            String json = objectMapper.writeValueAsString(oauthDetailResponse);
+            return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
+        } catch (Exception e) {
+            log.error("Failed to generate oauth-details-response hash", e);
+        }
+        throw new IdPException(ErrorConstants.FAILED_TO_GENERATE_HEADER_HASH);
     }
 }
