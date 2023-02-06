@@ -51,8 +51,8 @@ service:
 
 image:
   registry: docker.io
-  repository: mosipdev/idp-ui
-  tag: develop
+  repository: mosipdev/oidc-ui
+  tag: MOSIP-25524
 
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'

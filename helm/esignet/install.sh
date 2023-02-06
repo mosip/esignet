@@ -41,7 +41,7 @@ kubectl -n $NS  --ignore-not-found=true delete cm mock-auth-data
 kubectl -n $NS create cm mock-auth-data --from-file=./mock-auth-data/
 
 echo Installing esignet
-helm -n $NS install esignet /home/techno-422/Desktop/MOSIP/idp/helm/esignet --version $CHART_VERSION
+helm -n $NS install esignet . --version $CHART_VERSION
 
 
 kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
