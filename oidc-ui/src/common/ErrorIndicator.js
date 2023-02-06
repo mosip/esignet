@@ -35,7 +35,7 @@ const ErrorIndicator = ({
     var decodeOAuth = Buffer.from(response, 'base64')?.toString();
     var OAuthDetails = JSON.parse(decodeOAuth)
 
-    let redirect_uri = OAuthDetails.redirect_uri;
+    let redirect_uri = OAuthDetails.redirectUri;
 
     if (!redirect_uri) {
       //TODO naviagte to default error page
