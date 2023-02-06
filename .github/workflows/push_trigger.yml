@@ -219,6 +219,7 @@ jobs:
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
       SERVICE_NAME: oidc-ui
+      SERVICE_LOCATION: oidc-ui
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -234,7 +235,8 @@ jobs:
 
       - name: Build image
         run: |
-          docker build . --file Dockerfile --tag ${{ env.SERVICE_NAME }}
+          cd "./${{env.SERVICE_LOCATION}}"
+          docker build . --file Dockerfile --build-arg SOURCE=mosip --build-arg COMMIT_HASH=$(git rev-parse HEAD) --build-arg COMMIT_ID=$(git rev-parse --short HEAD) --build-arg BUILD_TIME="${{ env.BUILD_DATETIME }}" --tag ${{ env.SERVICE_NAME }}
 
       - name: Log into registry
         run: echo "${{ secrets.release_docker_hub }}" | docker login -u ${{ secrets.actor_docker_hub }} --password-stdin
