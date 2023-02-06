@@ -15,8 +15,8 @@ const csrfEndPoint = "/csrf/token";
 const { getCookie } = { ...localStorageService };
 
 class authService {
-  constructor(oAuthDetails) {
-    this.oAuthDetails = oAuthDetails;
+  constructor(openIDConnectService) {
+    this.openIDConnectService = openIDConnectService;
   }
 
   /**
@@ -46,8 +46,8 @@ class authService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
-        "oauth-details-key": await this.oAuthDetails.getTransactionId()
+        "oauth-details-hash": await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId()
       },
     });
     return response.data;
@@ -141,8 +141,8 @@ class authService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
-        "oauth-details-key": await this.oAuthDetails.getTransactionId()
+        "oauth-details-hash": await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId()
       },
     });
     return response.data;
@@ -172,8 +172,8 @@ class authService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
-        "oauth-details-key": await this.oAuthDetails.getTransactionId()
+        "oauth-details-hash": await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId()
       },
     });
     return response.data;

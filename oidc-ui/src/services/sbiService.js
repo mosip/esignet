@@ -31,8 +31,8 @@ const IRIS_TYPE = "Iris";
 
 
 class sbiService {
-  constructor(oAuthDetails) {
-    this.getEsignetConfiguration = oAuthDetails.getEsignetConfiguration;
+  constructor(openIDConnectService) {
+    this.getEsignetConfiguration = openIDConnectService.getEsignetConfiguration;
   }
 
   /**
