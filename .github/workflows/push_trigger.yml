@@ -15,7 +15,7 @@ on:
 jobs:
 #  call-workflow-codeql-analysis:
 #    uses: ./.github/workflows/codeql-analysis.yml
-#  build:
+  build:
 #    needs: call-workflow-codeql-analysis
 #    runs-on: ubuntu-latest
 #    env:
