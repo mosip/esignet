@@ -1,0 +1,19 @@
+apiVersion: v2
+name: oidc-ui
+description: A Helm chart for MOSIP OIDC UI module
+type: application
+version: 12.0.2
+appVersion: ""
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+home: https://mosip.io
+keywords:
+  - mosip
+  - oidc-ui
+maintainers:
+  - email: info@mosip.io
+    name: MOSIP
