@@ -30,7 +30,7 @@ kubectl -n $NS  --ignore-not-found=true delete cm mock-auth-data
 kubectl -n $NS create cm mock-auth-data --from-file=./mock-auth-data/
 
 echo Installing OIDC UI
-helm -n $NS install oidc-ui-1 . --set istio.hosts\[0\]=$ESIGNET_HOST
+helm -n $NS install oidc-ui . --set istio.hosts\[0\]=$ESIGNET_HOST
 
 kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 

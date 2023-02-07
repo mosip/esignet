@@ -1,5 +1,5 @@
 apiVersion: v2
-name: oidc-ui-1
+name: oidc-ui
 description: A Helm chart for MOSIP OIDC UI module
 type: application
 version: 12.0.2
