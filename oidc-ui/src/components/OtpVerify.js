@@ -262,21 +262,21 @@ export default function OtpVerify({
 
         <div className="h-16 flex items-center justify-center">
           {status.state !== states.LOADING && !error && (
-            <span className="w-full flex justify-center text-sm text-gray-500">
+            <span className="w-full flex justify-center text-sm text-gray-500 line-clamp-3">
               {otpSentEmail && otpSentMobile
                 ? t("otp_sent_msg", {
-                  otpChannels: t("mobile_email_placeholder", {
-                    mobileNumber: otpSentMobile,
-                    emailAddress: otpSentEmail,
-                  }),
-                })
+                    otpChannels: t("mobile_email_placeholder", {
+                      mobileNumber: otpSentMobile,
+                      emailAddress: otpSentEmail,
+                    }),
+                  })
                 : otpSentEmail
-                  ? t("otp_sent_msg", {
+                ? t("otp_sent_msg", {
                     otpChannels: t("email_placeholder", {
                       emailAddress: otpSentEmail,
                     }),
                   })
-                  : t("otp_sent_msg", {
+                : t("otp_sent_msg", {
                     otpChannels: t("mobile_placeholder", {
                       mobileNumber: otpSentMobile,
                     }),
