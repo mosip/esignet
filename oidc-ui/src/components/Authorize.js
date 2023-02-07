@@ -5,7 +5,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
-import { Buffer } from "buffer";
 
 export default function Authorize({
   authService,
@@ -18,6 +17,7 @@ export default function Authorize({
 
   const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails = authService.post_OauthDetails;
+  const buildRedirectParams = authService.buildRedirectParams;
 
   const { getLocaleConfiguration } = {
     ...langConfigService,
@@ -143,26 +143,12 @@ export default function Authorize({
       try {
         let nonce = searchParams.get("nonce");
         let state = searchParams.get("state");
-
-        let params = "?";
-        if (nonce) {
-          params = params + "nonce=" + nonce + "&";
-        }
-        if (state) {
-          params = params + "state=" + state + "&";
-        }
-
-        let responseStr = JSON.stringify(response);
-        let responseB64 = Buffer.from(responseStr).toString("base64");
-
-        //REQUIRED
-        params = params + "response=" + responseB64;
+        let params = buildRedirectParams(nonce, state, response);
 
         navigate("/login" + params, {
           replace: true,
         });
-      }
-      catch (error) {
+      } catch (error) {
         setOAuthDetailResponse(null);
         setError("Failed to load");
         setStatus(states.ERROR);

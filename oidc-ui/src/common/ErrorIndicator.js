@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { Buffer } from "buffer";
 
 const fixedInputClass =
@@ -19,21 +19,23 @@ const ErrorIndicator = ({
   customClass,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
   //Redirecting if transaction invalid
   if (errorCode === "invalid_transaction") {
-    let response = searchParams.get("response")
+    let response = location.hash;
 
     if (!response) {
       //TODO naviagte to default error page
       return;
     }
 
-    let nonce = searchParams.get("nonce")
-    let state = searchParams.get("state")
-    var decodeOAuth = Buffer.from(response, 'base64')?.toString();
-    var OAuthDetails = JSON.parse(decodeOAuth)
+    let nonce = searchParams.get("nonce");
+    let state = searchParams.get("state");
+    var decodeOAuth = Buffer.from(response, "base64")?.toString();
+    var OAuthDetails = JSON.parse(decodeOAuth);
 
     let redirect_uri = OAuthDetails.redirectUri;
 

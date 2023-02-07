@@ -29,6 +29,7 @@ export default function OtpVerify({
 
   const post_SendOtp = authService.post_SendOtp;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
+  const buildRedirectParams = authService.buildRedirectParams;
 
   const resendOtpTimeout =
     openIDConnectService.getEsignetConfiguration(configurationKeys.resendOtpTimeout) ??
@@ -191,18 +192,7 @@ export default function OtpVerify({
         let nonce = openIDConnectService.getNonce();
         let state = openIDConnectService.getState();
 
-        let params = "?";
-        if (nonce) {
-          params = params + "nonce=" + nonce + "&";
-        }
-        if (state) {
-          params = params + "state=" + state + "&";
-        }
-
-        let responseB64 = openIDConnectService.encodeBase64(openIDConnectService.getOAuthDetails());
-
-        //REQUIRED
-        params = params + "response=" + responseB64;
+        let params = buildRedirectParams(nonce, state, openIDConnectService.getOAuthDetails());
 
         navigate("/consent" + params, {
           replace: true,
