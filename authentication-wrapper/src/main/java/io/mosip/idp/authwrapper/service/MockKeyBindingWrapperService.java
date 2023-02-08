@@ -67,8 +67,8 @@ public class MockKeyBindingWrapperService implements KeyBinder {
     }
 
     @Override
-    public KeyBindingResult doKeyBinding(String individualId, List<AuthChallenge> challengeList,
-                                         Map<String, Object> publicKeyJWK, Map<String, String> requestHeaders) throws KeyBindingException {
+    public KeyBindingResult doKeyBinding(String individualId, List<AuthChallenge> challengeList, Map<String, Object> publicKeyJWK,
+                                         String bindAuthFactorType, Map<String, String> requestHeaders) throws KeyBindingException {
         KeyBindingResult keyBindingResult = new KeyBindingResult();
         //TODO
         //create a signed certificate, with cn as username

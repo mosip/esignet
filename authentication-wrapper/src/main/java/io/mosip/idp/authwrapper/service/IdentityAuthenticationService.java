@@ -65,10 +65,10 @@ public class IdentityAuthenticationService implements Authenticator {
     public static final String INVALID_PARTNER_CERTIFICATE = "invalid_partner_cert";
     private static final List<String> keyBoundAuthFactorTypes = Arrays.asList("WLA");
 
-    @Value("${mosip.esignet.authenticator.ida-id:mosip.identity.kycauth}")
+    @Value("${mosip.esignet.authenticator.ida-auth-id:mosip.identity.kycauth}")
     private String kycAuthId;
 
-    @Value("${mosip.esignet.authenticator.ida-id:mosip.identity.kycexchange}")
+    @Value("${mosip.esignet.authenticator.ida-exchange-id:mosip.identity.kycexchange}")
     private String kycExchangeId;
 
     @Value("${mosip.esignet.authenticator.ida-send-otp-id:mosip.identity.otp}")

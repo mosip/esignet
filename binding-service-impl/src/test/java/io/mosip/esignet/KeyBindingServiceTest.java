@@ -141,7 +141,7 @@ public class KeyBindingServiceTest {
 		KeyBindingResult keyBindingResult = new KeyBindingResult();
 		keyBindingResult.setPartnerSpecificUserToken("psutoken123");
 		keyBindingResult.setCertificate("certificate");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
 				.thenReturn(keyBindingResult);
 
 		PublicKeyRegistry publicKeyRegistry=new PublicKeyRegistry();
@@ -194,7 +194,7 @@ public class KeyBindingServiceTest {
 		walletBindingRequest.setPublicKey(
 				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
 				.thenReturn(null);
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
@@ -204,7 +204,7 @@ public class KeyBindingServiceTest {
 		}
 
 		KeyBindingResult keyBindingResult = new KeyBindingResult();
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
 				.thenReturn(keyBindingResult);
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
@@ -215,7 +215,7 @@ public class KeyBindingServiceTest {
 
 		keyBindingResult = new KeyBindingResult();
 		keyBindingResult.setCertificate("data");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
 				.thenReturn(keyBindingResult);
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
@@ -244,7 +244,7 @@ public class KeyBindingServiceTest {
 		KeyBindingResult keyBindingResult = new KeyBindingResult();
 		keyBindingResult.setCertificate("data");
 		keyBindingResult.setPartnerSpecificUserToken("psut");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(),Mockito.anyString(), Mockito.any()))
 				.thenReturn(keyBindingResult);
 
 		when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
@@ -278,7 +278,7 @@ public class KeyBindingServiceTest {
 		KeyBindingResult keyBindingResult = new KeyBindingResult();
 		keyBindingResult.setCertificate("data");
 		keyBindingResult.setPartnerSpecificUserToken("psut");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
 				.thenReturn(keyBindingResult);
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
