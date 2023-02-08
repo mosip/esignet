@@ -39,8 +39,8 @@ public interface KeyBinder {
      * @return
      * @throws KeyBindingException
      */
-    KeyBindingResult doKeyBinding(String individualId, List<AuthChallenge> challengeList,
-                                  Map<String, Object> publicKeyJWK, Map<String, String> requestHeaders) throws KeyBindingException;
+    KeyBindingResult doKeyBinding(String individualId, List<AuthChallenge> challengeList, Map<String, Object> publicKeyJWK,
+                                  String bindAuthFactorType, Map<String, String> requestHeaders) throws KeyBindingException;
 
     List<String> getSupportedChallengeFormats(String authFactorType);
 

@@ -17,4 +17,5 @@ public class KycExchangeDto {
     private String kycToken;
     private String[] claimsLocales;
     private String individualId;
+    private String userInfoResponseType;
 }

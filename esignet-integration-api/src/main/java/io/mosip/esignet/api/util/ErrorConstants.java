@@ -15,5 +15,6 @@ public class ErrorConstants {
     public static final String INVALID_AUTH_FACTOR_TYPE="invalid_auth_factor_type";
     public static final String INVALID_CHALLENGE="invalid_challenge";
     public static final String INVALID_CHALLENGE_FORMAT = "invalid_challenge_format";
+    public static final String BINDING_AUTH_FAILED = "binding_auth_failed";
 
 }
