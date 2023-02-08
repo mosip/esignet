@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
-import { buttonTypes, challengeFormats, challengeTypes } from "../constants/clientConstants";
+import {
+  buttonTypes,
+  challengeFormats,
+  challengeTypes,
+} from "../constants/clientConstants";
 import { otpFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
@@ -23,6 +27,7 @@ export default function Pin({
 
   const fields = param;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
+  const buildRedirectParams = authService.buildRedirectParams;
 
   const [loginState, setLoginState] = useState(fieldsState);
   const [error, setError] = useState(null);
@@ -53,7 +58,7 @@ export default function Pin({
         {
           authFactorType: challengeType,
           challenge: challenge,
-          format: challengeFormat
+          format: challengeFormat,
         },
       ];
 
@@ -66,7 +71,7 @@ export default function Pin({
 
       setStatus(states.LOADED);
 
-      const { response, errors } = authenticateResponse;
+      const { errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
         setError({
@@ -81,18 +86,11 @@ export default function Pin({
         let nonce = openIDConnectService.getNonce();
         let state = openIDConnectService.getState();
 
-        let params = "?";
-        if (nonce) {
-          params = params + "nonce=" + nonce + "&";
-        }
-        if (state) {
-          params = params + "state=" + state + "&";
-        }
-
-        let responseB64 = openIDConnectService.encodeBase64(openIDConnectService.getOAuthDetails());
-
-        //REQUIRED
-        params = params + "response=" + responseB64;
+        let params = buildRedirectParams(
+          nonce,
+          state,
+          openIDConnectService.getOAuthDetails()
+        );
 
         navigate("/consent" + params, {
           replace: true,
@@ -110,7 +108,10 @@ export default function Pin({
 
   return (
     <>
-      <h1 className="text-center text-sky-600 font-semibold line-clamp-2" title={t("sign_in_with_pin")}>
+      <h1
+        className="text-center text-sky-600 font-semibold line-clamp-2"
+        title={t("sign_in_with_pin")}
+      >
         {t("sign_in_with_pin")}
       </h1>
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

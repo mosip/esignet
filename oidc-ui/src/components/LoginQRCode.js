@@ -14,7 +14,6 @@ export default function LoginQRCode({
   openIDConnectService,
   i18nKeyPrefix = "LoginQRCode",
 }) {
-
   const post_GenerateLinkCode = linkAuthService.post_GenerateLinkCode;
   const post_LinkStatus = linkAuthService.post_LinkStatus;
   const post_AuthorizationCode = linkAuthService.post_AuthorizationCode;
@@ -23,9 +22,25 @@ export default function LoginQRCode({
   const [qr, setQr] = useState("");
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [error, setError] = useState(null);
-  const timeoutInSeconds =
-    openIDConnectService.getEsignetConfiguration(configurationKeys.linkCodeWaitTimeInSec) ??
-    process.env.REACT_APP_LINK_CODE_TIMEOUT_IN_SEC;
+
+  const linkCodeExpireInSec =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.linkCodeExpireInSec
+    ) ?? process.env.REACT_APP_LINK_CODE_TIMEOUT_IN_SEC;
+
+  /*
+  linkCodeDeferredTimeoutInSec is link_status Grace period. link-status request will not be triggered 
+  if the linkCode is going to expire within grace period.
+  */
+  const linkCodeDeferredTimeoutInSec =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.linkCodeDeferredTimeoutInSec
+    ) ?? process.env.REACT_APP_LINK_CODE_DEFERRED_TIMEOUT_IN_SEC;
+
+  let parseTimeout = parseInt(linkCodeDeferredTimeoutInSec);
+
+  const linkStatusGracePeriod =
+    parseTimeout !== "NaN" ? parseTimeout : 25;
 
   const GenerateQRCode = (text) => {
     QRCode.toDataURL(
@@ -99,18 +114,18 @@ export default function LoginQRCode({
 
   const triggerLinkStatus = async (transactionId, linkCode) => {
     try {
-      let timeLeft = timeoutInSeconds;
+      let timeLeft = linkCodeExpireInSec;
       let timePassed = 0;
       let interval = setInterval(function () {
         timePassed++;
-        timeLeft = timeoutInSeconds - timePassed;
+        timeLeft = linkCodeExpireInSec - timePassed;
         if (timeLeft === 0) {
           clearInterval(interval);
         }
       }, 1000);
 
       let linkStatusResponse;
-      while (timeLeft > 0) {
+      while (timeLeft > linkStatusGracePeriod) {
         try {
           linkStatusResponse = await post_LinkStatus(transactionId, linkCode);
         } catch {
@@ -134,6 +149,7 @@ export default function LoginQRCode({
         }
       }
 
+      clearInterval(interval);
       //No response
       if (!linkStatusResponse || !linkStatusResponse?.response) {
         setError({
@@ -176,11 +192,11 @@ export default function LoginQRCode({
 
   const triggerLinkAuth = async (transactionId, linkedCode) => {
     try {
-      let timeLeft = timeoutInSeconds;
+      let timeLeft = linkCodeExpireInSec;
       let timePassed = 0;
       let interval = setInterval(function () {
         timePassed++;
-        timeLeft = timeoutInSeconds - timePassed;
+        timeLeft = linkCodeExpireInSec - timePassed;
         if (timeLeft === 0) {
           clearInterval(interval);
         }
@@ -262,7 +278,10 @@ export default function LoginQRCode({
 
   return (
     <>
-      <h1 className="text-center text-sky-600 font-semibold line-clamp-2" title={t("scan_with_inji")}>
+      <h1
+        className="text-center text-sky-600 font-semibold line-clamp-2"
+        title={t("scan_with_inji")}
+      >
         {t("scan_with_inji")}
       </h1>
       <div className="relative h-64 mt-6">

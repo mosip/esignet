@@ -15,9 +15,10 @@ import {
 } from "../constants/clientConstants";
 import linkAuthService from "../services/linkAuthService";
 import LoginQRCode from "../components/LoginQRCode";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { Buffer } from "buffer";
 import openIDConnectService from "../services/openIDConnectService";
+import ErrorIndicator from "../common/ErrorIndicator";
 
 //authFactorComponentMapping
 const comp = {
@@ -100,18 +101,38 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const [clientName, setClientName] = useState(null);
   const [appDownloadURI, setAppDownloadURI] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
-  var decodeOAuth = Buffer.from(searchParams.get("response"), 'base64')?.toString();
+  var decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
   var nonce = searchParams.get("nonce");
   var state = searchParams.get("state");
 
-  const oidcService = new openIDConnectService(JSON.parse(decodeOAuth), nonce, state);
+  useEffect(() => {
+    loadComponent();
+  }, []);
 
-  let value = oidcService.getEsignetConfiguration(
-    configurationKeys.signInWithQRCodeEnable
-  ) ?? process.env.REACT_APP_QRCODE_ENABLE
+  let parsedOauth = null;
+  try {
+    parsedOauth = JSON.parse(decodeOAuth);
+  } catch (error) {
+    return (
+      //TODO naviagte to default error page
+      <div className="flex h-5/6 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <ErrorIndicator errorCode={"parsing_error_msg"} />
+        </div>
+      </div>
+    );
+  }
 
-  const [qrCodeEnable, setQRCodeEnable] = useState(value?.toString().toLowerCase() === "true");
+  const oidcService = new openIDConnectService(parsedOauth, nonce, state);
+
+  let value =
+    oidcService.getEsignetConfiguration(
+      configurationKeys.signInWithQRCodeEnable
+    ) ?? process.env.REACT_APP_QRCODE_ENABLE;
+
+  const qrCodeEnable = value?.toString().toLowerCase() === "true";
 
   const handleSignInOptionClick = (authFactor) => {
     //TODO handle multifactor auth
@@ -124,15 +145,10 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
   };
 
-  useEffect(() => {
-    loadComponent();
-  }, []);
-
   const loadComponent = () => {
     setAppDownloadURI(
-      oidcService.getEsignetConfiguration(
-        configurationKeys.appDownloadURI
-      ) ?? process.env.REACT_APP_QRCODE_APP_DOWNLOAD_URI
+      oidcService.getEsignetConfiguration(configurationKeys.appDownloadURI) ??
+        process.env.REACT_APP_QRCODE_APP_DOWNLOAD_URI
     );
 
     let oAuthDetailResponse = oidcService.getOAuthDetails();

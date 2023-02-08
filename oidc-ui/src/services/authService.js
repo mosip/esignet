@@ -1,5 +1,6 @@
 import axios from "axios";
 import localStorageService from "./local-storageService";
+import { Buffer } from "buffer";
 
 const baseUrl =
   process.env.NODE_ENV === "development"
@@ -15,8 +16,8 @@ const csrfEndPoint = "/csrf/token";
 const { getCookie } = { ...localStorageService };
 
 class authService {
-  constructor(oAuthDetails) {
-    this.oAuthDetails = oAuthDetails;
+  constructor(openIDConnectService) {
+    this.openIDConnectService = openIDConnectService;
   }
 
   /**
@@ -46,8 +47,9 @@ class authService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
-        "oauth-details-key": await this.oAuthDetails.getTransactionId()
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -109,7 +111,7 @@ class authService {
     let response = await axios.post(endpoint, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
       },
     });
     return response.data;
@@ -141,8 +143,9 @@ class authService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
-        "oauth-details-key": await this.oAuthDetails.getTransactionId()
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -155,14 +158,19 @@ class authService {
    * @param {List<string>} otpChannels list of channels(ie. phone, email)
    * @returns /send-otp API response
    */
-  post_SendOtp = async (transactionId, individualId, otpChannels, captchaToken) => {
+  post_SendOtp = async (
+    transactionId,
+    individualId,
+    otpChannels,
+    captchaToken
+  ) => {
     let request = {
       requestTime: new Date().toISOString(),
       request: {
         transactionId: transactionId,
         individualId: individualId,
         otpChannels: otpChannels,
-        captchaToken: captchaToken
+        captchaToken: captchaToken,
       },
     };
 
@@ -172,8 +180,9 @@ class authService {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.oAuthDetails.getOauthDetailsHash(),
-        "oauth-details-key": await this.oAuthDetails.getTransactionId()
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -183,7 +192,7 @@ class authService {
    * Gets triggered for the very first time, before any api call.
    * Triggers /csrf/token API on esignet service
    * @returns csrf token.
-  */
+   */
   get_CsrfToken = async () => {
     let endpoint = baseUrl + csrfEndPoint;
 
@@ -193,6 +202,29 @@ class authService {
       },
     });
     return response.data;
+  };
+
+  /**
+   * Returns parameters for redirecting
+   * @returns params.
+   */
+  buildRedirectParams = (nonce, state, oauthReponse) => {
+    let params = "?";
+    if (nonce) {
+      params = params + "nonce=" + nonce + "&";
+    }
+    if (state) {
+      params = params + "state=" + state + "&";
+    }
+
+    //removing last "&" or "?" character
+    params = params.substring(0, params.length - 1);
+
+    let responseStr = JSON.stringify(oauthReponse);
+    let responseB64 = Buffer.from(responseStr).toString("base64");
+    params = params + "#" + responseB64;
+
+    return params;
   };
 }
 

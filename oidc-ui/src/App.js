@@ -48,7 +48,7 @@ function App() {
   })
 
   return (
-    <div dir={dir}>
+    <div dir={dir} className="h-screen">
       <NavHeader langOptions={langOptions} />
       <BrowserRouter>
         <Routes>
