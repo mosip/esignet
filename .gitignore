@@ -26,9 +26,8 @@ hs_err_pid*
 target/
 .idea/
 *.p12
-
-/binding-service-impl/binding-service-impl.iml
-/client-management-service-impl/client-management-service-impl.iml
-/esignet-integration-api/esignet-integration-api.iml
-/esignet-parent.iml
-/oidc-service-impl/oidc-service-impl.iml
+*.iml
+.settings/
+.setting/
+.mvn/
+.project/
