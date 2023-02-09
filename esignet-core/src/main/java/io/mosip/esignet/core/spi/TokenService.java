@@ -5,9 +5,9 @@
  */
 package io.mosip.esignet.core.spi;
 
+import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
-import io.mosip.esignet.core.dto.IdPTransaction;
 import org.json.simple.JSONObject;
 
 public interface TokenService {
@@ -55,7 +55,7 @@ public interface TokenService {
      * at_hash: Access token hash
      * @return
      */
-     String getIDToken(IdPTransaction transaction);
+     String getIDToken(OIDCTransaction transaction);
 
 
     /**
@@ -86,7 +86,7 @@ public interface TokenService {
      * @param transaction
      * @return
      */
-     String getAccessToken(IdPTransaction transaction);
+     String getAccessToken(OIDCTransaction transaction);
 
     /**
      * Client's authentication token when using token endpoint

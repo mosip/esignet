@@ -73,7 +73,7 @@ public class OAuthServiceImpl implements OAuthService {
     @Override
     public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
-        IdPTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
+        OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
         if(transaction == null || transaction.getKycToken() == null)
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 

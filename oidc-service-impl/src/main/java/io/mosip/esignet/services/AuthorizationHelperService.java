@@ -105,11 +105,11 @@ public class AuthorizationHelperService {
         if(deferredResult != null) {
             try {
                 if(!deferredResult.isSetOrExpired()) {
-                    IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(linkTransactionId);
-                    if(idPTransaction == null)
+                    OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionId);
+                    if(oidcTransaction == null)
                         throw new InvalidTransactionException();
 
-                    deferredResult.setResult(getLinkAuthStatusResponse(null, idPTransaction));
+                    deferredResult.setResult(getLinkAuthStatusResponse(null, oidcTransaction));
                 }
             } finally {
                 LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.remove(linkTransactionId);
@@ -140,7 +140,7 @@ public class AuthorizationHelperService {
     }
 
     protected KycAuthResult delegateAuthenticateRequest(String transactionId, String individualId,
-                                                        List<AuthChallenge> challengeList, IdPTransaction transaction) {
+                                                        List<AuthChallenge> challengeList, OIDCTransaction transaction) {
         KycAuthResult kycAuthResult;
         try {
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
@@ -160,7 +160,7 @@ public class AuthorizationHelperService {
         return kycAuthResult;
     }
 
-    protected void validateAcceptedClaims(IdPTransaction transaction, List<String> acceptedClaims) throws IdPException {
+    protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws IdPException {
         if(CollectionUtils.isEmpty(acceptedClaims))
             return;
 
@@ -174,7 +174,7 @@ public class AuthorizationHelperService {
         throw new IdPException(INVALID_ACCEPTED_CLAIM);
     }
 
-    protected void validateAuthorizeScopes(IdPTransaction transaction, List<String> authorizeScopes) throws IdPException {
+    protected void validateAuthorizeScopes(OIDCTransaction transaction, List<String> authorizeScopes) throws IdPException {
         if(CollectionUtils.isEmpty(authorizeScopes))
             return;
 
@@ -185,7 +185,7 @@ public class AuthorizationHelperService {
             throw new IdPException(INVALID_PERMITTED_SCOPE);
     }
 
-    protected SendOtpResult delegateSendOtpRequest(OtpRequest otpRequest, IdPTransaction transaction) {
+    protected SendOtpResult delegateSendOtpRequest(OtpRequest otpRequest, OIDCTransaction transaction) {
         SendOtpResult sendOtpResult;
         try {
             SendOtpDto sendOtpDto = new SendOtpDto();
@@ -207,7 +207,7 @@ public class AuthorizationHelperService {
         return sendOtpResult;
     }
 
-    protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(IdPTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+    protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(OIDCTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
                 transaction.getRequestedClaims().getId_token().get(ACR).getValues());
         List<String> providedAuthFactors = challengeList.stream()
@@ -237,18 +237,18 @@ public class AuthorizationHelperService {
         return responseWrapper;
     }
 
-    protected ResponseWrapper<LinkAuthCodeResponse> getLinkAuthStatusResponse(String transactionId, IdPTransaction idPTransaction) {
+    protected ResponseWrapper<LinkAuthCodeResponse> getLinkAuthStatusResponse(String transactionId, OIDCTransaction oidcTransaction) {
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
-        if(idPTransaction.getCodeHash() != null)
-            cacheUtilService.removeAuthCodeGeneratedTransaction(idPTransaction.getCodeHash());
-        idPTransaction.setCodeHash(getKeyHash(authCode));
-        cacheUtilService.setAuthCodeGeneratedTransaction(transactionId, idPTransaction);
+        if(oidcTransaction.getCodeHash() != null)
+            cacheUtilService.removeAuthCodeGeneratedTransaction(oidcTransaction.getCodeHash());
+        oidcTransaction.setCodeHash(getKeyHash(authCode));
+        cacheUtilService.setAuthCodeGeneratedTransaction(transactionId, oidcTransaction);
 
         ResponseWrapper responseWrapper = new ResponseWrapper();
         LinkAuthCodeResponse linkAuthCodeResponse = new LinkAuthCodeResponse();
-        linkAuthCodeResponse.setNonce(idPTransaction.getNonce());
-        linkAuthCodeResponse.setState(idPTransaction.getState());
-        linkAuthCodeResponse.setRedirectUri(idPTransaction.getRedirectUri());
+        linkAuthCodeResponse.setNonce(oidcTransaction.getNonce());
+        linkAuthCodeResponse.setState(oidcTransaction.getState());
+        linkAuthCodeResponse.setRedirectUri(oidcTransaction.getRedirectUri());
         linkAuthCodeResponse.setCode(authCode);
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(linkAuthCodeResponse);
@@ -259,13 +259,13 @@ public class AuthorizationHelperService {
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, value);
     }
 
-    protected void setIndividualId(String individualId, IdPTransaction transaction) {
+    protected void setIndividualId(String individualId, OIDCTransaction transaction) {
         if(!storeIndividualId)
             return;
         transaction.setIndividualId(secureIndividualId ? encryptIndividualId(individualId) : individualId);
     }
 
-    protected String getIndividualId(IdPTransaction transaction) {
+    protected String getIndividualId(OIDCTransaction transaction) {
         if(!storeIndividualId)
             return null;
         return secureIndividualId ? decryptIndividualId(transaction.getIndividualId()) : transaction.getIndividualId();

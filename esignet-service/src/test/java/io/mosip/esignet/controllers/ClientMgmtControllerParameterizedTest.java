@@ -49,6 +49,7 @@ import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -179,7 +180,25 @@ public class ClientMgmtControllerParameterizedTest {
                     "rp id  1", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_RP_ID }
+                    Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_RP_ID },
+            { "with duplicate key", new ClientDetailCreateRequest("client-id-v34", "client-name", jwk,
+                    "rp-id", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")),  null, null, "unknown_error" },
+            { "update with invalid clientId", null,  new ClientDetailUpdateRequest("https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"),Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "ACTIVE", Arrays.asList("authorization_code"),
+                    "client-name#1", Arrays.asList("private_key_jwt")), "cid#1", "invalid_client_id" },
+            { "update client-details", new ClientDetailCreateRequest("client-id-up1", "client-name",
+                    TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject(),
+                    "rp-id", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt")),  new ClientDetailUpdateRequest("https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"),Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "ACTIVE", Arrays.asList("authorization_code"),
+                    "client-name#1", Arrays.asList("private_key_jwt")), "client-id-up1",  null }
 
     };
 
@@ -223,7 +242,7 @@ public class ClientMgmtControllerParameterizedTest {
         }
 
         if(this.clientDetailUpdateRequest != null) {
-           ResultActions updateResultActions = mockMvc.perform(post("/client-mgmt/oidc-client/"+this.clientIdQueryParam)
+           ResultActions updateResultActions = mockMvc.perform(put("/client-mgmt/oidc-client/"+this.clientIdQueryParam)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .content(getRequestWrapper(this.clientDetailUpdateRequest)));
             evaluateResultActions(updateResultActions, this.clientIdQueryParam,

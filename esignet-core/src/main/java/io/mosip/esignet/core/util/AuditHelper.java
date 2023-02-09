@@ -1,7 +1,7 @@
 package io.mosip.esignet.core.util;
 
 import io.mosip.esignet.api.dto.AuditDTO;
-import io.mosip.esignet.core.dto.IdPTransaction;
+import io.mosip.esignet.core.dto.OIDCTransaction;
 
 public class AuditHelper {
 
@@ -11,7 +11,7 @@ public class AuditHelper {
         return auditDTO;
     }
 
-    public static AuditDTO buildAuditDto(String transactionId, IdPTransaction transaction) {
+    public static AuditDTO buildAuditDto(String transactionId, OIDCTransaction transaction) {
         AuditDTO auditDTO = new AuditDTO();
         auditDTO.setTransactionId(transactionId);
         if(transaction != null) {
