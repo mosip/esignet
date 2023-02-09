@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.RequestWrapper;
 import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.Optional;
 
 /**
@@ -32,7 +34,7 @@ public class SystemInfoController {
 
     @GetMapping(value = "/certificate")
     public ResponseWrapper<KeyPairGenerateResponseDto> getCertificate(
-            @RequestParam("applicationId") String applicationId,
+            @Valid @NotBlank(message = ErrorConstants.INVALID_REQUEST) @RequestParam("applicationId") String applicationId,
             @RequestParam("referenceId") Optional<String> referenceId) {
         ResponseWrapper<KeyPairGenerateResponseDto> responseWrapper = new ResponseWrapper<>();
         responseWrapper.setResponse(keymanagerService.getCertificate(applicationId, referenceId));

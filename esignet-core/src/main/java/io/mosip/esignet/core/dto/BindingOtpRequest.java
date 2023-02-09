@@ -12,15 +12,16 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.validator.OtpChannel;
 import lombok.Data;
 
 @Data
 public class BindingOtpRequest {
 
-	@NotBlank(message = ErrorConstants.INVALID_INDIVIDUAL_ID)
+    @NotBlank(message = ErrorConstants.INVALID_IDENTIFIER)
     private String individualId;
 
     @NotNull(message = ErrorConstants.INVALID_OTP_CHANNEL)
     @Size(min = 1, message = ErrorConstants.INVALID_OTP_CHANNEL)
-    private List<String> otpChannels;
+    private List<@OtpChannel String> otpChannels;
 }
