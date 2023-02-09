@@ -525,16 +525,16 @@ public class AuthorizationServiceTest {
         }
     }
 
-    private IdPTransaction createIdpTransaction(String[] acrs) {
-        IdPTransaction idPTransaction = new IdPTransaction();
+    private OIDCTransaction createIdpTransaction(String[] acrs) {
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
         Map<String, ClaimDetail> idClaims = new HashMap<>();
         idClaims.put(ACR, new ClaimDetail(null, acrs, false));
         Claims requestedClaims = new Claims();
         requestedClaims.setId_token(idClaims);
-        idPTransaction.setRequestedClaims(requestedClaims);
-        idPTransaction.setClientId("test-client");
-        idPTransaction.setRelyingPartyId("test-rp-client");
-        return idPTransaction;
+        oidcTransaction.setRequestedClaims(requestedClaims);
+        oidcTransaction.setClientId("test-client");
+        oidcTransaction.setRelyingPartyId("test-rp-client");
+        return oidcTransaction;
     }
 
     private AuthChallenge getAuthChallengeDto(String type) {

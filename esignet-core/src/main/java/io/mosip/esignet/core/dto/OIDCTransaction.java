@@ -12,10 +12,9 @@ import lombok.Data;
 import java.util.List;
 import java.io.Serializable;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 @Data
-public class IdPTransaction implements Serializable {
+public class OIDCTransaction implements Serializable {
 
     String clientId;
     String relyingPartyId;

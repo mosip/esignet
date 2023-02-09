@@ -73,7 +73,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(linkCodeRequest.getTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(linkCodeRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -121,7 +121,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if(linkTransactionMetadata == null || linkTransactionMetadata.getTransactionId() == null)
             throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
 
-        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(linkTransactionMetadata.getTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(linkTransactionMetadata.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -155,7 +155,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -169,7 +169,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getLinkedSessionTransaction(linkedKycAuthRequest.getLinkedTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(linkedKycAuthRequest.getLinkedTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -194,7 +194,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getLinkedAuthTransaction(linkedConsentRequest.getLinkedTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getLinkedAuthTransaction(linkedConsentRequest.getLinkedTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
@@ -243,9 +243,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
                 linkTransactionMetadata.getLinkedTransactionId() == null)
             throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
 
-        IdPTransaction idPTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
-        if(idPTransaction != null) {
-            deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), idPTransaction));
+        OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
+        if(oidcTransaction != null) {
+            deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), oidcTransaction));
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
         }

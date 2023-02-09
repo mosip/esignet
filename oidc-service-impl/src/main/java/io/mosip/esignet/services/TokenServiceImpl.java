@@ -19,7 +19,7 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
-import io.mosip.esignet.core.dto.IdPTransaction;
+import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
@@ -87,7 +87,7 @@ public class TokenServiceImpl implements TokenService {
 
 
     @Override
-    public String getIDToken(@NonNull IdPTransaction transaction) {
+    public String getIDToken(@NonNull OIDCTransaction transaction) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
         payload.put(SUB, transaction.getPartnerSpecificUserToken());
@@ -104,7 +104,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public String getAccessToken(IdPTransaction transaction) {
+    public String getAccessToken(OIDCTransaction transaction) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
         payload.put(SUB, transaction.getPartnerSpecificUserToken());

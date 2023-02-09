@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.services;
 
-import io.mosip.esignet.core.dto.IdPTransaction;
+import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
@@ -26,31 +26,31 @@ public class CacheUtilService {
     CacheManager cacheManager;
 
     @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
-    public IdPTransaction setTransaction(String transactionId, IdPTransaction idPTransaction) {
-        return idPTransaction;
+    public OIDCTransaction setTransaction(String transactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
     @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     @Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
-    public IdPTransaction setAuthenticatedTransaction(String transactionId,
-                                                         IdPTransaction idPTransaction) {
-        return idPTransaction;
+    public OIDCTransaction setAuthenticatedTransaction(String transactionId,
+                                                       OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
     @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId", condition = "#transactionId != null")
-    @Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#idPTransaction.getCodeHash()")
-    public IdPTransaction setAuthCodeGeneratedTransaction(String transactionId, IdPTransaction idPTransaction) {
-        return idPTransaction;
+    @Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#oidcTransaction.getCodeHash()")
+    public OIDCTransaction setAuthCodeGeneratedTransaction(String transactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
-    @Caching(evict = {@CacheEvict(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#idPTransaction.getCodeHash()"),
-            @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getLinkedTransactionId()",
-                    condition = "#idPTransaction.getLinkedTransactionId() != null"),
-            @CacheEvict(value = Constants.LINKED_CODE_CACHE, key = "#idPTransaction.getLinkedCodeHash()",
-                    condition = "#idPTransaction.getLinkedCodeHash() != null" )},
+    @Caching(evict = {@CacheEvict(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#oidcTransaction.getCodeHash()"),
+            @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#oidcTransaction.getLinkedTransactionId()",
+                    condition = "#oidcTransaction.getLinkedTransactionId() != null"),
+            @CacheEvict(value = Constants.LINKED_CODE_CACHE, key = "#oidcTransaction.getLinkedCodeHash()",
+                    condition = "#oidcTransaction.getLinkedCodeHash() != null" )},
             cacheable = {@Cacheable(value = Constants.USERINFO_CACHE, key = "#accessTokenHash")})
-    public IdPTransaction setUserInfoTransaction(String accessTokenHash, IdPTransaction idPTransaction) {
-        return idPTransaction;
+    public OIDCTransaction setUserInfoTransaction(String accessTokenHash, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
     @CacheEvict(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#codeHash", condition = "#codeHash != null")
@@ -61,29 +61,29 @@ public class CacheUtilService {
     //---------------------------------------------- Linked authorization ----------------------------------------------
 
     @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
-    @Cacheable(value = Constants.LINKED_SESSION_CACHE, key = "#idPTransaction.getLinkedTransactionId()")
-    public IdPTransaction setLinkedTransaction(String transactionId, IdPTransaction idPTransaction) {
-        return idPTransaction;
+    @Cacheable(value = Constants.LINKED_SESSION_CACHE, key = "#oidcTransaction.getLinkedTransactionId()")
+    public OIDCTransaction setLinkedTransaction(String transactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
     @CacheEvict(value = Constants.LINKED_SESSION_CACHE, key = "#linkedTransactionId")
     @Cacheable(value = Constants.LINKED_AUTH_CACHE, key = "#linkedTransactionId")
-    public IdPTransaction setLinkedAuthenticatedTransaction(String linkedTransactionId,
-                                                      IdPTransaction idPTransaction) {
-        return idPTransaction;
+    public OIDCTransaction setLinkedAuthenticatedTransaction(String linkedTransactionId,
+                                                             OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
-    @CacheEvict(value = Constants.LINKED_AUTH_CACHE, key = "#idPTransaction.getLinkedTransactionId()")
+    @CacheEvict(value = Constants.LINKED_AUTH_CACHE, key = "#oidcTransaction.getLinkedTransactionId()")
     @Cacheable(value = Constants.CONSENTED_CACHE, key = "#linkedTransactionId")
-    public IdPTransaction setLinkedConsentedTransaction(String linkedTransactionId, IdPTransaction idPTransaction) {
-        return idPTransaction;
+    public OIDCTransaction setLinkedConsentedTransaction(String linkedTransactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
-    @Caching(evict = {@CacheEvict(value = Constants.CONSENTED_CACHE, key = "#idPTransaction.getLinkedTransactionId()"),
+    @Caching(evict = {@CacheEvict(value = Constants.CONSENTED_CACHE, key = "#oidcTransaction.getLinkedTransactionId()"),
             @CacheEvict(value = Constants.LINKED_CODE_CACHE, key = "#linkCodeHash")},
-    cacheable = {@Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#idPTransaction.getCodeHash()")})
-    public IdPTransaction setLinkedAuthCodeTransaction(String linkCodeHash, String linkedTransactionId, IdPTransaction idPTransaction) {
-        return idPTransaction;
+    cacheable = {@Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#oidcTransaction.getCodeHash()")})
+    public OIDCTransaction setLinkedAuthCodeTransaction(String linkCodeHash, String linkedTransactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
     public void setLinkCodeGenerated(String linkCodeHash, LinkTransactionMetadata transactionMetadata) {
@@ -100,30 +100,30 @@ public class CacheUtilService {
 
     @CacheEvict(value = Constants.LINK_CODE_GENERATED_CACHE, key = "#linkCodeHash", condition = "#linkCodeHash != null")
     @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
-    public IdPTransaction updateTransactionAndEvictLinkCode(String transactionId, String linkCodeHash, IdPTransaction idPTransaction) {
-        return idPTransaction;
+    public OIDCTransaction updateTransactionAndEvictLinkCode(String transactionId, String linkCodeHash, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
-    public IdPTransaction getPreAuthTransaction(String transactionId) {
-        return cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, IdPTransaction.class);
+    public OIDCTransaction getPreAuthTransaction(String transactionId) {
+        return cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class);
     }
 
-    public IdPTransaction getAuthenticatedTransaction(String transactionId) {
-        return cacheManager.getCache(Constants.AUTHENTICATED_CACHE).get(transactionId, IdPTransaction.class);
+    public OIDCTransaction getAuthenticatedTransaction(String transactionId) {
+        return cacheManager.getCache(Constants.AUTHENTICATED_CACHE).get(transactionId, OIDCTransaction.class);
     }
 
-    public IdPTransaction getAuthCodeTransaction(String codeHash) {
-        return cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE).get(codeHash, IdPTransaction.class);
+    public OIDCTransaction getAuthCodeTransaction(String codeHash) {
+        return cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE).get(codeHash, OIDCTransaction.class);
     }
 
-    public IdPTransaction getConsentedTransaction(String linkedTransactionId) {
-        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(linkedTransactionId, IdPTransaction.class);
+    public OIDCTransaction getConsentedTransaction(String linkedTransactionId) {
+        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(linkedTransactionId, OIDCTransaction.class);
     }
 
-    public IdPTransaction getUserInfoTransaction(String accessTokenHash) {
-        return cacheManager.getCache(Constants.USERINFO_CACHE).get(accessTokenHash, IdPTransaction.class);
+    public OIDCTransaction getUserInfoTransaction(String accessTokenHash) {
+        return cacheManager.getCache(Constants.USERINFO_CACHE).get(accessTokenHash, OIDCTransaction.class);
     }
 
     public LinkTransactionMetadata getLinkedTransactionMetadata(String linkCodeHash) {
@@ -134,11 +134,11 @@ public class CacheUtilService {
         return cacheManager.getCache(Constants.LINK_CODE_GENERATED_CACHE).get(linkCodeHash, LinkTransactionMetadata.class);
     }
 
-    public IdPTransaction getLinkedSessionTransaction(String linkTransactionId) {
-        return cacheManager.getCache(Constants.LINKED_SESSION_CACHE).get(linkTransactionId, IdPTransaction.class);
+    public OIDCTransaction getLinkedSessionTransaction(String linkTransactionId) {
+        return cacheManager.getCache(Constants.LINKED_SESSION_CACHE).get(linkTransactionId, OIDCTransaction.class);
     }
 
-    public IdPTransaction getLinkedAuthTransaction(String linkTransactionId) {
-        return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, IdPTransaction.class);
+    public OIDCTransaction getLinkedAuthTransaction(String linkTransactionId) {
+        return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);
     }
 }

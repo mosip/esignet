@@ -1,6 +1,6 @@
 package io.mosip.esignet.advice;
 
-import io.mosip.esignet.core.dto.IdPTransaction;
+import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.services.CacheUtilService;
@@ -46,7 +46,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             log.info("Started to validate {} for oauth-details headers", path);
             final String transactionId = request.getHeader(HEADER_OAUTH_DETAILS_KEY);
             final String hashValue = request.getHeader(HEADER_OAUTH_DETAILS_HASH);
-            IdPTransaction transaction = path.endsWith("auth-code") ? cacheUtilService.getAuthenticatedTransaction(transactionId) :
+            OIDCTransaction transaction = path.endsWith("auth-code") ? cacheUtilService.getAuthenticatedTransaction(transactionId) :
                     cacheUtilService.getPreAuthTransaction(transactionId);
             if(transaction == null) {
                 throw new InvalidTransactionException();
