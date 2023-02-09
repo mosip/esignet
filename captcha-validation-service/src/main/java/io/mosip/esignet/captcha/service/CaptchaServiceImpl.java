@@ -51,7 +51,7 @@ public class CaptchaServiceImpl implements CaptchaService {
 	@Override
 	public Object validateCaptcha(Object captchaRequest) throws CaptchaException, InvalidRequestCaptchaException {
 
-		log.info("sessionId", "idType", "id", "In pre-registration captcha service to validate the token request"
+		log.info("In captcha service to validate the token request"
 				+ ((CaptchaRequestDTO) captchaRequest).getCaptchaToken());
 
 		validateCaptchaRequest((CaptchaRequestDTO) captchaRequest);
@@ -65,8 +65,7 @@ public class CaptchaServiceImpl implements CaptchaService {
 		GoogleCaptchaDTO captchaResponse = null;
 
 		try {
-			log.info("sessionId", "idType", "id",
-					"In pre-registration captcha service try block to validate the token request via a google verify site rest call"
+			log.info("In captcha service try block to validate the token request via a google verify site rest call"
 							+ ((CaptchaRequestDTO) captchaRequest).getCaptchaToken() + "  " + recaptchaVerifyUrl);
 			
 			captchaResponse = this.restTemplate.postForObject(recaptchaVerifyUrl, param, GoogleCaptchaDTO.class);
@@ -74,8 +73,7 @@ public class CaptchaServiceImpl implements CaptchaService {
 				log.debug("sessionId", "idType", "id", captchaResponse.toString());
 			}
 		} catch (RestClientException ex) {
-			log.error("sessionId", "idType", "id",
-					"In pre-registration captcha service to validate the token request via a google verify site rest call has failed --->"
+			log.error("In captcha service to validate the token request via a google verify site rest call has failed --->"
 							+ ((CaptchaRequestDTO) captchaRequest).getCaptchaToken() + "  " + recaptchaVerifyUrl + "  "
 							+ ex);
 			if (captchaResponse != null && captchaResponse.getErrorCodes() !=null) {
@@ -85,8 +83,7 @@ public class CaptchaServiceImpl implements CaptchaService {
 		}
 
 		if (captchaResponse!=null && captchaResponse.isSuccess()) {
-			log.info("sessionId", "idType", "id",
-					"In pre-registration captcha service token request has been successfully verified --->"
+			log.info("In captcha service token request has been successfully verified --->"
 							+ captchaResponse.isSuccess());
 			mainResponse.setId(mosipcaptchaValidateId);
 			mainResponse.setResponsetime(captchaResponse.getChallengeTs());
@@ -97,8 +94,7 @@ public class CaptchaServiceImpl implements CaptchaService {
 			mainResponse.setResponse(response);
 		} else {
 			if (captchaResponse != null) {
-				log.error("sessionId", "idType", "id",
-						"In pre-registration captcha service token request has failed --->"
+				log.error("In captcha service token request has failed --->"
 								+ captchaResponse.isSuccess());
 			}
 			mainResponse.setId(mosipcaptchaValidateId);

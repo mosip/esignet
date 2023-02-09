@@ -16,7 +16,6 @@ import io.mosip.esignet.captcha.exception.CaptchaException;
 import io.mosip.esignet.captcha.exception.InvalidRequestCaptchaException;
 import io.mosip.esignet.captcha.exception.InvalidRequestParameterException;
 import io.mosip.esignet.captcha.spi.CaptchaService;
-import io.mosip.esignet.captcha.util.DataValidationUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -32,9 +31,7 @@ public class CaptchaController {
 	@PostMapping(path = "/validatecaptcha", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> validateCaptcha(@Validated @RequestBody MainRequestDTO<CaptchaRequestDTO> captchaRequest,
 			Errors errors) throws InvalidRequestParameterException, CaptchaException, InvalidRequestCaptchaException {
-		log.info("sessionId", "idType", "id",
-				"In pre-registration captcha controller to validate the recaptcha token" + captchaRequest);
-		DataValidationUtil.validate(errors, VALIDATE);
+		log.info("In captcha-validation-service controller to validate the recaptcha token" + captchaRequest);
 		return new ResponseEntity<>(this.captchaService.validateCaptcha(captchaRequest.getRequest()), HttpStatus.OK);
 	}
 

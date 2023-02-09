@@ -1,7 +1,5 @@
 package io.mosip.esignet.captcha.exception;
 
-import io.mosip.kernel.core.exception.BaseUncheckedException;
-
 public class CaptchaException extends Exception {
 
 	/**

@@ -12,16 +12,14 @@
 	<artifactId>captcha-validation-service</artifactId>
 
 	<name>captcha-validation-service</name>
-	<description>A pre-registration service to generate and validate captcha</description>
-	<version>1.2.1-SNAPSHOT</version>
+	<description>A service to generate and validate captcha</description>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<properties>
 		<java.version>11</java.version>
 		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 		<io.micrometer.prometheus.version>1.4.2</io.micrometer.prometheus.version>
-		<pre.registration.core.version>1.2.1-SNAPSHOT</pre.registration.core.version>
 		<spring-cloud-config.version>2.0.0.RELEASE</spring-cloud-config.version>
-		<kernel.logger.logback.version>1.2.1-SNAPSHOT</kernel.logger.logback.version>
 		<kernel.version>1.2.1-SNAPSHOT</kernel.version>	
 	</properties>
 
@@ -167,7 +165,7 @@
 							</execution>
 						</executions>
 						<configuration>
-							<apiDocsUrl>http://localhost:9089/preregistration/v1/captcha/v3/api-docs/Pre-Registration-captcha</apiDocsUrl>
+							<apiDocsUrl>http://localhost:9089/esignet/v1/captcha/v3/api-docs/captcha-validation-service</apiDocsUrl>
 							<outputFileName>${artifactId}-openapi.json</outputFileName>
 							<outputDir>${project.build.directory}</outputDir>
 							<skip>false</skip>

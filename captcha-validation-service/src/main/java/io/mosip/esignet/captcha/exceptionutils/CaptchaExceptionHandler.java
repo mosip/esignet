@@ -19,7 +19,6 @@ import io.mosip.esignet.captcha.dto.MainResponseDTO;
 import io.mosip.esignet.captcha.exception.CaptchaException;
 import io.mosip.esignet.captcha.exception.InvalidRequestCaptchaException;
 import io.mosip.esignet.captcha.exception.InvalidRequestParameterException;
-import io.mosip.esignet.captcha.util.GenericUtil;
 import io.mosip.kernel.core.util.DateUtils;
 
 @RestControllerAdvice
@@ -27,10 +26,6 @@ public class CaptchaExceptionHandler {
 
 	@Autowired
 	protected Environment env;
-
-//	/** The id. */
-//	@Resource
-//	protected Map<String, String> id;
 
 	@Value("${mosip.esignet.captcha.id.validate}")
 	public String mosipcaptchaValidateId;
@@ -58,16 +53,6 @@ public class CaptchaExceptionHandler {
 		return response;
 	}
 
-//	@ExceptionHandler(InvalidRequestParameterException.class)
-//	public ResponseEntity<MainResponseDTO<?>> invalidRequest(final InvalidRequestParameterException e) {
-//		MainResponseDTO<?> errorRes = e.getMainResponseDto();
-//		errorRes.setId(id.get(e.getOperation()));
-//		errorRes.setVersion(env.getProperty("version"));
-//		errorRes.setErrors(e.getExptionList());
-//		errorRes.setResponsetime(GenericUtil.getCurrentResponseTime());
-//		return new ResponseEntity<>(errorRes, HttpStatus.OK);
-//	}
-	
 	@ExceptionHandler(CaptchaException.class)
 	public MainResponseDTO<?> handleCaptchaException(CaptchaException ex) {
 		MainResponseDTO<?> response = new MainResponseDTO<>();
