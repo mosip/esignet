@@ -61,9 +61,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired(required = false)
-    private CaptchaValidator captchaValidator;
-
     @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
 
@@ -76,9 +73,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     //Number of times generate-link-code could be invoked per transaction
     @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
     private int linkCodeLimitPerTransaction;
-
-    @Value("${mosip.esignet.send-otp.captcha-required:false}")
-    private boolean captchaRequired;
 
 
     @Override
@@ -132,11 +126,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
-        if(captchaRequired && captchaValidator == null)
-            throw new IdPException(ErrorConstants.CAPTCHA_VALIDATOR_NOT_FOUND);
-
-        if(captchaRequired && !captchaValidator.validateCaptcha(otpRequest.getCaptchaToken()))
-            throw new IdPException(ErrorConstants.INVALID_CAPTCHA);
+        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
 
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
         if(transaction == null)

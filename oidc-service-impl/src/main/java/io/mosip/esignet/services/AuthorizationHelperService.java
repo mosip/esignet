@@ -5,6 +5,7 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
@@ -65,6 +66,9 @@ public class AuthorizationHelperService {
     @Autowired
     private AuditPlugin auditWrapper;
 
+    @Autowired(required = false)
+    private CaptchaValidator captchaValidator;
+
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
 
@@ -79,6 +83,22 @@ public class AuthorizationHelperService {
 
     @Value("${mosip.esignet.cache.store.individual-id}")
     private boolean storeIndividualId;
+
+    @Value("${mosip.esignet.send-otp.captcha-required:false}")
+    private boolean captchaRequired;
+
+    protected void validateCaptchaToken(String captchaToken) {
+        if(!captchaRequired) {
+            log.warn("captcha validation is disabled");
+            return;
+        }
+
+        if(captchaValidator == null)
+            throw new IdPException(ErrorConstants.CAPTCHA_VALIDATOR_NOT_FOUND);
+
+        if(!captchaValidator.validateCaptcha(captchaToken))
+            throw new IdPException(ErrorConstants.INVALID_CAPTCHA);
+    }
 
 
     protected void addEntryInLinkStatusDeferredResultMap(String key, DeferredResult deferredResult) {

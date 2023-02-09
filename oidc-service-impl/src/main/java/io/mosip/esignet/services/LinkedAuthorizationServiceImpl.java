@@ -56,9 +56,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Autowired
     private KafkaHelperService kafkaHelperService;
 
-    @Autowired(required = false)
-    private CaptchaValidator captchaValidator;
-
     @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
 
@@ -73,10 +70,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Value("${mosip.esignet.link-code-length:15}")
     private int linkCodeLength;
-
-    @Value("${mosip.esignet.send-otp.captcha-required:false}")
-    private boolean captchaRequired;
-
 
     @Override
     public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException {
@@ -162,11 +155,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
-        if(captchaRequired && captchaValidator == null)
-            throw new IdPException(ErrorConstants.CAPTCHA_VALIDATOR_NOT_FOUND);
-
-        if(captchaRequired && !captchaValidator.validateCaptcha(otpRequest.getCaptchaToken()))
-            throw new IdPException(ErrorConstants.INVALID_CAPTCHA);
+        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
 
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
