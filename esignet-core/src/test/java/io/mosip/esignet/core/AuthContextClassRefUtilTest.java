@@ -6,20 +6,27 @@
 package io.mosip.esignet.core;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.esignet.core.dto.AuthenticationFactor;
-import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.mosip.esignet.core.dto.AuthenticationFactor;
+import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthContextClassRefUtilTest {
@@ -27,6 +34,12 @@ public class AuthContextClassRefUtilTest {
     AuthenticationContextClassRefUtil authenticationContextClassRefUtil = new AuthenticationContextClassRefUtil();
     ObjectMapper mapper = new ObjectMapper();
 
+    @Mock
+    RestTemplate restTemplate;
+    
+    @Mock
+    ObjectMapper objectMapper;
+    
     private static final String amr_acr_mapping = "{\n" +
             "  \"amr\" : {\n" +
             "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
@@ -63,8 +76,36 @@ public class AuthContextClassRefUtilTest {
         Assert.assertTrue(authFactors.isEmpty());
     }
 
+    @Test(expected = IdPException.class)
+    public void getAuthFactors_withInvalidMappingJson_throwsException() throws IdPException {
+    	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingJson", "test");         
+        authenticationContextClassRefUtil.getAuthFactors(new String[] {"mosip:idp:acr:linked-wallet"});
+    }
+    
     @Test
     public void getAuthFactors_withValidAcr() throws IdPException {
+        List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.
+                getAuthFactors(new String[] {"mosip:idp:acr:linked-wallet"});
+
+        Assert.assertNotNull(authFactors);
+        Assert.assertTrue(authFactors.size() == 1);
+
+        List<AuthenticationFactor> firstAuthFactor = authFactors.get(0);
+        Assert.assertNotNull(firstAuthFactor);
+        Assert.assertTrue(firstAuthFactor.size() == 1);
+        Assert.assertTrue(firstAuthFactor.get(0).getType().equals("INJI"));
+        Assert.assertTrue(firstAuthFactor.get(0).getCount() == 0);
+        Assert.assertNull(firstAuthFactor.get(0).getSubTypes());
+    }
+
+    @Test
+    public void getAuthFactors_withEmptyMappingJson() throws IdPException {
+    	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingJson", null);
+    	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingFileUrl", "https://test-url");
+    	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "restTemplate", restTemplate);
+    	
+    	Mockito.when(restTemplate.getForObject(Mockito.anyString(), Mockito.any())).thenReturn(amr_acr_mapping);
+    	
         List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.
                 getAuthFactors(new String[] {"mosip:idp:acr:linked-wallet"});
 
@@ -116,6 +157,24 @@ public class AuthContextClassRefUtilTest {
         Assert.assertTrue(firstAuthFactor.get(0).getType().equals("OTP"));
         Assert.assertTrue(firstAuthFactor.get(0).getCount() == 0);
         Assert.assertNull(firstAuthFactor.get(0).getSubTypes());
+    }
+    
+    @Test
+    public void getACRs_withValidData_thenPass() {
+    	Set<List<String>> authFactorTypesSet = new HashSet<>();
+    	authFactorTypesSet.add(Arrays.asList("PIN", "OTP", "INJI", "BIO"));
+    	
+		List<String> acrData = authenticationContextClassRefUtil.getACRs(authFactorTypesSet);
+		
+		Assert.assertNotNull(acrData);
+        Assert.assertTrue(acrData.size() == 4);
+    }
+    
+    @Test
+    public void getACRs_withEmptyAuthFactorSet_thenFail() {
+    	Set<List<String>> authFactorTypesSet = new HashSet<>();    	
+		List<String> acrData = authenticationContextClassRefUtil.getACRs(authFactorTypesSet);		
+		Assert.assertTrue(acrData.size() == 0);
     }
 
 }
