@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import io.mosip.esignet.api.dto.AuditDTO;
-import io.mosip.esignet.core.dto.IdPTransaction;
+import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.util.AuditHelper;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -22,7 +22,7 @@ public class AuditHelperTest {
 	
 	@Test
 	public void test_buildAuditDto_withTransaction() {
-		IdPTransaction transaction = new IdPTransaction();
+		OIDCTransaction transaction = new OIDCTransaction();
 		transaction.setLinkedTransactionId("89019103");
 		transaction.setAuthTransactionId("90910310");
 		transaction.setRelyingPartyId("test-relyingparty-id");
