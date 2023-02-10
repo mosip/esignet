@@ -12,6 +12,7 @@ import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
@@ -105,27 +106,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oauthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
         //Cache the transaction
-        IdPTransaction idPTransaction = new IdPTransaction();
-        idPTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
-        idPTransaction.setRelyingPartyId(clientDetailDto.getRpId());
-        idPTransaction.setClientId(clientDetailDto.getId());
-        idPTransaction.setRequestedClaims(resolvedClaims);
-        idPTransaction.setRequestedAuthorizeScopes(oauthDetailResponse.getAuthorizeScopes());
-        idPTransaction.setNonce(oauthDetailReqDto.getNonce());
-        idPTransaction.setState(oauthDetailReqDto.getState());
-        idPTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
-        idPTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
-        idPTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
-        idPTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        idPTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oauthDetailResponse));
-        cacheUtilService.setTransaction(transactionId, idPTransaction);
-        auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, idPTransaction), null);
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
+        oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
+        oidcTransaction.setClientId(clientDetailDto.getId());
+        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setRequestedAuthorizeScopes(oauthDetailResponse.getAuthorizeScopes());
+        oidcTransaction.setNonce(oauthDetailReqDto.getNonce());
+        oidcTransaction.setState(oauthDetailReqDto.getState());
+        oidcTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
+        oidcTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
+        oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
+        oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
+        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oauthDetailResponse));
+        cacheUtilService.setTransaction(transactionId, oidcTransaction);
+        auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, oidcTransaction), null);
         return oauthDetailResponse;
     }
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
+        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
+
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -140,7 +143,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public AuthResponse authenticateUser(AuthRequest authRequest)  throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
@@ -168,7 +171,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
-        IdPTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
         }

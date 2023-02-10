@@ -10,13 +10,17 @@ import io.mosip.esignet.core.validator.AuthContextRef;
 import io.mosip.esignet.core.validator.OIDCClaim;
 import io.mosip.esignet.core.validator.OIDCClientAuth;
 import io.mosip.esignet.core.validator.OIDCGrantType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.*;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClientDetailUpdateRequest {
 
     @NotBlank(message = ErrorConstants.INVALID_URI)

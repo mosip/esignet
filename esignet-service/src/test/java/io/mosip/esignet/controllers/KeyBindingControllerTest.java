@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
 import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.*;
@@ -20,6 +21,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -60,6 +63,9 @@ public class KeyBindingControllerTest {
 	@MockBean
 	CacheUtilService cacheUtilService;
 
+	@MockBean
+	Authenticator authenticationWrapper;
+
 	@Test
 	public void sendBindingOtp_withValidRequest_thenPass() throws Exception {
 		BindingOtpRequest otpRequest = new BindingOtpRequest();
@@ -81,7 +87,7 @@ public class KeyBindingControllerTest {
 	}
 
 	@Test
-	public void sendBindingOtp_withInvalidIndividualId_thenPass() throws Exception {
+	public void sendBindingOtp_withInvalidIndividualId_thenFail() throws Exception {
 		BindingOtpRequest otpRequest = new BindingOtpRequest();
 		otpRequest.setIndividualId("");
 		otpRequest.setOtpChannels(Arrays.asList("email"));
@@ -95,11 +101,12 @@ public class KeyBindingControllerTest {
 		headers.put("Content-Type", "application/json;charset=UTF-8");
 		headers.put("Content-Length", "106");
 		when(keyBindingService.sendBindingOtp(otpRequest, headers)).thenReturn(otpResponse);
+		when(authenticationWrapper.isSupportedOtpChannel(Mockito.anyString())).thenReturn(true);
 
 		mockMvc.perform(post("/binding/binding-otp").content(objectMapper.writeValueAsString(wrapper))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.errors").isNotEmpty())
-				.andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_INDIVIDUAL_ID));
+				.andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_IDENTIFIER));
 	}
 
 	@Test

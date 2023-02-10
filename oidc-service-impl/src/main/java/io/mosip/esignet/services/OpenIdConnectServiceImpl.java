@@ -8,7 +8,7 @@ package io.mosip.esignet.services;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
-import io.mosip.esignet.core.dto.IdPTransaction;
+import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.OpenIdConnectService;
@@ -43,7 +43,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
     @Override
     public String getUserInfo(String accessToken) throws IdPException {
         String accessTokenHash = null;
-        IdPTransaction transaction = null;
+        OIDCTransaction transaction = null;
         try {
             if(accessToken == null || accessToken.isBlank())
                 throw new NotAuthenticatedException();
