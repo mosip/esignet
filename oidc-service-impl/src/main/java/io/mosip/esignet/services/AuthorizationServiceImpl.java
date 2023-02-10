@@ -12,6 +12,7 @@ import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
@@ -125,6 +126,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
+        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
+
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();

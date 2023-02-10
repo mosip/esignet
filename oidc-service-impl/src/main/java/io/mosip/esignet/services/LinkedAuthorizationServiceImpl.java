@@ -7,6 +7,7 @@ package io.mosip.esignet.services;
 
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.exception.IdPException;
@@ -69,7 +70,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Value("${mosip.esignet.link-code-length:15}")
     private int linkCodeLength;
-
 
     @Override
     public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException {
@@ -155,6 +155,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
+        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
+
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();

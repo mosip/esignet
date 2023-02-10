@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
 
-@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "IdentityAuthenticationService")
+@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "IdentityAuthenticationService-temp")
 @Component
 @Slf4j
 public class IdentityAuthenticationService implements Authenticator {
