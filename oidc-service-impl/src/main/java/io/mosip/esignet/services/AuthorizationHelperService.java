@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.services;
 
 import io.mosip.esignet.api.dto.*;
@@ -36,6 +41,8 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
