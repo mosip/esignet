@@ -51,6 +51,7 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
 

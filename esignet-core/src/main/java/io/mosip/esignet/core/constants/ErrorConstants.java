@@ -24,7 +24,6 @@ public class ErrorConstants {
     public static final String INVALID_ASSERTION="invalid_assertion";
     public static final String INVALID_ACR="invalid_acr";
     public static final String INVALID_AUTH_TOKEN="invalid_token";
-    public static final String AUTH_FAILED="auth_failed";
     public static final String ACR_AMR_MAPPING_NOT_FOUND="acr_amr_mapping_not_found";
     public static final String NO_ACR_REGISTERED="no_acr_registered";
     public static final String INVALID_ALGORITHM = "invalid_algorithm";
@@ -33,8 +32,6 @@ public class ErrorConstants {
     public static final String DUPLICATE_CLIENT_ID = "duplicate_client_id";
     public static final String INVALID_CLAIM = "invalid_claim";
     public static final String INVALID_PUBLIC_KEY = "invalid_public_key";
-    public static final String DATA_EXCHANGE_FAILED="data_exchange_failed";
-    public static final String SEND_OTP_FAILED="send_otp_failed";
     public static final String MISSING_HEADER="missing_header";
     public static final String INVALID_IDENTIFIER="invalid_identifier";
     public static final String INVALID_OTP_CHANNEL="invalid_otp_channel";

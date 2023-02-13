@@ -56,6 +56,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -271,7 +272,7 @@ public class AuthorizationAPIFlowTest {
         OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticateWithInvalidPin(oAuthDetailResponse.getTransactionId());
-        assertErrorCode(authResponseResponseWrapper, ErrorConstants.AUTH_FAILED);
+        assertErrorCode(authResponseResponseWrapper, AUTH_FAILED);
 
         ResponseWrapper<OtpResponse> otpResponseResponseWrapper = sendOtp(oAuthDetailResponse.getTransactionId(),
                 "8267411571");
