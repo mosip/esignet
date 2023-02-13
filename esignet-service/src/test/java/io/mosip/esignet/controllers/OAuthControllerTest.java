@@ -80,7 +80,7 @@ public class OAuthControllerTest {
                         .param("redirect_uri", "https://redirect-uri")
                         .param("grant_type", "authorization_code")
                         .param("client_id", "client_id")
-                        .param("client_assertion_type", "private_key_jwt")
+                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isOk());
     }
@@ -97,12 +97,24 @@ public class OAuthControllerTest {
     public void getToken_withRuntimeFailure_thenFail() throws Exception {
         Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(IdPException.class);
         mockMvc.perform(post("/oauth/token")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .param("code", "code")
+                .param("redirect_uri", "https://redirect-uri")
+                .param("grant_type", "authorization_code")
+                .param("client_id", "client_id")
+                .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
 
         Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .param("code", "code")
+                        .param("redirect_uri", "https://redirect-uri")
+                        .param("grant_type", "authorization_code")
+                        .param("client_id", "client_id")
+                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
     }
 }

@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
@@ -70,7 +71,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 
 		if (sendOtpResult == null) {
 			log.error("send-otp Failed wrapper returned null result!");
-			throw new IdPException(ErrorConstants.SEND_OTP_FAILED);
+			throw new IdPException(SEND_OTP_FAILED);
 		}
 
 		BindingOtpResponse otpResponse = new BindingOtpResponse();

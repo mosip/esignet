@@ -30,18 +30,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
 import static io.mosip.esignet.core.constants.Constants.*;
 
 @Slf4j
 @Service
-@Validated
 public class OAuthServiceImpl implements OAuthService {
 
 
@@ -71,13 +69,13 @@ public class OAuthServiceImpl implements OAuthService {
 
 
     @Override
-    public TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException {
+    public TokenResponse getTokens(TokenRequest tokenRequest) throws IdPException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
         if(transaction == null || transaction.getKycToken() == null)
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
-        if(!StringUtils.isEmpty(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
+        if(StringUtils.isEmpty(tokenRequest.getClient_id()) || !transaction.getClientId().equals(tokenRequest.getClient_id()))
             throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
 
         if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
@@ -105,7 +103,7 @@ public class OAuthServiceImpl implements OAuthService {
         }
 
         if(kycExchangeResult == null || kycExchangeResult.getEncryptedKyc() == null)
-            throw new IdPException(ErrorConstants.DATA_EXCHANGE_FAILED);
+            throw new IdPException(DATA_EXCHANGE_FAILED);
 
         auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(codeHash, transaction), null);
 
@@ -166,7 +164,7 @@ public class OAuthServiceImpl implements OAuthService {
         map.put(JWK_KEY_ID, keyId);
         if(jwk.getAlgorithm() != null) { map.put(JWK_KEY_ALG, jwk.getAlgorithm().getName()); }
         map.put(JWK_KEY_TYPE, jwk.getKeyType().getValue());
-        map.put(JWK_KEY_USE, jwk.getKeyUse().getValue());
+        if(jwk.getKeyUse() != null) { map.put(JWK_KEY_USE, jwk.getKeyUse().getValue()); }
         map.put(JWK_KEY_EXPIRE, expireAt.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         List<String> certs = new ArrayList<>();
         jwk.getX509CertChain().forEach(c -> { certs.add(c.toString()); });
