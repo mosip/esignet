@@ -53,7 +53,7 @@ public class KeyBindingHelperServiceTest {
 
     @Test
     public void getIndividualIdHash_withValidValue_thenPass() {
-        keyBindingHelperService.getIndividualIdHash("individualId");
+        Assert.assertNotNull(keyBindingHelperService.getIndividualIdHash("individualId"));
     }
 
     @Test

@@ -93,7 +93,7 @@ public class IdentityProviderUtilTest {
     public void test_dateTime() {
     	Assert.assertNotNull(IdentityProviderUtil.getUTCDateTime());
     	Assert.assertNotNull(IdentityProviderUtil.getUTCDateTimeWithNanoSeconds());
-    	Assert.assertNotNull(IdentityProviderUtil.getEpochSeconds());
+    	Assert.assertTrue(IdentityProviderUtil.getEpochSeconds() > 0);
     }
     
     @Test
@@ -122,9 +122,9 @@ public class IdentityProviderUtilTest {
     
     @Test
     public void test_encodeDecode() {
-    	IdentityProviderUtil.b64Encode("test-encode-string");
-    	IdentityProviderUtil.b64Encode("test-bytes".getBytes());
-    	IdentityProviderUtil.b64Decode("test-decode-string");
+    	Assert.assertNotNull(IdentityProviderUtil.b64Encode("test-encode-string"));
+    	Assert.assertNotNull(IdentityProviderUtil.b64Encode("test-bytes".getBytes()));
+    	Assert.assertNotNull(IdentityProviderUtil.b64Decode("test-decode-string"));
     }
     
     @Test
