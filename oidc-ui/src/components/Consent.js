@@ -228,31 +228,33 @@ export default function Consent({
                               </label>
                             )}
                             {!claimScope?.required && (
-                              <label
-                                labelfor={item}
-                                className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
-                              >
-                                <input
-                                  type="checkbox"
-                                  value=""
-                                  id={item}
-                                  className="sr-only peer"
-                                  onChange={
-                                    claimScope.type === "scope"
-                                      ? handleScopeChange
-                                      : handleClaimChange
-                                  }
-                                />
-                                <div
-                                  className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none \
-                                  peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-[''] 
-                                after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400 
-                                peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all 
-                                peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500 
-                                ltr:peer-checked:after:translate-x-full ltr:after:left-[2px] 
+                              <div>
+                                <label
+                                  labelfor={item}
+                                  className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    value=""
+                                    id={item}
+                                    className="sr-only peer"
+                                    onChange={
+                                      claimScope.type === "scope"
+                                        ? handleScopeChange
+                                        : handleClaimChange
+                                    }
+                                  />
+                                  <div
+                                    className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none \
+                                  peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-['']
+                                after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400
+                                peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all
+                                peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500
+                                ltr:peer-checked:after:translate-x-full ltr:after:left-[2px]
                                 rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"
-                                ></div>
-                              </label>
+                                  ></div>
+                                </label>
+                              </div>
                             )}
                           </div>
                         </div>
