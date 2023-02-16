@@ -18,6 +18,7 @@ kubectl create ns $NS
 echo Istio label
 kubectl label ns $NS istio-injection=enabled --overwrite
 helm repo update
+helm dependency build
 
 echo Installing Softhsm for esignet
 helm -n $SOFTHSM_NS install softhsm-esignet mosip/softhsm -f softhsm-values.yaml --version $SOFTHSM_CHART_VERSION --wait
