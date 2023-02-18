@@ -6,6 +6,10 @@ import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.TokenService;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OpenIdConnectServiceTest {
@@ -31,7 +36,9 @@ public class OpenIdConnectServiceTest {
 
     @Test
     public void getOpenIdConfiguration_test() {
-        openIdConnectService.getOpenIdConfiguration();
+    	Map<String, Object> discoveryMap = new HashMap<>();
+		ReflectionTestUtils.setField(openIdConnectService, "discoveryMap", discoveryMap);
+        Assert.assertNotNull(openIdConnectService.getOpenIdConfiguration());
     }
 
     @Test(expected = NotAuthenticatedException.class)

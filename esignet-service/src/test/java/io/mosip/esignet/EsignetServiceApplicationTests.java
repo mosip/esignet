@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class EsignetServiceApplicationTests {
 
 	@Test
-	public void contextLoads() {}
+	public void test() {
+		EsignetServiceApplication.main(new String[] {});
+	}
 
 }

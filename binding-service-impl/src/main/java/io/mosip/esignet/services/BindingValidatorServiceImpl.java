@@ -98,6 +98,7 @@ public class BindingValidatorServiceImpl implements KeyBindingValidator {
         try {
             switch (authChallenge.getAuthFactorType()) {
                 case "WLA" : return validateWLAToken(individualId, authChallenge.getChallenge(), authChallenge.getFormat(), publicKeyRegistry.get());
+                default: return false;
             }
         } catch (Exception e) {
             log.error("Failed to validate challenge : {}", authChallenge.getAuthFactorType(), e);
@@ -133,7 +134,7 @@ public class BindingValidatorServiceImpl implements KeyBindingValidator {
                     log.error("Failed to verify WLA token", e);
                 }
                 throw new KycAuthException(ErrorConstants.INVALID_WLA_TOKEN);
+           default: throw new KycAuthException(UNKNOWN_WLA_FORMAT);
         }
-        throw new KycAuthException(UNKNOWN_WLA_FORMAT);
     }
 }
