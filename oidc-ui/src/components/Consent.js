@@ -1,6 +1,7 @@
 import i18next from "i18next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { buttonTypes } from "../constants/clientConstants";
 import { LoadingStates, LoadingStates as states } from "../constants/states";
@@ -190,15 +191,24 @@ export default function Consent({
           {claimsScopes?.map(
             (claimScope) =>
               claimScope?.values?.length > 0 && (
-                <>
-                  <h2 className="font-semibold" title={t(claimScope.tooltip)}>
+                <div key={claimScope.label}>
+                  <div className="font-semibold">
                     {t(claimScope.label)}
-                    <button className="ml-1 text-sky-600 text-xl"
-                      onClick={(e) => { e.preventDefault(); }}
+                    <button
+                      id={claimScope.label}
+                      className="ml-1 text-sky-600 text-xl"
+                      data-tooltip-content={t(claimScope.tooltip)}
+                      data-tooltip-place="top"
+                      onClick={(e) => {
+                        e.preventDefault();
+                      }}
+                      role="tooltip"
                     >
                       &#9432;
                     </button>
-                  </h2>
+                    <ReactTooltip anchorId={claimScope.label} />
+                  </div>
+
                   <div className="divide-y">
                     {claimScope?.values?.map((item) => (
                       <div key={item}>
@@ -218,35 +228,40 @@ export default function Consent({
                               </label>
                             )}
                             {!claimScope?.required && (
-                              <label
-                                labelfor={item}
-                                className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
-                              >
-                                <input
-                                  type="checkbox"
-                                  value=""
-                                  id={item}
-                                  className="sr-only peer"
-                                  onChange={
-                                    claimScope.type === "scope"
-                                      ? handleScopeChange
-                                      : handleClaimChange
-                                  }
-                                />
-                                <div className="w-9 h-5 border border-neutral-400 bg-white rounded-full peer after:content-[''] 
-                                after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400 
-                                peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all 
-                                peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500 
-                                ltr:peer-checked:after:translate-x-full ltr:after:left-[2px] 
-                                rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"></div>
-                              </label>
+                              <div>
+                                <label
+                                  labelfor={item}
+                                  className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    value=""
+                                    id={item}
+                                    className="sr-only peer"
+                                    onChange={
+                                      claimScope.type === "scope"
+                                        ? handleScopeChange
+                                        : handleClaimChange
+                                    }
+                                  />
+                                  <div
+                                    className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none \
+                                  peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-['']
+                                after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400
+                                peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all
+                                peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500
+                                ltr:peer-checked:after:translate-x-full ltr:after:left-[2px]
+                                rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"
+                                  ></div>
+                                </label>
+                              </div>
                             )}
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </>
+                </div>
               )
           )}
           {
