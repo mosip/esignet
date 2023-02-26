@@ -155,8 +155,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
-        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
-
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();

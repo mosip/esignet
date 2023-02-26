@@ -14,18 +14,18 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableKafka
 @EnableAsync
 @EnableCaching
-@SpringBootApplication(scanBasePackages = {"io.mosip.esignet",
-		"${mosip.esignet.integration.scan-base-package}",
-		"io.mosip.kernel.crypto",
-		"io.mosip.kernel.keymanager.hsm",
-		"io.mosip.kernel.cryptomanager.util",
-		"io.mosip.kernel.keymanagerservice.helper",
-		"io.mosip.kernel.keymanagerservice.service",
-		"io.mosip.kernel.keymanagerservice.util",
-		"io.mosip.kernel.keygenerator.bouncycastle",
-		"io.mosip.kernel.signature.service",
-		"io.mosip.kernel.partnercertservice.service",
-		"io.mosip.kernel.partnercertservice.helper"})
+@SpringBootApplication(scanBasePackages = "io.mosip.esignet," +
+		"io.mosip.kernel.crypto," +
+		"io.mosip.kernel.keymanager.hsm," +
+		"io.mosip.kernel.cryptomanager.util," +
+		"io.mosip.kernel.keymanagerservice.helper," +
+		"io.mosip.kernel.keymanagerservice.service," +
+		"io.mosip.kernel.keymanagerservice.util," +
+		"io.mosip.kernel.keygenerator.bouncycastle," +
+		"io.mosip.kernel.signature.service," +
+		"io.mosip.kernel.partnercertservice.service," +
+		"io.mosip.kernel.partnercertservice.helper," +
+		"${mosip.esignet.integration.scan-base-package}")
 public class EsignetServiceApplication {
 
 	public static void main(String[] args) {
