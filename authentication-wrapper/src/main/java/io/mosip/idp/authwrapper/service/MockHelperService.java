@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
-import static io.mosip.esignet.core.constants.ErrorConstants.AUTH_FAILED;
+import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
+
 
 @Component
 @Slf4j

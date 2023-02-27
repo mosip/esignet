@@ -2,6 +2,7 @@ package io.mosip.esignet.core;
 
 import java.io.IOException;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +28,7 @@ public class KafkaHelperServiceTest {
 	
 	@Test
 	public void test_publish_withValidValues_thenPass() {
+		Assert.assertNotNull(kafkaTemplate);
 		kafkaHelperService.publish("test-topic", "test-message");
 	}
 

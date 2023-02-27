@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet;
 
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -117,7 +118,7 @@ public class KeyBindingServiceTest {
 			keyBindingService.sendBindingOtp(otpRequest, new HashMap<>());
 			Assert.fail();
 		} catch (IdPException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.SEND_OTP_FAILED));
+			Assert.assertTrue(e.getErrorCode().equals(SEND_OTP_FAILED));
 		}
 	}
 

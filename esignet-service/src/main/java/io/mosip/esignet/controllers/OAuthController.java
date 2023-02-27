@@ -5,16 +5,23 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.core.dto.Error;
+import io.mosip.esignet.core.dto.OAuthError;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
 import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/oauth")
@@ -22,6 +29,9 @@ public class OAuthController {
 
     @Autowired
     private OAuthService oAuthService;
+
+    @Autowired
+    private Validator validator;
 
     @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -34,6 +44,10 @@ public class OAuthController {
         tokenRequest.setGrant_type(paramMap.getFirst("grant_type"));
         tokenRequest.setClient_assertion_type(paramMap.getFirst("client_assertion_type"));
         tokenRequest.setClient_assertion(paramMap.getFirst("client_assertion"));
+        Set<ConstraintViolation<TokenRequest>> violations = validator.validate(tokenRequest);
+        if(!violations.isEmpty()) {
+            throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());
+        }
         return oAuthService.getTokens(tokenRequest);
     }
 

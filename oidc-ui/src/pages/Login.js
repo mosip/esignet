@@ -18,7 +18,7 @@ import LoginQRCode from "../components/LoginQRCode";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { Buffer } from "buffer";
 import openIDConnectService from "../services/openIDConnectService";
-import ErrorIndicator from "../common/ErrorIndicator";
+import DefaultError from "../components/DefaultError";
 
 //authFactorComponentMapping
 const comp = {
@@ -108,20 +108,22 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   var state = searchParams.get("state");
 
   useEffect(() => {
+    if (!decodeOAuth) {
+      return;
+    }
     loadComponent();
   }, []);
 
   let parsedOauth = null;
+
   try {
     parsedOauth = JSON.parse(decodeOAuth);
   } catch (error) {
     return (
-      //TODO naviagte to default error page
-      <div className="flex h-5/6 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <ErrorIndicator errorCode={"parsing_error_msg"} />
-        </div>
-      </div>
+      <DefaultError
+        backgroundImgPath="images/illustration_one.png"
+        errorCode={"parsing_error_msg"}
+      />
     );
   }
 

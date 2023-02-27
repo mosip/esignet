@@ -53,8 +53,9 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_INPUT;
-import static io.mosip.esignet.core.constants.ErrorConstants.SEND_OTP_FAILED;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 @ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "MockAuthenticationService")
@@ -146,7 +147,7 @@ public class MockAuthenticationService implements Authenticator {
                         authenticateUser(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), authChallenge));
         log.info("Auth methods as per partner policy : {}, KYC auth result : {}",authMethods, result);
         if(!result) {
-            throw new KycAuthException(ErrorConstants.AUTH_FAILED);
+            throw new KycAuthException(AUTH_FAILED);
         }
 
         String psut;

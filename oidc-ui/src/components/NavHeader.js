@@ -14,7 +14,6 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     control: (base) => ({
       ...base,
       border: 0,
-      boxShadow: "none",
     }),
   };
 

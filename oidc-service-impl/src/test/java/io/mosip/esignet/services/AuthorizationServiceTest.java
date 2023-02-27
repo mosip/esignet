@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.esignet;
+package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
@@ -19,10 +19,6 @@ import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.services.AuthorizationHelperService;
-import io.mosip.esignet.services.AuthorizationServiceImpl;
-import io.mosip.esignet.services.CacheUtilService;
-import io.mosip.esignet.services.TokenServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +27,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.IOException;
 import java.util.*;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
@@ -61,21 +55,11 @@ public class AuthorizationServiceTest {
     AuthorizationServiceImpl authorizationServiceImpl;
 
     @Mock
-    TokenServiceImpl tokenGeneratorServiceService;
-
-    @Mock
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    @Mock
-    Resource mappingFile;
-
-    @Mock
     AuditPlugin auditWrapper;
 
 
-
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         Map<String, List<String>> claims = new HashMap<>();
         claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
