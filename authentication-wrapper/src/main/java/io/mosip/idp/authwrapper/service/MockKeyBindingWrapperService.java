@@ -6,14 +6,15 @@
 package io.mosip.idp.authwrapper.service;
 
 import com.nimbusds.jose.jwk.RSAKey;
-import io.mosip.idp.core.dto.AuthChallenge;
-import io.mosip.idp.core.dto.KeyBindingResult;
-import io.mosip.idp.core.dto.SendOtpResult;
-import io.mosip.idp.core.exception.KeyBindingException;
-import io.mosip.idp.core.exception.SendOtpException;
-import io.mosip.idp.core.spi.KeyBindingWrapper;
-import io.mosip.idp.core.util.Constants;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.KeyBindingResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.exception.KeyBindingException;
+import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.esignet.api.spi.KeyBinder;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.kernel.core.util.DateUtils;
+import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.dto.SignatureCertificate;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,15 +35,17 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-@ConditionalOnProperty(value = "mosip.idp.binding.wrapper.impl", havingValue = "MockKeyBindingWrapperService")
+@ConditionalOnProperty(value = "mosip.esignet.integration.key-binder", havingValue = "MockKeyBindingWrapperService")
 @Component
 @Slf4j
-public class MockKeyBindingWrapperService implements KeyBindingWrapper {
+public class MockKeyBindingWrapperService implements KeyBinder {
+
+    public static final String BINDING_SERVICE_APP_ID = "MOCK_BINDING_SERVICE";
 
     @Autowired
     private KeymanagerService keymanagerService;
 
-    @Value("${mosip.idp.binding.key-expire-days}")
+    @Value("${mosip.esignet.binding.key-expire-days}")
     private int expireInDays;
 
     private static final Map<String, List<String>> supportedFormats = new HashMap<>();
@@ -64,8 +67,8 @@ public class MockKeyBindingWrapperService implements KeyBindingWrapper {
     }
 
     @Override
-    public KeyBindingResult doKeyBinding(String individualId, List<AuthChallenge> challengeList,
-                                         Map<String, Object> publicKeyJWK, Map<String, String> requestHeaders) throws KeyBindingException {
+    public KeyBindingResult doKeyBinding(String individualId, List<AuthChallenge> challengeList, Map<String, Object> publicKeyJWK,
+                                         String bindAuthFactorType, Map<String, String> requestHeaders) throws KeyBindingException {
         KeyBindingResult keyBindingResult = new KeyBindingResult();
         //TODO
         //create a signed certificate, with cn as username
@@ -83,8 +86,8 @@ public class MockKeyBindingWrapperService implements KeyBindingWrapper {
             generator.setSignatureAlgorithm("SHA256WITHRSA");
             generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
 
-
-            SignatureCertificate signatureCertificate = keymanagerService.getSignatureCertificate(Constants.IDP_BINDING_SERVICE_APP_ID, Optional.empty(),
+            setupMockBindingKey();
+            SignatureCertificate signatureCertificate = keymanagerService.getSignatureCertificate(BINDING_SERVICE_APP_ID, Optional.empty(),
                     DateUtils.getUTCCurrentDateTimeString());
             PrivateKey privateKey = signatureCertificate.getCertificateEntry().getPrivateKey();
             StringWriter stringWriter = new StringWriter();
@@ -98,6 +101,13 @@ public class MockKeyBindingWrapperService implements KeyBindingWrapper {
         }
         keyBindingResult.setPartnerSpecificUserToken(individualId);
         return keyBindingResult;
+    }
+
+    private void setupMockBindingKey() {
+        KeyPairGenerateRequestDto mockBindingKeyRequest = new KeyPairGenerateRequestDto();
+        mockBindingKeyRequest.setApplicationId(BINDING_SERVICE_APP_ID);
+        keymanagerService.generateMasterKey("CSR", mockBindingKeyRequest);
+        log.info("===================== MOCK_BINDING_SERVICE KEY SETUP COMPLETED ========================");
     }
 
     @Override

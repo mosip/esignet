@@ -15,13 +15,13 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+import io.mosip.esignet.api.dto.*;
+import io.mosip.esignet.api.exception.*;
+import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.idp.authwrapper.dto.PathInfo;
-import io.mosip.idp.core.dto.*;
-import io.mosip.idp.core.exception.*;
-import io.mosip.idp.core.spi.AuthenticationWrapper;
-import io.mosip.idp.core.util.Constants;
-import io.mosip.idp.core.util.ErrorConstants;
-import io.mosip.idp.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
@@ -53,14 +53,15 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.idp.core.util.ErrorConstants.INVALID_INPUT;
-import static io.mosip.idp.core.util.ErrorConstants.SEND_OTP_FAILED;
-import static io.mosip.idp.core.util.IdentityProviderUtil.ALGO_SHA3_256;
+import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_INPUT;
+import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
-@ConditionalOnProperty(value = "mosip.idp.authn.wrapper.impl", havingValue = "MockAuthenticationService")
+@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "MockAuthenticationService")
 @Component
 @Slf4j
-public class MockAuthenticationService implements AuthenticationWrapper {
+public class MockAuthenticationService implements Authenticator {
 
     private static final String APPLICATION_ID = "MOCK_IDA_SERVICES";
     private static final String PSUT_FORMAT = "%s%s";
@@ -74,6 +75,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private static final String EXP_CLAIM = "exp";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
+    private static final String NOT_AUTHENTICATED = "not_authenticated";
     private static Map<String, List<String>> policyContextMap;
     private static Map<String, RSAKey> relyingPartyPublicKeys;
     private static Map<String, String> localesMapping;
@@ -82,19 +84,19 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     private File personaDir;
     private File policyDir;
 
-    @Value("${mosip.idp.authn.mock.impl.kyc-token-expire-sec:30}")
+    @Value("${mosip.esignet.mock.authenticator.kyc-token-expire-sec:30}")
     private int kycTokenExpireInSeconds;
 
-    @Value("${mosip.idp.authn.mock.impl.persona-repo:/mockida/personas/}")
+    @Value("${mosip.esignet.mock.authenticator.persona-repo:/mockida/personas/}")
     private String personaRepoDirPath;
 
-    @Value("${mosip.idp.authn.mock.impl.policy-repo:/mockida/policies/}")
+    @Value("${mosip.esignet.mock.authenticator.policy-repo:/mockida/policies/}")
     private String policyRepoDirPath;
 
-    @Value("${mosip.idp.authn.mock.impl.claims-mapping-file:claims_attributes_mapping.json}")
+    @Value("${mosip.esignet.mock.authenticator.claims-mapping-file:claims_attributes_mapping.json}")
     private String claimsMappingFilePath;
 
-    @Value("${mosip.idp.authn.mock.impl.encrypt-kyc:false}")
+    @Value("${mosip.esignet.mock.authenticator.encrypt-kyc:false}")
     private boolean encryptKyc;
 
     @Autowired
@@ -137,7 +139,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
     @Validated
     @Override
     public KycAuthResult doKycAuth(@NotBlank String relyingPartyId, @NotBlank String clientId,
-                                                    @NotNull @Valid KycAuthDto kycAuthDto) throws KycAuthException {
+                                   @NotNull @Valid KycAuthDto kycAuthDto) throws KycAuthException {
         List<String> authMethods = resolveAuthMethods(relyingPartyId);
         boolean result = kycAuthDto.getChallengeList()
                 .stream()
@@ -145,14 +147,14 @@ public class MockAuthenticationService implements AuthenticationWrapper {
                         authenticateUser(kycAuthDto.getTransactionId(), kycAuthDto.getIndividualId(), authChallenge));
         log.info("Auth methods as per partner policy : {}, KYC auth result : {}",authMethods, result);
         if(!result) {
-            throw new KycAuthException(ErrorConstants.AUTH_FAILED);
+            throw new KycAuthException(AUTH_FAILED);
         }
 
         String psut;
         try {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
                     String.format(PSUT_FORMAT, kycAuthDto.getIndividualId(), relyingPartyId));
-        } catch (IdPException e) {
+        } catch (Exception e) {
             log.error("Failed to generate PSUT",authMethods, e);
             throw new KycAuthException("mock-ida-006", "Failed to generate Partner specific user token");
         }
@@ -167,7 +169,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
 
     @Override
     public KycExchangeResult doKycExchange(@NotBlank String relyingPartyId, @NotBlank String clientId,
-                                                            @NotNull @Valid KycExchangeDto kycExchangeDto)
+                                           @NotNull @Valid KycExchangeDto kycExchangeDto)
             throws KycExchangeException {
         log.info("Accepted claims : {} and locales : {}", kycExchangeDto.getAcceptedClaims(), kycExchangeDto.getClaimsLocales());
         try {
@@ -219,7 +221,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         payload.put(CID_CLAIM, clientId);
         payload.put(PSUT_CLAIM, psut);
         payload.put(RID_CLAIM, relyingPartyId);
-        payload.put(AUD_CLAIM, Constants.IDP_SERVICE_APP_ID);
+        payload.put(AUD_CLAIM, Constants.OIDC_SERVICE_APP_ID);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT_CLAIM, issueTime);
         payload.put(EXP_CLAIM, issueTime +kycTokenExpireInSeconds);
@@ -231,7 +233,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         return null;
     }
 
-    private JWTClaimsSet verifyAndGetClaims(String kycToken) throws IdPException {
+    private JWTClaimsSet verifyAndGetClaims(String kycToken) throws KycExchangeException {
         JWTSignatureVerifyRequestDto signatureVerifyRequestDto = new JWTSignatureVerifyRequestDto();
         signatureVerifyRequestDto.setApplicationId(APPLICATION_ID);
         signatureVerifyRequestDto.setReferenceId("");
@@ -239,12 +241,12 @@ public class MockAuthenticationService implements AuthenticationWrapper {
         JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
         if(!responseDto.isSignatureValid()) {
             log.error("Kyc token verification failed");
-            throw new IdPException(INVALID_INPUT);
+            throw new KycExchangeException(INVALID_INPUT);
         }
         try {
             JWT jwt = JWTParser.parse(kycToken);
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                    .audience(Constants.IDP_SERVICE_APP_ID)
+                    .audience(Constants.OIDC_SERVICE_APP_ID)
                     .issuer(APPLICATION_ID)
                     .build(), REQUIRED_CLAIMS);
             ((DefaultJWTClaimsVerifier<?>) claimsSetVerifier).setMaxClockSkew(5);
@@ -252,7 +254,7 @@ public class MockAuthenticationService implements AuthenticationWrapper {
             return jwt.getJWTClaimsSet();
         } catch (Exception e) {
             log.error("kyc token claims verification failed", e);
-            throw new NotAuthenticatedException();
+            throw new KycExchangeException(NOT_AUTHENTICATED);
         }
     }
 
