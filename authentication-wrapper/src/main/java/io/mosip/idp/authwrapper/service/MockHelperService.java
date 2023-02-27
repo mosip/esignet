@@ -23,7 +23,7 @@ public class MockHelperService {
             throws KycAuthException {
 
         BindingAuthResult bindingAuthResult = keyBindingValidator.validateBindingAuth(transactionId,individualId, challengeList);
-        if(bindingAuthResult == null || transactionId.equals(bindingAuthResult.getTransactionId())) {
+        if(bindingAuthResult == null || !transactionId.equals(bindingAuthResult.getTransactionId())) {
             log.error("Failed validate binding");
             throw new KycAuthException(AUTH_FAILED);
         }
