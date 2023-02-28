@@ -100,7 +100,6 @@
 	<modules>
 		<module>esignet-core</module>
 		<module>esignet-integration-api</module>
-		<module>authentication-wrapper</module>
 		<module>esignet-service</module>
 		<module>binding-service-impl</module>
         <module>client-management-service-impl</module>
