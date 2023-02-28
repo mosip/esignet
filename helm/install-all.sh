@@ -24,7 +24,7 @@ kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-s
 
 declare -a module=("redis"
                    "esignet"
-		               "oidc-ui"
+		   "oidc-ui"
                    )
 
 echo Installing esignet services
