@@ -62,7 +62,7 @@ const configurationKeys = {
   captchaSiteKey: "captcha.sitekey", //site key for ReCAPTCHA
 
   linkCodeExpireInSec: "mosip.esignet.link-code-expire-in-secs",
-  linkCodeDeferredTimeoutInSec: "mosip.idp.link-status-deferred-response-timeout-secs",
+  linkCodeDeferredTimeoutInSec: "mosip.esignet.link-status-deferred-response-timeout-secs",
   qrCodeDeepLinkURI: "mosip.esignet.qr-code.deep-link-uri",
   appDownloadURI: "mosip.esignet.qr-code.download-uri",
   signInWithQRCodeEnable: "mosip.esignet.qr-code.enable",
