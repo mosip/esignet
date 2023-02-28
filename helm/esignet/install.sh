@@ -38,12 +38,24 @@ kubectl -n $NS delete --ignore-not-found=true configmap esignet-ui-cm
 kubectl -n $NS create configmap esignet-ui-cm --from-literal="REACT_APP_API_BASE_URL=http://$ESIGNET_HOST/v1/esignet" --from-literal="REACT_APP_SBI_DOMAIN_URI=http://$ESIGNET_HOST"
 
 echo "Create configmaps mockida, delete if exists"
-kubectl -n $NS  --ignore-not-found=true delete cm mock-auth-data
+
+read -p "Do you need mockida to be installed (YES/NO)" choice
+if [ $choice = YES ]
+then
 kubectl -n $NS create cm mock-auth-data --from-file=./mock-auth-data/
+MOCK_ENABLED='--set esignet.enabled=true'
+fi
+
+echo Copy configmaps
+./copy_cm.sh
+
+API_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-api-internal-host})
+ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
+
+./keycloak-init.sh
 
 echo Installing esignet
-helm -n $NS install esignet . --version $CHART_VERSION
-
+helm -n $NS install esignet . $MOCK_ENABLED --version $CHART_VERSION
 
 kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 

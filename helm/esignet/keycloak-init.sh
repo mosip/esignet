@@ -1,12 +1,12 @@
 #!/bin/sh
-# Installs all idp keycloak-init
+# Installs all esignet keycloak-init
 ## Usage: ./keycloak-init.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=idp
+NS=esignet
 CHART_VERSION=12.0.1-B2
 COPY_UTIL=../copy_cm_func.sh
 
@@ -25,10 +25,10 @@ $COPY_UTIL configmap keycloak-host keycloak $NS
 $COPY_UTIL configmap keycloak-env-vars keycloak $NS
 $COPY_UTIL secret keycloak keycloak $NS
 
-echo "creating and adding roles to keycloak pms & mpartner_default_auth clients for IDP"
+echo "creating and adding roles to keycloak pms & mpartner_default_auth clients for ESIGNET"
 kubectl -n $NS delete secret  --ignore-not-found=true keycloak-client-secrets
-helm -n $NS delete idp-keycloak-init
-helm -n $NS install idp-keycloak-init mosip/keycloak-init \
+helm -n $NS delete esignet-keycloak-init
+helm -n $NS install esignet-keycloak-init mosip/keycloak-init \
 -f keycloak-init-values.yaml \
 --set frontend=https://$IAMHOST_URL/auth \
 --set clientSecrets[0].name="$PMS_CLIENT_SECRET_KEY" \
@@ -43,10 +43,10 @@ PMS_CLIENT_SECRET_VALUE=$( kubectl -n keycloak get secrets keycloak-client-secre
 kubectl -n keycloak get secret keycloak-client-secrets -o json | jq ".data[\"$PMS_CLIENT_SECRET_KEY\"]=\"$PMS_CLIENT_SECRET_VALUE\"" | jq ".data[\"$MPARTNER_DEFAULT_AUTH_SECRET_KEY\"]=\"$MPARTNER_DEFAULT_AUTH_SECRET_VALUE\"" | kubectl apply -f -
 kubectl -n config-server get secret keycloak-client-secrets -o json | jq ".data[\"$PMS_CLIENT_SECRET_KEY\"]=\"$PMS_CLIENT_SECRET_VALUE\"" | jq ".data[\"$MPARTNER_DEFAULT_AUTH_SECRET_KEY\"]=\"$MPARTNER_DEFAULT_AUTH_SECRET_VALUE\"" | kubectl apply -f -
 
-echo "Check the existence of the secret & host placeholder & pass the secret & IDP host to config-server deployment if the placeholder does not exist."
-IDP_HOST_PLACEHOLDER=$( kubectl -n config-server get deployment -o json | jq -c '.items[].spec.template.spec.containers[].env[]| select(.name == "SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_IDP_HOST")|.name' )
-if [ -z $IDP_HOST_PLACEHOLDER ]; then
-  kubectl -n config-server set env --keys=mosip-idp-host --from configmap/global deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+echo "Check the existence of the secret & host placeholder & pass the secret & ESIGNET host to config-server deployment if the placeholder does not exist."
+ESIGNET_HOST_PLACEHOLDER=$( kubectl -n config-server get deployment -o json | jq -c '.items[].spec.template.spec.containers[].env[]| select(.name == "SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_ESIGNET_HOST")|.name' )
+if [ -z $ESIGNET_HOST_PLACEHOLDER ]; then
+  kubectl -n config-server set env --keys=mosip-esignet-host --from configmap/global deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
   echo "Waiting for config-server to be Up and running"
   kubectl -n config-server rollout status deploy/config-server
 fi

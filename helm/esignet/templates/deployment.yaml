@@ -109,8 +109,10 @@ spec:
                 name: {{ include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsSecret "context" $) }}
             {{- end }}
           volumeMounts:
+          {{- if .Values.esignet.enabled }}
             - name: mock-auth-data
               mountPath:  {{ .Values.esignet.mountdir }}
+          {{- end }}
           ports:
             - name: spring-service
               containerPort: {{ .Values.springServicePort }}
@@ -137,8 +139,10 @@ spec:
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
       volumes:
+      {{- if .Values.esignet.enabled }}
         - name: mock-auth-data
           projected:
             sources:
               - configMap:
                   name: mock-auth-data
+      {{- end }}

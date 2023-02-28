@@ -415,6 +415,7 @@ metrics:
 
 esignet:
   mountdir: '/home/mosip/mock-auth-data'
+  enabled: false
 ## Only internal access
 istio:
   enabled: true
