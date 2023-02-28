@@ -53,7 +53,7 @@ service:
 image:
   registry: docker.io
   repository: mosipdev/esignet
-  tag: MOSIP-25524
+  tag: develop
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -420,4 +420,5 @@ istio:
   enabled: true
   gateways:
     - istio-system/public
+    - istio-system/internal
   prefix: /v1/esignet/
