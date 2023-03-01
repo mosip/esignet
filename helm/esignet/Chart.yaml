@@ -1,0 +1,19 @@
+apiVersion: v2
+name: esignet
+description: A Helm chart for MOSIP esignet module
+type: application
+version: 0.0.1
+appVersion: ""
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+home: https://mosip.io
+keywords:
+  - mosip
+  - esignet
+maintainers:
+  - email: info@mosip.io
+    name: MOSIP
