@@ -1,0 +1,122 @@
+{
+	"pin" : "90232",
+	"introducerBiometrics": "null",
+	"identity": {
+		"proofOfAddress": {
+			"format": "pdf",
+			"type": "RNC",
+			"value": "proofOfAddress"
+		},
+		"gender": [{
+			"language": "eng",
+			"value": "Female"
+		},{
+			"language": "fra",
+			"value": "Femâle"
+		}, {
+			"language": "ara",
+			"value": "ذكر"
+		}],
+		"city": [{
+			"language": "fra",
+			"value": "CMâttye"
+		}, {
+			"language": "ara",
+			"value": "دسييسيكدك"
+		}, {
+			"language": "eng",
+			"value": "Cmattey"
+		}],
+		"postalCode": "45009",
+		"fullName": [{
+			"language": "fra",
+			"value": "Himaja Dhanya R"
+		}, {
+			"language": "ara",
+			"value": "تتگلدكنسَزقهِقِفل دسييسيكدكنوڤو"
+		}, {
+			"language": "eng",
+			"value": "Himaja Dhanya R"
+		}],
+		"dateOfBirth": "1995/07/02",
+		"proofOfIdentity": {
+			"format": "pdf",
+			"type": "CIN",
+			"value": "proofOfIdentity"
+		},
+		"individualBiometrics": {
+			"format": "cbeff",
+			"version": 1,
+			"value": "individualBiometrics_bio_CBEFF"
+		},
+		"IDSchemaVersion": 0.2,
+		"province": [{
+			"language": "fra",
+			"value": "Kénitra"
+		}, {
+			"language": "ara",
+			"value": "كِ́نِترَ"
+		}, {
+			"language": "eng",
+			"value": "Kénitra"
+		}],
+		"zone": [{
+			"language": "fra",
+			"value": "Ben Mansour"
+		}, {
+			"language": "ara",
+			"value": "بِن مَنسُُر"
+		}, {
+			"language": "eng",
+			"value": "Ben Mansour"
+		}],
+		"phone": "+919427357934",
+		"addressLine1": [{
+			"language": "fra",
+			"value": "yuān⥍"
+		}, {
+			"language": "ara",
+			"value": "$لُنگᆑ"
+		}, {
+			"language": "eng",
+			"value": "Slung"
+		}],
+		"addressLine2": [{
+			"language": "fra",
+			"value": "yuān 2"
+		}, {
+			"language": "ara",
+			"value": "يَُانꉛ⥍"
+		}, {
+			"language": "eng",
+			"value": "yuan wee"
+		}],
+		"proofOfRelationship": {
+			"format": "pdf",
+			"type": "DOC001",
+			"value": "proofOfRelationship"
+		},
+		"addressLine3": [{
+			"language": "fra",
+			"value": "yuān 3"
+		}, {
+			"language": "ara",
+			"value": "$لُنگᆑ"
+		}, {
+			"language": "eng",
+			"value": "yuan wee 3"
+		}],
+		"region": [{
+			"language": "fra",
+			"value": "melh$pèng"
+		}, {
+			"language": "ara",
+			"value": "مِله$پِ̀نگ"
+		}, {
+			"language": "eng",
+			"value": "melhspeng"
+		}],
+		"email": "dhanya.himaja@gmail.com",
+		"encodedPhotos": "dhdfhdhhdhdfhfdh=="
+	}
+}
