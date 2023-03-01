@@ -1,0 +1,20 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  {{- with (first .Values.istio.gateways) }}
+  name:  {{ .name }}
+  {{- end }}
+spec:
+  selector:
+    istio: {{ .Values.istio.ingressController.name }}
+  servers:
+  - port:
+      {{- with (first .Values.istio.gateways) }}
+      number: {{ .port }}
+      name: {{ .portName }}
+      protocol: {{ .protocol }}
+      {{- end }}
+    hosts:
+      {{- include "common.tplvalues.render" ( dict "value" .Values.istio.hosts "context" $ ) | nindent 6 }}
+{{- end }}

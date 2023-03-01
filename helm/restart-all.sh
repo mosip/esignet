@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# restarts Idp services in correct order
+# restarts esignet services in correct order
 ## Usage: ./restart-all.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
@@ -10,11 +10,11 @@ fi
 ROOT_DIR=`pwd`
 
 declare -a module=("redis"
-                   "idp"
-                   "idp-binding"
+                   "esignet"
+		   "oidc-ui"
                    )
 
-echo restarting IDP services
+echo restarting esignet services
 
 for i in "${module[@]}"
 do
@@ -22,4 +22,4 @@ do
   ./restart.sh
 done
 
-echo All IDP services restarted sucessfully.
+echo All esignet services restarted sucessfully.

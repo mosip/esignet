@@ -1,0 +1,3 @@
+window["envConfigs"] = {
+  defaultLang: "en",
+};

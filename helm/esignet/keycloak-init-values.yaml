@@ -1,0 +1,112 @@
+keycloak:
+  realms: |-
+    mosip: # realm
+      roles:
+        - PARTNER_ADMIN
+        - PUBLISH_OIDC_CLIENT_CREATED_GENERAL
+        - PUBLISH_OIDC_CLIENT_UPDATED_GENERAL
+        - PUBLISH_APIKEY_APPROVED_GENERAL
+        - PUBLISH_APIKEY_UPDATED_GENERAL
+        - PUBLISH_CA_CERTIFICATE_UPLOADED_GENERAL
+        - PUBLISH_MISP_LICENSE_GENERATED_GENERAL
+        - PUBLISH_MISP_LICENSE_UPDATED_GENERAL
+        - PUBLISH_PARTNER_UPDATED_GENERAL
+        - PUBLISH_POLICY_UPDATED_GENERAL
+        - ZONAL_ADMIN
+        - CREATE_SHARE
+        - DEVICE_PROVIDER
+        - PARTNER
+        - PMS_ADMIN
+        - PMS_USER
+        - REGISTRATION_PROCESSOR
+        - SUBSCRIBE_OIDC_CLIENT_CREATED_GENERAL
+        - SUBSCRIBE_OIDC_CLIENT_UPDATED_GENERAL
+      client_scopes:
+        - name: add_oidc_client
+          description: Scope required to create OIDC client
+          protocol: openid-connect
+          Include In Token Scope : on
+          attributes: {
+            display.on.consent.screen: "false",
+            include.in.token.scope: "true"
+          }
+        - name: update_oidc_client
+          description: ''
+          protocol: openid-connect
+          Include In Token Scope : on
+          attributes: {
+            display.on.consent.screen: "false",
+            include.in.token.scope: "true"
+          }
+        - name: get_certificate
+          description: Scope required to create OIDC client
+          protocol: openid-connect
+          Include In Token Scope : on
+          attributes: {
+            display.on.consent.screen: "false",
+            include.in.token.scope: "true"
+          }
+        - name: upload_certificate
+          description: ''
+          protocol: openid-connect
+          Include In Token Scope : on
+          attributes: {
+            display.on.consent.screen: "false",
+            include.in.token.scope: "true"
+          }
+        - name: sending_binding_otp
+          description: Scope required to create OIDC client
+          protocol: openid-connect
+          Include In Token Scope : on
+          attributes: {
+            display.on.consent.screen: "false",
+            include.in.token.scope: "true"
+          }
+        - name: wallet_binding
+          description: ''
+          protocol: openid-connect
+          Include In Token Scope : on
+          attributes: {
+            display.on.consent.screen: "false",
+            include.in.token.scope: "true"
+          }
+      clients:   
+        - name: mosip-pms-client
+          mappers: []
+          saroles:
+           - PARTNER_ADMIN
+           - PUBLISH_OIDC_CLIENT_CREATED_GENERAL
+           - PUBLISH_OIDC_CLIENT_UPDATED_GENERAL
+           - PUBLISH_APIKEY_APPROVED_GENERAL
+           - PUBLISH_APIKEY_UPDATED_GENERAL
+           - PUBLISH_CA_CERTIFICATE_UPLOADED_GENERAL
+           - PUBLISH_MISP_LICENSE_GENERATED_GENERAL
+           - PUBLISH_MISP_LICENSE_UPDATED_GENERAL
+           - PUBLISH_PARTNER_UPDATED_GENERAL
+           - PUBLISH_POLICY_UPDATED_GENERAL
+           - ZONAL_ADMIN
+           - CREATE_SHARE
+           - DEVICE_PROVIDER
+           - PARTNER
+           - PMS_ADMIN
+           - PMS_USER
+           - REGISTRATION_PROCESSOR
+          assign_client_scopes:
+            - update_oidc_client
+            - add_oidc_client
+            - get_certificate
+            - upload_certificate
+        - name: mpartner-default-auth
+          mappers: []
+          saroles:
+            - SUBSCRIBE_OIDC_CLIENT_CREATED_GENERAL
+            - SUBSCRIBE_OIDC_CLIENT_UPDATED_GENERAL
+          assign_client_scopes:
+            - update_oidc_client
+            - add_oidc_client
+
+#clientSecrets:
+#  - name: mosip_pms_client_secret
+#    secret: ""
+#  - name: mpartner_default_auth_secret
+#    secret: ""
