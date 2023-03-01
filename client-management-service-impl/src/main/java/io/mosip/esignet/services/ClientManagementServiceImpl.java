@@ -25,8 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -49,6 +51,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Autowired
     AuditPlugin auditWrapper;
+    
+    @Value("${mosip.esignet.audit.claim-name:preferred_username}")
+    private String claimName;
 
     private List<String> NULL = Collections.singletonList(null);
 
@@ -92,7 +97,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+        		Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
@@ -130,7 +136,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+        		Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());

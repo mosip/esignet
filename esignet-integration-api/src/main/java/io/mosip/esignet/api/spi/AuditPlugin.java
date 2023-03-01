@@ -15,8 +15,20 @@ public interface AuditPlugin {
      + Plugin method to audit all the actions in Idp service.
      +
      +  @param action Action to audit @{@link Action}
+     +  @param actionStatus Action status to audit @{@link ActionStatus}
      +  @param audit @{@link AuditDTO} during this action
      +  @param t Any error / exception occurred during this action, null if no errors / exception found.
      */
     void logAudit(Action action, ActionStatus status, AuditDTO audit, Throwable t);
+
+    /**
+    + Plugin method to audit all the actions in Idp service.
+    +
+    +  @param username Session username for audit
+    +  @param action Action to audit @{@link Action}
+    +  @param actionStatus Action status to audit @{@link ActionStatus}
+    +  @param audit @{@link AuditDTO} during this action
+    +  @param t Any error / exception occurred during this action, null if no errors / exception found.
+    */
+	void logAudit(String username, Action action, ActionStatus status, AuditDTO audit, Throwable t);
 }

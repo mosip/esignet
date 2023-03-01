@@ -7,13 +7,17 @@ package io.mosip.esignet.services;
 
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.CaptchaValidator;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.LinkedAuthorizationService;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -55,6 +59,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Autowired
     private KafkaHelperService kafkaHelperService;
+    
+    @Autowired
+    private AuditPlugin auditWrapper;
 
     @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
@@ -110,7 +117,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkCodeResponse.setLinkCode(linkCode);
         linkCodeResponse.setTransactionId(linkCodeRequest.getTransactionId());
         linkCodeResponse.setExpireDateTime(expireDateTime == null ? null :
-                expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+                expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));        
+        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkCodeRequest.getTransactionId(), null), null);
         return linkCodeResponse;
     }
 
@@ -150,11 +158,14 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         //Publish message after successfully linking the transaction
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
+        auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
         return linkTransactionResponse;
     }
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
+        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
+
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -164,6 +175,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         otpResponse.setTransactionId(otpRequest.getTransactionId());
         otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
         otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
+        auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(otpRequest.getTransactionId(), transaction), null);
         return otpResponse;
     }
 
@@ -189,6 +201,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
+        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
         return authRespDto;
     }
 
@@ -211,6 +224,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
+        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
         return authRespDto;
     }
 
@@ -232,6 +246,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         } else {
             authorizationHelperService.addEntryInLinkStatusDeferredResultMap(linkCodeHash, deferredResult);
         }
+        auditWrapper.logAudit(Action.LINK_STATUS, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkStatusRequest.getTransactionId(), null), null);
     }
 
     @Async
@@ -249,5 +264,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
         }
+        auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkAuthCodeRequest.getTransactionId(), oidcTransaction), null);
     }
 }
