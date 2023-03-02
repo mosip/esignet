@@ -32,7 +32,13 @@
     "authorize_scope_tooltip": "Allows Service provider to access these protected services on your behalf",
     "essential_claims_tooltip": "Mandatory user information required by the Service provider",
     "voluntary_claims_tooltip": "Additional user information that the resident can choose to share with the Service provider",
-    "logo_alt": "e-Signet"
+    "logo_alt": "e-Signet",
+    "Manage-Identity-Data":"Manage Identity Data",
+    "Manage-VID" : "Manage VID",
+    "Manage-Authentication" : "Manage Authentication",
+    "Manage-Service-Requests" : "Manage Service Requests",
+    "Manage-Credentials" : "Manage Credentials",
+    "individual_id" : "UIN/VID used in login"
   },
   "l1Biometrics": {
     "scan_and_verify": "Scan and Verify",

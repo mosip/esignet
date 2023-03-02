@@ -32,7 +32,13 @@
     "authorize_scope_tooltip": "يسمح لمزود الخدمة بالوصول إلى هذه الخدمات المحمية نيابة عنك",
     "essential_claims_tooltip": "معلومات المستخدم الإلزامية التي يطلبها مزود الخدمة",
     "voluntary_claims_tooltip": "معلومات المستخدم الإضافية التي يمكن للمقيم اختيار مشاركتها مع مزود الخدمة",
-    "logo_alt": "e-Signet"
+    "logo_alt": "e-Signet",
+    "Manage-Identity-Data":"إدارة بيانات الهوية",
+    "Manage-VID" : "إدارة VID",
+    "Manage-Authentication" : "إدارة المصادقة / التوثيق",
+    "Manage-Service-Requests" : "إدارة طلبات الخدمة",
+    "Manage-Credentials" : "إدارة بيانات الاعتماد",
+    "individual_id" : "مُعرّف UIN/VID المستخدم في تسجيل الدخول"
   },
   "l1Biometrics": {
     "scan_and_verify": "المسح والتحقق",
