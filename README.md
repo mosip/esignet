@@ -1,23 +1,25 @@
-[![Maven Package upon a push](https://github.com/mosip/idp/actions/workflows/push_trigger.yml/badge.svg?branch=develop)](https://github.com/mosip/idp/actions/workflows/push_trigger.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mosip_idp&id=mosip_idp&metric=alert_status)](https://sonarcloud.io/dashboard?id=mosip_idp)
-# Identity Provider Project
+[![Maven Package upon a push](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml/badge.svg?branch=develop)](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mosip_esignet&id=mosip_esignet&metric=alert_status)](https://sonarcloud.io/dashboard?id=mosip_esignet)
+# e-Signet Project
 ## Overview
 This repository contains the implementation of Authorization Code flow of OAuth 2.0. Supports all the mandatory features of OIDC (Open ID Connect) specification.
 
-IdP repository contains following:
+e-Signet repository contains following:
 
-1. idp-core - Library containing all the common interfaces, DTOs and utils that is used as dependency in the other IdP module libraries and services
-2. idp-service - Deployable API service containing all the OIDC and UI APIs
-3. db_scripts - Contains all the db scripts required to setup or upgrade the DB for IdP module
-4. authentication-wrapper - Library containing the implementations of AuthenticationWrapper interface to intergrate into MOSIP's IDA module and mock authentication service
-5. idp-binding-service - Deployable API service containing the binding APIs
+1. esignet-core - Library containing all the common interfaces, DTOs and utils that is used as dependency in the other esignet module libraries and services
+2. esignet-service - Deployable API service containing all the OIDC and UI controllers.
+3. esignet-integration-api - Library containing all the integration interfaces.
+4. client-management-service-impl - Client management implementations classes.
+5. oidc-service-impl - Oauth and OIDC implementation classes.
+6. binding-service-impl - key and individualId binding service implementation classes.
+7. db_scripts - Contains all the db scripts required to setup or upgrade the DB for esignet module.
 
 
 ## Databases
 Refer to [SQL scripts](db_scripts).
 
 ## Build & run (for developers)
-The project requires JDK 11. 
+The project requires JDK 11.
 1. Build and install:
     ```
     $ mvn clean install -Dgpg.skip=true
