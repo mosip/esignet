@@ -1,6 +1,7 @@
 #!/bin/sh
 # Restart the oidc-ui services
 
+
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
