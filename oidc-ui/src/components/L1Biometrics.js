@@ -6,6 +6,7 @@ import {
   buttonTypes,
   challengeFormats,
   challengeTypes,
+  configurationKeys,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import InputWithImage from "./InputWithImage";
@@ -60,6 +61,13 @@ export default function L1Biometrics({
   const [modalityDevices, setModalityDevices] = useState(null);
   const [selectedDevice, setSelectedDevice] = useState(null);
 
+  const authTxnIdLengthValue =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.authTxnIdLength
+    ) ?? process.env.REACT_APP_AUTH_TXN_ID_LENGTH;
+
+  const authTxnIdLength = parseInt(authTxnIdLengthValue);
+
   // handle onChange event of the dropdown
   const handleDeviceChange = (device) => {
     setSelectedDevice(device);
@@ -77,9 +85,9 @@ export default function L1Biometrics({
   const startCapture = async () => {
     setError(null);
 
-    //limiting char count to 10
-    let text = Date.now() + "";
-    let transactionId = text.substring(0, 10);
+    let transactionId = getSBIAuthTransactionId(
+      openIDConnectService.getTransactionId()
+    );
 
     let vid = loginState["sbi_mosip-vid"];
 
@@ -146,6 +154,22 @@ export default function L1Biometrics({
         defaultMsg: error.message,
       });
     }
+  };
+
+  const getSBIAuthTransactionId = (oidcTransactionId) => {
+    oidcTransactionId = oidcTransactionId.replace(/-/gi, "");
+    oidcTransactionId = oidcTransactionId.replace(/_/gi, "");
+
+    let transactionId = "";
+    let pointer = oidcTransactionId.length;
+
+    while (transactionId.length !== authTxnIdLength) {
+      transactionId += oidcTransactionId.charAt(pointer--);
+      if (pointer < 0) {
+        pointer = oidcTransactionId.length;
+      }
+    }
+    return transactionId;
   };
 
   /**
