@@ -275,17 +275,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private String getAuthTransactionId(String oidcTransactionId) {
-        final byte[] underscore = "_".getBytes();
-        final byte[] hyphen = "-".getBytes();
-        final byte[] oidcTransactionIdBytes = oidcTransactionId.getBytes();
+        final String transactionId = oidcTransactionId.replaceAll("_|-", "");
+        final byte[] oidcTransactionIdBytes = transactionId.getBytes();
         final byte[] authTransactionIdBytes = new byte[authTransactionIdLength];
         int i = oidcTransactionIdBytes.length - 1;
         int j = 0;
         while(j < authTransactionIdLength) {
-            byte selectedByte = oidcTransactionIdBytes[i--];
-            if(selectedByte != underscore[0] && selectedByte != hyphen[0]) {
-                authTransactionIdBytes[j++] = selectedByte;
-            }
+            authTransactionIdBytes[j++] = oidcTransactionIdBytes[i--];
             if(i < 0) { i = oidcTransactionIdBytes.length - 1; }
         }
         return new String(authTransactionIdBytes);
