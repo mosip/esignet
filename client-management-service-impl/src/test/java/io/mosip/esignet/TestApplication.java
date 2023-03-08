@@ -27,6 +27,11 @@ public class TestApplication {
             public void logAudit(Action action, ActionStatus status, AuditDTO audit, Throwable t) {
                 //do nothing
             }
+
+			@Override
+			public void logAudit(String username, Action action, ActionStatus status, AuditDTO audit, Throwable t) {
+				//do nothing
+			}
         };
     }
 
