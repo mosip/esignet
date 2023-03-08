@@ -1,5 +1,8 @@
 package io.mosip.esignet.core.util;
 
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.jwt.Jwt;
+
 import io.mosip.esignet.api.dto.AuditDTO;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 
@@ -33,5 +36,19 @@ public class AuditHelper {
             auditDTO.setState(transaction.getState());
         }
         return auditDTO;
+    }
+    
+    public static String getClaimValue(SecurityContext context, String claimName) {
+    	if (context.getAuthentication() == null) {
+    		return null;
+    	}
+    	if (context.getAuthentication().getPrincipal() == null) {
+    		return null;
+    	}
+    	if (context.getAuthentication().getPrincipal() instanceof Jwt) {
+    		Jwt jwt = (Jwt) context.getAuthentication().getPrincipal();
+    		return jwt.getClaim(claimName);
+    	}
+    	return null;
     }
 }

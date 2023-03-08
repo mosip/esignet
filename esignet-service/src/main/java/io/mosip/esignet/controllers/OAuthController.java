@@ -5,6 +5,9 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OAuthError;
 import io.mosip.esignet.core.dto.TokenRequest;
@@ -12,6 +15,8 @@ import io.mosip.esignet.core.dto.TokenResponse;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
+import io.mosip.esignet.core.util.AuditHelper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
@@ -32,6 +37,9 @@ public class OAuthController {
 
     @Autowired
     private Validator validator;
+    
+    @Autowired
+    private AuditPlugin auditWrapper;
 
     @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -48,7 +56,12 @@ public class OAuthController {
         if(!violations.isEmpty()) {
             throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());
         }
-        return oAuthService.getTokens(tokenRequest);
+        try {
+        	return oAuthService.getTokens(tokenRequest);
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
+            throw ex;
+        }               
     }
 
     @GetMapping("/.well-known/jwks.json")

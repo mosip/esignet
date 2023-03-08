@@ -9,7 +9,11 @@ import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.exception.IdPException;
 import io.mosip.esignet.core.spi.LinkedAuthorizationService;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +40,9 @@ public class LinkedAuthorizationController {
 
     @Autowired
     MessageSource messageSource;
+    
+    @Autowired
+    private AuditPlugin auditWrapper;
 
     @Value("${mosip.esignet.link-status-deferred-response-timeout-secs:25}")
     private long linkStatusDeferredResponseTimeout;
@@ -48,7 +55,12 @@ public class LinkedAuthorizationController {
                                                                       requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkedAuthorizationService.generateLinkCode(requestWrapper.getRequest()));
+        try {
+        	responseWrapper.setResponse(linkedAuthorizationService.generateLinkCode(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
 
@@ -57,7 +69,12 @@ public class LinkedAuthorizationController {
                                                                             requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkedAuthorizationService.linkTransaction(requestWrapper.getRequest()));
+        try {
+        	responseWrapper.setResponse(linkedAuthorizationService.linkTransaction(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkCode(), null), ex);
+            throw ex;
+        }        
         return responseWrapper;
     }
 
@@ -67,7 +84,12 @@ public class LinkedAuthorizationController {
         DeferredResult deferredResult = new DeferredResult<>(linkStatusDeferredResponseTimeout*1000);
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
-        linkedAuthorizationService.getLinkStatus(deferredResult, requestWrapper.getRequest());
+        try {
+        	linkedAuthorizationService.getLinkStatus(deferredResult, requestWrapper.getRequest());
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.LINK_STATUS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
         return deferredResult;
     }
 
@@ -76,7 +98,12 @@ public class LinkedAuthorizationController {
                                                                             requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkedAuthorizationService.authenticateUser(requestWrapper.getRequest()));
+        try {
+        	responseWrapper.setResponse(linkedAuthorizationService.authenticateUser(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
 
@@ -85,7 +112,12 @@ public class LinkedAuthorizationController {
                                                                            requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkedAuthorizationService.saveConsent(requestWrapper.getRequest()));
+        try {
+        	responseWrapper.setResponse(linkedAuthorizationService.saveConsent(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
 
@@ -94,7 +126,13 @@ public class LinkedAuthorizationController {
                                                                           requestWrapper) throws IdPException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(linkedAuthorizationService.sendOtp(requestWrapper.getRequest()));
+        try {
+        	responseWrapper.setResponse(linkedAuthorizationService.sendOtp(requestWrapper.getRequest()));
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
+        
         return responseWrapper;
     }
 
@@ -104,7 +142,12 @@ public class LinkedAuthorizationController {
         DeferredResult deferredResult = new DeferredResult<>(linkAuthCodeDeferredResponseTimeout*1000);
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
-        linkedAuthorizationService.getLinkAuthCode(deferredResult, requestWrapper.getRequest());
+        try {
+        	linkedAuthorizationService.getLinkAuthCode(deferredResult, requestWrapper.getRequest());
+        } catch (IdPException ex) {
+            auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
         return deferredResult;
     }
 
