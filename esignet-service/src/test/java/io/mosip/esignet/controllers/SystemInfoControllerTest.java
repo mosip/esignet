@@ -1,6 +1,8 @@
 package io.mosip.esignet.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.RequestWrapper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
@@ -42,6 +44,9 @@ public class SystemInfoControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+    
+    @MockBean
+    AuditPlugin auditWrapper;
 
     @Test
     public void getCertificate_withValidRequest_thenPass() throws Exception {
