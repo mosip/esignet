@@ -59,7 +59,7 @@ public class ClientManagementController {
         try {
             response.setResponse(clientManagementService.updateOIDCClient(clientId, requestWrapper.getRequest()));
         } catch (IdPException ex) {
-            auditWrapper.logAudit(((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()),
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
             		Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
             throw ex;
         }

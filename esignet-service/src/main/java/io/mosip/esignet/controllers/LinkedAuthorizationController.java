@@ -101,7 +101,6 @@ public class LinkedAuthorizationController {
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.authenticateUser(requestWrapper.getRequest()));
         } catch (IdPException ex) {
-        	//TODO ask for linkedtransactionid to be stored or not
             auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
             throw ex;
         }
@@ -116,7 +115,6 @@ public class LinkedAuthorizationController {
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.saveConsent(requestWrapper.getRequest()));
         } catch (IdPException ex) {
-        	//TODO ask for linkedtransactionid to be stored or not
             auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
             throw ex;
         }
@@ -147,7 +145,6 @@ public class LinkedAuthorizationController {
         try {
         	linkedAuthorizationService.getLinkAuthCode(deferredResult, requestWrapper.getRequest());
         } catch (IdPException ex) {
-        	//TODO check linkedcode can be stored or not required
             auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }

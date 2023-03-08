@@ -118,7 +118,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkCodeResponse.setTransactionId(linkCodeRequest.getTransactionId());
         linkCodeResponse.setExpireDateTime(expireDateTime == null ? null :
                 expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));        
-        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkCodeRequest.getTransactionId(), null), null);
+        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkCodeRequest.getTransactionId(), transaction), null);
         return linkCodeResponse;
     }
 
@@ -164,8 +164,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
-        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
-
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -224,7 +222,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
-        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
+        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkedConsentRequest.getLinkedTransactionId(), transaction), null);
         return authRespDto;
     }
 
