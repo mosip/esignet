@@ -12,7 +12,6 @@ import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
@@ -115,7 +114,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setNonce(oauthDetailReqDto.getNonce());
         oidcTransaction.setState(oauthDetailReqDto.getState());
         oidcTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
-        oidcTransaction.setAuthTransactionId(IdentityProviderUtil.generateRandomAlphaNumeric(authTransactionIdLength));
+        oidcTransaction.setAuthTransactionId(getAuthTransactionId(transactionId));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
         oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oauthDetailResponse));
@@ -273,5 +272,18 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             log.error("Failed to generate oauth-details-response hash", e);
         }
         throw new IdPException(ErrorConstants.FAILED_TO_GENERATE_HEADER_HASH);
+    }
+
+    private String getAuthTransactionId(String oidcTransactionId) {
+        final String transactionId = oidcTransactionId.replaceAll("_|-", "");
+        final byte[] oidcTransactionIdBytes = transactionId.getBytes();
+        final byte[] authTransactionIdBytes = new byte[authTransactionIdLength];
+        int i = oidcTransactionIdBytes.length - 1;
+        int j = 0;
+        while(j < authTransactionIdLength) {
+            authTransactionIdBytes[j++] = oidcTransactionIdBytes[i--];
+            if(i < 0) { i = oidcTransactionIdBytes.length - 1; }
+        }
+        return new String(authTransactionIdBytes);
     }
 }
