@@ -7,7 +7,7 @@ package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.ClientDetailResponse;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.dto.ClientDetail;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 
@@ -17,24 +17,24 @@ public interface ClientManagementService {
      * API to register relying party client
      * @param clientDetailCreateRequest
      * @return
-     * @throws IdPException
+     * @throws EsignetException
      */
-    ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws IdPException;
+    ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException;
 
     /**
      * API to update registered relying party client
      * @param clientId
      * @param clientDetailCreateRequest
      * @return
-     * @throws IdPException
+     * @throws EsignetException
      */
-    ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailCreateRequest) throws IdPException;
+    ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailCreateRequest) throws EsignetException;
 
     /**
      * Api to get the active client detail with the provided client id.
      * @param clientId
      * @return
      */
-    ClientDetail getClientDetails(String clientId) throws IdPException;
+    ClientDetail getClientDetails(String clientId) throws EsignetException;
 
 }

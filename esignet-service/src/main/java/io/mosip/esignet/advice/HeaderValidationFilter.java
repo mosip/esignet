@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.ResponseWrapper;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
@@ -71,15 +71,15 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
                 return;
             }
             log.error("oauth-details header validation failed, value in transaction: {}", transaction.getOauthDetailsHash());
-            throw new IdPException(INVALID_REQUEST);
+            throw new EsignetException(INVALID_REQUEST);
 
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             response.setStatus(HttpStatus.OK.value());
             response.getWriter().write(getErrorResponse(e));
         }
     }
 
-    private String getErrorResponse(IdPException ex) {
+    private String getErrorResponse(EsignetException ex) {
         String errorCode = ex.getErrorCode();
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());

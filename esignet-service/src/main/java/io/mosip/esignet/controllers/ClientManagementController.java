@@ -9,7 +9,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -42,7 +42,7 @@ public class ClientManagementController {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
             response.setResponse(clientManagementService.createOIDCClient(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
             		Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;
@@ -58,7 +58,7 @@ public class ClientManagementController {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
             response.setResponse(clientManagementService.updateOIDCClient(clientId, requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
             		Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
             throw ex;

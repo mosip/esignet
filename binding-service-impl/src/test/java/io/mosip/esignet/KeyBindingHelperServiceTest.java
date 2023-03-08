@@ -3,7 +3,7 @@ package io.mosip.esignet;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.KeyBindingHelperService;
@@ -82,7 +82,7 @@ public class KeyBindingHelperServiceTest {
             keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
                     "certificate", "WLA");
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(DUPLICATE_PUBLIC_KEY, e.getErrorCode());
         }
     }

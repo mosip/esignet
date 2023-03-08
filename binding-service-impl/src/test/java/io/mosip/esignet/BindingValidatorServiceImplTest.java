@@ -8,7 +8,7 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.api.dto.AuthChallenge;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.BindingValidatorServiceImpl;
@@ -159,7 +159,7 @@ public class BindingValidatorServiceImplTest {
 	}
 
 	@Test
-	public void validateBinding_withUnBoundId_thenFail() throws IdPException {
+	public void validateBinding_withUnBoundId_thenFail() throws EsignetException {
 		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList());
 
 		String transactionId = "909422113";
@@ -178,7 +178,7 @@ public class BindingValidatorServiceImplTest {
 	}
 
 	@Test
-	public void validateBinding_withUnBoundAuthFactors_thenFail() throws IdPException {
+	public void validateBinding_withUnBoundAuthFactors_thenFail() throws EsignetException {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
 				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
 				"certificate", LocalDateTime.now());
@@ -204,7 +204,7 @@ public class BindingValidatorServiceImplTest {
 	}
 
 	@Test
-	public void validateBinding_withInvalidChallenge_thenFail() throws IdPException {
+	public void validateBinding_withInvalidChallenge_thenFail() throws EsignetException {
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
                 LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
                 "certificate", LocalDateTime.now());

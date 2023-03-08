@@ -7,7 +7,7 @@ package io.mosip.esignet.controllers;
 
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.LinkedAuthorizationService;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
@@ -52,12 +52,12 @@ public class LinkedAuthorizationController {
 
     @PostMapping("/link-code")
     public ResponseWrapper<LinkCodeResponse> generateLinkCode(@Valid @RequestBody RequestWrapper<LinkCodeRequest>
-                                                                      requestWrapper) throws IdPException {
+                                                                      requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.generateLinkCode(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }
@@ -66,12 +66,12 @@ public class LinkedAuthorizationController {
 
     @PostMapping("/link-transaction")
     public ResponseWrapper<LinkTransactionResponse> linkTransaction(@Valid @RequestBody RequestWrapper<LinkTransactionRequest>
-                                                                            requestWrapper) throws IdPException {
+                                                                            requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.linkTransaction(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkCode(), null), ex);
             throw ex;
         }        
@@ -80,13 +80,13 @@ public class LinkedAuthorizationController {
 
     @PostMapping("/link-status")
     public DeferredResult<ResponseWrapper<LinkStatusResponse>> getLinkStatus(@Valid @RequestBody RequestWrapper<LinkStatusRequest>
-                                                                                     requestWrapper) throws IdPException {
+                                                                                     requestWrapper) throws EsignetException {
         DeferredResult deferredResult = new DeferredResult<>(linkStatusDeferredResponseTimeout*1000);
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         try {
         	linkedAuthorizationService.getLinkStatus(deferredResult, requestWrapper.getRequest());
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.LINK_STATUS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }
@@ -95,12 +95,12 @@ public class LinkedAuthorizationController {
 
     @PostMapping("/authenticate")
     public ResponseWrapper<LinkedKycAuthResponse> authenticate(@Valid @RequestBody RequestWrapper<LinkedKycAuthRequest>
-                                                                            requestWrapper) throws IdPException {
+                                                                            requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.authenticateUser(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
             throw ex;
         }
@@ -109,12 +109,12 @@ public class LinkedAuthorizationController {
 
     @PostMapping("/consent")
     public ResponseWrapper<LinkedConsentResponse> saveConsent(@Valid @RequestBody RequestWrapper<LinkedConsentRequest>
-                                                                           requestWrapper) throws IdPException {
+                                                                           requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.saveConsent(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
             throw ex;
         }
@@ -123,12 +123,12 @@ public class LinkedAuthorizationController {
 
     @PostMapping("/send-otp")
     public ResponseWrapper<OtpResponse> sendOtp(@Valid @RequestBody RequestWrapper<OtpRequest>
-                                                                          requestWrapper) throws IdPException {
+                                                                          requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.sendOtp(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }
@@ -138,13 +138,13 @@ public class LinkedAuthorizationController {
 
     @PostMapping("/link-auth-code")
     public DeferredResult<ResponseWrapper<LinkAuthCodeResponse>> getAuthCode(@Valid @RequestBody RequestWrapper<LinkAuthCodeRequest>
-                                                                                           requestWrapper) throws IdPException {
+                                                                                           requestWrapper) throws EsignetException {
         DeferredResult deferredResult = new DeferredResult<>(linkAuthCodeDeferredResponseTimeout*1000);
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         try {
         	linkedAuthorizationService.getLinkAuthCode(deferredResult, requestWrapper.getRequest());
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }
@@ -173,8 +173,8 @@ public class LinkedAuthorizationController {
                 ResponseWrapper responseWrapper = new ResponseWrapper();
                 responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
                 responseWrapper.setErrors(new ArrayList<>());
-                if(throwable instanceof IdPException) {
-                    String errorCode = ((IdPException) throwable).getErrorCode();
+                if(throwable instanceof EsignetException) {
+                    String errorCode = ((EsignetException) throwable).getErrorCode();
                     responseWrapper.getErrors().add(new Error(errorCode, messageSource.getMessage(errorCode, null, Locale.getDefault())));
                 } else
                     responseWrapper.getErrors().add(new Error(ErrorConstants.UNKNOWN_ERROR,

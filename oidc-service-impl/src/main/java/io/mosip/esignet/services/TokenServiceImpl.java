@@ -20,7 +20,7 @@ import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.TokenService;
@@ -119,9 +119,9 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws IdPException {
+    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws EsignetException {
         if(clientAssertion == null)
-            throw new IdPException(ErrorConstants.INVALID_ASSERTION);
+            throw new EsignetException(ErrorConstants.INVALID_ASSERTION);
 
         try {
       

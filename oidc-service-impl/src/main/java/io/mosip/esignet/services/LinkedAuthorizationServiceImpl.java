@@ -49,7 +49,7 @@ import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.OtpRequest;
 import io.mosip.esignet.core.dto.OtpResponse;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.LinkedAuthorizationService;
@@ -97,13 +97,13 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     private int linkCodeLength;
 
     @Override
-    public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException {
+    public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(linkCodeRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
         if(transaction.getCurrentLinkCodeLimit() <= 0)
-            throw new IdPException(ErrorConstants.LINK_CODE_LIMIT_REACHED);
+            throw new EsignetException(ErrorConstants.LINK_CODE_LIMIT_REACHED);
 
         //Duplicate link code is handled only once, duplicate exception on the second try is thrown out.
         String linkCode = null;
@@ -141,11 +141,11 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     }
 
     @Override
-    public LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws IdPException {
+    public LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkTransactionRequest.getLinkCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
         if(linkTransactionMetadata == null || linkTransactionMetadata.getTransactionId() == null)
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
+            throw new EsignetException(ErrorConstants.INVALID_LINK_CODE);
 
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(linkTransactionMetadata.getTransactionId());
         if(transaction == null)
@@ -181,7 +181,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     }
 
     @Override
-    public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
+    public OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -196,7 +196,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     }
 
     @Override
-    public LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws IdPException {
+    public LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(linkedKycAuthRequest.getLinkedTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -222,7 +222,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     }
 
     @Override
-    public LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws IdPException {
+    public LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedAuthTransaction(linkedConsentRequest.getLinkedTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
@@ -246,7 +246,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Async
     @Override
-    public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException {
+    public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkStatusRequest.getLinkCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
         if(linkTransactionMetadata == null) {
@@ -255,7 +255,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         }
 
         if (linkTransactionMetadata == null || !linkStatusRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()))
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
+            throw new EsignetException(ErrorConstants.INVALID_LINK_CODE);
 
         if (linkTransactionMetadata.getLinkedTransactionId() != null) {
             deferredResult.setResult(authorizationHelperService.getLinkStatusResponse(LINKED_STATUS));
@@ -266,12 +266,12 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Async
     @Override
-    public void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException {
+    public void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkAuthCodeRequest.getLinkedCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
         if(linkTransactionMetadata == null || !linkAuthCodeRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()) ||
                 linkTransactionMetadata.getLinkedTransactionId() == null)
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
+            throw new EsignetException(ErrorConstants.INVALID_LINK_CODE);
 
         OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
         if(oidcTransaction != null) {

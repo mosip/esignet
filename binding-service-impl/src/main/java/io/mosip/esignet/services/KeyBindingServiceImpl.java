@@ -18,7 +18,7 @@ import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
@@ -59,19 +59,19 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 
 
 	@Override
-	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws IdPException {
+	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws EsignetException {
 		SendOtpResult sendOtpResult;
 		try {
 			sendOtpResult = keyBindingWrapper.sendBindingOtp(bindingOtpRequest.getIndividualId(),
 					bindingOtpRequest.getOtpChannels(), requestHeaders);
 		} catch (SendOtpException e) {
 			log.error("Failed to send binding otp: {}", e);
-			throw new IdPException(e.getErrorCode());
+			throw new EsignetException(e.getErrorCode());
 		}
 
 		if (sendOtpResult == null) {
 			log.error("send-otp Failed wrapper returned null result!");
-			throw new IdPException(SEND_OTP_FAILED);
+			throw new EsignetException(SEND_OTP_FAILED);
 		}
 
 		BindingOtpResponse otpResponse = new BindingOtpResponse();
@@ -81,11 +81,11 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	}
 
 	@Override
-	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws IdPException {
+	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws EsignetException {
 		//Do not store format, only check if the format is supported by the wrapper.
 		if(!keyBindingWrapper.getSupportedChallengeFormats(walletBindingRequest.getAuthFactorType()).
 				contains(walletBindingRequest.getFormat()))
-			throw new IdPException(INVALID_CHALLENGE_FORMAT);
+			throw new EsignetException(INVALID_CHALLENGE_FORMAT);
 
 		String publicKey = IdentityProviderUtil.getJWKString(walletBindingRequest.getPublicKey());
 		KeyBindingResult keyBindingResult;
@@ -94,12 +94,12 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 					walletBindingRequest.getChallengeList(), walletBindingRequest.getPublicKey(), walletBindingRequest.getAuthFactorType(), requestHeaders);
 		} catch (KeyBindingException e) {
 			log.error("Failed to bind the key", e);
-			throw new IdPException(e.getErrorCode());
+			throw new EsignetException(e.getErrorCode());
 		}
 
 		if (keyBindingResult == null || keyBindingResult.getCertificate() == null || keyBindingResult.getPartnerSpecificUserToken() == null) {
 			log.error("wallet binding failed with result : {}", keyBindingResult);
-			throw new IdPException(KEY_BINDING_FAILED);
+			throw new EsignetException(KEY_BINDING_FAILED);
 		}
 
 		//We will always keep this in binding-service control, as future features will be based on this registry.
@@ -126,7 +126,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 			return jsonWebEncryption.getCompactSerialization();
 		} catch (JoseException e) {
 			log.error("Failed to create JWE", e);
-			throw new IdPException(FAILED_TO_CREATE_JWE);
+			throw new EsignetException(FAILED_TO_CREATE_JWE);
 		}
 	}
 }
