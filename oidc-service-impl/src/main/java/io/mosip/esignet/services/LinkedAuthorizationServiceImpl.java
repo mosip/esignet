@@ -5,29 +5,11 @@
  */
 package io.mosip.esignet.services;
 
-import io.mosip.esignet.api.dto.KycAuthResult;
-import io.mosip.esignet.api.dto.SendOtpResult;
-import io.mosip.esignet.api.spi.AuditPlugin;
-import io.mosip.esignet.api.spi.CaptchaValidator;
-import io.mosip.esignet.api.util.Action;
-import io.mosip.esignet.api.util.ActionStatus;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
-import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.exception.InvalidTransactionException;
-import io.mosip.esignet.core.spi.ClientManagementService;
-import io.mosip.esignet.core.spi.LinkedAuthorizationService;
-import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.KafkaHelperService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.async.DeferredResult;
+import static io.mosip.esignet.core.constants.Constants.ESSENTIAL;
+import static io.mosip.esignet.core.constants.Constants.LINKED_STATUS;
+import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
+import static io.mosip.esignet.core.constants.Constants.VOLUNTARY;
+import static io.mosip.esignet.core.spi.TokenService.ACR;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -38,8 +20,44 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.mosip.esignet.core.spi.TokenService.ACR;
-import static io.mosip.esignet.core.constants.Constants.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
+import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.AuthenticationFactor;
+import io.mosip.esignet.core.dto.ClientDetail;
+import io.mosip.esignet.core.dto.LinkAuthCodeRequest;
+import io.mosip.esignet.core.dto.LinkCodeRequest;
+import io.mosip.esignet.core.dto.LinkCodeResponse;
+import io.mosip.esignet.core.dto.LinkStatusRequest;
+import io.mosip.esignet.core.dto.LinkTransactionMetadata;
+import io.mosip.esignet.core.dto.LinkTransactionRequest;
+import io.mosip.esignet.core.dto.LinkTransactionResponse;
+import io.mosip.esignet.core.dto.LinkedConsentRequest;
+import io.mosip.esignet.core.dto.LinkedConsentResponse;
+import io.mosip.esignet.core.dto.LinkedKycAuthRequest;
+import io.mosip.esignet.core.dto.LinkedKycAuthResponse;
+import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.OtpRequest;
+import io.mosip.esignet.core.dto.OtpResponse;
+import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
+import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.InvalidTransactionException;
+import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.LinkedAuthorizationService;
+import io.mosip.esignet.core.util.AuditHelper;
+import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.util.KafkaHelperService;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -244,7 +262,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         } else {
             authorizationHelperService.addEntryInLinkStatusDeferredResultMap(linkCodeHash, deferredResult);
         }
-        auditWrapper.logAudit(Action.LINK_STATUS, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkStatusRequest.getTransactionId(), null), null);
     }
 
     @Async
@@ -258,10 +275,10 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
         if(oidcTransaction != null) {
+        	auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkAuthCodeRequest.getTransactionId(), oidcTransaction), null);
             deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), oidcTransaction));
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
         }
-        auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkAuthCodeRequest.getTransactionId(), oidcTransaction), null);
     }
 }
