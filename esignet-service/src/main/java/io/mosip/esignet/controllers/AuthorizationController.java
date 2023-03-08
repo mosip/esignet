@@ -9,7 +9,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -32,12 +32,12 @@ public class AuthorizationController {
 
     @PostMapping("/oauth-details")
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
-                                                                            requestWrapper) throws IdPException {
+                                                                            requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;
         }
@@ -46,12 +46,12 @@ public class AuthorizationController {
 
     @PostMapping("/send-otp")
     public ResponseWrapper<OtpResponse> sendOtp(@Valid @RequestBody RequestWrapper<OtpRequest> requestWrapper)
-            throws IdPException {
+            throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.sendOtp(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.SEND_OTP, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }
@@ -60,12 +60,12 @@ public class AuthorizationController {
 
     @PostMapping("/authenticate")
     public ResponseWrapper<AuthResponse> authenticateEndUser(@Valid @RequestBody RequestWrapper<AuthRequest>
-                                                                        requestWrapper) throws IdPException {
+                                                                        requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.authenticateUser(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }
@@ -74,12 +74,12 @@ public class AuthorizationController {
 
     @PostMapping("/auth-code")
     public ResponseWrapper<AuthCodeResponse> getAuthorizationCode(@Valid @RequestBody RequestWrapper<AuthCodeRequest>
-                                                                              requestWrapper) throws IdPException {
+                                                                              requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.getAuthCode(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
         }

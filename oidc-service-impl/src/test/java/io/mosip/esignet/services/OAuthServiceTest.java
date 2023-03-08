@@ -16,7 +16,7 @@ import io.mosip.esignet.core.dto.ClientDetail;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
@@ -218,13 +218,13 @@ public class OAuthServiceTest {
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(null, kycExchangeResult);
         try {
             oAuthService.getTokens(tokenRequest);
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
         }
 
         try {
             oAuthService.getTokens(tokenRequest);
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
         }
     }
@@ -254,7 +254,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals("test-err-1", ex.getErrorCode());
         }
     }

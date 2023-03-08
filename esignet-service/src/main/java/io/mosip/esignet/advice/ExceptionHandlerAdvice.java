@@ -8,7 +8,7 @@ package io.mosip.esignet.advice;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OAuthError;
 import io.mosip.esignet.core.dto.ResponseWrapper;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
@@ -138,8 +138,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         if(ex instanceof InvalidClientException) {
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_CLIENT_ID, getMessage(INVALID_CLIENT_ID)), HttpStatus.OK);
         }
-        if(ex instanceof IdPException) {
-            String errorCode = ((IdPException) ex).getErrorCode();
+        if(ex instanceof EsignetException) {
+            String errorCode = ((EsignetException) ex).getErrorCode();
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode, getMessage(errorCode)), HttpStatus.OK);
         }
         if(ex instanceof AuthenticationCredentialsNotFoundException) {
@@ -165,11 +165,11 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof InvalidRequestException) {
-            String errorCode = ((IdPException) ex).getErrorCode();
+            String errorCode = ((EsignetException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof IdPException) {
-            String errorCode = ((IdPException) ex).getErrorCode();
+        if(ex instanceof EsignetException) {
+            String errorCode = ((EsignetException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         log.error("Unhandled exception encountered in handler advice", ex);

@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
 
@@ -29,9 +29,9 @@ public interface OAuthService {
      *
      * @param tokenRequest
      * @return
-     * @throws IdPException
+     * @throws EsignetException
      */
-    TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws IdPException;
+    TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws EsignetException;
 
     /**
      * API to get list of IdP public keys

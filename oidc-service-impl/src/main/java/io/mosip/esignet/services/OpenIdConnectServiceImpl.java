@@ -9,7 +9,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.OpenIdConnectService;
 import io.mosip.esignet.core.spi.TokenService;
@@ -41,7 +41,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
 
 
     @Override
-    public String getUserInfo(String accessToken) throws IdPException {
+    public String getUserInfo(String accessToken) throws EsignetException {
         String accessTokenHash = null;
         OIDCTransaction transaction = null;
         try {
@@ -65,7 +65,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
                     transaction), null);
             return transaction.getEncryptedKyc();
 
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.ERROR, AuditHelper.buildAuditDto(accessTokenHash,
                     transaction), null);
             throw ex;

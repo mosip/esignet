@@ -11,7 +11,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.RequestWrapper;
 import io.mosip.esignet.core.dto.ResponseWrapper;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateResponseDto;
@@ -52,7 +52,7 @@ public class SystemInfoController {
         ResponseWrapper<KeyPairGenerateResponseDto> responseWrapper = new ResponseWrapper<>();
         try {
         	responseWrapper.setResponse(keymanagerService.getCertificate(applicationId, referenceId));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
         	auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
 					Action.GET_CERTIFICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(null), ex);
         	throw ex;
@@ -67,7 +67,7 @@ public class SystemInfoController {
         ResponseWrapper<UploadCertificateResponseDto> responseWrapper = new ResponseWrapper<>();
         try {
         	responseWrapper.setResponse(keymanagerService.uploadCertificate(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
         	auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
 					Action.GET_CERTIFICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(null), ex);
             throw ex;

@@ -7,7 +7,7 @@ package io.mosip.esignet.core.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 
-public class NotAuthenticatedException extends IdPException {
+public class NotAuthenticatedException extends EsignetException {
 
     public NotAuthenticatedException() {
         super(ErrorConstants.INVALID_AUTH_TOKEN);

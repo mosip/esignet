@@ -15,7 +15,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -137,7 +137,7 @@ public class LinkedAuthorizationServiceTest {
         try {
             linkedAuthorizationService.generateLinkCode(linkCodeRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ErrorConstants.LINK_CODE_LIMIT_REACHED, ex.getErrorCode());
         }
     }
@@ -180,7 +180,7 @@ public class LinkedAuthorizationServiceTest {
         try {
             linkedAuthorizationService.generateLinkCode(linkCodeRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ErrorConstants.LINK_CODE_GEN_FAILED, ex.getErrorCode());
         }
     }
@@ -230,7 +230,7 @@ public class LinkedAuthorizationServiceTest {
         try {
             linkedAuthorizationService.linkTransaction(linkTransactionRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ErrorConstants.INVALID_LINK_CODE, ex.getErrorCode());
         }
     }
@@ -381,7 +381,7 @@ public class LinkedAuthorizationServiceTest {
         setErrorHandler(deferredResult);
         try {
             linkedAuthorizationService.getLinkStatus(deferredResult, linkStatusRequest);
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_LINK_CODE);
         }
     }
@@ -464,7 +464,7 @@ public class LinkedAuthorizationServiceTest {
         setErrorHandler(deferredResult);
         try {
             linkedAuthorizationService.getLinkAuthCode(deferredResult, linkAuthCodeRequest);
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_LINK_CODE);
         }
     }
@@ -551,8 +551,8 @@ public class LinkedAuthorizationServiceTest {
                 ResponseWrapper responseWrapper = new ResponseWrapper();
                 responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
                 responseWrapper.setErrors(new ArrayList<>());
-                if(throwable instanceof IdPException) {
-                    String errorCode = ((IdPException) throwable).getErrorCode();
+                if(throwable instanceof EsignetException) {
+                    String errorCode = ((EsignetException) throwable).getErrorCode();
                     responseWrapper.getErrors().add(new Error(errorCode, errorCode));
                 } else
                     responseWrapper.getErrors().add(new Error(ErrorConstants.UNKNOWN_ERROR,ErrorConstants.UNKNOWN_ERROR));

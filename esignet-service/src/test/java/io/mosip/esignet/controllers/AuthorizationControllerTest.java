@@ -10,7 +10,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.OAuthDetailRequest;
 import io.mosip.esignet.core.dto.OAuthDetailResponse;
 import io.mosip.esignet.core.dto.RequestWrapper;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -62,7 +62,7 @@ public class AuthorizationControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
-    public void init() throws IdPException {
+    public void init() throws EsignetException {
         HashSet<String> acrValues = new HashSet<>();
         acrValues.add("mosip:idp:acr:static-code");
         acrValues.add("mosip:idp:acr:biometrics");

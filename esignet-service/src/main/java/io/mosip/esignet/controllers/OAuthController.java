@@ -12,7 +12,7 @@ import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OAuthError;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
 import io.mosip.esignet.core.util.AuditHelper;
@@ -44,7 +44,7 @@ public class OAuthController {
     @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public TokenResponse getToken(@RequestParam MultiValueMap<String,String> paramMap)
-            throws IdPException {
+            throws EsignetException {
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setCode(paramMap.getFirst("code"));
         tokenRequest.setClient_id(paramMap.getFirst("client_id"));
@@ -58,7 +58,7 @@ public class OAuthController {
         }
         try {
         	return oAuthService.getTokens(tokenRequest);
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
             throw ex;
         }               

@@ -17,7 +17,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
@@ -75,7 +75,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 
     @Override
-    public OAuthDetailResponse getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws IdPException {
+    public OAuthDetailResponse getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
 
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
@@ -124,7 +124,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
+    public OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException {
         authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
 
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
@@ -141,7 +141,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public AuthResponse authenticateUser(AuthRequest authRequest)  throws IdPException {
+    public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -169,7 +169,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException {
+    public AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
@@ -196,7 +196,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)
-            throws IdPException {
+            throws EsignetException {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setUserinfo(new HashMap<>());
         resolvedClaims.setId_token(new HashMap<>());
@@ -208,7 +208,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         //Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
         if(isRequestedUserInfoClaimsPresent && !Arrays.stream(requestedScopes).anyMatch(s  -> SCOPE_OPENID.equals(s)))
-            throw new IdPException(ErrorConstants.INVALID_SCOPE);
+            throw new EsignetException(ErrorConstants.INVALID_SCOPE);
 
         log.info("Started to resolve claims based on the request scope {} and claims {}", requestedScopes, requestedClaims);
         //get claims based on scope
@@ -234,13 +234,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return resolvedClaims;
     }
 
-    private ClaimDetail resolveACRClaim(List<String> registeredACRs, String requestedAcr, Claims requestedClaims) throws IdPException {
+    private ClaimDetail resolveACRClaim(List<String> registeredACRs, String requestedAcr, Claims requestedClaims) throws EsignetException {
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setEssential(true);
 
         log.info("Registered ACRS :{}", registeredACRs);
         if(registeredACRs == null || registeredACRs.isEmpty())
-            throw new IdPException(ErrorConstants.NO_ACR_REGISTERED);
+            throw new EsignetException(ErrorConstants.NO_ACR_REGISTERED);
 
         //First priority is given to claims request parameter
         if(requestedClaims != null && requestedClaims.getId_token() != null && requestedClaims.getId_token().get(ACR) != null) {
@@ -271,7 +271,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         } catch (Exception e) {
             log.error("Failed to generate oauth-details-response hash", e);
         }
-        throw new IdPException(ErrorConstants.FAILED_TO_GENERATE_HEADER_HASH);
+        throw new EsignetException(ErrorConstants.FAILED_TO_GENERATE_HEADER_HASH);
     }
 
     private String getAuthTransactionId(String oidcTransactionId) {
