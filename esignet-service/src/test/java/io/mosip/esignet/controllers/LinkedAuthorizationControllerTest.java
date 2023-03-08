@@ -38,6 +38,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.LinkAuthCodeRequest;
@@ -81,6 +82,9 @@ public class LinkedAuthorizationControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+    
+    @MockBean
+    AuditPlugin auditWrapper;
 
     @Test
     public void generateLinkCode_withValidRequest_thenPass() throws Exception {
