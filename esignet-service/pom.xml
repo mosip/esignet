@@ -24,6 +24,7 @@
 		<jackson.databind>2.12.0</jackson.databind>
 		<fasterxml.jackson.module.jsr310.version>2.12.0</fasterxml.jackson.module.jsr310.version>
 		<fasterxml.jackson.module.afterburner.version>2.12.0</fasterxml.jackson.module.afterburner.version>
+		<esignet.mock.services.version>0.0.1-SNAPSHOT</esignet.mock.services.version>
 	</properties>
 	
 	<dependencies>
@@ -66,9 +67,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.mosip.idp</groupId>
-			<artifactId>authentication-wrapper</artifactId>
-			<version>${project.version}</version>
+			<groupId>io.mosip.esignet.mock</groupId>
+			<artifactId>mock-esignet-integration-impl</artifactId>
+			<version>${esignet.mock.services.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
