@@ -25,7 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.esignet.core.dto.AuthenticationFactor;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -63,27 +63,27 @@ public class AuthContextClassRefUtilTest {
 
 
     @Test
-    public void getSupportedACRValues_test() throws IdPException {
+    public void getSupportedACRValues_test() throws EsignetException {
         Set<String> acrValues = authenticationContextClassRefUtil.getSupportedACRValues();
         Assert.assertNotNull(acrValues);
         Assert.assertEquals(4 ,acrValues.size());
     }
 
     @Test
-    public void getAuthFactors_withEmptyAcr() throws IdPException {
+    public void getAuthFactors_withEmptyAcr() throws EsignetException {
         List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.getAuthFactors(new String[] {});
         Assert.assertNotNull(authFactors);
         Assert.assertTrue(authFactors.isEmpty());
     }
 
-    @Test(expected = IdPException.class)
-    public void getAuthFactors_withInvalidMappingJson_throwsException() throws IdPException {
+    @Test(expected = EsignetException.class)
+    public void getAuthFactors_withInvalidMappingJson_throwsException() throws EsignetException {
     	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingJson", "test");         
         authenticationContextClassRefUtil.getAuthFactors(new String[] {"mosip:idp:acr:linked-wallet"});
     }
     
     @Test
-    public void getAuthFactors_withValidAcr() throws IdPException {
+    public void getAuthFactors_withValidAcr() throws EsignetException {
         List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.
                 getAuthFactors(new String[] {"mosip:idp:acr:linked-wallet"});
 
@@ -99,7 +99,7 @@ public class AuthContextClassRefUtilTest {
     }
 
     @Test
-    public void getAuthFactors_withEmptyMappingJson() throws IdPException {
+    public void getAuthFactors_withEmptyMappingJson() throws EsignetException {
     	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingJson", null);
     	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingFileUrl", "https://test-url");
     	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "restTemplate", restTemplate);
@@ -121,7 +121,7 @@ public class AuthContextClassRefUtilTest {
     }
 
     @Test
-    public void getAuthFactors_withValidAcr_preserveOrderOfPrecedence() throws IdPException {
+    public void getAuthFactors_withValidAcr_preserveOrderOfPrecedence() throws EsignetException {
         List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.getAuthFactors(new String[]
                 {"mosip:idp:acr:biometrics", "mosip:idp:acr:static-code"});
 
@@ -144,7 +144,7 @@ public class AuthContextClassRefUtilTest {
     }
 
     @Test
-    public void getAuthFactors_withValidAcr_ignoreUnknown() throws IdPException {
+    public void getAuthFactors_withValidAcr_ignoreUnknown() throws EsignetException {
         List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.getAuthFactors(new String[]
                 {"mosip:idp:acr:generated-code", "mosip:idp:acr:metrics"});
 

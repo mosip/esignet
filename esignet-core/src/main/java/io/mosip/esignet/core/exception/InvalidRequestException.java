@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.exception;
 
-public class InvalidRequestException extends IdPException {
+public class InvalidRequestException extends EsignetException {
 
     private String errorCode;
 

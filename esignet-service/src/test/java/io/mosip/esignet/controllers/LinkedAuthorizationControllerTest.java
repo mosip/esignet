@@ -1,18 +1,26 @@
 package io.mosip.esignet.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.jwk.JWK;
-import io.mosip.esignet.TestUtil;
-import io.mosip.esignet.api.dto.AuthChallenge;
-import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.dto.Error;
-import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.exception.InvalidTransactionException;
-import io.mosip.esignet.core.spi.LinkedAuthorizationService;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.services.AuthorizationHelperService;
-import io.mosip.esignet.services.CacheUtilService;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_AUTH_FACTOR_TYPE;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CHALLENGE;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CHALLENGE_FORMAT;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_IDENTIFIER;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_LINK_CODE;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_OTP_CHANNEL;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_TRANSACTION_ID;
+import static io.mosip.esignet.core.constants.ErrorConstants.RESPONSE_TIMEOUT;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,16 +35,31 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static io.mosip.esignet.core.constants.ErrorConstants.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.Error;
+import io.mosip.esignet.core.dto.LinkAuthCodeRequest;
+import io.mosip.esignet.core.dto.LinkCodeRequest;
+import io.mosip.esignet.core.dto.LinkCodeResponse;
+import io.mosip.esignet.core.dto.LinkStatusRequest;
+import io.mosip.esignet.core.dto.LinkTransactionRequest;
+import io.mosip.esignet.core.dto.LinkTransactionResponse;
+import io.mosip.esignet.core.dto.LinkedConsentRequest;
+import io.mosip.esignet.core.dto.LinkedConsentResponse;
+import io.mosip.esignet.core.dto.LinkedKycAuthRequest;
+import io.mosip.esignet.core.dto.LinkedKycAuthResponse;
+import io.mosip.esignet.core.dto.OtpRequest;
+import io.mosip.esignet.core.dto.OtpResponse;
+import io.mosip.esignet.core.dto.RequestWrapper;
+import io.mosip.esignet.core.dto.ResponseWrapper;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.exception.InvalidTransactionException;
+import io.mosip.esignet.core.spi.LinkedAuthorizationService;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.AuthorizationHelperService;
+import io.mosip.esignet.services.CacheUtilService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = LinkedAuthorizationController.class)
@@ -368,7 +391,7 @@ public class LinkedAuthorizationControllerTest {
         // Trigger a timeout on the request
         MockAsyncContext ctx = (MockAsyncContext) mvcResult.getRequest().getAsyncContext();
         for (AsyncListener listener : ctx.getListeners()) {
-            AsyncEvent asyncEvent = new AsyncEvent(ctx, new IdPException(ErrorConstants.INVALID_LINK_CODE));
+            AsyncEvent asyncEvent = new AsyncEvent(ctx, new EsignetException(ErrorConstants.INVALID_LINK_CODE));
             listener.onError(asyncEvent);
         }
 
@@ -424,7 +447,7 @@ public class LinkedAuthorizationControllerTest {
         // Trigger a timeout on the request
         MockAsyncContext ctx = (MockAsyncContext) mvcResult.getRequest().getAsyncContext();
         for (AsyncListener listener : ctx.getListeners()) {
-            AsyncEvent asyncEvent = new AsyncEvent(ctx, new IdPException(ErrorConstants.INVALID_LINK_CODE));
+            AsyncEvent asyncEvent = new AsyncEvent(ctx, new EsignetException(ErrorConstants.INVALID_LINK_CODE));
             listener.onError(asyncEvent);
         }
 

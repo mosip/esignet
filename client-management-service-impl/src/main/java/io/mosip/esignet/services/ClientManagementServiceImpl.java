@@ -15,7 +15,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 import io.mosip.esignet.core.dto.ClientDetailResponse;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.*;
@@ -59,10 +59,10 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
     @Override
-    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws IdPException {
+    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
         if (result.isPresent()) {
-            throw new IdPException(ErrorConstants.DUPLICATE_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
         ClientDetail clientDetail = new ClientDetail();
@@ -94,7 +94,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             clientDetail = clientDetailRepository.save(clientDetail);
         } catch (ConstraintViolationException cve) {
             log.error("Failed to create client details", cve);
-            throw new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
@@ -108,10 +108,10 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
-    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws IdPException {
+    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
-            throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
         ClientDetail clientDetail = result.get();
@@ -147,7 +147,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Cacheable(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
-    public io.mosip.esignet.core.dto.ClientDetail getClientDetails(String clientId) throws IdPException {
+    public io.mosip.esignet.core.dto.ClientDetail getClientDetails(String clientId) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(clientId, CLIENT_ACTIVE_STATUS);
         if(!result.isPresent())
             throw new InvalidClientException();
