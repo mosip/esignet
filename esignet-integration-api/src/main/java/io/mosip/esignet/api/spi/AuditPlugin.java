@@ -12,7 +12,7 @@ import io.mosip.esignet.api.dto.AuditDTO;
 public interface AuditPlugin {
 
     /**
-     + Plugin method to audit all the actions in Idp service.
+     + Plugin method to audit all the actions in e-Signet service.
      +
      +  @param action Action to audit @{@link Action}
      +  @param actionStatus Action status to audit @{@link ActionStatus}
@@ -22,7 +22,7 @@ public interface AuditPlugin {
     void logAudit(Action action, ActionStatus status, AuditDTO audit, Throwable t);
 
     /**
-    + Plugin method to audit all the actions in Idp service.
+    + Plugin method to audit all the actions in e-Signet service.
     +
     +  @param username Session username for audit
     +  @param action Action to audit @{@link Action}
