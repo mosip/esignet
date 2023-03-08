@@ -3,7 +3,7 @@ package io.mosip.esignet.services;
 
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.TokenService;
 
@@ -67,14 +67,14 @@ public class OpenIdConnectServiceTest {
         openIdConnectService.getUserInfo("Bearer access-token");
     }
 
-    @Test(expected = IdPException.class)
+    @Test(expected = EsignetException.class)
     public void getUserInfo_withInValidAccessToken_thenFail() {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
         oidcTransaction.setEncryptedKyc("encrypted-kyc");
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-        Mockito.doThrow(IdPException.class).when(tokenService).verifyAccessToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doThrow(EsignetException.class).when(tokenService).verifyAccessToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
         openIdConnectService.getUserInfo("Bearer access-token");
     }
 

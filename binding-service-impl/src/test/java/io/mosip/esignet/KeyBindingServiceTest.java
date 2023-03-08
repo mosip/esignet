@@ -30,7 +30,7 @@ import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.KeyBindingHelperService;
@@ -117,13 +117,13 @@ public class KeyBindingServiceTest {
 		try {
 			keyBindingService.sendBindingOtp(otpRequest, new HashMap<>());
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (EsignetException e) {
 			Assert.assertTrue(e.getErrorCode().equals(SEND_OTP_FAILED));
 		}
 	}
 
 	@Test
-	public void bindWallet_withValidDetails_thenPass() throws IdPException, KeyBindingException, JsonProcessingException {
+	public void bindWallet_withValidDetails_thenPass() throws EsignetException, KeyBindingException, JsonProcessingException {
 		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
 		walletBindingRequest.setIndividualId("8267411571");
 		walletBindingRequest.setAuthFactorType("WLA");
@@ -157,7 +157,7 @@ public class KeyBindingServiceTest {
 	}
 
 	@Test
-	public void bindWallet_withUnsupportedFormat_thenFail() throws IdPException, JsonProcessingException {
+	public void bindWallet_withUnsupportedFormat_thenFail() throws EsignetException, JsonProcessingException {
 		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
 		walletBindingRequest.setIndividualId("8267411571");
 		walletBindingRequest.setAuthFactorType("WLA");
@@ -174,13 +174,13 @@ public class KeyBindingServiceTest {
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (EsignetException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE_FORMAT));
 		}
 	}
 
 	@Test
-	public void bindWallet_withInvalidKeyBindingResult_thenFail() throws IOException, IdPException, KeyBindingException {
+	public void bindWallet_withInvalidKeyBindingResult_thenFail() throws IOException, EsignetException, KeyBindingException {
 		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
 		walletBindingRequest.setIndividualId("8267411571");
 		walletBindingRequest.setAuthFactorType("WLA");
@@ -200,7 +200,7 @@ public class KeyBindingServiceTest {
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (EsignetException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
 		}
 
@@ -210,7 +210,7 @@ public class KeyBindingServiceTest {
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (EsignetException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
 		}
 
@@ -221,13 +221,13 @@ public class KeyBindingServiceTest {
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (EsignetException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
 		}
 	}
 
 	@Test
-	public void bindWallet_saveKeyBindingThrowException_thenFail() throws IOException, IdPException, KeyBindingException {
+	public void bindWallet_saveKeyBindingThrowException_thenFail() throws IOException, EsignetException, KeyBindingException {
 		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
 		walletBindingRequest.setIndividualId("8267411571");
 		walletBindingRequest.setAuthFactorType("WLA");
@@ -249,19 +249,19 @@ public class KeyBindingServiceTest {
 				.thenReturn(keyBindingResult);
 
 		when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-				Mockito.anyString(), Mockito.anyString())).thenThrow(new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY));
+				Mockito.anyString(), Mockito.anyString())).thenThrow(new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY));
 
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
-		} catch (IdPException e) {
+		} catch (EsignetException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.DUPLICATE_PUBLIC_KEY));
 		}
 	}
 
 	@Test
 	public void bindWallet_withAlreadyExistingWalletBindingId_thenPass()
-			throws IOException, IdPException, KeyBindingException {
+			throws IOException, EsignetException, KeyBindingException {
 		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
 		walletBindingRequest.setIndividualId("8267411571");
 		walletBindingRequest.setAuthFactorType("WLA");

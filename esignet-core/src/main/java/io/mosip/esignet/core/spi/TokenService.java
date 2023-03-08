@@ -6,7 +6,7 @@
 package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import org.json.simple.JSONObject;
 
@@ -103,7 +103,7 @@ public interface TokenService {
      * exp : Expiration time on or after which the ID Token MUST NOT be accepted for processing.
      * iat : OPTIONAL. Time at which the JWT was issued.
      */
-     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws IdPException;
+     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws EsignetException;
 
     /**
      * Verifies access token signature and also the claims with expected values

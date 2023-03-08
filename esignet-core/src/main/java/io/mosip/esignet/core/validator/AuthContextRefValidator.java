@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.validator;
 
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -30,7 +30,7 @@ public class AuthContextRefValidator implements ConstraintValidator<AuthContextR
         String[] values = IdentityProviderUtil.splitAndTrimValue(value, Constants.SPACE);
         try {
             return acrUtil.getSupportedACRValues().containsAll(List.of(values));
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
         return false;
     }
 }

@@ -14,7 +14,7 @@ import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
@@ -76,7 +76,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(ErrorConstants.CAPTCHA_VALIDATOR_NOT_FOUND, e.getErrorCode());
         }
     }
@@ -89,7 +89,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
         }
     }
@@ -210,7 +210,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
 
@@ -219,7 +219,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
 
@@ -229,7 +229,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
 
@@ -239,7 +239,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
     }
@@ -259,7 +259,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "gender"));
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
         }
     }
@@ -279,7 +279,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("email", "phone_number"));
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
         }
     }
@@ -297,7 +297,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.validateAuthorizeScopes(oidcTransaction, Arrays.asList("send-otp"));
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());
         }
     }
@@ -309,7 +309,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.validateAuthorizeScopes(oidcTransaction, Arrays.asList("send-otp"));
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());
         }
     }
@@ -345,7 +345,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(SEND_OTP_FAILED, ex.getErrorCode());
         }
     }
@@ -406,7 +406,7 @@ public class AuthorizationHelperServiceTest {
         try {
             authorizationHelperService.getProvidedAuthFactors(oidcTransaction, challengeList);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(AUTH_FACTOR_MISMATCH, ex.getErrorCode());
         }
     }

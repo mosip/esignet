@@ -5,13 +5,14 @@
  */
 package io.mosip.esignet.core.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.AuthenticationFactor;
-import io.mosip.esignet.core.exception.IdPException;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,9 +21,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.AuthenticationFactor;
+import io.mosip.esignet.core.exception.EsignetException;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -51,19 +57,19 @@ public class AuthenticationContextClassRefUtil {
     }
 
     @Cacheable(value = "acr_amr", key = "amr", unless = "#result != null")
-    private Map<String, List<AuthenticationFactor>> getAllAMRs()  throws IdPException {
+    private Map<String, List<AuthenticationFactor>> getAllAMRs()  throws EsignetException {
         try {
             ObjectNode objectNode = objectMapper.readValue(getMappingJson(), new TypeReference<ObjectNode>(){});
             return objectMapper.convertValue(objectNode.get(AMR_KEY),
                     new TypeReference<Map<String, List<AuthenticationFactor>>>(){});
         } catch (IOException e) {
             log.error("Failed to load / parse amr mappings", e);
-            throw new IdPException(ErrorConstants.ACR_AMR_MAPPING_NOT_FOUND);
+            throw new EsignetException(ErrorConstants.ACR_AMR_MAPPING_NOT_FOUND);
         }
     }
 
     @Cacheable(value = "acr_amr", key = "acr_amr", unless = "#result != null")
-    private Map<String, List<String>> getAllACR_AMR_Mapping()  throws IdPException {
+    private Map<String, List<String>> getAllACR_AMR_Mapping()  throws EsignetException {
         try {
             ObjectNode objectNode = objectMapper.readValue(getMappingJson(), new TypeReference<ObjectNode>(){});
             return objectMapper.convertValue(objectNode.get(ACR_AMR),
@@ -71,15 +77,15 @@ public class AuthenticationContextClassRefUtil {
 
         } catch (IOException e) {
             log.error("Failed to load / parse acr_amr mappings", e);
-            throw new IdPException(ErrorConstants.ACR_AMR_MAPPING_NOT_FOUND);
+            throw new EsignetException(ErrorConstants.ACR_AMR_MAPPING_NOT_FOUND);
         }
     }
 
-    public Set<String> getSupportedACRValues() throws IdPException {
+    public Set<String> getSupportedACRValues() throws EsignetException {
         return getAllACR_AMR_Mapping().keySet();
     }
 
-    public List<List<AuthenticationFactor>> getAuthFactors(String[] authContextClassRefs) throws IdPException {
+    public List<List<AuthenticationFactor>> getAuthFactors(String[] authContextClassRefs) throws EsignetException {
         Map<String, List<AuthenticationFactor>> amr_mappings = getAllAMRs();
         Map<String, List<String>> acr_amr_mappings = getAllACR_AMR_Mapping();
 

@@ -14,7 +14,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 import io.mosip.esignet.core.dto.ClientDetailResponse;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
@@ -95,7 +95,7 @@ public class ClientManagementServiceTest {
         clientCreateReqDto.setClientId("client_id_v1");
         try {
             clientManagementService.createOIDCClient(clientCreateReqDto);
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
         }
     }
@@ -105,13 +105,13 @@ public class ClientManagementServiceTest {
         Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.empty());
         try {
             clientManagementService.updateOIDCClient("client_id_v1", null);
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
     }
 
     @Test
-    public void updateClient_withValidClientId_thenPass() throws IdPException {
+    public void updateClient_withValidClientId_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setName("client_id_v1");
         clientDetail.setId("client_id_v1");
@@ -143,7 +143,7 @@ public class ClientManagementServiceTest {
     }
 
     @Test
-    public void getClient_withValidClientId_thenPass() throws IdPException {
+    public void getClient_withValidClientId_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setName("client_id_v1");
         clientDetail.setId("client_id_v1");
@@ -162,13 +162,13 @@ public class ClientManagementServiceTest {
     }
 
     @Test
-    public void getClient_withInvalidClientId_thenFail() throws IdPException {
+    public void getClient_withInvalidClientId_thenFail() throws EsignetException {
         Mockito.when(clientDetailRepository.findByIdAndStatus("client_id_v1", CLIENT_ACTIVE_STATUS))
                 .thenReturn(Optional.empty());
 
         try {
             clientManagementService.getClientDetails("client_id_v1");
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
     }

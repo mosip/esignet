@@ -28,14 +28,14 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 
 public class IdentityProviderUtilTest {
 
 
     @Test
-    public void validateRedirectURIPositiveTest() throws IdPException {
+    public void validateRedirectURIPositiveTest() throws EsignetException {
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/**"),
                 "https://api.dev.mosip.net/home/test");
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/test"),
@@ -56,37 +56,37 @@ public class IdentityProviderUtilTest {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/test1"),
                     "https://api.dev.mosip.net/home/test");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/test1"),
                     "https://api.dev.mosip.net/home/TEST1");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home**"),
                     "https://api.dev.mosip.net/home/TEST1");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/*"),
                     "https://api.dev.mosip.net/home/TEST1");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/t*"),
                     "https://api.dev.mosip.net/home/TEST1");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
         
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("test-url"),
                     "https://api.dev.mosip.net/home/TEST1");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
     }
     
     @Test
@@ -108,7 +108,7 @@ public class IdentityProviderUtilTest {
     	try {
     		IdentityProviderUtil.generateHexEncodedHash("test-algorithm", "test");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
     }
     
     @Test
@@ -117,7 +117,7 @@ public class IdentityProviderUtilTest {
     	try {
     		IdentityProviderUtil.generateB64EncodedHash("test-algorithm", "test");
             Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
     }
     
     @Test
@@ -149,7 +149,7 @@ public class IdentityProviderUtilTest {
     	try {
     		IdentityProviderUtil.getJWKString(new HashMap<String, Object>());
     		Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
     }
     
     @Test
@@ -158,7 +158,7 @@ public class IdentityProviderUtilTest {
     	try {
     		IdentityProviderUtil.getCertificateThumbprint("test", getCertificate());
     		Assert.fail();
-        } catch (IdPException e) {}
+        } catch (EsignetException e) {}
     }
     
     public static JWK generateJWK_RSA() {
