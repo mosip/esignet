@@ -33,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.core.spi.KeyBindingService;
-import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 
