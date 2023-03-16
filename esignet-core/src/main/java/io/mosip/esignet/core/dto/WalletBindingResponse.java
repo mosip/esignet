@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class WalletBindingResponse {
 
-    private String encryptedWalletBindingId;
+    private String walletUserId;
     private String certificate;
     private String expireDateTime;
 }
