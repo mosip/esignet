@@ -66,12 +66,6 @@
 			<artifactId>binding-service-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.mosip.esignet.mock</groupId>
-			<artifactId>mock-esignet-integration-impl</artifactId>
-			<version>${esignet.mock.services.version}</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
