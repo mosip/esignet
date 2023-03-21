@@ -77,7 +77,7 @@ public class AuthorizationHelperServiceTest {
             authorizationHelperService.validateCaptchaToken("captcha-token");
             Assert.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.CAPTCHA_VALIDATOR_NOT_FOUND, e.getErrorCode());
+            Assert.assertEquals(FAILED_TO_VALIDATE_CAPTCHA, e.getErrorCode());
         }
     }
 
