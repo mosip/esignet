@@ -59,6 +59,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 
 	@Override
 	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws EsignetException {
+		log.debug("sendBindingOtp :: Request headers >> {}", requestHeaders);
 		SendOtpResult sendOtpResult;
 		try {
 			sendOtpResult = keyBindingWrapper.sendBindingOtp(bindingOtpRequest.getIndividualId(),
@@ -81,6 +82,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 
 	@Override
 	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws EsignetException {
+		log.debug("bindWallet :: Request headers >> {}", requestHeaders);
 		//Do not store format, only check if the format is supported by the wrapper.
 		if(!keyBindingWrapper.getSupportedChallengeFormats(walletBindingRequest.getAuthFactorType()).
 				contains(walletBindingRequest.getFormat()))
