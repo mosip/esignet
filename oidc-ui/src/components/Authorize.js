@@ -105,13 +105,22 @@ export default function Authorize({
     //1. Check for ui locales param. Highest priority.
     //This will override the language detectors selected language
     let defaultConfigs = await getLocaleConfiguration();
-    let supportedLanguages = defaultConfigs.languages;
+    let supportedLanguages = defaultConfigs.languages_2Letters;
     let uiLocales = searchParams.get("ui_locales");
     if (uiLocales) {
       let languages = uiLocales.split(" ");
       for (let idx in languages) {
         if (supportedLanguages[languages[idx]]) {
           i18n.changeLanguage(languages[idx]);
+          return;
+        }
+      }
+
+      // if language code not found in 2 letter codes, then check mapped language codes
+      let langCodeMapping = defaultConfigs.langCodeMapping;
+      for (let idx in languages) {
+        if (langCodeMapping[languages[idx]]) {
+          i18n.changeLanguage(langCodeMapping[languages[idx]]);
           return;
         }
       }
