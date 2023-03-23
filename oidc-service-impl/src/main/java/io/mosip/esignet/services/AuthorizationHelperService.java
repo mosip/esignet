@@ -100,8 +100,10 @@ public class AuthorizationHelperService {
             return;
         }
 
-        if(captchaValidator == null)
-            throw new EsignetException(ErrorConstants.CAPTCHA_VALIDATOR_NOT_FOUND);
+        if(captchaValidator == null) {
+            log.error("Captcha validator instance is NULL, Unable to validate captcha token");
+            throw new EsignetException(ErrorConstants.FAILED_TO_VALIDATE_CAPTCHA);
+        }
 
         if(!captchaValidator.validateCaptcha(captchaToken))
             throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
