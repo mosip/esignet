@@ -6,7 +6,7 @@
 package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.dto.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -17,7 +17,7 @@ public interface LinkedAuthorizationService {
      * @param linkCodeRequest
      * @return
      */
-    LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException;;
+    LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws EsignetException;;
 
     /**
      * Starts a linked-transaction for the provided valid and active link-code.
@@ -25,41 +25,41 @@ public interface LinkedAuthorizationService {
      * @param linkTransactionRequest
      * @return
      */
-    LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws IdPException;
+    LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws EsignetException;
 
     /**
      * Returns the status of linked-transaction if any.
      * @param linkStatusRequest
      * @return
      */
-    void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException;
+    void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws EsignetException;
 
     /**
      * Returns the authentication and consent status of the linked-transaction.
      * @param linkAuthCodeRequest
      * @return
      */
-    void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException;
+    void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws EsignetException;
 
     /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel
      * @param otpRequest
      * @return
      */
-    OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException;
+    OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException;
 
     /**
      * Authentication request for the required auth-factors
      * @param linkedKycAuthRequest
      * @return
      */
-    LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws IdPException;
+    LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws EsignetException;
 
     /**
      * Accepted claims are verified and KYC exchange is performed
      * Redirects to requested redirect_uri
      * @param linkedConsentRequest
      */
-    LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws IdPException;
+    LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws EsignetException;
 
 }

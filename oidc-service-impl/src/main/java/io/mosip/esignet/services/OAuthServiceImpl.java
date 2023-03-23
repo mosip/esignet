@@ -19,7 +19,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.*;
 import io.mosip.esignet.core.util.*;
@@ -69,7 +69,7 @@ public class OAuthServiceImpl implements OAuthService {
 
 
     @Override
-    public TokenResponse getTokens(TokenRequest tokenRequest) throws IdPException {
+    public TokenResponse getTokens(TokenRequest tokenRequest) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
         if(transaction == null || transaction.getKycToken() == null)
@@ -99,11 +99,11 @@ public class OAuthServiceImpl implements OAuthService {
         } catch (KycExchangeException e) {
             log.error("KYC exchange failed", e);
             auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, AuditHelper.buildAuditDto(codeHash, transaction), e);
-            throw new IdPException(e.getErrorCode());
+            throw new EsignetException(e.getErrorCode());
         }
 
         if(kycExchangeResult == null || kycExchangeResult.getEncryptedKyc() == null)
-            throw new IdPException(DATA_EXCHANGE_FAILED);
+            throw new EsignetException(DATA_EXCHANGE_FAILED);
 
         auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(codeHash, transaction), null);
 
@@ -175,7 +175,7 @@ public class OAuthServiceImpl implements OAuthService {
         return map;
     }
 
-    private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws IdPException {
+    private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws EsignetException {
         switch (tokenRequest.getClient_assertion_type()) {
             case JWT_BEARER_TYPE:
                 validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion());
@@ -186,7 +186,7 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
 
-    private void validateJwtClientAssertion(String ClientId, String jwk, String clientAssertion) throws IdPException {
+    private void validateJwtClientAssertion(String ClientId, String jwk, String clientAssertion) throws EsignetException {
         if(clientAssertion == null || clientAssertion.isBlank())
             throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
 

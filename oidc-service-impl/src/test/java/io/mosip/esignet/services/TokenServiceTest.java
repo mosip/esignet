@@ -2,7 +2,7 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -103,7 +103,7 @@ public class TokenServiceTest {
         Assert.assertEquals("test-issuer", jsonObject.get(ISS));
     }
 
-    @Test(expected = IdPException.class)
+    @Test(expected = EsignetException.class)
     public void verifyClientAssertionToken_withNullAssertion_thenFail() {
         tokenService.verifyClientAssertionToken("client-id", publidKey, null);
     }

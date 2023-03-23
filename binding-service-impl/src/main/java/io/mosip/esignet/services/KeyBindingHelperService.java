@@ -2,7 +2,7 @@ package io.mosip.esignet.services;
 
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
@@ -41,13 +41,13 @@ public class KeyBindingHelperService {
     }
 
     public PublicKeyRegistry storeKeyBindingDetailsInRegistry(String individualId, String partnerSpecificUserToken, String publicKey,
-                                                               String certificateData, String authFactor) throws IdPException {
+                                                               String certificateData, String authFactor) throws EsignetException {
         String publicKeyHash = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, publicKey);
         //check if any entry exists with same public key for different PSU-token
         Optional<PublicKeyRegistry> optionalPublicKeyRegistryForDuplicateCheck = publicKeyRegistryRepository
                 .findOptionalByPublicKeyHashAndPsuTokenNot(publicKeyHash, partnerSpecificUserToken);
         if (optionalPublicKeyRegistryForDuplicateCheck.isPresent())
-            throw new IdPException(DUPLICATE_PUBLIC_KEY);
+            throw new EsignetException(DUPLICATE_PUBLIC_KEY);
 
         X509Certificate certificate = (X509Certificate)keymanagerUtil.convertToCertificate(certificateData);
         LocalDateTime expireDTimes = certificate.getNotAfter().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
@@ -85,7 +85,7 @@ public class KeyBindingHelperService {
             messageDigest.update(partnerSpecificUserToken.getBytes());
             messageDigest.update(IdentityProviderUtil.generateSalt(saltLength));
         } catch (NoSuchAlgorithmException e) {
-            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
         return b64Encode(messageDigest.digest());
     }

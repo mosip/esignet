@@ -6,7 +6,7 @@
 package io.mosip.esignet.core;
 
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.validator.*;
@@ -45,7 +45,7 @@ public class ValidatorTest {
 	private Map<String, Object> discoveryMap = new HashMap<>();
 
 	@Before
-	public void setup() throws IdPException {
+	public void setup() throws EsignetException {
 		Set<String> mockACRs = new HashSet<>();
 		mockACRs.add("level1");
 		mockACRs.add("level2");
@@ -288,7 +288,7 @@ public class ValidatorTest {
 	public void test_OptionalACRValidator_throwsException_thenFail() {
 		AuthContextRefValidator validator = new AuthContextRefValidator();
 		ReflectionTestUtils.setField(validator, "acrUtil", authenticationContextClassRefUtil);
-		when(authenticationContextClassRefUtil.getSupportedACRValues()).thenThrow(IdPException.class);
+		when(authenticationContextClassRefUtil.getSupportedACRValues()).thenThrow(EsignetException.class);
 		Assert.assertFalse(validator.isValid("level5 level1", null));
 	}
 

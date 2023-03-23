@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 
 import java.util.Map;
 
@@ -15,9 +15,9 @@ public interface OpenIdConnectService {
      * UserInfo Endpoint returns Claims about the authenticated End-User
      * @param accessToken
      * @return JWT signed with IDP key. Payload is encrypted with registered client's public key.
-     * @throws IdPException
+     * @throws EsignetException
      */
-    String getUserInfo(String accessToken) throws IdPException;
+    String getUserInfo(String accessToken) throws EsignetException;
 
     /**
      * Discovery endpoint, returns all the supported values and host endpoints

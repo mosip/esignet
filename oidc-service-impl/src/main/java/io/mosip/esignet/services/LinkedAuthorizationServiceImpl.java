@@ -5,25 +5,11 @@
  */
 package io.mosip.esignet.services;
 
-import io.mosip.esignet.api.dto.KycAuthResult;
-import io.mosip.esignet.api.dto.SendOtpResult;
-import io.mosip.esignet.api.spi.CaptchaValidator;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
-import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.exception.InvalidTransactionException;
-import io.mosip.esignet.core.spi.ClientManagementService;
-import io.mosip.esignet.core.spi.LinkedAuthorizationService;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.KafkaHelperService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.async.DeferredResult;
+import static io.mosip.esignet.core.constants.Constants.ESSENTIAL;
+import static io.mosip.esignet.core.constants.Constants.LINKED_STATUS;
+import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
+import static io.mosip.esignet.core.constants.Constants.VOLUNTARY;
+import static io.mosip.esignet.core.spi.TokenService.ACR;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -34,8 +20,44 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.mosip.esignet.core.spi.TokenService.ACR;
-import static io.mosip.esignet.core.constants.Constants.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
+import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.AuthenticationFactor;
+import io.mosip.esignet.core.dto.ClientDetail;
+import io.mosip.esignet.core.dto.LinkAuthCodeRequest;
+import io.mosip.esignet.core.dto.LinkCodeRequest;
+import io.mosip.esignet.core.dto.LinkCodeResponse;
+import io.mosip.esignet.core.dto.LinkStatusRequest;
+import io.mosip.esignet.core.dto.LinkTransactionMetadata;
+import io.mosip.esignet.core.dto.LinkTransactionRequest;
+import io.mosip.esignet.core.dto.LinkTransactionResponse;
+import io.mosip.esignet.core.dto.LinkedConsentRequest;
+import io.mosip.esignet.core.dto.LinkedConsentResponse;
+import io.mosip.esignet.core.dto.LinkedKycAuthRequest;
+import io.mosip.esignet.core.dto.LinkedKycAuthResponse;
+import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.OtpRequest;
+import io.mosip.esignet.core.dto.OtpResponse;
+import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.exception.InvalidTransactionException;
+import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.LinkedAuthorizationService;
+import io.mosip.esignet.core.util.AuditHelper;
+import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.util.KafkaHelperService;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -55,6 +77,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Autowired
     private KafkaHelperService kafkaHelperService;
+    
+    @Autowired
+    private AuditPlugin auditWrapper;
 
     @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
@@ -72,13 +97,13 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     private int linkCodeLength;
 
     @Override
-    public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws IdPException {
+    public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(linkCodeRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
 
         if(transaction.getCurrentLinkCodeLimit() <= 0)
-            throw new IdPException(ErrorConstants.LINK_CODE_LIMIT_REACHED);
+            throw new EsignetException(ErrorConstants.LINK_CODE_LIMIT_REACHED);
 
         //Duplicate link code is handled only once, duplicate exception on the second try is thrown out.
         String linkCode = null;
@@ -110,16 +135,17 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkCodeResponse.setLinkCode(linkCode);
         linkCodeResponse.setTransactionId(linkCodeRequest.getTransactionId());
         linkCodeResponse.setExpireDateTime(expireDateTime == null ? null :
-                expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+                expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));        
+        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkCodeRequest.getTransactionId(), transaction), null);
         return linkCodeResponse;
     }
 
     @Override
-    public LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws IdPException {
+    public LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkTransactionRequest.getLinkCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
         if(linkTransactionMetadata == null || linkTransactionMetadata.getTransactionId() == null)
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
+            throw new EsignetException(ErrorConstants.INVALID_LINK_CODE);
 
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(linkTransactionMetadata.getTransactionId());
         if(transaction == null)
@@ -150,11 +176,12 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         //Publish message after successfully linking the transaction
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
+        auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
         return linkTransactionResponse;
     }
 
     @Override
-    public OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException {
+    public OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(otpRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -164,11 +191,12 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         otpResponse.setTransactionId(otpRequest.getTransactionId());
         otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
         otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
+        auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(otpRequest.getTransactionId(), transaction), null);
         return otpResponse;
     }
 
     @Override
-    public LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws IdPException {
+    public LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedSessionTransaction(linkedKycAuthRequest.getLinkedTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -189,11 +217,12 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
+        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
         return authRespDto;
     }
 
     @Override
-    public LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws IdPException {
+    public LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedAuthTransaction(linkedConsentRequest.getLinkedTransactionId());
         if(transaction == null) {
             throw new InvalidTransactionException();
@@ -211,12 +240,13 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
+        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkedConsentRequest.getLinkedTransactionId(), transaction), null);
         return authRespDto;
     }
 
     @Async
     @Override
-    public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws IdPException {
+    public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkStatusRequest.getLinkCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
         if(linkTransactionMetadata == null) {
@@ -225,7 +255,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         }
 
         if (linkTransactionMetadata == null || !linkStatusRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()))
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
+            throw new EsignetException(ErrorConstants.INVALID_LINK_CODE);
 
         if (linkTransactionMetadata.getLinkedTransactionId() != null) {
             deferredResult.setResult(authorizationHelperService.getLinkStatusResponse(LINKED_STATUS));
@@ -236,15 +266,16 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Async
     @Override
-    public void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws IdPException {
+    public void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkAuthCodeRequest.getLinkedCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
         if(linkTransactionMetadata == null || !linkAuthCodeRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()) ||
                 linkTransactionMetadata.getLinkedTransactionId() == null)
-            throw new IdPException(ErrorConstants.INVALID_LINK_CODE);
+            throw new EsignetException(ErrorConstants.INVALID_LINK_CODE);
 
         OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
         if(oidcTransaction != null) {
+        	auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkAuthCodeRequest.getTransactionId(), oidcTransaction), null);
             deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), oidcTransaction));
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);

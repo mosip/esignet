@@ -7,16 +7,16 @@ package io.mosip.esignet.core.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 
-public class IdPException extends RuntimeException {
+public class EsignetException extends RuntimeException {
 
     private String errorCode;
 
-    public IdPException() {
+    public EsignetException() {
         super(ErrorConstants.UNKNOWN_ERROR);
         this.errorCode = ErrorConstants.UNKNOWN_ERROR;
     }
 
-    public IdPException(String errorCode) {
+    public EsignetException(String errorCode) {
         super(errorCode);
         this.errorCode = errorCode;
     }

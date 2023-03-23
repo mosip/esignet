@@ -14,7 +14,7 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -78,7 +78,7 @@ public class AuthorizationServiceTest {
 
 
     @Test(expected = InvalidClientException.class)
-    public void getOauthDetails_withInvalidClientId_throwsException() throws IdPException {
+    public void getOauthDetails_withInvalidClientId_throwsException() throws EsignetException {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setNonce("test-nonce");
@@ -87,7 +87,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withInvalidRedirectUri_throwsException() throws IdPException {
+    public void getOauthDetails_withInvalidRedirectUri_throwsException() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -101,13 +101,13 @@ public class AuthorizationServiceTest {
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
             Assert.fail();
-        } catch (IdPException e) {
+        } catch (EsignetException e) {
             Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
         }
     }
 
     @Test
-    public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws IdPException {
+    public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -131,7 +131,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_withNullClaimsInDbAndValidClaimsInReq_thenPass() throws IdPException {
+    public void getOauthDetails_withNullClaimsInDbAndValidClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
@@ -237,7 +237,7 @@ public class AuthorizationServiceTest {
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.NO_ACR_REGISTERED));
         }
     }
@@ -375,7 +375,7 @@ public class AuthorizationServiceTest {
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_SCOPE));
         }
     }
@@ -390,13 +390,13 @@ public class AuthorizationServiceTest {
         try {
             authorizationServiceImpl.authenticateUser(authRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
         }
     }
 
     @Test
-    public void authenticate_multipleRegisteredAcrsWithSingleFactor_thenPass() throws IdPException, KycAuthException {
+    public void authenticate_multipleRegisteredAcrsWithSingleFactor_thenPass() throws EsignetException, KycAuthException {
         String transactionId = "test-transaction";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
@@ -425,7 +425,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticate_multipleRegisteredAcrsWithInvalidSingleFactor_thenFail() throws IdPException {
+    public void authenticate_multipleRegisteredAcrsWithInvalidSingleFactor_thenFail() throws EsignetException {
         String transactionId = "test-transaction";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
@@ -446,13 +446,13 @@ public class AuthorizationServiceTest {
         try {
             authorizationServiceImpl.authenticateUser(authRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }
 
     @Test
-    public void authenticate_multipleRegisteredAcrsWithMultiFactor_thenPass() throws IdPException, KycAuthException {
+    public void authenticate_multipleRegisteredAcrsWithMultiFactor_thenPass() throws EsignetException, KycAuthException {
         String transactionId = "test-transaction";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
@@ -482,7 +482,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticate_multipleRegisteredAcrsWithInvalidMultiFactor_thenPass() throws IdPException {
+    public void authenticate_multipleRegisteredAcrsWithInvalidMultiFactor_thenPass() throws EsignetException {
         String transactionId = "test-transaction";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:linked-wallet"}));
@@ -504,7 +504,7 @@ public class AuthorizationServiceTest {
         try {
             authorizationServiceImpl.authenticateUser(authRequest);
             Assert.fail();
-        } catch (IdPException ex) {
+        } catch (EsignetException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }

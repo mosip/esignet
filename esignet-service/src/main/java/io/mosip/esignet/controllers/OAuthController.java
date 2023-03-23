@@ -5,23 +5,30 @@
  */
 package io.mosip.esignet.controllers;
 
-import io.mosip.esignet.core.dto.Error;
-import io.mosip.esignet.core.dto.OAuthError;
-import io.mosip.esignet.core.dto.TokenRequest;
-import io.mosip.esignet.core.dto.TokenResponse;
-import io.mosip.esignet.core.exception.IdPException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
-import io.mosip.esignet.core.spi.OAuthService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
+import io.mosip.esignet.core.dto.TokenRequest;
+import io.mosip.esignet.core.dto.TokenResponse;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.exception.InvalidRequestException;
+import io.mosip.esignet.core.spi.OAuthService;
+import io.mosip.esignet.core.util.AuditHelper;
 
 @RestController
 @RequestMapping("/oauth")
@@ -32,11 +39,14 @@ public class OAuthController {
 
     @Autowired
     private Validator validator;
+    
+    @Autowired
+    private AuditPlugin auditWrapper;
 
     @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public TokenResponse getToken(@RequestParam MultiValueMap<String,String> paramMap)
-            throws IdPException {
+            throws EsignetException {
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setCode(paramMap.getFirst("code"));
         tokenRequest.setClient_id(paramMap.getFirst("client_id"));
@@ -48,7 +58,12 @@ public class OAuthController {
         if(!violations.isEmpty()) {
             throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());
         }
-        return oAuthService.getTokens(tokenRequest);
+        try {
+        	return oAuthService.getTokens(tokenRequest);
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
+            throw ex;
+        }               
     }
 
     @GetMapping("/.well-known/jwks.json")

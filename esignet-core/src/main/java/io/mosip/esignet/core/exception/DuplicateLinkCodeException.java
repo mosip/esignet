@@ -8,7 +8,7 @@ package io.mosip.esignet.core.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 
-public class DuplicateLinkCodeException extends IdPException {
+public class DuplicateLinkCodeException extends EsignetException {
 
     public DuplicateLinkCodeException() {
         super(ErrorConstants.LINK_CODE_GEN_FAILED);

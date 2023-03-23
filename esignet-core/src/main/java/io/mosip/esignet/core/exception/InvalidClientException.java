@@ -7,7 +7,7 @@ package io.mosip.esignet.core.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 
-public class InvalidClientException extends IdPException {
+public class InvalidClientException extends EsignetException {
 
     public InvalidClientException() {
         super(ErrorConstants.INVALID_CLIENT_ID);

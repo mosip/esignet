@@ -16,7 +16,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.*;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
@@ -100,11 +100,13 @@ public class AuthorizationHelperService {
             return;
         }
 
-        if(captchaValidator == null)
-            throw new IdPException(ErrorConstants.CAPTCHA_VALIDATOR_NOT_FOUND);
+        if(captchaValidator == null) {
+            log.error("Captcha validator instance is NULL, Unable to validate captcha token");
+            throw new EsignetException(ErrorConstants.FAILED_TO_VALIDATE_CAPTCHA);
+        }
 
         if(!captchaValidator.validateCaptcha(captchaToken))
-            throw new IdPException(ErrorConstants.INVALID_CAPTCHA);
+            throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
     }
 
 
@@ -174,42 +176,42 @@ public class AuthorizationHelperService {
                     new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList));
         } catch (KycAuthException e) {
             log.error("KYC auth failed for transaction : {}", transactionId, e);
-            throw new IdPException(e.getErrorCode());
+            throw new EsignetException(e.getErrorCode());
         }
 
         if(kycAuthResult == null || (StringUtils.isEmpty(kycAuthResult.getKycToken()) ||
                 StringUtils.isEmpty(kycAuthResult.getPartnerSpecificUserToken()))) {
             log.error("** authenticationWrapper : {} returned empty tokens received **", authenticationWrapper);
-            throw new IdPException(AUTH_FAILED);
+            throw new EsignetException(AUTH_FAILED);
         }
 
         auditWrapper.logAudit(Action.DO_KYC_AUTH, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, transaction), null);
         return kycAuthResult;
     }
 
-    protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws IdPException {
+    protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws EsignetException {
         if(CollectionUtils.isEmpty(acceptedClaims))
             return;
 
         if(CollectionUtils.isEmpty(transaction.getRequestedClaims().getUserinfo()))
-            throw new IdPException(INVALID_ACCEPTED_CLAIM);
+            throw new EsignetException(INVALID_ACCEPTED_CLAIM);
 
         if(acceptedClaims.stream()
                 .allMatch( claim -> transaction.getRequestedClaims().getUserinfo().containsKey(claim) ))
             return;
 
-        throw new IdPException(INVALID_ACCEPTED_CLAIM);
+        throw new EsignetException(INVALID_ACCEPTED_CLAIM);
     }
 
-    protected void validateAuthorizeScopes(OIDCTransaction transaction, List<String> authorizeScopes) throws IdPException {
+    protected void validateAuthorizeScopes(OIDCTransaction transaction, List<String> authorizeScopes) throws EsignetException {
         if(CollectionUtils.isEmpty(authorizeScopes))
             return;
 
         if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()))
-            throw new IdPException(INVALID_PERMITTED_SCOPE);
+            throw new EsignetException(INVALID_PERMITTED_SCOPE);
 
         if(!transaction.getRequestedAuthorizeScopes().containsAll(authorizeScopes))
-            throw new IdPException(INVALID_PERMITTED_SCOPE);
+            throw new EsignetException(INVALID_PERMITTED_SCOPE);
     }
 
     protected SendOtpResult delegateSendOtpRequest(OtpRequest otpRequest, OIDCTransaction transaction) {
@@ -223,18 +225,18 @@ public class AuthorizationHelperService {
                     sendOtpDto);
         } catch (SendOtpException e) {
             log.error("Failed to send otp for transaction : {}", otpRequest.getTransactionId(), e);
-            throw new IdPException(e.getErrorCode());
+            throw new EsignetException(e.getErrorCode());
         }
 
         if(sendOtpResult == null || !transaction.getAuthTransactionId().equals(sendOtpResult.getTransactionId())) {
             log.error("Auth transactionId in request {} is not matching with send-otp response : {}", transaction.getAuthTransactionId(),
                     sendOtpResult.getTransactionId());
-            throw new IdPException(SEND_OTP_FAILED);
+            throw new EsignetException(SEND_OTP_FAILED);
         }
         return sendOtpResult;
     }
 
-    protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(OIDCTransaction transaction, List<AuthChallenge> challengeList) throws IdPException {
+    protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(OIDCTransaction transaction, List<AuthChallenge> challengeList) throws EsignetException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
                 transaction.getRequestedClaims().getId_token().get(ACR).getValues());
         List<String> providedAuthFactors = challengeList.stream()
@@ -250,7 +252,7 @@ public class AuthorizationHelperService {
 
         if(CollectionUtils.isEmpty(result)) {
             log.error("Provided auth-factors {} do not match resolved auth-factor {}", providedAuthFactors, resolvedAuthFactors);
-            throw new IdPException(AUTH_FACTOR_MISMATCH);
+            throw new EsignetException(AUTH_FACTOR_MISMATCH);
         }
         return result;
     }
@@ -306,7 +308,7 @@ public class AuthorizationHelperService {
             return IdentityProviderUtil.b64Encode(cipher.doFinal(secretDataBytes, 0, secretDataBytes.length));
         } catch(Exception e) {
             log.error("Error Cipher Operations of provided secret data.", e);
-            throw new IdPException(ErrorConstants.AES_CIPHER_FAILED);
+            throw new EsignetException(ErrorConstants.AES_CIPHER_FAILED);
         }
     }
 
@@ -318,7 +320,7 @@ public class AuthorizationHelperService {
             return new String(cipher.doFinal(decodedBytes, 0, decodedBytes.length));
         } catch(Exception e) {
             log.error("Error Cipher Operations of provided secret data.", e);
-            throw new IdPException(ErrorConstants.AES_CIPHER_FAILED);
+            throw new EsignetException(ErrorConstants.AES_CIPHER_FAILED);
         }
     }
 
@@ -327,7 +329,7 @@ public class AuthorizationHelperService {
         if (Objects.nonNull(keyAlias)) {
             return keyStore.getSymmetricKey(keyAlias);
         }
-        throw new IdPException(ErrorConstants.NO_UNIQUE_ALIAS);
+        throw new EsignetException(ErrorConstants.NO_UNIQUE_ALIAS);
     }
 
     private String getKeyAlias(String keyAppId, String keyRefId) {
@@ -337,6 +339,6 @@ public class AuthorizationHelperService {
             return currentKeyAliases.get(0).getAlias();
         }
         log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
-        throw new IdPException(ErrorConstants.NO_UNIQUE_ALIAS);
+        throw new EsignetException(ErrorConstants.NO_UNIQUE_ALIAS);
     }
 }

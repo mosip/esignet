@@ -15,7 +15,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 import io.mosip.esignet.core.dto.ClientDetailResponse;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.*;
@@ -25,8 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -49,15 +51,18 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Autowired
     AuditPlugin auditWrapper;
+    
+    @Value("${mosip.esignet.audit.claim-name:preferred_username}")
+    private String claimName;
 
     private List<String> NULL = Collections.singletonList(null);
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
     @Override
-    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws IdPException {
+    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
         if (result.isPresent()) {
-            throw new IdPException(ErrorConstants.DUPLICATE_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
         ClientDetail clientDetail = new ClientDetail();
@@ -89,10 +94,11 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             clientDetail = clientDetailRepository.save(clientDetail);
         } catch (ConstraintViolationException cve) {
             log.error("Failed to create client details", cve);
-            throw new IdPException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+        		Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
@@ -102,10 +108,10 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
-    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws IdPException {
+    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
-            throw new IdPException(ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
         ClientDetail clientDetail = result.get();
@@ -130,7 +136,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
-        auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+        		Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
@@ -140,7 +147,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Cacheable(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
-    public io.mosip.esignet.core.dto.ClientDetail getClientDetails(String clientId) throws IdPException {
+    public io.mosip.esignet.core.dto.ClientDetail getClientDetails(String clientId) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(clientId, CLIENT_ACTIVE_STATUS);
         if(!result.isPresent())
             throw new InvalidClientException();

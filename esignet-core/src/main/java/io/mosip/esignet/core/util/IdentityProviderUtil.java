@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import org.apache.commons.codec.binary.Hex;
 import org.jose4j.jwk.RsaJsonWebKey;
@@ -90,25 +90,25 @@ public class IdentityProviderUtil {
                 .toArray(String[]::new);
     }
 
-    public static String generateHexEncodedHash(String algorithm, String value) throws IdPException {
+    public static String generateHexEncodedHash(String algorithm, String value) throws EsignetException {
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
             byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
             return Hex.encodeHexString(hash);
         } catch (NoSuchAlgorithmException ex) {
             logger.error("Invalid algorithm : {}", algorithm, ex);
-            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
-    public static String generateB64EncodedHash(String algorithm, String value) throws IdPException {
+    public static String generateB64EncodedHash(String algorithm, String value) throws EsignetException {
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
             byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
             return urlSafeEncoder.encodeToString(hash);
         } catch (NoSuchAlgorithmException ex) {
             logger.error("Invalid algorithm : {}", algorithm, ex);
-            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
@@ -129,9 +129,9 @@ public class IdentityProviderUtil {
      *  encode them. The at_hash value is a case-sensitive string.
      * @param accessToken
      * @return
-     * @throws IdPException
+     * @throws EsignetException
      */
-    public static String generateOIDCAtHash(String accessToken) throws IdPException {
+    public static String generateOIDCAtHash(String accessToken) throws EsignetException {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGO_SHA_256);
             byte[] hash = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
@@ -140,7 +140,7 @@ public class IdentityProviderUtil {
             return urlSafeEncoder.encodeToString(leftMost128Bits);
         } catch (NoSuchAlgorithmException ex) {
             log.error("Access token hashing failed with alg:{}", ALGO_SHA_256, ex);
-            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
@@ -148,7 +148,7 @@ public class IdentityProviderUtil {
         return ZonedDateTime.now(ZoneOffset.UTC).toEpochSecond();
     }
 
-    public static void validateRedirectURI(List<String> registeredRedirectUris, String requestedRedirectUri) throws IdPException {
+    public static void validateRedirectURI(List<String> registeredRedirectUris, String requestedRedirectUri) throws EsignetException {
         if(registeredRedirectUris.stream().anyMatch(uri -> matchUri(uri, requestedRedirectUri)))
             return;
 
@@ -156,7 +156,7 @@ public class IdentityProviderUtil {
         throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 
-    public static String createTransactionId(String nonce) throws IdPException {
+    public static String createTransactionId(String nonce) throws EsignetException {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGO_SHA3_256);
             digest.update(UUID.randomUUID().toString()
@@ -166,7 +166,7 @@ public class IdentityProviderUtil {
             return urlSafeEncoder.encodeToString(digest.digest());
         } catch (NoSuchAlgorithmException ex) {
             log.error("create transaction id failed with alg SHA3-256", ex);
-            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
@@ -199,13 +199,13 @@ public class IdentityProviderUtil {
 		return randomBytes;
 	}
 
-	public static String getJWKString(Map<String, Object> jwk) throws IdPException {
+	public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
 		try {
 			RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
 			return jsonWebKey.toJson();
 		} catch (JoseException e) {
 			log.error(ErrorConstants.INVALID_PUBLIC_KEY, e);
-			throw new IdPException(ErrorConstants.INVALID_PUBLIC_KEY);
+			throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
 		}
 	}
 
@@ -215,7 +215,7 @@ public class IdentityProviderUtil {
             md.update(cert.getEncoded());
             return DatatypeConverter.printHexBinary(md.digest()).toLowerCase();
         } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
-            throw new IdPException(ErrorConstants.INVALID_ALGORITHM);
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
 }

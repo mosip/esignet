@@ -6,7 +6,7 @@
 package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.dto.*;
 
 public interface AuthorizationService {
@@ -17,26 +17,26 @@ public interface AuthorizationService {
      * @param oauthDetailRequest
      * @return
      */
-    OAuthDetailResponse getOauthDetails(OAuthDetailRequest oauthDetailRequest) throws IdPException;
+    OAuthDetailResponse getOauthDetails(OAuthDetailRequest oauthDetailRequest) throws EsignetException;
 
     /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel
      * @param otpRequest
      * @return
      */
-    OtpResponse sendOtp(OtpRequest otpRequest) throws IdPException;
+    OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException;
 
     /**
      * Authentication request for the required auth-factors
      * @param authRequest
      * @return
      */
-    AuthResponse authenticateUser(AuthRequest authRequest) throws IdPException;
+    AuthResponse authenticateUser(AuthRequest authRequest) throws EsignetException;
 
     /**
      * Accepted claims are verified and KYC exchange is performed
      * Redirects to requested redirect_uri
      * @param authCodeRequest
      */
-    AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws IdPException;
+    AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException;
 }

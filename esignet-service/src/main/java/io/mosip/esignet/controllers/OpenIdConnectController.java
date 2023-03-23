@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.controllers;
 
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.OpenIdConnectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +27,10 @@ public class OpenIdConnectController {
      * as appropriate to enable Javascript Clients to access the endpoint.
      * @param bearerToken
      * @return
-     * @throws IdPException
+     * @throws EsignetException
      */
     @GetMapping(value = "/userinfo",produces = "application/jwt")
-    public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws IdPException {
+    public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws EsignetException {
         return openIdConnectService.getUserInfo(bearerToken);
     }
     

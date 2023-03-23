@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
 import io.mosip.esignet.services.CacheUtilService;
@@ -95,7 +95,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withRuntimeFailure_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(IdPException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(EsignetException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .param("code", "code")

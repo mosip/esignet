@@ -9,12 +9,15 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.IdPException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,6 +31,9 @@ public class ClientManagementController {
 
     @Autowired
     AuditPlugin auditWrapper;
+    
+    @Value("${mosip.esignet.audit.claim-name:preferred_username}")
+    private String claimName;
 
     @RequestMapping(value = "/client-mgmt/oidc-client", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,8 +42,9 @@ public class ClientManagementController {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
             response.setResponse(clientManagementService.createOIDCClient(requestWrapper.getRequest()));
-        } catch (IdPException ex) {
-            auditWrapper.logAudit(Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+            		Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;
         }
         response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -51,8 +58,9 @@ public class ClientManagementController {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
             response.setResponse(clientManagementService.updateOIDCClient(clientId, requestWrapper.getRequest()));
-        } catch (IdPException ex) {
-            auditWrapper.logAudit(Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+            		Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
             throw ex;
         }
         response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
