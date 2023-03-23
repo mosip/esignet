@@ -18,21 +18,23 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   };
 
   useEffect(() => {
+    if (!langOptions || langOptions.length === 0) {
+      return;
+    }
+
     let lang = langOptions.find((option) => {
       return option.value === i18n.language;
     });
     setSelectedLang(lang);
-  }, [langOptions]);
 
-  //Gets fired when changeLanguage got called.
-  i18n.on('languageChanged', function (lng) {
-    let lang = langOptions.find((option) => {
-      return option.value === lng;
+    //Gets fired when changeLanguage got called.
+    i18n.on("languageChanged", function (lng) {
+      let language = langOptions.find((option) => {
+        return option.value === lng;
+      });
+      setSelectedLang(language);
     });
-
-    setSelectedLang(lang);
-  })
-
+  }, [langOptions]);
 
   return (
     <nav className="bg-white border-gray-500 shadow px-2 sm:px-4 py-2">

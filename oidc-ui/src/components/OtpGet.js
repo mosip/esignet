@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LoadingIndicator from "../common/LoadingIndicator";
 import FormAction from "./FormAction";
 import { LoadingStates as states } from "../constants/states";
@@ -15,7 +15,9 @@ export default function OtpGet({
   onOtpSent,
   i18nKeyPrefix = "otp",
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t, i18n } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix,
+  });
   const fields = param;
   let fieldsState = {};
   fields.forEach((field) => (fieldsState["Otp" + field.id] = ""));
@@ -30,8 +32,13 @@ export default function OtpGet({
     openIDConnectService.getEsignetConfiguration(configurationKeys.captchaEnableComponents) ??
     process.env.REACT_APP_CAPTCHA_ENABLE;
 
-  const captchaEnableComponentsList = captchaEnableComponents.split(",").map((x) => x.trim().toLowerCase());
-  const showCaptcha = captchaEnableComponentsList.indexOf("otp") !== -1;
+  const captchaEnableComponentsList = captchaEnableComponents
+    .split(",")
+    .map((x) => x.trim().toLowerCase());
+
+  const [showCaptcha, setShowCaptcha] = useState(
+    captchaEnableComponentsList.indexOf("otp") !== -1
+  );
 
   const captchaSiteKey =
     openIDConnectService.getEsignetConfiguration(configurationKeys.captchaSiteKey) ??
@@ -43,6 +50,22 @@ export default function OtpGet({
 
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
+
+  useEffect(() => {
+    let loadComponent = async () => {
+      i18n.on("languageChanged", function (lng) {
+        if (showCaptcha) {
+          //to rerender recaptcha widget on language change
+          setShowCaptcha(false);
+          setTimeout(() => {
+            setShowCaptcha(true);
+          }, 1);
+        }
+      });
+    };
+
+    loadComponent();
+  }, []);
 
   const handleCaptchaChange = (value) => {
     setCaptchaToken(value);
@@ -115,6 +138,7 @@ export default function OtpGet({
         {showCaptcha && (
           <div className="flex justify-center mt-5 mb-5">
             <ReCAPTCHA
+              hl={i18n.language}
               ref={_reCaptchaRef}
               onChange={handleCaptchaChange}
               sitekey={captchaSiteKey}
