@@ -1,0 +1,1473 @@
+{
+	"info": {
+		"_postman_id": "2bbed2fa-e3f2-4820-9abd-64ef5e1accee",
+		"name": "MOSIP e-Signet Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20579541"
+	},
+	"item": [
+		{
+			"name": "Auth API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var data = jsonData.response.token;",
+							"console.log(data);",
+							"pm.environment.set(\"authorizationToken\",data);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"string\",\n  \"version\": \"string\",\n  \"requesttime\": \"{{$isoTimestamp}}\",\n  \"metadata\": {},\n  \"request\": {\n    \"userName\": \"110070\",\n    \"password\": \"Techno@123\",\n    \"appId\": \"partner\",\n    \"clientId\": \"mosip-pms-client\",\n    \"clientSecret\": \"BknC9k6nCwzM5PuK\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-internal.dev3.mosip.net/v1/authmanager/authenticate/internal/useridPwd",
+					"protocol": "https",
+					"host": [
+						"api-internal",
+						"dev3",
+						"mosip",
+						"net"
+					],
+					"path": [
+						"v1",
+						"authmanager",
+						"authenticate",
+						"internal",
+						"useridPwd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create OIDC client",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate clientId\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
+							"});",
+							"",
+							"pm.test(\"Validate status\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authorizationToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"3yz7-j3xRzU3SODdoNgSGvO_cD8UijH3AIWRDAg1x-M\",\n        \"clientName\": \"OpenCRVS\",\n        \"publicKey\": {\n            \"kty\": \"RSA\",\n            \"e\": \"AQAB\",\n            \"use\": \"sig\",\n            \"alg\": \"RS256\",\n            \"n\": \"mykWIftknK1TQmbiazuik0rWGsxeOIUE3yfSQJgoCfdGXY4HfHE6AlNKFdIKZOXe-U-L21Klj692e9iZx05rHHaZvO0a4IzyFMOyw5wjBCWoBOcA4q93LPkZTSkIq9I2Vgr6Bzwu6X7QPMbmF8xAKX4KeSn_yZcsAhElHBOWkENmKp76yCyTeE4DAIGah1BcgiB_KWvOZOedwTRDLyQ0DZM1z07-N-rPh0qSd2UFRRY-b_jc9opjyRQq3d5ZkiB9W4ReAUhIKA9uc1RDs1shc3G8zgZp3qH6fYWmsOi23BOA_q8Z-wMHwPK2vEJvgZIWovAG5jGFbMilNcFQfzLJcQ\"\n        },\n        \"relyingPartyId\": \"Bharathi-Inc\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:static-code\",\n            \"mosip:idp:acr:biometrics\"\n        ],\n        \"logoUri\": \"https://avatars.githubusercontent.com/u/60199888\",\n        \"redirectUris\": [\n             \"http://localhost:3000/mosip-callback\",\n             \"https://register.farajaland-staging.opencrvs.org/mosip-callback\",\n             \"https://register.farajaland-qa.opencrvs.org/mosip-callback\",\n             \"http://register.farajaland-staging.opencrvs.org/mosip-callback\",\n             \"http://register.farajaland-qa.opencrvs.org/mosip-callback\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://idp-mock.collab.mosip.net/v1/idp/client-mgmt/oidc-client",
+					"protocol": "https",
+					"host": [
+						"idp-mock",
+						"collab",
+						"mosip",
+						"net"
+					],
+					"path": [
+						"v1",
+						"idp",
+						"client-mgmt",
+						"oidc-client"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update OIDC",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate clientId\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
+							"});",
+							"",
+							"pm.test(\"Validate status\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authorizationToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "841f2428-cfc1-4bb0-a1bb-68d08b2730f4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"https://lh3.googleusercontent.com/u/0/drive-viewer/AAOQEOSwH3hZ45YAluKCnXcl3gzt1l19KzZy3Hh8lA-WoLCsQtk1WbIBm6ESwPPK16n8d2r2J3wu1nL78FbsF2dz1jNprXN_=w1862-h369\",\n        \"redirectUris\": [\n            \"http://spmis.mosip-accessh.net:65530/spmis/ekyclogindetail.html\",\n            \"http://localhost:65530/spmis/ekyclogindetail.html\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:biometrics\",\n             \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"Pension Scheme\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.mec.mosip.net/v1/esignet/client-mgmt/oidc-client/OAjPQymFHSO50IKxlWDKzjvDHJpzLNIOq92Svhard8s",
+					"protocol": "https",
+					"host": [
+						"api",
+						"mec",
+						"mosip",
+						"net"
+					],
+					"path": [
+						"v1",
+						"esignet",
+						"client-mgmt",
+						"oidc-client",
+						"OAjPQymFHSO50IKxlWDKzjvDHJpzLNIOq92Svhard8s"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create OIDC client 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate clientId\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
+							"});",
+							"",
+							"pm.test(\"Validate status\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Authorization={{authorizationToken}}",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Cookie",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"requestTime\": \"{{$isoTimestamp}}\",\n  \"request\": {\n    \"name\": \"Test client\",\n    \"publicKey\": {\n    \"kty\": \"RSA\",\n    \"e\": \"AQAB\",\n    \"use\": \"sig\",\n    \"alg\": \"RS256\",\n    \"n\": \"xr_H_28guLZ-DnY_l666JA8LEGi2dRxZJKKikAnBBbHrv0XLRdr0TxM9vUXwrMcgf-3DKrkM2JKOFxgWhcFIOCSugV79JQUy1yMr0qqxPTFKNRJq7yjS8XBg46xuPGw388M3V6cxY2tvnHgxDOUD2mJeF34OiNYPCOu-vnywT5CMWqgggaSve2f1G0x7IwnEK8krKBukfrnUspCBrZU1TA09CrPmmdjv3zOEY09ZsvhWbieM9sR-gySkV-E8S534L0fzT1dapODzg1FH4MlSdFhGnij_xvMpeeVVXW6ZYpXDwCVacu3JgIptmiPpRKIiKmDPum4LFYrG8guHsYv4-w\"\n},\n    \"policyId\": \"27716\",\n    \"authPartnerId\": \"847\",\n    \"logoUri\": \"https://healthservices.dev3.mosip.net/logo.png\",\n    \"redirectUris\": [\n      \"https://healthservices.dev3.mosip.net/userprofile\"\n    ],\n    \"grantTypes\": [\n      \"authorization_code\"\n    ],\n    \"clientAuthMethods\": [\n      \"private_key_jwt\"\n    ]\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-internal.dev3.mosip.net/v1/partnermanager/oidc/client",
+					"protocol": "https",
+					"host": [
+						"api-internal",
+						"dev3",
+						"mosip",
+						"net"
+					],
+					"path": [
+						"v1",
+						"partnermanager",
+						"oidc",
+						"client"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get CSRF token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+							"pm.environment.set(\"csrf_token\", token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/csrf/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"csrf",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authorize / OAuthdetails request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var btoa = require('btoa');",
+							"",
+							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+							"pm.environment.set(\"csrf_token\", token);",
+							"",
+							"pm.test(\"Validate transactionId\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.transactionId).not.equals(null);",
+							"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
+							"});",
+							"",
+							"pm.test(\"Validate auth factors\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));",
+							"});",
+							"",
+							"pm.test(\"set oauth-details-hash\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
+							"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
+							"    // Remove padding characters",
+							"    base64Encoded = base64Encoded.replace(/=+$/, '');",
+							"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding",
+							"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');",
+							"    console.log(\"base64Encoded : \" + base64Encoded);",
+							"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
+							"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/authorization/oauth-details",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"authorization",
+						"oauth-details"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authenticate User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+							"pm.environment.set(\"csrf_token\", token);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-key",
+						"value": "{{oauth_details_key}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-hash",
+						"value": "{{oauth_details_hash}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/authorization/authenticate",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"authorization",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authorization Code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+							"pm.environment.set(\"csrf_token\", token);",
+							"",
+							"pm.test(\"Validate code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.code).not.equals(null);",
+							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-key",
+						"value": "{{oauth_details_key}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-hash",
+						"value": "{{oauth_details_hash}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [\"email\", \"name\", \"phone_number\", \"gender\"],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/authorization/auth-code",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"authorization",
+						"auth-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Link code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate linkCode\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.linkCode).not.equals(null);",
+							"    pm.environment.set(\"link_code\", jsonData.response.linkCode);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth_details_key",
+						"value": "{{oauth_details_key}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth_details_hash",
+						"value": "{{oauth_details_hash}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/link-code",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"link-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Tokens",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"// Set headers for JWT",
+							"var header = {\t",
+							"\t\"alg\": \"RS256\"",
+							"};",
+							"",
+							"",
+							"//sign token",
+							"const private_key_jwk = {",
+							"    \"p\": \"1Q_pc0zWwHTsLb25cUbPo2wzVdcJzlObaYFeaqvQLQdOQuo7X3fG2ZG0i8f-MgsMZE02gXjuXiaH20T1PwDMNCehmVfjDaYC7cni7oXE5cG89t4zA2Vrr8o43FUBuE8LMDaMPuuysk_4HvUOVnY9g5-Xy1LQ00-Gzd5zcpjTI80\",",
+							"    \"kty\": \"RSA\",",
+							"    \"q\": \"uI5P67UNZQ8TrU6cFJdoWt6kdp0aIstFsbthbtDEkX5Qs3la4S8AE0V32fFYcSwM0DAkKMFPmxQEekw6hVppV46yeZwKjvOhMNdZunEs7vbSs5P662vsigYe1vAEsr-OXTPK4r1ro0HAb_8k2zHcQ9GJk0oYKRYrmtHtGr6isiU\",",
+							"    \"d\": \"X7QzRIVZxipe17aUMRy7-k3rGcLkHwonT0rZwQ-keOt8mWTZyo6aFvtCLcY6sj0cdhZpysqAFymc_T1TF-w-P6D3QNfg67ABmTl2ApK4OwMAjadHgrRnOIP3_bLM3_r0Hr5B_0k17wLZhXmE8vrClVoYp3VonCFv7dp1goE6bj9jHgk3BD687lKlMeAB2XYEvKKgHW24JtJrRrKW9wJLY7E5QrZ22gvoeqrLOqFWdR1TTWwYCR_xzxon7uvgtBD9sX7EghgbvXV_FvfL81DcAp_RwJwXHcAvpGHr4nSAwpnPcoeFEch5N4rBzYM0A5kYUySiM5fQa1MQL3i0g_ZpYQ\",",
+							"    \"e\": \"AQAB\",",
+							"    \"use\": \"sig\",",
+							"    \"qi\": \"UNUSa1BoHVObpnaoPZR4-PSkGJ8ZxSC_t0nUhvaIAfD1JRJ_asvJ2Pr2mszKOFLbUG0_0C6wIqCuvS3LrRq7gS_SbGnafyOmHt6MzDNevUbdSt-WjtxnXO84hO_idNTUMn2RoGGlKj2YgWp_UT2p_EK30zu8PkeqwxFNTqoUI7E\",",
+							"    \"dp\": \"D-0_kznkN8DFwumSyi_z55B4CeuoNP80998O0sSDLEqGhCQESi-m8q6co3JQwybmRz0qXOVQVENnFnICLzJ9EU0BHHhgZa3KPEJCL3habp5b5MxZXeCf-yUPuRC1rzRhbro1I6L02bV2o8HHz5jJImS0sSNArvsb5ZnCYYehCOU\",",
+							"    \"alg\": \"RS256\",",
+							"    \"dq\": \"WP7vVTeKjQgXMgRtSZS1ktQ4NKaPeuXQ5uL4Ggr8LzjdS56ij2ItxB1ErUkvn-thBmegmDKX461kd2EY-0Nc9wbt06zGfqbHPRkrwLdgtp85fbVHU41IlEpdRsKZUWUEDreyB2LWa_SCCr_bkwPZNq7ti6Q4QF_biR3gG3yAUi0\",",
+							"    \"n\": \"mZnhInKEQPnMuvWBLtZdweVTpI5f7qLD79BPUYWiFvIBAjQOFvKzXJSqITrSRlcVswGRCov5PVY6jEVdjt9zcRsDfAnkNjj7u2h6pwsdPP7OXSkYoCrLLkZYNO4mDziDEFPc05IlClL7zTZ4X5edGLFVQm4Di6enUqGxg7wfPivRFaGJHv3e2tn5PovJwtVqlF16IDGRlIHZ-yWSp1ulZQMQV-ygxn3qllHC-3U2olB9fnD0g34Gw66r3UT63HE6U9DVNK5kJhfnfPS0-JRqE8DOjBh9fj9FMJxpzvoTSArmwT0chylC-YClEtm9p6GVdvRKEEpF1IwTUTPTsyK2oQ\"",
+							"}",
+							"",
+							"",
+							"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+							"",
+							"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate Id-token\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id_token).not.equals(null);",
+							"});",
+							"",
+							"pm.test(\"Validate access-token\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.access_token).not.equals(null);",
+							"    pm.environment.set(\"access_token\", jsonData.access_token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "code",
+							"value": "{{code}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientId}}",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{redirectionUrl}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						},
+						{
+							"key": "client_assertion_type",
+							"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+							"type": "text"
+						},
+						{
+							"key": "client_assertion",
+							"value": "{{client_assertion}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/oauth/token",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link transaction (wallet)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate linkTransactionId\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.linkTransactionId).not.equals(null);",
+							"    pm.environment.set(\"linkTransactionId\", jsonData.response.linkTransactionId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkCode\": \"{{link_code}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/link-transaction",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"link-transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link status",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"linkCode\": \"{{link_code}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/link-status",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"link-status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Authenticate User (wallet)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"// Set headers for JWT",
+							"var header = {",
+							"    \"x5t#S256\" : \"V1N5TKVVgeM6pftYJreIlWKQUFOdOf1xUlZCuWK4E1w\",",
+							"\t\"alg\": \"RS256\"",
+							"};",
+							"",
+							"",
+							"//sign token",
+							"const private_key_jwk = {",
+							"    \"p\": \"xZDfG1GbHpd7C81k2au8ntvFsTCXj96iyimsHXBzgvKL9WdZfwVVjw5sWCZwSTqt6gL7wCTGxxUeQsN4IKfCalCAmHzFkvDANLi-7LmT2ZJM992j-E7oEOQOv7H4VRqBuir7bECpeeSRoI0qVs07olA5RCKUZpF4iBlecjVVD3M\",",
+							"    \"kty\": \"RSA\",",
+							"    \"q\": \"qGRtmjha2uqCwmGRZS19qWD3ICeLE8NjNgmqx6pI0SLEzD5uQS98T8JOWZxTUjyOm5LtisWBfhloZdT9UNnRX6yMFIswLovTKcYo38yD5fQ9K2gpqzD0K9_ngST08aTDOPY_IlCGe2RZeeHhulyA71MpFhSZLaU2rG2u5exwxBc\",",
+							"    \"d\": \"Of0lDpdIXY3jyhcKuatsw1N6zQpn20UQHxzMdZH2XHSHMzC1vYvbOQD2JmoSahggu2or0n5JeAMbs2k1BlabSqHM65TaJMgKjJVWIiSEAPBhPbqJqGF7nZKrHNk6jVgVYDI_rFGdo7DwNw8-RS0QSiuLBCbmCgCM9wiFWarn2pE9MpK9n_xEmRVNrSFhlvWyPmCCsr5TVVOrXF_7ERYevPDN22uZC0cYgdEtPI80AUZy5ofJnSnIZ0n0fZFO5I7rUFU_MDMuM7W2plKS__fT9UWCBk4mGCgqgqfIzBGFGT2sRDs1kMgVhMMoNFDlc8Hy3KptHmOOOGeb3rwYUixb0Q\",",
+							"    \"e\": \"AQAB\",",
+							"    \"use\": \"sig\",",
+							"    \"qi\": \"bLWOocu5x-RCoxh1MXtJ4Dkahk7vjdQ2iUGiRjmJEL61tKIV1NQk7D5yUl5BFlWanMBwdajRlwcg81ZYV81v2aE2qczOm8X23S8K1QQOSlb2-3p_cGCxaOb9LqV6kDcNetVp2sAxJ-naQLPstE0LQiLGnmij-LwarZFbrpQVVb8\",",
+							"    \"dp\": \"I5De-TYJrMosVoWVQDJQdHCv-CP9ROMZfzddSrdxtAMh-v2t-NXm_yfjjULuN-CeamA7He4A8tn0ZqR1vbs1npn7bHgZwUgh8dvIUyldWm-h94Uo_YyG7nN_zDans_pfnDocpPJHEDB7nuGK27F6qM-0X3WyLXzGrAmVHQ5Iz80\",",
+							"    \"alg\": \"RS256\",",
+							"    \"dq\": \"QJCBFaiV7WoNSMpwHQMcM11iY4nF4YYA_C8os_WuhcF3A3jMfWHfoBU4RVOS_u0JIM1tFtAznk3PoXvQxLc_eBeIfjf_-VjTVikMcwLPb9P9wC7oCyNx-4CWGwY4hI5P6_8-pcGKTrVjOUBKdFITfa-9CSJMuRunouVLMg0-D3E\",",
+							"    \"n\": \"gfSTlsfcU4hCChv8FZ-ffFfNlPesknqVsZubLOlPKB5JHEHEhyy4yRjRmUQK9hzgsSKNyNVrqJIePZnCBKdjs1wxR3uM895hCLfJTQXU1p1hON0VfX0lbG2-y-ZLD6zTkUbn3JNLFc1mxWn4IAiXeKmpXlBqUM3QPCKQWp95lmhfq45UkbdEPkCssdeqYoShkCJWd7GFhC5qOoMLfbNT71q5s3L7VoqKnEpbCsKhvN6BkT4jE1m4xy4jCpc80uZR6bnKG1gryN_LSjeubrodjWpfUrDKCXT23R-RKhMRjCK3sJQbnERJkzpIQ8b_GcOhRzL07BNAoXafRqhrsMhvVQ\"",
+							"}",
+							"",
+							"",
+							"//const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('individual_id'), pm.environment.get('wla_aud'), exp = 60,  \"RS256\");",
+							"",
+							"const signed_jwt = pmlib.jwtSign(private_key_jwk, {",
+							"    \"aud\" : pm.environment.get('wla_aud'),",
+							"\t\"sub\": pm.environment.get('individual_id'),",
+							"    \"iss\" : \"postman-inji\"",
+							"}, header, exp=600, alg = \"RS256\")",
+							"",
+							"pm.collectionVariables.set(\"wla_challenge\",signed_jwt);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/authenticate",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Consent Request (wallet)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.code).not.equals(null);",
+							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": [ \"name\", \"gender\", \"email\" ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/consent",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"consent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link auth code request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.code).not.equals(null);",
+							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"linkedCode\": \"{{link_code}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/link-auth-code",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"link-auth-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get UserInfo",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.environment.get(\"access_token\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"const private_key_jwk = {",
+							"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+							"\t\"kty\": \"RSA\",",
+							"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+							"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+							"\t\"e\": \"AQAB\",",
+							"\t\"use\": \"sig\",",
+							"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+							"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+							"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+							"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+							"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+							"}",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/oidc/userinfo",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"oidc",
+						"userinfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "JWKS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/oauth/.well-known/jwks.json",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"oauth",
+						".well-known",
+						"jwks.json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send OTP",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-key",
+						"value": "{{oauth_details_key}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-hash",
+						"value": "{{oauth_details_hash}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/authorization/send-otp",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"authorization",
+						"send-otp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Mock Identity",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"// Set headers for JWT",
+							"var header = {\t",
+							"\t\"alg\": \"RS256\"",
+							"};",
+							"",
+							"",
+							"//sign token",
+							"const private_key_jwk = {",
+							"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+							"\t\"kty\": \"RSA\",",
+							"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+							"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+							"\t\"e\": \"AQAB\",",
+							"\t\"use\": \"sig\",",
+							"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+							"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+							"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+							"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+							"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+							"}",
+							"",
+							"",
+							"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+							"",
+							"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate Id-token\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id_token).not.equals(null);",
+							"});",
+							"",
+							"pm.test(\"Validate access-token\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.access_token).not.equals(null);",
+							"    pm.environment.set(\"access_token\", jsonData.access_token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"virtualId\": \"8267411573\",\n        \"pin\": \"55555\",\n        \"gender\": [\n            {\n                \"language\": \"eng\",\n                \"value\": \"Female\"\n            },\n            {\n                \"language\": \"fra\",\n                \"value\": \"Femâle\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"ذكر\"\n            }\n        ],\n        \"city\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"CMâttye\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"دسييسيكدك\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"Cmattey\"\n            }\n        ],\n        \"postalCode\": \"45009\",\n        \"fullName\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"Himaja Dhanya R\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"تتگلدكنسَزقهِقِفل دسييسيكدكنوڤو\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"Himaja Dhanya R\"\n            }\n        ],\n        \"dateOfBirth\": \"1995/07/02\",\n        \"individualBiometrics\": null,\n        \"province\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"Kénitra\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"كِ́نِترَ\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"Kénitra\"\n            }\n        ],\n        \"zone\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"Ben Mansour\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"بِن مَنسُُر\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"Ben Mansour\"\n            }\n        ],\n        \"phone\": \"+919427357935\",\n        \"addressLine1\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"yuān⥍\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"$لُنگᆑ\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"Slung\"\n            }\n        ],\n        \"addressLine2\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"yuān 2\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"يَُانꉛ⥍\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"yuan wee\"\n            }\n        ],\n        \"addressLine3\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"yuān 3\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"$لُنگᆑ\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"yuan wee 3\"\n            }\n        ],\n        \"region\": [\n            {\n                \"language\": \"fra\",\n                \"value\": \"melh$pèng\"\n            },\n            {\n                \"language\": \"ara\",\n                \"value\": \"مِله$پِ̀نگ\"\n            },\n            {\n                \"language\": \"eng\",\n                \"value\": \"melhspeng\"\n            }\n        ],\n        \"email\": \"dhanya.himaja123@gmail.com\",\n        \"encodedPhoto\": \"dhdfhdhhdhdfhfdh==\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/mock-identity",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mock-identity"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Mock Identity",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.environment.get(\"access_token\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"const private_key_jwk = {",
+							"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+							"\t\"kty\": \"RSA\",",
+							"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+							"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+							"\t\"e\": \"AQAB\",",
+							"\t\"use\": \"sig\",",
+							"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+							"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+							"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+							"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+							"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+							"}",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/mock-identity/1234",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mock-identity",
+						"1234"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send Binding OTP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate transactionId\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.transactionId).not.equals(null);",
+							"    pm.environment.set(\"binding_transaction_id\", jsonData.response.transactionId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authorizationToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "42843ec0-df92-4129-aa83-c7441533d090",
+						"type": "text"
+					},
+					{
+						"key": "PARTNER-ID",
+						"value": "mpartner-default-keybindingtoken",
+						"type": "text"
+					},
+					{
+						"key": "PARTNER-API-KEY",
+						"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"individualId\" : \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\"]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/binding/binding-otp",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"binding",
+						"binding-otp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Wallet binding",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var cert = JSON.stringify(jsonData.response.certificate);",
+							"console.log(cert);",
+							"pm.environment.set(\"bind_certificate\",cert);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authorizationToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "PARTNER-ID",
+						"value": "mpartner-default-keybindingtoken",
+						"type": "text"
+					},
+					{
+						"key": "PARTNER-API-KEY",
+						"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\": [\n            {\n                \"authFactorType\": \"OTP\",\n                \"challenge\": \"111111\",\n                \"format\": \"alpha-numeric\"\n            }\n        ],\n        \"publicKey\": {\n    \"kty\": \"RSA\",\n    \"e\": \"AQAB\",\n    \"use\": \"sig\",\n    \"alg\": \"RS256\",\n    \"n\": \"gfSTlsfcU4hCChv8FZ-ffFfNlPesknqVsZubLOlPKB5JHEHEhyy4yRjRmUQK9hzgsSKNyNVrqJIePZnCBKdjs1wxR3uM895hCLfJTQXU1p1hON0VfX0lbG2-y-ZLD6zTkUbn3JNLFc1mxWn4IAiXeKmpXlBqUM3QPCKQWp95lmhfq45UkbdEPkCssdeqYoShkCJWd7GFhC5qOoMLfbNT71q5s3L7VoqKnEpbCsKhvN6BkT4jE1m4xy4jCpc80uZR6bnKG1gryN_LSjeubrodjWpfUrDKCXT23R-RKhMRjCK3sJQbnERJkzpIQ8b_GcOhRzL07BNAoXafRqhrsMhvVQ\"\n},\n        \"authFactorType\": \"WLA\",\n        \"format\": \"jwt\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/binding/wallet-binding",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"binding",
+						"wallet-binding"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "clientId",
+			"value": "mock-oidc-client"
+		},
+		{
+			"key": "redirectionUrl",
+			"value": "https://mosip.io/index.php"
+		},
+		{
+			"key": "relayingPartyId",
+			"value": "mock-relaying-party-id"
+		},
+		{
+			"key": "status",
+			"value": "\"ACTIVE\""
+		},
+		{
+			"key": "acr_values",
+			"value": "level0 level1"
+		},
+		{
+			"key": "scope",
+			"value": "openid profile"
+		},
+		{
+			"key": "claims_request_param",
+			"value": "{\n            \"userinfo\": {\n                \"email\": {\n                    \"value\": null,\n                    \"values\": null,\n           ..."
+		},
+		{
+			"key": "nonce",
+			"value": "2erwER34WW"
+		},
+		{
+			"key": "state",
+			"value": "ptOO76SD"
+		},
+		{
+			"key": "expected_amr",
+			"value": "\"pin\""
+		},
+		{
+			"key": "transaction_id",
+			"value": "ece56bfa-d0c2-46ce-a5a2-8500dfb393a7"
+		},
+		{
+			"key": "individual_id",
+			"value": "8267411571"
+		},
+		{
+			"key": "auth_pin",
+			"value": "34789"
+		},
+		{
+			"key": "url",
+			"value": "http://localhost:8088/v1/idp"
+		},
+		{
+			"key": "url",
+			"value": "",
+			"disabled": true
+		},
+		{
+			"key": "code",
+			"value": ""
+		},
+		{
+			"key": "client_assertion",
+			"value": ""
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "linkTransactionId",
+			"value": ""
+		},
+		{
+			"key": "wla_challenge",
+			"value": ""
+		},
+		{
+			"key": "client_secret",
+			"value": "JfoG3eLWLW7iSZDt"
+		},
+		{
+			"key": "client_secret",
+			"value": ""
+		},
+		{
+			"key": "csrf_token",
+			"value": "08a17840-da3c-4b93-9ab3-83d9b297ac68",
+			"type": "string"
+		}
+	]
+}
