@@ -55,8 +55,8 @@ public class OAuthController {
         tokenRequest.setClient_assertion_type(paramMap.getFirst("client_assertion_type"));
         tokenRequest.setClient_assertion(paramMap.getFirst("client_assertion"));
         Set<ConstraintViolation<TokenRequest>> violations = validator.validate(tokenRequest);
-        if(!violations.isEmpty()) {
-            throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());
+        if(!violations.isEmpty() && violations.stream().findFirst().isPresent()) {
+        	throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());
         }
         try {
         	return oAuthService.getTokens(tokenRequest);

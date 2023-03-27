@@ -229,8 +229,7 @@ public class AuthorizationHelperService {
         }
 
         if(sendOtpResult == null || !transaction.getAuthTransactionId().equals(sendOtpResult.getTransactionId())) {
-            log.error("Auth transactionId in request {} is not matching with send-otp response : {}", transaction.getAuthTransactionId(),
-                    sendOtpResult.getTransactionId());
+            log.error("Auth transactionId in request {} is not matching with send-otp response", transaction.getAuthTransactionId());
             throw new EsignetException(SEND_OTP_FAILED);
         }
         return sendOtpResult;

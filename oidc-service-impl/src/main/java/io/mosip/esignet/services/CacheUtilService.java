@@ -87,7 +87,7 @@ public class CacheUtilService {
     }
 
     public void setLinkCodeGenerated(String linkCodeHash, LinkTransactionMetadata transactionMetadata) {
-        Object existingValue = cacheManager.getCache(Constants.LINK_CODE_GENERATED_CACHE).putIfAbsent(linkCodeHash, transactionMetadata);
+        Object existingValue = cacheManager.getCache(Constants.LINK_CODE_GENERATED_CACHE).putIfAbsent(linkCodeHash, transactionMetadata);	//NOSONAR getCache() will not be returning null here.
         if(existingValue != null)
             throw new DuplicateLinkCodeException();
     }
@@ -107,38 +107,38 @@ public class CacheUtilService {
     //------------------------------------------------------------------------------------------------------------------
 
     public OIDCTransaction getPreAuthTransaction(String transactionId) {
-        return cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class);
+        return cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class); //NOSONAR getCache() will not be returning null here.
     }
 
     public OIDCTransaction getAuthenticatedTransaction(String transactionId) {
-        return cacheManager.getCache(Constants.AUTHENTICATED_CACHE).get(transactionId, OIDCTransaction.class);
+        return cacheManager.getCache(Constants.AUTHENTICATED_CACHE).get(transactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public OIDCTransaction getAuthCodeTransaction(String codeHash) {
-        return cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE).get(codeHash, OIDCTransaction.class);
+        return cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE).get(codeHash, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public OIDCTransaction getConsentedTransaction(String linkedTransactionId) {
-        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(linkedTransactionId, OIDCTransaction.class);
+        return cacheManager.getCache(Constants.CONSENTED_CACHE).get(linkedTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public OIDCTransaction getUserInfoTransaction(String accessTokenHash) {
-        return cacheManager.getCache(Constants.USERINFO_CACHE).get(accessTokenHash, OIDCTransaction.class);
+        return cacheManager.getCache(Constants.USERINFO_CACHE).get(accessTokenHash, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public LinkTransactionMetadata getLinkedTransactionMetadata(String linkCodeHash) {
-        return cacheManager.getCache(Constants.LINKED_CODE_CACHE).get(linkCodeHash, LinkTransactionMetadata.class);
+        return cacheManager.getCache(Constants.LINKED_CODE_CACHE).get(linkCodeHash, LinkTransactionMetadata.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public LinkTransactionMetadata getLinkCodeGenerated(String linkCodeHash) {
-        return cacheManager.getCache(Constants.LINK_CODE_GENERATED_CACHE).get(linkCodeHash, LinkTransactionMetadata.class);
+        return cacheManager.getCache(Constants.LINK_CODE_GENERATED_CACHE).get(linkCodeHash, LinkTransactionMetadata.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public OIDCTransaction getLinkedSessionTransaction(String linkTransactionId) {
-        return cacheManager.getCache(Constants.LINKED_SESSION_CACHE).get(linkTransactionId, OIDCTransaction.class);
+        return cacheManager.getCache(Constants.LINKED_SESSION_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public OIDCTransaction getLinkedAuthTransaction(String linkTransactionId) {
-        return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);
+        return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 }
