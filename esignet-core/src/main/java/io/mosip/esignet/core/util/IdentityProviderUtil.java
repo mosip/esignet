@@ -173,7 +173,7 @@ public class IdentityProviderUtil {
     public static String generateRandomAlphaNumeric(int length) {
         StringBuilder builder = new StringBuilder();
         for(int i=0; i<length; i++) {
-            int index = ThreadLocalRandom.current().nextInt(CHARACTERS.length());
+            int index = ThreadLocalRandom.current().nextInt(CHARACTERS.length());	//NOSONAR This random number generator is safe here.
             builder.append(CHARACTERS.charAt(index));
         }
         return builder.toString();
