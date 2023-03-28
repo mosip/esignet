@@ -34,6 +34,7 @@ import org.springframework.mock.web.MockAsyncContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -258,6 +259,29 @@ public class LinkedAuthorizationControllerTest {
                 .andExpect(jsonPath("$.response").exists())
                 .andExpect(jsonPath("$.errors").isEmpty());
     }
+    
+    @Test
+    public void authenticate_withException_thenFail() throws Exception {
+        RequestWrapper<LinkedKycAuthRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setFormat("format");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("challenge");
+        linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
+        linkedKycAuthRequest.setIndividualId("individualId");
+        requestWrapper.setRequest(linkedKycAuthRequest);
+
+        Mockito.when(linkedAuthorizationService.authenticateUser(Mockito.any(LinkedKycAuthRequest.class))).thenThrow(EsignetException.class);
+
+        mockMvc.perform(post("/linked-authorization/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty());
+    }
 
     @Test
     public void authenticate_withInvalidTransactionId_thenFail() throws Exception {
@@ -360,6 +384,23 @@ public class LinkedAuthorizationControllerTest {
                 .andExpect(jsonPath("$.response").exists())
                 .andExpect(jsonPath("$.errors").isEmpty());
     }
+    
+    @Test
+    public void saveConsent_withException_thenFail() throws Exception {
+        RequestWrapper<LinkedConsentRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedConsentRequest linkedConsentRequest = new LinkedConsentRequest();
+        linkedConsentRequest.setLinkedTransactionId("link-transaction-id");
+        requestWrapper.setRequest(linkedConsentRequest);
+
+        Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any(LinkedConsentRequest.class))).thenThrow(EsignetException.class);
+
+        mockMvc.perform(post("/linked-authorization/consent")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty());
+    }
 
     @Test
     public void saveConsent_withInvalidTransactionId_thenFail() throws Exception {
@@ -431,7 +472,25 @@ public class LinkedAuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(RESPONSE_TIMEOUT));
     }
+    
+    @Test
+    public void getLinkStatus_withException_thenFail() throws Exception {
+    	RequestWrapper<LinkStatusRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkStatusRequest linkStatusRequest = new LinkStatusRequest();
+        linkStatusRequest.setLinkCode("link-code");
+        linkStatusRequest.setTransactionId("transaction-id");
+        requestWrapper.setRequest(linkStatusRequest);
+        
+        Mockito.doThrow(EsignetException.class).when(linkedAuthorizationService).getLinkStatus(Mockito.any(DeferredResult.class), 
+        		Mockito.any(LinkStatusRequest.class));
 
+        mockMvc.perform(post("/linked-authorization/link-status")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty());
+    }
 
     @Test
     public void getLinkAuthCode_withInvalidLinkCode_thenFail() throws Exception {
@@ -459,6 +518,25 @@ public class LinkedAuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_LINK_CODE));
+    }
+    
+    @Test
+    public void getLinkAuthCode_withException_thenFail() throws Exception {
+        RequestWrapper<LinkAuthCodeRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkAuthCodeRequest linkAuthCodeRequest = new LinkAuthCodeRequest();
+        linkAuthCodeRequest.setTransactionId("transaction-id");
+        linkAuthCodeRequest.setLinkedCode("linked-code");
+        requestWrapper.setRequest(linkAuthCodeRequest);
+        
+        Mockito.doThrow(EsignetException.class).when(linkedAuthorizationService).getLinkAuthCode(Mockito.any(DeferredResult.class), 
+        		Mockito.any(LinkAuthCodeRequest.class));
+
+        mockMvc.perform(post("/linked-authorization/link-auth-code")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty());
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -507,6 +508,29 @@ public class AuthorizationServiceTest {
         } catch (EsignetException ex) {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
+    }
+    
+    @Test
+    public void getAuthCode_withValidInput_thenPass() {
+    	AuthCodeRequest authCodeRequest = new AuthCodeRequest();
+    	authCodeRequest.setTransactionId("987654321");
+    	authCodeRequest.setAcceptedClaims(Arrays.asList("fullName"));
+    	authCodeRequest.setPermittedAuthorizeScopes(Arrays.asList("test-scope"));
+    	OIDCTransaction transaction = new OIDCTransaction();
+    	transaction.setAuthTransactionId("987654321");
+    	transaction.setRequestedAuthorizeScopes(Arrays.asList("test-scope"));
+    	transaction.setRedirectUri("http://www.test.com");
+    	transaction.setNonce("test-nonce");
+    	transaction.setState("test-state");
+    	Claims requestedClaims = new Claims();
+    	Map<String, ClaimDetail> userinfo = new HashMap<>();
+    	userinfo.put("fullName", new ClaimDetail("test", new String[] {"test"}, true));
+		requestedClaims.setUserinfo(userinfo);
+		transaction.setRequestedClaims(requestedClaims);
+		Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+		Mockito.when(cacheUtilService.setAuthCodeGeneratedTransaction(Mockito.anyString(), Mockito.any())).thenReturn(transaction);
+		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getNonce(), "test-nonce");
+		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getState(), "test-state");
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {
