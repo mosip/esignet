@@ -81,6 +81,7 @@ public class KeyBindingControllerTest {
 		headers.put("Content-Type", "application/json;charset=UTF-8");
 		headers.put("Content-Length", "106");
 		when(keyBindingService.sendBindingOtp(otpRequest, headers)).thenReturn(otpResponse);
+		when(authenticationWrapper.isSupportedOtpChannel(Mockito.anyString())).thenReturn(true);
 
 		mockMvc.perform(post("/binding/binding-otp").content(objectMapper.writeValueAsString(wrapper))
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
