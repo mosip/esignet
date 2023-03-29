@@ -52,6 +52,9 @@ databases:
   
   mosip_digitalcard:
     enabled: false
+
+  mosip_mockidentitysystem:
+    enabled: false
   
   mosip_esignet:
     enabled: true
