@@ -18,11 +18,16 @@ while true; do
       then
         DB_USER_PASSWORD=$( kubectl -n postgres get secrets db-common-secrets -o jsonpath={.data.db-dbuser-password} | base64 -d )
 
+        kubectl create ns $NS
+
         echo Removing existing mosip_esignet DB installation
         helm -n $NS delete postgres-init-esignet
 
         echo Copy Postgres secrets
         ./copy_cm_func.sh secret postgres-postgresql postgres $NS
+
+        echo Delete existing DB common sets
+        kubectl -n $NS delete secret db-common-secrets
 
         echo Initializing DB
         helm -n $NS install postgres-init-esignet mosip/postgres-init -f init_values.yaml \
