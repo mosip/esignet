@@ -106,6 +106,18 @@ public class KeyBindingServiceTest {
 		BindingOtpResponse otpResponse = keyBindingService.sendBindingOtp(otpRequest, headers);
 		Assert.assertNotNull(otpResponse);
 	}
+	
+	@Test(expected = EsignetException.class)
+	public void sendBindingOtp_withInvalidRequest_thenFail() throws SendOtpException {
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+
+		Map<String, String> headers = new HashMap<>();
+		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
+
+		keyBindingService.sendBindingOtp(otpRequest, headers);
+	}
 
 	@Test
 	public void sendBindingOtp_withNullResponseFromWrapper_thenFail() throws SendOtpException {
@@ -154,6 +166,29 @@ public class KeyBindingServiceTest {
 				Mockito.anyString(), Mockito.anyString())).thenReturn(publicKeyRegistry);
 
 		Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+	}
+	
+	@Test(expected = EsignetException.class)
+	public void bindWallet_withInvalidRequest_thenFail() throws EsignetException, KeyBindingException, JsonProcessingException {
+		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+		walletBindingRequest.setIndividualId("8267411571");
+		walletBindingRequest.setAuthFactorType("WLA");
+		walletBindingRequest.setFormat("jwt");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("OTP");
+		authChallenge.setChallenge("111111");
+		authChallenge.setFormat("alpha-numeric");
+		List<AuthChallenge> authChallengeList = new ArrayList<>();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
+		walletBindingRequest
+				.setPublicKey(
+						(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+
+		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+				.thenThrow(KeyBindingException.class);
+
+		keyBindingService.bindWallet(walletBindingRequest, new HashMap<>());
 	}
 
 	@Test
