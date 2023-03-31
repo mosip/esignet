@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=0.0.1
+CHART_VERSION=1.0.0
 
 ./keycloak-init.sh
 
