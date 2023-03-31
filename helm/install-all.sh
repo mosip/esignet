@@ -10,7 +10,7 @@ fi
 ROOT_DIR=`pwd`
 
 SOFTHSM_NS=softhsm
-SOFTHSM_CHART_VERSION=12.0.2
+SOFTHSM_CHART_VERSION=12.0.1-B2
 
 echo Create $SOFTHSM_NS namespace
 kubectl create ns $SOFTHSM_NS
