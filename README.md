@@ -18,6 +18,24 @@ e-Signet repository contains following:
 ## Databases
 Refer to [SQL scripts](db_scripts).
 
+## Install
+```
+cd helm
+./install-all.sh
+```
+
+## Delete
+```
+cd helm
+./delete-all.sh
+```
+
+## Restart
+```
+cd helm
+./restart-all.sh
+```
+
 ## Build & run (for developers)
 The project requires JDK 11.
 1. Build and install:
