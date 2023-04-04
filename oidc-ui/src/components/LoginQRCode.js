@@ -43,7 +43,9 @@ export default function LoginQRCode({
     parseTimeout !== "NaN" ? parseTimeout : 25;
 
   const GenerateQRCode = (text) => {
-    QRCode.toDataURL(
+    const canvas = document.createElement("canvas");
+    QRCode.toCanvas(
+      canvas,
       text,
       {
         width: 500,
@@ -52,14 +54,25 @@ export default function LoginQRCode({
           dark: "#000000",
         },
       },
-      (err, text) => {
+      (err) => {
         if (err) {
           setError({
             errorCode: "link_code_refresh_failed",
           });
           return;
         }
-        setQr(text);
+        const logo = new Image();
+        logo.src = "logo.png";
+        logo.onload = () => {
+          const ctx = canvas.getContext("2d");
+          const size = canvas.width / 5;
+          const x = (canvas.width - size) / 2;
+          const y = (canvas.height - size) / 2;
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(200, 205, 100, 90);
+          ctx.drawImage(logo, x, y, size, size);
+          setQr(canvas.toDataURL());
+        };
       }
     );
   };
