@@ -33,7 +33,7 @@ The project requires JDK 11.
 ### Pre-requisites
 1. Set the kube config file of the Mosip cluster having dependent services is set correctly in PC.
 1. Make sure [DB setup](db_scripts/README.md#install-in-existing-mosip-k8-cluster) is done.
-1. Add [compliance-toolkit-default.properties](https://github.com/mosip/mosip-config/blob/v1.0.0-CTK/compliance-toolkit-default.properties) in required branch of config repo.
+1. Add [esignet-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/esignet-default.properties) in required branch of config repo.
 1. Below are the dependent services required for compliance toolkit service:
    | Chart | Chart version |
    |---|---|
