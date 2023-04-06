@@ -75,7 +75,7 @@ public class OAuthServiceImpl implements OAuthService {
         if(transaction == null || transaction.getKycToken() == null)
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
-        if(StringUtils.isEmpty(tokenRequest.getClient_id()) || !transaction.getClientId().equals(tokenRequest.getClient_id()))
+        if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
             throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
 
         if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
