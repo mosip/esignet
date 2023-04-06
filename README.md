@@ -33,25 +33,25 @@ The project requires JDK 11.
 ### Pre-requisites
 1. Set the kube config file of the Mosip cluster having dependent services is set correctly in PC.
 1. Make sure [DB setup](db_scripts/README.md#install-in-existing-mosip-k8-cluster) is done.
-1. Add [esignet-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/esignet-default.properties) in required branch of config repo.
-1. Below are the dependent services required for compliance toolkit service:
+1. Add [esignet-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/esignet-default.properties) 
+   and [application-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/application-default.properties) in required branch of config repo.
+1. Below are the dependent services required for esignet service:
    | Chart | Chart version |
    |---|---|
-   |[Clamav](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/antivirus/clamav) | 2.4.1 |
    |[Keycloak](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/iam) | 7.1.18 |
    |[Keycloak-init](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/iam) | 12.0.1-B3 |
    |[Postgres](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/postgres) | 10.16.2 |
    |[Postgres Init](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/postgres) | 12.0.1-B3 |
    |[Minio](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/object-store) | 10.1.6 |
+   |[Kafka](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/kafka) | 0.4.2 |
    |[Config-server](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/mosip/config-server) | 12.0.1-B3 |
-   |[Websub](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/mosip/websub/install.sh) | 12.0.1-B2 |
+   |[Websub](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/mosip/websub) | 12.0.1-B2 |
    |[Artifactory server](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/mosip/artifactory) | 12.0.1-B3 |
-   |[Keymanager service](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/kernel/install.sh) | 12.0.1-B2 |
-   |[Auditmanager service](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/kernel/install.sh) | 12.0.1-B2 |
-   |[Authmanager service](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/kernel/install.sh) | 12.0.1-B2 |
-   |[Notifier service](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/kernel/install.sh) | 12.0.1-B2 |
-   |[Partner manager service](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/pms/install.sh) | 12.0.1-B3 |
-   |[ID-Authentication service](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/pms/install.sh) | 12.0.1-B3 |
+   |[Keymanager service](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/keymanager) | 12.0.1-B2 |
+   |[Kernel services](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/kernel) | 12.0.1-B2 |
+   |[Idrepo services](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/idrepo) | 12.0.1-B2 |
+   |[Pms services](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/pms) | 12.0.1-B3 |
+   |[IDA services](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/ida) | 12.0.1-B3 |
 
 ### Install
 * Install `kubectl` and `helm` utilities.
@@ -74,6 +74,10 @@ The project requires JDK 11.
   cd helm
   ./restart-all.sh
   ```
+
+## Onboard esignet
+* Run onboarder's [install.sh](https://github.com/mosip/mosip-infra/blob/v1.2.0.1-B3/deployment/v3/mosip/partner-onboarder) script to exchange jwk certificates.
+  
 
 ## APIs
 API documentation is available [here](https://mosip.stoplight.io/docs/identity-provider/branches/main/6f1syzijynu40-identity-provider).
