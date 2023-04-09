@@ -24,14 +24,22 @@ echo Installing Softhsm for esignet
 helm -n $SOFTHSM_NS install softhsm-esignet mosip/softhsm -f softhsm-values.yaml --version $SOFTHSM_CHART_VERSION --wait
 echo Installed Softhsm for esignet
 
+MISPKEY=$(bash misp_key.sh)
+echo "MISP License key is: $MISPKEY"
+
+echo Setting up misp-license-key secrets
+kubectl -n $NS create secret generic misp-license-key --from-literal=mosip-esignet-misp-key=$MISPKEY --dry-run=client -o yaml | kubectl apply -f -
+
 echo Copy configmaps
 ./copy_cm_func.sh configmap global default config-server
 
 echo Copy secrets
 ./copy_cm_func.sh secret softhsm-esignet softhsm config-server
+./copy_cm_func.sh secret misp-license-key esignet config-server
 
 kubectl -n config-server set env --keys=mosip-esignet-host --from configmap/global deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
 kubectl -n config-server set env --keys=security-pin --from secret/softhsm-esignet deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SOFTHSM_ESIGNET_
+kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/misp-license-key deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
 kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
 
 
