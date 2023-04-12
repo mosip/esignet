@@ -33,8 +33,9 @@ The project requires JDK 11.
 ### Pre-requisites
 1. Set the kube config file of the Mosip cluster having dependent services is set correctly in PC.
 1. Make sure [DB setup](db_scripts/README.md#install-in-existing-mosip-k8-cluster) is done.
-1. Add [esignet-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/esignet-default.properties) 
-   and [application-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/application-default.properties) in required branch of config repo.
+1. Add / merge below mentioned properties files into existing config branch:
+   * [esignet-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/esignet-default.properties)
+   * [application-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/application-default.properties)
 1. Below are the dependent services required for esignet service:
    | Chart | Chart version |
    |---|---|
