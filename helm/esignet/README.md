@@ -11,7 +11,7 @@ $ helm install my-release mosip/esignet
 
 ## Introduction
 
-esignet is part of the esignet modules, but has a separate Helm chart so as to install and manage it in a completely indepedent namespace.
+esignet is part of the esignet modules, but has a separate Helm chart so as to install and manage it in a completely independent namespace.
 
 ## Prerequisites
 
@@ -23,8 +23,8 @@ esignet is part of the esignet modules, but has a separate Helm chart so as to i
 ## Overview
 Refer [Commons](https://docs.mosip.io/1.2.0/modules/commons).
 
-## Initialize keycloak for IDP
-* To initialize keycloak for IDP, run below script.
+## Initialize keycloak for esignet
+* To initialize keycloak for esignet, run below script.
   ```sh
   ./keycloak-init.sh
   ```

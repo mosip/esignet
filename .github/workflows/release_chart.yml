@@ -19,6 +19,6 @@ jobs:
         with:
           token: ${{ secrets.ACTION_PAT }}
           charts_dir: ./helm
-          charts_url: https://github.com/mosip
+          charts_url: https://mosip.github.io/mosip-helm
           repository: mosip-helm
           branch: gh-pages
