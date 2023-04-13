@@ -8,8 +8,7 @@ Default data that's populated in the tables is present under `<db name>/dml` fol
 
 ## Prerequisites
 * Make sure DB changes for IDA and PMS are up to date.
-* If not upgraded, IDA DB using the [release script](https://github.com/mosip/id-authentication/tree/develop/db_release_scripts).
-* If not upgraded, PMS DB using the [release script](https://github.com/mosip/partner-management-services/tree/develop/db_release_scripts).
+* If not upgraded, IDA DB using the [release script](https://github.com/mosip/id-authentication/tree/v1.2.0.1-B3/db_release_scripts).
 * Command line utilities:
   - kubectl
   - helm
