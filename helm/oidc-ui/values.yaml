@@ -51,7 +51,7 @@ service:
 
 image:
   registry: docker.io
-  repository: mosipqa/oidc-ui
+  repository: mosipid/oidc-ui
   tag: 1.0.0
 
   ## Specify a imagePullPolicy
