@@ -94,7 +94,7 @@ The project requires JDK 11.
 ###2.Onboarding the default resident-oidc partner
 *  After successfull partner onboarder run for resident-oidc , download html reports from `onboarder` bucket of object store .
 *  Get `clientId` from  response body of  request `create-oidc-client` from the report **_resident-oidc.html_** .
-*  Update & commit  value of  `mmosip.iam.module.clientID`  parameter with `clientId` value from last step in **resident-default.properties** .
+*  Update & commit  value of  `mosip.iam.module.clientID`  parameter with `clientId` value from last step in **resident-default.properties** .
 *  Restart resident pod.
   
 
