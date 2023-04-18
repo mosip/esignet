@@ -78,8 +78,23 @@ The project requires JDK 11.
   ```
 
 ## Onboard esignet
-* Run onboarder's [install.sh](partner-onboarder) script to exchange jwk certificates.
-  
+* Run onboarder's [install.sh](partner-onboarder) script .
+### Configurational steps after onboarding is completed.
+*  Below mentioned onboarding steps are added after 1.2.0.1-b3
+   *  Onboarding the default esignet partner
+   *  Onboarding the default resident-oidc partner
+
+###1. Onboarding the default esignet partner
+*  After successfull partner onboarder run for esignet , download html reports from `onboarder` bucket of object store .
+*  Get `licensekey` from  response body of  request `create-the-MISP-license-key-for-partner` from the report **_e-signet.html_**
+*  Update & commit  value of  `mosip.esignet.misp.license.key`  parameter with `licensekey` value from last step in **esignet-default.properties** .
+*  Restart  esignet pod.
+
+###2.Onboarding the default resident-oidc partner
+*  After successfull partner onboarder run for resident-oidc , download html reports from `onboarder` bucket of object store .
+*  Get `clientId` from  response body of  request `create-oidc-client` from the report **_resident-oidc.html_** .
+*  Update & commit  value of  `mosip.iam.module.clientID`  parameter with `clientId` value from last step in **resident-default.properties** .
+*  Restart resident pod.  
 
 ## APIs
 API documentation is available [here](https://mosip.stoplight.io/docs/identity-provider/branches/main/6f1syzijynu40-identity-provider).
