@@ -52,7 +52,7 @@ function installing_onboarder() {
     -f values.yaml \
     --version $CHART_VERSION
 
-    echo Reports are moved to S3 under onboarder bucket
+    echo "Reports are moved to S3 under onboarder bucket"
     echo "Please follow the steps as mentioned in the document link below to configure default-esignet-partner:"
     BRANCH_NAME=$(git symbolic-ref --short HEAD)
     GITHUB_URL="https://github.com/mosip/esignet/blob"
