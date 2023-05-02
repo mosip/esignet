@@ -7,11 +7,11 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=0.0.1
+CHART_VERSION=1.0.1
 
 kubectl create ns $NS
 
-helm dependency build
+helm repo update
 
 ./keycloak-init.sh
 
@@ -31,7 +31,7 @@ kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/onb
 kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
 
 echo Installing esignet
-helm -n $NS install esignet . --version $CHART_VERSION
+helm -n $NS install esignet mosip/esignet --version $CHART_VERSION
 
 kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
