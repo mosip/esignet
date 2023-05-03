@@ -13,7 +13,7 @@
 	
 	<name>household-esignet-integration-impl</name>
 	<description>HouseHold integeration imp of a wrapper implementation that is used to showcase the integration with e-Signet</description>
-	<url>https://github.com/mosip/esignet-mock-services</url>
+	<url>https://github.com/mosip/esignet</url>
 	
 	<licenses>
 		<license>
@@ -22,9 +22,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git://github.com/mosip/esignet-mock-services.git</connection>
-		<developerConnection>scm:git:ssh://github.com:mosip/esignet-mock-services.git</developerConnection>
-		<url>https://github.com/mosip/esignet-mock-services</url>
+		<connection>scm:git:git://github.com/mosip/esignet.git</connection>
+		<developerConnection>scm:git:ssh://github.com:mosip/esignet.git</developerConnection>
+		<url>https://github.com/mosip/esignet</url>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -53,24 +53,7 @@
     		<artifactId>esignet-integration-api</artifactId>
     		<version>1.0.0-SNAPSHOT</version>
 		</dependency>
-		
-		<dependency>
-			<groupId>io.mosip.kernel</groupId>
-			<artifactId>kernel-keymanager-service</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
-			<scope>provided</scope>
-			<classifier>lib</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.cloud</groupId>
-					<artifactId>spring-cloud-starter-sleuth</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework.security</groupId>
-					<artifactId>spring-security-test</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
 		
 	</dependencies>
 </project>
