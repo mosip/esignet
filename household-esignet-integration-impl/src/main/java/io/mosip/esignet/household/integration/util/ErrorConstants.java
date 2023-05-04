@@ -14,4 +14,10 @@ public class ErrorConstants {
 	public static final String INVALID_VALUE = "invalid_value";
 	public static final String DUPLICATE_INDIVIDUAL_ID = "duplicate_individual_id";
 
+	public static final String INVALID_PASSWORD = "invalid_password";
+
+	public static final String INVALID_CHALLENGE_FORMAT = "invalid_challenge_format";
+	public static final String INVALID_AUTH_CHALLENGE = "invalid_challenge_value";
+	public static final String INVALID_PSUT="Not able to generate psut";
+
 }
