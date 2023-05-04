@@ -1,24 +1,17 @@
 package io.mosip.esignet.household.integration.entity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 
 @Entity
-@Table(name = "household")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "household_view")
 public class HouseholdView {
-
-    //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "household_ID")
     private long householdId;
@@ -36,5 +29,5 @@ public class HouseholdView {
     private String password;
 
     @Column(name = "tamwini_consented")
-    private boolean tamwiniConsented=true;
+    private boolean tamwiniConsented;
 }

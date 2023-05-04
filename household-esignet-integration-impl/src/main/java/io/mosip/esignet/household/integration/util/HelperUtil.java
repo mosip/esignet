@@ -1,7 +1,5 @@
 package io.mosip.esignet.household.integration.util;
-
-//import io.mosip.esignet.household.identitysystem.exception.MockIdentityException;
-import io.mosip.kernel.core.util.StringUtils;
+import io.mosip.esignet.household.integration.exception.HouseholdentityException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -13,10 +11,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import java.util.stream.IntStream;
-
-//import static io.mosip.esignet.mock.identitysystem.util.Constants.UTC_DATETIME_PATTERN;
-//import static io.mosip.kernel.core.util.DateUtils.UTC_DATETIME_PATTERN;
 
 @Slf4j
 public class HelperUtil {
@@ -65,22 +59,4 @@ public class HelperUtil {
         return urlSafeEncoder.encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static String maskMobile(String mobileNumber) {
-        if (StringUtils.isEmpty(mobileNumber)) {
-            return "";
-        }
-        StringBuilder maskedMobile = new StringBuilder(mobileNumber);
-        IntStream.range(0, (maskedMobile.length() / 2) + 1).forEach(i -> maskedMobile.setCharAt(i, 'X'));
-        return maskedMobile.toString();
-    }
-
-    public static String maskEmail(String email) {
-        if (StringUtils.isEmpty(email)) {
-            return "";
-        }
-        StringBuilder maskedEmail = new StringBuilder(email);
-        IntStream.range(1, StringUtils.split(email, '@')[0].length() + 1).filter(i -> i % 3 != 0)
-                .forEach(i -> maskedEmail.setCharAt(i - 1, 'X'));
-        return maskedEmail.toString();
-    }
 }
