@@ -1,4 +1,5 @@
 package io.mosip.esignet.household.integration.util;
+import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.household.integration.exception.HouseholdentityException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
@@ -11,6 +12,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+
+import static io.mosip.esignet.household.integration.util.ErrorConstants.INVALID_AUTHENTICATION;
 
 @Slf4j
 public class HelperUtil {
@@ -40,14 +43,14 @@ public class HelperUtil {
         return ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN));
     }
 
-    public static String generateB64EncodedHash(String algorithm, String value) throws HouseholdentityException {
+    public static String generateB64EncodedHash(String algorithm, String value) throws KycAuthException {
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
             byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
             return urlSafeEncoder.encodeToString(hash);
         } catch (NoSuchAlgorithmException ex) {
             log.error("Invalid algorithm : {}", algorithm, ex);
-            throw new HouseholdentityException("invalid_algorithm");
+            throw new KycAuthException(INVALID_AUTHENTICATION);
         }
     }
 

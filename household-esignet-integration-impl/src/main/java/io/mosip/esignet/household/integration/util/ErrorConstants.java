@@ -19,5 +19,6 @@ public class ErrorConstants {
 	public static final String INVALID_CHALLENGE_FORMAT = "invalid_challenge_format";
 	public static final String INVALID_AUTH_CHALLENGE = "invalid_challenge_value";
 	public static final String INVALID_PSUT="Not able to generate psut";
+	public static final String INVALID_AUTHENTICATION="Invalid authentication";
 
 }
