@@ -4,13 +4,12 @@ import io.mosip.esignet.api.dto.KycAuthDto;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.household.integration.entity.HouseholdView;
-import io.mosip.esignet.household.integration.repository.HouseholdRepository;
+import io.mosip.esignet.household.integration.repository.HouseholdViewRepository;
 import io.mosip.esignet.household.integration.util.HelperUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -24,7 +23,6 @@ import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
 public class HouseholdAuthenticatorHelper {
 
     private static final String PSUT_FORMAT = "%s%s";
-
     @Value("${mosip.esignet.household.pattern.regex}")
     private String regexPattern;
 
@@ -33,7 +31,6 @@ public class HouseholdAuthenticatorHelper {
     public void initialize() {
         log.info("Started to setup HouseHold IDA");
     }
-
     private static final Map<String, List<String>> supportedKycAuthFormats = new HashMap<>();
 
     static {
@@ -44,7 +41,7 @@ public class HouseholdAuthenticatorHelper {
         supportedKycAuthFormats.put(PASSWORD, List.of("alpha-numeric"));
     }
     @Autowired
-    private HouseholdRepository householdRepository;
+    private HouseholdViewRepository householdViewRepository;
 
     public KycAuthResult doKycAuthHousehold(String relyingPartyId, String clientId, KycAuthDto kycAuthDto)
             throws KycAuthException {
@@ -98,13 +95,14 @@ public class HouseholdAuthenticatorHelper {
     }
 
     private HouseholdView getHouseHoldView(String individualId) throws Exception {
-       Optional<HouseholdView> householdViewOptional= householdRepository.findById(Long.parseLong(individualId));
+       Optional<HouseholdView> householdViewOptional= householdViewRepository.findById(Long.parseLong(individualId));
        if(householdViewOptional.isPresent())
            return householdViewOptional.get();
 
        throw new Exception("Household not found");
     }
 
+    //this will convert the raw password to hash and then compare with the stored hash
     private void passwordMatcher(String password, String hash) throws Exception {
         String[] hashAttrs= hash.split("\\$");
         if (hashAttrs.length < 4) {
