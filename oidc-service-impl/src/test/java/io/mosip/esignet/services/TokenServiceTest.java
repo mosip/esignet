@@ -33,7 +33,6 @@ public class TokenServiceTest {
     @InjectMocks
     private TokenServiceImpl tokenService;
 
-
     @Mock
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
@@ -121,6 +120,11 @@ public class TokenServiceTest {
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withInvalidToken_thenFail() {
         tokenService.verifyAccessToken("client-id", publidKey, "access_token");
+    }
+    
+    @Test(expected = NotAuthenticatedException.class)
+    public void verifyAccessToken_withInvalidDataToken_thenFail() {
+        tokenService.verifyAccessToken("client-id", publidKey, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJhZWxkdW5nIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.qH7Zj_m3kY69kxhaQXTa-ivIpytKXXjZc1ZSmapZnGE");
     }
 
     private SignatureService getSignatureService() {

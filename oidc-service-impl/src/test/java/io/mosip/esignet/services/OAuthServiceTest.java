@@ -114,12 +114,85 @@ public class OAuthServiceTest {
     }
 
     @Test
-    public void getTokens_withInvalidClientId_thenFail() {
+    public void getTokens_withNullClientIdInRequest_thenPass() throws KycExchangeException {
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setCode("test-code");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
+        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
+        Assert.assertNotNull(tokenResponse);
+        Assert.assertNotNull(tokenResponse.getId_token());
+        Assert.assertNotNull(tokenResponse.getAccess_token());
+        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+    }
+
+    @Test
+    public void getTokens_withEmptyClientIdInRequest_thenPass() throws KycExchangeException {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("  ");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
+        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
+        Assert.assertNotNull(tokenResponse);
+        Assert.assertNotNull(tokenResponse.getId_token());
+        Assert.assertNotNull(tokenResponse.getAccess_token());
+        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+    }
+
+    @Test
+    public void getTokens_withInvalidClientIdInRequest_thenFail() {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("t");
 
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setClientId("test-test");
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
