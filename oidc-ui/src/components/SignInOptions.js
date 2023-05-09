@@ -19,8 +19,8 @@ export default function SignInOptions({
     OTP: "images/sign_in_with_otp.png",
     WALLET: "images/Sign in with Inji.png",
     BIO: "images/Sign in with fingerprint.png",
+    PWD: "images/sign_in_with_otp.png"
   };
-
   useEffect(() => {
     setStatus({ state: states.LOADING, msg: "loading_msg" });
 

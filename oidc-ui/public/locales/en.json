@@ -56,9 +56,19 @@
     "remember_me": "Remember Me",
     "login": "Login",
     "uin_label_text": "UIN",
-    "pin_label_text": "PIN",
+    "pin_label_text": "Enter PIN",
     "uin_placeholder": "UIN or VID",
-    "pin_placeholder": "Enter PIN"
+    "pin_placeholder": "PIN"
+  },
+  "password": {
+    "sign_in_with_password": "Login with Password",
+    "remember_me": "Remember Me",
+    "login": "Login",
+    "uin_label_text": "Enter your VID",
+    "password_label_text": "Enter Password",
+    "uin_placeholder": "VID",
+    "password_placeholder": "Password",
+    "password_error_msg":"Password Length should be Minimum 8 Characters"
   },
   "LoginQRCode": {
     "sign_in_with_inji": "Login with Inji",
@@ -97,7 +107,8 @@
     "BIO": "Biometrics",
     "QRCode": "QR Code",
     "WALLET": "Inji",
-    "OTP": "OTP"
+    "OTP": "OTP",
+    "PWD": "Password"
   },
   "esignetDetails": {
     "esignet_details_heading": "Esignet wellknown APIs",
@@ -120,7 +131,8 @@
   "tabs": {
     "pin_tab_name": "Login with PIN",
     "inji_tab_name": "Login with Inji",
-    "biometric_tab_name": "Login with Biometrics"
+    "biometric_tab_name": "Login with Biometrics",
+    "password_tab_name":"Login With Password"
   },
   "loadingMsgs": {
     "redirecting_msg": "Redirecting. Please Wait...",
@@ -232,6 +244,7 @@
     "invalid_version": "Invalid version",
     "invalid_value": "Invalid value",
     "duplicate_individual_id": "Individual ID already exists.",
+    "password_error_msg":"Invalid Password",
     "0": "Success",
     "100": "Device Not Registered",
     "101": "Unable to Detect a Biometrics",
