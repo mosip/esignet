@@ -37,6 +37,10 @@ export default function OtpVerify({
   const commaSeparatedChannels =
     openIDConnectService.getEsignetConfiguration(configurationKeys.sendOtpChannels) ??
     process.env.REACT_APP_SEND_OTP_CHANNELS;
+  const otpLengthValue =
+    openIDConnectService.getEsignetConfiguration(configurationKeys.otpLength) ??
+    process.env.REACT_APP_OTP_LENGTH;
+  const otpLength = parseInt(otpLengthValue);
 
   const [loginState, setLoginState] = useState(fieldsState);
   const [error, setError] = useState(null);
@@ -234,7 +238,7 @@ export default function OtpVerify({
 
         <div className="space-y-px flex justify-center">
           <PinInput
-            length={6}
+            length={otpLength}
             initialValue=""
             onChange={(value, index) => {
               setOtpValue(value);
@@ -298,7 +302,7 @@ export default function OtpVerify({
         </div>
 
         <FormAction
-          disabled={otpValue.length !== 6}
+          disabled={otpValue.length !== otpLength}
           type={buttonTypes.submit}
           text={t("verify")}
         />
