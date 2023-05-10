@@ -94,6 +94,36 @@ public class AuthorizationHelperService {
     @Value("${mosip.esignet.send-otp.captcha-required:false}")
     private boolean captchaRequired;
 
+    public static Consent validateConsent(OIDCTransaction transaction, UserConsent userConsent) {
+        if(userConsent == null) {
+            return Consent.CAPTURE;
+        }
+        //validate requested claims
+        Claims requestedClaims = transaction.getRequestedClaims();
+        List<String> requestedScopes = transaction.getRequestedAuthorizeScopes();
+
+        if(((requestedClaims == null ||
+                (requestedClaims.getId_token().isEmpty() && requestedClaims.getUserinfo().isEmpty()))
+                && requestedScopes.isEmpty())
+        ) {
+            return Consent.NOCAPTURE;
+        }
+
+        //validate consented claims
+        if(requestedClaims!= null && userConsent.getClaims() != null &&!requestedClaims.isEqualToIgnoringAccepted(userConsent.getClaims())){
+            return Consent.CAPTURE;
+        }
+
+        //validate consented scopes
+        if(!requestedScopes.isEmpty()
+                && ( !new HashSet<>(requestedScopes).containsAll(userConsent.getRequestedScopes()) ||
+                !new HashSet<>(requestedScopes).containsAll(userConsent.getAuthorizedScopes())
+        )){
+            return Consent.CAPTURE;
+        }
+        return Consent.NOCAPTURE;
+    }
+
     protected void validateCaptchaToken(String captchaToken) {
         if(!captchaRequired) {
             log.warn("captcha validation is disabled");
@@ -244,9 +274,9 @@ public class AuthorizationHelperService {
 
         Set<List<AuthenticationFactor>> result = resolvedAuthFactors.stream()
                 .filter( acrFactors ->
-                providedAuthFactors.containsAll(acrFactors.stream()
-                        .map(AuthenticationFactor::getType)
-                        .collect(Collectors.toList())))
+                        providedAuthFactors.containsAll(acrFactors.stream()
+                                .map(AuthenticationFactor::getType)
+                                .collect(Collectors.toList())))
                 .collect(Collectors.toSet());
 
         if(CollectionUtils.isEmpty(result)) {
@@ -339,5 +369,28 @@ public class AuthorizationHelperService {
         }
         log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
         throw new EsignetException(ErrorConstants.NO_UNIQUE_ALIAS);
+    }
+
+    public AuthResponseV2 authResponseV2Mapper(AuthResponse authResponse) throws EsignetException {
+        AuthResponseV2 authResponseV2 = new AuthResponseV2();
+        authResponseV2.setTransactionId(authResponse.getTransactionId());
+//        log.debug("consent {}", );
+        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authResponse.getTransactionId());
+        if(transaction == null)
+            throw new InvalidTransactionException();
+
+
+        authResponseV2.setConsentAction(transaction.getConsent());
+        return authResponseV2;
+    }
+
+    public LinkedKycAuthResponseV2 linkedKycAuthResponseV2Mapper(LinkedKycAuthResponse linkedKycAuthResponse) throws EsignetException {
+        LinkedKycAuthResponseV2 linkedKycAuthResponseV2 = new LinkedKycAuthResponseV2();
+        linkedKycAuthResponseV2.setLinkedTransactionId(linkedKycAuthResponse.getLinkedTransactionId());
+        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(linkedKycAuthResponse.getLinkedTransactionId());
+        if(transaction == null)
+            throw new InvalidTransactionException();
+        linkedKycAuthResponseV2.setConsentAction(transaction.getConsent());
+        return linkedKycAuthResponseV2;
     }
 }

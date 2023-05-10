@@ -25,6 +25,7 @@ import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,6 +38,7 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 
 @Slf4j
 @Service
+@Primary
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
@@ -92,7 +94,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId(transactionId);
         oauthDetailResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
-               resolvedClaims.getId_token().get(ACR).getValues()
+                resolvedClaims.getId_token().get(ACR).getValues()
         ));
 
         Map<String, List> claimsMap = authorizationHelperService.getClaimNames(resolvedClaims);
@@ -156,11 +158,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
-                        .map(AuthenticationFactor::getType)
-                        .collect(Collectors.toList())).collect(Collectors.toSet()));
+                .map(AuthenticationFactor::getType)
+                .collect(Collectors.toList())).collect(Collectors.toSet()));
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
-
+        transaction.setConsent(Consent.CAPTURE);
         auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
 
         AuthResponse authRespDto = new AuthResponse();
@@ -174,15 +176,27 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
-
-        authorizationHelperService.validateAcceptedClaims(transaction, authCodeRequest.getAcceptedClaims());
-        authorizationHelperService.validateAuthorizeScopes(transaction, authCodeRequest.getPermittedAuthorizeScopes());
+        List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
+        List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
+        if(transaction.getConsent() == Consent.NOCAPTURE) {
+            acceptedClaims = transaction.getAcceptedClaims();
+            acceptedScopes = transaction.getPermittedScopes();
+        }
+        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
+        authorizationHelperService.validateAuthorizeScopes(transaction, acceptedScopes);
 
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
         // cache consent with auth-code-hash as key
         transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
+        if(transaction.getConsent() == Consent.CAPTURE) {
+            String identifier = transaction.getClientId() + transaction.getPartnerSpecificUserToken();
+            ConsentCache.addUserConsent(identifier,new UserConsent(
+                    transaction.getRequestedClaims(), transaction.getAcceptedClaims(),transaction.getRequestedAuthorizeScopes(),transaction.getPermittedScopes()
+            ));
+        }
+
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
 
         auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);

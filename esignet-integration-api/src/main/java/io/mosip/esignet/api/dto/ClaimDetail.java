@@ -11,6 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -21,4 +23,27 @@ public class ClaimDetail implements Serializable {
     private String value;
     private String[] values;
     private boolean essential;
+    private boolean accepted;
+
+    public ClaimDetail(String value, String[] values, boolean essential) {
+        this.value = value;
+        this.values = values;
+        this.essential = essential;
+    }
+
+    public boolean isEqualToIgnoringAccepted(ClaimDetail other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!Objects.equals(value, other.value)) {
+            return false;
+        }
+        if (!Arrays.equals(values, other.values)) {
+            return false;
+        }
+        return essential == other.essential;
+    }
 }
