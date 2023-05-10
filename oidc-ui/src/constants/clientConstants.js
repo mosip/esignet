@@ -67,6 +67,7 @@ const configurationKeys = {
   appDownloadURI: "mosip.esignet.qr-code.download-uri",
   signInWithQRCodeEnable: "mosip.esignet.qr-code.enable",
   authTxnIdLength: "auth.txnid.length",
+  otpLength: "otp.length",
 };
 
 export {
