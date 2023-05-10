@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 @Repository
 public interface HouseholdViewRepository extends JpaRepository<HouseholdView, Long> {
-    Optional<HouseholdView> findByIdNumberAndPassword(String idNumber, String password);
+    Optional<HouseholdView> findByIdNumber(String idNumber);
 }

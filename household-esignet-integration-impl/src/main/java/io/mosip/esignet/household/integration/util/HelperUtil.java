@@ -1,13 +1,22 @@
 package io.mosip.esignet.household.integration.util;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
 import io.mosip.esignet.api.exception.KycAuthException;
+import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.household.integration.exception.HouseholdentityException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -60,6 +69,53 @@ public class HelperUtil {
 
     public static String b64Encode(String value) {
         return urlSafeEncoder.encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public  static String generateJwsToken(String kycToken) throws KycExchangeException {
+        // Generate an RSA key pair
+        try{
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+            // Create a JWT claims set
+            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                    .subject(kycToken)
+                    .build();
+
+            // Create a JWS header with the RSA signature algorithm
+            JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                    .keyID("key-id")
+                    .build();
+
+            // Create a JWS object and sign it with the private key
+            JWSObject jwsObject = new JWSObject(header, new Payload(claimsSet.toJSONObject()));
+            JWSSigner signer = new RSASSASigner((RSAPrivateKey) keyPair.getPrivate());
+            jwsObject.sign(signer);
+            String token = jwsObject.serialize();
+            return token;
+        }catch (NoSuchAlgorithmException ex) {
+            throw new KycExchangeException("Error while generating JWS token");
+        } catch (JOSEException ex) {
+            throw new KycExchangeException("Error while generating JWS token");
+        }
+
+
+        // Serialize the JWS object to a compact string
+
+
+        // Verify the JWS signature using the public key
+//        JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) keyPair.getPublic());
+//        RSAPublicKey rsaPublicKey= (RSAPublicKey) keyPair.getPublic();
+//        RSAPrivateKey rsaPrivateKey= (RSAPrivateKey) keyPair.getPrivate();
+//        String privatekey = Base64.getEncoder().encodeToString(rsaPrivateKey.getEncoded());
+//        String publicKey = Base64.getEncoder().encodeToString(rsaPublicKey.getEncoded());
+//
+//        boolean isValid = jwsObject.verify(verifier);
+//
+//        System.out.println("JWS token: " + token);
+//        System.out.println("Is JWS signature valid? " + isValid+ " public key: "+publicKey);
+//        System.out.println("Is JWS signature valid? " + isValid+ " private key: "+privatekey);
     }
 
 }
