@@ -60,6 +60,16 @@
     "uin_placeholder": "UIN or VID",
     "pin_placeholder": "Enter PIN"
   },
+  "password": {
+    "sign_in_with_password": "Login with Password",
+    "remember_me": "Remember Me",
+    "login": "Login",
+    "uin_label_text": "Enter your VID",
+    "password_label_text": "Enter Password",
+    "uin_placeholder": "VID",
+    "password_placeholder": "Password",
+    "password_error_msg": "Invalid Password"
+  },
   "LoginQRCode": {
     "sign_in_with_inji": "Login with Inji",
     "scan_with_inji": "Scan with Inji App to Log In",
@@ -97,7 +107,8 @@
     "BIO": "Biometrics",
     "QRCode": "QR Code",
     "WALLET": "Inji",
-    "OTP": "OTP"
+    "OTP": "OTP",
+    "PWD": "Password"
   },
   "esignetDetails": {
     "esignet_details_heading": "Esignet wellknown APIs",
@@ -213,7 +224,7 @@
     "sha256_thumbprint_header_missing": "Missing x5t#S256 header in WLA token.",
     "invalid_challenge_format": "Invalid Authentication challenge format found.",
     "link_code_limit_reached": "Number of allowed Link code per transaction limit reached.",
-    "failed_to_generate_header_hash":"Failed to generate oauth-details-hash http header value.",
+    "failed_to_generate_header_hash": "Failed to generate oauth-details-hash http header value.",
     "invalid_individual_id": "Invalid Individual ID",
     "invalid_pin": "Invalid Pin",
     "invalid_email": "Invalid Email ID",
