@@ -20,6 +20,28 @@ const pinFields = [
     placeholder: "pin_placeholder", //translation key for pin namespace
   },
 ];
+const passwordFields = [
+  {
+    labelText: "uin_label_text", //translation key for password namespace
+    labelFor: "Mosip Uin",
+    id: "mosip-uin",
+    name: "uin",
+    type: "text",
+    autoComplete: "uin",
+    isRequired: true,
+    placeholder: "uin_placeholder", //translation key for password namespace
+  },
+  {
+    labelText: "password_label_text",
+    labelFor: "password",
+    id: "password",
+    name: "password",
+    type: "password",
+    autoComplete: "",
+    isRequired: true,
+    placeholder: "password_placeholder", //translation key for password namespace
+  },
+];
 
 const otpFields = [
   {
@@ -109,6 +131,11 @@ const tabList = [
     icon: "bio_capture",
     comp: "Biometrics",
   },
+  {
+    name: "password_tab_name", //translation key for tabs namespace
+    icon: "space-shuttle",
+    comp: "Password",
+  }
 ];
 
-export { pinFields, otpFields, signupFields, tabList, bioLoginFields };
+export { pinFields, otpFields, signupFields, tabList, bioLoginFields, passwordFields };
