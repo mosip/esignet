@@ -7,6 +7,7 @@ import {
   buttonTypes,
   challengeFormats,
   challengeTypes,
+  configurationKeys,
 } from "../constants/clientConstants";
 import { passwordFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
@@ -33,6 +34,12 @@ export default function Password({
   const [error, setError] = useState(null);
   const [status, setStatus] = useState(states.LOADED);
 
+  const passwordRegexValue =
+    openIDConnectService.getEsignetConfiguration(configurationKeys.passwordRegex) ??
+    process.env.REACT_APP_PASSWORD_REGEX;
+
+  const passwordRegex = new RegExp(passwordRegexValue)
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -54,7 +61,6 @@ export default function Password({
       let challenge = loginState["Password_password"];
       let challengeFormat = challengeFormats.pwd;
 
-      const passwordRegex = /[0-9a-zA-Z]{8,}$/;
       if (!passwordRegex.test(challenge)) {
         setError({
           defaultMsg: t("password_error_msg")
