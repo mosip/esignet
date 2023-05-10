@@ -9,6 +9,7 @@ const challengeTypes = {
   pin: "PIN",
   otp: "OTP",
   wallet: "WALLET",
+  pwd: "PWD"
 };
 
 const challengeFormats = {
@@ -16,6 +17,7 @@ const challengeFormats = {
   pin: "number",
   otp: "alpha-numeric",
   wallet: "jwt",
+  pwd: "alpha-numeric"
 };
 
 
@@ -23,6 +25,7 @@ const validAuthFactors = {
   PIN: "PIN",
   OTP: "OTP",
   BIO: "BIO",
+  PWD: "PWD"
 };
 
 const buttonTypes = {
