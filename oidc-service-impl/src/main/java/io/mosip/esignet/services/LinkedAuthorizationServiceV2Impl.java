@@ -12,14 +12,11 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
-import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.LinkedAuthorizationService;
 import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -27,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,38 +34,23 @@ import static io.mosip.esignet.core.constants.ErrorConstants.OPERATION_UNIMPLEME
 @Qualifier("linkedAuthorizationServiceV2")
 public class LinkedAuthorizationServiceV2Impl implements LinkedAuthorizationService {
 
-    @Autowired
-    private CacheUtilService cacheUtilService;
+    private final CacheUtilService cacheUtilService;
 
-    @Autowired
-    private ClientManagementService clientManagementService;
+    private final AuthorizationHelperService authorizationHelperService;
 
-    @Autowired
-    private AuthorizationHelperService authorizationHelperService;
+    private final KafkaHelperService kafkaHelperService;
 
-    @Autowired
-    private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
-
-    @Autowired
-    private KafkaHelperService kafkaHelperService;
-    
-    @Autowired
-    private AuditPlugin auditWrapper;
-
-    @Value("${mosip.esignet.link-code-expire-in-secs}")
-    private int linkCodeExpiryInSeconds;
-
-    @Value("#{${mosip.esignet.ui.config.key-values}}")
-    private Map<String, Object> uiConfigMap;
-
-    @Value("${mosip.esignet.kafka.linked-session.topic}")
-    private String linkedSessionTopicName;
+    private final AuditPlugin auditWrapper;
 
     @Value("${mosip.esignet.kafka.linked-auth-code.topic}")
     private String linkedAuthCodeTopicName;
 
-    @Value("${mosip.esignet.link-code-length:15}")
-    private int linkCodeLength;
+    public LinkedAuthorizationServiceV2Impl(CacheUtilService cacheUtilService, AuthorizationHelperService authorizationHelperService, KafkaHelperService kafkaHelperService, AuditPlugin auditWrapper) {
+        this.cacheUtilService = cacheUtilService;
+        this.authorizationHelperService = authorizationHelperService;
+        this.kafkaHelperService = kafkaHelperService;
+        this.auditWrapper = auditWrapper;
+    }
 
     @Override
     public LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws EsignetException {

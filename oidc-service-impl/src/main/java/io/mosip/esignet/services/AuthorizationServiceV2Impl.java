@@ -5,28 +5,21 @@
  */
 package io.mosip.esignet.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.spi.AuditPlugin;
-import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
-import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,40 +30,19 @@ import static io.mosip.esignet.core.constants.ErrorConstants.OPERATION_UNIMPLEME
 @Qualifier("authorizationServiceV2")
 public class AuthorizationServiceV2Impl implements AuthorizationService {
 
-    @Autowired
-    private ClientManagementService clientManagementService;
+    private final CacheUtilService cacheUtilService;
 
-    @Autowired
-    private Authenticator authenticationWrapper;
 
-    @Autowired
-    private CacheUtilService cacheUtilService;
+    private final AuthorizationHelperService authorizationHelperService;
 
-    @Autowired
-    private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
-    @Autowired
-    private AuthorizationHelperService authorizationHelperService;
+    private final AuditPlugin auditWrapper;
 
-    @Autowired
-    private AuditPlugin auditWrapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Value("#{${mosip.esignet.ui.config.key-values}}")
-    private Map<String, Object> uiConfigMap;
-
-    @Value("#{${mosip.esignet.openid.scope.claims}}")
-    private Map<String, List<String>> claims;
-
-    @Value("${mosip.esignet.auth-txn-id-length:10}")
-    private int authTransactionIdLength;
-
-    //Number of times generate-link-code could be invoked per transaction
-    @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
-    private int linkCodeLimitPerTransaction;
-
+    public AuthorizationServiceV2Impl(CacheUtilService cacheUtilService, AuthorizationHelperService authorizationHelperService, AuditPlugin auditWrapper) {
+        this.cacheUtilService = cacheUtilService;
+        this.authorizationHelperService = authorizationHelperService;
+        this.auditWrapper = auditWrapper;
+    }
 
     @Override
     public OAuthDetailResponse getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
