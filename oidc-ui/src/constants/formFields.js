@@ -22,14 +22,14 @@ const pinFields = [
 ];
 const passwordFields = [
   {
-    labelText: "uin_label_text", //translation key for pin namespace
+    labelText: "uin_label_text", //translation key for password namespace
     labelFor: "Mosip Uin",
     id: "mosip-uin",
     name: "uin",
     type: "text",
     autoComplete: "uin",
     isRequired: true,
-    placeholder: "uin_placeholder", //translation key for pin namespace
+    placeholder: "uin_placeholder", //translation key for password namespace
   },
   {
     labelText: "password_label_text",
@@ -39,7 +39,7 @@ const passwordFields = [
     type: "password",
     autoComplete: "",
     isRequired: true,
-    placeholder: "password_placeholder", //translation key for pin namespace
+    placeholder: "password_placeholder", //translation key for password namespace
   },
 ];
 

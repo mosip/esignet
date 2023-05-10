@@ -34,7 +34,7 @@ export default function Password({
   const [status, setStatus] = useState(states.LOADED);
 
   const navigate = useNavigate();
-  
+
   const handleChange = (e) => {
     setLoginState({ ...loginState, [e.target.id]: e.target.value });
   };
@@ -53,11 +53,11 @@ export default function Password({
       let challengeType = challengeTypes.pwd;
       let challenge = loginState["Password_password"];
       let challengeFormat = challengeFormats.pwd;
-      
-      if (challenge.length < 8) {
+
+      const passwordRegex = /[0-9a-zA-Z]{8,}$/;
+      if (!passwordRegex.test(challenge)) {
         setError({
-          prefix: "password_error_msg",
-          defaultMsg: t("password_error_msg"),
+          defaultMsg: t("password_error_msg")
         });
         return;
       }
@@ -122,8 +122,8 @@ export default function Password({
         {t("sign_in_with_password")}
       </h1>
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-        <div className="-space-y-px">
-          {fields.map((field) => (
+        {fields.map((field) => (
+          <div className="-space-y-px">
             <InputWithImage
               key={"Password_" + field.id}
               handleChange={handleChange}
@@ -137,8 +137,8 @@ export default function Password({
               placeholder={t(field.placeholder)}
               imgPath="images/photo_scan.png"
             />
-          ))}
-        </div>
+          </div>
+        ))}
 
         <FormAction type={buttonTypes.submit} text={t("login")} />
       </form>

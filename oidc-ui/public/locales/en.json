@@ -68,7 +68,7 @@
     "password_label_text": "Enter Password",
     "uin_placeholder": "VID",
     "password_placeholder": "Password",
-    "password_error_msg":"Password Length should be Minimum 8 Characters"
+    "password_error_msg":"Invalid Password"
   },
   "LoginQRCode": {
     "sign_in_with_inji": "Login with Inji",
@@ -244,7 +244,6 @@
     "invalid_version": "Invalid version",
     "invalid_value": "Invalid value",
     "duplicate_individual_id": "Individual ID already exists.",
-    "password_error_msg":"Invalid Password",
     "0": "Success",
     "100": "Device Not Registered",
     "101": "Unable to Detect a Biometrics",

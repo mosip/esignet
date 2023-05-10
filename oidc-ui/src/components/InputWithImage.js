@@ -24,7 +24,7 @@ export default function InputWithImage({
 
   return (
     <>
-      <div className="my-5">
+      <div className="flex items-center justify-between">
         <label
           htmlFor={labelFor}
           className="block mb-2 text-xs font-medium text-gray-900 text-opacity-70"
@@ -39,23 +39,23 @@ export default function InputWithImage({
             {formError}
           </label>
         )}
-        <div className="relative">
-          <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0">
-            <img className="w-6 h-6" src={imgPath} />
-          </div>
-          <input
-            disabled={disabled}
-            onChange={handleChange}
-            value={value}
-            type={type}
-            id={id}
-            name={name}
-            required={isRequired}
-            className={fixedInputClass + customClass}
-            placeholder={placeholder}
-            title={t(tooltipMsg)}
-          />
+      </div>
+      <div className="relative">
+        <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0">
+          <img className="w-6 h-6" src={imgPath} />
         </div>
+        <input
+          disabled={disabled}
+          onChange={handleChange}
+          value={value}
+          type={type}
+          id={id}
+          name={name}
+          required={isRequired}
+          className={fixedInputClass + customClass}
+          placeholder={placeholder}
+          title={t(tooltipMsg)}
+        />
       </div>
     </>
   );
