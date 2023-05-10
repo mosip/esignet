@@ -37,7 +37,6 @@ public class HouseholdAuthenticatorHelper {
 
     public void validateAuthChallenge(HouseholdView householdView, AuthChallenge authChallenge)
             throws KycAuthException {
-        log.info("insede validateAuthChallenge");
 
             if(authChallenge== null || authChallenge.getAuthFactorType()==null)
                 throw new KycAuthException(INVALID_AUTH_CHALLENGE);
@@ -111,7 +110,4 @@ public class HouseholdAuthenticatorHelper {
         if(!hashAttrs[4].equals(computedHash))
             throw new KycAuthException(INVALID_PASSWORD);
     }
-
-
-
 }

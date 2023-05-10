@@ -18,9 +18,7 @@ import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
-import jdk.jshell.spi.ExecutionControl;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.message.ObjectMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -68,7 +66,6 @@ public class HouseholdAuthenticator implements Authenticator {
 
         for(AuthChallenge authChallenge:kycAuthDto.getChallengeList())
         {
-            log.info("Iterating through the auth challenges");
             householdAuthenticatorHelper.validateAuthChallenge(householdView,authChallenge);
         }
         log.info("successfully validated all the auth challenges");
@@ -114,9 +111,6 @@ public class HouseholdAuthenticator implements Authenticator {
         }
         throw new KycExchangeException(KYC_EXCHANGE_FAILED);
     }
-
-
-
 
     @Override
     public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpDto sendOtpDto) throws SendOtpException {
