@@ -1,4 +1,5 @@
 package io.mosip.esignet.household.integration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.household.integration.dto.KycTransactionDto;
@@ -7,6 +8,8 @@ import io.mosip.esignet.household.integration.repository.HouseholdViewRepository
 import io.mosip.esignet.household.integration.service.HouseholdAuthenticator;
 import io.mosip.esignet.household.integration.service.HouseholdAuthenticatorHelper;
 import io.mosip.esignet.household.integration.util.ErrorConstants;
+import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
+import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -31,6 +33,12 @@ public class HouseHoldAuthenticatorTest {
 
     @Mock
     private  HouseholdAuthenticatorHelper householdAuthenticatorHelper;
+
+    @Mock
+    ObjectMapper objectMapper;
+
+    @Mock
+    SignatureService signatureService;
 
     @InjectMocks
     private HouseholdAuthenticator householdAuthenticator;
@@ -67,6 +75,8 @@ public class HouseHoldAuthenticatorTest {
         KycAuthResult kycAuthResult= householdAuthenticator.
                         doKycAuth("12345","12345", kycAuthDto);
         Assert.assertNotNull(kycAuthResult);
+        Assert.assertEquals(kycAuthResult.getKycToken(),"12345");
+        Assert.assertEquals(kycAuthResult.getPartnerSpecificUserToken(),"12345");
     }
 
     @Test
@@ -80,8 +90,8 @@ public class HouseHoldAuthenticatorTest {
         authChallenge.setFormat("alpha-numeric");
         authChallenge.setChallenge("123456789ABC");
         kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
-        Optional<HouseholdView> householdViewOptional = Optional.empty();
 
+        Optional<HouseholdView> householdViewOptional = Optional.empty();
         Mockito.when(householdViewRepository.findByIdNumber("12345")).thenReturn(householdViewOptional);
 
         try{
@@ -130,6 +140,30 @@ public class HouseHoldAuthenticatorTest {
         {
             Assert.assertEquals(ErrorConstants.KYC_EXCHANGE_FAILED,ex.getMessage());
         }
+    }
+
+    @Test
+    public void doKycExchange_withValidJwtToken_thenPass() throws Exception
+    {
+        KycExchangeDto kycExchangeDto=new KycExchangeDto();
+        kycExchangeDto.setTransactionId("1234567890");
+        kycExchangeDto.setKycToken("1234567890");
+
+        KycTransactionDto kycTransactionDto= new KycTransactionDto();
+        kycTransactionDto.setHouseholdId(12345L);
+        Mockito.when(householdAuthenticatorHelper.getKycAuthTransaction(Mockito.anyString())).thenReturn(kycTransactionDto);
+
+        String payload="abc";
+        Mockito.when(objectMapper.writeValueAsString(Mockito.anyMap())).thenReturn(payload);
+
+        JWTSignatureResponseDto jwtSignatureResponseDto= new JWTSignatureResponseDto();
+        jwtSignatureResponseDto.setJwtSignedData("1234567890");
+        Mockito.when(signatureService.jwtSign(Mockito.any())).thenReturn(jwtSignatureResponseDto);
+
+        KycExchangeResult kycExchangeResult = householdAuthenticator.
+                doKycExchange("1234567890", "123456789123456789", kycExchangeDto);
+        Assert.assertNotNull(kycExchangeResult);
+        Assert.assertEquals(kycExchangeDto.getKycToken(),"1234567890");
     }
 
     @Test

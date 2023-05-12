@@ -5,7 +5,6 @@ import io.mosip.esignet.household.integration.dto.KycTransactionDto;
 import io.mosip.esignet.household.integration.entity.HouseholdView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,10 +22,10 @@ public class HouseholdAuthenticatorHelper {
 
     private static final String   KYC_AUTH_CACHE = "kycauthcache";
     private static final Map<String, List<String>> supportedKycAuthFormats = new HashMap<>();
+
     private static final String PASSWORD = "PWD";
 
-    @Value("${mosip.esignet.household.pattern.regex}")
-    private String regexPattern;
+    private static  final String regexPattern="^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
 
     @Autowired
     CacheManager cacheManager;
@@ -80,7 +79,6 @@ public class HouseholdAuthenticatorHelper {
         if(!challenge.matches(regexPattern)){
             throw new KycAuthException(INVALID_AUTH_CHALLENGE);
         }
-
         String[] hashAttrs = hash.split("\\$");
         if (hashAttrs.length < 4) {
             throw new KycAuthException(INVALID_PASSWORD_HASH);
@@ -106,7 +104,6 @@ public class HouseholdAuthenticatorHelper {
             log.error("Error while validating password hash", e);
             throw new KycAuthException(UNKNOWN_ERROR);
         }
-
         if(!hashAttrs[4].equals(computedHash))
             throw new KycAuthException(INVALID_PASSWORD);
     }

@@ -31,7 +31,7 @@ import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
 @Slf4j
 public class HouseholdAuthenticator implements Authenticator {
 
-    private static final String     TOKEN_FORMAT = "%s%s";
+    private static final String TOKEN_FORMAT = "%s%s";
     public static final String APPLICATION_ID = "HH_AUTHENTICATION_SERVICE";
 
     @Autowired
@@ -57,7 +57,7 @@ public class HouseholdAuthenticator implements Authenticator {
         if(CollectionUtils.isEmpty(kycAuthDto.getChallengeList())){
             throw new KycAuthException(INVALID_AUTH_CHALLENGE);
         }
-        Optional<HouseholdView> houseHoldViewOptional = householdViewRepository.findByIdNumber(kycAuthDto.getIndividualId());;
+        Optional<HouseholdView> houseHoldViewOptional = householdViewRepository.findByIdNumber(kycAuthDto.getIndividualId());
         if(!houseHoldViewOptional.isPresent()){
             log.error("No household found with individualId : {}",kycAuthDto.getIndividualId());
             throw new KycAuthException(INVALID_INDIVIDUAL_ID);
