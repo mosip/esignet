@@ -10,6 +10,7 @@ on:
       - 1.*
       - develop
       - main
+      - MOSIP-26992
   
 jobs:
   call-workflow-codeql-analysis:
