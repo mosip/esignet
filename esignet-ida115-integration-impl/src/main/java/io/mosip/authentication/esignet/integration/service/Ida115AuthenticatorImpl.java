@@ -8,6 +8,7 @@ package io.mosip.authentication.esignet.integration.service;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,10 +77,10 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 
-@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "IdaAuthenticatorImpl")
+@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "Ida115AuthenticatorImpl")
 @Component
 @Slf4j
-public class IdaAuthenticatorImpl implements Authenticator {
+public class Ida115AuthenticatorImpl implements Authenticator {
 
     public static final String SIGNATURE_HEADER_NAME = "signature";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
@@ -94,7 +95,7 @@ public class IdaAuthenticatorImpl implements Authenticator {
     @Value("${mosip.esignet.authenticator.ida-kyc-id:mosip.identity.kyc}")
     private String kycId;
     
-    @Value("${mosip.esignet.authenticator.ida-authonly-id:mosip.identity.auth}")
+    @Value("${mosip.esignet.authenticator.ida-auth-only-id:mosip.identity.auth}")
     private String authOnlyId;
 
     @Value("${mosip.esignet.authenticator.ida-version:1.0}")
@@ -197,8 +198,8 @@ public class IdaAuthenticatorImpl implements Authenticator {
 	@Autowired
 	private SignatureService signatureService;
 	
-	@Value("${mosip.ida.kyc.exchange.skip:false}")
-	private boolean skipKycExchange;
+	@Value("${mosip.esignet.authenticator.ida.auth-only-enabled:false}")
+	private boolean authOnlyEnabled;
 	
     @Override
     public KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthDto kycAuthDto)
@@ -207,7 +208,7 @@ public class IdaAuthenticatorImpl implements Authenticator {
                 kycAuthDto.getTransactionId(), clientId);
         try {
             IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
-            idaKycAuthRequest.setId(skipKycExchange ? authOnlyId: kycId);
+            idaKycAuthRequest.setId(authOnlyEnabled ? authOnlyId: kycId);
             idaKycAuthRequest.setVersion(idaVersion);
             idaKycAuthRequest.setRequestTime(HelperService.getUTCDateTime());
             idaKycAuthRequest.setDomainUri(idaDomainUri);
@@ -224,7 +225,7 @@ public class IdaAuthenticatorImpl implements Authenticator {
             //set signature header, body and invoke kyc auth endpoint
             String requestBody = objectMapper.writeValueAsString(idaKycAuthRequest);
             RequestEntity requestEntity = RequestEntity
-                    .post(UriComponentsBuilder.fromUriString(skipKycExchange? authUrl : kycUrl).pathSegment(esignetAuthPartnerId, esignetAuthPartnerApiKey).build().toUri())
+                    .post(UriComponentsBuilder.fromUriString(authOnlyEnabled? authUrl : kycUrl).pathSegment(esignetAuthPartnerId, esignetAuthPartnerApiKey).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .header(SIGNATURE_HEADER_NAME, helperService.getRequestSignature(requestBody))
                     .header(AUTHORIZATION_HEADER_NAME, AUTHORIZATION_HEADER_NAME)
@@ -236,17 +237,14 @@ public class IdaAuthenticatorImpl implements Authenticator {
                 IdaResponseWrapper<IdaKycResponse> responseWrapper = responseEntity.getBody();
                 String psut = generatePsut(relyingPartyId, kycAuthDto.getIndividualId());
                 Tuple2<String, String> result = processKycResponse(responseWrapper, psut);
-                if(result != null) {
-	                String kycToken = result.getT1();
-	                String encryptedIdentityData = result.getT2();
-	                if(encryptedIdentityData != null) {
-	                	identityDataStore.putEncryptedIdentityData(kycToken, psut, encryptedIdentityData);
-	                }
-	                if(kycToken != null) {
-						return new KycAuthResult(kycToken, psut);
-	                }
+                String kycToken = result.getT1();
+                String encryptedIdentityData = result.getT2();
+                if(!encryptedIdentityData.isEmpty()) {
+                	identityDataStore.putEncryptedIdentityData(kycToken, psut, encryptedIdentityData);
                 }
-                
+                if(kycToken != null) {
+					return new KycAuthResult(kycToken, psut);
+                }
                 
                 log.error("Error response received from IDA status : {} && Errors: {}",
                         (responseWrapper.getResponse().isKycStatus() ||  responseWrapper.getResponse().isAuthStatus()), responseWrapper.getErrors());
@@ -255,10 +253,12 @@ public class IdaAuthenticatorImpl implements Authenticator {
             }
 
             log.error("Error response received from IDA (Kyc-auth) with status : {}", responseEntity.getStatusCode());
-        } catch (KycAuthException e) { throw e; } catch (Exception e) {
-            log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthDto.getTransactionId(),
-                    clientId, e);
-        }
+		} catch (KycAuthException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error("KYC-auth failed with transactionId : {} && clientId : {}", kycAuthDto.getTransactionId(),
+					clientId, e);
+		}
         throw new KycAuthException(ErrorConstants.AUTH_FAILED);
     }
 
@@ -283,7 +283,7 @@ public class IdaAuthenticatorImpl implements Authenticator {
     		}
 			return Tuples.of(kycToken, combinedData);
     	}
-		return Tuples.of(kycToken, null);
+		return Tuples.of(kycToken, "");
 	}
 	
 	/**
@@ -298,7 +298,7 @@ public class IdaAuthenticatorImpl implements Authenticator {
 	}
 
 	private String generateKycToken(String transactionID, String authToken) throws DecoderException, NoSuchAlgorithmException {
-		String uuid = UUID.nameUUIDFromBytes(transactionID.getBytes()).toString();
+		String uuid = UUID.nameUUIDFromBytes((transactionID + System.nanoTime()).getBytes()).toString();
 		return doGenerateKycToken(uuid, authToken);
 	}
 	

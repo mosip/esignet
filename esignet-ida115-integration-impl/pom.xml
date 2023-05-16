@@ -6,17 +6,18 @@
 	<parent>
 		<groupId>io.mosip.authentication</groupId>
 		<artifactId>authentication-parent</artifactId>
-		<version>1.1.5.5-SNAPSHOT</version>
+		<version>1.1.5.5-P1-rc3</version>
 	</parent>
 	
-	<artifactId>esignet-integration-impl</artifactId>
-	<name>esignet-integration-impl</name>
+	<artifactId>esignet-ida115-integration-impl</artifactId>
+	<name>esignet-ida115-integration-impl</name>
     <description>e-Signet Integration Implementation Library</description>
 
 	<properties>
 		<java.version>11</java.version>
 		<kernel-biometrics-util>1.1.5</kernel-biometrics-util>
 		<kernel-cbeffutil-api.version>1.1.5.3</kernel-cbeffutil-api.version>
+		<maven.assembly.version>3.3.0</maven.assembly.version>
 	</properties>
 
 	<dependencies>
@@ -222,4 +223,31 @@
         	</exclusions>
         </dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
 </project>

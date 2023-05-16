@@ -104,7 +104,7 @@
 		<module>binding-service-impl</module>
         <module>client-management-service-impl</module>
         <module>oidc-service-impl</module>
-		<!-- <module>household-esignet-integration-impl</module> -->
+		<module>household-esignet-integration-impl</module>
 		<module>esignet-ida115-integration-impl</module>
     </modules>
 

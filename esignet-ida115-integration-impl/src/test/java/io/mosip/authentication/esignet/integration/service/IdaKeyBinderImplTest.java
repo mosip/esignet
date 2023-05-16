@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class IdaKeyBinderImplTest {
 
     @InjectMocks
-    private IdaKeyBinderImpl idaKeyBinderImpl;
+    private Ida115KeyBinderImpl idaKeyBinderImpl;
 
     @Mock
     private HelperService helperService;
@@ -94,7 +94,7 @@ public class IdaKeyBinderImplTest {
             idaKeyBinderImpl.sendBindingOtp("individualId", Arrays.asList("email"), new HashMap<>());
             Assert.fail();
         } catch (SendOtpException e) {
-            Assert.assertEquals(IdaKeyBinderImpl.REQUIRED_HEADERS_MISSING, e.getErrorCode());
+            Assert.assertEquals(Ida115KeyBinderImpl.REQUIRED_HEADERS_MISSING, e.getErrorCode());
         }
     }
 
@@ -182,7 +182,7 @@ public class IdaKeyBinderImplTest {
                     "WLA", new HashMap<>());
             Assert.fail();
         } catch (KeyBindingException e) {
-            Assert.assertEquals(IdaKeyBinderImpl.REQUIRED_HEADERS_MISSING, e.getErrorCode());
+            Assert.assertEquals(Ida115KeyBinderImpl.REQUIRED_HEADERS_MISSING, e.getErrorCode());
         }
     }
 }

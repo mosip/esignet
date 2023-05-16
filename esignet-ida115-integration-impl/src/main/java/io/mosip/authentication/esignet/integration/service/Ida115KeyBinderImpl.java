@@ -37,10 +37,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ConditionalOnProperty(value = "mosip.esignet.integration.key-binder", havingValue = "IdaKeyBinderImpl")
+@ConditionalOnProperty(value = "mosip.esignet.integration.key-binder", havingValue = "Ida115KeyBinderImpl")
 @Component
 @Slf4j
-public class IdaKeyBinderImpl implements KeyBinder {
+public class Ida115KeyBinderImpl implements KeyBinder {
 
     private static final Map<String, List<String>> supportedFormats = new HashMap<>();
     static {

@@ -50,7 +50,7 @@ import io.mosip.kernel.core.http.ResponseWrapper;
 public class IdaAuthenticatorImplTest {
 
 	@InjectMocks
-	IdaAuthenticatorImpl idaAuthenticatorImpl;
+	Ida115AuthenticatorImpl idaAuthenticatorImpl;
 
 	@Mock
 	ObjectMapper mapper;
