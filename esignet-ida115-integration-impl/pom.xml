@@ -8,7 +8,7 @@
 		<artifactId>authentication-parent</artifactId>
 		<version>1.1.5.5-P1-rc3</version>
 	</parent>
-	
+	<version>1.1.5.5-SNAPSHOT</version>
 	<artifactId>esignet-ida115-integration-impl</artifactId>
 	<name>esignet-ida115-integration-impl</name>
     <description>e-Signet Integration Implementation Library</description>

@@ -174,7 +174,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 //    @Lazy
 //    @Autowired
 //    private IdInfoHelper idInfoHelper;
-    
+    	
     /** The token ID length. */
 	@Value("${mosip.ida.kyc.token.secret}")
 	private String kycTokenSecret;
