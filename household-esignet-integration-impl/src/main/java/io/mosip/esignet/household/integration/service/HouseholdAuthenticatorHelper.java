@@ -5,6 +5,7 @@ import io.mosip.esignet.household.integration.dto.KycTransactionDto;
 import io.mosip.esignet.household.integration.entity.HouseholdView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,6 +14,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
 
@@ -25,7 +28,8 @@ public class HouseholdAuthenticatorHelper {
 
     private static final String PASSWORD = "PWD";
 
-    private static  final String regexPattern="^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+    @Value("${mosip.esignet.household.password.regex.pattern:^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{9,}$}")
+    private String regexPattern;
 
     @Autowired
     CacheManager cacheManager;
@@ -46,7 +50,7 @@ public class HouseholdAuthenticatorHelper {
 
             switch (authChallenge.getAuthFactorType()) {
                 case PASSWORD:
-                            validatePassword(householdView.getPassword(), authChallenge.getChallenge());
+                            validatePassword(authChallenge.getChallenge(),householdView.getPassword());
                           break;
                 default:
                     throw new KycAuthException(INVALID_AUTH_CHALLENGE);
@@ -76,8 +80,8 @@ public class HouseholdAuthenticatorHelper {
 
     public   void validatePassword(String challenge, String hash) throws KycAuthException
     {
-        if(!challenge.matches(regexPattern)){
-            throw new KycAuthException(INVALID_AUTH_CHALLENGE);
+        if(!isMatches(challenge)){
+            throw new KycAuthException(INVALID_PASSWORD);
         }
         String[] hashAttrs = hash.split("\\$");
         if (hashAttrs.length < 4) {
@@ -106,5 +110,12 @@ public class HouseholdAuthenticatorHelper {
         }
         if(!hashAttrs[4].equals(computedHash))
             throw new KycAuthException(INVALID_PASSWORD);
+    }
+
+    private boolean isMatches(String input)
+    {
+        Pattern pattern = Pattern.compile(regexPattern);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.matches();
     }
 }

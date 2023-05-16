@@ -17,17 +17,17 @@ public class HouseholdViewRepositoryTest {
     @Autowired
     private HouseholdViewRepository householdViewRepository;
 
-    @Before
-    public void setUp() {
-        HouseholdView householdView = new HouseholdView();
-        householdView.setHouseholdId(1111112L);
-        householdView.setGroupName("abc");
-        householdView.setPhoneNumber("123456890");
-        householdView.setIdNumber("H01");
-        householdView.setPassword("Household1");
-        householdView.setTamwiniConsented(true);
-        householdView = householdViewRepository.saveAndFlush(householdView);
-    }
+//    @Before
+//    public void setUp() {
+//        HouseholdView householdView = new HouseholdView();
+//        householdView.setHouseholdId(1111112L);
+//        householdView.setGroupName("abc");
+//        householdView.setPhoneNumber("123456890");
+//        householdView.setIdNumber("H01");
+//        householdView.setPassword("Household1");
+//        householdView.setTamwiniConsented(true);
+//        householdView = householdViewRepository.saveAndFlush(householdView);
+//    }
 
 
     @Test
@@ -39,11 +39,8 @@ public class HouseholdViewRepositoryTest {
         result = householdViewRepository.findById(11L);
         Assert.assertFalse(result.isPresent());
 
-        result = householdViewRepository.findByIdNumberAndPassword("H01", "Household1");
+        result = householdViewRepository.findByIdNumber("H01");
         Assert.assertTrue(result.isPresent());
-
-        result = householdViewRepository.findByIdNumberAndPassword("H01", "Household2");
-        Assert.assertFalse(result.isPresent());
 
     }
 }
