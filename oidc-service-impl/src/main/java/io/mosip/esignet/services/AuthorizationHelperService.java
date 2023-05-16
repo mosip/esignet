@@ -93,12 +93,6 @@ public class AuthorizationHelperService {
 
     @Value("${mosip.esignet.send-otp.captcha-required:false}")
     private boolean captchaRequired;
-    
-    @Value("${mosip.esignet.authenticator.ida.wrapper.auth.partner.id}")
-    private String esignetAuthPartnerId;
-    
-    @Value("${mosip.esignet.authenticator.ida.wrapper.auth.partner.apikey}")
-    private String esignetAuthPartnerApiKey;
 
     protected void validateCaptchaToken(String captchaToken) {
         if(!captchaRequired) {
@@ -227,7 +221,7 @@ public class AuthorizationHelperService {
             sendOtpDto.setTransactionId(transaction.getAuthTransactionId());
             sendOtpDto.setIndividualId(otpRequest.getIndividualId());
             sendOtpDto.setOtpChannels(otpRequest.getOtpChannels());
-            sendOtpResult = authenticationWrapper.sendOtp(esignetAuthPartnerId, esignetAuthPartnerApiKey,
+            sendOtpResult = authenticationWrapper.sendOtp(transaction.getRelyingPartyId(), transaction.getClientId(),
                     sendOtpDto);
         } catch (SendOtpException e) {
             log.error("Failed to send otp for transaction : {}", otpRequest.getTransactionId(), e);
