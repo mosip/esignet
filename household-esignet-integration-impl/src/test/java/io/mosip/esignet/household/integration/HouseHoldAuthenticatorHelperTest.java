@@ -8,10 +8,13 @@ import io.mosip.esignet.household.integration.entity.HouseholdView;
 import io.mosip.esignet.household.integration.service.HouseholdAuthenticatorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
 
@@ -22,42 +25,49 @@ public class HouseHoldAuthenticatorHelperTest {
     @InjectMocks
     HouseholdAuthenticatorHelper houseHoldAuthenticatorHelper;
 
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        ReflectionTestUtils.setField(houseHoldAuthenticatorHelper, "regexPattern", "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{9,}$");
+    }
+
     @Test
-    public void validateAuthChallenge_withValidDetails_thenPass()
+    public void validateAuthChallenge_withValidDetails_thenPass() throws Exception
     {
         HouseholdView householdView=new HouseholdView();
         householdView.setHouseholdId(12345L);
         householdView.setIdNumber("1234567890123456");
-        householdView.setPassword("Test1234");
+        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test12345"));
 
         AuthChallenge authChallenge=new AuthChallenge();
         authChallenge.setAuthFactorType("PWD");
         authChallenge.setFormat("alpha-numeric");
-        authChallenge.setChallenge("Test1234");
+        authChallenge.setChallenge("Test12345");
 
         try{
             houseHoldAuthenticatorHelper.validateAuthChallenge(householdView,authChallenge);
             Assert.assertTrue(true);
         }catch (KycAuthException e){
-            Assert.assertTrue(true);
+            Assert.fail();
         }
     }
 
     @Test
-    public void validateAuthChallenge_withInValidAuthChallenge_thenFail()
+    public void validateAuthChallenge_withInValidAuthChallenge_thenFail() throws Exception
     {
         HouseholdView householdView=new HouseholdView();
         householdView.setHouseholdId(12345L);
         householdView.setIdNumber("1234567890123456");
-        householdView.setPassword("Test@123");
+        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test12345"));
 
         AuthChallenge authChallenge=new AuthChallenge();
         authChallenge.setAuthFactorType("PWD");
         authChallenge.setFormat("alpha-numeric");
-        authChallenge.setChallenge("Test@123");
+        authChallenge.setChallenge("Test@12345");
 
         try{
             houseHoldAuthenticatorHelper.validateAuthChallenge(householdView,null);
+            Assert.fail();
         }catch (KycAuthException e){
             Assert.assertEquals(INVALID_AUTH_CHALLENGE,e.getMessage());
         }
@@ -109,12 +119,12 @@ public class HouseHoldAuthenticatorHelperTest {
         HouseholdView householdView=new HouseholdView();
         householdView.setHouseholdId(12345L);
         householdView.setIdNumber("1234567890123456");
-        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test1234"));
+        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test12345"));
 
         AuthChallenge authChallenge=new AuthChallenge();
         authChallenge.setAuthFactorType("PWD");
         authChallenge.setFormat("alpha-numeric");
-        authChallenge.setChallenge("Test1234");
+        authChallenge.setChallenge("Test12345");
 
         try{
             houseHoldAuthenticatorHelper.validatePassword(authChallenge.getChallenge(),householdView.getPassword());
@@ -140,7 +150,7 @@ public class HouseHoldAuthenticatorHelperTest {
         try{
             houseHoldAuthenticatorHelper.validatePassword(authChallenge.getChallenge(),householdView.getPassword());
         }catch (KycAuthException e){
-            Assert.assertEquals(INVALID_AUTH_CHALLENGE,e.getMessage());
+            Assert.assertEquals(INVALID_PASSWORD,e.getMessage());
         }
     }
 

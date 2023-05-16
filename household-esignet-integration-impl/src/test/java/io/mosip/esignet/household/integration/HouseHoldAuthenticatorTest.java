@@ -8,6 +8,7 @@ import io.mosip.esignet.household.integration.repository.HouseholdViewRepository
 import io.mosip.esignet.household.integration.service.HouseholdAuthenticator;
 import io.mosip.esignet.household.integration.service.HouseholdAuthenticatorHelper;
 import io.mosip.esignet.household.integration.util.ErrorConstants;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +19,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
@@ -35,6 +38,9 @@ public class HouseHoldAuthenticatorTest {
     private  HouseholdAuthenticatorHelper householdAuthenticatorHelper;
 
     @Mock
+    private KeymanagerService keymanagerService;
+
+    @Mock
     ObjectMapper objectMapper;
 
     @Mock
@@ -42,7 +48,6 @@ public class HouseHoldAuthenticatorTest {
 
     @InjectMocks
     private HouseholdAuthenticator householdAuthenticator;
-
 
     @Test
     public void doKycAuth_withValidDetail_thenPass() throws Exception {
@@ -159,6 +164,8 @@ public class HouseHoldAuthenticatorTest {
         JWTSignatureResponseDto jwtSignatureResponseDto= new JWTSignatureResponseDto();
         jwtSignatureResponseDto.setJwtSignedData("1234567890");
         Mockito.when(signatureService.jwtSign(Mockito.any())).thenReturn(jwtSignatureResponseDto);
+
+        Mockito.when(keymanagerService.generateMasterKey(Mockito.anyString(),Mockito.any())).thenReturn(Mockito.any());
 
         KycExchangeResult kycExchangeResult = householdAuthenticator.
                 doKycExchange("1234567890", "123456789123456789", kycExchangeDto);

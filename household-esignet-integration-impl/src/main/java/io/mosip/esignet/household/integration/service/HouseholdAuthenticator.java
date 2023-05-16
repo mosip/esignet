@@ -14,12 +14,14 @@ import io.mosip.esignet.household.integration.repository.HouseholdViewRepository
 import io.mosip.esignet.household.integration.util.HelperUtil;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
+import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -27,6 +29,7 @@ import java.util.*;
 
 import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
 
+@ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "HouseHoldAuthenticationService")
 @Component
 @Slf4j
 public class HouseholdAuthenticator implements Authenticator {
@@ -95,6 +98,7 @@ public class HouseholdAuthenticator implements Authenticator {
         try {
             String payload = objectMapper.writeValueAsString(kycMap);
             JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
+            setUpSigningKey();
             jwtSignatureRequestDto.setApplicationId(APPLICATION_ID);
             jwtSignatureRequestDto.setReferenceId("");
             jwtSignatureRequestDto.setIncludePayload(true);
@@ -132,5 +136,12 @@ public class HouseholdAuthenticator implements Authenticator {
                     dto.getExpiryAt(), dto.getIssuedAt()));
         }
         return certs;
+    }
+
+    private void setUpSigningKey()
+    {
+        KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
+        partnerMasterKeyRequest.setApplicationId(APPLICATION_ID);
+        keymanagerService.generateMasterKey("CSR", partnerMasterKeyRequest);
     }
 }
