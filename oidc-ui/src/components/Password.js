@@ -64,7 +64,7 @@ export default function Password({
       if (!passwordRegex.test(challenge)) {
         setError({
           defaultMsg: "Password Invalid",
-          errorCode:"password_error_msg"
+          errorCode: "password_error_msg"
         });
         return;
       }
@@ -143,8 +143,9 @@ export default function Password({
               type={field.type}
               isRequired={field.isRequired}
               placeholder={t(field.placeholder)}
-              imgPath="images/photo_scan.png"
-            />
+              imgPath={
+                field.type === "password" ? null : "images/photo_scan.png"
+              } />
           </div>
         ))}
 
