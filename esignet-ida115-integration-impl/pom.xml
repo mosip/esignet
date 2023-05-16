@@ -94,13 +94,57 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 			<version>${jackson.version}</version>
-			<scope>test</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			  <groupId>org.springframework.boot</groupId>
 			  <artifactId>spring-boot-starter-webflux</artifactId>
 			  <version>2.3.6.RELEASE</version>
+			  <scope>provided</scope>
 		</dependency>
+		 <!-- <dependency>
+            <groupId>io.mosip.authentication</groupId>
+            <artifactId>authentication-core</artifactId>
+            <version>${authentication-core.version}</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>org.springframework.boot</groupId>
+            		<artifactId>spring-boot-starter-cache</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>org.springframework.boot</groupId>
+            		<artifactId>spring-boot-starter</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>org.springframework.boot</groupId>
+            		<artifactId>spring-boot-starter-web</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>org.springframework.boot</groupId>
+            		<artifactId>spring-boot-starter-webflux</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>io.mosip.kernel</groupId>
+            		<artifactId>kernel-biosdk-provider</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>io.mosip.kernel</groupId>
+            		<artifactId>kernel-websubclient-api</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>io.mosip.idrepository</groupId>
+            		<artifactId>id-repository-core</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>io.mosip.kernel</groupId>
+            		<artifactId>kernel-dataaccess-hibernate</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>io.mosip.kernel</groupId>
+            		<artifactId>kernel-pinvalidator</artifactId>
+            	</exclusion>
+            </exclusions>
+		 </dependency>
 		 <dependency>
             <groupId>io.mosip.authentication</groupId>
             <artifactId>authentication-common</artifactId>
@@ -143,7 +187,7 @@
             		<artifactId>kernel-pinvalidator</artifactId>
             	</exclusion>
             </exclusions>
-		 </dependency>
+		 </dependency> -->
         <dependency>
             <groupId>io.mosip.biometric.util</groupId>
             <artifactId>biometrics-util</artifactId>
@@ -207,6 +251,7 @@
         	<groupId>io.springfox</groupId>
         	<artifactId>springfox-swagger2</artifactId>
         	<version>${maven.swagger.version}</version>
+        	<scope>provided</scope>
         	<exclusions>
         		<exclusion>
         			<groupId>org.springframework</groupId>
@@ -223,7 +268,7 @@
         	</exclusions>
         </dependency>
 	</dependencies>
-	<build>
+	<!-- <build>
 		<plugins>
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -240,8 +285,8 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <id>make-assembly</id> this is used for inheritance merges
+                        <phase>package</phase> bind to the packaging phase
                         <goals>
                             <goal>single</goal>
                         </goals>
@@ -249,5 +294,5 @@
                 </executions>
             </plugin>
 		</plugins>
-	</build>
+	</build> -->
 </project>
