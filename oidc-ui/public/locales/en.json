@@ -67,8 +67,7 @@
     "uin_label_text": "Enter your VID",
     "password_label_text": "Enter Password",
     "uin_placeholder": "VID",
-    "password_placeholder": "Password",
-    "password_error_msg": "Invalid Password"
+    "password_placeholder": "Password"
   },
   "LoginQRCode": {
     "sign_in_with_inji": "Login with Inji",
@@ -243,6 +242,7 @@
     "invalid_version": "Invalid version",
     "invalid_value": "Invalid value",
     "duplicate_individual_id": "Individual ID already exists.",
+    "password_error_msg": "Invalid Password",
     "0": "Success",
     "100": "Device Not Registered",
     "101": "Unable to Detect a Biometrics",

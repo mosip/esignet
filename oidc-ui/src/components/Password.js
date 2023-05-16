@@ -63,7 +63,8 @@ export default function Password({
 
       if (!passwordRegex.test(challenge)) {
         setError({
-          defaultMsg: t("password_error_msg")
+          defaultMsg: "Password Invalid",
+          errorCode:"password_error_msg"
         });
         return;
       }

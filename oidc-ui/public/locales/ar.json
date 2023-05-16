@@ -67,8 +67,7 @@
     "uin_label_text": "أدخل VID الخاص بك",
     "password_label_text": "أدخل كلمة المرور",
     "uin_placeholder": "VID",
-    "password_placeholder": "كلمة المرور",
-    "password_error_msg": "رمز مرور خاطئ"
+    "password_placeholder": "كلمة المرور"
   },
   "LoginQRCode": {
     "sign_in_with_inji": "تسجيل الدخول باستخدام Inji",
@@ -243,6 +242,7 @@
     "invalid_version": "نسخة غير صالحة",
     "invalid_value": "قيمة غير صالحة",
     "duplicate_individual_id": "المعرف الفردي موجود بالفعل.",
+    "password_error_msg": "رمز مرور خاطئ",
     "0": "النجاح",
     "100": "الجهاز غير مسجل",
     "101": "غير قادر على الكشف عن كائن القياسات الحيوية",
