@@ -1,8 +1,8 @@
-package io.mosip.esignet.household.integration;
+package io.mosip.householdid.esignet.integration;
 import io.mosip.esignet.api.dto.AuditDTO;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
-import io.mosip.esignet.household.integration.service.LoggerAuditService;
+import io.mosip.householdid.esignet.integration.service.HouseholdLoggerAuditService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -14,10 +14,10 @@ import static org.junit.Assert.assertThrows;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
-public class LoggerAuditServiceTest {
+public class HouseholdLoggerAuditServiceTest {
 
     @InjectMocks
-    private LoggerAuditService loggerAuditService;
+    private HouseholdLoggerAuditService householdLoggerAuditService;
 
     @Test
     public void logAudit_WithValidDetails_ThenPass() {
@@ -25,7 +25,7 @@ public class LoggerAuditServiceTest {
         ActionStatus status = ActionStatus.SUCCESS;
         AuditDTO auditDTO = new AuditDTO();
         try {
-            loggerAuditService.logAudit( action, status, auditDTO, null);
+            householdLoggerAuditService.logAudit( action, status, auditDTO, null);
             Assert.assertTrue(true);
         }catch (Exception e) {
             Assert.fail();
@@ -37,7 +37,7 @@ public class LoggerAuditServiceTest {
         Action action = null;
         ActionStatus status = ActionStatus.SUCCESS;
         AuditDTO auditDTO = new AuditDTO();
-        assertThrows(NullPointerException.class, () -> loggerAuditService.logAudit(action, status, auditDTO, null));
+        assertThrows(NullPointerException.class, () -> householdLoggerAuditService.logAudit(action, status, auditDTO, null));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class LoggerAuditServiceTest {
         Action action = Action.AUTHENTICATE;
         ActionStatus status = null;
         AuditDTO auditDTO = new AuditDTO();
-        assertThrows(NullPointerException.class, () -> loggerAuditService.logAudit(action, status, auditDTO, null));
+        assertThrows(NullPointerException.class, () -> householdLoggerAuditService.logAudit(action, status, auditDTO, null));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class LoggerAuditServiceTest {
         Action action = Action.AUTHENTICATE;
         ActionStatus status = ActionStatus.SUCCESS;
         AuditDTO auditDTO = null;
-        assertThrows(NullPointerException.class, () -> loggerAuditService.logAudit(action, status, auditDTO, null));
+        assertThrows(NullPointerException.class, () -> householdLoggerAuditService.logAudit(action, status, auditDTO, null));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class LoggerAuditServiceTest {
         ActionStatus status = ActionStatus.SUCCESS;
         AuditDTO auditDTO = new AuditDTO();
         try {
-            loggerAuditService.logAudit(username, action, status, auditDTO, null);
+            householdLoggerAuditService.logAudit(username, action, status, auditDTO, null);
             Assert.assertTrue(true);
         }catch (Exception e) {
             Assert.fail();

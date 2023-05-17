@@ -1,7 +1,7 @@
-package io.mosip.esignet.household.integration;
+package io.mosip.householdid.esignet.integration;
 
-import io.mosip.esignet.household.integration.entity.HouseholdView;
-import io.mosip.esignet.household.integration.repository.HouseholdViewRepository;
+import io.mosip.householdid.esignet.integration.entity.HouseholdView;
+import io.mosip.householdid.esignet.integration.repository.HouseholdViewRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

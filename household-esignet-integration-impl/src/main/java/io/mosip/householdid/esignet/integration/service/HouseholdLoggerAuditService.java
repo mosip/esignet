@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration.service;
+package io.mosip.householdid.esignet.integration.service;
 import io.mosip.esignet.api.dto.AuditDTO;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
@@ -10,10 +10,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 
-@ConditionalOnProperty(value = "mosip.esignet.integration.audit-plugin", havingValue = "LoggerAuditService")
+@ConditionalOnProperty(value = "mosip.esignet.integration.audit-plugin", havingValue = "HouseholdLoggerAuditService")
 @Component
 @Slf4j
-public class LoggerAuditService implements AuditPlugin {
+public class HouseholdLoggerAuditService implements AuditPlugin {
 
     @Async
     @Override

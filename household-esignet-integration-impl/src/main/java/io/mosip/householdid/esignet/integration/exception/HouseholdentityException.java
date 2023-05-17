@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration.exception;
+package io.mosip.householdid.esignet.integration.exception;
 
 public class HouseholdentityException extends Exception {
     public HouseholdentityException(String invalidAlgorithm) {
