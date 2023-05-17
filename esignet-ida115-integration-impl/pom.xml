@@ -3,21 +3,26 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
+	<!--<parent>
 		<groupId>io.mosip.authentication</groupId>
 		<artifactId>authentication-parent</artifactId>
-		<version>1.1.5.5-P1-rc3</version>
-	</parent>
-	<version>1.1.5.5-SNAPSHOT</version>
+		<version>1.1.5.5</version>
+	</parent>-->
+
+	<groupId>io.mosip.authentication</groupId>
 	<artifactId>esignet-ida115-integration-impl</artifactId>
 	<name>esignet-ida115-integration-impl</name>
+	<version>1.1.5.5-SNAPSHOT</version>
     <description>e-Signet Integration Implementation Library</description>
 
 	<properties>
 		<java.version>11</java.version>
 		<kernel-biometrics-util>1.1.5</kernel-biometrics-util>
 		<kernel-cbeffutil-api.version>1.1.5.3</kernel-cbeffutil-api.version>
-		<maven.assembly.version>3.3.0</maven.assembly.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<jackson.version>2.9.5</jackson.version>
+		<kernel-core.version>1.1.5.5</kernel-core.version>
 	</properties>
 
 	<dependencies>
@@ -199,7 +204,7 @@
             	</exclusion>
             </exclusions>
         </dependency>
-        <dependency>
+        <!--<dependency>
         	<groupId>io.mosip.kernel</groupId>
         	<artifactId>kernel-core</artifactId>
         	<version>${kernel-core.version}</version>
@@ -235,7 +240,7 @@
         			<artifactId>spring-core</artifactId>
         		</exclusion>
         	</exclusions>
-        </dependency>
+        </dependency>-->
         <dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-cbeffutil-api</artifactId>
@@ -247,7 +252,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-        <dependency>
+        <!--<dependency>
         	<groupId>io.springfox</groupId>
         	<artifactId>springfox-swagger2</artifactId>
         	<version>${maven.swagger.version}</version>
@@ -266,7 +271,7 @@
         			<artifactId>spring-core</artifactId>
         		</exclusion>
         	</exclusions>
-        </dependency>
+        </dependency>-->
 	</dependencies>
 	<!-- <build>
 		<plugins>
