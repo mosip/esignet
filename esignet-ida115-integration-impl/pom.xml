@@ -102,7 +102,7 @@
 			  <version>2.3.6.RELEASE</version>
 			  <scope>provided</scope>
 		</dependency>
-		 <!-- <dependency>
+		 <dependency>
             <groupId>io.mosip.authentication</groupId>
             <artifactId>authentication-core</artifactId>
             <version>${authentication-core.version}</version>
@@ -187,7 +187,7 @@
             		<artifactId>kernel-pinvalidator</artifactId>
             	</exclusion>
             </exclusions>
-		 </dependency> -->
+		 </dependency>
         <dependency>
             <groupId>io.mosip.biometric.util</groupId>
             <artifactId>biometrics-util</artifactId>
@@ -268,7 +268,7 @@
         	</exclusions>
         </dependency>
 	</dependencies>
-	<!-- <build>
+	<build>
 		<plugins>
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -285,8 +285,8 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id> this is used for inheritance merges
-                        <phase>package</phase> bind to the packaging phase
+                        <id>make-assembly</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
@@ -294,5 +294,5 @@
                 </executions>
             </plugin>
 		</plugins>
-	</build> -->
+	</build>
 </project>
