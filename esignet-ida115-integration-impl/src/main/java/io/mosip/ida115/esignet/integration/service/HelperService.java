@@ -19,12 +19,10 @@ import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import io.mosip.ida115.esignet.integration.dto.IdaSendOtpRequest;
-import io.mosip.ida115.esignet.integration.dto.IdaSendOtpResponse;
-import io.mosip.ida115.esignet.integration.dto.KeyBindedToken;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +40,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest;
-import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest.AuthRequest;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest.AuthRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaSendOtpRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaSendOtpResponse;
+import io.mosip.ida115.esignet.integration.dto.KeyBindedToken;
 import io.mosip.kernel.core.util.DateUtils;
 import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
@@ -55,6 +56,8 @@ import io.mosip.kernel.cryptomanager.dto.CryptomanagerRequestDto;
 import io.mosip.kernel.cryptomanager.dto.CryptomanagerResponseDto;
 import io.mosip.kernel.cryptomanager.service.CryptomanagerService;
 import io.mosip.kernel.keygenerator.bouncycastle.util.KeyGeneratorUtils;
+import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
+import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import io.mosip.kernel.partnercertservice.util.PartnerCertificateManagerUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
@@ -71,7 +74,6 @@ public class HelperService {
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public static final String INVALID_PARTNER_CERTIFICATE = "invalid_partner_cert";
-    public static final String OIDC_PARTNER_APP_ID = "OIDC_PARTNER";
     public static final String BINDING_TRANSACTION = "bindingtransaction";
     private static Base64.Encoder urlSafeEncoder;
     private static Base64.Decoder urlSafeDecoder;
@@ -98,6 +100,9 @@ public class HelperService {
 
     @Value("${mosip.kernel.keygenerator.symmetric-key-length}")
     private int symmetricKeyLength;
+    
+    @Value("${mosip.ida.kyc.auth.partner.applicationid}")
+    private String kycAuthPartnerKeyAppId;
 
     @Autowired
     private KeymanagerUtil keymanagerUtil;
@@ -118,11 +123,18 @@ public class HelperService {
     
     @Autowired
     private CryptomanagerService cryptomanagerService;
-
+    
+    @Autowired
+    private KeymanagerService keymanagerService;
 
     @Cacheable(value = BINDING_TRANSACTION, key = "#idHash")
     public String getTransactionId(String idHash) {
         return HelperService.generateTransactionId(10);
+    }
+    
+    @PostConstruct
+    public void initialize() {
+    	setUpSigningKey(kycAuthPartnerKeyAppId);
     }
 
     protected void setAuthRequest(List<AuthChallenge> challengeList, IdaKycAuthRequest idaKycAuthRequest) throws Exception {
@@ -179,7 +191,7 @@ public class HelperService {
 
     protected String getRequestSignature(String request) {
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(OIDC_PARTNER_APP_ID);
+        jwtSignatureRequestDto.setApplicationId(kycAuthPartnerKeyAppId);
         jwtSignatureRequestDto.setReferenceId("");
         jwtSignatureRequestDto.setIncludePayload(false);
         jwtSignatureRequestDto.setIncludeCertificate(true);
@@ -191,7 +203,7 @@ public class HelperService {
     
     public String decrptData(String identityStr) {
 		CryptomanagerRequestDto cryptomanagerRequestDto = new CryptomanagerRequestDto();
-		cryptomanagerRequestDto.setApplicationId(OIDC_PARTNER_APP_ID);
+		cryptomanagerRequestDto.setApplicationId(kycAuthPartnerKeyAppId);
 		cryptomanagerRequestDto.setData(identityStr);
 		cryptomanagerRequestDto.setTimeStamp(DateUtils.getUTCCurrentDateTime());
 		CryptomanagerResponseDto cryptomanagerResponseDto = cryptomanagerService.decrypt(cryptomanagerRequestDto);
@@ -302,5 +314,11 @@ public class HelperService {
         }
         return value;
     }
+    
+	private void setUpSigningKey(String applicationId) {
+		KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
+		partnerMasterKeyRequest.setApplicationId(applicationId);
+		keymanagerService.generateMasterKey("CSR", partnerMasterKeyRequest);
+	}
 
 }
