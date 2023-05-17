@@ -19,7 +19,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.annotation.PostConstruct;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
@@ -126,17 +125,14 @@ public class HelperService {
     
     @Autowired
     private KeymanagerService keymanagerService;
+    
+	private boolean authPartnerKeyInitialized;
 
     @Cacheable(value = BINDING_TRANSACTION, key = "#idHash")
     public String getTransactionId(String idHash) {
         return HelperService.generateTransactionId(10);
     }
     
-    @PostConstruct
-    public void initialize() {
-    	setUpSigningKey(kycAuthPartnerKeyAppId);
-    }
-
     protected void setAuthRequest(List<AuthChallenge> challengeList, IdaKycAuthRequest idaKycAuthRequest) throws Exception {
         IdaKycAuthRequest.AuthRequest authRequest = new IdaKycAuthRequest.AuthRequest();
         authRequest.setTimestamp(HelperService.getUTCDateTime());
@@ -190,6 +186,7 @@ public class HelperService {
     }
 
     protected String getRequestSignature(String request) {
+    	setUpSigningKey();
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
         jwtSignatureRequestDto.setApplicationId(kycAuthPartnerKeyAppId);
         jwtSignatureRequestDto.setReferenceId("");
@@ -315,10 +312,13 @@ public class HelperService {
         return value;
     }
     
-	private void setUpSigningKey(String applicationId) {
-		KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
-		partnerMasterKeyRequest.setApplicationId(applicationId);
-		keymanagerService.generateMasterKey("CSR", partnerMasterKeyRequest);
+    private void setUpSigningKey() {
+    	if(!authPartnerKeyInitialized) {
+			KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
+			partnerMasterKeyRequest.setApplicationId(kycAuthPartnerKeyAppId);
+			keymanagerService.generateMasterKey("CSR", partnerMasterKeyRequest);
+			authPartnerKeyInitialized = true;
+    	}
 	}
-
+    
 }
