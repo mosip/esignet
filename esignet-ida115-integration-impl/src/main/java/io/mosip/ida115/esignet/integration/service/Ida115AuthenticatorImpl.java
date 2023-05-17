@@ -623,31 +623,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 
     @Override
     public List<KycSigningCertificateData> getAllKycSigningCertificates() throws KycSigningCertificateException {
-    	try {
-    		String authToken = authTransactionHelper.getAuthToken();
-
-            RequestEntity requestEntity = RequestEntity
-                     .get(UriComponentsBuilder.fromUriString(getCertsUrl).queryParam("applicationId", applicationId).queryParam("referenceId", referenceId).build().toUri())
-                     .header(HttpHeaders.COOKIE, "Authorization=" + authToken)
-                     .build();
-            
-            ResponseEntity<ResponseWrapper<GetAllCertificatesResponse>> responseEntity = restTemplate.exchange(requestEntity,
-                     new ParameterizedTypeReference<ResponseWrapper<GetAllCertificatesResponse>>() {});
-            
-            if(responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
-            	ResponseWrapper<GetAllCertificatesResponse> responseWrapper = responseEntity.getBody();
-                if(responseWrapper.getResponse() != null && responseWrapper.getResponse().getAllCertificates() != null) {
-                    return responseWrapper.getResponse().getAllCertificates();
-                }
-                log.error("Error response received from getAllSigningCertificates with errors: {}",
-                        responseWrapper.getErrors());
-                throw new KycSigningCertificateException(CollectionUtils.isEmpty(responseWrapper.getErrors()) ?
-                		ErrorConstants.KYC_SIGNING_CERTIFICATE_FAILED : responseWrapper.getErrors().get(0).getErrorCode());
-            }
-            log.error("Error response received from getAllSigningCertificates with status : {}", responseEntity.getStatusCode());
-    	} catch (KycSigningCertificateException e) { throw e; } catch (Exception e) {
-            log.error("getAllKycSigningCertificates failed with clientId : {}", clientId, e);
-        }
-    	throw new KycSigningCertificateException();
+    	//Since this wrapper itself signs kyc with its MISP certificate it is not needed to return anything here
+    	return List.of();
     }
 }
