@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.authentication.esignet.integration.service;
+package io.mosip.ida115.esignet.integration.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -31,10 +31,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.authentication.esignet.integration.dto.GetAllCertificatesResponse;
-import io.mosip.authentication.esignet.integration.dto.IdaKycExchangeResponse;
-import io.mosip.authentication.esignet.integration.dto.IdaResponseWrapper;
-import io.mosip.authentication.esignet.integration.helper.AuthTransactionHelper;
+import io.mosip.ida115.esignet.integration.dto.GetAllCertificatesResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaKycExchangeResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaResponseWrapper;
+import io.mosip.ida115.esignet.integration.helper.AuthTransactionHelper;
 import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;

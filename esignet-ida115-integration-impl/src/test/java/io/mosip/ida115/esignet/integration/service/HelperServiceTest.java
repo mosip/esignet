@@ -1,4 +1,4 @@
-package io.mosip.authentication.esignet.integration.service;
+package io.mosip.ida115.esignet.integration.service;
 
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -25,11 +25,11 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.authentication.esignet.integration.dto.Error;
-import io.mosip.authentication.esignet.integration.dto.IdaKycAuthRequest;
-import io.mosip.authentication.esignet.integration.dto.IdaOtpResponse;
-import io.mosip.authentication.esignet.integration.dto.IdaSendOtpRequest;
-import io.mosip.authentication.esignet.integration.dto.IdaSendOtpResponse;
+import io.mosip.ida115.esignet.integration.dto.Error;
+import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaOtpResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaSendOtpRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaSendOtpResponse;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.SendOtpException;
