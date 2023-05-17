@@ -327,6 +327,26 @@ public class AuthorizationHelperServiceTest {
     }
 
     @Test
+    public void validateAcceptedClaims_withSomeValidAcceptedEssentialClaims_thenFail() {
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+        Map<String, ClaimDetail> userinfoClaims = new HashMap<>();
+        userinfoClaims.put("name", new ClaimDetail(null, null, true));
+        userinfoClaims.put("birthdate", new ClaimDetail(null, null, true));
+        userinfoClaims.put("address", new ClaimDetail(null, null, false));
+        userinfoClaims.put("gender", null);
+        resolvedClaims.setUserinfo(userinfoClaims);
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setRequestedClaims(resolvedClaims);
+        try {
+            authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "address"));
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
+        }
+    }
+
+    @Test
     public void validateAcceptedClaims_withAllOptionalClaims_thenFail() {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setUserinfo(new HashMap<>());
