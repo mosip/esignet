@@ -1,8 +1,8 @@
-package io.mosip.esignet.household.integration.service;
+package io.mosip.householdid.esignet.integration.service;
 import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.api.exception.KycAuthException;
-import io.mosip.esignet.household.integration.dto.KycTransactionDto;
-import io.mosip.esignet.household.integration.entity.HouseholdView;
+import io.mosip.householdid.esignet.integration.dto.KycTransactionDto;
+import io.mosip.householdid.esignet.integration.entity.HouseholdView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
+import static io.mosip.householdid.esignet.integration.util.ErrorConstants.*;
 
 @Component
 @Slf4j

@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration.dto;
+package io.mosip.householdid.esignet.integration.dto;
 
 import lombok.Data;
 

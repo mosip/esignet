@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration.config;
+package io.mosip.householdid.esignet.integration.config;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;

@@ -1,8 +1,7 @@
-package io.mosip.esignet.household.integration.repository;
+package io.mosip.householdid.esignet.integration.repository;
 
-import io.mosip.esignet.household.integration.entity.HouseholdView;
+import io.mosip.householdid.esignet.integration.entity.HouseholdView;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 

@@ -1,11 +1,11 @@
-package io.mosip.esignet.household.integration;
+package io.mosip.householdid.esignet.integration;
 
 
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.exception.KycAuthException;
-import io.mosip.esignet.household.integration.dto.KycTransactionDto;
-import io.mosip.esignet.household.integration.entity.HouseholdView;
-import io.mosip.esignet.household.integration.service.HouseholdAuthenticatorHelper;
+import io.mosip.householdid.esignet.integration.dto.KycTransactionDto;
+import io.mosip.householdid.esignet.integration.entity.HouseholdView;
+import io.mosip.householdid.esignet.integration.service.HouseholdAuthenticatorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,11 +16,11 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
+import static io.mosip.householdid.esignet.integration.util.ErrorConstants.*;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
-public class HouseHoldAuthenticatorHelperTest {
+public class HouseholdAuthenticatorHelperTest {
 
     @InjectMocks
     HouseholdAuthenticatorHelper houseHoldAuthenticatorHelper;
@@ -37,7 +37,7 @@ public class HouseHoldAuthenticatorHelperTest {
         HouseholdView householdView=new HouseholdView();
         householdView.setHouseholdId(12345L);
         householdView.setIdNumber("1234567890123456");
-        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test12345"));
+        householdView.setPassword(HouseholdAuthenticatorTest.generatePasswordHash("Test12345"));
 
         AuthChallenge authChallenge=new AuthChallenge();
         authChallenge.setAuthFactorType("PWD");
@@ -58,7 +58,7 @@ public class HouseHoldAuthenticatorHelperTest {
         HouseholdView householdView=new HouseholdView();
         householdView.setHouseholdId(12345L);
         householdView.setIdNumber("1234567890123456");
-        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test12345"));
+        householdView.setPassword(HouseholdAuthenticatorTest.generatePasswordHash("Test12345"));
 
         AuthChallenge authChallenge=new AuthChallenge();
         authChallenge.setAuthFactorType("PWD");
@@ -119,7 +119,7 @@ public class HouseHoldAuthenticatorHelperTest {
         HouseholdView householdView=new HouseholdView();
         householdView.setHouseholdId(12345L);
         householdView.setIdNumber("1234567890123456");
-        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test12345"));
+        householdView.setPassword(HouseholdAuthenticatorTest.generatePasswordHash("Test12345"));
 
         AuthChallenge authChallenge=new AuthChallenge();
         authChallenge.setAuthFactorType("PWD");
@@ -160,7 +160,7 @@ public class HouseHoldAuthenticatorHelperTest {
         HouseholdView householdView=new HouseholdView();
         householdView.setHouseholdId(12345L);
         householdView.setIdNumber("1234567890123456");
-        householdView.setPassword(HouseHoldAuthenticatorTest.generatePasswordHash("Test12345"));
+        householdView.setPassword(HouseholdAuthenticatorTest.generatePasswordHash("Test12345"));
 
         AuthChallenge authChallenge=new AuthChallenge();
         authChallenge.setAuthFactorType("PWD");

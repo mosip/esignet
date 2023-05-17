@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration.entity;
+package io.mosip.householdid.esignet.integration.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,29 +1,15 @@
-package io.mosip.esignet.household.integration.util;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
+package io.mosip.householdid.esignet.integration.util;
 import io.mosip.esignet.api.exception.KycAuthException;
-import io.mosip.esignet.api.exception.KycExchangeException;
-import io.mosip.esignet.household.integration.exception.HouseholdentityException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
-import static io.mosip.esignet.household.integration.util.ErrorConstants.INVALID_ALGORITHM;
-import static io.mosip.esignet.household.integration.util.ErrorConstants.INVALID_AUTHENTICATION;
+import static io.mosip.householdid.esignet.integration.util.ErrorConstants.INVALID_ALGORITHM;
 
 @Slf4j
 public class HelperUtil {

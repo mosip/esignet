@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration;
+package io.mosip.householdid.esignet.integration;
 
 import io.mosip.esignet.api.dto.AuditDTO;
 import io.mosip.esignet.api.spi.AuditPlugin;

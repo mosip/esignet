@@ -1,13 +1,13 @@
-package io.mosip.esignet.household.integration;
+package io.mosip.householdid.esignet.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.api.exception.KycExchangeException;
-import io.mosip.esignet.household.integration.dto.KycTransactionDto;
-import io.mosip.esignet.household.integration.entity.HouseholdView;
-import io.mosip.esignet.household.integration.repository.HouseholdViewRepository;
-import io.mosip.esignet.household.integration.service.HouseholdAuthenticator;
-import io.mosip.esignet.household.integration.service.HouseholdAuthenticatorHelper;
-import io.mosip.esignet.household.integration.util.ErrorConstants;
+import io.mosip.householdid.esignet.integration.dto.KycTransactionDto;
+import io.mosip.householdid.esignet.integration.entity.HouseholdView;
+import io.mosip.householdid.esignet.integration.repository.HouseholdViewRepository;
+import io.mosip.householdid.esignet.integration.service.HouseholdAuthenticator;
+import io.mosip.householdid.esignet.integration.service.HouseholdAuthenticatorHelper;
+import io.mosip.householdid.esignet.integration.util.ErrorConstants;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
@@ -29,13 +29,13 @@ import java.util.*;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
-public class HouseHoldAuthenticatorTest {
+public class HouseholdAuthenticatorTest {
 
     @Mock
     private HouseholdViewRepository householdViewRepository;
 
     @Mock
-    private  HouseholdAuthenticatorHelper householdAuthenticatorHelper;
+    private HouseholdAuthenticatorHelper householdAuthenticatorHelper;
 
     @Mock
     private KeymanagerService keymanagerService;

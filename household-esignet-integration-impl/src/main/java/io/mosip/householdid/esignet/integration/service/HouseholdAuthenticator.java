@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration.service;
+package io.mosip.householdid.esignet.integration.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.tool.xml.exceptions.NotImplementedException;
@@ -8,10 +8,10 @@ import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.household.integration.dto.KycTransactionDto;
-import io.mosip.esignet.household.integration.entity.HouseholdView;
-import io.mosip.esignet.household.integration.repository.HouseholdViewRepository;
-import io.mosip.esignet.household.integration.util.HelperUtil;
+import io.mosip.householdid.esignet.integration.dto.KycTransactionDto;
+import io.mosip.householdid.esignet.integration.entity.HouseholdView;
+import io.mosip.householdid.esignet.integration.repository.HouseholdViewRepository;
+import io.mosip.householdid.esignet.integration.util.HelperUtil;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
@@ -27,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
-import static io.mosip.esignet.household.integration.util.ErrorConstants.*;
+import static io.mosip.householdid.esignet.integration.util.ErrorConstants.*;
 
 @ConditionalOnProperty(value = "mosip.esignet.integration.authenticator", havingValue = "HouseHoldAuthenticationService")
 @Component

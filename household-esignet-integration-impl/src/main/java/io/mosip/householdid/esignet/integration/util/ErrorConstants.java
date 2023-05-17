@@ -1,4 +1,4 @@
-package io.mosip.esignet.household.integration.util;
+package io.mosip.householdid.esignet.integration.util;
 
 public class ErrorConstants {
 
