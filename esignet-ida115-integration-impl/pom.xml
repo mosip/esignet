@@ -12,7 +12,7 @@
 	<groupId>io.mosip.ida115</groupId>
 	<artifactId>esignet-ida115-integration-impl</artifactId>
 	<name>esignet-ida115-integration-impl</name>
-	<version>1.1.5.5-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
     <description>e-Signet Integration Implementation Library</description>
 
 	<properties>
