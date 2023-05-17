@@ -113,12 +113,8 @@ public class Ida115AuthenticatorImpl implements Authenticator {
     @Value("${mosip.esignet.authenticator.ida.wrapper.auth.partner.id}")
     private String esignetAuthPartnerId;
     
-    
     @Value("${mosip.esignet.authenticator.ida.wrapper.auth.partner.apikey}")
     private String esignetAuthPartnerApiKey;
-    
-    @Value("${mosip.esignet.authenticator.ida.wrapper.auth.reference.id}")
-    private String esignetRefId;
     
     @Value("${ida.idp.consented.picture.attribute.name:picture}")
 	private String consentedFaceAttributeName;
