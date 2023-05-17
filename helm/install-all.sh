@@ -24,11 +24,13 @@ echo Installing Softhsm for esignet
 helm -n $SOFTHSM_NS install softhsm-esignet mosip/softhsm -f softhsm-values.yaml --version $SOFTHSM_CHART_VERSION --wait
 echo Installed Softhsm for esignet
 
+cd esignet
 MISPKEY=$(bash misp_key.sh)
 echo "MISP License key is: $MISPKEY"
 
 echo Setting up onboarder-keys secrets
 kubectl -n $NS create secret generic onboarder-keys --from-literal=mosip-esignet-misp-key=$MISPKEY --dry-run=client -o yaml | kubectl apply -f -
+cd ..
 
 echo Copy configmaps
 ./copy_cm_func.sh configmap global default config-server
