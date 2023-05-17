@@ -9,7 +9,7 @@
 		<version>1.1.5.5</version>
 	</parent>-->
 
-	<groupId>io.mosip.authentication</groupId>
+	<groupId>io.mosip.ida115</groupId>
 	<artifactId>esignet-ida115-integration-impl</artifactId>
 	<name>esignet-ida115-integration-impl</name>
 	<version>1.1.5.5-SNAPSHOT</version>
