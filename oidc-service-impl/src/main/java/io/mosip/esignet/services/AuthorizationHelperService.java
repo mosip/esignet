@@ -223,33 +223,6 @@ public class AuthorizationHelperService {
         }
     }
 
-
-//    protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws EsignetException {
-//        Claims requestedClaims = transaction.getRequestedClaims();
-//        if((requestedClaims == null || CollectionUtils.isEmpty(requestedClaims.getUserinfo()))) {
-//            if(CollectionUtils.isEmpty(acceptedClaims))
-//                return;
-//            else
-//                throw new EsignetException(INVALID_ACCEPTED_CLAIM);
-//        }
-//
-//
-//        List<String> essentialClaims = requestedClaims.getUserinfo().entrySet().stream()
-//                .filter( e -> e != null && e.getValue() != null && e.getValue().isEssential())
-//                .map(Map.Entry::getKey)
-//                .collect(Collectors.toList());
-//
-//        List<String> allRequestedClaims = new ArrayList<>(requestedClaims.getUserinfo().keySet());
-//
-//        boolean isEssentialClaimsSubsetOfAcceptedClaims = new HashSet<>(acceptedClaims).containsAll(essentialClaims);
-//        boolean isAcceptedClaimsSubsetOfAllRequestedClaims = new HashSet<>(allRequestedClaims).containsAll(acceptedClaims);
-//
-//        if ((!isEssentialClaimsSubsetOfAcceptedClaims || !isAcceptedClaimsSubsetOfAllRequestedClaims)) {
-//            throw new EsignetException(INVALID_ACCEPTED_CLAIM);
-//        }
-//
-//    }
-
     protected void validateAuthorizeScopes(OIDCTransaction transaction, List<String> authorizeScopes) throws EsignetException {
         if(CollectionUtils.isEmpty(authorizeScopes))
             return;
