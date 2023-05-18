@@ -1,4 +1,4 @@
-package io.mosip.authentication.esignet.integration.service;
+package io.mosip.ida115.esignet.integration.service;
 
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -25,14 +25,13 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.authentication.esignet.integration.dto.Error;
-import io.mosip.authentication.esignet.integration.dto.IdaKycAuthRequest;
-import io.mosip.authentication.esignet.integration.dto.IdaOtpResponse;
-import io.mosip.authentication.esignet.integration.dto.IdaSendOtpRequest;
-import io.mosip.authentication.esignet.integration.dto.IdaSendOtpResponse;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaOtpResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaSendOtpRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaSendOtpResponse;
 import io.mosip.kernel.crypto.jce.core.CryptoCore;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
@@ -128,7 +127,7 @@ public class HelperServiceTest {
 
         IdaSendOtpResponse idaSendOtpResponse = new IdaSendOtpResponse();
         idaSendOtpResponse.setTransactionID("123456788");
-        idaSendOtpResponse.setErrors(Arrays.asList(new Error("otp-error", "otp-error")));
+        idaSendOtpResponse.setErrors(Arrays.asList(new io.mosip.ida115.esignet.integration.dto.Error("otp-error", "otp-error")));
         ResponseEntity<IdaSendOtpResponse> responseEntity = new ResponseEntity<IdaSendOtpResponse>(
                 idaSendOtpResponse, HttpStatus.OK);
         Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),

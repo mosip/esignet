@@ -1,4 +1,4 @@
-package io.mosip.authentication.esignet.integration.service;
+package io.mosip.ida115.esignet.integration.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -27,15 +27,17 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.authentication.esignet.integration.dto.IdaError;
-import io.mosip.authentication.esignet.integration.dto.IdaResponseWrapper;
-import io.mosip.authentication.esignet.integration.dto.KeyBindingResponse;
 import io.mosip.esignet.api.dto.KeyBindingResult;
 import io.mosip.esignet.api.dto.SendOtpDto;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.util.ErrorConstants;
+import io.mosip.ida115.esignet.integration.dto.IdaError;
+import io.mosip.ida115.esignet.integration.dto.IdaResponseWrapper;
+import io.mosip.ida115.esignet.integration.dto.KeyBindingResponse;
+import io.mosip.ida115.esignet.integration.service.HelperService;
+import io.mosip.ida115.esignet.integration.service.Ida115KeyBinderImpl;
 
 @Ignore
 @RunWith(MockitoJUnitRunner.class)

@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.authentication.esignet.integration.service;
+package io.mosip.ida115.esignet.integration.service;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
