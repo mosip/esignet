@@ -39,7 +39,7 @@ import io.mosip.ida115.esignet.integration.dto.KeyBindingRequest;
 import io.mosip.ida115.esignet.integration.dto.KeyBindingResponse;
 import lombok.extern.slf4j.Slf4j;
 
-@ConditionalOnProperty(value = "mosip.esignet.integration.key-binder", havingValue = "IdaKeyBinderImpl")
+@ConditionalOnProperty(value = "mosip.esignet.integration.key-binder", havingValue = "Ida115KeyBinderImpl")
 @Component
 @Slf4j
 public class Ida115KeyBinderImpl implements KeyBinder {

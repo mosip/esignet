@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -123,11 +124,6 @@ public class HelperService {
     @Autowired
     private CryptomanagerService cryptomanagerService;
     
-    @Autowired
-    private KeymanagerService keymanagerService;
-    
-	private boolean authPartnerKeyInitialized;
-
     @Cacheable(value = BINDING_TRANSACTION, key = "#idHash")
     public String getTransactionId(String idHash) {
         return HelperService.generateTransactionId(10);
@@ -186,7 +182,6 @@ public class HelperService {
     }
 
     protected String getRequestSignature(String request) {
-    	setUpSigningKey();
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
         jwtSignatureRequestDto.setApplicationId(kycAuthPartnerKeyAppId);
         jwtSignatureRequestDto.setReferenceId("");
@@ -256,19 +251,19 @@ public class HelperService {
         return urlSafeDecoder.decode(value);
     }
 
-    private void buildAuthRequest(AuthChallenge authChallenge, AuthRequest authRequest, IdaKycAuthRequest kycAauthRequest) {
+    private void buildAuthRequest(AuthChallenge authChallenge, AuthRequest authRequest, IdaKycAuthRequest kycAuthRequest) {
         log.info("Build kyc-auth request with authFactor : {}",  authChallenge.getAuthFactorType());
         switch (authChallenge.getAuthFactorType().toUpperCase()) {
             case "OTP" : 
             	authRequest.setOtp(authChallenge.getChallenge());
-            	kycAauthRequest.getRequestedAuth().put("otp", true);
+			addAuthType(kycAuthRequest, "otp");
                 break;
             case "PIN" : 
             	authRequest.setStaticPin(authChallenge.getChallenge());
-        		kycAauthRequest.getRequestedAuth().put("pin", true);
+    			addAuthType(kycAuthRequest, "pin");
                 break;
             case "BIO" :
-        		kycAauthRequest.getRequestedAuth().put("bio", true);
+    			addAuthType(kycAuthRequest, "bio");
                 byte[] decodedBio = HelperService.b64Decode(authChallenge.getChallenge());
                 try {
                     List<IdaKycAuthRequest.Biometric> biometrics = objectMapper.readValue(decodedBio,
@@ -292,6 +287,13 @@ public class HelperService {
         }
     }
 
+	private void addAuthType(IdaKycAuthRequest kycAauthRequest, String authType) {
+		if(kycAauthRequest.getRequestedAuth() == null) {
+			kycAauthRequest.setRequestedAuth(new HashMap<>(5));
+		}
+		kycAauthRequest.getRequestedAuth().put(authType, true);
+	}
+
     protected static String generateTransactionId(int length) {
         StringBuilder builder = new StringBuilder();
         for(int i=0; i<length; i++) {
@@ -311,14 +313,5 @@ public class HelperService {
         }
         return value;
     }
-    
-    private void setUpSigningKey() {
-    	if(!authPartnerKeyInitialized) {
-			KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
-			partnerMasterKeyRequest.setApplicationId(kycAuthPartnerKeyAppId);
-			keymanagerService.generateMasterKey("CSR", partnerMasterKeyRequest);
-			authPartnerKeyInitialized = true;
-    	}
-	}
     
 }

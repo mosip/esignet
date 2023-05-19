@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.authentication.common.service.helper.IdInfoHelper;
 import io.mosip.authentication.common.service.impl.match.BioMatchType;
+import io.mosip.authentication.common.service.integration.TokenIdManager;
 import io.mosip.authentication.core.constant.IdAuthConfigKeyConstants;
 import io.mosip.authentication.core.constant.IdAuthenticationErrorConstants;
 import io.mosip.authentication.core.exception.IdAuthenticationBusinessException;
@@ -62,7 +63,6 @@ import io.mosip.ida115.esignet.integration.dto.IdaKycExchangeResponse;
 import io.mosip.ida115.esignet.integration.dto.IdaKycResponse;
 import io.mosip.ida115.esignet.integration.dto.IdaResponseWrapper;
 import io.mosip.ida115.esignet.integration.dto.IdaSendOtpRequest;
-import io.mosip.ida115.esignet.integration.helper.AuthTransactionHelper;
 import io.mosip.ida115.esignet.integration.helper.IdentityDataStore;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
@@ -130,9 +130,6 @@ public class Ida115AuthenticatorImpl implements Authenticator {
     @Value("${mosip.esignet.authenticator.ida.wrapper.auth.partner.apikey}")
     private String esignetAuthPartnerApiKey;
     
-    @Value("${mosip.esignet.authenticator.ida.wrapper.auth.reference.id}")
-    private String esignetRefId;
-    
     @Value("${ida.idp.consented.picture.attribute.name:picture}")
 	private String consentedFaceAttributeName;
 
@@ -174,9 +171,6 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 
     @Autowired
     HelperService helperService;
-    
-    @Autowired
-    private AuthTransactionHelper authTransactionHelper;
     
     @Autowired
     private IdentityDataStore identityDataStore;
