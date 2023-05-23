@@ -33,6 +33,12 @@ Refer [Commons](https://docs.mosip.io/1.2.0/modules/commons).
 ```
 ./install.sh
 ```
+
+## Automating misp partner license key for esignet module
+* Added misp_key.sh script through which the misp license key is obtained with following endpoint ```v1/partnermanager/misps/$MISP_PARTNER_ID/licenseKey```
+* The above license key is passed through the config-server as placeholder named ```mosip.esignet.misp.key``` and saved as a secret called ```onboarder-keys``` in the kubernetes environment.
+* This change is a part of the install.sh script of esignet service.
+
 ## Uninstall
 ```
 ./delete.sh
