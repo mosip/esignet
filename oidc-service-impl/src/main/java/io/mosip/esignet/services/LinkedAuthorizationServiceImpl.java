@@ -210,7 +210,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Override
     public LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedAuthTransaction(linkedConsentRequest.getLinkedTransactionId());
-        if(transaction == null || Consent.NOCAPTURE.equals(transaction.getConsent())) {
+        if(transaction == null || ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
             throw new InvalidTransactionException();
         }
         List<String> acceptedClaims = linkedConsentRequest.getAcceptedClaims();
@@ -220,7 +220,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-        if(Consent.CAPTURE.equals(transaction.getConsent())) {
+        if(ConsentAction.CAPTURE.equals(transaction.getConsentAction())) {
             String identifier = transaction.getClientId() + transaction.getPartnerSpecificUserToken();
             ConsentCache.addUserConsent(identifier,new UserConsent(
                     transaction.getRequestedClaims(), transaction.getAcceptedClaims(),transaction.getRequestedAuthorizeScopes(),transaction.getPermittedScopes()

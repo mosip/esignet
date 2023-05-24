@@ -11,5 +11,5 @@ import lombok.Data;
 public class AuthResponseV2 {
 
     private String transactionId;
-    private Consent consentAction;
+    private ConsentAction consentAction;
 }

@@ -94,9 +94,9 @@ public class AuthorizationHelperService {
     @Value("${mosip.esignet.send-otp.captcha-required:false}")
     private boolean captchaRequired;
 
-    public static Consent validateConsent(OIDCTransaction transaction, UserConsent userConsent) {
+    public static ConsentAction validateConsent(OIDCTransaction transaction, UserConsent userConsent) {
         if(userConsent == null) {
-            return Consent.CAPTURE;
+            return ConsentAction.CAPTURE;
         }
         //validate requested claims
         Claims requestedClaims = transaction.getRequestedClaims();
@@ -106,12 +106,12 @@ public class AuthorizationHelperService {
                 (requestedClaims.getId_token().isEmpty() && requestedClaims.getUserinfo().isEmpty()))
                 && requestedScopes.isEmpty())
         ) {
-            return Consent.NOCAPTURE;
+            return ConsentAction.NOCAPTURE;
         }
 
         //validate consented claims
         if(requestedClaims!= null && userConsent.getClaims() != null &&!requestedClaims.isEqualToIgnoringAccepted(userConsent.getClaims())){
-            return Consent.CAPTURE;
+            return ConsentAction.CAPTURE;
         }
 
         //validate consented scopes
@@ -119,9 +119,9 @@ public class AuthorizationHelperService {
                 && ( !new HashSet<>(requestedScopes).containsAll(userConsent.getRequestedScopes()) ||
                 !new HashSet<>(requestedScopes).containsAll(userConsent.getAuthorizedScopes())
         )){
-            return Consent.CAPTURE;
+            return ConsentAction.CAPTURE;
         }
-        return Consent.NOCAPTURE;
+        return ConsentAction.NOCAPTURE;
     }
 
     protected void validateCaptchaToken(String captchaToken) {
@@ -380,7 +380,7 @@ public class AuthorizationHelperService {
             throw new InvalidTransactionException();
 
 
-        authResponseV2.setConsentAction(transaction.getConsent());
+        authResponseV2.setConsentAction(transaction.getConsentAction());
         return authResponseV2;
     }
 
@@ -390,7 +390,7 @@ public class AuthorizationHelperService {
         OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(linkedKycAuthResponse.getLinkedTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
-        linkedKycAuthResponseV2.setConsentAction(transaction.getConsent());
+        linkedKycAuthResponseV2.setConsentAction(transaction.getConsentAction());
         return linkedKycAuthResponseV2;
     }
 }

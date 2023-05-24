@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class LinkedKycAuthResponseV2 {
     private String linkedTransactionId;
-    private Consent consentAction;
+    private ConsentAction consentAction;
 }

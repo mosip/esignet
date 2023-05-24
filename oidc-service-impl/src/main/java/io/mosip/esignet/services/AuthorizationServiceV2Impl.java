@@ -74,9 +74,9 @@ public class AuthorizationServiceV2Impl implements AuthorizationService {
         //create consent identifier
         String consentIdentifier = transaction.getClientId() + transaction.getPartnerSpecificUserToken();
         UserConsent userConsent = ConsentCache.getUserConsent(consentIdentifier);
-        Consent consent = AuthorizationHelperService.validateConsent(transaction, userConsent);
-        transaction.setConsent(consent);
-        if(consent.equals(Consent.NOCAPTURE)){
+        ConsentAction consentAction = AuthorizationHelperService.validateConsent(transaction, userConsent);
+        transaction.setConsentAction(consentAction);
+        if(consentAction.equals(ConsentAction.NOCAPTURE)){
             transaction.setAcceptedClaims(userConsent.getAcceptedClaims());
             transaction.setPermittedScopes(userConsent.getAuthorizedScopes());
         }
