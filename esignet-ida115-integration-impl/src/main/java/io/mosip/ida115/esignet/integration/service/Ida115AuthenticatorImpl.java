@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -77,7 +78,8 @@ import reactor.util.function.Tuples;
 @Slf4j
 public class Ida115AuthenticatorImpl implements Authenticator {
 
-    public static final String SIGNATURE_HEADER_NAME = "signature";
+	private static final String ATTRIB_NAME_LANG_SEPERATOR="_";
+	public static final String SIGNATURE_HEADER_NAME = "signature";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     public static final String KYC_EXCHANGE_TYPE = "oidc";
 	private static final String HASH_ALGORITHM_NAME = "SHA-256";
@@ -132,6 +134,9 @@ public class Ida115AuthenticatorImpl implements Authenticator {
     
     @Value("${ida.idp.consented.picture.attribute.name:picture}")
 	private String consentedFaceAttributeName;
+    
+    @Value("${ida.idp.consented.name.attribute.name:name}")
+	private String consentedNameAttributeName;
 
 	@Value("${ida.idp.consented.address.attribute.name:address}")
 	private String consentedAddressAttributeName;
@@ -236,7 +241,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
                 }
                 
                 log.error("Error response received from IDA status : {} && Errors: {}",
-                        (responseWrapper.getResponse().isKycStatus() ||  responseWrapper.getResponse().isAuthStatus()), responseWrapper.getErrors());
+                		(responseWrapper.getResponse() != null && (responseWrapper.getResponse().isKycStatus() ||  responseWrapper.getResponse().isAuthStatus())), responseWrapper.getErrors());
                 throw new KycAuthException(CollectionUtils.isEmpty(responseWrapper.getErrors()) ?
                          ErrorConstants.AUTH_FAILED : responseWrapper.getErrors().get(0).getErrorCode());
             }
@@ -268,11 +273,21 @@ public class Ida115AuthenticatorImpl implements Authenticator {
     		}
     		String thumbprint = response.getThumbprint();
     		if(thumbprint != null) {
-    			combinedData = CryptoUtil.encodeToURLSafeBase64(CryptoUtil.combineByteArray(CryptoUtil.decodeURLSafeBase64(combinedData), Hex.decodeHex(thumbprint), EMPTY));
+    			combinedData = CryptoUtil.encodeToURLSafeBase64(CryptoUtil.combineByteArray(CryptoUtil.decodeURLSafeBase64(combinedData), getThumbprintBytes(thumbprint), EMPTY));
     		}
 			return Tuples.of(kycToken, combinedData);
     	}
 		return Tuples.of(kycToken, EMPTY);
+	}
+
+
+	private byte[] getThumbprintBytes(String thumbprint) throws DecoderException {
+		try {
+			return Hex.decodeHex(thumbprint);
+		} catch (DecoderException e) {
+			log.debug("Thumbprint is not hex. Trying to base64-decode");
+			return CryptoUtil.decodeURLSafeBase64(thumbprint);
+		}
 	}
 	
 	/**
@@ -294,7 +309,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	private String doGenerateKycToken(String uuid, String idHash) throws DecoderException, NoSuchAlgorithmException {
 		try {
 			byte[] uuidBytes = uuid.getBytes();
-			byte[] idHashBytes = Hex.decodeHex(idHash);
+			byte[] idHashBytes = getThumbprintBytes(idHash);
 			ByteBuffer bBuffer = ByteBuffer.allocate(uuidBytes.length + idHashBytes.length);
 			bBuffer.put(uuidBytes);
 			bBuffer.put(idHashBytes);
@@ -376,8 +391,9 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				continue;
 			}
 			List<String> idSchemaAttribute = idInfoHelper.getIdentityAttributesForIdName(attrib);
+			Map<String, List<IdentityInfoDTO>> idInfoNameAndLangCorrected = getCorrectedIdInfoMap(idInfo);
 			if (mappedConsentedLocales.size() > 0) {
-				addEntityForLangCodes(mappedConsentedLocales, idInfo, respMap, attrib, idSchemaAttribute);
+				addEntityForLangCodes(mappedConsentedLocales, idInfo, respMap, attrib, idSchemaAttribute, idInfoNameAndLangCorrected);
 			}
 		}
 
@@ -386,6 +402,42 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 		} catch (JsonProcessingException e) {
 			throw new IdAuthenticationBusinessException(IdAuthenticationErrorConstants.UNABLE_TO_PROCESS, e);
 		}
+	}
+
+
+	/**
+	 * Correct the attribute name key, for example name_eng to name and put the Language (eng) into the list of idInfo language
+	 * @param idInfo
+	 * @return corrected idInfoMap
+	 */
+	private Map<String, List<IdentityInfoDTO>> getCorrectedIdInfoMap(Map<String, List<IdentityInfoDTO>> idInfo) {
+		return idInfo.entrySet().stream()
+				.collect(
+				Collectors.groupingBy(entry -> {
+					//correct the attribute name key, for example name_eng to name 
+						String[] attribAndLang = entry.getKey().split(ATTRIB_NAME_LANG_SEPERATOR);
+						try {
+							List<String> identityAttributesForIdName = idInfoHelper.getIdentityAttributesForIdName(attribAndLang[0]);
+							if(!identityAttributesForIdName.isEmpty()) {
+								return identityAttributesForIdName.get(0);
+							}
+						} catch (IdAuthenticationBusinessException e) {
+							log.debug("Error in getting id attribute for id name");
+						}
+						return attribAndLang[0];
+					},
+					//	put the Language (for example eng) into the list of idInfo language
+					Collectors.flatMapping(entry -> {
+						String[] attribAndLang = entry.getKey().split(ATTRIB_NAME_LANG_SEPERATOR);
+						//Return the attributeName as Key
+						String lang =  attribAndLang.length > 1? attribAndLang[1] : EMPTY;
+						return entry.getValue().stream()
+								.peek(idInfoEntry -> {
+									if(!lang.isEmpty()) {
+										idInfoEntry.setLanguage(lang);
+									}
+								});
+					}, Collectors.toList())));
 	}
 	
 	public String signWithPayload(String data) {
@@ -400,7 +452,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	}
 	
 	private void addEntityForLangCodes(Map<String, String> mappedConsentedLocales, Map<String, List<IdentityInfoDTO>> idInfo, 
-			Map<String, Object> respMap, String consentedAttribute, List<String> idSchemaAttributes) 
+			Map<String, Object> respMap, String consentedAttribute, List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfoNameAndLangCorrected) 
 			throws IdAuthenticationBusinessException {
 	
 		if (consentedAttribute.equals(consentedFaceAttributeName)) {
@@ -408,24 +460,29 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				log.info("Face Bio not found in DB. So not adding to response claims.");
 				return;
 			}
-			Map<String, String> faceEntityInfoMap = idInfoHelper.getIdEntityInfoMap(BioMatchType.FACE, idInfo, null);
-			if (Objects.nonNull(faceEntityInfoMap)) {
+			String faceAttribName = CbeffDocType.FACE.getType().value();
+			List<IdentityInfoDTO> faceInfo = idInfo.get(faceAttribName);
+			Map<String, String> faceEntityInfoMap = faceInfo == null || faceInfo.isEmpty() ? Map.of()
+					: Map.of(faceAttribName, faceInfo.get(0).getValue());
+			if (Objects.nonNull(faceEntityInfoMap) && !faceEntityInfoMap.isEmpty()) {
 				String face = convertJP2ToJpeg(faceEntityInfoMap.get(CbeffDocType.FACE.getType().value()));
-				if (Objects.nonNull(face))
+				if (Objects.nonNull(face)) {
 					respMap.put(consentedAttribute, consentedPictureAttributePrefix + face);
+				}
 			}
 			return;
 		}
 	
 		if (idSchemaAttributes.size() == 1) {
-			List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttributes.get(0));
+			List<IdentityInfoDTO> idInfoList = idInfoNameAndLangCorrected.get(idSchemaAttributes.get(0));
+			
 			if (Objects.isNull(idInfoList)) {
 				log.info("Data not available in Identity Info for the claim. So not adding to response claims. Claim Name: " + idSchemaAttributes.get(0));
 				return;
 			}
 			Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
 			List<String> availableLangCodes = getAvailableLangCodes(mappedConsentedLocales, mappedLangCodes);
-			if (availableLangCodes.size() == 1){
+			if (availableLangCodes.size() == 1) {
 				for (IdentityInfoDTO identityInfo : idInfoList) {
 					String langCode = mappedLangCodes.get(availableLangCodes.get(0));
 					if (identityInfo.getLanguage().equalsIgnoreCase(langCode)) {
@@ -454,11 +511,11 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 						String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
 						if (addressSubsetAttributes.length == 0) {
 							log.info("No address subset attributes configured. Will return the address with formatted attribute.");
-							addFormattedAddress(idSchemaAttributes, idInfo, consentedLocaleValue, respMap, true, 
+							addFormattedAddress(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
 								CLAIMS_LANG_SEPERATOR + consentedLocaleValue);
 							continue;
 						}
-						addAddressClaim(addressSubsetAttributes, idInfo, consentedLocaleValue, respMap, true, 
+						addAddressClaim(addressSubsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
 								CLAIMS_LANG_SEPERATOR + consentedLocaleValue);
 					}
 				} else {
@@ -466,11 +523,11 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 					String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
 					if (addressSubsetAttributes.length == 0) {
 						log.info("No address subset attributes configured. Will return the address with formatted attribute.");
-						addFormattedAddress(idSchemaAttributes, idInfo, consentedLocaleValue, respMap, false, "");
+						addFormattedAddress(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "");
 						return;
 					}
 					
-					addAddressClaim(addressSubsetAttributes, idInfo, consentedLocaleValue, respMap, false, "");
+					addAddressClaim(addressSubsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "");
 				}
 			}
 		}
