@@ -558,24 +558,26 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 			List<String> idSchemaSubsetAttributes = idInfoHelper.getIdentityAttributesForIdName(schemaAttrib);
 			for (String idSchemaAttribute : idSchemaSubsetAttributes) {
 				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
-				Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
-				if (identityInfoValue.length() > 0) {
-					identityInfoValue.append(valueSeparator);
-				}
-				if (mappedLangCodes.keySet().contains(localeValue)) {
-					String langCode = mappedLangCodes.get(localeValue);
-					for (IdentityInfoDTO identityInfo : idInfoList) { 
-						if (identityInfoValue.length() > 0) {
-							identityInfoValue.append(valueSeparator);
-						}
-						if (identityInfo.getLanguage().equals(langCode)) {
-							langCodeFound = true;
-							identityInfoValue.append(identityInfo.getValue());
-						}
+				if(idInfoList != null) {
+					Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
+					if (identityInfoValue.length() > 0) {
+						identityInfoValue.append(valueSeparator);
 					}
-				} else {
-					if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
-						identityInfoValue.append(idInfoList.get(0).getValue());
+					if (mappedLangCodes.keySet().contains(localeValue)) {
+						String langCode = mappedLangCodes.get(localeValue);
+						for (IdentityInfoDTO identityInfo : idInfoList) { 
+							if (identityInfoValue.length() > 0) {
+								identityInfoValue.append(valueSeparator);
+							}
+							if (identityInfo.getLanguage().equals(langCode)) {
+								langCodeFound = true;
+								identityInfoValue.append(identityInfo.getValue());
+							}
+						}
+					} else {
+						if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
+							identityInfoValue.append(idInfoList.get(0).getValue());
+						}
 					}
 				}
 			}
