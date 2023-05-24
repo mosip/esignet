@@ -85,7 +85,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	private static final String HASH_ALGORITHM_NAME = "SHA-256";
 	public static final String SUBJECT = "sub";
 	public static final String CLAIMS_LANG_SEPERATOR = "#";
-	public static final String ADDRESS_FORMATTED = "formatted";
+	public static final String FORMATTED = "formatted";
 	public static final String FACE_ISO_NUMBER = "ISO19794_5_2011";
 	public static final String EMPTY = "";
 
@@ -149,9 +149,15 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 
 	@Value("${mosip.ida.idp.consented.address.subset.attributes:}")
 	private String[] addressSubsetAttributes;
+	
+	@Value("${mosip.ida.idp.consented.address.subset.attributes:}")
+	private String[] nameSubsetAttributes;
 
 	@Value("${ida.idp.consented.address.value.separator: }")
 	private String addressValueSeparator;
+	
+	@Value("${ida.idp.consented.name.value.separator: }")
+	private String addressNameSeparator;
 	
 	@Value("${ida.kyc.send-face-as-cbeff-xml:false}")
 	private boolean sendFaceAsCbeffXml;
@@ -219,7 +225,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 
             //set signature header, body and invoke kyc auth endpoint
             String requestBody = objectMapper.writeValueAsString(idaKycAuthRequest);
-            RequestEntity requestEntity = RequestEntity
+            RequestEntity<?> requestEntity = RequestEntity
                     .post(UriComponentsBuilder.fromUriString(authOnlyEnabled? authUrl : kycUrl).pathSegment(esignetAuthPartnerId, esignetAuthPartnerApiKey).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .header(SIGNATURE_HEADER_NAME, helperService.getRequestSignature(requestBody))
@@ -506,37 +512,47 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 			}
 		} else {
 			if (consentedAttribute.equals(consentedAddressAttributeName)) {
-				if (mappedConsentedLocales.size() > 1) {
-					for (String consentedLocale: mappedConsentedLocales.keySet()) {
-						String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
-						if (addressSubsetAttributes.length == 0) {
-							log.info("No address subset attributes configured. Will return the address with formatted attribute.");
-							addFormattedAddress(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
-								CLAIMS_LANG_SEPERATOR + consentedLocaleValue);
-							continue;
-						}
-						addAddressClaim(addressSubsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
-								CLAIMS_LANG_SEPERATOR + consentedLocaleValue);
-					}
-				} else {
-					String consentedLocale = mappedConsentedLocales.keySet().iterator().next();
-					String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
-					if (addressSubsetAttributes.length == 0) {
-						log.info("No address subset attributes configured. Will return the address with formatted attribute.");
-						addFormattedAddress(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "");
-						return;
-					}
-					
-					addAddressClaim(addressSubsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "");
-				}
+				handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedAddressAttributeName, addressValueSeparator, addressSubsetAttributes);
+			} else if (consentedAttribute.equals(consentedNameAttributeName)) {
+				handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedNameAttributeName, addressNameSeparator, nameSubsetAttributes);
 			}
 		}
 	}
 	
-	private void addFormattedAddress(List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String localeValue, 
-								Map<String, Object> respMap, boolean addLocale, String localeAppendValue) throws IdAuthenticationBusinessException {
+	private void handleAttributeWithSubAttributes(Map<String, String> mappedConsentedLocales, List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfoNameAndLangCorrected, Map<String, Object> respMap, String consentedAttributeName, String valueSeparator, String[] subsetAttributes) throws IdAuthenticationBusinessException {
+		if (mappedConsentedLocales.size() > 1) {
+			for (String consentedLocale: mappedConsentedLocales.keySet()) {
+				String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
+				if (subsetAttributes.length == 0) {
+					log.info(String.format(
+							"No %s subset attributes configured. Will return the address with formatted attribute.",
+							consentedAttributeName));
+					addFormattedSubAttributes(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
+						CLAIMS_LANG_SEPERATOR + consentedLocaleValue, consentedAttributeName, valueSeparator);
+					continue;
+				}
+				addSubAttributesClaim(subsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
+						CLAIMS_LANG_SEPERATOR + consentedLocaleValue, consentedAttributeName, valueSeparator);
+			}
+		} else {
+			String consentedLocale = mappedConsentedLocales.keySet().iterator().next();
+			String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
+			if (subsetAttributes.length == 0) {
+				log.info(String.format("No %s subset attributes configured. Will return the address with formatted attribute.",
+						consentedAttributeName));
+				addFormattedSubAttributes(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "", consentedAttributeName, valueSeparator);
+				return;
+			}
+			
+			addSubAttributesClaim(subsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "", consentedAttributeName, valueSeparator);
+		}		
+	}
+
+
+	private void addFormattedSubAttributes(List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String localeValue, 
+								Map<String, Object> respMap, boolean addLocale, String localeAppendValue, String consentedAttributeName, String valueSeparator) throws IdAuthenticationBusinessException {
 		boolean langCodeFound = false;
-		Map<String, String> addressMap = new HashMap<>();
+		Map<String, String> attributesMap = new HashMap<>();
 		StringBuilder identityInfoValue = new StringBuilder(); 
 		for (String schemaAttrib: idSchemaAttributes) {
 			List<String> idSchemaSubsetAttributes = idInfoHelper.getIdentityAttributesForIdName(schemaAttrib);
@@ -544,13 +560,13 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
 				Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
 				if (identityInfoValue.length() > 0) {
-					identityInfoValue.append(addressValueSeparator);
+					identityInfoValue.append(valueSeparator);
 				}
 				if (mappedLangCodes.keySet().contains(localeValue)) {
 					String langCode = mappedLangCodes.get(localeValue);
 					for (IdentityInfoDTO identityInfo : idInfoList) { 
 						if (identityInfoValue.length() > 0) {
-							identityInfoValue.append(addressValueSeparator);
+							identityInfoValue.append(valueSeparator);
 						}
 						if (identityInfo.getLanguage().equals(langCode)) {
 							langCodeFound = true;
@@ -566,15 +582,16 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 		}
 		//String identityInfoValueStr = identityInfoValue.toString();
 		//String trimmedValue = identityInfoValueStr.substring(0, identityInfoValueStr.lastIndexOf(addressValueSeparator));
-		addressMap.put(ADDRESS_FORMATTED + localeAppendValue, identityInfoValue.toString());
-		if (langCodeFound && addLocale)
-			respMap.put(consentedAddressAttributeName + localeAppendValue, addressMap);
-		else
-			respMap.put(consentedAddressAttributeName, addressMap);
+		attributesMap.put(FORMATTED + localeAppendValue, identityInfoValue.toString());
+		if (langCodeFound && addLocale) {
+			respMap.put(consentedAttributeName + localeAppendValue, attributesMap);
+		} else {
+			respMap.put(consentedAttributeName, attributesMap);
+		}
 	}
 	
-	private void addAddressClaim(String[] addressAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String consentedLocaleValue,
-			Map<String, Object> respMap, boolean addLocale, String localeAppendValue) throws IdAuthenticationBusinessException {
+	private void addSubAttributesClaim(String[] addressAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String consentedLocaleValue,
+			Map<String, Object> respMap, boolean addLocale, String localeAppendValue, String consentedAddressAttributeName, String addressValueSeparator) throws IdAuthenticationBusinessException {
 		boolean langCodeFound = false; //added for language data not available in identity info (Eg: fr)
 		Map<String, String> addressMap = new HashMap<>();
 		for (String addressAttribute : addressAttributes) {
