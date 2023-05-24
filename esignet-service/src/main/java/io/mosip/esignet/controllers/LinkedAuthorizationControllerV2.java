@@ -15,6 +15,7 @@ import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class LinkedAuthorizationControllerV2 {
     private final AuditPlugin auditWrapper;
     private final AuthorizationHelperService authorizationHelperService;
 
-    public LinkedAuthorizationControllerV2(@Qualifier("linkedAuthorizationServiceV2") LinkedAuthorizationService linkedAuthorizationService, AuditPlugin auditWrapper, AuthorizationHelperService authorizationHelperService) {
+    public LinkedAuthorizationControllerV2(LinkedAuthorizationService linkedAuthorizationService, AuditPlugin auditWrapper, AuthorizationHelperService authorizationHelperService) {
         this.linkedAuthorizationService = linkedAuthorizationService;
         this.auditWrapper = auditWrapper;
         this.authorizationHelperService = authorizationHelperService;
