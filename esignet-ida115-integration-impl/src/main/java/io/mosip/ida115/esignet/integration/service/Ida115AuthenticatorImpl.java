@@ -160,7 +160,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	private String addressNameSeparator;
 	
 	@Value("${ida.kyc.send-face-as-cbeff-xml:false}")
-	private boolean sendFaceAsCbeffXml;
+	private boolean idaSentFaceAsCbeffXml;
 	
 	@Value("${mosip.ida.kyc.exchange.sign.include.certificate:false}")
 	private boolean includeCertificate;
@@ -466,10 +466,18 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				log.info("Face Bio not found in DB. So not adding to response claims.");
 				return;
 			}
-			String faceAttribName = CbeffDocType.FACE.getType().value();
-			List<IdentityInfoDTO> faceInfo = idInfo.get(faceAttribName);
-			Map<String, String> faceEntityInfoMap = faceInfo == null || faceInfo.isEmpty() ? Map.of()
-					: Map.of(faceAttribName, faceInfo.get(0).getValue());
+			Map<String, String> faceEntityInfoMap;
+			if (idaSentFaceAsCbeffXml) {
+				faceEntityInfoMap = idInfoHelper.getIdEntityInfoMap(BioMatchType.FACE, idInfo,
+						null);
+			} else {
+				String faceAttribName = CbeffDocType.FACE.getType().value();
+				List<IdentityInfoDTO> faceInfo = idInfo.get(faceAttribName);
+				faceEntityInfoMap = faceInfo == null || faceInfo.isEmpty() ? Map.of()
+						: Map.of(faceAttribName, faceInfo.get(0).getValue());
+				
+			}
+			
 			if (Objects.nonNull(faceEntityInfoMap) && !faceEntityInfoMap.isEmpty()) {
 				String face = convertJP2ToJpeg(faceEntityInfoMap.get(CbeffDocType.FACE.getType().value()));
 				if (Objects.nonNull(face)) {
@@ -623,13 +631,15 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				}
 			}
 			// Added below condition to skip if the data is not available in DB. MOSIP-26472
-			if (identityInfoValue.toString().trim().length() > 0)
+			if (identityInfoValue.toString().trim().length() > 0) {
 				addressMap.put(addressAttribute + localeAppendValue, identityInfoValue.toString());
+			}
 		}
-		if (langCodeFound && addLocale)
+		if (langCodeFound && addLocale) {
 			respMap.put(consentedAddressAttributeName + localeAppendValue, addressMap);
-		else 
+		} else {
 			respMap.put(consentedAddressAttributeName, addressMap);
+		}
 	}
 	
 	private String convertJP2ToJpeg(String jp2Image) {
