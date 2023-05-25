@@ -467,11 +467,11 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				return;
 			}
 			Map<String, String> faceEntityInfoMap;
+			String faceAttribName = CbeffDocType.FACE.getType().value();
 			if (idaSentFaceAsCbeffXml) {
 				faceEntityInfoMap = idInfoHelper.getIdEntityInfoMap(BioMatchType.FACE, idInfo,
 						null);
 			} else {
-				String faceAttribName = CbeffDocType.FACE.getType().value();
 				List<IdentityInfoDTO> faceInfo = idInfo.get(faceAttribName);
 				faceEntityInfoMap = faceInfo == null || faceInfo.isEmpty() ? Map.of()
 						: Map.of(faceAttribName, faceInfo.get(0).getValue());
@@ -479,7 +479,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 			}
 			
 			if (Objects.nonNull(faceEntityInfoMap) && !faceEntityInfoMap.isEmpty()) {
-				String face = convertJP2ToJpeg(faceEntityInfoMap.get(CbeffDocType.FACE.getType().value()));
+				String face = convertJP2ToJpeg(faceEntityInfoMap.get(faceAttribName));
 				if (Objects.nonNull(face)) {
 					respMap.put(consentedAttribute, consentedPictureAttributePrefix + face);
 				}
