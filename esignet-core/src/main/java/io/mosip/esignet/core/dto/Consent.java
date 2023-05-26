@@ -9,15 +9,14 @@ import java.util.UUID;
 
 @Data
 public class Consent {
-    UUID id;
-    String psuValue;
-    String clientId;
-    Claims claims;
+    private UUID id;
+    private String clientId;
+    private String psuValue;
+    private Claims claims;
     Map<String, Boolean> authorizeScopes;
-    LocalDateTime createdOn;
-    LocalDateTime expiration;
-    String signature;
-    String hash;
-    String signedBy;
+    private LocalDateTime createdOn;
+    private LocalDateTime expiration;
+    private String signature;
+    private String hash;
 
 }

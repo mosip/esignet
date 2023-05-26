@@ -5,44 +5,49 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
 @Data
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class Consent {
-
     @Id
-    @Column(name = "id")
     private UUID id;
 
-    @Column(name = "client_id", nullable = false)
+    @NotBlank(message = INVALID_CLIENT_ID)
+    @Column(name = "client_id")
     private String clientId;
 
-    @Column(name = "psu_value", nullable = false)
+    @NotBlank
+    @Column(name = "psu_value")
     private String psuValue;
 
-    @Column(name = "claims", nullable = false)
+    @NotBlank(message = INVALID_CLAIM)
+    @Column(name = "claims")
     private String claims;
 
-    @Column(name = "authorization_scopes", nullable = false)
+    @NotBlank
+    @Column(name = "authorization_scopes")
     private String authorizationScopes;
 
-    @Column(name = "created_on", nullable = false)
+    @NotNull
+    @Column(name = "created_on")
     private LocalDateTime createdOn;
 
+    @NotNull
     @Column(name = "expiration")
     private LocalDateTime expiration;
 
     @Column(name = "signature")
     private String signature;
 
+    @NotBlank
     @Column(name = "hash")
     private String hash;
-
-    @Column(name = "signed_by")
-    private String signedBy;
 
 }

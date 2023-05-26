@@ -8,6 +8,5 @@ create table consent (
     expiration TIMESTAMP,
     signature VARCHAR,
     hash VARCHAR,
-    signed_by VARCHAR,
    CONSTRAINT pk_consent primary key (id)
 );

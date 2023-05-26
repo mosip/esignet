@@ -16,10 +16,13 @@ import java.util.UUID;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class ConsentRepositoryTest {
+
     @Autowired
     private ConsentRepository consentRepository;
+
     @Test
     public void createConsent_withValidDetail_thenPass() {
+
         Consent consent=new Consent();
         UUID uuid=UUID.randomUUID();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
@@ -32,7 +35,6 @@ public class ConsentRepositoryTest {
         consent.setExpiration(LocalDateTime.now());
         consent.setHash("hash");
         consent.setSignature("signature");
-        consent.setSignedBy("signedBy");
         consent=consentRepository.saveAndFlush(consent);
         Assert.assertNotNull(consent);
 
@@ -48,5 +50,4 @@ public class ConsentRepositoryTest {
         result = consentRepository.findFirstByClientIdAndPsuValueOrderByCreatedOnDesc("123", "abcd");
         Assert.assertFalse(result.isPresent());
     }
-
 }
