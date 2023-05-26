@@ -104,6 +104,7 @@
 		<module>binding-service-impl</module>
         <module>client-management-service-impl</module>
         <module>oidc-service-impl</module>
+		<module>consent-registry</module>
     </modules>
 
 	<profiles>
