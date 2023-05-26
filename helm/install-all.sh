@@ -32,6 +32,7 @@ echo Copy secrets
 
 kubectl -n config-server set env --keys=mosip-esignet-host --from configmap/global deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
 kubectl -n config-server set env --keys=security-pin --from secret/softhsm-esignet deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SOFTHSM_ESIGNET_
+kubectl -n config-server rollout restart deploy config-server
 kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
 
 

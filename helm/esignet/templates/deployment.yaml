@@ -130,6 +130,17 @@ spec:
           {{- else if .Values.customReadinessProbe }}
           readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customReadinessProbe "context" $) | nindent 12 }}
           {{- end }}
+          volumeMounts:
+          {{- if .Values.initContainers }}
+          - mountPath: /usr/local/openjdk-11/lib/security/cacerts
+            name: cacerts
+            subPath: cacerts
+          {{- end }}
         {{- if .Values.sidecars }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
+      volumes:
+      {{- if .Values.initContainers }}
+      - name: cacerts
+        emptyDir: {}
+      {{- end }}

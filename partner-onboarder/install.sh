@@ -8,7 +8,7 @@ fi
 
 echo "Do you have public domain & valid SSL? (Y/n) "
 echo "Y: if you have public domain & valid ssl certificate"
-echo "n: if you don't have public domain & valid ssl certificate"
+echo "n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments."
 read -p "" flag
 
 if [ -z "$flag" ]; then
