@@ -86,7 +86,6 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	public static final String SUBJECT = "sub";
 	public static final String CLAIMS_LANG_SEPERATOR = "#";
 	public static final String FORMATTED = "formatted";
-	public static final String FACE_ISO_NUMBER = "ISO19794_5_2011";
 	public static final String EMPTY = "";
 
     @Value("${mosip.esignet.authenticator.ida-kyc-id:mosip.identity.kyc}")
@@ -479,7 +478,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 			}
 			
 			if (Objects.nonNull(faceEntityInfoMap) && !faceEntityInfoMap.isEmpty()) {
-				String face = convertJP2ToJpeg(faceEntityInfoMap.get(faceAttribName));
+				String face = ConverterUtil.convertJP2ToJpeg(faceEntityInfoMap.get(faceAttribName));
 				if (Objects.nonNull(face)) {
 					respMap.put(consentedAttribute, consentedPictureAttributePrefix + face);
 				}
@@ -640,19 +639,6 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 		} else {
 			respMap.put(consentedAddressAttributeName, addressMap);
 		}
-	}
-	
-	private String convertJP2ToJpeg(String jp2Image) {
-		try {
-			ConvertRequestDto convertRequestDto = new ConvertRequestDto();
-			convertRequestDto.setVersion(FACE_ISO_NUMBER);
-			convertRequestDto.setInputBytes(CryptoUtil.decodeBase64(jp2Image));// TODO check url safe / plain
-			byte[] image = FaceDecoder.convertFaceISOToImageBytes(convertRequestDto);
-			return CryptoUtil.encodeBase64(image);// TODO check url safe / plain
-		} catch(Exception exp) {
-			log.error("Error Converting JP2 To JPEG. " + exp.getMessage(), exp);
-		}
-		return null;
 	}
 	
 	private Map<String, String> localesMapping(Set<String> locales) {
