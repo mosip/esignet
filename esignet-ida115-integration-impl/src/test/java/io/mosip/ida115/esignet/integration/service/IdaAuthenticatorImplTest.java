@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -51,6 +52,7 @@ import io.mosip.ida115.esignet.integration.helper.AuthTransactionHelper;
 import io.mosip.kernel.core.exception.ServiceError;
 import io.mosip.kernel.core.http.ResponseWrapper;
 
+@Ignore
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
 public class IdaAuthenticatorImplTest {

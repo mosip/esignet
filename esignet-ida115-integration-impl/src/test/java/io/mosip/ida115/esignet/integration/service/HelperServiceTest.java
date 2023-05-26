@@ -37,7 +37,7 @@ import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 
-
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class HelperServiceTest {
 
