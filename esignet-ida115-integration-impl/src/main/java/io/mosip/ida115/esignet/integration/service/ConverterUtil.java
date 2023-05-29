@@ -22,9 +22,9 @@ public class ConverterUtil {
 		try {
 			ConvertRequestDto convertRequestDto = new ConvertRequestDto();
 			convertRequestDto.setVersion(FACE_ISO_NUMBER);
-			convertRequestDto.setInputBytes(CryptoUtil.decodeBase64(jp2Image));// TODO check url safe / plain
+			convertRequestDto.setInputBytes(CryptoUtil.decodePlainBase64(jp2Image));
 			byte[] image = FaceDecoder.convertFaceISOToImageBytes(convertRequestDto);
-			return CryptoUtil.encodeBase64(image);// TODO check url safe / plain
+			return CryptoUtil.encodeToPlainBase64(image);
 		} catch(Exception exp) {
 			log.error("Error Converting JP2 To JPEG. " + exp.getMessage(), exp);
 		}
