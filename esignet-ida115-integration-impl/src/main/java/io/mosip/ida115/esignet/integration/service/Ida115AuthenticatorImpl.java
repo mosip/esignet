@@ -44,8 +44,6 @@ import io.mosip.authentication.core.exception.IdAuthenticationBusinessException;
 import io.mosip.authentication.core.indauth.dto.IdentityInfoDTO;
 import io.mosip.authentication.core.spi.bioauth.CbeffDocType;
 import io.mosip.authentication.core.spi.indauth.match.IdInfoFetcher;
-import io.mosip.biometrics.util.ConvertRequestDto;
-import io.mosip.biometrics.util.face.FaceDecoder;
 import io.mosip.esignet.api.dto.KycAuthDto;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.KycExchangeDto;
@@ -380,7 +378,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	public String buildKycExchangeResponse(String subject, Map<String, List<IdentityInfoDTO>> idInfo, 
 				List<String> consentedAttributes, List<String> consentedLocales, String idVid) throws IdAuthenticationBusinessException {
 		
-		log.info("Building claims response for PSU token: " + subject);
+		log.info("Building claims response for PSU token..");
 					
 		Map<String, Object> respMap = new HashMap<>();
 		Set<String> uniqueConsentedLocales = new HashSet<String>(consentedLocales);
