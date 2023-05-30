@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.authentication.esignet.integration.service;
+package io.mosip.ida115.esignet.integration.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -31,18 +31,24 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.authentication.esignet.integration.dto.GetAllCertificatesResponse;
-import io.mosip.authentication.esignet.integration.dto.IdaKycExchangeResponse;
-import io.mosip.authentication.esignet.integration.dto.IdaResponseWrapper;
-import io.mosip.authentication.esignet.integration.helper.AuthTransactionHelper;
+import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.KycAuthDto;
+import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
 import io.mosip.esignet.api.dto.SendOtpDto;
 import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.exception.SendOtpException;
+import io.mosip.ida115.esignet.integration.dto.GetAllCertificatesResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest.Biometric;
+import io.mosip.ida115.esignet.integration.dto.IdaKycExchangeResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaKycResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaResponseWrapper;
+import io.mosip.ida115.esignet.integration.helper.AuthTransactionHelper;
 import io.mosip.kernel.core.exception.ServiceError;
 import io.mosip.kernel.core.http.ResponseWrapper;
 
@@ -75,139 +81,140 @@ public class IdaAuthenticatorImplTest {
 		ReflectionTestUtils.setField(helperService, "symmetricAlgorithm", "AES");
 		ReflectionTestUtils.setField(helperService, "symmetricKeyLength", 256);
 
-		ReflectionTestUtils.setField(idaAuthenticatorImpl, "kycExchangeUrl", "https://dev.mosip.net");
 		ReflectionTestUtils.setField(idaAuthenticatorImpl, "idaVersion", "VersionIDA");
-		ReflectionTestUtils.setField(idaAuthenticatorImpl, "kycAuthUrl", "https://testkycAuthUrl");
+		ReflectionTestUtils.setField(idaAuthenticatorImpl, "kycUrl", "https://testkycUrl");
+		ReflectionTestUtils.setField(idaAuthenticatorImpl, "authUrl", "https://testAuthUrl");
 		ReflectionTestUtils.setField(idaAuthenticatorImpl, "getCertsUrl", "https://testGetCertsUrl");
+		ReflectionTestUtils.setField(idaAuthenticatorImpl, "esignetAuthPartnerId", "test-partner");
+		ReflectionTestUtils.setField(idaAuthenticatorImpl, "esignetAuthPartnerApiKey", "test-partner-apikey");
+		ReflectionTestUtils.setField(idaAuthenticatorImpl, "keySplitter", "#KEYSPLITTER#");
 		ReflectionTestUtils.setField(idaAuthenticatorImpl, "otpChannels", Arrays.asList("otp", "pin", "bio"));
 	}
-//TODO fix the test cases
-//	@Test
-//	public void doKycAuth_withInvalidDetails_throwsException() throws Exception {
-//		KycAuthDto kycAuthDto = new KycAuthDto();
-//		kycAuthDto.setIndividualId("IND1234");
-//		kycAuthDto.setTransactionId("TRAN1234");
-//		AuthChallenge authChallenge = new AuthChallenge();
-//		authChallenge.setAuthFactorType("PIN");
-//		authChallenge.setChallenge("111111");
-//		List<AuthChallenge> authChallengeList = new ArrayList<>();
-//		authChallengeList.add(authChallenge);
-//		kycAuthDto.setChallengeList(authChallengeList);
-//
-//		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
-//		Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
-//				Mockito.<ParameterizedTypeReference<IdaResponseWrapper<IdaKycAuthResponse>>>any())).thenReturn(null);
-//
-//		Assert.assertThrows(KycAuthException.class,
-//				() -> idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto));
-//	}
-//
-//	@Test
-//	public void doKycAuth_withValidDetails_thenPass() throws Exception {
-//		KycAuthDto kycAuthDto = new KycAuthDto();
-//		kycAuthDto.setIndividualId("IND1234");
-//		kycAuthDto.setTransactionId("TRAN1234");
-//		AuthChallenge authChallenge = new AuthChallenge();
-//		authChallenge.setAuthFactorType("OTP");
-//		authChallenge.setChallenge("111111");
-//		List<AuthChallenge> authChallengeList = new ArrayList<>();
-//		authChallengeList.add(authChallenge);
-//		kycAuthDto.setChallengeList(authChallengeList);
-//
-//		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
-//
-//		IdaKycAuthResponse idaKycAuthResponse = new IdaKycAuthResponse();
-//		idaKycAuthResponse.setAuthToken("authToken1234");
-//		idaKycAuthResponse.setKycToken("kycToken1234");
-//		idaKycAuthResponse.setKycStatus(true);
-//
-//		IdaResponseWrapper<IdaKycAuthResponse> idaResponseWrapper = new IdaResponseWrapper<>();
-//		idaResponseWrapper.setResponse(idaKycAuthResponse);
-//		idaResponseWrapper.setTransactionID("TRAN123");
-//		idaResponseWrapper.setVersion("VER1");
-//
-//		ResponseEntity<IdaResponseWrapper<IdaKycAuthResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<IdaKycAuthResponse>>(
-//				idaResponseWrapper, HttpStatus.OK);
-//
-//		Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
-//				Mockito.<ParameterizedTypeReference<IdaResponseWrapper<IdaKycAuthResponse>>>any()))
-//				.thenReturn(responseEntity);
-//
-//		KycAuthResult kycAuthResult = idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto);
-//
-//		Assert.assertEquals(kycAuthResult.getKycToken(), kycAuthResult.getKycToken());
-//	}
-//
-//	@Test
-//	public void doKycAuth_withAuthChallengeNull_thenFail() throws Exception {
-//		KycAuthDto kycAuthDto = new KycAuthDto();
-//		kycAuthDto.setIndividualId("IND1234");
-//		kycAuthDto.setTransactionId("TRAN1234");
-//		kycAuthDto.setChallengeList(null);
-//
-//		Assert.assertThrows(KycAuthException.class,
-//				() -> idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto));
-//	}
-//
-//	@Test
-//	public void doKycAuth_withInvalidAuthChallenge_thenFail() throws Exception {
-//		KycAuthDto kycAuthDto = new KycAuthDto();
-//		kycAuthDto.setIndividualId("IND1234");
-//		kycAuthDto.setTransactionId("TRAN1234");
-//		AuthChallenge authChallenge = new AuthChallenge();
-//		authChallenge.setAuthFactorType("Test");
-//		authChallenge.setChallenge("111111");
-//		List<AuthChallenge> authChallengeList = new ArrayList<>();
-//		authChallengeList.add(authChallenge);
-//		kycAuthDto.setChallengeList(authChallengeList);
-//
-//		Assert.assertThrows(KycAuthException.class,
-//				() -> idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto));
-//	}
-//
-//	@Test
-//	public void doKycAuth_withBIOAuthChallenge_thenPass() throws Exception {
-//		KycAuthDto kycAuthDto = new KycAuthDto();
-//		kycAuthDto.setIndividualId("IND1234");
-//		kycAuthDto.setTransactionId("TRAN1234");
-//		AuthChallenge authChallenge = new AuthChallenge();
-//		authChallenge.setAuthFactorType("BIO");
-//		authChallenge.setChallenge("111111");
-//		List<AuthChallenge> authChallengeList = new ArrayList<>();
-//		authChallengeList.add(authChallenge);
-//		kycAuthDto.setChallengeList(authChallengeList);
-//
-//		Biometric b = new Biometric();
-//		b.setData(
-//				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
-//		b.setHash("Hash");
-//		b.setSessionKey("SessionKey");
-//		b.setSpecVersion("SepecV");
-//		b.setThumbprint("Thumbprint");
-//		List<Biometric> bioList = new ArrayList<>();
-//		bioList.add(b);
-//		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
-//		IdaKycAuthResponse idaKycAuthResponse = new IdaKycAuthResponse();
-//		idaKycAuthResponse.setAuthToken("authToken1234");
-//		idaKycAuthResponse.setKycToken("kycToken1234");
-//		idaKycAuthResponse.setKycStatus(true);
-//
-//		IdaResponseWrapper<IdaKycAuthResponse> idaResponseWrapper = new IdaResponseWrapper<>();
-//		idaResponseWrapper.setResponse(idaKycAuthResponse);
-//		idaResponseWrapper.setTransactionID("TRAN123");
-//		idaResponseWrapper.setVersion("VER1");
-//
-//		ResponseEntity<IdaResponseWrapper<IdaKycAuthResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<IdaKycAuthResponse>>(
-//				idaResponseWrapper, HttpStatus.OK);
-//
-//		Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
-//				Mockito.<ParameterizedTypeReference<IdaResponseWrapper<IdaKycAuthResponse>>>any()))
-//				.thenReturn(responseEntity);
-//
-//		KycAuthResult kycAuthResult = idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto);
-//
-//		Assert.assertEquals(kycAuthResult.getKycToken(), kycAuthResult.getKycToken());
-//	}
+
+	@Test
+	public void doKycAuth_withInvalidDetails_throwsException() throws Exception {
+		KycAuthDto kycAuthDto = new KycAuthDto();
+		kycAuthDto.setIndividualId("IND1234");
+		kycAuthDto.setTransactionId("TRAN1234");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("PIN");
+		authChallenge.setChallenge("111111");
+		List<AuthChallenge> authChallengeList = new ArrayList<>();
+		authChallengeList.add(authChallenge);
+		kycAuthDto.setChallengeList(authChallengeList);
+
+		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
+		Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
+				Mockito.<ParameterizedTypeReference<IdaResponseWrapper<IdaKycResponse>>>any())).thenReturn(null);
+
+		Assert.assertThrows(KycAuthException.class,
+				() -> idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto));
+	}
+
+	@Test
+	public void doKycAuth_withValidDetails_thenPass() throws Exception {
+		KycAuthDto kycAuthDto = new KycAuthDto();
+		kycAuthDto.setIndividualId("IND1234");
+		kycAuthDto.setTransactionId("TRAN1234");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("OTP");
+		authChallenge.setChallenge("111111");
+		List<AuthChallenge> authChallengeList = new ArrayList<>();
+		authChallengeList.add(authChallenge);
+		kycAuthDto.setChallengeList(authChallengeList);
+
+		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
+
+		IdaKycResponse idaKycAuthResponse = new IdaKycResponse();
+		idaKycAuthResponse.setAuthToken("authToken1234");
+		idaKycAuthResponse.setKycStatus(true);
+
+		IdaResponseWrapper<IdaKycResponse> idaResponseWrapper = new IdaResponseWrapper<>();
+		idaResponseWrapper.setResponse(idaKycAuthResponse);
+		idaResponseWrapper.setTransactionID("TRAN123");
+		idaResponseWrapper.setVersion("VER1");
+
+		ResponseEntity<IdaResponseWrapper<IdaKycResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<IdaKycResponse>>(
+				idaResponseWrapper, HttpStatus.OK);
+
+		Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
+				Mockito.<ParameterizedTypeReference<IdaResponseWrapper<IdaKycResponse>>>any()))
+				.thenReturn(responseEntity);
+
+		KycAuthResult kycAuthResult = idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto);
+
+		Assert.assertEquals(kycAuthResult.getKycToken(), kycAuthResult.getKycToken());
+	}
+
+	@Test
+	public void doKycAuth_withAuthChallengeNull_thenFail() throws Exception {
+		KycAuthDto kycAuthDto = new KycAuthDto();
+		kycAuthDto.setIndividualId("IND1234");
+		kycAuthDto.setTransactionId("TRAN1234");
+		kycAuthDto.setChallengeList(null);
+
+		Assert.assertThrows(KycAuthException.class,
+				() -> idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto));
+	}
+
+	@Test
+	public void doKycAuth_withInvalidAuthChallenge_thenFail() throws Exception {
+		KycAuthDto kycAuthDto = new KycAuthDto();
+		kycAuthDto.setIndividualId("IND1234");
+		kycAuthDto.setTransactionId("TRAN1234");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("Test");
+		authChallenge.setChallenge("111111");
+		List<AuthChallenge> authChallengeList = new ArrayList<>();
+		authChallengeList.add(authChallenge);
+		kycAuthDto.setChallengeList(authChallengeList);
+
+		Assert.assertThrows(KycAuthException.class,
+				() -> idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto));
+	}
+
+	@Test
+	public void doKycAuth_withBIOAuthChallenge_thenPass() throws Exception {
+		KycAuthDto kycAuthDto = new KycAuthDto();
+		kycAuthDto.setIndividualId("IND1234");
+		kycAuthDto.setTransactionId("TRAN1234");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("BIO");
+		authChallenge.setChallenge("111111");
+		List<AuthChallenge> authChallengeList = new ArrayList<>();
+		authChallengeList.add(authChallenge);
+		kycAuthDto.setChallengeList(authChallengeList);
+
+		Biometric b = new Biometric();
+		b.setData(
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+		b.setHash("Hash");
+		b.setSessionKey("SessionKey");
+		b.setSpecVersion("SepecV");
+		b.setThumbprint("Thumbprint");
+		List<Biometric> bioList = new ArrayList<>();
+		bioList.add(b);
+		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
+		IdaKycResponse idaKycAuthResponse = new IdaKycResponse();
+		idaKycAuthResponse.setAuthToken("authToken1234");
+		idaKycAuthResponse.setKycStatus(true);
+
+		IdaResponseWrapper<IdaKycResponse> idaResponseWrapper = new IdaResponseWrapper<>();
+		idaResponseWrapper.setResponse(idaKycAuthResponse);
+		idaResponseWrapper.setTransactionID("TRAN123");
+		idaResponseWrapper.setVersion("VER1");
+
+		ResponseEntity<IdaResponseWrapper<IdaKycResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<IdaKycResponse>>(
+				idaResponseWrapper, HttpStatus.OK);
+
+		Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
+				Mockito.<ParameterizedTypeReference<IdaResponseWrapper<IdaKycResponse>>>any()))
+				.thenReturn(responseEntity);
+
+		KycAuthResult kycAuthResult = idaAuthenticatorImpl.doKycAuth("relyingId", "clientId", kycAuthDto);
+
+		Assert.assertEquals(kycAuthResult.getKycToken(), kycAuthResult.getKycToken());
+	}
 
 	@Test
 	public void doKycExchange_withValidDetails_thenPass() throws Exception {

@@ -8,10 +8,15 @@ package io.mosip.ida115.esignet.integration.service;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -19,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +32,18 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.ida115.esignet.integration.dto.GetAllCertificatesResponse;
-import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest;
-import io.mosip.ida115.esignet.integration.dto.IdaKycResponse;
-import io.mosip.ida115.esignet.integration.dto.IdaResponseWrapper;
-import io.mosip.ida115.esignet.integration.dto.IdaSendOtpRequest;
-import io.mosip.ida115.esignet.integration.helper.AuthTransactionHelper;
-import io.mosip.ida115.esignet.integration.helper.IdentityDataStore;
+import io.mosip.authentication.common.service.helper.IdInfoHelper;
+import io.mosip.authentication.common.service.impl.match.BioMatchType;
+import io.mosip.authentication.common.service.integration.TokenIdManager;
+import io.mosip.authentication.core.constant.IdAuthConfigKeyConstants;
+import io.mosip.authentication.core.constant.IdAuthenticationErrorConstants;
+import io.mosip.authentication.core.exception.IdAuthenticationBusinessException;
+import io.mosip.authentication.core.indauth.dto.IdentityInfoDTO;
+import io.mosip.authentication.core.spi.bioauth.CbeffDocType;
+import io.mosip.authentication.core.spi.indauth.match.IdInfoFetcher;
 import io.mosip.esignet.api.dto.KycAuthDto;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.KycExchangeDto;
@@ -50,7 +57,12 @@ import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ErrorConstants;
-import io.mosip.kernel.core.http.ResponseWrapper;
+import io.mosip.ida115.esignet.integration.dto.IdaKycAuthRequest;
+import io.mosip.ida115.esignet.integration.dto.IdaKycExchangeResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaKycResponse;
+import io.mosip.ida115.esignet.integration.dto.IdaResponseWrapper;
+import io.mosip.ida115.esignet.integration.dto.IdaSendOtpRequest;
+import io.mosip.ida115.esignet.integration.helper.IdentityDataStore;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.service.SignatureService;
@@ -64,14 +76,14 @@ import reactor.util.function.Tuples;
 @Slf4j
 public class Ida115AuthenticatorImpl implements Authenticator {
 
-    public static final String SIGNATURE_HEADER_NAME = "signature";
+	private static final String ATTRIB_NAME_LANG_SEPERATOR="_";
+	public static final String SIGNATURE_HEADER_NAME = "signature";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     public static final String KYC_EXCHANGE_TYPE = "oidc";
 	private static final String HASH_ALGORITHM_NAME = "SHA-256";
 	public static final String SUBJECT = "sub";
 	public static final String CLAIMS_LANG_SEPERATOR = "#";
-	public static final String ADDRESS_FORMATTED = "formatted";
-	public static final String FACE_ISO_NUMBER = "ISO19794_5_2011";
+	public static final String FORMATTED = "formatted";
 	public static final String EMPTY = "";
 
     @Value("${mosip.esignet.authenticator.ida-kyc-id:mosip.identity.kyc}")
@@ -117,11 +129,11 @@ public class Ida115AuthenticatorImpl implements Authenticator {
     @Value("${mosip.esignet.authenticator.ida.wrapper.auth.partner.apikey}")
     private String esignetAuthPartnerApiKey;
     
-    @Value("${mosip.esignet.authenticator.ida.wrapper.auth.reference.id}")
-    private String esignetRefId;
-    
     @Value("${ida.idp.consented.picture.attribute.name:picture}")
 	private String consentedFaceAttributeName;
+    
+    @Value("${ida.idp.consented.name.attribute.name:name}")
+	private String consentedNameAttributeName;
 
 	@Value("${ida.idp.consented.address.attribute.name:address}")
 	private String consentedAddressAttributeName;
@@ -134,12 +146,18 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 
 	@Value("${mosip.ida.idp.consented.address.subset.attributes:}")
 	private String[] addressSubsetAttributes;
+	
+	@Value("${mosip.ida.idp.consented.address.subset.attributes:}")
+	private String[] nameSubsetAttributes;
 
 	@Value("${ida.idp.consented.address.value.separator: }")
 	private String addressValueSeparator;
 	
+	@Value("${ida.idp.consented.name.value.separator: }")
+	private String addressNameSeparator;
+	
 	@Value("${ida.kyc.send-face-as-cbeff-xml:false}")
-	private boolean sendFaceAsCbeffXml;
+	private boolean idaSentFaceAsCbeffXml;
 	
 	@Value("${mosip.ida.kyc.exchange.sign.include.certificate:false}")
 	private boolean includeCertificate;
@@ -149,8 +167,8 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	private String kycExchSignApplicationId;
 	
 	/** The key splitter. */
-//	@Value("${" + IdAuthConfigKeyConstants.KEY_SPLITTER + "}")
-	@Value("${mosip.kernel.data-key-splitter}")
+//	@Value("${mosip.kernel.data-key-splitter}")
+	@Value("${" + IdAuthConfigKeyConstants.KEY_SPLITTER + "}")
 	private String keySplitter;
 
 	@Autowired
@@ -163,17 +181,13 @@ public class Ida115AuthenticatorImpl implements Authenticator {
     HelperService helperService;
     
     @Autowired
-    private AuthTransactionHelper authTransactionHelper;
-    
-    @Autowired
     private IdentityDataStore identityDataStore;
     
     @Autowired
     private TokenIdManager tokenIdManager;
     
-//    @Lazy
-//    @Autowired
-//    private IdInfoHelper idInfoHelper;
+    @Autowired
+    private IdInfoHelper idInfoHelper;
     	
     /** The token ID length. */
 	@Value("${mosip.ida.kyc.token.secret}")
@@ -208,7 +222,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 
             //set signature header, body and invoke kyc auth endpoint
             String requestBody = objectMapper.writeValueAsString(idaKycAuthRequest);
-            RequestEntity requestEntity = RequestEntity
+            RequestEntity<?> requestEntity = RequestEntity
                     .post(UriComponentsBuilder.fromUriString(authOnlyEnabled? authUrl : kycUrl).pathSegment(esignetAuthPartnerId, esignetAuthPartnerApiKey).build().toUri())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .header(SIGNATURE_HEADER_NAME, helperService.getRequestSignature(requestBody))
@@ -230,7 +244,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
                 }
                 
                 log.error("Error response received from IDA status : {} && Errors: {}",
-                        (responseWrapper.getResponse().isKycStatus() ||  responseWrapper.getResponse().isAuthStatus()), responseWrapper.getErrors());
+                		(responseWrapper.getResponse() != null && (responseWrapper.getResponse().isKycStatus() ||  responseWrapper.getResponse().isAuthStatus())), responseWrapper.getErrors());
                 throw new KycAuthException(CollectionUtils.isEmpty(responseWrapper.getErrors()) ?
                          ErrorConstants.AUTH_FAILED : responseWrapper.getErrors().get(0).getErrorCode());
             }
@@ -262,11 +276,21 @@ public class Ida115AuthenticatorImpl implements Authenticator {
     		}
     		String thumbprint = response.getThumbprint();
     		if(thumbprint != null) {
-    			combinedData = CryptoUtil.encodeToURLSafeBase64(CryptoUtil.combineByteArray(CryptoUtil.decodeURLSafeBase64(combinedData), Hex.decodeHex(thumbprint), EMPTY));
+    			combinedData = CryptoUtil.encodeToURLSafeBase64(CryptoUtil.combineByteArray(CryptoUtil.decodeURLSafeBase64(combinedData), getThumbprintBytes(thumbprint), EMPTY));
     		}
 			return Tuples.of(kycToken, combinedData);
     	}
 		return Tuples.of(kycToken, EMPTY);
+	}
+
+
+	private byte[] getThumbprintBytes(String thumbprint) throws DecoderException {
+		try {
+			return Hex.decodeHex(thumbprint);
+		} catch (DecoderException e) {
+			log.debug("Thumbprint is not hex. Trying to base64-decode");
+			return CryptoUtil.decodeURLSafeBase64(thumbprint);
+		}
 	}
 	
 	/**
@@ -288,7 +312,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	private String doGenerateKycToken(String uuid, String idHash) throws DecoderException, NoSuchAlgorithmException {
 		try {
 			byte[] uuidBytes = uuid.getBytes();
-			byte[] idHashBytes = Hex.decodeHex(idHash);
+			byte[] idHashBytes = getThumbprintBytes(idHash);
 			ByteBuffer bBuffer = ByteBuffer.allocate(uuidBytes.length + idHashBytes.length);
 			bBuffer.put(uuidBytes);
 			bBuffer.put(idHashBytes);
@@ -329,14 +353,14 @@ public class Ida115AuthenticatorImpl implements Authenticator {
         	if(encryptedIdentityData != null && !encryptedIdentityData.isEmpty()) {
 	        	String decrptIdentityData = helperService.decrptData(encryptedIdentityData);
 	        	idResDTO = objectMapper.readValue(CryptoUtil.decodeURLSafeBase64(decrptIdentityData), Map.class);
-//				Map<String, List<IdentityInfoDTO>> idInfo = IdInfoFetcher.getIdInfo(idResDTO);
-//				
-//				String respJson =idInfo.isEmpty() ? null:  buildKycExchangeResponse(psut, idInfo, kycExchangeDto.getAcceptedClaims(), List.of(kycExchangeDto.getClaimsLocales()), kycExchangeDto.getIndividualId());
-//				IdaResponseWrapper<IdaKycExchangeResponse> responseWrapper = new IdaResponseWrapper<>();
-//				IdaKycExchangeResponse respose = new IdaKycExchangeResponse();
-//				responseWrapper.setResponse(respose);
-//				respose.setEncryptedKyc(respJson);
-//	            return new KycExchangeResult(responseWrapper.getResponse().getEncryptedKyc());
+				Map<String, List<IdentityInfoDTO>> idInfo = IdInfoFetcher.getIdInfo(idResDTO);
+				
+				String respJson =idInfo.isEmpty() ? null:  buildKycExchangeResponse(psut, idInfo, kycExchangeDto.getAcceptedClaims(), List.of(kycExchangeDto.getClaimsLocales()), kycExchangeDto.getIndividualId());
+				IdaResponseWrapper<IdaKycExchangeResponse> responseWrapper = new IdaResponseWrapper<>();
+				IdaKycExchangeResponse respose = new IdaKycExchangeResponse();
+				responseWrapper.setResponse(respose);
+				respose.setEncryptedKyc(respJson);
+	            return new KycExchangeResult(responseWrapper.getResponse().getEncryptedKyc());
         	} else {
     			log.info("Encrypted Identity data not found.");
         		idResDTO = Map.of(SUBJECT, psut);
@@ -351,36 +375,73 @@ public class Ida115AuthenticatorImpl implements Authenticator {
         throw new KycExchangeException();
     }
 	
-//	public String buildKycExchangeResponse(String subject, Map<String, List<IdentityInfoDTO>> idInfo, 
-//				List<String> consentedAttributes, List<String> consentedLocales, String idVid) throws IdAuthenticationBusinessException {
-//		
-//		log.info("Building claims response for PSU token: " + subject);
-//					
-//		Map<String, Object> respMap = new HashMap<>();
-//		Set<String> uniqueConsentedLocales = new HashSet<String>(consentedLocales);
-//		Map<String, String> mappedConsentedLocales = localesMapping(uniqueConsentedLocales);
-//
-//		respMap.put(SUBJECT, subject);
-//		
-//		for (String attrib : consentedAttributes) {
-//			if (attrib.equals(SUBJECT))
-//				continue;
-//			if (attrib.equals(consentedIndividualAttributeName)) {
-//				respMap.put(attrib, idVid);
-//				continue;
-//			}
-//			List<String> idSchemaAttribute = idInfoHelper.getIdentityAttributesForIdName(attrib);
-//			if (mappedConsentedLocales.size() > 0) {
-//				addEntityForLangCodes(mappedConsentedLocales, idInfo, respMap, attrib, idSchemaAttribute);
-//			}
-//		}
-//
-//		try {
-//			return signWithPayload(objectMapper.writeValueAsString(respMap));
-//		} catch (JsonProcessingException e) {
-//			throw new IdAuthenticationBusinessException(IdAuthenticationErrorConstants.UNABLE_TO_PROCESS, e);
-//		}
-//	}
+	public String buildKycExchangeResponse(String subject, Map<String, List<IdentityInfoDTO>> idInfo, 
+				List<String> consentedAttributes, List<String> consentedLocales, String idVid) throws IdAuthenticationBusinessException {
+		
+		log.info("Building claims response for PSU token..");
+					
+		Map<String, Object> respMap = new HashMap<>();
+		Set<String> uniqueConsentedLocales = new HashSet<String>(consentedLocales);
+		Map<String, String> mappedConsentedLocales = localesMapping(uniqueConsentedLocales);
+
+		respMap.put(SUBJECT, subject);
+		
+		for (String attrib : consentedAttributes) {
+			if (attrib.equals(SUBJECT))
+				continue;
+			if (attrib.equals(consentedIndividualAttributeName)) {
+				respMap.put(attrib, idVid);
+				continue;
+			}
+			List<String> idSchemaAttribute = idInfoHelper.getIdentityAttributesForIdName(attrib);
+			Map<String, List<IdentityInfoDTO>> idInfoNameAndLangCorrected = getCorrectedIdInfoMap(idInfo);
+			if (mappedConsentedLocales.size() > 0) {
+				addEntityForLangCodes(mappedConsentedLocales, idInfo, respMap, attrib, idSchemaAttribute, idInfoNameAndLangCorrected);
+			}
+		}
+
+		try {
+			return signWithPayload(objectMapper.writeValueAsString(respMap));
+		} catch (JsonProcessingException e) {
+			throw new IdAuthenticationBusinessException(IdAuthenticationErrorConstants.UNABLE_TO_PROCESS, e);
+		}
+	}
+
+
+	/**
+	 * Correct the attribute name key, for example name_eng to name and put the Language (eng) into the list of idInfo language
+	 * @param idInfo
+	 * @return corrected idInfoMap
+	 */
+	private Map<String, List<IdentityInfoDTO>> getCorrectedIdInfoMap(Map<String, List<IdentityInfoDTO>> idInfo) {
+		return idInfo.entrySet().stream()
+				.collect(
+				Collectors.groupingBy(entry -> {
+					//correct the attribute name key, for example name_eng to name 
+						String[] attribAndLang = entry.getKey().split(ATTRIB_NAME_LANG_SEPERATOR);
+						try {
+							List<String> identityAttributesForIdName = idInfoHelper.getIdentityAttributesForIdName(attribAndLang[0]);
+							if(!identityAttributesForIdName.isEmpty()) {
+								return identityAttributesForIdName.get(0);
+							}
+						} catch (IdAuthenticationBusinessException e) {
+							log.debug("Error in getting id attribute for id name");
+						}
+						return attribAndLang[0];
+					},
+					//	put the Language (for example eng) into the list of idInfo language
+					Collectors.flatMapping(entry -> {
+						String[] attribAndLang = entry.getKey().split(ATTRIB_NAME_LANG_SEPERATOR);
+						//Return the attributeName as Key
+						String lang =  attribAndLang.length > 1? attribAndLang[1] : EMPTY;
+						return entry.getValue().stream()
+								.peek(idInfoEntry -> {
+									if(!lang.isEmpty()) {
+										idInfoEntry.setLanguage(lang);
+									}
+								});
+					}, Collectors.toList())));
+	}
 	
 	public String signWithPayload(String data) {
 		JWTSignatureRequestDto request = new JWTSignatureRequestDto();
@@ -393,210 +454,225 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 		return signatureService.jwtSign(request).getJwtSignedData();
 	}
 	
-//	private void addEntityForLangCodes(Map<String, String> mappedConsentedLocales, Map<String, List<IdentityInfoDTO>> idInfo, 
-//			Map<String, Object> respMap, String consentedAttribute, List<String> idSchemaAttributes) 
-//			throws IdAuthenticationBusinessException {
-//	
-//		if (consentedAttribute.equals(consentedFaceAttributeName)) {
-//			if (!idInfo.keySet().contains(BioMatchType.FACE.getIdMapping().getIdname())) {
-//				log.info("Face Bio not found in DB. So not adding to response claims.");
-//				return;
-//			}
-//			Map<String, String> faceEntityInfoMap = idInfoHelper.getIdEntityInfoMap(BioMatchType.FACE, idInfo, null);
-//			if (Objects.nonNull(faceEntityInfoMap)) {
-//				String face = convertJP2ToJpeg(faceEntityInfoMap.get(CbeffDocType.FACE.getType().value()));
-//				if (Objects.nonNull(face))
-//					respMap.put(consentedAttribute, consentedPictureAttributePrefix + face);
-//			}
-//			return;
-//		}
-//	
-//		if (idSchemaAttributes.size() == 1) {
-//			List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttributes.get(0));
-//			if (Objects.isNull(idInfoList)) {
-//				log.info("Data not available in Identity Info for the claim. So not adding to response claims. Claim Name: " + idSchemaAttributes.get(0));
-//				return;
-//			}
-//			Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
-//			List<String> availableLangCodes = getAvailableLangCodes(mappedConsentedLocales, mappedLangCodes);
-//			if (availableLangCodes.size() == 1){
-//				for (IdentityInfoDTO identityInfo : idInfoList) {
-//					String langCode = mappedLangCodes.get(availableLangCodes.get(0));
-//					if (identityInfo.getLanguage().equalsIgnoreCase(langCode)) {
-//						respMap.put(consentedAttribute, identityInfo.getValue());
-//					}
-//				}
-//			} else {
-//				if (availableLangCodes.size() > 0) {
-//					for (IdentityInfoDTO identityInfo : idInfoList) {
-//						for (String availableLangCode : availableLangCodes) {
-//							String langCode = mappedLangCodes.get(availableLangCode);
-//							if (identityInfo.getLanguage().equalsIgnoreCase(langCode)) {
-//								respMap.put(consentedAttribute + CLAIMS_LANG_SEPERATOR + availableLangCode, 
-//										identityInfo.getValue());
-//							}
-//						}
-//					}
-//				} else {
-//					respMap.put(consentedAttribute, idInfoList.get(0).getValue());
-//				}
-//			}
-//		} else {
-//			if (consentedAttribute.equals(consentedAddressAttributeName)) {
-//				if (mappedConsentedLocales.size() > 1) {
-//					for (String consentedLocale: mappedConsentedLocales.keySet()) {
-//						String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
-//						if (addressSubsetAttributes.length == 0) {
-//							log.info("No address subset attributes configured. Will return the address with formatted attribute.");
-//							addFormattedAddress(idSchemaAttributes, idInfo, consentedLocaleValue, respMap, true, 
-//								CLAIMS_LANG_SEPERATOR + consentedLocaleValue);
-//							continue;
-//						}
-//						addAddressClaim(addressSubsetAttributes, idInfo, consentedLocaleValue, respMap, true, 
-//								CLAIMS_LANG_SEPERATOR + consentedLocaleValue);
-//					}
-//				} else {
-//					String consentedLocale = mappedConsentedLocales.keySet().iterator().next();
-//					String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
-//					if (addressSubsetAttributes.length == 0) {
-//						log.info("No address subset attributes configured. Will return the address with formatted attribute.");
-//						addFormattedAddress(idSchemaAttributes, idInfo, consentedLocaleValue, respMap, false, "");
-//						return;
-//					}
-//					
-//					addAddressClaim(addressSubsetAttributes, idInfo, consentedLocaleValue, respMap, false, "");
-//				}
-//			}
-//		}
-//	}
-//	
-//	private void addFormattedAddress(List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String localeValue, 
-//								Map<String, Object> respMap, boolean addLocale, String localeAppendValue) throws IdAuthenticationBusinessException {
-//		boolean langCodeFound = false;
-//		Map<String, String> addressMap = new HashMap<>();
-//		StringBuilder identityInfoValue = new StringBuilder(); 
-//		for (String schemaAttrib: idSchemaAttributes) {
-//			List<String> idSchemaSubsetAttributes = idInfoHelper.getIdentityAttributesForIdName(schemaAttrib);
-//			for (String idSchemaAttribute : idSchemaSubsetAttributes) {
-//				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
-//				Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
-//				if (identityInfoValue.length() > 0) {
-//					identityInfoValue.append(addressValueSeparator);
-//				}
-//				if (mappedLangCodes.keySet().contains(localeValue)) {
-//					String langCode = mappedLangCodes.get(localeValue);
-//					for (IdentityInfoDTO identityInfo : idInfoList) { 
-//						if (identityInfoValue.length() > 0) {
-//							identityInfoValue.append(addressValueSeparator);
-//						}
-//						if (identityInfo.getLanguage().equals(langCode)) {
-//							langCodeFound = true;
-//							identityInfoValue.append(identityInfo.getValue());
-//						}
-//					}
-//				} else {
-//					if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
-//						identityInfoValue.append(idInfoList.get(0).getValue());
-//					}
-//				}
-//			}
-//		}
-//		//String identityInfoValueStr = identityInfoValue.toString();
-//		//String trimmedValue = identityInfoValueStr.substring(0, identityInfoValueStr.lastIndexOf(addressValueSeparator));
-//		addressMap.put(ADDRESS_FORMATTED + localeAppendValue, identityInfoValue.toString());
-//		if (langCodeFound && addLocale)
-//			respMap.put(consentedAddressAttributeName + localeAppendValue, addressMap);
-//		else
-//			respMap.put(consentedAddressAttributeName, addressMap);
-//	}
-//	
-//	private void addAddressClaim(String[] addressAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String consentedLocaleValue,
-//			Map<String, Object> respMap, boolean addLocale, String localeAppendValue) throws IdAuthenticationBusinessException {
-//		boolean langCodeFound = false; //added for language data not available in identity info (Eg: fr)
-//		Map<String, String> addressMap = new HashMap<>();
-//		for (String addressAttribute : addressAttributes) {
-//			List<String> idSchemaSubsetAttributes = idInfoHelper.getIdentityAttributesForIdName(addressAttribute);
-//			StringBuilder identityInfoValue = new StringBuilder(); 
-//			for (String idSchemaAttribute : idSchemaSubsetAttributes) {
-//				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
-//				Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
-//				if (identityInfoValue.length() > 0) {
-//					identityInfoValue.append(addressValueSeparator);
-//				}
-//				if (mappedLangCodes.keySet().contains(consentedLocaleValue)) {
-//					String langCode = mappedLangCodes.get(consentedLocaleValue);
-//					for (IdentityInfoDTO identityInfo : idInfoList) {
-//						if (identityInfoValue.length() > 0) {
-//							identityInfoValue.append(addressValueSeparator);
-//						}
-//						if (identityInfo.getLanguage().equals(langCode)) {
-//							langCodeFound = true;
-//							identityInfoValue.append(identityInfo.getValue());
-//						}
-//					}
-//				} else {
-//					if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
-//						identityInfoValue.append(idInfoList.get(0).getValue());
-//					}
-//				}
-//			}
-//			// Added below condition to skip if the data is not available in DB. MOSIP-26472
-//			if (identityInfoValue.toString().trim().length() > 0)
-//				addressMap.put(addressAttribute + localeAppendValue, identityInfoValue.toString());
-//		}
-//		if (langCodeFound && addLocale)
-//			respMap.put(consentedAddressAttributeName + localeAppendValue, addressMap);
-//		else 
-//			respMap.put(consentedAddressAttributeName, addressMap);
-//	}
-//	
-//	private String convertJP2ToJpeg(String jp2Image) {
-//		try {
-//			ConvertRequestDto convertRequestDto = new ConvertRequestDto();
-//			convertRequestDto.setVersion(FACE_ISO_NUMBER);
-//			convertRequestDto.setInputBytes(CryptoUtil.decodeBase64(jp2Image));// TODO check url safe / plain
-//			byte[] image = FaceDecoder.convertFaceISOToImageBytes(convertRequestDto);
-//			return CryptoUtil.encodeBase64(image);// TODO check url safe / plain
-//		} catch(Exception exp) {
-//			log.error("Error Converting JP2 To JPEG. " + exp.getMessage(), exp);
-//		}
-//		return null;
-//	}
-//	
-//	private Map<String, String> localesMapping(Set<String> locales) {
-//	
-//		Map<String, String> mappedLocales = new HashMap<>();
-//		for (String locale : locales) {
-//			if (locale.trim().length() == 0)
-//				continue;
-//			mappedLocales.put(locale, locale.substring(0, 2));
-//		}
-//		return mappedLocales;
-//	}
-//	
-//	private Map<String, String> langCodeMapping(List<IdentityInfoDTO> idInfoList) {
-//	
-//		Map<String, String> mappedLangCodes = new HashMap<>();
-//		if (Objects.nonNull(idInfoList)) {
-//			for (IdentityInfoDTO idInfo :  idInfoList) {
-//				if (Objects.nonNull(idInfo.getLanguage())) {
-//					mappedLangCodes.put(idInfo.getLanguage().substring(0,2), idInfo.getLanguage());
-//				}
-//			}
-//		}
-//		return mappedLangCodes;
-//	}
-//	
-//	private List<String> getAvailableLangCodes(Map<String, String> mappedLocales, Map<String, String> mappedLangCodes) {
-//		List<String> availableLangCodes = new ArrayList<>();
-//		for (String entry: mappedLocales.keySet()) {
-//			String locale = mappedLocales.get(entry);
-//			if (mappedLangCodes.keySet().contains(locale)) {
-//				availableLangCodes.add(locale);
-//			}
-//		}
-//		return availableLangCodes;
-//	}
+	private void addEntityForLangCodes(Map<String, String> mappedConsentedLocales, Map<String, List<IdentityInfoDTO>> idInfo, 
+			Map<String, Object> respMap, String consentedAttribute, List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfoNameAndLangCorrected) 
+			throws IdAuthenticationBusinessException {
+	
+		if (consentedAttribute.equals(consentedFaceAttributeName)) {
+			if (!idInfo.keySet().contains(BioMatchType.FACE.getIdMapping().getIdname())) {
+				log.info("Face Bio not found in DB. So not adding to response claims.");
+				return;
+			}
+			Map<String, String> faceEntityInfoMap;
+			String faceAttribName = CbeffDocType.FACE.getType().value();
+			if (idaSentFaceAsCbeffXml) {
+				faceEntityInfoMap = idInfoHelper.getIdEntityInfoMap(BioMatchType.FACE, idInfo,
+						null);
+			} else {
+				List<IdentityInfoDTO> faceInfo = idInfo.get(faceAttribName);
+				faceEntityInfoMap = faceInfo == null || faceInfo.isEmpty() ? Map.of()
+						: Map.of(faceAttribName, faceInfo.get(0).getValue());
+				
+			}
+			
+			if (Objects.nonNull(faceEntityInfoMap) && !faceEntityInfoMap.isEmpty()) {
+				String face = ConverterUtil.convertJP2ToJpeg(faceEntityInfoMap.get(faceAttribName));
+				if (Objects.nonNull(face)) {
+					respMap.put(consentedAttribute, consentedPictureAttributePrefix + face);
+				}
+			}
+			return;
+		}
+	
+		if (idSchemaAttributes.size() == 1) {
+			List<IdentityInfoDTO> idInfoList = idInfoNameAndLangCorrected.get(idSchemaAttributes.get(0));
+			
+			if (Objects.isNull(idInfoList)) {
+				log.info("Data not available in Identity Info for the claim. So not adding to response claims. Claim Name: " + idSchemaAttributes.get(0));
+				return;
+			}
+			Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
+			List<String> availableLangCodes = getAvailableLangCodes(mappedConsentedLocales, mappedLangCodes);
+			if (availableLangCodes.size() == 1) {
+				for (IdentityInfoDTO identityInfo : idInfoList) {
+					String langCode = mappedLangCodes.get(availableLangCodes.get(0));
+					if (identityInfo.getLanguage().equalsIgnoreCase(langCode)) {
+						respMap.put(consentedAttribute, identityInfo.getValue());
+					}
+				}
+			} else {
+				if (availableLangCodes.size() > 0) {
+					for (IdentityInfoDTO identityInfo : idInfoList) {
+						for (String availableLangCode : availableLangCodes) {
+							String langCode = mappedLangCodes.get(availableLangCode);
+							if (identityInfo.getLanguage().equalsIgnoreCase(langCode)) {
+								respMap.put(consentedAttribute + CLAIMS_LANG_SEPERATOR + availableLangCode, 
+										identityInfo.getValue());
+							}
+						}
+					}
+				} else {
+					respMap.put(consentedAttribute, idInfoList.get(0).getValue());
+				}
+			}
+		} else {
+			if (consentedAttribute.equals(consentedAddressAttributeName)) {
+				handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedAddressAttributeName, addressValueSeparator, addressSubsetAttributes);
+			} else if (consentedAttribute.equals(consentedNameAttributeName)) {
+				handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedNameAttributeName, addressNameSeparator, nameSubsetAttributes);
+			}
+		}
+	}
+	
+	private void handleAttributeWithSubAttributes(Map<String, String> mappedConsentedLocales, List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfoNameAndLangCorrected, Map<String, Object> respMap, String consentedAttributeName, String valueSeparator, String[] subsetAttributes) throws IdAuthenticationBusinessException {
+		if (mappedConsentedLocales.size() > 1) {
+			for (String consentedLocale: mappedConsentedLocales.keySet()) {
+				String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
+				if (subsetAttributes.length == 0) {
+					log.info(String.format(
+							"No %s subset attributes configured. Will return the address with formatted attribute.",
+							consentedAttributeName));
+					addFormattedSubAttributes(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
+						CLAIMS_LANG_SEPERATOR + consentedLocaleValue, consentedAttributeName, valueSeparator);
+					continue;
+				}
+				addSubAttributesClaim(subsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, true, 
+						CLAIMS_LANG_SEPERATOR + consentedLocaleValue, consentedAttributeName, valueSeparator);
+			}
+		} else {
+			String consentedLocale = mappedConsentedLocales.keySet().iterator().next();
+			String consentedLocaleValue = mappedConsentedLocales.get(consentedLocale);
+			if (subsetAttributes.length == 0) {
+				log.info(String.format("No %s subset attributes configured. Will return the address with formatted attribute.",
+						consentedAttributeName));
+				addFormattedSubAttributes(idSchemaAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "", consentedAttributeName, valueSeparator);
+				return;
+			}
+			
+			addSubAttributesClaim(subsetAttributes, idInfoNameAndLangCorrected, consentedLocaleValue, respMap, false, "", consentedAttributeName, valueSeparator);
+		}		
+	}
+
+
+	private void addFormattedSubAttributes(List<String> idSchemaAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String localeValue, 
+								Map<String, Object> respMap, boolean addLocale, String localeAppendValue, String consentedAttributeName, String valueSeparator) throws IdAuthenticationBusinessException {
+		boolean langCodeFound = false;
+		Map<String, String> attributesMap = new HashMap<>();
+		StringBuilder identityInfoValue = new StringBuilder(); 
+		for (String schemaAttrib: idSchemaAttributes) {
+			List<String> idSchemaSubsetAttributes = idInfoHelper.getIdentityAttributesForIdName(schemaAttrib);
+			for (String idSchemaAttribute : idSchemaSubsetAttributes) {
+				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
+				if(idInfoList != null) {
+					Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
+					if (identityInfoValue.length() > 0) {
+						identityInfoValue.append(valueSeparator);
+					}
+					if (mappedLangCodes.keySet().contains(localeValue)) {
+						String langCode = mappedLangCodes.get(localeValue);
+						for (IdentityInfoDTO identityInfo : idInfoList) { 
+							if (identityInfoValue.length() > 0) {
+								identityInfoValue.append(valueSeparator);
+							}
+							if (identityInfo.getLanguage().equals(langCode)) {
+								langCodeFound = true;
+								identityInfoValue.append(identityInfo.getValue());
+							}
+						}
+					} else {
+						if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
+							identityInfoValue.append(idInfoList.get(0).getValue());
+						}
+					}
+				}
+			}
+		}
+		//String identityInfoValueStr = identityInfoValue.toString();
+		//String trimmedValue = identityInfoValueStr.substring(0, identityInfoValueStr.lastIndexOf(addressValueSeparator));
+		attributesMap.put(FORMATTED + localeAppendValue, identityInfoValue.toString());
+		if (langCodeFound && addLocale) {
+			respMap.put(consentedAttributeName + localeAppendValue, attributesMap);
+		} else {
+			respMap.put(consentedAttributeName, attributesMap);
+		}
+	}
+	
+	private void addSubAttributesClaim(String[] addressAttributes, Map<String, List<IdentityInfoDTO>> idInfo, String consentedLocaleValue,
+			Map<String, Object> respMap, boolean addLocale, String localeAppendValue, String consentedAddressAttributeName, String addressValueSeparator) throws IdAuthenticationBusinessException {
+		boolean langCodeFound = false; //added for language data not available in identity info (Eg: fr)
+		Map<String, String> addressMap = new HashMap<>();
+		for (String addressAttribute : addressAttributes) {
+			List<String> idSchemaSubsetAttributes = idInfoHelper.getIdentityAttributesForIdName(addressAttribute);
+			StringBuilder identityInfoValue = new StringBuilder(); 
+			for (String idSchemaAttribute : idSchemaSubsetAttributes) {
+				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
+				Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
+				if (identityInfoValue.length() > 0) {
+					identityInfoValue.append(addressValueSeparator);
+				}
+				if (mappedLangCodes.keySet().contains(consentedLocaleValue)) {
+					String langCode = mappedLangCodes.get(consentedLocaleValue);
+					for (IdentityInfoDTO identityInfo : idInfoList) {
+						if (identityInfoValue.length() > 0) {
+							identityInfoValue.append(addressValueSeparator);
+						}
+						if (identityInfo.getLanguage().equals(langCode)) {
+							langCodeFound = true;
+							identityInfoValue.append(identityInfo.getValue());
+						}
+					}
+				} else {
+					if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
+						identityInfoValue.append(idInfoList.get(0).getValue());
+					}
+				}
+			}
+			// Added below condition to skip if the data is not available in DB. MOSIP-26472
+			if (identityInfoValue.toString().trim().length() > 0) {
+				addressMap.put(addressAttribute + localeAppendValue, identityInfoValue.toString());
+			}
+		}
+		if (langCodeFound && addLocale) {
+			respMap.put(consentedAddressAttributeName + localeAppendValue, addressMap);
+		} else {
+			respMap.put(consentedAddressAttributeName, addressMap);
+		}
+	}
+	
+	private Map<String, String> localesMapping(Set<String> locales) {
+	
+		Map<String, String> mappedLocales = new HashMap<>();
+		for (String locale : locales) {
+			if (locale.trim().length() == 0)
+				continue;
+			mappedLocales.put(locale, locale.substring(0, 2));
+		}
+		return mappedLocales;
+	}
+	
+	private Map<String, String> langCodeMapping(List<IdentityInfoDTO> idInfoList) {
+	
+		Map<String, String> mappedLangCodes = new HashMap<>();
+		if (Objects.nonNull(idInfoList)) {
+			for (IdentityInfoDTO idInfo :  idInfoList) {
+				if (Objects.nonNull(idInfo.getLanguage())) {
+					mappedLangCodes.put(idInfo.getLanguage().substring(0,2), idInfo.getLanguage());
+				}
+			}
+		}
+		return mappedLangCodes;
+	}
+	
+	private List<String> getAvailableLangCodes(Map<String, String> mappedLocales, Map<String, String> mappedLangCodes) {
+		List<String> availableLangCodes = new ArrayList<>();
+		for (String entry: mappedLocales.keySet()) {
+			String locale = mappedLocales.get(entry);
+			if (mappedLangCodes.keySet().contains(locale)) {
+				availableLangCodes.add(locale);
+			}
+		}
+		return availableLangCodes;
+	}
 	
     @Override
     public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpDto sendOtpDto)  throws SendOtpException {
