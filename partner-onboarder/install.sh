@@ -8,7 +8,7 @@ fi
 
 echo "Do you have public domain & valid SSL? (Y/n) "
 echo "Y: if you have public domain & valid ssl certificate"
-echo "n: if you don't have public domain & valid ssl certificate"
+echo "n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments."
 read -p "" flag
 
 if [ -z "$flag" ]; then
@@ -17,7 +17,7 @@ if [ -z "$flag" ]; then
 fi
 ENABLE_INSECURE=''
 if [ "$flag" = "n" ]; then
-  ENABLE_INSECURE='--set onboarding.enableInsecure=true';
+  ENABLE_INSECURE='--set onboarding.configmaps.onboarding.ENABLE_INSECURE=true';
 fi
 
 NS=esignet
@@ -38,6 +38,7 @@ function installing_onboarder() {
     kubectl -n $NS --ignore-not-found=true delete cm s3
     sed -i 's/\r$//' copy_cm.sh
     ./copy_cm.sh
+    kubectl -n $NS delete cm --ignore-not-found=true onboarding
 
     echo Copy secrets
     sed -i 's/\r$//' copy_secrets.sh
