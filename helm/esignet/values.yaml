@@ -452,3 +452,5 @@ istio:
     - istio-system/public
     - istio-system/internal
   prefix: /v1/esignet/
+
+enable_insecure: false
