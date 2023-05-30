@@ -37,6 +37,10 @@ export default function OtpVerify({
   const commaSeparatedChannels =
     openIDConnectService.getEsignetConfiguration(configurationKeys.sendOtpChannels) ??
     process.env.REACT_APP_SEND_OTP_CHANNELS;
+  const otpLengthValue =
+    openIDConnectService.getEsignetConfiguration(configurationKeys.otpLength) ??
+    process.env.REACT_APP_OTP_LENGTH;
+  const otpLength = parseInt(otpLengthValue);
 
   const [loginState, setLoginState] = useState(fieldsState);
   const [error, setError] = useState(null);
@@ -234,7 +238,7 @@ export default function OtpVerify({
 
         <div className="space-y-px flex justify-center">
           <PinInput
-            length={6}
+            length={otpLength}
             initialValue=""
             onChange={(value, index) => {
               setOtpValue(value);
@@ -265,18 +269,18 @@ export default function OtpVerify({
             <span className="w-full flex justify-center text-sm text-gray-500 line-clamp-3">
               {otpSentEmail && otpSentMobile
                 ? t("otp_sent_msg", {
-                    otpChannels: t("mobile_email_placeholder", {
-                      mobileNumber: otpSentMobile,
-                      emailAddress: otpSentEmail,
-                    }),
-                  })
+                  otpChannels: t("mobile_email_placeholder", {
+                    mobileNumber: otpSentMobile,
+                    emailAddress: otpSentEmail,
+                  }),
+                })
                 : otpSentEmail
-                ? t("otp_sent_msg", {
+                  ? t("otp_sent_msg", {
                     otpChannels: t("email_placeholder", {
                       emailAddress: otpSentEmail,
                     }),
                   })
-                : t("otp_sent_msg", {
+                  : t("otp_sent_msg", {
                     otpChannels: t("mobile_placeholder", {
                       mobileNumber: otpSentMobile,
                     }),
@@ -298,7 +302,7 @@ export default function OtpVerify({
         </div>
 
         <FormAction
-          disabled={otpValue.length !== 6}
+          disabled={otpValue.length !== otpLength}
           type={buttonTypes.submit}
           text={t("verify")}
         />

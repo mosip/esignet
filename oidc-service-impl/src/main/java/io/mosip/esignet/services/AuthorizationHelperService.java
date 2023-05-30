@@ -189,18 +189,38 @@ public class AuthorizationHelperService {
         return kycAuthResult;
     }
 
+    /**
+     * This method is used to validate the requested claims against the accepted claims
+     * <ul>
+     *     <li>Checks Performed</li>
+     *     <ul>
+     *         <li>accepted Claims should be subset of requested claims</li>
+     *         <li>essential Claims should be a subset of accepted claims</li>
+     *     </ul>
+     * </ul>
+     *
+     * @param transaction object containg OIDC transaction details
+     * @param acceptedClaims list of accepted claims
+     * @throws EsignetException
+     *
+     */
     protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws EsignetException {
-        if(CollectionUtils.isEmpty(acceptedClaims))
-            return;
+        Map<String, ClaimDetail> userinfo = Optional.ofNullable(transaction.getRequestedClaims())
+                .map(Claims::getUserinfo)
+                .orElse(Collections.emptyMap());
 
-        if(CollectionUtils.isEmpty(transaction.getRequestedClaims().getUserinfo()))
+        List<String> essentialClaims = userinfo.entrySet().stream()
+                .filter(e -> Optional.ofNullable(e.getValue()).map(ClaimDetail::isEssential).orElse(false))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        Set<String> allRequestedClaims = userinfo.keySet();
+        Set<String> acceptedClaimsSet = new HashSet<>(Optional.ofNullable(acceptedClaims).orElse(Collections.emptyList()));
+
+        if (essentialClaims.stream().anyMatch(c -> !acceptedClaimsSet.contains(c))
+                || !allRequestedClaims.containsAll(acceptedClaimsSet)) {
             throw new EsignetException(INVALID_ACCEPTED_CLAIM);
-
-        if(acceptedClaims.stream()
-                .allMatch( claim -> transaction.getRequestedClaims().getUserinfo().containsKey(claim) ))
-            return;
-
-        throw new EsignetException(INVALID_ACCEPTED_CLAIM);
+        }
     }
 
     protected void validateAuthorizeScopes(OIDCTransaction transaction, List<String> authorizeScopes) throws EsignetException {

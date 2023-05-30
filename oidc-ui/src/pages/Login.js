@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Otp from "../components/Otp";
 import Pin from "../components/Pin";
-import { otpFields, pinFields, bioLoginFields } from "../constants/formFields";
+import { otpFields, pinFields, bioLoginFields, passwordFields } from "../constants/formFields";
 import L1Biometrics from "../components/L1Biometrics";
 import { useTranslation } from "react-i18next";
 import authService from "../services/authService";
@@ -19,12 +19,14 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import { Buffer } from "buffer";
 import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
+import Password from "../components/Password";
 
 //authFactorComponentMapping
 const comp = {
   PIN: Pin,
   OTP: Otp,
   BIO: L1Biometrics,
+  PWD: Password
 };
 
 function InitiateL1Biometrics(openIDConnectService) {
@@ -40,6 +42,14 @@ function InitiateL1Biometrics(openIDConnectService) {
 function InitiatePin(openIDConnectService) {
   return React.createElement(Pin, {
     param: pinFields,
+    authService: new authService(openIDConnectService),
+    openIDConnectService: openIDConnectService,
+  });
+}
+
+function InitiatePassword(openIDConnectService) {
+  return React.createElement(Password, {
+    param: passwordFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
   });
@@ -88,6 +98,10 @@ function createDynamicLoginElements(inst, oidcService) {
 
   if (comp[inst] === L1Biometrics) {
     return InitiateL1Biometrics(oidcService);
+  }
+
+  if (comp[inst] === Password) {
+    return InitiatePassword(oidcService);
   }
 
   return React.createElement(comp[inst]);
@@ -150,7 +164,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const loadComponent = () => {
     setAppDownloadURI(
       oidcService.getEsignetConfiguration(configurationKeys.appDownloadURI) ??
-        process.env.REACT_APP_QRCODE_APP_DOWNLOAD_URI
+      process.env.REACT_APP_QRCODE_APP_DOWNLOAD_URI
     );
 
     let oAuthDetailResponse = oidcService.getOAuthDetails();

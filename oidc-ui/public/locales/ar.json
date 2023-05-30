@@ -60,6 +60,15 @@
     "uin_placeholder": "UIN أو VID",
     "pin_placeholder": "أدخل رقم التعريف الشخصي"
   },
+  "password": {
+    "sign_in_with_password": "تسجيل الدخول باستخدام كلمة المرور",
+    "remember_me": "تذكرنى",
+    "login": "تسجيل الدخول",
+    "uin_label_text": "أدخل VID الخاص بك",
+    "password_label_text": "أدخل كلمة المرور",
+    "uin_placeholder": "VID",
+    "password_placeholder": "كلمة المرور"
+  },
   "LoginQRCode": {
     "sign_in_with_inji": "تسجيل الدخول باستخدام Inji",
     "scan_with_inji": "امسح باستخدام تطبيق Inji لتسجيل الدخول",
@@ -97,7 +106,8 @@
     "BIO": "القياسات الحيوية",
     "QRCode": "رمز الاستجابة السريعة",
     "WALLET": "إنجي",
-    "OTP": "OTP"
+    "OTP": "OTP",
+    "PWD": "كلمة المرور"
   },
   "esignetDetails": {
     "esignet_details_heading": "واجهات برمجة التطبيقات Esignet معروفة جيدا",
@@ -232,6 +242,7 @@
     "invalid_version": "نسخة غير صالحة",
     "invalid_value": "قيمة غير صالحة",
     "duplicate_individual_id": "المعرف الفردي موجود بالفعل.",
+    "password_error_msg": "رمز مرور خاطئ",
     "0": "النجاح",
     "100": "الجهاز غير مسجل",
     "101": "غير قادر على الكشف عن كائن القياسات الحيوية",
