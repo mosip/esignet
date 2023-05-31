@@ -22,7 +22,7 @@ create table consent (
     created_on TIMESTAMP DEFAULT NOW() NOT NULL,
     expiration TIMESTAMP,
     signature VARCHAR,
-    hash VARCHAR
+    hash VARCHAR,
     PRIMARY KEY (id)
 )
 CREATE INDEX idx_consent_psu_client ON consent (psu_value, client_id);
