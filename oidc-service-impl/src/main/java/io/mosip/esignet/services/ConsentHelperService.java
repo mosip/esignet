@@ -39,7 +39,7 @@ public class ConsentHelperService {
         this.kafkaHelperService = kafkaHelperService;
     }
 
-    public void validateConsent(String transactionId) {
+    public void processConsent(String transactionId) {
         OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -69,7 +69,7 @@ public class ConsentHelperService {
         cacheUtilService.setAuthenticatedTransaction(transactionId,transaction);
     }
 
-    public LinkedKycAuthResponseV2 validateLinkedConsent(String linkedAuthTransactionId) {
+    public LinkedKycAuthResponseV2 processLinkedConsent(String linkedAuthTransactionId) {
         OIDCTransaction transaction = cacheUtilService.getLinkedAuthTransaction(linkedAuthTransactionId);
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -82,7 +82,9 @@ public class ConsentHelperService {
         if(consent.isPresent()) {
             consentAction = validateConsentAction(transaction,consent.get());
             if(consentAction.equals(ConsentAction.NOCAPTURE)){
-                consentAction = validateSignature(transaction,consent.get());
+                if(!validateSignature(transaction,consent.get())){
+                    consentAction = ConsentAction.CAPTURE;
+                }
             }
         }
         transaction.setConsentAction(consentAction);
@@ -189,10 +191,9 @@ public class ConsentHelperService {
         return ConsentAction.NOCAPTURE;
     }
 
-    private ConsentAction validateSignature(OIDCTransaction transaction, Consent consent){
-        String signature = consent.getSignature();
+    private boolean validateSignature(OIDCTransaction transaction, Consent consent){
+        return true;
 
-        return transaction.getConsentAction();
     }
     private String generateSignedObject(OIDCTransaction transaction, Consent consent){
         List<String> acceptedClaims = transaction.getAcceptedClaims();

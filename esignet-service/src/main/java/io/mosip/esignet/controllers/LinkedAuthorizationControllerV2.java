@@ -48,7 +48,7 @@ public class LinkedAuthorizationControllerV2 {
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             LinkedKycAuthResponse linkedKycAuthResponse = linkedAuthorizationService.authenticateUser(requestWrapper.getRequest());
-            LinkedKycAuthResponseV2 linkedKycAuthResponseV2  = consentHelperService.validateLinkedConsent(requestWrapper.getRequest().getLinkedTransactionId());
+            LinkedKycAuthResponseV2 linkedKycAuthResponseV2  = consentHelperService.processLinkedConsent(requestWrapper.getRequest().getLinkedTransactionId());
             responseWrapper.setResponse(linkedKycAuthResponseV2);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);

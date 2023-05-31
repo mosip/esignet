@@ -40,7 +40,7 @@ public class AuthorizationControllerV2 {
     private final ConsentHelperService consentHelperService;
 
 
-    public AuthorizationControllerV2(@Qualifier("authorizationServiceV2") AuthorizationService authorizationService, AuditPlugin auditWrapper, AuthorizationHelperService authorizationHelperService, ConsentHelperService consentHelperService) {
+    public AuthorizationControllerV2( AuthorizationService authorizationService, AuditPlugin auditWrapper, AuthorizationHelperService authorizationHelperService, ConsentHelperService consentHelperService) {
         this.authorizationService = authorizationService;
         this.auditWrapper = auditWrapper;
         this.authorizationHelperService = authorizationHelperService;
@@ -54,7 +54,7 @@ public class AuthorizationControllerV2 {
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             AuthResponse authResponse = authorizationService.authenticateUser(requestWrapper.getRequest());
-            consentHelperService.validateConsent(requestWrapper.getRequest().getTransactionId());
+            consentHelperService.processConsent(requestWrapper.getRequest().getTransactionId());
             AuthResponseV2 authResponseV2 = authorizationHelperService.authResponseV2Mapper(authResponse);
             responseWrapper.setResponse(authResponseV2);
         } catch (EsignetException ex) {

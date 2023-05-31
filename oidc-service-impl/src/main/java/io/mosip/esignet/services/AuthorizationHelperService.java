@@ -94,35 +94,6 @@ public class AuthorizationHelperService {
     @Value("${mosip.esignet.send-otp.captcha-required:false}")
     private boolean captchaRequired;
 
-    public static ConsentAction validateConsent(OIDCTransaction transaction, UserConsent userConsent) {
-        if(userConsent == null) {
-            return ConsentAction.CAPTURE;
-        }
-        //validate requested claims
-        Claims requestedClaims = transaction.getRequestedClaims();
-        List<String> requestedScopes = transaction.getRequestedAuthorizeScopes();
-
-        if(((requestedClaims == null ||
-                (requestedClaims.getId_token().isEmpty() && requestedClaims.getUserinfo().isEmpty()))
-                && requestedScopes.isEmpty())
-        ) {
-            return ConsentAction.NOCAPTURE;
-        }
-
-        //validate consented claims
-        if(requestedClaims!= null && userConsent.getClaims() != null &&!requestedClaims.isEqualToIgnoringAccepted(userConsent.getClaims())){
-            return ConsentAction.CAPTURE;
-        }
-
-        //validate consented scopes
-        if(!requestedScopes.isEmpty()
-                && ( !new HashSet<>(requestedScopes).containsAll(userConsent.getRequestedScopes()) ||
-                !new HashSet<>(requestedScopes).containsAll(userConsent.getAuthorizedScopes())
-        )){
-            return ConsentAction.CAPTURE;
-        }
-        return ConsentAction.NOCAPTURE;
-    }
 
     protected void validateCaptchaToken(String captchaToken) {
         if(!captchaRequired) {

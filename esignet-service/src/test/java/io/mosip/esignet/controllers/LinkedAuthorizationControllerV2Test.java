@@ -17,7 +17,6 @@ import io.mosip.esignet.services.ConsentHelperService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -83,7 +82,7 @@ public class LinkedAuthorizationControllerV2Test {
         linkedKycAuthResponseV2.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
         Mockito.when(linkedAuthorizationService.authenticateUser(Mockito.any(LinkedKycAuthRequest.class))).thenReturn(new LinkedKycAuthResponse());
         Mockito.when(authorizationHelperService.linkedKycAuthResponseV2Mapper(Mockito.any(LinkedKycAuthResponse.class))).thenReturn(new LinkedKycAuthResponseV2());
-        Mockito.when(consentHelperService.validateLinkedConsent(Mockito.any())).thenReturn(linkedKycAuthResponseV2);
+        Mockito.when(consentHelperService.processLinkedConsent(Mockito.any())).thenReturn(linkedKycAuthResponseV2);
         mockMvc.perform(post("/linked-authorization/v2/authenticate")
                         .content(objectMapper.writeValueAsString(requestWrapper))
                         .contentType(MediaType.APPLICATION_JSON))
