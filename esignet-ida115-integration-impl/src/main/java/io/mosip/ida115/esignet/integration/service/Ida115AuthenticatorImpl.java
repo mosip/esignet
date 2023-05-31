@@ -518,9 +518,9 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 		} else {
 			if (consentedAttribute.equals(consentedAddressAttributeName)) {
 				handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedAddressAttributeName, addressValueSeparator, addressSubsetAttributes);
-			} else if (consentedAttribute.equals(consentedNameAttributeName)) {
+			}/* else if (consentedAttribute.equals(consentedNameAttributeName)) {
 				handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedNameAttributeName, addressNameSeparator, nameSubsetAttributes);
-			}
+			}*/
 		}
 	}
 	
