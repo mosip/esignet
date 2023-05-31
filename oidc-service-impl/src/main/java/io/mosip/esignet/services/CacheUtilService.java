@@ -43,6 +43,12 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    @Cacheable(value = Constants.CONSENT_CACHE, key = "#transactionId")
+    public OIDCTransaction setConsentTransaction(String transactionId, OIDCTransaction oidcTransaction){
+        return oidcTransaction;
+    }
+
+
     @Caching(evict = {@CacheEvict(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#oidcTransaction.getCodeHash()"),
             @CacheEvict(value = Constants.CONSENTED_CACHE, key = "#oidcTransaction.getLinkedTransactionId()",
                     condition = "#oidcTransaction.getLinkedTransactionId() != null"),
@@ -79,9 +85,15 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    @CacheEvict(value = Constants.LINKED_AUTH_CACHE, key = "#linkedTransactionId", condition = "#linkedTransactionId != null")
+    @Cacheable(value = Constants.LINKED_CONSENT_CACHE, key = "#linkedTransactionId")
+    public OIDCTransaction setLinkedConsentTransaction(String linkedTransactionId, OIDCTransaction oidcTransaction){
+        return oidcTransaction;
+    }
+
     @Caching(evict = {@CacheEvict(value = Constants.CONSENTED_CACHE, key = "#oidcTransaction.getLinkedTransactionId()"),
             @CacheEvict(value = Constants.LINKED_CODE_CACHE, key = "#linkCodeHash")},
-    cacheable = {@Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#oidcTransaction.getCodeHash()")})
+            cacheable = {@Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#oidcTransaction.getCodeHash()")})
     public OIDCTransaction setLinkedAuthCodeTransaction(String linkCodeHash, String linkedTransactionId, OIDCTransaction oidcTransaction) {
         return oidcTransaction;
     }
@@ -140,5 +152,14 @@ public class CacheUtilService {
 
     public OIDCTransaction getLinkedAuthTransaction(String linkTransactionId) {
         return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
+    }
+
+    @CacheEvict(value = Constants.CONSENT_CACHE, key = "#transactionId", condition = "#transactionId != null")
+    public OIDCTransaction getWebConsentedTransaction(String transactionId) {
+        return cacheManager.getCache(Constants.CONSENT_CACHE).get(transactionId,OIDCTransaction.class);
+    }
+    @CacheEvict(value = Constants.LINKED_CONSENT_CACHE, key = "#linkedTransactionId", condition = "#linkedTransactionId != null")
+    public OIDCTransaction getLinkedConsentedTransaction(String linkedTransactionId) {
+        return cacheManager.getCache(Constants.LINKED_CONSENT_CACHE).get(linkedTransactionId,OIDCTransaction.class);
     }
 }

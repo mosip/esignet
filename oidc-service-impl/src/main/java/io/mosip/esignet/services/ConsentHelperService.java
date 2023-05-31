@@ -105,6 +105,7 @@ public class ConsentHelperService {
         }
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedAuthTransactionId,transaction);
         if(consentAction.equals(ConsentAction.NOCAPTURE)){
+            cacheUtilService.setLinkedConsentedTransaction(linkedAuthTransactionId, transaction);
             kafkaHelperService.publish(linkedAuthCodeTopicName, linkedAuthTransactionId);
         }
         LinkedKycAuthResponseV2 linkedKycAuthResponseV2 = new LinkedKycAuthResponseV2();
@@ -116,9 +117,9 @@ public class ConsentHelperService {
     public void addUserConsent(String transactionId, boolean linked) {
         OIDCTransaction transaction;
         if(!linked) {
-            transaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
+            transaction = cacheUtilService.getWebConsentedTransaction(transactionId);
         } else {
-            transaction = cacheUtilService.getLinkedAuthTransaction(transactionId);
+            transaction = cacheUtilService.getLinkedConsentedTransaction(transactionId);
         }
         if(transaction == null)
             throw new InvalidTransactionException();

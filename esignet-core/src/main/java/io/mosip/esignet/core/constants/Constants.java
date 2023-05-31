@@ -23,6 +23,7 @@ public class Constants {
     public static final String LINKED_SESSION_CACHE = "linked";
     public static final String LINKED_CODE_CACHE = "linkedcode";
     public static final String AUTH_CODE_GENERATED_CACHE = "authcodegenerated";
+    public static final String CONSENT_CACHE = "consent";
 
     public static final String ROOT_KEY = "ROOT";
     public static final String OIDC_PARTNER_APP_ID = "OIDC_PARTNER";
@@ -40,4 +41,5 @@ public class Constants {
     public static final String ESSENTIAL = "essential";
     public static final String VOLUNTARY = "voluntary";
     public static final String LINKED_STATUS = "LINKED";
+    public static final String LINKED_CONSENT_CACHE = "linkedconsent";
 }

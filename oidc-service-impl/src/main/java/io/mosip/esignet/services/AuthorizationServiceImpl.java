@@ -190,7 +190,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
-        cacheUtilService.setAuthenticatedTransaction(authCodeRequest.getTransactionId(), transaction);
+        cacheUtilService.setConsentTransaction(authCodeRequest.getTransactionId(), transaction);
         auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
 
         AuthCodeResponse authCodeResponse = new AuthCodeResponse();

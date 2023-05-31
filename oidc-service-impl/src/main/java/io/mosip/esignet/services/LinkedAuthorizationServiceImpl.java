@@ -199,8 +199,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
-        cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
         transaction.setConsentAction(ConsentAction.NOCACHE);
+        cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
         auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
@@ -222,7 +222,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
 
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
-        cacheUtilService.setLinkedAuthenticatedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
+        cacheUtilService.setLinkedConsentTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
 
