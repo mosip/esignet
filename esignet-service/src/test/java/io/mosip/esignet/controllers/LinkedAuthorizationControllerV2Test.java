@@ -13,6 +13,7 @@ import java.util.List;
 
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
+import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.services.ConsentHelperService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -197,5 +198,48 @@ public class LinkedAuthorizationControllerV2Test {
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
     }
 
+    @Test
+    public void saveConsent_withValidRequest_thenPass() throws Exception {
+        RequestWrapper<LinkedConsentRequestV2> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("txn-id");
+        linkedConsentRequestV2.setLinkedTransactionId("txn-id");
+        linkedConsentRequestV2.setSignature("signature");
+
+        requestWrapper.setRequest(linkedConsentRequestV2);
+
+        Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenReturn(new LinkedConsentResponse());
+        Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenThrow(EsignetException.class);
+        mockMvc.perform(post("/linked-authorization/v2/consent")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response").exists())
+                .andExpect(jsonPath("$.errors").isEmpty());
+
+    }
+
+    @Test
+    public void saveConsent_withInValidRequest_thenFail() throws Exception {
+        RequestWrapper<LinkedConsentRequestV2> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("txn-id");
+        linkedConsentRequestV2.setLinkedTransactionId("txn-id");
+        linkedConsentRequestV2.setSignature("signature");
+
+        requestWrapper.setRequest(linkedConsentRequestV2);
+
+        //Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenReturn(new LinkedConsentResponse());
+        Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenThrow(InvalidTransactionException.class);
+        mockMvc.perform(post("/linked-authorization/v2/consent")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty());
+
+
+    }
 }
 
