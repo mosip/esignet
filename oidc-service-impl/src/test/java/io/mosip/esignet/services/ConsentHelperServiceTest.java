@@ -160,5 +160,61 @@ public class ConsentHelperServiceTest {
         }
     }
 
+    @Test
+    public void processConsent_withValidConsent(){
+
+        OIDCTransaction oidcTransaction=new OIDCTransaction();
+        oidcTransaction.setClientId("abc");
+        oidcTransaction.setPartnerSpecificUserToken("123");
+        oidcTransaction.setRequestedAuthorizeScopes(List.of("openid","profile"));
+
+        Claims claims = new Claims();
+        Map<String, ClaimDetail> userinfo = new HashMap<>();
+        Map<String, ClaimDetail> id_token = new HashMap<>();
+        ClaimDetail userinfoClaimDetail = new ClaimDetail("value1", new String[]{"value1a", "value1b"}, true);
+        ClaimDetail idTokenClaimDetail = new ClaimDetail("value2", new String[]{"value2a", "value2b"}, false);
+        userinfo.put("userinfoKey", userinfoClaimDetail);
+        id_token.put("idTokenKey", idTokenClaimDetail);
+        claims.setUserinfo(userinfo);
+        claims.setId_token(id_token);
+
+        oidcTransaction.setRequestedClaims(claims);
+
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId(oidcTransaction.getClientId());
+        userConsentRequest.setPsu_token(oidcTransaction.getPartnerSpecificUserToken());
+
+        Consent consent = new Consent();
+        consent.setClientId("123");
+        consent.setSignature("signature");
+        consent.setAuthorizationScopes(Map.of("openid",true,"profile",true));
+        consent.setClaims(claims);
+
+        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consent));
+
+        consentHelperService.processConsent("123");
+
+    }
+
+    @Test
+    public void processConsent_withEmptyConsent(){
+
+        OIDCTransaction oidcTransaction=new OIDCTransaction();
+        oidcTransaction.setClientId("abc");
+        oidcTransaction.setPartnerSpecificUserToken("123");
+
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId(oidcTransaction.getClientId());
+        userConsentRequest.setPsu_token(oidcTransaction.getPartnerSpecificUserToken());
+
+        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.empty());
+
+        consentHelperService.processConsent("123");
+
+    }
 
 }
