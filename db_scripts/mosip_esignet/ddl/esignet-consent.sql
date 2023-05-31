@@ -24,8 +24,8 @@ create table consent (
     signature VARCHAR,
     hash VARCHAR,
     PRIMARY KEY (id)
-)
-CREATE INDEX idx_consent_psu_client ON consent (psu_value, client_id);
+);
+CREATE INDEX IF NOT EXISTS idx_consent_psu_client ON consent(psu_value, client_id);
 
 COMMENT ON TABLE consent IS 'Contains user consent details';
 
