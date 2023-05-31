@@ -16,6 +16,7 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
+import io.mosip.esignet.services.ConsentHelperService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +59,9 @@ public class AuthorizationControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+
+    @MockBean
+    ConsentHelperService consentHelperService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 

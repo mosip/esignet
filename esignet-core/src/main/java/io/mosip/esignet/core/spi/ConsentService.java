@@ -3,6 +3,7 @@ package io.mosip.esignet.core.spi;
 import io.mosip.esignet.core.dto.Consent;
 import io.mosip.esignet.core.dto.ConsentRequest;
 import io.mosip.esignet.core.dto.UserConsentRequest;
+import io.mosip.esignet.core.exception.EsignetException;
 
 import java.util.Optional;
 
@@ -22,5 +23,5 @@ public interface ConsentService {
      * @return {@link Consent} Consent Response Object after saving the consent to registry.
      *
      */
-    Consent saveUserConsent(ConsentRequest consentRequest);
+    Consent saveUserConsent(ConsentRequest consentRequest) throws EsignetException;
 }

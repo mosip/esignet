@@ -22,10 +22,10 @@ create table consent (
     created_on TIMESTAMP DEFAULT NOW() NOT NULL,
     expiration TIMESTAMP,
     signature VARCHAR,
-    hash VARCHAR,
-    signed_by VARCHAR,
+    hash VARCHAR
     PRIMARY KEY (id)
 )
+CREATE INDEX idx_consent_psu_client ON consent (psu_value, client_id);
 
 COMMENT ON TABLE consent IS 'Contains user consent details';
 
@@ -37,6 +37,5 @@ COMMENT ON COLUMN consent.authorization_scopes IS 'Json string of user accepted 
 COMMENT ON COLUMN consent.created_on IS 'Consent creation date';
 COMMENT ON COLUMN consent.expiration IS 'Expiration date';
 COMMENT ON COLUMN consent.signature IS 'Signature of consent object ';
-COMMENT ON COLUMN consent.signed_by IS 'Source of consent signature';
 COMMENT ON COLUMN consent.hash IS 'hash of consent object';
 

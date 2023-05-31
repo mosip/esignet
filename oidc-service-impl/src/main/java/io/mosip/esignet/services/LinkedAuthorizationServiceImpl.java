@@ -200,7 +200,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
-
+        transaction.setConsentAction(ConsentAction.NOCACHE);
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
         auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
@@ -220,14 +220,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-        if(ConsentAction.CAPTURE.equals(transaction.getConsentAction())) {
-            String identifier = transaction.getClientId() + transaction.getPartnerSpecificUserToken();
-            ConsentCache.addUserConsent(identifier,new UserConsent(
-                    transaction.getRequestedClaims(), transaction.getAcceptedClaims(),transaction.getRequestedAuthorizeScopes(),transaction.getPermittedScopes()
-            ));
-        }
-        cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
 
+        cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
+        cacheUtilService.setLinkedAuthenticatedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
 

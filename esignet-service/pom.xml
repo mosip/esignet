@@ -66,6 +66,11 @@
 			<artifactId>binding-service-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.mosip.esignet</groupId>
+			<artifactId>consent-registry</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

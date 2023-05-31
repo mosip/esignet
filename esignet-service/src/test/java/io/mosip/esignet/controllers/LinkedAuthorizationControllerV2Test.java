@@ -13,9 +13,11 @@ import java.util.List;
 
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
+import io.mosip.esignet.services.ConsentHelperService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,6 +62,8 @@ public class LinkedAuthorizationControllerV2Test {
     @MockBean
     AuditPlugin auditWrapper;
 
+    @MockBean
+    ConsentHelperService consentHelperService;
 
     @Test
     public void authenticate_withValidRequest_thenPass() throws Exception {
@@ -74,10 +78,12 @@ public class LinkedAuthorizationControllerV2Test {
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         linkedKycAuthRequest.setIndividualId("individualId");
         requestWrapper.setRequest(linkedKycAuthRequest);
-
+        LinkedKycAuthResponseV2 linkedKycAuthResponseV2 = new LinkedKycAuthResponseV2();
+        linkedKycAuthResponseV2.setConsentAction(ConsentAction.CAPTURE);
+        linkedKycAuthResponseV2.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
         Mockito.when(linkedAuthorizationService.authenticateUser(Mockito.any(LinkedKycAuthRequest.class))).thenReturn(new LinkedKycAuthResponse());
         Mockito.when(authorizationHelperService.linkedKycAuthResponseV2Mapper(Mockito.any(LinkedKycAuthResponse.class))).thenReturn(new LinkedKycAuthResponseV2());
-
+        Mockito.when(consentHelperService.validateLinkedConsent(Mockito.any())).thenReturn(linkedKycAuthResponseV2);
         mockMvc.perform(post("/linked-authorization/v2/authenticate")
                         .content(objectMapper.writeValueAsString(requestWrapper))
                         .contentType(MediaType.APPLICATION_JSON))

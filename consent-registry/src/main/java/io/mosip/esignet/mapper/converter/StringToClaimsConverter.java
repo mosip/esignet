@@ -3,7 +3,9 @@ package io.mosip.esignet.mapper.converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.core.exception.EsignetException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 
@@ -17,9 +19,9 @@ public class StringToClaimsConverter implements Converter<String, Claims>
     public Claims convert(MappingContext<String, Claims> context) {
         String claims = context.getSource();
         try {
-            return claims != null ? objectMapper.readValue(claims, Claims.class) : null;
+            return StringUtils.isNotBlank(claims) ? objectMapper.readValue(claims, Claims.class) : null;
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(INVALID_CLAIM, e);
+            throw new EsignetException(INVALID_CLAIM);
         }
     }
 }

@@ -9,12 +9,11 @@ import java.util.Map;
 
 @Data
 public class ConsentRequest {
-    String psu_token;
+    String psuValue;
     String clientId;
     Claims Claims;
-    Map<String, Boolean> authorizeScopes;
+    Map<String, Boolean> authorizationScopes;
     LocalDateTime expiration;
     String signature;
     String hash;
-    SignedBy signedBy;
 }

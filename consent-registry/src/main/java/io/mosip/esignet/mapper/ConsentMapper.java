@@ -22,11 +22,11 @@ public class ConsentMapper {
         //modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
 
-    public static io.mosip.esignet.entity.Consent toEntiyt(Consent consentDTo) {
+    public static io.mosip.esignet.entity.Consent toEntity(Consent consentDTo) {
         return modelMapper.map(consentDTo, io.mosip.esignet.entity.Consent.class);
     }
 
-    public static io.mosip.esignet.entity.Consent toEntiyt(ConsentRequest consentRequest) {
+    public static io.mosip.esignet.entity.Consent toEntity(ConsentRequest consentRequest) {
         return modelMapper.map(consentRequest, io.mosip.esignet.entity.Consent.class);
     }
 

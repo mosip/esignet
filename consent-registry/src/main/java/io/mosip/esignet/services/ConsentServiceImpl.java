@@ -15,10 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-@Component
+@Service
 @Slf4j
 public class ConsentServiceImpl implements ConsentService {
 
@@ -40,32 +42,26 @@ public class ConsentServiceImpl implements ConsentService {
         Optional<io.mosip.esignet.entity.Consent> consentOptional = consentRepository.
                 findFirstByClientIdAndPsuValueOrderByCreatedOnDesc(userConsentRequest.getClientId(),
                         userConsentRequest.getPsu_token());
-
-        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-                Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS,
-                AuditHelper.buildAuditDto(userConsentRequest.getClientId()), null);
-
-
         if (consentOptional.isPresent()) {
             Consent consentDto = ConsentMapper.toDto( consentOptional.get());
 
             return Optional.of(consentDto);
         }
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.GET_USER_CONSENT, ActionStatus.SUCCESS,
+                AuditHelper.buildAuditDto(userConsentRequest.getClientId()), null);
         return Optional.empty();
     }
 
     @Override
     public Consent saveUserConsent(ConsentRequest consentRequest) {
         //convert ConsentRequest to Entity
-        io.mosip.esignet.entity.Consent consent =ConsentMapper.toEntiyt(consentRequest);
-
-        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-                Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS,
-                AuditHelper.buildAuditDto(consentRequest.getClientId()), null);
-
-
-        //Entity to DTO conversion and save
+        io.mosip.esignet.entity.Consent consent =ConsentMapper.toEntity(consentRequest);
+        consent.setCreatedOn(LocalDateTime.now());
         Consent consentDto =ConsentMapper.toDto(consentRepository.save(consent));
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.SAVE_USER_CONSENT, ActionStatus.SUCCESS,
+                AuditHelper.buildAuditDto(consentRequest.getClientId()), null);
         return consentDto;
     }
 }

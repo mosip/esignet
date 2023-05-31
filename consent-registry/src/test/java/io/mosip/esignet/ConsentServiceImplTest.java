@@ -111,11 +111,11 @@ public class ConsentServiceImplTest {
         ConsentRequest consentRequest = new ConsentRequest();
         consentRequest.setClientId("1234");
         consentRequest.setHash("hash");
-        consentRequest.setPsu_token("psuValue");
+        consentRequest.setPsuValue("psuValue");
         consentRequest.setClaims(claims);
 
         Map<String,Boolean> authorizeScopes = Map.of("given_name",true,"email",true);
-        consentRequest.setAuthorizeScopes(authorizeScopes);
+        consentRequest.setAuthorizationScopes(authorizeScopes);
         consentRequest.setExpiration(LocalDateTime.now());
         consentRequest.setSignature("signature");
 

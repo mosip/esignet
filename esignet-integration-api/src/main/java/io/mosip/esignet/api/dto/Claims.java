@@ -7,8 +7,11 @@ package io.mosip.esignet.api.dto;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 import java.io.Serializable;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 public class Claims implements Serializable {
@@ -36,25 +39,14 @@ public class Claims implements Serializable {
         if (firstClaimDetail.size() != secondClaimDetail.size()) {
             return false;
         }
-
-        for (Map.Entry<String, ClaimDetail> entry : firstClaimDetail.entrySet()) {
-            String key = entry.getKey();
-            ClaimDetail value = entry.getValue();
-            ClaimDetail otherValue = secondClaimDetail.get(key);
-            if (otherValue == null) {
-                if (value != null) {
-                    return false;
-                }
-            } else {
-                if(value == null) {
-                    return false;
-                } else {
-                    if(!value.isEqualToIgnoringAccepted(otherValue)){
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        List<String> essentialClaimsFirstClaimDetail = firstClaimDetail.entrySet().stream()
+                .filter(e -> Optional.ofNullable(e.getValue()).map(ClaimDetail::isEssential).orElse(false))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        List<String> essentialClaimsSecondClaimDetail = secondClaimDetail.entrySet().stream()
+                .filter(e -> Optional.ofNullable(e.getValue()).map(ClaimDetail::isEssential).orElse(false))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        return essentialClaimsFirstClaimDetail.equals(essentialClaimsSecondClaimDetail);
     }
 }

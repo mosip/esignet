@@ -26,7 +26,6 @@ public class ConsentRepositoryTest {
         Consent consent=new Consent();
         UUID uuid=UUID.randomUUID();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
-        consent.setId(uuid);
         consent.setClientId("123");
         consent.setPsuValue("abc");
         consent.setClaims("claims");
@@ -38,11 +37,7 @@ public class ConsentRepositoryTest {
         consent=consentRepository.saveAndFlush(consent);
         Assert.assertNotNull(consent);
 
-        Optional<Consent> result = consentRepository.findById(uuid);
-        Assert.assertTrue(result.isPresent());
-
-        result = consentRepository.findById(UUID.randomUUID());
-        Assert.assertFalse(result.isPresent());
+        Optional<Consent> result;
 
         result = consentRepository.findFirstByClientIdAndPsuValueOrderByCreatedOnDesc("123", "abc");
         Assert.assertTrue(result.isPresent());

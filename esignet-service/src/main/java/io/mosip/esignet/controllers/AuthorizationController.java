@@ -13,6 +13,7 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.ConsentHelperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,9 @@ public class AuthorizationController {
 
     @Autowired
     AuthorizationService authorizationService;
+
+    @Autowired
+    private ConsentHelperService consentHelperService;
 
     @Autowired
     AuditPlugin auditWrapper;
@@ -78,7 +82,9 @@ public class AuthorizationController {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
-            responseWrapper.setResponse(authorizationService.getAuthCode(requestWrapper.getRequest()));
+            AuthCodeResponse authCode = authorizationService.getAuthCode(requestWrapper.getRequest());
+            consentHelperService.addUserConsent(requestWrapper.getRequest().getTransactionId(), false);
+            responseWrapper.setResponse(authCode);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;

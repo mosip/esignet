@@ -13,7 +13,7 @@ public class Consent {
     private String clientId;
     private String psuValue;
     private Claims claims;
-    Map<String, Boolean> authorizeScopes;
+    Map<String, Boolean> authorizationScopes;
     private LocalDateTime createdOn;
     private LocalDateTime expiration;
     private String signature;

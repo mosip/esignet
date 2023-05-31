@@ -142,7 +142,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return otpResponse;
     }
 
-    @Override
     public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
@@ -162,7 +161,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
-        transaction.setConsentAction(ConsentAction.CAPTURE);
+        transaction.setConsentAction(ConsentAction.NOCACHE);
         auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
 
         AuthResponse authRespDto = new AuthResponse();
@@ -190,15 +189,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
         transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
         transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
-        if(transaction.getConsentAction() == ConsentAction.CAPTURE) {
-            String identifier = transaction.getClientId() + transaction.getPartnerSpecificUserToken();
-            ConsentCache.addUserConsent(identifier,new UserConsent(
-                    transaction.getRequestedClaims(), transaction.getAcceptedClaims(),transaction.getRequestedAuthorizeScopes(),transaction.getPermittedScopes()
-            ));
-        }
-
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
-
+        cacheUtilService.setAuthenticatedTransaction(authCodeRequest.getTransactionId(), transaction);
         auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
 
         AuthCodeResponse authCodeResponse = new AuthCodeResponse();
