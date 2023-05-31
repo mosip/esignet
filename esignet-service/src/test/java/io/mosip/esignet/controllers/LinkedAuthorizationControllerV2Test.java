@@ -206,11 +206,9 @@ public class LinkedAuthorizationControllerV2Test {
         linkedConsentRequestV2.setLinkedTransactionId("txn-id");
         linkedConsentRequestV2.setLinkedTransactionId("txn-id");
         linkedConsentRequestV2.setSignature("signature");
-
         requestWrapper.setRequest(linkedConsentRequestV2);
 
         Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenReturn(new LinkedConsentResponse());
-        Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenThrow(EsignetException.class);
         mockMvc.perform(post("/linked-authorization/v2/consent")
                         .content(objectMapper.writeValueAsString(requestWrapper))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -228,10 +226,8 @@ public class LinkedAuthorizationControllerV2Test {
         linkedConsentRequestV2.setLinkedTransactionId("txn-id");
         linkedConsentRequestV2.setLinkedTransactionId("txn-id");
         linkedConsentRequestV2.setSignature("signature");
-
         requestWrapper.setRequest(linkedConsentRequestV2);
 
-        //Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenReturn(new LinkedConsentResponse());
         Mockito.when(linkedAuthorizationService.saveConsent(Mockito.any())).thenThrow(InvalidTransactionException.class);
         mockMvc.perform(post("/linked-authorization/v2/consent")
                         .content(objectMapper.writeValueAsString(requestWrapper))
