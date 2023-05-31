@@ -154,7 +154,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 	private String addressValueSeparator;
 	
 	@Value("${ida.idp.consented.name.value.separator: }")
-	private String addressNameSeparator;
+	private String nameValueSeparator;
 	
 	@Value("${ida.kyc.send-face-as-cbeff-xml:false}")
 	private boolean idaSentFaceAsCbeffXml;
@@ -516,7 +516,11 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				}
 			}
 		} else {
-			handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedAddressAttributeName, addressValueSeparator, addressSubsetAttributes);
+			if (consentedAttribute.equals(consentedAddressAttributeName)) {
+			    handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedAddressAttributeName, addressValueSeparator, addressSubsetAttributes);
+			} else if (consentedAttribute.equals(consentedNameAttributeName)) {
+			    handleAttributeWithSubAttributes(mappedConsentedLocales, idSchemaAttributes, idInfoNameAndLangCorrected, respMap, consentedNameAttributeName, nameValueSeparator, nameSubsetAttributes);
+			}
 		}
 	}
 	
