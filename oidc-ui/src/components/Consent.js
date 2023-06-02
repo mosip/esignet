@@ -9,6 +9,7 @@ import FormAction from "./FormAction";
 
 export default function Consent({
   authService,
+  consentAction,
   openIDConnectService,
   logoPath = "logo.png",
   i18nKeyPrefix = "consent",
@@ -126,8 +127,15 @@ export default function Consent({
     ids.uncheck.claim.forEach((_) => elementChecked(_, false));
   };
 
+  //1. If consntAction= capture we will continue the flow in the useEffect and submit it
+  //2. If consentAction = NoCapture we will directly submit it and return
   useEffect(() => {
     const initialize = async () => {
+      if (consentAction === "NOCAPTURE") {
+        submitConsent([],[]);
+        return;
+      }
+
       let oAuthDetails = openIDConnectService.getOAuthDetails();
 
       let claimsScopes = [];
@@ -171,7 +179,7 @@ export default function Consent({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    submitConsent();
+    submitConsent(claims,scope);
   };
 
   const handleCancel = (e) => {
@@ -180,11 +188,9 @@ export default function Consent({
   };
 
   //Handle Login API Integration here
-  const submitConsent = async () => {
+  const submitConsent = async (acceptedClaims,permittedAuthorizeScopes) => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
-      let acceptedClaims = claims;
-      let permittedAuthorizeScopes = scope;
 
       setStatus(states.LOADING);
 
