@@ -23,7 +23,7 @@ import static io.mosip.householdid.esignet.integration.util.ErrorConstants.*;
 @Slf4j
 public class HouseholdAuthenticatorHelper {
 
-    private static final String   KYC_AUTH_CACHE = "kycauthcache";
+    private static final String   KYC_AUTH_CACHE = "hhidauthsession";
     private static final Map<String, List<String>> supportedKycAuthFormats = new HashMap<>();
 
     private static final String PASSWORD = "PWD";
