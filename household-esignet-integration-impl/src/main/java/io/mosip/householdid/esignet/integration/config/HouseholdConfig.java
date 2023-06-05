@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EntityScan(basePackages = "io.mosip.esignet.household.integration.entity")
-@EnableJpaRepositories(basePackages = "io.mosip.esignet.household.integration.repository")
+@EntityScan(basePackages = "io.mosip.householdid.esignet.integration.entity")
+@EnableJpaRepositories(basePackages = "io.mosip.householdid.esignet.integration.repository")
 public class HouseholdConfig {
 }
