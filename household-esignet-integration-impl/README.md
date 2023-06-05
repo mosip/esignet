@@ -3,7 +3,7 @@
 ## About
 e-Signet integration with householdID view. Here the householdID DB view plays the role of ID repository. IDA implementation to identify users based on the provided ID number is part of the authenticator plugin.
 
-KYC returned as part of userinfo response will only contain the subject claim. Subject claim will hold the SHA3-256 hash of household ID and the relying party ID.
+KYC returned as part of userinfo response will only contain the subject claim. Subject claim will hold the household ID.
 
 Prerequisite:
 1. Insert new key alias, in key_alias table, this key is used to sign the KYC
