@@ -369,7 +369,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
         	}
 		} catch (KycExchangeException e) {
 			throw e;
-		} catch (Exception e) {e.printStackTrace();
+		} catch (Exception e) {
 			log.error("IDA Kyc-exchange failed with clientId : {}", clientId, e);
 		}
         throw new KycExchangeException();
