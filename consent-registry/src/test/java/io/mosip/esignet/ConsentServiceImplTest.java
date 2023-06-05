@@ -93,6 +93,30 @@ public class ConsentServiceImplTest {
     }
 
     @Test
+    public void getUserConsent_withEmptyConsent_thenPass() throws Exception{
+        log.info("Test");
+
+        Consent consent = new Consent();
+        consent.setId(UUID.randomUUID());
+        consent.setClientId("1234");
+        consent.setCreatedOn(LocalDateTime.now());
+        consent.setClaims("claims");
+        consent.setHash("hash");
+        consent.setPsuValue("psuValue");
+        consent.setExpiration(LocalDateTime.now());
+
+        Optional<Consent> consentOptional = Optional.of(consent);
+        Mockito.when(consentRepository.findFirstByClientIdAndPsuValueOrderByCreatedOnDesc(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.empty());
+
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId("1234");
+        userConsentRequest.setPsu_token("psuValue");
+
+        Optional<io.mosip.esignet.core.dto.Consent> userConsentDto = consentService.getUserConsent(userConsentRequest);
+        Assert.assertEquals(Optional.empty(), userConsentDto);
+    }
+
+    @Test
     public void saveUserConsent_withValidDetails_thenPass() throws Exception{
         log.info("Test");
 
