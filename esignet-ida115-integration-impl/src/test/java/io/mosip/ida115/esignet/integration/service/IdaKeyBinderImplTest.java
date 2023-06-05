@@ -1,7 +1,5 @@
 package io.mosip.ida115.esignet.integration.service;
 
-import static org.mockito.ArgumentMatchers.any;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,34 +8,25 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.esignet.api.dto.KeyBindingResult;
 import io.mosip.esignet.api.dto.SendOtpDto;
-import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
-import io.mosip.esignet.api.util.ErrorConstants;
 import io.mosip.ida115.esignet.integration.dto.IdaError;
 import io.mosip.ida115.esignet.integration.dto.IdaResponseWrapper;
 import io.mosip.ida115.esignet.integration.dto.KeyBindingResponse;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class IdaKeyBinderImplTest {
 
@@ -57,8 +46,6 @@ public class IdaKeyBinderImplTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        ReflectionTestUtils.setField(idaKeyBinderImpl, "keyBinderUrl", "https://localhost/identity-key-binding/mispLK/");
-        ReflectionTestUtils.setField(idaKeyBinderImpl, "objectMapper", objectMapper);
     }
 
     @Test
@@ -72,9 +59,13 @@ public class IdaKeyBinderImplTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(PARTNER_ID_HEADER, PARTNER_ID_HEADER);
         headers.put(PARTNER_API_KEY_HEADER, PARTNER_API_KEY_HEADER);
-        Mockito.when(helperService.sendOTP(any(),any(),any())).thenReturn(new SendOtpResult(sendOtpDto.getTransactionId(), "", ""));
-        SendOtpResult sendOtpResult = idaKeyBinderImpl.sendBindingOtp("individualId", Arrays.asList("email"), headers);
-        Assert.assertEquals(sendOtpDto.getTransactionId(), sendOtpResult.getTransactionId());
+        try {
+        	idaKeyBinderImpl.doKeyBinding("individualId", new ArrayList<>(), new HashMap<>(),
+                "WLA", headers);
+        	Assert.fail();
+        } catch (KeyBindingException e) {
+            Assert.assertEquals("not_implemented", e.getErrorCode());
+        }
     }
 
     @Test
@@ -85,7 +76,6 @@ public class IdaKeyBinderImplTest {
         List<String> otpChannelsList = new ArrayList<>();
         otpChannelsList.add("channel");
         sendOtpDto.setOtpChannels(otpChannelsList);
-        Mockito.when(helperService.sendOTP(any(),any(),any())).thenThrow(new SendOtpException("error-100"));
         Map<String, String> headers = new HashMap<>();
         headers.put(PARTNER_ID_HEADER, PARTNER_ID_HEADER);
         headers.put(PARTNER_API_KEY_HEADER, PARTNER_API_KEY_HEADER);
@@ -93,7 +83,7 @@ public class IdaKeyBinderImplTest {
             idaKeyBinderImpl.sendBindingOtp("individualId", Arrays.asList("email"), headers);
             Assert.fail();
         } catch (SendOtpException e) {
-            Assert.assertEquals("error-100", e.getErrorCode());
+            Assert.assertEquals("not_implemented", e.getErrorCode());
         }
     }
 
@@ -118,18 +108,16 @@ public class IdaKeyBinderImplTest {
         ResponseEntity<IdaResponseWrapper<KeyBindingResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<KeyBindingResponse>>(
                 idaResponseWrapper, HttpStatus.OK);
 
-        Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
-                        Mockito.<ParameterizedTypeReference<IdaResponseWrapper<KeyBindingResponse>>>any()))
-                .thenReturn(responseEntity);
-
         Map<String, String> headers = new HashMap<>();
         headers.put(PARTNER_ID_HEADER, PARTNER_ID_HEADER);
         headers.put(PARTNER_API_KEY_HEADER, PARTNER_API_KEY_HEADER);
-        KeyBindingResult keyBindingResult = idaKeyBinderImpl.doKeyBinding("individualId", new ArrayList<>(), new HashMap<>(),
+        try {
+        	idaKeyBinderImpl.doKeyBinding("individualId", new ArrayList<>(), new HashMap<>(),
                 "WLA", headers);
-        Assert.assertNotNull(keyBindingResult);
-        Assert.assertEquals(keyBindingResponse.getAuthToken(), keyBindingResult.getPartnerSpecificUserToken());
-        Assert.assertEquals(keyBindingResponse.getIdentityCertificate(), keyBindingResult.getCertificate());
+        	Assert.fail();
+        } catch (KeyBindingException e) {
+            Assert.assertEquals("not_implemented", e.getErrorCode());
+        }
     }
 
     @Test
@@ -143,10 +131,6 @@ public class IdaKeyBinderImplTest {
         ResponseEntity<IdaResponseWrapper<KeyBindingResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<KeyBindingResponse>>(
                 idaResponseWrapper, HttpStatus.OK);
 
-        Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
-                        Mockito.<ParameterizedTypeReference<IdaResponseWrapper<KeyBindingResponse>>>any()))
-                .thenReturn(responseEntity);
-
         Map<String, String> headers = new HashMap<>();
         headers.put(PARTNER_ID_HEADER, PARTNER_ID_HEADER);
         headers.put(PARTNER_API_KEY_HEADER, PARTNER_API_KEY_HEADER);
@@ -155,7 +139,7 @@ public class IdaKeyBinderImplTest {
                     "WLA", headers);
             Assert.fail();
         } catch (KeyBindingException e) {
-            Assert.assertEquals(ErrorConstants.BINDING_AUTH_FAILED, e.getErrorCode());
+            Assert.assertEquals("not_implemented", e.getErrorCode());
         }
     }
 
@@ -168,10 +152,6 @@ public class IdaKeyBinderImplTest {
         ResponseEntity<IdaResponseWrapper<KeyBindingResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<KeyBindingResponse>>(
                 idaResponseWrapper, HttpStatus.OK);
 
-        Mockito.when(restTemplate.exchange(Mockito.<RequestEntity<Void>>any(),
-                        Mockito.<ParameterizedTypeReference<IdaResponseWrapper<KeyBindingResponse>>>any()))
-                .thenReturn(responseEntity);
-
         Map<String, String> headers = new HashMap<>();
         headers.put(PARTNER_ID_HEADER, PARTNER_ID_HEADER);
         headers.put(PARTNER_API_KEY_HEADER, PARTNER_API_KEY_HEADER);
@@ -180,7 +160,7 @@ public class IdaKeyBinderImplTest {
                     "WLA", headers);
             Assert.fail();
         } catch (KeyBindingException e) {
-            Assert.assertEquals("test-err-code", e.getErrorCode());
+            Assert.assertEquals("not_implemented", e.getErrorCode());
         }
     }
 

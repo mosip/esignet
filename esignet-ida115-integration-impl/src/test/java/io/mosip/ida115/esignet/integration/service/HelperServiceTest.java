@@ -1,5 +1,6 @@
 package io.mosip.ida115.esignet.integration.service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,7 +9,6 @@ import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,7 +37,6 @@ import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class HelperServiceTest {
 
@@ -166,6 +165,7 @@ public class HelperServiceTest {
         Mockito.when(restTemplate.getForObject("https://test/test", String.class)).thenReturn("test-certificate");
         Mockito.when(keymanagerUtil.convertToCertificate(Mockito.any(String.class))).thenReturn(TestUtil.getCertificate());
         Mockito.when(cryptoCore.asymmetricEncrypt(Mockito.any(), Mockito.any())).thenReturn("test".getBytes());
+        Mockito.when(cryptoCore.symmetricEncrypt(Mockito.any(),Mockito.any(), Mockito.nullable(byte[].class))).thenReturn("test".getBytes());
 
         IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
         helperService.setAuthRequest(challengeList, idaKycAuthRequest);
@@ -187,7 +187,8 @@ public class HelperServiceTest {
         Mockito.when(restTemplate.getForObject("https://test/test", String.class)).thenReturn("test-certificate");
         Mockito.when(keymanagerUtil.convertToCertificate(Mockito.any(String.class))).thenReturn(TestUtil.getCertificate());
         Mockito.when(cryptoCore.asymmetricEncrypt(Mockito.any(), Mockito.any())).thenReturn("test".getBytes());
-
+        Mockito.when(cryptoCore.symmetricEncrypt(Mockito.any(),Mockito.any(), Mockito.nullable(byte[].class))).thenReturn("test".getBytes());
+        
         IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
         helperService.setAuthRequest(challengeList, idaKycAuthRequest);
         Assert.assertNotNull(idaKycAuthRequest.getRequest());
@@ -214,6 +215,7 @@ public class HelperServiceTest {
         Mockito.when(restTemplate.getForObject("https://test/test", String.class)).thenReturn("test-certificate");
         Mockito.when(keymanagerUtil.convertToCertificate(Mockito.any(String.class))).thenReturn(TestUtil.getCertificate());
         Mockito.when(cryptoCore.asymmetricEncrypt(Mockito.any(), Mockito.any())).thenReturn("test".getBytes());
+        Mockito.when(cryptoCore.symmetricEncrypt(Mockito.any(),Mockito.any(), Mockito.nullable(byte[].class))).thenReturn("test".getBytes());
 
         IdaKycAuthRequest idaKycAuthRequest = new IdaKycAuthRequest();
         helperService.setAuthRequest(challengeList, idaKycAuthRequest);
