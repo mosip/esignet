@@ -21,8 +21,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -36,7 +34,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.authentication.common.service.helper.IdInfoHelper;
 import io.mosip.authentication.common.service.impl.match.BioMatchType;
 import io.mosip.authentication.common.service.integration.TokenIdManager;
-import io.mosip.authentication.core.spi.bioauth.CbeffDocType;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.KycAuthDto;
 import io.mosip.esignet.api.dto.KycAuthResult;
@@ -90,6 +87,8 @@ public class IdaAuthenticatorImplTest {
 	
 	@Mock
 	private SignatureService signatureService;
+
+	private String faceBdb = "face-image";
 
 	@Before
 	public void setUp() {
@@ -205,7 +204,7 @@ public class IdaAuthenticatorImplTest {
 				"addressLine1_eng", List.of(Map.of("value", "address-line-1")),
 				"city_eng", List.of(Map.of("value", "my city")),
 				"pinCode", "221024",
-				CbeffDocType.FACE.getType().value(), "face-image"
+				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
 				);
 		String identityJson = objectMapper.writeValueAsString(identityMap);
 		
@@ -368,7 +367,7 @@ public class IdaAuthenticatorImplTest {
 				"addressLine1_eng", List.of(Map.of("value", "address-line-1")),
 				"city_eng", List.of(Map.of("value", "my city")),
 				"pinCode", "221024",
-				BioMatchType.FACE.getIdMapping().getIdname(), CryptoUtil.encodeToPlainBase64("face-image".getBytes())
+				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
 				);
 		String identityJson = objectMapper.writeValueAsString(identityMap);
 		String data = "ENCRYPTED: " + identityJson;
@@ -398,6 +397,137 @@ public class IdaAuthenticatorImplTest {
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("address")).thenReturn(List.of("addressLine1", "city", "pinCode"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("firstName")).thenReturn(List.of("firstName"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("lastName")).thenReturn(List.of("lastName"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("addressLine1")).thenReturn(List.of("addressLine1"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("city")).thenReturn(List.of("city"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("pinCode")).thenReturn(List.of("pinCode"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("dateOfBirth")).thenReturn(List.of("dateOfBirth"));
+		
+		KycExchangeResult kycExchangeResult = idaAuthenticatorImpl.doKycExchange("relyingPartyId", "clientId",
+				kycExchangeDto);
+
+		Assert.assertEquals(idaKycExchangeResponse.getEncryptedKyc(), kycExchangeResult.getEncryptedKyc());
+	}
+	
+	@Test
+	public void doKycExchange_withValidDetails_thenPass_with_encrypted_data_singleLang() throws Exception {
+		KycExchangeDto kycExchangeDto = new KycExchangeDto();
+		kycExchangeDto.setIndividualId("IND1234");
+		kycExchangeDto.setKycToken("KYCT123");
+		kycExchangeDto.setTransactionId("TRAN123");
+		List<String> acceptedClaims = new ArrayList<>();
+		acceptedClaims.add("name");
+		acceptedClaims.add("dateOfBirth");
+		acceptedClaims.add("sub");
+		acceptedClaims.add("individual_id");
+		acceptedClaims.add("address");
+		acceptedClaims.add("picture");
+		kycExchangeDto.setAcceptedClaims(acceptedClaims);
+		String[] claimsLacales = new String[] { "eng", "ara" };
+		kycExchangeDto.setClaimsLocales(claimsLacales);
+
+		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
+		
+		Map<String, Object> identityMap = Map.of(
+				"dateOfBirth", "1993/08/04", 
+				"firstName_eng", List.of(Map.of("value", "first-name-eng")),
+				"addressLine1_eng", List.of(Map.of("value", "address-line-1")),
+				"city_eng", List.of(Map.of("value", "my city")),
+				"pinCode", "221024",
+				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
+				);
+		String identityJson = objectMapper.writeValueAsString(identityMap);
+		String data = "ENCRYPTED: " + identityJson;
+
+		IdaKycExchangeResponse idaKycExchangeResponse = new IdaKycExchangeResponse();
+		idaKycExchangeResponse.setEncryptedKyc(data);
+
+		IdaResponseWrapper<IdaKycExchangeResponse> idaResponseWrapper = new IdaResponseWrapper<>();
+		idaResponseWrapper.setResponse(idaKycExchangeResponse);
+		idaResponseWrapper.setTransactionID("TRAN123");
+		idaResponseWrapper.setVersion("VER1");
+
+		ResponseEntity<IdaResponseWrapper<IdaKycExchangeResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<IdaKycExchangeResponse>>(
+				idaResponseWrapper, HttpStatus.OK);
+
+		Mockito.when(tokenIdManager.generateTokenId(Mockito.anyString(), Mockito.anyString())).thenReturn("1122334455");
+		JWTSignatureResponseDto jwtSignatureResponseDto = Mockito.mock(JWTSignatureResponseDto.class);
+		Mockito.when(jwtSignatureResponseDto.getJwtSignedData()).thenReturn(data);
+		Mockito.when(signatureService.jwtSign(Mockito.any())).thenReturn(jwtSignatureResponseDto);	
+		String encryptedIdentityData = "sample encrypted data";
+		Mockito.when(identityDataStore.getEncryptedIdentityData(Mockito.anyString(), Mockito.anyString())).thenReturn(encryptedIdentityData);
+		
+		String decryptedIdentityData = CryptoUtil.encodeToURLSafeBase64(identityJson.getBytes());
+		Mockito.when(helperService.decrptData(encryptedIdentityData)).thenReturn(decryptedIdentityData);
+		Mockito.when(mapper.readValue(CryptoUtil.decodeURLSafeBase64(decryptedIdentityData), Map.class)).thenReturn(identityMap);
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("name")).thenReturn(List.of("firstName"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("address")).thenReturn(List.of("addressLine1", "city", "pinCode"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("firstName")).thenReturn(List.of("firstName"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("addressLine1")).thenReturn(List.of("addressLine1"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("city")).thenReturn(List.of("city"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("pinCode")).thenReturn(List.of("pinCode"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("dateOfBirth")).thenReturn(List.of("dateOfBirth"));
+		
+		KycExchangeResult kycExchangeResult = idaAuthenticatorImpl.doKycExchange("relyingPartyId", "clientId",
+				kycExchangeDto);
+
+		Assert.assertEquals(idaKycExchangeResponse.getEncryptedKyc(), kycExchangeResult.getEncryptedKyc());
+	}
+	
+	@Test
+	public void doKycExchange_withValidDetails_thenPass_with_encrypted_data_multiLang() throws Exception {
+		KycExchangeDto kycExchangeDto = new KycExchangeDto();
+		kycExchangeDto.setIndividualId("IND1234");
+		kycExchangeDto.setKycToken("KYCT123");
+		kycExchangeDto.setTransactionId("TRAN123");
+		List<String> acceptedClaims = new ArrayList<>();
+		acceptedClaims.add("name");
+		acceptedClaims.add("dateOfBirth");
+		acceptedClaims.add("sub");
+		acceptedClaims.add("individual_id");
+		acceptedClaims.add("address");
+		acceptedClaims.add("picture");
+		kycExchangeDto.setAcceptedClaims(acceptedClaims);
+		String[] claimsLacales = new String[] { "eng", "ara" };
+		kycExchangeDto.setClaimsLocales(claimsLacales);
+
+		Mockito.when(mapper.writeValueAsString(Mockito.any())).thenReturn("value");
+		
+		Map<String, Object> identityMap = Map.of(
+				"dateOfBirth", "1993/08/04", 
+				"firstName_eng", List.of(Map.of("value", "first-name-eng")),
+				"firstName_ara", List.of(Map.of("value", "first-name-ara")),
+				"addressLine1_eng", List.of(Map.of("value", "address-line-1")),
+				"city_eng", List.of(Map.of("value", "my city")),
+				"pinCode", "221024",
+				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
+				);
+		String identityJson = objectMapper.writeValueAsString(identityMap);
+		String data = "ENCRYPTED: " + identityJson;
+
+		IdaKycExchangeResponse idaKycExchangeResponse = new IdaKycExchangeResponse();
+		idaKycExchangeResponse.setEncryptedKyc(data);
+
+		IdaResponseWrapper<IdaKycExchangeResponse> idaResponseWrapper = new IdaResponseWrapper<>();
+		idaResponseWrapper.setResponse(idaKycExchangeResponse);
+		idaResponseWrapper.setTransactionID("TRAN123");
+		idaResponseWrapper.setVersion("VER1");
+
+		ResponseEntity<IdaResponseWrapper<IdaKycExchangeResponse>> responseEntity = new ResponseEntity<IdaResponseWrapper<IdaKycExchangeResponse>>(
+				idaResponseWrapper, HttpStatus.OK);
+
+		Mockito.when(tokenIdManager.generateTokenId(Mockito.anyString(), Mockito.anyString())).thenReturn("1122334455");
+		JWTSignatureResponseDto jwtSignatureResponseDto = Mockito.mock(JWTSignatureResponseDto.class);
+		Mockito.when(jwtSignatureResponseDto.getJwtSignedData()).thenReturn(data);
+		Mockito.when(signatureService.jwtSign(Mockito.any())).thenReturn(jwtSignatureResponseDto);	
+		String encryptedIdentityData = "sample encrypted data";
+		Mockito.when(identityDataStore.getEncryptedIdentityData(Mockito.anyString(), Mockito.anyString())).thenReturn(encryptedIdentityData);
+		
+		String decryptedIdentityData = CryptoUtil.encodeToURLSafeBase64(identityJson.getBytes());
+		Mockito.when(helperService.decrptData(encryptedIdentityData)).thenReturn(decryptedIdentityData);
+		Mockito.when(mapper.readValue(CryptoUtil.decodeURLSafeBase64(decryptedIdentityData), Map.class)).thenReturn(identityMap);
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("name")).thenReturn(List.of("firstName"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("address")).thenReturn(List.of("addressLine1", "city", "pinCode"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("firstName")).thenReturn(List.of("firstName"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("addressLine1")).thenReturn(List.of("addressLine1"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("city")).thenReturn(List.of("city"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("pinCode")).thenReturn(List.of("pinCode"));
