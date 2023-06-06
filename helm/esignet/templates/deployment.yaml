@@ -70,7 +70,7 @@ spec:
             - name: foo
               mountPath: bar
         {{- end }}
-        {{- if .Values.initContainers }}
+        {{- if .Values.enable_insecure }}
           {{- include "common.tplvalues.render" (dict "value" .Values.initContainers "context" $) | nindent 8 }}
         {{- end }}
       containers:
@@ -130,6 +130,17 @@ spec:
           {{- else if .Values.customReadinessProbe }}
           readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customReadinessProbe "context" $) | nindent 12 }}
           {{- end }}
+          volumeMounts:
+          {{- if .Values.enable_insecure }}
+          - mountPath: /usr/local/openjdk-11/lib/security/cacerts
+            name: cacerts
+            subPath: cacerts
+          {{- end }}
         {{- if .Values.sidecars }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
+      volumes:
+      {{- if .Values.enable_insecure }}
+      - name: cacerts
+        emptyDir: {}
+      {{- end }}
