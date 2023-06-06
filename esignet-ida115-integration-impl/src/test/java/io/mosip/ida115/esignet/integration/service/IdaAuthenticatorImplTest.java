@@ -34,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.mosip.authentication.common.service.helper.IdInfoHelper;
+import io.mosip.authentication.common.service.impl.match.BioMatchType;
 import io.mosip.authentication.common.service.integration.TokenIdManager;
 import io.mosip.authentication.core.spi.bioauth.CbeffDocType;
 import io.mosip.esignet.api.dto.AuthChallenge;
@@ -353,6 +354,7 @@ public class IdaAuthenticatorImplTest {
 		acceptedClaims.add("sub");
 		acceptedClaims.add("individual_id");
 		acceptedClaims.add("address");
+		acceptedClaims.add("picture");
 		kycExchangeDto.setAcceptedClaims(acceptedClaims);
 		String[] claimsLacales = new String[] { "eng" };
 		kycExchangeDto.setClaimsLocales(claimsLacales);
@@ -366,7 +368,7 @@ public class IdaAuthenticatorImplTest {
 				"addressLine1_eng", List.of(Map.of("value", "address-line-1")),
 				"city_eng", List.of(Map.of("value", "my city")),
 				"pinCode", "221024",
-				CbeffDocType.FACE.getType().value(), "face-image"
+				BioMatchType.FACE.getIdMapping().getIdname(), CryptoUtil.encodeToPlainBase64("face-image".getBytes())
 				);
 		String identityJson = objectMapper.writeValueAsString(identityMap);
 		String data = "ENCRYPTED: " + identityJson;
@@ -399,6 +401,7 @@ public class IdaAuthenticatorImplTest {
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("addressLine1")).thenReturn(List.of("addressLine1"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("city")).thenReturn(List.of("city"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("pinCode")).thenReturn(List.of("pinCode"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("dateOfBirth")).thenReturn(List.of("dateOfBirth"));
 		
 		KycExchangeResult kycExchangeResult = idaAuthenticatorImpl.doKycExchange("relyingPartyId", "clientId",
 				kycExchangeDto);

@@ -1,6 +1,5 @@
 package io.mosip.ida115.esignet.integration.service;
 
-import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
