@@ -44,11 +44,35 @@ function installing_onboarder() {
     sed -i 's/\r$//' copy_secrets.sh
     ./copy_secrets.sh
 
+    read -p "Provide onboarder bucket name : " s3_bucket
+    if [[ -z $s3_bucket ]]; then
+      echo "s3_bucket not provided; EXITING;";
+      exit 1;
+    fi
+    if [[ $s3_bucket == *[' !@#$%^&*()+']* ]]; then
+      echo "s3_bucket should not contain spaces / any special character; EXITING";
+      exit 1;
+    fi
+    read -p "Provide onboarder s3 bucket region : " s3_region
+    if [[ $s3_region == *[' !@#$%^&*()+']* ]]; then
+      echo "s3_region should not contain spaces / any special character; EXITING";
+      exit 1;
+    fi
+
+    read -p "Provide S3 URL : " s3_url
+    if [[ -z $s3_url ]]; then
+      echo "s3_url not provided; EXITING;"
+      exit 1;
+    fi
+
+    s3_user_key=$( kubectl -n s3 get cm s3 -o json | jq -r '.data."s3-user-key"' )
+
     echo Onboarding default partners
     helm -n $NS install esignet-resident-oidc-partner-onboarder mosip/partner-onboarder \
-    --set onboarding.configmaps.s3.s3-host='http://minio.minio:9000' \
-    --set onboarding.configmaps.s3.s3-user-key='admin' \
-    --set onboarding.configmaps.s3.s3-region='' \
+    --set onboarding.configmaps.s3.s3-host="$s3_url" \
+    --set onboarding.configmaps.s3.s3-user-key="$s3_user_key" \
+    --set onboarding.configmaps.s3.s3-region="$s3_region" \
+    --set onboarding.configmaps.s3.s3-bucket-name="$s3_bucket" \
     $ENABLE_INSECURE \
     -f values.yaml \
     --version $CHART_VERSION
