@@ -46,25 +46,29 @@ public class ConsentHelperService {
         userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
         Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
 
-        ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : validateConsentAction(transaction,consent.get());
+        ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction,consent.get());
 
         transaction.setConsentAction(consentAction);
 
         if(consentAction.equals(ConsentAction.NOCAPTURE)) {
-            ConsentDetail userConsentDetail = consent.get();
-            log.info("consent {}", userConsentDetail);
-            List<String> acceptedClaims = userConsentDetail.getClaims().getUserinfo().entrySet().stream().
-                    filter(entry -> entry != null && entry.getValue() != null && entry.getValue().isAccepted())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            List<String> permittedScopes = userConsentDetail.getAuthorizationScopes().entrySet().stream()
-                    .filter(Map.Entry::getValue)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            transaction.setAcceptedClaims(acceptedClaims);
-            transaction.setPermittedScopes(permittedScopes);
+            parseConsent(transaction, consent);
         }
         cacheUtilService.setAuthenticatedTransaction(transactionId,transaction);
+    }
+
+    private static void parseConsent(OIDCTransaction transaction, Optional<ConsentDetail> consent) {
+        ConsentDetail userConsentDetail = consent.get();
+        log.debug("consent {}", userConsentDetail);
+        List<String> acceptedClaims = userConsentDetail.getClaims().getUserinfo().entrySet().stream().
+                filter(entry -> entry != null && entry.getValue() != null && entry.getValue().isAccepted())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        List<String> permittedScopes = userConsentDetail.getAuthorizationScopes().entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        transaction.setAcceptedClaims(acceptedClaims);
+        transaction.setPermittedScopes(permittedScopes);
     }
 
     public LinkedKycAuthResponseV2 processLinkedConsent(String linkedAuthTransactionId) {
@@ -78,7 +82,7 @@ public class ConsentHelperService {
 
         ConsentAction consentAction =  ConsentAction.CAPTURE;
         if(consent.isPresent()) {
-            consentAction = validateConsentAction(transaction,consent.get());
+            consentAction = evaluateConsentAction(transaction,consent.get());
             if(consentAction.equals(ConsentAction.NOCAPTURE)){
                 if(!validateSignature(transaction,consent.get())){
                     consentAction = ConsentAction.CAPTURE;
@@ -88,18 +92,7 @@ public class ConsentHelperService {
         transaction.setConsentAction(consentAction);
 
         if(consentAction.equals(ConsentAction.NOCAPTURE)) {
-            ConsentDetail userConsentDetail = consent.get();
-            log.info("consent {}", userConsentDetail);
-            List<String> acceptedClaims = userConsentDetail.getClaims().getUserinfo().entrySet().stream().
-                    filter(entry -> entry != null && entry.getValue() != null && entry.getValue().isAccepted())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            List<String> permittedScopes = userConsentDetail.getAuthorizationScopes().entrySet().stream()
-                    .filter(Map.Entry::getValue)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            transaction.setAcceptedClaims(acceptedClaims);
-            transaction.setPermittedScopes(permittedScopes);
+            parseConsent(transaction, consent);
         }
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedAuthTransactionId,transaction);
         if(consentAction.equals(ConsentAction.NOCAPTURE)){
@@ -115,7 +108,7 @@ public class ConsentHelperService {
     public void addUserConsent(String transactionId, boolean linked, String signature) {
         OIDCTransaction transaction;
         if(!linked) {
-            transaction = cacheUtilService.getWebConsentedTransaction(transactionId);
+            transaction = cacheUtilService.getUserConsentedTransaction(transactionId);
         } else {
             transaction = cacheUtilService.getLinkedConsentedTransaction(transactionId);
         }
@@ -156,7 +149,7 @@ public class ConsentHelperService {
     }
 
 
-    private static ConsentAction validateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail) {
+    private static ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail) {
         if(consentDetail == null) {
             return ConsentAction.CAPTURE;
         }
@@ -164,9 +157,10 @@ public class ConsentHelperService {
         Claims requestedClaims = transaction.getRequestedClaims();
         List<String> requestedScopes = transaction.getRequestedAuthorizeScopes();
 
-        if(((requestedClaims == null ||
+        if((requestedClaims == null ||
                 (requestedClaims.getId_token().isEmpty() && requestedClaims.getUserinfo().isEmpty()))
-                && requestedScopes.isEmpty())
+                && requestedScopes.isEmpty()
+
         ) {
             return ConsentAction.NOCAPTURE;
         }

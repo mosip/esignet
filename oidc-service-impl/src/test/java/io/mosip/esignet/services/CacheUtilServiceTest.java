@@ -52,7 +52,7 @@ public class CacheUtilServiceTest {
 
 		Assert.assertEquals(cacheUtilService.setConsentTransaction("123456789", transaction), transaction);
 		Assert.assertEquals(cacheUtilService.setLinkedConsentTransaction("123456789", transaction), transaction);
-		Assert.assertNotNull(cacheUtilService.getWebConsentedTransaction("123456789"));
+		Assert.assertNotNull(cacheUtilService.getUserConsentedTransaction("123456789"));
 		Assert.assertNotNull(cacheUtilService.getLinkedConsentedTransaction("123456789"));
 
         Assert.assertNotNull(cacheUtilService.getPreAuthTransaction("123456789"));

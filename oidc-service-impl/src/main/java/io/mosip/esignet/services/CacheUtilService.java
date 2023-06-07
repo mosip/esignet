@@ -155,7 +155,7 @@ public class CacheUtilService {
     }
 
     @CacheEvict(value = Constants.CONSENT_CACHE, key = "#transactionId", condition = "#transactionId != null")
-    public OIDCTransaction getWebConsentedTransaction(String transactionId) {
+    public OIDCTransaction getUserConsentedTransaction(String transactionId) {
         return cacheManager.getCache(Constants.CONSENT_CACHE).get(transactionId,OIDCTransaction.class);
     }
     @CacheEvict(value = Constants.LINKED_CONSENT_CACHE, key = "#linkedTransactionId", condition = "#linkedTransactionId != null")

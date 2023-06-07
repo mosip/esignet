@@ -204,7 +204,6 @@ public class LinkedAuthorizationControllerV2Test {
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
         LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
         linkedConsentRequestV2.setLinkedTransactionId("txn-id");
-        linkedConsentRequestV2.setLinkedTransactionId("txn-id");
         linkedConsentRequestV2.setSignature("signature");
         requestWrapper.setRequest(linkedConsentRequestV2);
 

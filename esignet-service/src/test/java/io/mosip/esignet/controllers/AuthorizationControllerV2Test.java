@@ -124,7 +124,7 @@ public class AuthorizationControllerV2Test {
     }
 
     @Test
-    public void authenticateEndUser_withInalidTransectionId_returnErrorResponse() throws Exception {
+    public void authenticateEndUser_withInvalidTransectionId_returnErrorResponse() throws Exception {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setIndividualId("1234567890");
 
@@ -155,7 +155,7 @@ public class AuthorizationControllerV2Test {
     }
 
     @Test
-    public void authenticateEndUser_withInalidAuthChallenge_returnErrorResponse() throws Exception {
+    public void authenticateEndUser_withInvalidAuthChallenge_returnErrorResponse() throws Exception {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setIndividualId("1234567890");
         authRequest.setTransactionId("1234567890");
