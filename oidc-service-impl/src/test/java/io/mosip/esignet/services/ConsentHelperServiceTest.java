@@ -2,7 +2,9 @@ package io.mosip.esignet.services;
 
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ConsentService;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
@@ -49,9 +51,10 @@ public class ConsentHelperServiceTest {
         Claims claims = new Claims();
         Map<String, ClaimDetail> userinfo = new HashMap<>();
         Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoClaimDetail = new ClaimDetail("value1", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("value2", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("userinfoKey", userinfoClaimDetail);
+        ClaimDetail userinfoNameClaimDetail = new ClaimDetail("name", new String[]{"value1a", "value1b"}, true);
+        ClaimDetail idTokenClaimDetail = new ClaimDetail("token", new String[]{"value2a", "value2b"}, false);
+        userinfo.put("name", userinfoNameClaimDetail);
+        userinfo.put("email",null);
         id_token.put("idTokenKey", idTokenClaimDetail);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
@@ -93,14 +96,14 @@ public class ConsentHelperServiceTest {
         consentHelperService.addUserConsent("123", false, "");
     }
 
-    @Test
+    @Test()
     public void addUserConsent_withInValidDetails_thenFail()
     {
         Mockito.when(cacheUtilService.getLinkedConsentedTransaction("123")).thenReturn(null);
        try{
             consentHelperService.addUserConsent("123", true, null);
             Assert.fail();
-        }catch (Exception e)
+        }catch (InvalidTransactionException e)
         {
             Assert.assertEquals(e.getMessage(),"invalid_transaction");
         }
@@ -221,7 +224,7 @@ public class ConsentHelperServiceTest {
         try{
             LinkedKycAuthResponseV2 linkedKycAuthResponseV2 = consentHelperService.processLinkedConsent("123");
             Assert.fail();
-        }catch (Exception e)
+        }catch (InvalidTransactionException e)
         {
             Assert.assertEquals(e.getMessage(),"invalid_transaction");
         }

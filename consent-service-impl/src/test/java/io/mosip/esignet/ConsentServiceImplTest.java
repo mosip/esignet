@@ -16,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.modelmapper.MappingException;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +41,7 @@ public class ConsentServiceImplTest {
 
 
     @Test
-    public void getUserConsent_withValidDetails_thenPass() throws Exception{
+    public void getUserConsent_withValidDetails_thenPass(){
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setId(UUID.randomUUID());
         consentDetail.setClientId("1234");
@@ -62,8 +64,8 @@ public class ConsentServiceImplTest {
 
     }
 
-    @Test
-    public void getUserConsent_withInValidClaimsDetails_thenFail() throws Exception{
+    @Test(expected = MappingException.class)
+    public void getUserConsent_withInValidClaimsDetails_thenFail(){
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setId(UUID.randomUUID());
         consentDetail.setClientId("1234");
@@ -78,16 +80,25 @@ public class ConsentServiceImplTest {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId("1234");
         userConsentRequest.setPsuToken("psuValue");
-        try{
-            Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
-            Assert.fail();
-        }catch (Exception e){
-            Assert.assertTrue(true);
-        }
+
+        consentService.getUserConsent(userConsentRequest);
     }
 
     @Test
-    public void saveUserConsent_withValidDetails_thenPass() throws Exception{
+    public void getUserConsent_withEmptyConsent_thenPass(){
+        log.info("Test");
+        Mockito.when(consentRepository.findFirstByClientIdAndPsuTokenOrderByCreatedtimesDesc(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.empty());
+
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId("1234");
+        userConsentRequest.setPsuToken("psuValue");
+
+        Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
+        Assert.assertEquals(Optional.empty(), userConsentDto);
+    }
+
+    @Test
+    public void saveUserConsent_withValidDetails_thenPass(){
         Claims claims = new Claims();
 
         Map<String, ClaimDetail> userinfo = new HashMap<>();
@@ -126,14 +137,10 @@ public class ConsentServiceImplTest {
 
     }
 
-    @Test
-    public void saveUserConsent_withInValidDetails_thenFail() throws Exception{
-        try{
-            io.mosip.esignet.core.dto.ConsentDetail userConsentDtoDetail = consentService.saveUserConsent(null);
-            Assert.fail();
-        }catch (Exception e) {
-            Assert.assertTrue(true);
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void saveUserConsent_withInValidDetails_thenFail(){
+            consentService.saveUserConsent(null);
+
     }
 
 

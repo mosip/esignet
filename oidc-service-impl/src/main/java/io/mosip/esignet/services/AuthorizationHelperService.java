@@ -345,7 +345,6 @@ public class AuthorizationHelperService {
     public AuthResponseV2 authResponseV2Mapper(AuthResponse authResponse) throws EsignetException {
         AuthResponseV2 authResponseV2 = new AuthResponseV2();
         authResponseV2.setTransactionId(authResponse.getTransactionId());
-//        log.debug("consent {}", );
         OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authResponse.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
