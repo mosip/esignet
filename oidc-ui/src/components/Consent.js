@@ -282,6 +282,7 @@ export default function Consent({
                 type={buttonTypes.button}
                 text={t("allow")}
                 handleClick={handleSubmit}
+                id="allow"
               />
             </div>
           )}
