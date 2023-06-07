@@ -63,9 +63,7 @@ public class IdaAuthenticatorImplTest {
 	Ida115AuthenticatorImpl idaAuthenticatorImpl;
 
 	@Mock
-	ObjectMapper mapper;
-	
-	ObjectMapper objectMapper = new ObjectMapper();
+	ObjectMapper mapper = new ObjectMapper();;
 	
 	@Mock
 	IdInfoHelper idInfoHelper;
@@ -205,7 +203,7 @@ public class IdaAuthenticatorImplTest {
 				"pinCode", "221024",
 				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
 				);
-		String identityJson = objectMapper.writeValueAsString(identityMap);
+		String identityJson = mapper.writeValueAsString(identityMap);
 		
 		String enctyptedData = "Encrypted: " + identityJson;
 		idaKycAuthResponse.setIdentity(CryptoUtil.encodeToPlainBase64(enctyptedData.getBytes()));
@@ -368,7 +366,7 @@ public class IdaAuthenticatorImplTest {
 				"pinCode", "221024",
 				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
 				);
-		String identityJson = objectMapper.writeValueAsString(identityMap);
+		String identityJson = mapper.writeValueAsString(identityMap);
 		String data = "ENCRYPTED: " + identityJson;
 
 		IdaKycExchangeResponse idaKycExchangeResponse = new IdaKycExchangeResponse();
@@ -435,7 +433,7 @@ public class IdaAuthenticatorImplTest {
 					"addressLine1_eng", List.of(Map.of("value", "address-line-1")), "city_eng",
 					List.of(Map.of("value", "my city")), "pinCode", "221024",
 					BioMatchType.FACE.getIdMapping().getIdname(), faceBdb);
-			String identityJson = objectMapper.writeValueAsString(identityMap);
+			String identityJson = mapper.writeValueAsString(identityMap);
 			String data = "ENCRYPTED: " + identityJson;
 
 			IdaKycExchangeResponse idaKycExchangeResponse = new IdaKycExchangeResponse();
@@ -510,7 +508,7 @@ public class IdaAuthenticatorImplTest {
 				"pinCode", "221024",
 				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
 				);
-		String identityJson = objectMapper.writeValueAsString(identityMap);
+		String identityJson = mapper.writeValueAsString(identityMap);
 		String data = "ENCRYPTED: " + identityJson;
 
 		IdaKycExchangeResponse idaKycExchangeResponse = new IdaKycExchangeResponse();
@@ -576,7 +574,7 @@ public class IdaAuthenticatorImplTest {
 				"pinCode", "221024",
 				BioMatchType.FACE.getIdMapping().getIdname(), faceBdb
 				);
-		String identityJson = objectMapper.writeValueAsString(identityMap);
+		String identityJson = mapper.writeValueAsString(identityMap);
 		String data = "ENCRYPTED: " + identityJson;
 
 		IdaKycExchangeResponse idaKycExchangeResponse = new IdaKycExchangeResponse();
