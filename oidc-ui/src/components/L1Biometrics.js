@@ -398,6 +398,7 @@ export default function L1Biometrics({
                       type={buttonTypes.submit}
                       text={t("scan_and_verify")}
                       disabled={!loginState["sbi_mosip-vid"]?.trim()}
+                      id="scan_and_verify"
                     />
                   </div>
                 </>

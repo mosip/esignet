@@ -151,6 +151,7 @@ export default function OtpGet({
             type={buttonTypes.button}
             text={t("get_otp")}
             handleClick={sendOTP}
+            id="get_otp"
             disabled={!loginState["Otp_mosip-vid"]?.trim() || (showCaptcha && captchaToken === null)}
           />
         </div>

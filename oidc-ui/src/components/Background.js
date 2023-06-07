@@ -17,9 +17,11 @@ export default function Background({
 }) {
   const tabs = [
     {
+      id:"wallet_tab_id",
       name: "inji_tab_name",
     },
     {
+      id:"here_tab_id",
       name: "here_tab_name",
     },
   ];
@@ -69,6 +71,7 @@ export default function Background({
                           className="-mb-px flex-auto text-center"
                         >
                           <a
+                            id={tab.id}
                             className={
                               "text-xs font-bold uppercase py-2 rounded block leading-normal " +
                               (openTab === index
@@ -116,6 +119,7 @@ export default function Background({
                   <div className={openTab === 1 ? "block" : "hidden"}>
                     <div className="flex justify-center">
                       <button
+                        id="more_ways_to_sign_in"
                         className={
                           "text-gray-500 font-semibold" +
                           (showMoreOption ? " block" : " hidden")

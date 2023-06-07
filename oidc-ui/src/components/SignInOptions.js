@@ -61,7 +61,7 @@ export default function SignInOptions({
           {singinOptions.map((option, idx) => (
             <div key={idx}>
               <button
-                className="text-gray-500 font-semibold text-base"
+                className="text-gray-500 font-semibold text-base"  id={`login_with_${option.label.toLowerCase()}`}
                 onClick={(e) => handleSignInOptionClick(option.value)}
               >
                 <div className="flex items-center">

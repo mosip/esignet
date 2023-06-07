@@ -149,7 +149,7 @@ export default function Password({
           </div>
         ))}
 
-        <FormAction type={buttonTypes.submit} text={t("login")} />
+        <FormAction type={buttonTypes.submit} text={t("login")} id="verify_password"/>
       </form>
       {status === states.LOADING && (
         <div>
