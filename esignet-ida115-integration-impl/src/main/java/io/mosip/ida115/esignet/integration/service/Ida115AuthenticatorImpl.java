@@ -565,9 +565,6 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
 				if(idInfoList != null) {
 					Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
-					if (identityInfoValue.length() > 0) {
-						identityInfoValue.append(valueSeparator);
-					}
 					if (mappedLangCodes.keySet().contains(localeValue)) {
 						String langCode = mappedLangCodes.get(localeValue);
 						for (IdentityInfoDTO identityInfo : idInfoList) { 
@@ -580,6 +577,9 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 							}
 						}
 					} else {
+						if (identityInfoValue.length() > 0) {
+							identityInfoValue.append(valueSeparator);
+						}
 						if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
 							identityInfoValue.append(idInfoList.get(0).getValue());
 						}
@@ -591,9 +591,9 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 		//String trimmedValue = identityInfoValueStr.substring(0, identityInfoValueStr.lastIndexOf(addressValueSeparator));
 		attributesMap.put(FORMATTED + localeAppendValue, identityInfoValue.toString());
 		if (langCodeFound && addLocale) {
-			respMap.put(consentedAttributeName + localeAppendValue, (consentedAttributeName.equals(consentedAddressAttributeName)) ? attributesMap : identityInfoValue.toString());
+			respMap.put(consentedAttributeName + localeAppendValue, (consentedAttributeName.equals(consentedAddressAttributeName) || consentedAttributeName.equals(consentedNameAttributeName)) ? attributesMap : identityInfoValue.toString());
 		} else {
-			respMap.put(consentedAttributeName, (consentedAttributeName.equals(consentedAddressAttributeName)) ? attributesMap : identityInfoValue.toString());
+			respMap.put(consentedAttributeName, (consentedAttributeName.equals(consentedAddressAttributeName) || consentedAttributeName.equals(consentedNameAttributeName)) ? attributesMap : identityInfoValue.toString());
 		}
 	}
 	
