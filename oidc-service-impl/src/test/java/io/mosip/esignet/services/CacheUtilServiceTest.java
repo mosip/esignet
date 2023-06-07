@@ -50,6 +50,11 @@ public class CacheUtilServiceTest {
         Assert.assertEquals(cacheUtilService.setAuthCodeGeneratedTransaction("123456789", transaction), transaction);
         Assert.assertEquals(cacheUtilService.setUserInfoTransaction("123456789", transaction), transaction);
 
+		Assert.assertEquals(cacheUtilService.setConsentTransaction("123456789", transaction), transaction);
+		Assert.assertEquals(cacheUtilService.setLinkedConsentTransaction("123456789", transaction), transaction);
+		Assert.assertNotNull(cacheUtilService.getWebConsentedTransaction("123456789"));
+		Assert.assertNotNull(cacheUtilService.getLinkedConsentedTransaction("123456789"));
+
         Assert.assertNotNull(cacheUtilService.getPreAuthTransaction("123456789"));
         Assert.assertEquals(cacheUtilService.getPreAuthTransaction("123456789").getIndividualId(), "4258935620");
         Assert.assertNotNull(cacheUtilService.getAuthenticatedTransaction("123456789"));

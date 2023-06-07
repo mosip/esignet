@@ -38,7 +38,7 @@ public class ConsentHelperServiceTest {
 
 
     @Test
-    public void addUserConsent_withValidDetails_thenPass()
+    public void addUserConsent_withValidLinkedTransaction_thenPass()
     {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setAuthTransactionId("123");
@@ -63,6 +63,34 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.saveUserConsent(Mockito.any())).thenReturn(new ConsentDetail());
 
         consentHelperService.addUserConsent("123", true, null);
+    }
+
+    @Test
+    public void addUserConsent_withValidWebTransaction_thenPass()
+    {
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setAuthTransactionId("123");
+        oidcTransaction.setAcceptedClaims(List.of("name","email"));
+        oidcTransaction.setPermittedScopes(null);
+        oidcTransaction.setConsentAction(ConsentAction.CAPTURE);
+
+        Claims claims = new Claims();
+        Map<String, ClaimDetail> userinfo = new HashMap<>();
+        Map<String, ClaimDetail> id_token = new HashMap<>();
+        ClaimDetail userinfoClaimDetail = new ClaimDetail("value1", new String[]{"value1a", "value1b"}, true);
+        ClaimDetail idTokenClaimDetail = new ClaimDetail("value2", new String[]{"value2a", "value2b"}, false);
+        userinfo.put("userinfoKey", userinfoClaimDetail);
+        id_token.put("idTokenKey", idTokenClaimDetail);
+        claims.setUserinfo(userinfo);
+        claims.setId_token(id_token);
+
+        oidcTransaction.setRequestedClaims(claims);
+
+        Mockito.when(cacheUtilService.getWebConsentedTransaction("123")).thenReturn(oidcTransaction);
+
+        Mockito.when(consentService.saveUserConsent(Mockito.any())).thenReturn(new Consent());
+
+        consentHelperService.addUserConsent("123", false);
     }
 
     @Test
@@ -129,6 +157,45 @@ public class ConsentHelperServiceTest {
     }
 
     @Test
+    public void processLinkedConsent_withEmptyConsent(){
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setAuthTransactionId("123");
+        oidcTransaction.setClientId("123");
+        oidcTransaction.setPartnerSpecificUserToken("123");
+        oidcTransaction.setAcceptedClaims(List.of("name","email"));
+        oidcTransaction.setPermittedScopes(null);
+        oidcTransaction.setConsentAction(ConsentAction.CAPTURE);
+        oidcTransaction.setRequestedAuthorizeScopes(List.of("openid","profile"));
+
+        Claims claims = new Claims();
+        Map<String, ClaimDetail> userinfo = new HashMap<>();
+        Map<String, ClaimDetail> id_token = new HashMap<>();
+        ClaimDetail userinfoClaimDetail = new ClaimDetail("value1", new String[]{"value1a", "value1b"}, true);
+        ClaimDetail idTokenClaimDetail = new ClaimDetail("value2", new String[]{"value2a", "value2b"}, false);
+        userinfo.put("userinfoKey", userinfoClaimDetail);
+        id_token.put("idTokenKey", idTokenClaimDetail);
+        claims.setUserinfo(userinfo);
+        claims.setId_token(id_token);
+
+        oidcTransaction.setRequestedClaims(claims);
+
+        Mockito.when(cacheUtilService.getLinkedAuthTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+
+        Mockito.when(consentService.getUserConsent(Mockito.any())).thenReturn(Optional.empty());
+
+        Mockito.when(cacheUtilService.setLinkedAuthenticatedTransaction(Mockito.anyString(),Mockito.any(OIDCTransaction.class))).
+                thenReturn(oidcTransaction);
+
+        LinkedKycAuthResponseV2 linkedKycAuthResponseV2 = consentHelperService.processLinkedConsent("123");
+        Assert.assertNotNull(linkedKycAuthResponseV2);
+
+        Assert.assertEquals(linkedKycAuthResponseV2.getLinkedTransactionId(),oidcTransaction.getAuthTransactionId());
+        Assert.assertEquals(linkedKycAuthResponseV2.getConsentAction(),oidcTransaction.getConsentAction());
+
+    }
+
+    @Test
     public void processLinkedConsent_withInValidDetails_thenFail(){
 
         OIDCTransaction oidcTransaction = new OIDCTransaction();
@@ -159,6 +226,7 @@ public class ConsentHelperServiceTest {
             Assert.assertEquals(e.getMessage(),"invalid_transaction");
         }
     }
+
 
     @Test
     public void processConsent_withValidConsent(){
