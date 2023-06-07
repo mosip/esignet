@@ -55,7 +55,7 @@ function installing_onboarder() {
 
     echo Reports are moved to S3 under onboarder bucket
 
-    echo Copying esignet misp license key to secrets
+    echo Updating esignet misp license key to secrets
     MISPKEY=$(bash misp_key.sh)
     echo "MISP License key is: $MISPKEY"
 
@@ -67,7 +67,7 @@ function installing_onboarder() {
     kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/onboarder-keys deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
 
     kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
-    echo E-signet MISP License Key successfully copied
+    echo E-signet MISP License Key successfully updated
 
     return 0
   fi
