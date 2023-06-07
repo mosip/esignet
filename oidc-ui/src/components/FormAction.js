@@ -5,6 +5,7 @@ export default function FormAction({
   type = "Button", //valid values: Button, Submit and Reset
   text,
   disabled = false,
+  id
 }) {
   const className =
     "flex justify-center w-full font-medium rounded-lg text-sm px-5 py-2 text-center border border-2 ";
@@ -23,6 +24,7 @@ export default function FormAction({
           }
           onClick={handleClick}
           disabled={disabled}
+          id={id}
         >
           {text}
         </button>
@@ -39,6 +41,7 @@ export default function FormAction({
           }
           onSubmit={handleClick}
           disabled={disabled}
+          id={id}
         >
           {text}
         </button>
@@ -71,6 +74,7 @@ export default function FormAction({
           }
           onClick={handleClick}
           disabled={disabled}
+          id="cancel"
         >
           {text}
         </button>
