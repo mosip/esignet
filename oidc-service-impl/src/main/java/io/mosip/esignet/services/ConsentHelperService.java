@@ -121,7 +121,7 @@ public class ConsentHelperService {
         }
         if(transaction == null)
             throw new InvalidTransactionException();
-        if(transaction.getConsentAction().equals(ConsentAction.CAPTURE)){
+        if(ConsentAction.CAPTURE.equals(transaction.getConsentAction())){
             UserConsent userConsent = new UserConsent();
             userConsent.setClientId(transaction.getClientId());
             userConsent.setPsuToken(transaction.getPartnerSpecificUserToken());

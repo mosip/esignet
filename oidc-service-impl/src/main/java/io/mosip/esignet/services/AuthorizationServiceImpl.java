@@ -176,7 +176,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
         List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
-        if(transaction.getConsentAction() == ConsentAction.NOCAPTURE) {
+        if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
             acceptedClaims = transaction.getAcceptedClaims();
             acceptedScopes = transaction.getPermittedScopes();
         }
