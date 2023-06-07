@@ -88,9 +88,9 @@ public class ConsentHelperServiceTest {
 
         Mockito.when(cacheUtilService.getWebConsentedTransaction("123")).thenReturn(oidcTransaction);
 
-        Mockito.when(consentService.saveUserConsent(Mockito.any())).thenReturn(new Consent());
+        Mockito.when(consentService.saveUserConsent(Mockito.any())).thenReturn(new ConsentDetail());
 
-        consentHelperService.addUserConsent("123", false);
+        consentHelperService.addUserConsent("123", false, "");
     }
 
     @Test
