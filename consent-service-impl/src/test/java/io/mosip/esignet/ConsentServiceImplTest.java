@@ -86,7 +86,6 @@ public class ConsentServiceImplTest {
 
     @Test
     public void getUserConsent_withEmptyConsent_thenPass(){
-        log.info("Test");
         Mockito.when(consentRepository.findFirstByClientIdAndPsuTokenOrderByCreatedtimesDesc(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.empty());
 
         UserConsentRequest userConsentRequest = new UserConsentRequest();
