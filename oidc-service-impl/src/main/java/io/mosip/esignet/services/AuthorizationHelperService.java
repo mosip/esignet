@@ -349,8 +349,6 @@ public class AuthorizationHelperService {
         OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authResponse.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
-
-
         authResponseV2.setConsentAction(transaction.getConsentAction());
         return authResponseV2;
     }

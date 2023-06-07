@@ -13,29 +13,27 @@
 -- ------------------------------------------------------------------------------------------
 -- ------------------------------------------------------------------------------------------
 
-create table consent (
+create table consent_detail (
     id UUID NOT NULL,
     client_id VARCHAR NOT NULL,
-    psu_value VARCHAR NOT NULL,
+    psu_token VARCHAR NOT NULL,
     claims VARCHAR NOT NULL,
     authorization_scopes VARCHAR NOT NULL,
-    created_on TIMESTAMP DEFAULT NOW() NOT NULL,
-    expiration TIMESTAMP,
+    cr_dtimes TIMESTAMP DEFAULT NOW() NOT NULL,
+    expire_dtimes TIMESTAMP,
     signature VARCHAR,
-    hash VARCHAR,
     PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_consent_psu_client ON consent(psu_value, client_id);
+CREATE INDEX IF NOT EXISTS idx_consent_psu_client ON consent_detail(psu_token, client_id, cr_dtimes);
 
-COMMENT ON TABLE consent IS 'Contains user consent details';
+COMMENT ON TABLE consent_detail IS 'Contains user consent details';
 
-COMMENT ON COLUMN consent.id IS 'UUID : Unique id associated with each consent';
-COMMENT ON COLUMN consent.client_id IS 'Client_id: associated with ';
-COMMENT ON COLUMN consent.psu_value IS 'PSU value associated with user consent';
-COMMENT ON COLUMN consent.claims IS 'Json of requested and user accepted claims';
-COMMENT ON COLUMN consent.authorization_scopes IS 'Json string of user accepted authorization scope';
-COMMENT ON COLUMN consent.created_on IS 'Consent creation date';
-COMMENT ON COLUMN consent.expiration IS 'Expiration date';
-COMMENT ON COLUMN consent.signature IS 'Signature of consent object ';
-COMMENT ON COLUMN consent.hash IS 'hash of consent object';
+COMMENT ON COLUMN consent_detail.id IS 'UUID : Unique id associated with each consent';
+COMMENT ON COLUMN consent_detail.client_id IS 'Client_id: associated with relying party';
+COMMENT ON COLUMN consent_detail.psu_token IS 'PSU token associated with user consent';
+COMMENT ON COLUMN consent_detail.claims IS 'Json of requested and user accepted claims';
+COMMENT ON COLUMN consent_detail.authorization_scopes IS 'Json string of user accepted authorization scope';
+COMMENT ON COLUMN consent_detail.cr_dtimes IS 'Consent creation date';
+COMMENT ON COLUMN consent_detail.expire_dtimes IS 'Expiration date';
+COMMENT ON COLUMN consent_detail.signature IS 'Signature of consent object ';
 

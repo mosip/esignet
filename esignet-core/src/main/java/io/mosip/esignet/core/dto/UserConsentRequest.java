@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class UserConsentRequest {
-    String psu_token;
+    String psuToken;
     String clientId;
 }

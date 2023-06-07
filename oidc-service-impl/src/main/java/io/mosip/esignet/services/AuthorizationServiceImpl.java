@@ -161,7 +161,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
-        transaction.setConsentAction(ConsentAction.NOCACHE);
         auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
 
         AuthResponse authRespDto = new AuthResponse();
@@ -187,8 +186,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
         // cache consent with auth-code-hash as key
         transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
-        transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
-        transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
+        transaction.setAcceptedClaims(acceptedClaims);
+        transaction.setPermittedScopes(acceptedScopes);
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
         cacheUtilService.setConsentTransaction(authCodeRequest.getTransactionId(), transaction);
         auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);

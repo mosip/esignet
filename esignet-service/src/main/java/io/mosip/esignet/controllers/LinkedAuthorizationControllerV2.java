@@ -16,6 +16,7 @@ import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.ConsentHelperService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,17 +29,12 @@ import javax.validation.Valid;
 @RequestMapping("/linked-authorization/v2")
 public class LinkedAuthorizationControllerV2 {
 
-    private final LinkedAuthorizationService linkedAuthorizationService;
-    private final AuditPlugin auditWrapper;
-    private final AuthorizationHelperService authorizationHelperService;
-    private final ConsentHelperService consentHelperService;
-
-    public LinkedAuthorizationControllerV2(LinkedAuthorizationService linkedAuthorizationService, AuditPlugin auditWrapper, AuthorizationHelperService authorizationHelperService, ConsentHelperService consentHelperService) {
-        this.linkedAuthorizationService = linkedAuthorizationService;
-        this.auditWrapper = auditWrapper;
-        this.authorizationHelperService = authorizationHelperService;
-        this.consentHelperService = consentHelperService;
-    }
+    @Autowired
+    private LinkedAuthorizationService linkedAuthorizationService;
+    @Autowired
+    private AuditPlugin auditWrapper;
+    @Autowired
+    private ConsentHelperService consentHelperService;
 
 
     @PostMapping("/authenticate")
@@ -68,7 +64,7 @@ public class LinkedAuthorizationControllerV2 {
             linkedConsentRequest.setAcceptedClaims(linkedConsentRequestV2.getAcceptedClaims());
             linkedConsentRequest.setPermittedAuthorizeScopes(linkedConsentRequestV2.getPermittedAuthorizeScopes());
             LinkedConsentResponse linkedConsentResponse = linkedAuthorizationService.saveConsent(linkedConsentRequest);
-            consentHelperService.addUserConsent(linkedConsentRequest.getLinkedTransactionId(), true);
+            consentHelperService.addUserConsent(linkedConsentRequest.getLinkedTransactionId(), true, linkedConsentRequestV2.getSignature());
             responseWrapper.setResponse(linkedConsentResponse);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);

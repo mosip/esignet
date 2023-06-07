@@ -1,7 +1,7 @@
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.dto.Consent;
-import io.mosip.esignet.core.dto.ConsentRequest;
+import io.mosip.esignet.core.dto.ConsentDetail;
+import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.exception.EsignetException;
 
@@ -14,14 +14,14 @@ public interface ConsentService {
      * @param userConsentRequest Consent Request object containing client_id and psu_token
      * @return the Consent wrapped in an {@link Optional}
      */
-    Optional<Consent> getUserConsent(UserConsentRequest userConsentRequest);
+    Optional<ConsentDetail> getUserConsent(UserConsentRequest userConsentRequest);
 
     /**
      * Api to Add User Consent data in Consent Registry
      *
-     * @param consentRequest consentRequest Object
-     * @return {@link Consent} Consent Response Object after saving the consent to registry.
+     * @param userConsent consentRequest Object
+     * @return {@link ConsentDetail} Consent Response Object after saving the consent to registry.
      *
      */
-    Consent saveUserConsent(ConsentRequest consentRequest) throws EsignetException;
+    ConsentDetail saveUserConsent(UserConsent userConsent) throws EsignetException;
 }

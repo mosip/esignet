@@ -12,6 +12,7 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ConsentService;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,20 +25,17 @@ import java.util.stream.Collectors;
 @Component
 public class ConsentHelperService {
 
-    private final CacheUtilService cacheUtilService;
+    @Autowired
+    private CacheUtilService cacheUtilService;
 
-    private final ConsentService consentService;
+    @Autowired
+    private ConsentService consentService;
 
-    private final KafkaHelperService kafkaHelperService;
+    @Autowired
+    private KafkaHelperService kafkaHelperService;
 
     @Value("${mosip.esignet.kafka.linked-auth-code.topic}")
     private String linkedAuthCodeTopicName;
-
-    public ConsentHelperService(CacheUtilService cacheUtilService, ConsentService consentService, KafkaHelperService kafkaHelperService) {
-        this.cacheUtilService = cacheUtilService;
-        this.consentService = consentService;
-        this.kafkaHelperService = kafkaHelperService;
-    }
 
     public void processConsent(String transactionId) {
         OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
@@ -45,21 +43,21 @@ public class ConsentHelperService {
             throw new InvalidTransactionException();
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
-        userConsentRequest.setPsu_token(transaction.getPartnerSpecificUserToken());
-        Optional<Consent> consent = consentService.getUserConsent(userConsentRequest);
+        userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
+        Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
 
         ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : validateConsentAction(transaction,consent.get());
 
         transaction.setConsentAction(consentAction);
 
         if(consentAction.equals(ConsentAction.NOCAPTURE)) {
-            Consent userConsent = consent.get();
-            log.info("consent {}", userConsent);
-            List<String> acceptedClaims = userConsent.getClaims().getUserinfo().entrySet().stream().
+            ConsentDetail userConsentDetail = consent.get();
+            log.info("consent {}", userConsentDetail);
+            List<String> acceptedClaims = userConsentDetail.getClaims().getUserinfo().entrySet().stream().
                     filter(entry -> entry != null && entry.getValue() != null && entry.getValue().isAccepted())
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            List<String> permittedScopes = userConsent.getAuthorizationScopes().entrySet().stream()
+            List<String> permittedScopes = userConsentDetail.getAuthorizationScopes().entrySet().stream()
                     .filter(Map.Entry::getValue)
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
@@ -75,8 +73,8 @@ public class ConsentHelperService {
             throw new InvalidTransactionException();
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
-        userConsentRequest.setPsu_token(transaction.getPartnerSpecificUserToken());
-        Optional<Consent> consent = consentService.getUserConsent(userConsentRequest);
+        userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
+        Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
 
         ConsentAction consentAction =  ConsentAction.CAPTURE;
         if(consent.isPresent()) {
@@ -90,13 +88,13 @@ public class ConsentHelperService {
         transaction.setConsentAction(consentAction);
 
         if(consentAction.equals(ConsentAction.NOCAPTURE)) {
-            Consent userConsent = consent.get();
-            log.info("consent {}", userConsent);
-            List<String> acceptedClaims = userConsent.getClaims().getUserinfo().entrySet().stream().
+            ConsentDetail userConsentDetail = consent.get();
+            log.info("consent {}", userConsentDetail);
+            List<String> acceptedClaims = userConsentDetail.getClaims().getUserinfo().entrySet().stream().
                     filter(entry -> entry != null && entry.getValue() != null && entry.getValue().isAccepted())
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            List<String> permittedScopes = userConsent.getAuthorizationScopes().entrySet().stream()
+            List<String> permittedScopes = userConsentDetail.getAuthorizationScopes().entrySet().stream()
                     .filter(Map.Entry::getValue)
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
@@ -114,7 +112,7 @@ public class ConsentHelperService {
         return linkedKycAuthResponseV2;
     }
 
-    public void addUserConsent(String transactionId, boolean linked) {
+    public void addUserConsent(String transactionId, boolean linked, String signature) {
         OIDCTransaction transaction;
         if(!linked) {
             transaction = cacheUtilService.getWebConsentedTransaction(transactionId);
@@ -124,19 +122,20 @@ public class ConsentHelperService {
         if(transaction == null)
             throw new InvalidTransactionException();
         if(transaction.getConsentAction().equals(ConsentAction.CAPTURE)){
-            ConsentRequest consentRequest = new ConsentRequest();
-            consentRequest.setClientId(transaction.getClientId());
-            consentRequest.setPsuValue(transaction.getPartnerSpecificUserToken());
+            UserConsent userConsent = new UserConsent();
+            userConsent.setClientId(transaction.getClientId());
+            userConsent.setPsuToken(transaction.getPartnerSpecificUserToken());
             Claims claims = transaction.getRequestedClaims();
             List<String> acceptedClaims = transaction.getAcceptedClaims();
             setIsAcceptedBasedOnClaims(acceptedClaims,claims);
-            consentRequest.setClaims(claims);
+            userConsent.setClaims(claims);
+            userConsent.setSignature(signature);
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
                     .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
-            consentRequest.setAuthorizationScopes(authorizeScopes);
-            consentService.saveUserConsent(consentRequest);
+            userConsent.setAuthorizationScopes(authorizeScopes);
+            consentService.saveUserConsent(userConsent);
         }
     }
 
@@ -157,8 +156,8 @@ public class ConsentHelperService {
     }
 
 
-    private static ConsentAction validateConsentAction(OIDCTransaction transaction, Consent consent) {
-        if(consent == null) {
+    private static ConsentAction validateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail) {
+        if(consentDetail == null) {
             return ConsentAction.CAPTURE;
         }
         //validate requested claims
@@ -173,18 +172,18 @@ public class ConsentHelperService {
         }
 
         //validate consented claims
-        if(requestedClaims!= null && consent.getClaims() != null &&!requestedClaims.isEqualToIgnoringAccepted(consent.getClaims())){
+        if(requestedClaims!= null && consentDetail.getClaims() != null &&!requestedClaims.isEqualToIgnoringAccepted(consentDetail.getClaims())){
             return ConsentAction.CAPTURE;
         }
 
         //validate consented scopes
-        Set<String> acceptedScopes = consent.getAuthorizationScopes()
+        Set<String> acceptedScopes = consentDetail.getAuthorizationScopes()
                 .entrySet()
                 .stream().filter(Map.Entry::getValue)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
         if(!requestedScopes.isEmpty()
-                && ( !new HashSet<>(requestedScopes).containsAll(consent.getAuthorizationScopes().keySet()) ||
+                && ( !new HashSet<>(requestedScopes).containsAll(consentDetail.getAuthorizationScopes().keySet()) ||
                 !new HashSet<>(requestedScopes).containsAll(acceptedScopes)
         )){
             return ConsentAction.CAPTURE;
@@ -192,11 +191,11 @@ public class ConsentHelperService {
         return ConsentAction.NOCAPTURE;
     }
 
-    private boolean validateSignature(OIDCTransaction transaction, Consent consent){
+    private boolean validateSignature(OIDCTransaction transaction, ConsentDetail consentDetail){
         return true;
 
     }
-    private String generateSignedObject(OIDCTransaction transaction, Consent consent){
+    private String generateSignedObject(OIDCTransaction transaction, ConsentDetail consentDetail){
         List<String> acceptedClaims = transaction.getAcceptedClaims();
         List<String> permittedScopes = transaction.getPermittedScopes();
         Collections.sort(acceptedClaims);
@@ -205,7 +204,7 @@ public class ConsentHelperService {
                 .claim("acceptedClaims", acceptedClaims)
                 .claim("authorizeScopes", permittedScopes)
                 .build();
-        String jws = consent.getSignature();
+        String jws = consentDetail.getSignature();
         String[] parts = jws.split("\\.");
 
         String header = parts[0];

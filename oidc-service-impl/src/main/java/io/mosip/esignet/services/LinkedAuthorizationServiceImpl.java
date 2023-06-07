@@ -199,7 +199,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
-        transaction.setConsentAction(ConsentAction.NOCACHE);
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());

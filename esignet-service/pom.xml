@@ -68,7 +68,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.esignet</groupId>
-			<artifactId>consent-registry</artifactId>
+			<artifactId>consent-service-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

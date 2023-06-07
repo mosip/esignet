@@ -39,7 +39,6 @@ public class ErrorConstants {
     public static final String INVALID_CHALLENGE_LIST="invalid_no_of_challenges";
     public static final String INVALID_PERMITTED_SCOPE="invalid_permitted_scope";
     public static final String INVALID_ACCEPTED_CLAIM="invalid_accepted_claim";
-
     public static final String INVALID_TRANSACTION_ID="invalid_transaction_id";
     public static final String INVALID_AUTH_FACTOR_TYPE="invalid_auth_factor_type";
     public static final String INVALID_CHALLENGE="invalid_challenge";

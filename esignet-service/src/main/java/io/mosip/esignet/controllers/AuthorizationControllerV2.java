@@ -16,6 +16,8 @@ import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.ConsentHelperService;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,21 +33,18 @@ public class AuthorizationControllerV2 {
 
 
 
-    private final AuthorizationService authorizationService;
+    @Autowired
+    private AuthorizationService authorizationService;
 
-    private final AuditPlugin auditWrapper;
+    @Autowired
+    private AuditPlugin auditWrapper;
 
-    private final AuthorizationHelperService authorizationHelperService;
+    @Autowired
+    private AuthorizationHelperService authorizationHelperService;
 
-    private final ConsentHelperService consentHelperService;
+    @Autowired
+    private ConsentHelperService consentHelperService;
 
-
-    public AuthorizationControllerV2( AuthorizationService authorizationService, AuditPlugin auditWrapper, AuthorizationHelperService authorizationHelperService, ConsentHelperService consentHelperService) {
-        this.authorizationService = authorizationService;
-        this.auditWrapper = auditWrapper;
-        this.authorizationHelperService = authorizationHelperService;
-        this.consentHelperService = consentHelperService;
-    }
 
     @PostMapping("/v2/authenticate")
     public ResponseWrapper<AuthResponseV2> authenticateEndUser(@Valid @RequestBody RequestWrapper<AuthRequest>

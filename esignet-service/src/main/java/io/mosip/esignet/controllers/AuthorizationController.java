@@ -83,7 +83,7 @@ public class AuthorizationController {
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             AuthCodeResponse authCode = authorizationService.getAuthCode(requestWrapper.getRequest());
-            consentHelperService.addUserConsent(requestWrapper.getRequest().getTransactionId(), false);
+            consentHelperService.addUserConsent(requestWrapper.getRequest().getTransactionId(), false, null);
             responseWrapper.setResponse(authCode);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
