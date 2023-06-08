@@ -297,6 +297,7 @@ export default function LoginQRCode({
               <div className="flex w-full justify-center mt-5">
                 <button
                   type="button"
+                  id="refresh_qr_code"
                   className="flex justify-center w-full text-gray-900 bg-slate-200 border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5"
                   onClick={fetchQRCode}
                 >
