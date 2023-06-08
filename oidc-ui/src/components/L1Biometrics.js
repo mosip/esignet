@@ -383,9 +383,11 @@ export default function L1Biometrics({
                             <span className="ml-2 text-xs">{e.text}</span>
                           </div>
                         )}
+                        id="sbi_dropdown"
                       />
                       <button
                         type="button"
+                        id="refresh_sbi_button"
                         className="flex text-gray-900 bg-white shadow border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-lg px-3 py-1 ml-1"
                         onClick={handleScan}
                       >
@@ -416,6 +418,7 @@ export default function L1Biometrics({
 
             <button
               type="button"
+              id="retry_sbi_button"
               className="flex justify-center w-full text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5"
               onClick={handleScan}
             >
