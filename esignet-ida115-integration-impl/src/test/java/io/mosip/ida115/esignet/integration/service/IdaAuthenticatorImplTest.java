@@ -374,7 +374,7 @@ public class IdaAuthenticatorImplTest {
 		Map<String, Object> kycData = mapper.readValue(decryptedKyc.getBytes(), Map.class);
 		Assert.assertFalse(kycData.isEmpty());
 		Assert.assertEquals("1122334455", kycData.get("sub"));
-		Assert.assertEquals(Map.of("formatted", "first-name last-name"), kycData.get("name"));
+		Assert.assertEquals("first-name last-name", kycData.get("name"));
 		Assert.assertEquals("1993/08/04", kycData.get("dateOfBirth"));
 		Assert.assertEquals("IND1234", kycData.get("individual_id"));
 		Assert.assertEquals(Map.of("formatted", "address-line-1 my city 221024"), kycData.get("address"));
@@ -445,7 +445,7 @@ public class IdaAuthenticatorImplTest {
 			Map<String, Object> kycData = mapper.readValue(decryptedKyc.getBytes(), Map.class);
 			Assert.assertFalse(kycData.isEmpty());
 			Assert.assertEquals("1122334455", kycData.get("sub"));
-			Assert.assertEquals(Map.of("formatted", "first-name last-name"), kycData.get("name"));
+			Assert.assertEquals("first-name last-name", kycData.get("name"));
 			Assert.assertEquals("1993/08/04", kycData.get("dateOfBirth"));
 			Assert.assertEquals("IND1234", kycData.get("individual_id"));
 			Assert.assertEquals(Map.of("pinCode", "221024", "addressLine1","address-line-1"), kycData.get("address"));
