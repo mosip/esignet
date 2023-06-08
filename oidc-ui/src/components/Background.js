@@ -17,11 +17,11 @@ export default function Background({
 }) {
   const tabs = [
     {
-      id:"wallet_tab_id",
+      id: "wallet_tab_id",
       name: "inji_tab_name",
     },
     {
-      id:"here_tab_id",
+      id: "here_tab_id",
       name: "here_tab_name",
     },
   ];
@@ -111,7 +111,7 @@ export default function Background({
                   <div className={openTab === 0 ? "block" : "hidden"}>
                     <p className="text-center text-black-600 font-semibold">
                       {t("dont_have_inji")}&nbsp;
-                      <a href={appDownloadURI} className="text-sky-600">
+                      <a href={appDownloadURI} className="text-sky-600" id="download_now">
                         {t("download_now")}
                       </a>
                     </p>

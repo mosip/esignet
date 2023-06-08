@@ -277,6 +277,7 @@ export default function Consent({
                 type={buttonTypes.cancel}
                 text={t("cancel")}
                 handleClick={handleCancel}
+                id="cancel"
               />
               <FormAction
                 type={buttonTypes.button}

@@ -236,7 +236,7 @@ export default function OtpVerify({
           ))}
         </div>
 
-        <div className="space-y-px flex justify-center">
+        <div className="space-y-px flex justify-center" id="otp_verify_input">
           <PinInput
             length={otpLength}
             initialValue=""

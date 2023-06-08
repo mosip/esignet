@@ -74,7 +74,7 @@ export default function FormAction({
           }
           onClick={handleClick}
           disabled={disabled}
-          id="cancel"
+          id={id}
         >
           {text}
         </button>
