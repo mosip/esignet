@@ -329,6 +329,8 @@ public class IdaAuthenticatorImplTest {
 		acceptedClaims.add("sub");
 		acceptedClaims.add("individual_id");
 		acceptedClaims.add("address");
+		acceptedClaims.add("street_address");
+		acceptedClaims.add("postal_code");
 		acceptedClaims.add("picture");
 		kycExchangeDto.setAcceptedClaims(acceptedClaims);
 		String[] claimsLacales = new String[] { "eng" };
@@ -361,8 +363,10 @@ public class IdaAuthenticatorImplTest {
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("firstName")).thenReturn(List.of("firstName"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("lastName")).thenReturn(List.of("lastName"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("addressLine1")).thenReturn(List.of("addressLine1"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("street_address")).thenReturn(List.of("addressLine1"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("city")).thenReturn(List.of("city"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("pinCode")).thenReturn(List.of("pinCode"));
+		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("postal_code")).thenReturn(List.of("pinCode"));
 		Mockito.when(idInfoHelper.getIdentityAttributesForIdName("birthdate")).thenReturn(List.of("dateOfBirth"));
 
 		KycExchangeResult kycExchangeResult = idaAuthenticatorImpl.doKycExchange("relyingPartyId", "clientId",
@@ -377,6 +381,8 @@ public class IdaAuthenticatorImplTest {
 		Assert.assertEquals("first-name last-name", kycData.get("name"));
 		Assert.assertEquals("1993/08/04", kycData.get("birthdate"));
 		Assert.assertEquals("IND1234", kycData.get("individual_id"));
+		Assert.assertEquals("address-line-1", kycData.get("street_address"));
+		Assert.assertEquals("221024", kycData.get("postal_code"));
 		Assert.assertEquals(Map.of("formatted", "address-line-1 my city 221024"), kycData.get("address"));
 	}
 
