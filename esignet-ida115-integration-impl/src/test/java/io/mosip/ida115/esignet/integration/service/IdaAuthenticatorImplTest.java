@@ -385,7 +385,7 @@ public class IdaAuthenticatorImplTest {
 		try {
 			// Set the value for this test case
 			ReflectionTestUtils.setField(idaAuthenticatorImpl, "addressSubsetAttributes",
-					new String[] { "street_address", "pinCode" });
+					new String[] { "street_address", "postal_code" });
 
 			KycExchangeDto kycExchangeDto = new KycExchangeDto();
 			kycExchangeDto.setIndividualId("IND1234");
@@ -433,7 +433,7 @@ public class IdaAuthenticatorImplTest {
 			Mockito.when(idInfoHelper.getIdentityAttributesForIdName("street_address"))
 					.thenReturn(List.of("addressLine1"));
 			Mockito.when(idInfoHelper.getIdentityAttributesForIdName("city")).thenReturn(List.of("city"));
-			Mockito.when(idInfoHelper.getIdentityAttributesForIdName("pinCode")).thenReturn(List.of("pinCode"));
+			Mockito.when(idInfoHelper.getIdentityAttributesForIdName("postal_code")).thenReturn(List.of("pinCode"));
 			Mockito.when(idInfoHelper.getIdentityAttributesForIdName("birthdate")).thenReturn(List.of("dateOfBirth"));
 
 			KycExchangeResult kycExchangeResult = idaAuthenticatorImpl.doKycExchange("relyingPartyId", "clientId",
@@ -448,7 +448,7 @@ public class IdaAuthenticatorImplTest {
 			Assert.assertEquals("first-name last-name", kycData.get("name"));
 			Assert.assertEquals("1993/08/04", kycData.get("birthdate"));
 			Assert.assertEquals("IND1234", kycData.get("individual_id"));
-			Assert.assertEquals(Map.of("pinCode", "221024", "street_address","address-line-1"), kycData.get("address"));
+			Assert.assertEquals(Map.of("postal_code", "221024", "street_address","address-line-1"), kycData.get("address"));
 		} finally {
 			// This is needed to reset it back to the old value as in the setup for other test cases
 			ReflectionTestUtils.setField(idaAuthenticatorImpl, "addressSubsetAttributes", new String[0]);
