@@ -369,7 +369,7 @@ public class Ida115AuthenticatorImpl implements Authenticator {
         	}
 		} catch (KycExchangeException e) {
 			throw e;
-		} catch (Exception e) {e.printStackTrace();
+		} catch (Exception e) {
 			log.error("IDA Kyc-exchange failed with clientId : {}", clientId, e);
 		}
         throw new KycExchangeException();
@@ -565,9 +565,6 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 				List<IdentityInfoDTO> idInfoList = idInfo.get(idSchemaAttribute);
 				if(idInfoList != null) {
 					Map<String, String> mappedLangCodes = langCodeMapping(idInfoList);
-					if (identityInfoValue.length() > 0) {
-						identityInfoValue.append(valueSeparator);
-					}
 					if (mappedLangCodes.keySet().contains(localeValue)) {
 						String langCode = mappedLangCodes.get(localeValue);
 						for (IdentityInfoDTO identityInfo : idInfoList) { 
@@ -580,6 +577,9 @@ public class Ida115AuthenticatorImpl implements Authenticator {
 							}
 						}
 					} else {
+						if (identityInfoValue.length() > 0) {
+							identityInfoValue.append(valueSeparator);
+						}
 						if (Objects.nonNull(idInfoList) && idInfoList.size() == 1) {
 							identityInfoValue.append(idInfoList.get(0).getValue());
 						}
