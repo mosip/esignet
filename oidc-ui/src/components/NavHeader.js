@@ -48,6 +48,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             value={selectedLang}
             options={langOptions}
             onChange={changeLanguageHandler}
+            id="language_selection"
           />
         </div>
       </div>

@@ -236,7 +236,7 @@ export default function OtpVerify({
           ))}
         </div>
 
-        <div className="space-y-px flex justify-center">
+        <div className="space-y-px flex justify-center" id="otp_verify_input">
           <PinInput
             length={otpLength}
             initialValue=""
@@ -305,6 +305,7 @@ export default function OtpVerify({
           disabled={otpValue.length !== otpLength}
           type={buttonTypes.submit}
           text={t("verify")}
+          id="verify_otp"
         />
         {showTimer && (
           <span className="w-full flex justify-center text-sm text-gray-500">
@@ -316,6 +317,7 @@ export default function OtpVerify({
             type={buttonTypes.button}
             text={t("resend_otp")}
             handleClick={handleSendOtp}
+            id="resend_otp"
           />
         )}
       </form>

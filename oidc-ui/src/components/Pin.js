@@ -148,7 +148,7 @@ export default function Pin({
             </label>
           </div>
         </div>
-        <FormAction type={buttonTypes.submit} text={t("login")} />
+        <FormAction type={buttonTypes.submit} text={t("login")} id="verify_pin"/>
       </form>
       {status === states.LOADING && (
         <div>
