@@ -1,5 +1,5 @@
 import i18next from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import LoadingIndicator from "../common/LoadingIndicator";
@@ -17,12 +17,22 @@ export default function Consent({
 
   const post_AuthCode = authService.post_AuthCode;
 
+  const firstRender = useRef(true);
   const [status, setStatus] = useState(states.LOADED);
   const [claims, setClaims] = useState([]);
   const [scope, setScope] = useState([]);
   const [clientName, setClientName] = useState("");
   const [clientLogoPath, setClientLogoPath] = useState("");
   const [claimsScopes, setClaimsScopes] = useState([]);
+
+  const hasAllElement = (mainArray, subArray) =>
+    subArray.every((ele) => mainArray.includes(ele));
+
+  const union = (mainArray, subArray) =>
+    Array.from(new Set([...mainArray, ...subArray]));
+
+  const difference = (mainArray, subArray) =>
+    mainArray.filter((el) => !subArray.includes(el));
 
   const handleScopeChange = (e) => {
     let id = e.target.id;
@@ -52,6 +62,68 @@ export default function Consent({
       resultArray = claims.filter((CheckedId) => CheckedId !== id);
     }
     setClaims(resultArray);
+  };
+
+  const selectUnselectAllScopeClaim = (e, claimScope, main = false) => {
+    if (main) {
+      if (claimScope.type === "scope") {
+        setScope(
+          e.target.checked
+            ? union(scope, claimScope?.values)
+            : difference(scope, claimScope?.values)
+        );
+      } else {
+        setClaims(
+          e.target.checked
+            ? union(claims, claimScope?.values)
+            : difference(claims, claimScope?.values)
+        );
+      }
+    } else {
+      if (claimScope.type === "scope") {
+        handleScopeChange(e);
+      } else {
+        handleClaimChange(e);
+      }
+    }
+  };
+
+  const elementChecked = (id, value) => {
+    let el = document.getElementById(id);
+    if (el) {
+      el.checked = value;
+    }
+  };
+
+  const scopeClaimChanges = () => {
+    const ids = {
+      check: {
+        scope: [],
+        claim: [],
+      },
+      uncheck: {
+        scope: [],
+        claim: [],
+      },
+    };
+    claimsScopes.forEach((claimScope) => {
+      if (!claimScope?.required) {
+        const data = claimScope.type === "scope" ? scope : claims;
+        const hasAll = hasAllElement(data, claimScope?.values);
+        const diff = difference(claimScope?.values, data);
+        ids.check[claimScope.type] = hasAll
+          ? [...data, claimScope.label]
+          : data;
+        ids.uncheck[claimScope.type] = hasAll
+          ? diff
+          : [...diff, claimScope.label];
+      }
+    });
+
+    ids.check.scope.forEach((_) => elementChecked(_, true));
+    ids.uncheck.scope.forEach((_) => elementChecked(_, false));
+    ids.check.claim.forEach((_) => elementChecked(_, true));
+    ids.uncheck.claim.forEach((_) => elementChecked(_, false));
   };
 
   useEffect(() => {
@@ -89,8 +161,13 @@ export default function Consent({
 
       setClaims(oAuthDetails?.essentialClaims);
     };
-    initialize();
-  }, []);
+    if (firstRender.current) {
+      firstRender.current = false;
+      initialize();
+      return;
+    }
+    scopeClaimChanges();
+  }, [scope, claims]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -172,6 +249,32 @@ export default function Consent({
     window.location.replace(redirect_uri + params);
   };
 
+  const sliderButtonDiv = (item, handleOnchange) => (
+    <div>
+      <label
+        labelfor={item}
+        className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          value=""
+          id={item}
+          className="sr-only peer"
+          onChange={handleOnchange}
+        />
+        <div
+          className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none 
+            peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-['']
+            after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400
+            peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all
+            peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500
+            ltr:peer-checked:after:translate-x-full ltr:after:left-[2px]
+            rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"
+        ></div>
+      </label>
+    </div>
+  );
+
   return (
     <div className="flex items-center justify-center">
       <div className="max-w-md w-full shadow-lg mt-5 rounded bg-[#F8F8F8] px-4 py-4">
@@ -192,21 +295,30 @@ export default function Consent({
             (claimScope) =>
               claimScope?.values?.length > 0 && (
                 <div key={claimScope.label}>
-                  <div className="font-semibold">
-                    {t(claimScope.label)}
-                    <button
-                      id={claimScope.label}
-                      className="ml-1 text-sky-600 text-xl"
-                      data-tooltip-content={t(claimScope.tooltip)}
-                      data-tooltip-place="top"
-                      onClick={(e) => {
-                        e.preventDefault();
-                      }}
-                      role="tooltip"
-                    >
-                      &#9432;
-                    </button>
-                    <ReactTooltip anchorId={claimScope.label} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex justify-start">
+                      <div className="font-semibold">
+                        {t(claimScope.label)}
+                        <button
+                          className="ml-1 text-sky-600 text-xl"
+                          data-tooltip-content={t(claimScope.tooltip)}
+                          data-tooltip-place="top"
+                          onClick={(e) => {
+                            e.preventDefault();
+                          }}
+                          role="tooltip"
+                        >
+                          &#9432;
+                        </button>
+                        <ReactTooltip anchorId={claimScope.label} />
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      {!claimScope?.required &&
+                        sliderButtonDiv(claimScope.label, (e) =>
+                          selectUnselectAllScopeClaim(e, claimScope, true)
+                        )}
+                    </div>
                   </div>
 
                   <div className="divide-y">
@@ -227,35 +339,10 @@ export default function Consent({
                                 {t("required")}
                               </label>
                             )}
-                            {!claimScope?.required && (
-                              <div>
-                                <label
-                                  labelfor={item}
-                                  className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    value=""
-                                    id={item}
-                                    className="sr-only peer"
-                                    onChange={
-                                      claimScope.type === "scope"
-                                        ? handleScopeChange
-                                        : handleClaimChange
-                                    }
-                                  />
-                                  <div
-                                    className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none \
-                                  peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-['']
-                                after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400
-                                peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all
-                                peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500
-                                ltr:peer-checked:after:translate-x-full ltr:after:left-[2px]
-                                rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"
-                                  ></div>
-                                </label>
-                              </div>
-                            )}
+                            {!claimScope?.required &&
+                              sliderButtonDiv(item, (e) =>
+                                selectUnselectAllScopeClaim(e, claimScope)
+                              )}
                           </div>
                         </div>
                       </div>
