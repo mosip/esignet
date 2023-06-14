@@ -249,14 +249,11 @@ export default function Consent({
     window.location.replace(redirect_uri + params);
   };
 
-  const sliderButtonDiv = (item, handleOnchange, main = false) => (
+  const sliderButtonDiv = (item, handleOnchange) => (
     <div>
       <label
         labelfor={item}
-        className={
-          "inline-flex relative items-center mb-1 mt-1 cursor-pointer " +
-          (main ? "ltr:mr-4 rtl:ml-4" : "")
-        }
+        className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
       >
         <input
           type="checkbox"
@@ -318,11 +315,8 @@ export default function Consent({
                     </div>
                     <div className="flex justify-end">
                       {!claimScope?.required &&
-                        sliderButtonDiv(
-                          claimScope.label,
-                          (e) =>
-                            selectUnselectAllScopeClaim(e, claimScope, true),
-                          true
+                        sliderButtonDiv(claimScope.label, (e) =>
+                          selectUnselectAllScopeClaim(e, claimScope, true)
                         )}
                     </div>
                   </div>
