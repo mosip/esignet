@@ -30,6 +30,8 @@ ARG container_user_gid=1001
 
 ENV base_path=/usr/share/nginx/html
 ENV i18n_path=${base_path}/locales
+ENV plugins_path=${base_path}/plugins
+ENV plugins_format=iife
 
 # can be passed during Docker build as build time environment for artifactory URL
 ARG artifactory_url
