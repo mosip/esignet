@@ -20,7 +20,7 @@ export default function L1Biometrics({
   openIDConnectService,
   i18nKeyPrefix = "l1Biometrics",
 }) {
-  const { t } = useTranslation("translation", {
+  const { i18n, t } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,
   });
 
@@ -187,6 +187,7 @@ export default function L1Biometrics({
       dinfoTimeout: 30,
       domainUri: `${window.origin}`,
     },
+    langCode: i18n.language,
     disable: true,
     onErrored: setError,
   };
@@ -195,6 +196,9 @@ export default function L1Biometrics({
     if (firstRender.current) {
       firstRender.current = false;
       init(mosipProp);
+      i18n.on("languageChanged", () => {
+        propChange({ langCode: i18n.language });
+      });
       return;
     }
     propChange({
