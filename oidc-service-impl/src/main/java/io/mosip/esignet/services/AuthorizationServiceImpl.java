@@ -14,6 +14,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
@@ -21,22 +22,27 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
-import io.mosip.esignet.core.util.*;
+import io.mosip.esignet.core.util.AuditHelper;
+import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.esignet.core.constants.Constants.*;
+import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 
 @Slf4j
 @Service
+@Primary
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
@@ -59,6 +65,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    ConsentHelperService consentHelperService;
 
     @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
@@ -92,7 +101,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
         oauthDetailResponse.setTransactionId(transactionId);
         oauthDetailResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
-               resolvedClaims.getId_token().get(ACR).getValues()
+                resolvedClaims.getId_token().get(ACR).getValues()
         ));
 
         Map<String, List> claimsMap = authorizationHelperService.getClaimNames(resolvedClaims);
@@ -140,7 +149,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return otpResponse;
     }
 
-    @Override
     public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
@@ -156,15 +164,43 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
-                        .map(AuthenticationFactor::getType)
-                        .collect(Collectors.toList())).collect(Collectors.toSet()));
+                .map(AuthenticationFactor::getType)
+                .collect(Collectors.toList())).collect(Collectors.toSet()));
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
-
         auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
 
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(authRequest.getTransactionId());
+        return authRespDto;
+    }
+
+    @Override
+    public AuthResponseV2 authenticateUserV2(AuthRequest authRequest) throws EsignetException {
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
+        if(transaction == null)
+            throw new InvalidTransactionException();
+
+        //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
+        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
+                authRequest.getChallengeList());
+        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
+                authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+        //cache tokens on successful response
+        transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
+        transaction.setKycToken(kycAuthResult.getKycToken());
+        transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
+        transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
+                .map(AuthenticationFactor::getType)
+                .collect(Collectors.toList())).collect(Collectors.toSet()));
+        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
+        consentHelperService.processConsent(transaction);
+        cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
+        auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
+
+        AuthResponseV2 authRespDto = new AuthResponseV2();
+        authRespDto.setTransactionId(authRequest.getTransactionId());
+        authRespDto.setConsentAction(transaction.getConsentAction());
         return authRespDto;
     }
 
@@ -174,17 +210,22 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
-
-        authorizationHelperService.validateAcceptedClaims(transaction, authCodeRequest.getAcceptedClaims());
-        authorizationHelperService.validateAuthorizeScopes(transaction, authCodeRequest.getPermittedAuthorizeScopes());
+        List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
+        List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
+        if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
+            acceptedClaims = transaction.getAcceptedClaims();
+            acceptedScopes = transaction.getPermittedScopes();
+        }
+        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
+        authorizationHelperService.validateAuthorizeScopes(transaction, acceptedScopes);
 
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
         // cache consent with auth-code-hash as key
         transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
-        transaction.setAcceptedClaims(authCodeRequest.getAcceptedClaims());
-        transaction.setPermittedScopes(authCodeRequest.getPermittedAuthorizeScopes());
+        transaction.setAcceptedClaims(acceptedClaims);
+        transaction.setPermittedScopes(acceptedScopes);
+        consentHelperService.addUserConsent(transaction, false, null);
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
-
         auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
 
         AuthCodeResponse authCodeResponse = new AuthCodeResponse();
