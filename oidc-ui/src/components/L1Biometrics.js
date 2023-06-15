@@ -1,51 +1,35 @@
-import React, { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
 import {
-  buttonTypes,
   challengeFormats,
   challengeTypes,
   configurationKeys,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import InputWithImage from "./InputWithImage";
-import Select from "react-select";
 import ErrorIndicator from "../common/ErrorIndicator";
 import { useTranslation } from "react-i18next";
-import FormAction from "./FormAction";
+import { init, propChange } from "secure-biometric-interface-integrator";
 
 let fieldsState = {};
-const host = "http://127.0.0.1";
-
-const modalityIconPath = {
-  Face: "images/Sign in with face.png",
-  Finger: "images/Sign in with fingerprint.png",
-  Iris: "images/Sign in with Iris.png",
-};
 
 export default function L1Biometrics({
   param,
   authService,
-  localStorageService,
   openIDConnectService,
-  sbiService,
   i18nKeyPrefix = "l1Biometrics",
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix,
+  });
+
+  const firstRender = useRef(true);
+  const transactionId = openIDConnectService.getTransactionId();
 
   const inputFields = param.inputFields;
 
-  const capture_Auth = sbiService.capture_Auth;
-  const mosipdisc_DiscoverDevicesAsync =
-    sbiService.mosipdisc_DiscoverDevicesAsync;
-
-  const post_AuthenticateUser = authService.post_AuthenticateUser;
-  const buildRedirectParams = authService.buildRedirectParams;
-
-  const { getDeviceInfos } = {
-    ...localStorageService,
-  };
+  const { post_AuthenticateUser, buildRedirectParams } = authService;
 
   inputFields.forEach((field) => (fieldsState["sbi_" + field.id] = ""));
   const [loginState, setLoginState] = useState(fieldsState);
@@ -58,9 +42,6 @@ export default function L1Biometrics({
 
   const navigate = useNavigate();
 
-  const [modalityDevices, setModalityDevices] = useState(null);
-  const [selectedDevice, setSelectedDevice] = useState(null);
-
   const authTxnIdLengthValue =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.authTxnIdLength
@@ -68,91 +49,33 @@ export default function L1Biometrics({
 
   const authTxnIdLength = parseInt(authTxnIdLengthValue);
 
-  // handle onChange event of the dropdown
-  const handleDeviceChange = (device) => {
-    setSelectedDevice(device);
-  };
-
   const handleInputChange = (e) => {
     setLoginState({ ...loginState, [e.target.id]: e.target.value });
   };
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    startCapture();
-  };
-
-  const startCapture = async () => {
+  /* authenticate method after removing startCapture
+   * which have capturing & authenticate as well
+   */
+  const authenticateBiometricResponse = async (biometricResponse) => {
     setError(null);
+    setStatus({ state: states.LOADED, msg: "" });
+    const { errorCode } = validateBiometricResponse(biometricResponse);
 
-    let transactionId = getSBIAuthTransactionId(
-      openIDConnectService.getTransactionId()
-    );
-
-    let vid = loginState["sbi_mosip-vid"];
-
-    if (selectedDevice === null) {
-      setError({
-        errorCode: "device_not_found_msg",
-      });
-      return;
-    }
-
-    let biometricResponse = null;
-
-    try {
-      setStatus({
-        state: states.AUTHENTICATING,
-        msg: "capture_initiated_msg",
-        msgParam: {
-          modality: t(selectedDevice.type),
-          deviceModel: selectedDevice.model,
-        },
-      });
-
-      biometricResponse = await capture_Auth(
-        host,
-        selectedDevice.port,
-        transactionId,
-        selectedDevice.specVersion,
-        selectedDevice.type,
-        selectedDevice.deviceId
-      );
-
-      let { errorCode, defaultMsg } =
-        validateBiometricResponse(biometricResponse);
-
-      setStatus({ state: states.LOADED, msg: "" });
-
-      if (errorCode !== null) {
+    const vid = loginState["sbi_mosip-vid"];
+    if (errorCode === null) {
+      try {
+        await Authenticate(
+          transactionId,
+          vid,
+          openIDConnectService.encodeBase64(biometricResponse["biometrics"])
+        );
+      } catch (error) {
         setError({
-          prefix: "biometric_capture_failed_msg",
-          errorCode: errorCode,
-          defaultMsg: defaultMsg,
+          prefix: "authentication_failed_msg",
+          errorCode: error.message,
+          defaultMsg: error.message,
         });
-        return;
       }
-    } catch (error) {
-      setError({
-        prefix: "biometric_capture_failed_msg",
-        errorCode: error.message,
-        defaultMsg: error.message,
-      });
-      return;
-    }
-
-    try {
-      await Authenticate(
-        openIDConnectService.getTransactionId(),
-        vid,
-        openIDConnectService.encodeBase64(biometricResponse["biometrics"])
-      );
-    } catch (error) {
-      setError({
-        prefix: "authentication_failed_msg",
-        errorCode: error.message,
-        defaultMsg: error.message,
-      });
     }
   };
 
@@ -200,15 +123,11 @@ export default function L1Biometrics({
   };
 
   const Authenticate = async (transactionId, uin, bioValue) => {
-    let challengeType = challengeTypes.bio;
-    let challenge = bioValue;
-    let challengeFormat = challengeFormats.bio;
-
-    let challengeList = [
+    const challengeList = [
       {
-        authFactorType: challengeType,
-        challenge: challenge,
-        format: challengeFormat,
+        authFactorType: challengeTypes.bio,
+        challenge: bioValue,
+        format: challengeFormats.bio,
       },
     ];
 
@@ -234,12 +153,9 @@ export default function L1Biometrics({
         defaultMsg: errors[0].errorMessage,
       });
     } else {
-      let nonce = openIDConnectService.getNonce();
-      let state = openIDConnectService.getState();
-
-      let params = buildRedirectParams(
-        nonce,
-        state,
+      const params = buildRedirectParams(
+        openIDConnectService.getNonce(),
+        openIDConnectService.getState(),
         openIDConnectService.getOAuthDetails()
       );
 
@@ -249,81 +165,43 @@ export default function L1Biometrics({
     }
   };
 
-  const handleScan = (e) => {
-    e.preventDefault();
-    scanDevices();
+  const mosipProp = {
+    container: document.getElementById(
+      "secure-biometric-interface-integration"
+    ),
+    buttonLabel: "scan_and_verify",
+    transactionId: getSBIAuthTransactionId(transactionId),
+    sbiEnv: {
+      env: "Staging",
+      captureTimeout: 30,
+      irisBioSubtypes: "UNKNOWN",
+      fingerBioSubtypes: "UNKNOWN",
+      faceCaptureCount: 1,
+      faceCaptureScore: 70,
+      fingerCaptureCount: 1,
+      fingerCaptureScore: 70,
+      irisCaptureCount: 1,
+      irisCaptureScore: 70,
+      portRange: "4501-4512",
+      discTimeout: 15,
+      dinfoTimeout: 30,
+      domainUri: `${window.origin}`,
+    },
+    disable: true,
+    onErrored: setError,
   };
 
   useEffect(() => {
-    scanDevices();
-  }, []);
-
-  const scanDevices = () => {
-    setError(null);
-    try {
-      setStatus({
-        state: states.LOADING,
-        msg: "scanning_devices_msg",
-      });
-
-      mosipdisc_DiscoverDevicesAsync(host).then(() => {
-        setStatus({ state: states.LOADED, msg: "" });
-        refreshDeviceList();
-      });
-    } catch (error) {
-      setError({
-        prefix: "device_disc_failed",
-        errorCode: error.message,
-        defaultMsg: error.message,
-      });
-    }
-  };
-
-  const refreshDeviceList = () => {
-    let deviceInfosPortsWise = getDeviceInfos();
-
-    if (!deviceInfosPortsWise) {
-      setModalityDevices(null);
-      setError({
-        errorCode: "no_devices_found_msg",
-      });
+    if (firstRender.current) {
+      firstRender.current = false;
+      init(mosipProp);
       return;
     }
-
-    let modalitydevices = [];
-
-    Object.keys(deviceInfosPortsWise).map((port) => {
-      let deviceInfos = deviceInfosPortsWise[port];
-
-      deviceInfos?.forEach((deviceInfo) => {
-        let deviceDetail = {
-          port: port,
-          specVersion: deviceInfo.specVersion[0],
-          type: deviceInfo.digitalId.type,
-          deviceId: deviceInfo.deviceId,
-          model: deviceInfo.digitalId.model,
-          serialNo: deviceInfo.digitalId.serialNo,
-          text: deviceInfo.digitalId.make + "-" + deviceInfo.digitalId.model,
-          value: deviceInfo.digitalId.serialNo,
-          icon: modalityIconPath[deviceInfo.digitalId.type],
-        };
-
-        modalitydevices.push(deviceDetail);
-      });
+    propChange({
+      disable: !loginState["sbi_mosip-vid"].length,
+      onCapture: (e) => authenticateBiometricResponse(e),
     });
-
-    setModalityDevices(modalitydevices);
-
-    if (modalitydevices.length === 0) {
-      setError({
-        errorCode: "no_devices_found_msg",
-      });
-      return;
-    }
-
-    let selectedDevice = modalitydevices[0];
-    setSelectedDevice(selectedDevice);
-  };
+  }, [loginState]);
 
   return (
     <>
@@ -333,7 +211,7 @@ export default function L1Biometrics({
       >
         {t("sign_in_with_biometric")}
       </h1>
-      <form className="relative mt-8 space-y-5" onSubmit={submitHandler}>
+      <form className="relative mt-8 space-y-5">
         <div className="-space-y-px">
           {inputFields.map((field) => (
             <InputWithImage
@@ -358,52 +236,7 @@ export default function L1Biometrics({
           </div>
         )}
 
-        {(status.state === states.LOADED ||
-          status.state === states.AUTHENTICATING) &&
-          modalityDevices && (
-            <>
-              {selectedDevice && (
-                <>
-                  <div className="flex flex-col justify-center w-full">
-                    <label
-                      htmlFor="modality_device"
-                      className="block mb-2 text-xs font-medium text-gray-900 text-opacity-70"
-                    >
-                      {t("select_a_device")}
-                    </label>
-                    <div className="flex">
-                      <Select
-                        className="rounded bg-white shadow w-11/12"
-                        value={selectedDevice}
-                        options={modalityDevices}
-                        onChange={handleDeviceChange}
-                        getOptionLabel={(e) => (
-                          <div className="flex items-center h-7">
-                            <img className="w-7" src={e.icon} />
-                            <span className="ml-2 text-xs">{e.text}</span>
-                          </div>
-                        )}
-                      />
-                      <button
-                        type="button"
-                        className="flex text-gray-900 bg-white shadow border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-lg px-3 py-1 ml-1"
-                        onClick={handleScan}
-                      >
-                        &#x21bb;
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex justify-center py-2.5">
-                    <FormAction
-                      type={buttonTypes.submit}
-                      text={t("scan_and_verify")}
-                      disabled={!loginState["sbi_mosip-vid"]?.trim()}
-                    />
-                  </div>
-                </>
-              )}
-            </>
-          )}
+        <div id="secure-biometric-interface-integration"></div>
 
         {error && (
           <div className="w-full">
@@ -412,14 +245,6 @@ export default function L1Biometrics({
               errorCode={error.errorCode}
               defaultMsg={error.defaultMsg}
             />
-
-            <button
-              type="button"
-              className="flex justify-center w-full text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5"
-              onClick={handleScan}
-            >
-              {t("retry")}
-            </button>
           </div>
         )}
         {status.state === states.AUTHENTICATING && error === null && (
