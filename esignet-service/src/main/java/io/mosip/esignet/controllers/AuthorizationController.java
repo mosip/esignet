@@ -85,4 +85,19 @@ public class AuthorizationController {
         }
         return responseWrapper;
     }
+
+    @PostMapping("/v2/authenticate")
+    public ResponseWrapper<AuthResponseV2> authenticateEndUserV2(@Valid @RequestBody RequestWrapper<AuthRequest>
+                                                                       requestWrapper) throws EsignetException {
+        ResponseWrapper<AuthResponseV2> responseWrapper = new ResponseWrapper<>();
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        try {
+            AuthResponseV2 authResponse = authorizationService.authenticateUserV2(requestWrapper.getRequest());
+            responseWrapper.setResponse(authResponse);
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
 }

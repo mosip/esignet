@@ -104,6 +104,7 @@
 		<module>binding-service-impl</module>
         <module>client-management-service-impl</module>
         <module>oidc-service-impl</module>
+		<module>consent-service-impl</module>
     </modules>
 
 	<profiles>
@@ -341,6 +342,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler.version}</version>
 				<configuration>
+					<forceJavacCompilerUse>true</forceJavacCompilerUse>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
 				</configuration>
