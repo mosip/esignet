@@ -47,8 +47,8 @@ RUN apt-get -y update \
     && apt-get install -y curl npm wget unzip zip \
     && groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
-    && mkdir -p /var/run/nginx /var/tmp/nginx ${base_path}/locales  ${base_path}/plugins \
-    && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${base_path}/locales ${base_path}/plugins
+    && mkdir -p /var/run/nginx /var/tmp/nginx ${base_path}/locales  ${base_path}/plugins  ${base_path}/plugins/temp \
+    && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${base_path}/locales ${base_path}/plugins ${base_path}/plugins/temp
 
 ADD configure_start.sh configure_start.sh
 
