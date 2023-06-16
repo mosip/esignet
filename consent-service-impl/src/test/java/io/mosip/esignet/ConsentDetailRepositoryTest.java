@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet;
 
 import io.mosip.esignet.entity.ConsentDetail;
@@ -42,10 +47,10 @@ public class ConsentDetailRepositoryTest {
 
         Optional<ConsentDetail> result;
 
-        result = consentRepository.findFirstByClientIdAndPsuTokenOrderByCreatedtimesDesc("123", "abc");
+        result = consentRepository.findByClientIdAndPsuToken("123", "abc");
         Assert.assertTrue(result.isPresent());
 
-        result = consentRepository.findFirstByClientIdAndPsuTokenOrderByCreatedtimesDesc("123", "abcd");
+        result = consentRepository.findByClientIdAndPsuToken("123", "abcd");
         Assert.assertFalse(result.isPresent());
     }
 

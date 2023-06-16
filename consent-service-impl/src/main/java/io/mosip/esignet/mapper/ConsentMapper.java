@@ -1,5 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.mapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.entity.ConsentHistory;
@@ -12,10 +18,11 @@ public class ConsentMapper {
     private static final ModelMapper modelMapper = new ModelMapper();
 
     static {
-        modelMapper.addConverter(new ClaimsToStringConverter());
-        modelMapper.addConverter(new StringToClaimsConverter());
-        modelMapper.addConverter(new MapToStringConverter());
-        modelMapper.addConverter(new StringToMapConverter());
+        ObjectMapper objectMapper = new ObjectMapper();
+        modelMapper.addConverter(new ClaimsToStringConverter(objectMapper));
+        modelMapper.addConverter(new StringToClaimsConverter(objectMapper));
+        modelMapper.addConverter(new MapToStringConverter(objectMapper));
+        modelMapper.addConverter(new StringToMapConverter(objectMapper));
         modelMapper.addConverter(new ListToStringConverter());
         modelMapper.addConverter(new StringToListConverter());
         modelMapper.addMappings(new CustomConsentRequestMapping());

@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.services;
 
 import com.auth0.jwt.interfaces.Claim;
@@ -153,7 +158,6 @@ public class ConsentHelperService {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
     }
-
 
     private ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail) {
         String hash;
