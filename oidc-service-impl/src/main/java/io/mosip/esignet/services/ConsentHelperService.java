@@ -45,7 +45,6 @@ public class ConsentHelperService {
     @Autowired
     private ConsentService consentService;
 
-    private final ObjectMapper objectMapper=new ObjectMapper();
 
     @Autowired
     private KafkaHelperService kafkaHelperService;

@@ -230,18 +230,17 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Override
     public LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getLinkedAuthTransaction(linkedConsentRequest.getLinkedTransactionId());
-        if(transaction == null || ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
+        if(transaction == null) {
             throw new InvalidTransactionException();
         }
-        List<String> acceptedClaims = linkedConsentRequest.getAcceptedClaims();
-        List<String> permittedAuthorizeScopes = linkedConsentRequest.getPermittedAuthorizeScopes();
-        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
-        authorizationHelperService.validateAuthorizeScopes(transaction, permittedAuthorizeScopes);
+
+        authorizationHelperService.validateAcceptedClaims(transaction, linkedConsentRequest.getAcceptedClaims());
+        authorizationHelperService.validateAuthorizeScopes(transaction, linkedConsentRequest.getPermittedAuthorizeScopes());
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
+
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
 

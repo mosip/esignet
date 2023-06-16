@@ -119,7 +119,7 @@ public class ConsentServiceImplTest {
 
         Map<String,Boolean> authorizeScopes = Map.of("given_name",true,"email",true);
         userConsent.setAuthorizationScopes(authorizeScopes);
-        userConsent.setExpiry_dtimes(LocalDateTime.now());
+        userConsent.setExpirydtimes(LocalDateTime.now());
         userConsent.setSignature("signature");
 
         ConsentDetail consentDetail = new ConsentDetail();
