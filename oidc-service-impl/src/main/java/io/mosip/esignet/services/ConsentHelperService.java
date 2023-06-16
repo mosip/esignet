@@ -38,19 +38,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Slf4j
 @Component
 public class ConsentHelperService {
-
-    @Autowired
-    private CacheUtilService cacheUtilService;
-
     @Autowired
     private ConsentService consentService;
-
-
-    @Autowired
-    private KafkaHelperService kafkaHelperService;
-
-    @Value("${mosip.esignet.kafka.linked-auth-code.topic}")
-    private String linkedAuthCodeTopicName;
 
     public void processConsent(OIDCTransaction transaction) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
@@ -192,7 +181,7 @@ public class ConsentHelperService {
             jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
                     ,Base64URL.encode(signature) );
         } catch (ParseException e) {
-
+            log.error(e.getLocalizedMessage());
         }
         return jwsObject == null ? "": jwsObject.serialize();
     }

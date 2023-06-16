@@ -44,7 +44,6 @@ import static io.mosip.esignet.core.spi.TokenService.ACR;
 
 @Slf4j
 @Service
-@Primary
 public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationService {
 
     @Autowired
