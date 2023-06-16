@@ -44,7 +44,7 @@ WORKDIR /home/${container_user}
 
 # install packages and create user
 RUN apt-get -y update \
-    && apt-get install -y curl npm python wget unzip zip \
+    && apt-get install -y curl npm wget unzip zip \
     && groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
     && mkdir -p /var/run/nginx /var/tmp/nginx ${base_path}/locales \
