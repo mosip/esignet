@@ -148,6 +148,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return otpResponse;
     }
 
+    @Override
     public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
