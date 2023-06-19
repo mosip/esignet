@@ -44,7 +44,6 @@ import static io.mosip.esignet.core.spi.TokenService.ACR;
 
 @Slf4j
 @Service
-@Primary
 public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationService {
 
     @Autowired
@@ -64,6 +63,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Autowired
     private AuditPlugin auditWrapper;
+
+    @Autowired
+    private ConsentHelperService consentHelperService;
 
     @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
@@ -217,12 +219,20 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
         authorizationHelperService.setIndividualId(linkedKycAuthRequest.getIndividualId(), transaction);
+        consentHelperService.processConsent(transaction, true);
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
-        cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
+        if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())){
+            validateConsent(transaction, transaction.getAcceptedClaims(), transaction.getPermittedScopes());
+            cacheUtilService.setLinkedConsentedTransaction(transaction.getLinkedTransactionId(), transaction);
+            kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkedTransactionId());
+        } else {
+            cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
+        }
         LinkedKycAuthResponseV2 authRespDto = new LinkedKycAuthResponseV2();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
+        authRespDto.setConsentAction(transaction.getConsentAction());
         auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
         return authRespDto;
     }
@@ -233,9 +243,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
-
-        authorizationHelperService.validateAcceptedClaims(transaction, linkedConsentRequest.getAcceptedClaims());
-        authorizationHelperService.validateAuthorizeScopes(transaction, linkedConsentRequest.getPermittedAuthorizeScopes());
+        validateConsent(transaction, linkedConsentRequest.getAcceptedClaims(), linkedConsentRequest.getPermittedAuthorizeScopes());
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
@@ -258,12 +266,11 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         }
         List<String> acceptedClaims = linkedConsentRequest.getAcceptedClaims();
         List<String> permittedAuthorizeScopes = linkedConsentRequest.getPermittedAuthorizeScopes();
-        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
-        authorizationHelperService.validateAuthorizeScopes(transaction, permittedAuthorizeScopes);
+        validateConsent(transaction, linkedConsentRequest.getAcceptedClaims(), linkedConsentRequest.getPermittedAuthorizeScopes());
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-
+        consentHelperService.addUserConsent(transaction, true, linkedConsentRequest.getSignature());
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
@@ -310,5 +317,11 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
         }
+    }
+
+
+    private void validateConsent(OIDCTransaction transaction, List<String> acceptedClaims, List<String> permittedScopes) {
+        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
+        authorizationHelperService.validateAuthorizeScopes(transaction, permittedScopes);
     }
 }

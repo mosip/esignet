@@ -42,7 +42,6 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 
 @Slf4j
 @Service
-@Primary
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
@@ -149,6 +148,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return otpResponse;
     }
 
+    @Override
     public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
@@ -194,7 +194,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
-        consentHelperService.processConsent(transaction);
+        consentHelperService.processConsent(transaction, false);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
         auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
 

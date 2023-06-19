@@ -38,27 +38,15 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Slf4j
 @Component
 public class ConsentHelperService {
-
-    @Autowired
-    private CacheUtilService cacheUtilService;
-
     @Autowired
     private ConsentService consentService;
-
-
-    @Autowired
-    private KafkaHelperService kafkaHelperService;
-
-    @Value("${mosip.esignet.kafka.linked-auth-code.topic}")
-    private String linkedAuthCodeTopicName;
-
-    public void processConsent(OIDCTransaction transaction) {
+    public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
         userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
         Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
 
-        ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction,consent.get());
+        ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction,consent.get(), linked);
 
         transaction.setConsentAction(consentAction);
 
@@ -158,7 +146,7 @@ public class ConsentHelperService {
         }
     }
 
-    private ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail) {
+    private ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail, boolean linked) {
         String hash;
         try {
             List<String> permittedScopes = transaction.getPermittedScopes();
@@ -172,11 +160,11 @@ public class ConsentHelperService {
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
 
-    private String generateSignedObject(OIDCTransaction transaction, ConsentDetail consentDetail){
-        List<String> acceptedClaims = transaction.getAcceptedClaims();
-        List<String> permittedScopes = transaction.getPermittedScopes();
+    private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
+        List<String> acceptedClaims = consentDetail.getAcceptedClaims();
+        List<String> permittedScopes = consentDetail.getPermittedScopes();
         Collections.sort(acceptedClaims);
-        Collections.sort(acceptedClaims);
+        Collections.sort(permittedScopes);
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .claim("acceptedClaims", acceptedClaims)
                 .claim("authorizeScopes", permittedScopes)
@@ -188,13 +176,8 @@ public class ConsentHelperService {
         String signature = parts[1];
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(header));
         JWSObject jwsObject = null;
-        try {
-            jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
+        jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
                     ,Base64URL.encode(signature) );
-        } catch (ParseException e) {
-
-        }
         return jwsObject == null ? "": jwsObject.serialize();
     }
-
 }
