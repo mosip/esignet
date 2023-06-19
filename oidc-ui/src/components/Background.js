@@ -53,7 +53,7 @@ export default function Background({
                 <img className="h-16" src={logoPath} alt={t("logo_alt")} />
               </div>
               <div className="w-full">
-                <h1 className="flex justify-center title-font sm:text-3xl text-3xl mb-3 font-medium text-gray-900">
+                <h1 className="flex text-center justify-center title-font sm:text-3xl text-3xl mb-3 font-medium text-gray-900">
                   {heading}
                 </h1>
               </div>
