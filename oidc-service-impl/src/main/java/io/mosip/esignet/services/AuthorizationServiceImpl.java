@@ -194,7 +194,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
-        consentHelperService.processConsent(transaction);
+        consentHelperService.processConsent(transaction, false);
         cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
         auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
 

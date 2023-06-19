@@ -64,6 +64,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Autowired
     private AuditPlugin auditWrapper;
 
+    @Autowired
+    private ConsentHelperService consentHelperService;
+
     @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
 
@@ -216,12 +219,19 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
         authorizationHelperService.setIndividualId(linkedKycAuthRequest.getIndividualId(), transaction);
+        consentHelperService.processConsent(transaction, true);
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
-        cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
+        if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())){
+            cacheUtilService.setLinkedConsentedTransaction(transaction.getLinkedTransactionId(), transaction);
+            kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkedTransactionId());
+        } else {
+            cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
+        }
         LinkedKycAuthResponseV2 authRespDto = new LinkedKycAuthResponseV2();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
+        authRespDto.setConsentAction(transaction.getConsentAction());
         auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
         return authRespDto;
     }
@@ -262,7 +272,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-
+        consentHelperService.addUserConsent(transaction, true, linkedConsentRequest.getSignature());
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
