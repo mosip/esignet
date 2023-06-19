@@ -300,6 +300,7 @@ export default function Consent({
                       <div className="font-semibold">
                         {t(claimScope.label)}
                         <button
+                          id={claimScope.label}
                           className="ml-1 text-sky-600 text-xl"
                           data-tooltip-content={t(claimScope.tooltip)}
                           data-tooltip-place="top"
