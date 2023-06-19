@@ -224,6 +224,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())){
+            validateConsent(transaction, transaction.getAcceptedClaims(), transaction.getPermittedScopes());
             cacheUtilService.setLinkedConsentedTransaction(transaction.getLinkedTransactionId(), transaction);
             kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkedTransactionId());
         } else {
@@ -242,9 +243,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
-
-        authorizationHelperService.validateAcceptedClaims(transaction, linkedConsentRequest.getAcceptedClaims());
-        authorizationHelperService.validateAuthorizeScopes(transaction, linkedConsentRequest.getPermittedAuthorizeScopes());
+        validateConsent(transaction, linkedConsentRequest.getAcceptedClaims(), linkedConsentRequest.getPermittedAuthorizeScopes());
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
@@ -267,8 +266,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         }
         List<String> acceptedClaims = linkedConsentRequest.getAcceptedClaims();
         List<String> permittedAuthorizeScopes = linkedConsentRequest.getPermittedAuthorizeScopes();
-        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
-        authorizationHelperService.validateAuthorizeScopes(transaction, permittedAuthorizeScopes);
+        validateConsent(transaction, linkedConsentRequest.getAcceptedClaims(), linkedConsentRequest.getPermittedAuthorizeScopes());
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
@@ -319,5 +317,11 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
         }
+    }
+
+
+    private void validateConsent(OIDCTransaction transaction, List<String> acceptedClaims, List<String> permittedScopes) {
+        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
+        authorizationHelperService.validateAuthorizeScopes(transaction, permittedScopes);
     }
 }
