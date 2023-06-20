@@ -15,6 +15,9 @@ import org.modelmapper.ModelMapper;
 
 
 public class ConsentMapper {
+
+    private ConsentMapper(){}
+
     private static final ModelMapper modelMapper = new ModelMapper();
 
     static {
@@ -27,7 +30,6 @@ public class ConsentMapper {
         modelMapper.addConverter(new StringToListConverter());
         modelMapper.addMappings(new CustomConsentRequestMapping());
         modelMapper.addMappings(new CustomConsentHistoryMapping());
-        //modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
 
     public static io.mosip.esignet.entity.ConsentDetail toEntity(ConsentDetail consentDetailDTo) {
