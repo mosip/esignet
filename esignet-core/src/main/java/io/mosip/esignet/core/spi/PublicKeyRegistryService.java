@@ -10,5 +10,7 @@ import io.mosip.esignet.core.dto.PublicKeyRegistry;
 import java.util.Optional;
 
 public interface PublicKeyRegistryService {
+
     Optional<PublicKeyRegistry> findLatestPublicKeyByPsuTokenAndAuthFactor(String psuToken, String authFactor);
+
 }

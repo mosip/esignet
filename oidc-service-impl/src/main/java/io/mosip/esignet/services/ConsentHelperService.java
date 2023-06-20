@@ -181,6 +181,7 @@ public class ConsentHelperService {
         }
         return false;
     }
+
     private String generateSignedObject(List<String> acceptedClaims, List<String> permittedScopes, String jws) throws ParseException {
         Collections.sort(acceptedClaims);
         Collections.sort(permittedScopes);

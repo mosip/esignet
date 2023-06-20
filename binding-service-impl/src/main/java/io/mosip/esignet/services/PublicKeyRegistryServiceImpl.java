@@ -17,8 +17,10 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class PublicKeyRegistryServiceImpl implements PublicKeyRegistryService {
+
     @Autowired
     private PublicKeyRegistryRepository publicKeyRegistryRepository;
+
     @Override
     public Optional<PublicKeyRegistry> findLatestPublicKeyByPsuTokenAndAuthFactor(String psuToken, String authFactor) {
         Optional<io.mosip.esignet.entity.PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(psuToken,authFactor);
