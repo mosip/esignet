@@ -5,29 +5,27 @@
  */
 package io.mosip.esignet.services;
 
-import com.auth0.jwt.interfaces.Claim;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ConsentService;
+import io.mosip.esignet.core.spi.PublicKeyRegistryService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -40,6 +38,10 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 public class ConsentHelperService {
     @Autowired
     private ConsentService consentService;
+
+    @Autowired
+    PublicKeyRegistryService publicKeyRegistryService;
+
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
@@ -50,7 +52,8 @@ public class ConsentHelperService {
 
         transaction.setConsentAction(consentAction);
 
-        if(consentAction.equals(ConsentAction.NOCAPTURE)) {
+        //resolves reported sonar bug. This is a false positive since consent.isPresent() will always evaluate to true
+        if(consentAction.equals(ConsentAction.NOCAPTURE) && consent.isPresent()) {
             transaction.setAcceptedClaims(consent.get().getAcceptedClaims());
             transaction.setPermittedScopes(consent.get().getPermittedScopes());
         }
@@ -66,7 +69,7 @@ public class ConsentHelperService {
             List<String> acceptedClaims = transaction.getAcceptedClaims();
             Claims normalizedClaims = new Claims();
             normalizedClaims.setUserinfo(normalizeClaims(claims.getUserinfo()));
-            normalizedClaims.setId_token(claims.getId_token());
+            normalizedClaims.setId_token(normalizeClaims(claims.getId_token()));
 
             userConsent.setClaims(normalizedClaims);
             userConsent.setSignature(signature);
@@ -153,31 +156,45 @@ public class ConsentHelperService {
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
                     .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
-            hash = hashUserConsent(transaction.getRequestedClaims(),authorizeScopes );
+            Claims normalizedClaims = new Claims();
+            normalizedClaims.setUserinfo(normalizeClaims(transaction.getRequestedClaims().getUserinfo()));
+            normalizedClaims.setId_token(normalizeClaims(transaction.getRequestedClaims().getId_token()));
+            hash = hashUserConsent(normalizedClaims, authorizeScopes);
         } catch (JsonProcessingException e) {
             throw new EsignetException(ErrorConstants.INVALID_CLAIM);
         }
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
 
-    private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
-        List<String> acceptedClaims = consentDetail.getAcceptedClaims();
-        List<String> permittedScopes = consentDetail.getPermittedScopes();
+    private boolean validateSignature(String psuToken, String jws, String authFactor){
+        Optional<PublicKeyRegistry> publicKeyRegistry = publicKeyRegistryService.findLatestPublicKeyByPsuTokenAndAuthFactor(psuToken, authFactor);
+        if(publicKeyRegistry.isPresent()) {
+            String publicKey = publicKeyRegistry.get().getPublicKey();
+            try {
+                RSAPublicKey rsaPublicKey = RSAKey.parse(publicKey).toRSAPublicKey();
+                JWSVerifier verifier = new RSASSAVerifier(rsaPublicKey);
+                SignedJWT jwt = SignedJWT.parse(jws);
+                return jwt.verify(verifier);
+            } catch (JOSEException | ParseException e) {
+                log.error("Error in processing public key", e);
+            }
+        }
+        return false;
+    }
+
+    private String generateSignedObject(List<String> acceptedClaims, List<String> permittedScopes, String jws) throws ParseException {
         Collections.sort(acceptedClaims);
         Collections.sort(permittedScopes);
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .claim("acceptedClaims", acceptedClaims)
                 .claim("authorizeScopes", permittedScopes)
                 .build();
-        String jws = consentDetail.getSignature();
         String[] parts = jws.split("\\.");
-
         String header = parts[0];
         String signature = parts[1];
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(header));
-        JWSObject jwsObject = null;
-        jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
-                    ,Base64URL.encode(signature) );
-        return jwsObject == null ? "": jwsObject.serialize();
+        JWSObject jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
+                , Base64URL.encode(signature));
+        return jwsObject.serialize();
     }
 }

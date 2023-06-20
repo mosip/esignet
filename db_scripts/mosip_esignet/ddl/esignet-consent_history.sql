@@ -27,7 +27,7 @@ create table consent_history (
     permitted_scopes VARCHAR,
     PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_consent_psu_client ON consent_history(psu_token, client_id);
+CREATE INDEX IF NOT EXISTS idx_consent_history_psu_client ON consent_history(psu_token, client_id);
 
 COMMENT ON TABLE consent_history IS 'Contains user consent details';
 
@@ -39,7 +39,7 @@ COMMENT ON COLUMN consent_history.authorization_scopes IS 'Json string of user a
 COMMENT ON COLUMN consent_history.cr_dtimes IS 'Consent creation date';
 COMMENT ON COLUMN consent_history.expire_dtimes IS 'Expiration date';
 COMMENT ON COLUMN consent_history.signature IS 'Signature of consent object ';
-COMMENT ON COLUMN consent_history.hash IS 'hash of consent object'
-COMMENT ON COLUMN consent_history.accepted_claims IS 'Accepted Claims by the user'
-COMMENT ON COLUMN consent_history.permitted_scopes IS 'Accepted Scopes by the user'
+COMMENT ON COLUMN consent_history.hash IS 'hash of consent object';
+COMMENT ON COLUMN consent_history.accepted_claims IS 'Accepted Claims by the user';
+COMMENT ON COLUMN consent_history.permitted_scopes IS 'Accepted Scopes by the user';
 

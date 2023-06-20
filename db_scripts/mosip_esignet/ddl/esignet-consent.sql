@@ -41,7 +41,7 @@ COMMENT ON COLUMN consent_detail.authorization_scopes IS 'Json string of user ac
 COMMENT ON COLUMN consent_detail.cr_dtimes IS 'Consent creation date';
 COMMENT ON COLUMN consent_detail.expire_dtimes IS 'Expiration date';
 COMMENT ON COLUMN consent_detail.signature IS 'Signature of consent object ';
-COMMENT ON COLUMN consent_detail.hash IS 'hash of consent object'
-COMMENT ON COLUMN consent_detail.accepted_claims IS 'Accepted Claims by the user'
-COMMENT ON COLUMN consent_detail.permitted_scopes IS 'Accepted Scopes by the user'
+COMMENT ON COLUMN consent_detail.hash IS 'hash of consent object';
+COMMENT ON COLUMN consent_detail.accepted_claims IS 'Accepted Claims by the user';
+COMMENT ON COLUMN consent_detail.permitted_scopes IS 'Accepted Scopes by the user';
 

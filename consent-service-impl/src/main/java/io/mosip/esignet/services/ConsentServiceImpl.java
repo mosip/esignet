@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
@@ -66,10 +65,11 @@ public class ConsentServiceImpl implements ConsentService {
     @Override
     @Transactional
     public ConsentDetail saveUserConsent(UserConsent userConsent) {
-        Optional<io.mosip.esignet.entity.ConsentDetail> ClientDetailOptional =
+        Optional<io.mosip.esignet.entity.ConsentDetail> clientDetailOptional =
                 consentRepository.findByClientIdAndPsuToken(userConsent.getClientId(), userConsent.getPsuToken());
-        if(ClientDetailOptional.isPresent()) {
+        if(clientDetailOptional.isPresent()) {
             consentRepository.deleteByClientIdAndPsuToken(userConsent.getClientId(), userConsent.getPsuToken());
+            consentRepository.flush();
         }
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         //convert ConsentRequest to Entity
