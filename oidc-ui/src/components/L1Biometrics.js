@@ -195,6 +195,7 @@ export default function L1Biometrics({
       langCode: i18n.language,
       disable: true,
     };
+  
     if (firstRender.current) {
       firstRender.current = false;
       init(mosipProp);

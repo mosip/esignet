@@ -58,6 +58,9 @@ public class AuthorizationServiceTest {
     @Mock
     AuditPlugin auditWrapper;
 
+    @Mock
+    ConsentHelperService consentHelperService;
+
 
     @Before
     public void setUp() {
