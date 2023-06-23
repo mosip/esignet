@@ -281,6 +281,16 @@ export default function Consent({
     </div>
   );
 
+  if (consentAction === "NOCAPTURE") {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="max-w-md w-full shadow-lg mt-5 rounded bg-[#F8F8F8] px-4 py-4">
+          <LoadingIndicator size="medium" message="redirecting_msg" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center">
       <div className="max-w-md w-full shadow-lg mt-5 rounded bg-[#F8F8F8] px-4 py-4">
