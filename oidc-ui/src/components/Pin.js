@@ -71,7 +71,7 @@ export default function Pin({
 
       setStatus(states.LOADED);
 
-      const { errors } = authenticateResponse;
+      const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
         setError({
@@ -89,7 +89,8 @@ export default function Pin({
         let params = buildRedirectParams(
           nonce,
           state,
-          openIDConnectService.getOAuthDetails()
+          openIDConnectService.getOAuthDetails(),
+          response.consentAction
         );
 
         navigate("/consent" + params, {

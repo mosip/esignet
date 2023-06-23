@@ -14,6 +14,7 @@ export default function ConsentPage() {
   let decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
   let nonce = searchParams.get("nonce");
   let state = searchParams.get("state");
+  const consentAction = searchParams.get("consentAction");
 
   let parsedOauth = null;
   try {
@@ -33,6 +34,7 @@ export default function ConsentPage() {
     <Consent
       authService={new authService(oidcService)}
       openIDConnectService={oidcService}
+      consentAction={consentAction}
     />
   );
 }
