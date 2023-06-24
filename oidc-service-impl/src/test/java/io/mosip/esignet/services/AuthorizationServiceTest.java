@@ -512,6 +512,137 @@ public class AuthorizationServiceTest {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }
+
+    @Test
+    public void authenticateV2_withInvalidTransaction_thenFail() {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(null);
+
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        try {
+            authorizationServiceImpl.authenticateUserV2(authRequest);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
+        }
+    }
+
+    @Test
+    public void authenticateV2_multipleRegisteredAcrsWithSingleFactor_thenPass() throws EsignetException, KycAuthException {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+
+        KycAuthResult kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken("test-kyc-token");
+        kycAuthResult.setPartnerSpecificUserToken("test-psut");
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("OTP"));
+        authRequest.setChallengeList(authChallenges);
+
+        AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV2(authRequest);
+        Assert.assertNotNull(authResponseV2);
+        Assert.assertEquals(transactionId, authResponseV2.getTransactionId());
+    }
+
+    @Test
+    public void authenticateV2_multipleRegisteredAcrsWithInvalidSingleFactor_thenFail() throws EsignetException {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("BIO"));
+        authRequest.setChallengeList(authChallenges);
+
+        try {
+            authorizationServiceImpl.authenticateUserV2(authRequest);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+        }
+    }
+
+    @Test
+    public void authenticateV2_multipleRegisteredAcrsWithMultiFactor_thenPass() throws EsignetException, KycAuthException {
+        String transactionId = "test-transaction";
+        String consentAction="Capture";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:biometrics-generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:biometrics-generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+
+        KycAuthResult kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken("test-kyc-token");
+        kycAuthResult.setPartnerSpecificUserToken("test-psut");
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("OTP"));
+        authChallenges.add(getAuthChallengeDto("BIO"));
+        authRequest.setChallengeList(authChallenges);
+
+        AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV2(authRequest);
+        Assert.assertNotNull(authResponseV2);
+        Assert.assertEquals(transactionId, authResponseV2.getTransactionId());
+        //Assert.assertEquals(consentAction,authResponseV2.getConsentAction());
+    }
+
+    @Test
+    public void authenticateV2_multipleRegisteredAcrsWithInvalidMultiFactor_thenFail() throws EsignetException {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:linked-wallet"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:biometrics-generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:linked-wallet"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:biometrics-generated-code",
+                "mosip:idp:acr:linked-wallet"})).thenReturn(allAuthFactors);
+
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("OTP"));
+        authChallenges.add(getAuthChallengeDto("PIN"));
+        authRequest.setChallengeList(authChallenges);
+
+        try {
+            authorizationServiceImpl.authenticateUserV2(authRequest);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+        }
+    }
     
     @Test
     public void getAuthCode_withValidInput_thenPass() {

@@ -13,8 +13,8 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
@@ -392,6 +392,28 @@ public class LinkedAuthorizationServiceTest {
         linkedConsentRequest.setLinkedTransactionId("link-transaction-id");
         try {
             linkedAuthorizationService.saveConsent(linkedConsentRequest);
+            Assert.fail();
+        } catch (InvalidTransactionException ex) {
+            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void saveConsentV2_withValidInput_thenPass() {
+        Mockito.when(cacheUtilService.getLinkedAuthTransaction("link-transaction-id")).thenReturn(new OIDCTransaction());
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
+        LinkedConsentResponse linkedConsentResponse = linkedAuthorizationService.saveConsentV2(linkedConsentRequestV2);
+        Assert.assertNotNull(linkedConsentResponse);
+        Assert.assertEquals(linkedConsentRequestV2.getLinkedTransactionId(), linkedConsentResponse.getLinkedTransactionId());
+    }
+
+    @Test
+    public void saveConsentV2_withInvalidTransaction_thenFail() {
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
+        try {
+            linkedAuthorizationService.saveConsentV2(linkedConsentRequestV2);
             Assert.fail();
         } catch (InvalidTransactionException ex) {
             Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
