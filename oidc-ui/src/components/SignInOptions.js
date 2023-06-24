@@ -66,7 +66,7 @@ export default function SignInOptions({
               >
                 <div className="flex items-center">
                   <img className="w-7" src={option.icon} />
-                  <span className="ml-4 mb-4 mt-4">
+                  <span className="ml-4 mr-4 mb-4 mt-4 ltr:text-left rtl:text-right">
                     {t("login_with", {
                       option: t(option.label),
                     })}
