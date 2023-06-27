@@ -11,9 +11,10 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
@@ -68,6 +69,9 @@ public class LinkedAuthorizationServiceTest {
 
     @Mock
     AuditPlugin auditWrapper;
+
+    @Mock
+    ConsentHelperService consentHelperService;
 
     @Before
     public void setUp() {
@@ -329,6 +333,50 @@ public class LinkedAuthorizationServiceTest {
     }
 
     @Test
+    public void authenticateUserV2_withValidInput_thenPass() throws KycAuthException {
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
+
+        OIDCTransaction oidcTransaction = createIdpTransaction(new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"});
+        oidcTransaction.setConsentAction(ConsentAction.NOCAPTURE);
+        oidcTransaction.setLinkedTransactionId("link-transaction-id");
+        Mockito.when(cacheUtilService.getLinkedSessionTransaction(linkedKycAuthRequest.getLinkedTransactionId())).thenReturn(oidcTransaction);
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:generated-code"));
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+
+        KycAuthResult kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken("test-kyc-token");
+        kycAuthResult.setPartnerSpecificUserToken("test-psut");
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+
+        linkedKycAuthRequest.setIndividualId("23423434234");
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        authChallenges.add(getAuthChallengeDto("OTP"));
+        linkedKycAuthRequest.setChallengeList(authChallenges);
+
+        LinkedKycAuthResponseV2 authResponse = linkedAuthorizationService.authenticateUserV2(linkedKycAuthRequest);
+        Assert.assertNotNull(authResponse);
+        Assert.assertEquals(linkedKycAuthRequest.getLinkedTransactionId(), authResponse.getLinkedTransactionId());
+    }
+
+    @Test
+    public void authenticateUserV2_withInvalidTransaction_thenFail() {
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
+
+        try {
+            linkedAuthorizationService.authenticateUser(linkedKycAuthRequest);
+            Assert.fail();
+        } catch (InvalidTransactionException ex) {
+            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+        }
+    }
+
+    @Test
     public void saveConsent_withValidInput_thenPass() {
         Mockito.when(cacheUtilService.getLinkedAuthTransaction("link-transaction-id")).thenReturn(new OIDCTransaction());
         LinkedConsentRequest linkedConsentRequest = new LinkedConsentRequest();
@@ -344,6 +392,28 @@ public class LinkedAuthorizationServiceTest {
         linkedConsentRequest.setLinkedTransactionId("link-transaction-id");
         try {
             linkedAuthorizationService.saveConsent(linkedConsentRequest);
+            Assert.fail();
+        } catch (InvalidTransactionException ex) {
+            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void saveConsentV2_withValidInput_thenPass() {
+        Mockito.when(cacheUtilService.getLinkedAuthTransaction("link-transaction-id")).thenReturn(new OIDCTransaction());
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
+        LinkedConsentResponse linkedConsentResponse = linkedAuthorizationService.saveConsentV2(linkedConsentRequestV2);
+        Assert.assertNotNull(linkedConsentResponse);
+        Assert.assertEquals(linkedConsentRequestV2.getLinkedTransactionId(), linkedConsentResponse.getLinkedTransactionId());
+    }
+
+    @Test
+    public void saveConsentV2_withInvalidTransaction_thenFail() {
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
+        try {
+            linkedAuthorizationService.saveConsentV2(linkedConsentRequestV2);
             Assert.fail();
         } catch (InvalidTransactionException ex) {
             Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());

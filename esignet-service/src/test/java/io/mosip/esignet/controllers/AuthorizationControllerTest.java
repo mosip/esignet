@@ -6,19 +6,20 @@
 package io.mosip.esignet.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
-import io.mosip.esignet.core.dto.OAuthDetailRequest;
-import io.mosip.esignet.core.dto.OAuthDetailResponse;
-import io.mosip.esignet.core.dto.RequestWrapper;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,7 +30,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static org.mockito.Mockito.when;
@@ -350,5 +353,114 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+    }
+
+    @Test
+    public void authenticateEndUser_withValidDetails_returnSuccessResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("quewertyId");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("12345");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setFormat("numeric");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+
+        AuthResponseV2 authResponseV2 = new AuthResponseV2();
+        authResponseV2.setTransactionId("quewertyId");
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(authResponseV2);
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("quewertyId"));
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidTimestamp_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setFormat("alpha-numeric");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        requestTime = requestTime.plusMinutes(10);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REQUEST))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("requestTime: invalid_request"));
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidTransectionId_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType("PWD");
+        authChallenge.setFormat("alpha-numeric");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+
+
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.transactionId: invalid_transaction_id"));
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidAuthChallenge_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_LIST))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList: invalid_no_of_challenges"));
     }
 }

@@ -107,6 +107,20 @@ public class LinkedAuthorizationController {
         return responseWrapper;
     }
 
+    @PostMapping("/v2/authenticate")
+    public ResponseWrapper<LinkedKycAuthResponseV2> authenticateV2(@Valid @RequestBody RequestWrapper<LinkedKycAuthRequest>
+                                                                       requestWrapper) throws EsignetException {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        try {
+            responseWrapper.setResponse(linkedAuthorizationService.authenticateUserV2(requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
     @PostMapping("/consent")
     public ResponseWrapper<LinkedConsentResponse> saveConsent(@Valid @RequestBody RequestWrapper<LinkedConsentRequest>
                                                                            requestWrapper) throws EsignetException {
@@ -114,6 +128,20 @@ public class LinkedAuthorizationController {
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.saveConsent(requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/v2/consent")
+    public ResponseWrapper<LinkedConsentResponse> saveConsentV2(@Valid @RequestBody RequestWrapper<LinkedConsentRequestV2>
+                                                                      requestWrapper) throws EsignetException {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        try {
+            responseWrapper.setResponse(linkedAuthorizationService.saveConsentV2(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
             throw ex;

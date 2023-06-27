@@ -6,6 +6,7 @@
 package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.Data;
 
@@ -47,4 +48,5 @@ public class OIDCTransaction implements Serializable {
     String individualId;
 
     String oauthDetailsHash;
+    ConsentAction consentAction;
 }
