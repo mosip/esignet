@@ -144,7 +144,7 @@ export default function L1Biometrics({
 
     setStatus({ state: states.LOADED, msg: "" });
 
-    const { errors } = authenticateResponse;
+    const { response, errors } = authenticateResponse;
 
     if (errors != null && errors.length > 0) {
       setError({
@@ -153,10 +153,14 @@ export default function L1Biometrics({
         defaultMsg: errors[0].errorMessage,
       });
     } else {
-      const params = buildRedirectParams(
-        openIDConnectService.getNonce(),
-        openIDConnectService.getState(),
-        openIDConnectService.getOAuthDetails()
+      let nonce = openIDConnectService.getNonce();
+      let state = openIDConnectService.getState();
+
+      let params = buildRedirectParams(
+        nonce,
+        state,
+        openIDConnectService.getOAuthDetails(),
+        response.consentAction
       );
 
       navigate("/consent" + params, {
@@ -191,6 +195,7 @@ export default function L1Biometrics({
       langCode: i18n.language,
       disable: true,
     };
+  
     if (firstRender.current) {
       firstRender.current = false;
       init(mosipProp);
