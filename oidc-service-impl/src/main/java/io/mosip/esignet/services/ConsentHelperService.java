@@ -43,9 +43,9 @@ public class ConsentHelperService {
 
         transaction.setConsentAction(consentAction);
 
-        if(consentAction.equals(ConsentAction.NOCAPTURE)) { //NOSONAR consent is already evaluated to be not null
-            transaction.setAcceptedClaims(consent.get().getAcceptedClaims());
-            transaction.setPermittedScopes(consent.get().getPermittedScopes());
+        if(consentAction.equals(ConsentAction.NOCAPTURE)) {
+            transaction.setAcceptedClaims(consent.get().getAcceptedClaims()); //NOSONAR consent is already evaluated to be not null
+            transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
         }
     }
 
