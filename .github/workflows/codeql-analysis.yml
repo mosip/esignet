@@ -18,7 +18,6 @@ on:
       - develop
       - master
       - 1.*
-      - feature-ES-3
   pull_request:
   #  # The branches below must be a subset of the branches above
     branches:
