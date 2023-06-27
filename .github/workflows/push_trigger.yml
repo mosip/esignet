@@ -10,6 +10,7 @@ on:
       - 1.*
       - develop
       - main
+      - feature-ES-3
   
 jobs:
   call-workflow-codeql-analysis:

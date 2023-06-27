@@ -49,9 +49,11 @@ import io.mosip.esignet.core.dto.LinkStatusRequest;
 import io.mosip.esignet.core.dto.LinkTransactionRequest;
 import io.mosip.esignet.core.dto.LinkTransactionResponse;
 import io.mosip.esignet.core.dto.LinkedConsentRequest;
+import io.mosip.esignet.core.dto.LinkedConsentRequestV2;
 import io.mosip.esignet.core.dto.LinkedConsentResponse;
 import io.mosip.esignet.core.dto.LinkedKycAuthRequest;
 import io.mosip.esignet.core.dto.LinkedKycAuthResponse;
+import io.mosip.esignet.core.dto.LinkedKycAuthResponseV2;
 import io.mosip.esignet.core.dto.OtpRequest;
 import io.mosip.esignet.core.dto.OtpResponse;
 import io.mosip.esignet.core.dto.RequestWrapper;
@@ -564,5 +566,187 @@ public class LinkedAuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(RESPONSE_TIMEOUT));
+    }
+
+    @Test
+    public void authenticateV2_withValidRequest_thenPass() throws Exception {
+        RequestWrapper<LinkedKycAuthRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setFormat("format");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("challenge");
+        linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
+        linkedKycAuthRequest.setIndividualId("individualId");
+        requestWrapper.setRequest(linkedKycAuthRequest);
+
+        Mockito.when(linkedAuthorizationService.authenticateUserV2(Mockito.any(LinkedKycAuthRequest.class))).thenReturn(new LinkedKycAuthResponseV2());
+
+        mockMvc.perform(post("/linked-authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response").exists())
+                .andExpect(jsonPath("$.errors").isEmpty());
+    }
+
+    @Test
+    public void authenticateV2_withException_thenFail() throws Exception {
+        RequestWrapper<LinkedKycAuthRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setFormat("format");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("challenge");
+        linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
+        linkedKycAuthRequest.setIndividualId("individualId");
+        requestWrapper.setRequest(linkedKycAuthRequest);
+
+        Mockito.when(linkedAuthorizationService.authenticateUserV2(Mockito.any(LinkedKycAuthRequest.class))).thenThrow(EsignetException.class);
+
+        mockMvc.perform(post("/linked-authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty());
+    }
+
+    @Test
+    public void authenticateV2_withInvalidTransactionId_thenFail() throws Exception {
+        RequestWrapper<LinkedKycAuthRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("  ");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setFormat("format");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("challenge");
+        linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
+        linkedKycAuthRequest.setIndividualId("individualId");
+        requestWrapper.setRequest(linkedKycAuthRequest);
+
+        mockMvc.perform(post("/linked-authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID));
+    }
+
+    @Test
+    public void authenticateV2_withInvalidIndividualId_thenFail() throws Exception {
+        RequestWrapper<LinkedKycAuthRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("txn-id");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setFormat("format");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("challenge");
+        linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
+        linkedKycAuthRequest.setIndividualId("");
+        requestWrapper.setRequest(linkedKycAuthRequest);
+
+        mockMvc.perform(post("/linked-authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_IDENTIFIER));
+    }
+
+    @Test
+    public void authenticateV2_withInvalidChallengeList_thenFail() throws Exception {
+        RequestWrapper<LinkedKycAuthRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
+        linkedKycAuthRequest.setLinkedTransactionId("txn-id");
+        linkedKycAuthRequest.setIndividualId("individualId");
+        requestWrapper.setRequest(linkedKycAuthRequest);
+
+        mockMvc.perform(post("/linked-authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_LIST));
+
+        linkedKycAuthRequest.setChallengeList(new ArrayList<>());
+        mockMvc.perform(post("/linked-authorization/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_LIST));
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
+        MvcResult mvcResult = mockMvc.perform(post("/linked-authorization/authenticate")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+
+        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE, INVALID_CHALLENGE_FORMAT);
+        ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
+    }
+
+    @Test
+    public void saveConsentV2_withValidRequest_thenPass() throws Exception {
+        RequestWrapper<LinkedConsentRequestV2> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
+        requestWrapper.setRequest(linkedConsentRequestV2);
+
+        LinkedConsentResponse linkedConsentResponse = new LinkedConsentResponse();
+        Mockito.when(linkedAuthorizationService.saveConsentV2(Mockito.any(LinkedConsentRequestV2.class))).thenReturn(linkedConsentResponse);
+
+        mockMvc.perform(post("/linked-authorization/v2/consent")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response").exists())
+                .andExpect(jsonPath("$.errors").isEmpty());
+    }
+
+    @Test
+    public void saveConsentV2_withException_thenFail() throws Exception {
+        RequestWrapper<LinkedConsentRequestV2> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
+        requestWrapper.setRequest(linkedConsentRequestV2);
+
+        Mockito.when(linkedAuthorizationService.saveConsentV2(Mockito.any(LinkedConsentRequestV2.class))).thenThrow(EsignetException.class);
+
+        mockMvc.perform(post("/linked-authorization/v2/consent")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty());
+    }
+
+    @Test
+    public void saveConsentV2_withInvalidTransactionId_thenFail() throws Exception {
+        RequestWrapper<LinkedConsentRequestV2> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
+        linkedConsentRequestV2.setLinkedTransactionId("  ");
+        requestWrapper.setRequest(linkedConsentRequestV2);
+
+        mockMvc.perform(post("/linked-authorization/v2/consent")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_TRANSACTION_ID));
     }
 }

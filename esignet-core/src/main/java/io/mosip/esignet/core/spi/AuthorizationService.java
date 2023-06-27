@@ -7,7 +7,6 @@ package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.dto.*;
 
 public interface AuthorizationService {
 
@@ -32,6 +31,13 @@ public interface AuthorizationService {
      * @return
      */
     AuthResponse authenticateUser(AuthRequest authRequest) throws EsignetException;
+
+    /**
+     * Authentication request for the required auth-factors
+     * @param authRequest
+     * @return
+     */
+    AuthResponseV2 authenticateUserV2(AuthRequest authRequest) throws EsignetException;
 
     /**
      * Accepted claims are verified and KYC exchange is performed
