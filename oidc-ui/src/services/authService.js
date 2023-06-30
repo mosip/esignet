@@ -8,7 +8,7 @@ const baseUrl =
     : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
 
 const sendOtpEndPoint = "/authorization/send-otp";
-const authenticateEndPoint = "/authorization/authenticate";
+const authenticateEndPoint = "/authorization/v2/authenticate";
 const oauthDetailsEndPoint = "/authorization/oauth-details";
 const authCodeEndPoint = "/authorization/auth-code";
 const csrfEndPoint = "/csrf/token";
@@ -208,7 +208,7 @@ class authService {
    * Returns parameters for redirecting
    * @returns params.
    */
-  buildRedirectParams = (nonce, state, oauthReponse) => {
+  buildRedirectParams = (nonce, state, oauthReponse, consentAction) => {
     let params = "?";
     if (nonce) {
       params = params + "nonce=" + nonce + "&";
@@ -216,7 +216,9 @@ class authService {
     if (state) {
       params = params + "state=" + state + "&";
     }
-
+    if (consentAction) {
+      params = params + "consentAction=" + consentAction + "&";
+    }
     //removing last "&" or "?" character
     params = params.substring(0, params.length - 1);
 
