@@ -182,7 +182,7 @@ export default function OtpVerify({
       );
       setStatus({ state: states.LOADED, msg: "" });
 
-      const { errors } = authenticateResponse;
+      const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
         setError({
@@ -196,7 +196,7 @@ export default function OtpVerify({
         let nonce = openIDConnectService.getNonce();
         let state = openIDConnectService.getState();
 
-        let params = buildRedirectParams(nonce, state, openIDConnectService.getOAuthDetails());
+        let params = buildRedirectParams(nonce, state, openIDConnectService.getOAuthDetails(), response.consentAction);
 
         navigate("/consent" + params, {
           replace: true,
