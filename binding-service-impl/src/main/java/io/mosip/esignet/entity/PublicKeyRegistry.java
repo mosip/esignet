@@ -42,7 +42,7 @@ public class PublicKeyRegistry {
 	@Column(name = "public_key")
 	private String publicKey;
 	
-	@Column(name = "expire_dtimes")
+	@Column(name = "expired_times")
 	private LocalDateTime expiredtimes;
 	
 	@NotBlank
@@ -54,10 +54,16 @@ public class PublicKeyRegistry {
 	private String publicKeyHash;
 
 	@NotBlank
+	@Column(name = "thumbprint")
+	private String thumbprint;
+
+	@NotBlank
 	@Column(name = "certificate")
 	private String certificate;
 
 	@Column(name = "cr_dtimes")
 	private LocalDateTime createdtimes;
+
+
 
 }

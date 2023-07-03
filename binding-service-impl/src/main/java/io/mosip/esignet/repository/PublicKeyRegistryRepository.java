@@ -32,4 +32,6 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expireDTimes, " +
 			"pkr.certificate= :certificate where pkr.psuToken= :psuToken and pkr.authFactor= :authFactor")
 	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expireDTimes, String psuToken, String certificate, String authFactor);
+
+	Optional<PublicKeyRegistry> findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(String psuToken,String thumbPrint);
 }

@@ -11,15 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.Optional;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KEY;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_PUBLIC_KEY;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.b64Encode;
 
@@ -32,6 +36,9 @@ public class KeyBindingHelperService {
 
     @Autowired
     private KeymanagerUtil keymanagerUtil;
+
+    @Autowired
+    private KeyBindingHelperService keyBindingHelperService;
 
     @Value("${mosip.esignet.binding.salt-length}")
     private int saltLength;
@@ -72,6 +79,7 @@ public class KeyBindingHelperService {
         publicKeyRegistry.setExpiredtimes(expireDTimes);
         publicKeyRegistry.setWalletBindingId(walletBindingId == null ? generateWalletBindingId(partnerSpecificUserToken) : walletBindingId);
         publicKeyRegistry.setCertificate(certificateData);
+        publicKeyRegistry.setThumbprint(generateThumbprintByPublicKey(publicKey));
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
         log.info("Saved PublicKeyRegistry details successfully");
@@ -89,4 +97,40 @@ public class KeyBindingHelperService {
         }
         return b64Encode(messageDigest.digest());
     }
+
+    public String getPublicKey(String psuToken, String thumbprint) {
+        Optional<PublicKeyRegistry> publicKeyRegistryOptional= publicKeyRegistryRepository.
+                findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(psuToken, thumbprint);
+        if(publicKeyRegistryOptional.isPresent())
+          return  publicKeyRegistryOptional.get().getPublicKey();
+        throw new EsignetException("INVALID psuToken or thumbprint");
+    }
+
+    //generating Thumbprint when we get Public key Object
+//    private String generateThumbprintByPublicKey(PublicKey publicKey) throws NoSuchAlgorithmException {
+//        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+//        byte[] publicKeyBytes = publicKey.getEncoded();
+//        byte[] digest = messageDigest.digest(publicKeyBytes);
+//        String fingerprint = Base64.getEncoder().encodeToString(digest);
+//        return fingerprint;
+//    }
+
+    //generating Thumbprint when we get Public key as String
+    private String generateThumbprintByPublicKey(String publicKey)  {
+        // Convert the public key string to bytes
+        byte[] publicKeyBytes = publicKey.getBytes(StandardCharsets.UTF_8);
+
+        // Hash the public key bytes using SHA-256
+        try{
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = messageDigest.digest(publicKeyBytes);
+            // Base64-encode the hash value to create the thumbprint
+            String thumbprint = Base64.getEncoder().encodeToString(hashBytes);
+            return thumbprint;
+        }catch (Exception e)
+        {
+            throw new EsignetException(INVALID_PUBLIC_KEY);
+        }
+    }
+
 }

@@ -286,6 +286,7 @@ public class TestAuthenticationService implements Authenticator {
                 DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
                 String maskedEmailId = context.read("$.maskedEmailId", String.class);
                 String maskedMobile = context.read("$.maskedMobile", String.class);
+                log.info("Sending otp to {} for individual {}", sendOtpDto.getIndividualId());
                 return new SendOtpResult(sendOtpDto.getTransactionId(), maskedEmailId, maskedMobile);
             }
 

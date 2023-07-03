@@ -71,6 +71,11 @@
 			<artifactId>consent-service-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.mosip.esignet</groupId>
+			<artifactId>mock-esignet-integration-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

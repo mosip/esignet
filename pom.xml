@@ -105,6 +105,7 @@
         <module>client-management-service-impl</module>
         <module>oidc-service-impl</module>
 		<module>consent-service-impl</module>
+		<module>../../esignet-mock-services-develop/mock-esignet-integration-impl</module>
     </modules>
 
 	<profiles>

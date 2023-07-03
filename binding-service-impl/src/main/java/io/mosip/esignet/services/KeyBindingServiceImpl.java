@@ -93,6 +93,8 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		try {
 			keyBindingResult = keyBindingWrapper.doKeyBinding(walletBindingRequest.getIndividualId(),
 					walletBindingRequest.getChallengeList(), walletBindingRequest.getPublicKey(), walletBindingRequest.getAuthFactorType(), requestHeaders);
+
+
 		} catch (KeyBindingException e) {
 			log.error("Failed to bind the key", e);
 			throw new EsignetException(e.getErrorCode());

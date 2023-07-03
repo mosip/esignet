@@ -6,6 +6,11 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.util.ConsentAction;
@@ -16,11 +21,21 @@ import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
+import io.mosip.esignet.core.spi.KeyBindingService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,6 +47,11 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 public class ConsentHelperService {
     @Autowired
     private ConsentService consentService;
+
+    @Autowired
+    private KeyBindingHelperService keyBindingHelperService;
+
+    public static final String X5T_S256 = "x5t#S256";
 
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
@@ -162,4 +182,75 @@ public class ConsentHelperService {
         }
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
+
+    private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
+        List<String> acceptedClaims = consentDetail.getAcceptedClaims();
+        List<String> permittedScopes = consentDetail.getPermittedScopes();
+        Collections.sort(acceptedClaims);
+        Collections.sort(permittedScopes);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .claim("acceptedClaims", acceptedClaims)
+                .claim("authorizeScopes", permittedScopes)
+                .build();
+        String jws = consentDetail.getSignature();
+        String[] parts = jws.split("\\.");
+
+        String header = parts[0];
+        String signature = parts[1];
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(header));
+        JWSObject jwsObject = null;
+        jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
+                ,Base64URL.encode(signature) );
+        return jwsObject == null ? "": jwsObject.serialize();
+    }
+
+
+    private boolean validateSignature(OIDCTransaction transaction, ConsentDetail consentDetail) throws ParseException, JOSEException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
+        String jwtToken = generateSignedObject(consentDetail);
+        SignedJWT signedJWT = SignedJWT.parse(jwtToken);
+        JWSHeader header = signedJWT.getHeader();
+        String thumbPrint=header.getCustomParam(X5T_S256).toString();
+        String publicKey = getPublicKey(consentDetail.getPsuToken(),thumbPrint);
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey publickey = keyFactory.generatePublic(keySpec);
+        JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publickey);
+        if (signedJWT.verify(verifier)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+//    //generating Thumbprint when we get Public key Object
+//    private String generateThumbprintByPublicKey(PublicKey publicKey) throws NoSuchAlgorithmException {
+//        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+//        byte[] publicKeyBytes = publicKey.getEncoded();
+//        byte[] digest = messageDigest.digest(publicKeyBytes);
+//        String fingerprint = Base64.getEncoder().encodeToString(digest);
+//        return fingerprint;
+//    }
+//
+//    //generating Thumbprint when we get Public key as String
+//    private String createThumbprintByPublicKey(String publicKey) throws NoSuchAlgorithmException {
+//        // Convert the public key string to bytes
+//        byte[] publicKeyBytes = publicKey.getBytes(StandardCharsets.UTF_8);
+//
+//        // Hash the public key bytes using SHA-256
+//        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+//        byte[] hashBytes = messageDigest.digest(publicKeyBytes);
+//
+//        // Base64-encode the hash value to create the thumbprint
+//        String thumbprint = Base64.getEncoder().encodeToString(hashBytes);
+//
+//        return thumbprint;
+//    }
+
+    // to get the public key form repository
+    private String getPublicKey(String pusToken,String thumbPrint)
+    {
+        return keyBindingHelperService.getPublicKey(pusToken,thumbPrint);
+    }
+
 }
