@@ -88,6 +88,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 			throw new EsignetException(INVALID_CHALLENGE_FORMAT);
 		}
 	}
+
 	@Override
 	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws EsignetException {
 		log.debug("bindWallet :: Request headers >> {}", requestHeaders);
