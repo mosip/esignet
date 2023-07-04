@@ -71,7 +71,7 @@ public class ConsentHelperService {
 
 
     public void addUserConsent(OIDCTransaction transaction, boolean linked, String signature) {
-        if(ConsentAction.CAPTURE.equals(transaction.getConsentAction())){
+        if (ConsentAction.CAPTURE.equals(transaction.getConsentAction())) {
             UserConsent userConsent = new UserConsent();
             userConsent.setClientId(transaction.getClientId());
             userConsent.setPsuToken(transaction.getPartnerSpecificUserToken());
@@ -95,10 +95,27 @@ public class ConsentHelperService {
             } catch (JsonProcessingException e) {
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
-            consentService.saveUserConsent(userConsent);
+            ConsentDetail consentDetail = new ConsentDetail();
+            consentDetail.setPsuToken(userConsent.getPsuToken());
+            consentDetail.setClientId(userConsent.getClientId());
+            consentDetail.setClaims(userConsent.getClaims());
+            consentDetail.setAuthorizationScopes(userConsent.getAuthorizationScopes());
+            consentDetail.setExpiredtimes(userConsent.getExpirydtimes());
+            consentDetail.setHash(userConsent.getHash());
+            consentDetail.setSignature(userConsent.getSignature());
+            consentDetail.setAcceptedClaims(userConsent.getAcceptedClaims());
+            consentDetail.setPermittedScopes(userConsent.getPermittedScopes());
+            try {
+                if (verifyConsentSignature(consentDetail)) {
+                    consentService.saveUserConsent(userConsent);
+                }
+            } catch (ParseException | JOSEException | NoSuchAlgorithmException |
+                     InvalidKeySpecException e) {
+                throw new RuntimeException(e);
+
+            }
         }
     }
-
 
     public Map<String, ClaimDetail> normalizeClaims(Map<String, ClaimDetail> claims){
         return claims.entrySet().stream().collect(
@@ -171,13 +188,22 @@ public class ConsentHelperService {
         try {
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
+            String signature = consentDetail.getSignature();
+            String linkedtansactionId = transaction.getLinkedTransactionId();
+            if(linkedtansactionId==null || linkedtansactionId.isEmpty()){
+                throw new EsignetException(ErrorConstants.INVALID_TRANSACTION_ID);
+            }
+            else {
+                verifyConsentSignature(consentDetail);
+            }
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
                     .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
             Claims normalizedClaims = new Claims();
             normalizedClaims.setUserinfo(normalizeClaims(transaction.getRequestedClaims().getUserinfo()));
             normalizedClaims.setId_token(normalizeClaims(transaction.getRequestedClaims().getId_token()));
             hash = hashUserConsent(normalizedClaims, authorizeScopes);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | ParseException | JOSEException | NoSuchAlgorithmException |
+                 InvalidKeySpecException e) {
             throw new EsignetException(ErrorConstants.INVALID_CLAIM);
         }
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
@@ -186,17 +212,19 @@ public class ConsentHelperService {
     private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
         List<String> acceptedClaims = consentDetail.getAcceptedClaims();
         List<String> permittedScopes = consentDetail.getPermittedScopes();
-        Collections.sort(acceptedClaims);
-        Collections.sort(permittedScopes);
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .claim("acceptedClaims", acceptedClaims)
-                .claim("authorizeScopes", permittedScopes)
-                .build();
         String jws = consentDetail.getSignature();
         String[] parts = jws.split("\\.");
 
         String header = parts[0];
         String signature = parts[1];
+        Collections.sort(acceptedClaims);
+        Collections.sort(permittedScopes);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .claim("acceptedClaims", acceptedClaims)
+                .claim("authorizeScopes", permittedScopes)
+                .claim("signature", signature)
+                .build();
+
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(header));
         JWSObject jwsObject = null;
         jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
@@ -205,7 +233,7 @@ public class ConsentHelperService {
     }
 
 
-    private boolean validateSignature(OIDCTransaction transaction, ConsentDetail consentDetail) throws ParseException, JOSEException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
+    private boolean verifyConsentSignature(ConsentDetail consentDetail) throws ParseException, JOSEException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
         String jwtToken = generateSignedObject(consentDetail);
         SignedJWT signedJWT = SignedJWT.parse(jwtToken);
         JWSHeader header = signedJWT.getHeader();
