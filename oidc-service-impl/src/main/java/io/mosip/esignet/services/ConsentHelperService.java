@@ -185,11 +185,9 @@ public class ConsentHelperService {
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
             String signature = consentDetail.getSignature();
             String linkedtansactionId = transaction.getLinkedTransactionId();
-            if(linked && linkedtansactionId!=null && !linkedtansactionId.isEmpty()){
-                verifyConsentSignature(consentDetail);
-            }
-            else {
-                throw new EsignetException(ErrorConstants.INVALID_TRANSACTION_ID);
+            if(linked ) {
+                if (!verifyConsentSignature(consentDetail))
+                    throw new EsignetException(ErrorConstants.INVALID_TRANSACTION_ID);
             }
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
                     .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
@@ -201,6 +199,31 @@ public class ConsentHelperService {
             throw new EsignetException(ErrorConstants.INVALID_CLAIM);
         }
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
+    }
+
+    public boolean verifyConsentSignature(ConsentDetail consentDetail)  {
+        try{
+            String jwtToken = generateSignedObject(consentDetail);
+            if(jwtToken.isEmpty())return false;
+            SignedJWT signedJWT = SignedJWT.parse(jwtToken);
+            JWSHeader header = signedJWT.getHeader();
+            String thumbPrint="";//header.getCustomParam(X5T_S256).toString();
+            String publicKey = keyBindingHelperService.getPublicKey(consentDetail.getPsuToken(),thumbPrint);
+            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publickey = keyFactory.generatePublic(keySpec);
+            JWSVerifier verifierr = new RSASSAVerifier((RSAPublicKey) publickey);
+            if (signedJWT.verify(verifierr)) {
+                return true;
+            } else {
+                return false;
+            }
+        }catch (Exception e)
+        {
+            throw new EsignetException(e.getMessage());
+        }
+
     }
 
     private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
@@ -219,54 +242,20 @@ public class ConsentHelperService {
                 .claim("authorizeScopes", permittedScopes)
                 .build();
 
-        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(header));
+        byte[] decodedHeaderBytes = Base64.getUrlDecoder().decode(header);
+        JWSHeader jwsHeader = JWSHeader.parse(new String(decodedHeaderBytes));
         JWSObject jwsObject = null;
         jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
                 ,Base64URL.encode(signature) );
         return jwsObject == null ? "": jwsObject.serialize();
     }
 
-
-    private boolean verifyConsentSignature(ConsentDetail consentDetail)  {
-        try{
-            String jwtToken = generateSignedObject(consentDetail);
-            if(jwtToken.isEmpty())return false;
-            SignedJWT signedJWT = SignedJWT.parse(jwtToken);
-            JWSHeader header = signedJWT.getHeader();
-            String thumbPrint=header.getCustomParam(X5T_S256).toString();
-            String publicKey = keyBindingHelperService.getPublicKey(consentDetail.getPsuToken(),thumbPrint);
-            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey publickey = keyFactory.generatePublic(keySpec);
-            JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publickey);
-            if (signedJWT.verify(verifier)) {
-                return true;
-            } else {
-                return false;
-            }
-        }catch (Exception e)
-        {
-            throw new EsignetException(ErrorConstants.INVALID_CLAIM);
-        }
-
-    }
-
     private boolean signatureFormatValidate(String signature)
     {
-        String jws[]=signature.split("//.");
+        String jws[]=signature.split("\\.");
         if(jws.length!=2)return false;
         return true;
     }
-//    public static  void main(String []agrs) throws Exception
-//    {
-//        ConsentDetail consentDetail=new ConsentDetail();
-//        consentDetail.setSignature("signature");
-//        consentDetail.setAcceptedClaims(Arrays.asList("name","email"));
-//        consentDetail.setPermittedScopes(Arrays.asList("openid","profile"));
-//        ConsentHelperService consentHelperService=new ConsentHelperService();
-//        String jwtToken = consentHelperService.generateSignedObject(consentDetail);
-//        System.out.println("Token is "+consentHelperService.verifyConsentSignature(consentDetail));
-//    }
+
 
 }

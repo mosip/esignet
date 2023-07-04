@@ -7,6 +7,10 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.util.Base64URL;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.util.ConsentAction;
@@ -15,6 +19,7 @@ import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.spi.ConsentService;
 import io.mosip.esignet.core.util.KafkaHelperService;
+import net.minidev.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,10 +30,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.util.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,11 +52,16 @@ public class ConsentHelperServiceTest {
     @Mock
     PasswordEncoder passwordEncoder;
 
+    @Mock
+    KeyBindingHelperService keyBindingHelperService;
+
     @InjectMocks
     ConsentHelperService consentHelperService;
 
     @Autowired
     ObjectMapper objectMapper;
+
+    public static final String X5T_S256 = "x5t#S256";
 
 
     @Test
@@ -139,6 +152,7 @@ public class ConsentHelperServiceTest {
         String hashCode =consentHelperService.hashUserConsent(normalizedClaims,consentDetail.getAuthorizationScopes());
         consentDetail.setHash(hashCode);
 
+
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
 
         consentHelperService.processConsent(oidcTransaction,true);
@@ -149,7 +163,18 @@ public class ConsentHelperServiceTest {
     }
 
     @Test
-    public void processConsent_withValidConsentAndConsentActionAsCapture_thenPass() throws JsonProcessingException {
+    public void processConsent_withValidConsentAndConsentActionAsCapture_thenPass() throws JsonProcessingException, NoSuchAlgorithmException, JOSEException {
+
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+       // keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        // Convert the keys to RSAPublicKey and RSAPrivateKey objects
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        //RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+
+        byte[] publicKeyBytes = publicKey.getEncoded();
+        String publicKeyString = Base64.getEncoder().encodeToString(publicKeyBytes);
 
         OIDCTransaction oidcTransaction=new OIDCTransaction();
         oidcTransaction.setClientId("abc");
@@ -193,6 +218,23 @@ public class ConsentHelperServiceTest {
         consentDetail.setClaims(consentClaims);
         String hashCode =consentHelperService.hashUserConsent(consentClaims,consentDetail.getAuthorizationScopes());
         consentDetail.setHash(hashCode);
+        consentDetail.setAcceptedClaims(Arrays.asList("name","email","gender"));
+        consentDetail.setPermittedScopes(Arrays.asList("openid","profile","email"));
+
+        List<String> acceptedClaims = consentDetail.getAcceptedClaims();
+        List<String> permittedScopes = consentDetail.getPermittedScopes();
+        String jws = consentDetail.getSignature();
+        Collections.sort(acceptedClaims);
+        Collections.sort(permittedScopes);
+        Map<String,Object> payLoadMap = new HashMap<>();
+        payLoadMap.put("accepted_claims",acceptedClaims);
+        payLoadMap.put("permitted_scopes",permittedScopes);
+        String signature = generateSignature(payLoadMap,(RSAPrivateKey)keyPair.getPrivate());
+
+        consentDetail.setSignature(signature);
+        consentDetail.setPsuToken("psutoken");
+
+        Mockito.when(keyBindingHelperService.getPublicKey(consentDetail.getPsuToken(),"")).thenReturn(publicKeyString);
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);
@@ -217,5 +259,59 @@ public class ConsentHelperServiceTest {
         consentHelperService.processConsent(oidcTransaction,true);
         Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
 
+    }
+
+    private void generateKEyPair() throws JOSEException, ParseException, NoSuchAlgorithmException {
+        // Generate a public/private key pair
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        // Convert the keys to RSAPublicKey and RSAPrivateKey objects
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+
+        // Define the header and payload
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .keyID("123")
+                .build();
+        Payload payload = new Payload("{\"sub\":\"1234567890\",\"name\":\"John Doe\",\"iat\":1516239022}");
+
+        // Generate the JWT with a private key
+        JWSSigner signer = new RSASSASigner(privateKey);
+        JWSObject jwsObject = new JWSObject(header, payload);
+        jwsObject.sign(signer);
+        String token = jwsObject.serialize();
+
+        // Verify the JWT with a public key
+        JWSVerifier verifier = new RSASSAVerifier(publicKey);
+        JWSObject parsedObject = JWSObject.parse(token);
+        parsedObject.verify(verifier);
+    }
+    private String generateSignature(Map<String,Object> payloadMap,RSAPrivateKey privateKey) throws JOSEException, NoSuchAlgorithmException {
+
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        // Convert the keys to RSAPublicKey and RSAPrivateKey objects
+       // RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+       // RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+
+        // Define the header and payload
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .keyID("123")
+                .x509CertSHA256Thumbprint(new Base64URL("thumbprint"))
+                .build();
+        //Payload payload = new Payload("{\"sub\":\"1234567890\",\"name\":\"John Doe\",\"iat\":1516239022}");
+        JSONObject payloadJson = new JSONObject(payloadMap);
+        Payload payload = new Payload(payloadJson.toString());
+        // Generate the JWT with a private key
+        JWSSigner signer = new RSASSASigner(privateKey);
+        JWSObject jwsObject = new JWSObject(header, payload);
+        jwsObject.sign(signer);
+        String token = jwsObject.serialize();
+        String parts[]=token.split("\\.");
+        return parts[0]+"."+parts[2];
     }
 }
