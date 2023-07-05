@@ -3,6 +3,7 @@
     "authorization_failed_msg": "فشل التفويض",
     "consent_request_rejected": "تم رفض طلب الموافقة",
     "consent_request_msg": "يطلب {{clientName}} الوصول إلى ما يلي:",
+    "transaction_timeout_msg": "يجب عليك تقديم الموافقة في غضون {{timeLeft}} ثانية قبل انتهاء صلاحية المعاملة.",
     "authorize_scope": "تفويض النطاقات",
     "essential_claims": "الادعاءات الأساسية",
     "voluntary_claims": "المطالبات الطوعية",

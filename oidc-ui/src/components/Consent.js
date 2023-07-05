@@ -6,6 +6,7 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import { buttonTypes } from "../constants/clientConstants";
 import { LoadingStates, LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
+import { configurationKeys } from "../constants/clientConstants";
 
 export default function Consent({
   authService,
@@ -18,6 +19,14 @@ export default function Consent({
 
   const post_AuthCode = authService.post_AuthCode;
 
+  const authenticationExpireInSec =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.authenticationExpireInSec
+    ) ?? process.env.REACT_APP_AUTHENTICATION_EXPIRE_IN_SEC;
+
+  const timeoutBuffer = 5; // in seconds
+  const transactionTimeoutWithBuffer = authenticationExpireInSec - timeoutBuffer;
+
   const firstRender = useRef(true);
   const [status, setStatus] = useState(states.LOADED);
   const [claims, setClaims] = useState([]);
@@ -25,6 +34,7 @@ export default function Consent({
   const [clientName, setClientName] = useState("");
   const [clientLogoPath, setClientLogoPath] = useState("");
   const [claimsScopes, setClaimsScopes] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(transactionTimeoutWithBuffer);
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -175,7 +185,18 @@ export default function Consent({
       return;
     }
     scopeClaimChanges();
-  }, [scope, claims]);
+
+    if (timeLeft > 0 && status === states.LOADED) {
+      const timer = setTimeout(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+    if (timeLeft <= 0 && status === states.LOADED) {
+      onError("invalid_transaction", t("invalid_transaction"));
+    }
+  }, [scope, claims, timeLeft]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -307,6 +328,11 @@ export default function Consent({
               })}
             </b>
           </div>
+          {timeLeft > 0 && status !== LoadingStates.LOADING && (
+            <div className="text-center text-red-600">
+              {t("transaction_timeout_msg", { timeLeft })}
+            </div>
+          )}
           {claimsScopes?.map(
             (claimScope) =>
               claimScope?.values?.length > 0 && (
