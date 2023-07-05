@@ -112,12 +112,13 @@ export default function Consent({
         const data = claimScope.type === "scope" ? scope : claims;
         const hasAll = hasAllElement(data, claimScope?.values);
         const diff = difference(claimScope?.values, data);
+        const hasNot = diff.length === claimScope.values.length;
         ids.check[claimScope.type] = hasAll
           ? [...data, claimScope.label]
           : data;
-        ids.uncheck[claimScope.type] = hasAll
-          ? diff
-          : [...diff, claimScope.label];
+        ids.uncheck[claimScope.type] = hasNot
+          ? [...diff, claimScope.label]
+          : diff;
       }
     });
 
@@ -132,7 +133,7 @@ export default function Consent({
   useEffect(() => {
     const initialize = async () => {
       if (consentAction === "NOCAPTURE") {
-        submitConsent([],[]);
+        submitConsent([], []);
         return;
       }
 
@@ -179,7 +180,7 @@ export default function Consent({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    submitConsent(claims,scope);
+    submitConsent(claims, scope);
   };
 
   const handleCancel = (e) => {
@@ -188,7 +189,7 @@ export default function Consent({
   };
 
   //Handle Login API Integration here
-  const submitConsent = async (acceptedClaims,permittedAuthorizeScopes) => {
+  const submitConsent = async (acceptedClaims, permittedAuthorizeScopes) => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
 
@@ -316,7 +317,7 @@ export default function Consent({
                       <div className="font-semibold">
                         {t(claimScope.label)}
                         <button
-                          id={claimScope.label}
+                          id={claimScope.label+'_tooltip'}
                           className="ml-1 text-sky-600 text-xl"
                           data-tooltip-content={t(claimScope.tooltip)}
                           data-tooltip-place="top"
@@ -332,6 +333,7 @@ export default function Consent({
                     </div>
                     <div className="flex justify-end">
                       {!claimScope?.required &&
+                        claimScope.values.length > 1 &&
                         sliderButtonDiv(claimScope.label, (e) =>
                           selectUnselectAllScopeClaim(e, claimScope, true)
                         )}
