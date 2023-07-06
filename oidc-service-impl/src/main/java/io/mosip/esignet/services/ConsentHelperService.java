@@ -8,8 +8,6 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.util.Base64URL;
-import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
@@ -21,19 +19,15 @@ import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
-import io.mosip.esignet.core.spi.KeyBindingService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.nio.charset.StandardCharsets;
+import validator.ValidSignatureFormat;
 import java.security.KeyFactory;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.*;
@@ -50,8 +44,6 @@ public class ConsentHelperService {
 
     @Autowired
     private KeyBindingHelperService keyBindingHelperService;
-
-    public static final String X5T_S256 = "x5t#S256";
 
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
@@ -183,8 +175,6 @@ public class ConsentHelperService {
         try {
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-            String signature = consentDetail.getSignature();
-            String linkedtansactionId = transaction.getLinkedTransactionId();
             if(linked ) {
                 if (!verifyConsentSignature(consentDetail))
                     throw new EsignetException(ErrorConstants.INVALID_TRANSACTION_ID);
@@ -207,7 +197,7 @@ public class ConsentHelperService {
             if(jwtToken.isEmpty())return false;
             SignedJWT signedJWT = SignedJWT.parse(jwtToken);
             JWSHeader header = signedJWT.getHeader();
-            String thumbPrint="";//header.getCustomParam(X5T_S256).toString();
+            String thumbPrint=header.getX509CertSHA256Thumbprint().toString();
             String publicKey = keyBindingHelperService.getPublicKey(consentDetail.getPsuToken(),thumbPrint);
             byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
@@ -223,12 +213,12 @@ public class ConsentHelperService {
         {
             throw new EsignetException(e.getMessage());
         }
-
     }
 
     private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
         List<String> acceptedClaims = consentDetail.getAcceptedClaims();
         List<String> permittedScopes = consentDetail.getPermittedScopes();
+        //@ValidSignatureFormat
         String jws = consentDetail.getSignature();
         if(!signatureFormatValidate(jws))return "";
         String[] parts = jws.split("\\.");
@@ -237,17 +227,15 @@ public class ConsentHelperService {
         String signature = parts[1];
         Collections.sort(acceptedClaims);
         Collections.sort(permittedScopes);
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .claim("acceptedClaims", acceptedClaims)
-                .claim("authorizeScopes", permittedScopes)
-                .build();
 
-        byte[] decodedHeaderBytes = Base64.getUrlDecoder().decode(header);
-        JWSHeader jwsHeader = JWSHeader.parse(new String(decodedHeaderBytes));
-        JWSObject jwsObject = null;
-        jwsObject = new JWSObject(jwsHeader.toBase64URL(), Base64URL.encode(claimsSet.toJSONObject().toJSONString())
-                ,Base64URL.encode(signature) );
-        return jwsObject == null ? "": jwsObject.serialize();
+        Map<String,Object> payLoadMap = new HashMap<>();
+        payLoadMap.put("accepted_claims",acceptedClaims);
+        payLoadMap.put("permitted_scopes",permittedScopes);
+
+        Payload payload=new Payload(new JSONObject(payLoadMap).toJSONString());
+        StringBuilder sb = new StringBuilder();
+        sb.append(header).append(".").append(payload.toBase64URL()).append(".").append(signature);
+        return sb.toString();
     }
 
     private boolean signatureFormatValidate(String signature)
