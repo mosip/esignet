@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import LoadingIndicator from "../common/LoadingIndicator";
-import { buttonTypes } from "../constants/clientConstants";
+import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import { LoadingStates, LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 
@@ -18,6 +18,14 @@ export default function Consent({
 
   const post_AuthCode = authService.post_AuthCode;
 
+  const authenticationExpireInSec =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.consentScreenExpireInSec
+    ) ?? process.env.REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC;
+
+  const timeoutBuffer = 5; // in seconds
+  const transactionTimeoutWithBuffer = authenticationExpireInSec - timeoutBuffer;
+
   const firstRender = useRef(true);
   const [status, setStatus] = useState(states.LOADED);
   const [claims, setClaims] = useState([]);
@@ -25,6 +33,8 @@ export default function Consent({
   const [clientName, setClientName] = useState("");
   const [clientLogoPath, setClientLogoPath] = useState("");
   const [claimsScopes, setClaimsScopes] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(transactionTimeoutWithBuffer);
+  const [consentScreenTimer, setConsentScreenTimer] = useState(null);
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -176,7 +186,29 @@ export default function Consent({
       return;
     }
     scopeClaimChanges();
+    startConsentScreenTimer();
   }, [scope, claims]);
+
+  const startConsentScreenTimer = async () => {
+    clearInterval(consentScreenTimer);
+    let timePassed = 0
+    const interval = setInterval(() => {
+      timePassed++
+      let tLeft = transactionTimeoutWithBuffer - timePassed;
+      setTimeLeft(tLeft);
+      if (tLeft === 0) {
+        clearInterval(interval);
+        onError("invalid_transaction", t("invalid_transaction"));
+      }
+    }, 1000);
+    setConsentScreenTimer(interval);
+  }
+
+  function formatTime(time) {
+    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
+    const seconds = (time % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -394,6 +426,14 @@ export default function Consent({
             </div>
           )}
         </form>
+        <div className="mt-4">
+          {timeLeft > 0 && status !== LoadingStates.LOADING && (
+            <div className="text-center">
+              <p className="text-gray-600">{t("transaction_timeout_msg")}</p>
+              <p className="font-semibold">{formatTime(timeLeft)} </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
