@@ -5,11 +5,10 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.dto.ClientDetailResponse;
-import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
+import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.dto.ClientDetail;
-import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
+import org.springframework.cache.annotation.CacheEvict;
 
 public interface ClientManagementService {
 
@@ -36,5 +35,22 @@ public interface ClientManagementService {
      * @return
      */
     ClientDetail getClientDetails(String clientId) throws EsignetException;
+
+    /**
+     * API to register relying party client
+     * @param clientDetailCreateV2Request
+     * @return
+     * @throws EsignetException
+     */
+    ClientDetailResponse createOIDCClientV2(ClientDetailCreateV2Request clientDetailCreateV2Request) throws EsignetException;
+
+    /**
+     * API to update registered relying party client
+     * @param clientId
+     * @param clientDetailUpdateV2Request
+     * @return
+     * @throws EsignetException
+     */
+    ClientDetailResponse updateOIDCClientV2(String clientId, ClientDetailUpdateV2Request clientDetailUpdateV2Request) throws EsignetException;
 
 }

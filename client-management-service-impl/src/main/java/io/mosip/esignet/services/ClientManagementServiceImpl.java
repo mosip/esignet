@@ -12,9 +12,7 @@ import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
-import io.mosip.esignet.core.dto.ClientDetailResponse;
-import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
@@ -24,6 +22,7 @@ import io.mosip.esignet.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.json.simple.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -173,4 +172,97 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
         return dto;
     }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
+    @Override
+    public ClientDetailResponse createOIDCClientV2(ClientDetailCreateV2Request clientDetailCreateV2Request) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateV2Request.getClientId());
+        if (result.isPresent()) {
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId(clientDetailCreateV2Request.getClientId());
+        clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateV2Request.getPublicKey()));
+        clientDetail.setRpId(clientDetailCreateV2Request.getRelyingPartyId());
+        clientDetail.setLogoUri(clientDetailCreateV2Request.getLogoUri());
+
+        JSONObject clientNameObject = new JSONObject(clientDetailCreateV2Request.getClientName());
+        clientDetail.setName(clientNameObject.toString());
+
+        clientDetailCreateV2Request.getRedirectUris().removeAll(NULL);
+        clientDetail.setRedirectUris(JSONArray.toJSONString(clientDetailCreateV2Request.getRedirectUris()));
+
+        clientDetailCreateV2Request.getUserClaims().removeAll(NULL);
+        clientDetail.setClaims(JSONArray.toJSONString(clientDetailCreateV2Request.getUserClaims()));
+
+        clientDetailCreateV2Request.getAuthContextRefs().removeAll(NULL);
+        clientDetail.setAcrValues(JSONArray.toJSONString(clientDetailCreateV2Request.getAuthContextRefs()));
+
+        clientDetailCreateV2Request.getGrantTypes().removeAll(NULL);
+        clientDetail.setGrantTypes(JSONArray.toJSONString(clientDetailCreateV2Request.getGrantTypes()));
+
+        clientDetailCreateV2Request.getClientAuthMethods().removeAll(NULL);
+        clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailCreateV2Request.getClientAuthMethods()));
+
+        clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
+        clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
+
+        try {
+            clientDetail = clientDetailRepository.save(clientDetail);
+        } catch (ConstraintViolationException cve) {
+            log.error("Failed to create client details", cve);
+            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+        }
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateV2Request.getClientId()), null);
+
+        var response = new ClientDetailResponse();
+        response.setClientId(clientDetail.getId());
+        response.setStatus(clientDetail.getStatus());
+        return response;
+    }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
+    @Override
+    public ClientDetailResponse updateOIDCClientV2(String clientId, ClientDetailUpdateV2Request clientDetailUpdateV2Request) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+        if (!result.isPresent()) {
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = result.get();
+
+        JSONObject clientNameObject = new JSONObject(clientDetailUpdateV2Request.getClientName());
+        clientDetail.setName(clientNameObject.toString());
+        clientDetail.setLogoUri(clientDetailUpdateV2Request.getLogoUri());
+
+        clientDetailUpdateV2Request.getRedirectUris().removeAll(NULL);
+        clientDetail.setRedirectUris(JSONArray.toJSONString(clientDetailUpdateV2Request.getRedirectUris()));
+
+        clientDetailUpdateV2Request.getUserClaims().removeAll(NULL);
+        clientDetail.setClaims(JSONArray.toJSONString(clientDetailUpdateV2Request.getUserClaims()));
+
+        clientDetailUpdateV2Request.getAuthContextRefs().removeAll(NULL);
+        clientDetail.setAcrValues(JSONArray.toJSONString(clientDetailUpdateV2Request.getAuthContextRefs()));
+
+        clientDetailUpdateV2Request.getGrantTypes().removeAll(NULL);
+        clientDetail.setGrantTypes(JSONArray.toJSONString(clientDetailUpdateV2Request.getGrantTypes()));
+
+        clientDetailUpdateV2Request.getClientAuthMethods().removeAll(NULL);
+        clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailUpdateV2Request.getClientAuthMethods()));
+        clientDetail.setStatus(clientDetailUpdateV2Request.getStatus());
+        clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
+        clientDetail = clientDetailRepository.save(clientDetail);
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
+
+        var response = new ClientDetailResponse();
+        response.setClientId(clientDetail.getId());
+        response.setStatus(clientDetail.getStatus());
+        return response;
+    }
+
 }
