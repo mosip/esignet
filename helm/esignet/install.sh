@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Installs all esignet helm charts
 ## Usage: ./install.sh [kubeconfig]
 

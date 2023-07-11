@@ -9,6 +9,9 @@ fi
 
 function Deleting_All() {
   ROOT_DIR=`pwd`
+  SOFTHSM_NS=softhsm
+
+  helm -n $SOFTHSM_NS delete softhsm-esignet
 
   declare -a module=("redis"
                      "esignet"
