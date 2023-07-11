@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Uninstalls oidc-ui helm charts
 ## Usage: ./delete.sh [kubeconfig]
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copy configmaps from other namespaces
 # DST_NS: Destination namespace 
 
