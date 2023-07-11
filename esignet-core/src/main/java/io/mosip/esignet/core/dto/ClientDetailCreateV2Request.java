@@ -28,8 +28,9 @@ public class ClientDetailCreateV2Request {
     @Size(max = 100, message = ErrorConstants.INVALID_CLIENT_ID)
     private String clientId;
 
-    @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP)
-    private Map<String, String> clientName;
+    @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME_MAP)
+    private Map<@NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_KEY) String,
+            @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientName;
 
     @NotEmpty(message = ErrorConstants.INVALID_PUBLIC_KEY)
     private Map<String, Object> publicKey;

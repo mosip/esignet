@@ -173,7 +173,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return dto;
     }
 
-    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateV2Request.getClientId()")
     @Override
     public ClientDetailResponse createOIDCClientV2(ClientDetailCreateV2Request clientDetailCreateV2Request) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateV2Request.getClientId());

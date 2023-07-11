@@ -78,6 +78,20 @@ public class LinkedAuthorizationController {
         return responseWrapper;
     }
 
+    @PostMapping("/v2/link-transaction")
+    public ResponseWrapper<LinkTransactionV2Response> linkTransactionV2(@Valid @RequestBody RequestWrapper<LinkTransactionRequest>
+                                                                            requestWrapper) throws EsignetException {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        try {
+            responseWrapper.setResponse(linkedAuthorizationService.linkTransactionV2(requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkCode(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
     @PostMapping("/link-status")
     public DeferredResult<ResponseWrapper<LinkStatusResponse>> getLinkStatus(@Valid @RequestBody RequestWrapper<LinkStatusRequest>
                                                                                      requestWrapper) throws EsignetException {

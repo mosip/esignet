@@ -15,10 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
@@ -52,8 +49,9 @@ public class ClientDetailUpdateV2Request {
     @Size(message = ErrorConstants.INVALID_GRANT_TYPE, min = 1, max=3)
     private List<@OIDCGrantType String> grantTypes;
 
-    @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP)
-    private Map<String, String> clientName;
+    @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME_MAP)
+    private Map<@NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_KEY) String,
+            @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientName;
 
     @NotNull(message = ErrorConstants.INVALID_CLIENT_AUTH)
     @Size(message = ErrorConstants.INVALID_CLIENT_AUTH, min = 1, max = 3)

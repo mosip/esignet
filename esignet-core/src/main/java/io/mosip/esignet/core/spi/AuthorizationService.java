@@ -19,6 +19,14 @@ public interface AuthorizationService {
     OAuthDetailResponse getOauthDetails(OAuthDetailRequest oauthDetailRequest) throws EsignetException;
 
     /**
+     * All the query parameters of /authorize request are echoed to this request.
+     * Resolves and returns auth-factors and claims required to IDP UI.
+     * @param oauthDetailRequest
+     * @return
+     */
+    OAuthDetailV2Response getOauthDetailsV2(OAuthDetailRequest oauthDetailRequest) throws EsignetException;
+
+    /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel
      * @param otpRequest
      * @return
