@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Restart the oidc-ui services
 
 

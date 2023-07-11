@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Restart the esignet services
 
 if [ $# -ge 1 ] ; then

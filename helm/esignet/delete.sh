@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Uninstalls all esignet helm charts
 ## Usage: ./delete.sh [kubeconfig]
 

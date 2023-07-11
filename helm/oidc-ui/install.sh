@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Installs oidc-ui helm charts
 ## Usage: ./install.sh [kubeconfig]
 
