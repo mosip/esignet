@@ -2,7 +2,7 @@
 # Copy configmaps from other namespaces
 # DST_NS: Destination namespace 
 
-function coping_cm() {
+function copying_cm() {
   COPY_UTIL=./copy_cm_func.sh
   DST_NS=esignet
 
@@ -19,4 +19,4 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-coping_cm   # calling function
+copying_cm   # calling function
