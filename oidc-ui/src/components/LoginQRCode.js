@@ -9,6 +9,8 @@ import {
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 
+var authCodeFlag = false;
+
 export default function LoginQRCode({
   linkAuthService,
   openIDConnectService,
@@ -42,15 +44,20 @@ export default function LoginQRCode({
   const linkStatusGracePeriod =
     parseTimeout !== "NaN" ? parseTimeout : 25;
 
-  const walletLogoURL =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.walletLogoURL
-    ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
+  const GenerateQRCode = (response) => {
+    let text =
+      openIDConnectService.getEsignetConfiguration(
+        configurationKeys.qrCodeDeepLinkURI
+      ) ?? process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
 
-  const GenerateQRCode = (text, logoUrl) => {
-    const canvas = document.createElement("canvas");
-    QRCode.toCanvas(
-      canvas,
+    text = text.replace(deepLinkParamPlaceholder.linkCode, response.linkCode);
+
+    text = text.replace(
+      deepLinkParamPlaceholder.linkExpiryDate,
+      response.expireDateTime
+    );
+
+    QRCode.toDataURL(
       text,
       {
         width: 500,
@@ -59,44 +66,14 @@ export default function LoginQRCode({
           dark: "#000000",
         },
       },
-      (err) => {
+      (err, text) => {
         if (err) {
           setError({
             errorCode: "link_code_refresh_failed",
           });
           return;
         }
-        if (logoUrl) {
-          const logo = new Image();
-          logo.src = logoUrl;
-          logo.onload = () => {
-            const ctx = canvas.getContext("2d");
-            const size = canvas.width / 6;
-            const x = (canvas.width - size) / 2;
-            const y = (canvas.height - size) / 2;
-            // Create a new canvas to filter the logo image
-            const filterCanvas = document.createElement("canvas");
-            filterCanvas.width = logo.width;
-            filterCanvas.height = logo.height;
-            const filterCtx = filterCanvas.getContext("2d");
-            filterCtx.drawImage(logo, 0, 0);
-            ctx.fillStyle = "#000000";
-            ctx.fillRect(x - 6, y - 6, size + 12, size + 12);
-            // Draw the filtered image onto the QR code canvas
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(200, 200, 100, 100);
-            ctx.drawImage(filterCanvas, x, y, size, size);
-            setQr(canvas.toDataURL());
-          };
-          logo.onerror = () => {
-            // If there's an error fetching the logo, generate QR code without the logo
-            setQr(canvas.toDataURL());
-          }
-        }
-        else {
-          // If logoUrl is not configured, generate QR code without the logo
-          setQr(canvas.toDataURL());
-        }
+        setQr(text);
       }
     );
   };
@@ -123,20 +100,7 @@ export default function LoginQRCode({
           defaultMsg: errors[0].errorMessage,
         });
       } else {
-        let qrCodeDeepLinkURI =
-          openIDConnectService.getEsignetConfiguration(configurationKeys.qrCodeDeepLinkURI) ??
-          process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
-
-        qrCodeDeepLinkURI = qrCodeDeepLinkURI.replace(
-          deepLinkParamPlaceholder.linkCode,
-          response.linkCode
-        );
-
-        qrCodeDeepLinkURI = qrCodeDeepLinkURI.replace(
-          deepLinkParamPlaceholder.linkExpiryDate,
-          response.expireDateTime
-        );
-        GenerateQRCode(qrCodeDeepLinkURI, walletLogoURL);
+        GenerateQRCode(response);
         setStatus({ state: states.LOADED, msg: "" });
         triggerLinkStatus(response.transactionId, response.linkCode);
       }
@@ -153,21 +117,25 @@ export default function LoginQRCode({
     try {
       let timeLeft = linkCodeExpireInSec;
       let timePassed = 0;
+      let qrExpired = false;
       let interval = setInterval(function () {
         timePassed++;
         timeLeft = linkCodeExpireInSec - timePassed;
         if (timeLeft === 0) {
+          timeLeft = -1;
           clearInterval(interval);
         }
       }, 1000);
 
       let linkStatusResponse;
-      while (timeLeft > linkStatusGracePeriod) {
+      while (timeLeft > 0) {
         try {
           linkStatusResponse = await post_LinkStatus(transactionId, linkCode);
         } catch {
           //ignore
         }
+
+        if (authCodeFlag) break;
 
         //return if invalid transactionId;
         if (linkStatusResponse?.errors[0] === "invalid_transaction") {
@@ -184,16 +152,24 @@ export default function LoginQRCode({
           clearInterval(interval);
           break;
         }
+
+        if (
+          !qrExpired &&
+          timeLeft < linkStatusGracePeriod &&
+          timeLeft !== -1 &&
+          (!linkStatusResponse || !linkStatusResponse?.response)
+        ) {
+          qrExpired = true;
+          console.log(status.state);
+          setError({
+            errorCode: "qr_code_expired",
+          });
+        }
       }
 
       clearInterval(interval);
-      //No response
-      if (!linkStatusResponse || !linkStatusResponse?.response) {
-        setError({
-          errorCode: "qr_code_expired",
-        });
-        return;
-      }
+
+      if (authCodeFlag) return;
 
       if (
         linkStatusResponse?.errors != null &&
@@ -203,13 +179,14 @@ export default function LoginQRCode({
           errorCode: linkStatusResponse.errors[0].errorCode,
           defaultMsg: linkStatusResponse.errors[0].errorMessage,
         });
-      } else {
+      } else if (linkStatusResponse?.response) {
         let response = linkStatusResponse.response;
         if (response.linkStatus != "LINKED") {
           setError({
             errorCode: "failed_to_link",
           });
         } else {
+          setError(null);
           setQr(null);
           setStatus({
             state: states.LOADING,
@@ -228,6 +205,7 @@ export default function LoginQRCode({
   };
 
   const triggerLinkAuth = async (transactionId, linkedCode) => {
+    authCodeFlag = true;
     try {
       let timeLeft = linkCodeExpireInSec;
       let timePassed = 0;
