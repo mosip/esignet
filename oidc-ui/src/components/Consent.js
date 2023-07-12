@@ -6,6 +6,7 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import { buttonTypes } from "../constants/clientConstants";
 import { LoadingStates, LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
+import langConfigService from "./../services/langConfigService";
 
 export default function Consent({
   authService,
@@ -25,6 +26,7 @@ export default function Consent({
   const [clientName, setClientName] = useState("");
   const [clientLogoPath, setClientLogoPath] = useState("");
   const [claimsScopes, setClaimsScopes] = useState([]);
+  const [langMap, setLangMap] = useState("");
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -127,6 +129,22 @@ export default function Consent({
     ids.uncheck.claim.forEach((_) => elementChecked(_, false));
   };
 
+  i18next.on("languageChanged", () => {
+    console.log("language changed");
+    console.log(i18next.language);
+    setClientMultiLang();
+  });
+
+  const setClientMultiLang = (localLangMap = null) => {
+    localLangMap ??= langMap;
+    let oAuthDetails = openIDConnectService.getOAuthDetails();
+    let currentLanguage = localLangMap[i18next.language];
+    let clientName =
+      oAuthDetails.clientName[currentLanguage] ??
+      oAuthDetails.clientName["@none"];
+    setClientName(clientName);
+  };
+
   //1. If consntAction= capture we will continue the flow in the useEffect and submit it
   //2. If consentAction = NoCapture we will directly submit it and return
   useEffect(() => {
@@ -135,6 +153,9 @@ export default function Consent({
         submitConsent([],[]);
         return;
       }
+
+      const langConfig = await langConfigService.getLangCodeMapping();
+      setLangMap(langConfig);
 
       let oAuthDetails = openIDConnectService.getOAuthDetails();
 
@@ -164,7 +185,7 @@ export default function Consent({
       });
 
       setClaimsScopes(claimsScopes);
-      setClientName(oAuthDetails?.clientName);
+      setClientMultiLang(langConfig);
       setClientLogoPath(oAuthDetails?.logoUrl);
 
       setClaims(oAuthDetails?.essentialClaims);

@@ -13,8 +13,18 @@ const getLocaleConfiguration = async () => {
   return response.data;
 };
 
+const getLangCodeMapping = async () => {
+  let localConfig = await getLocaleConfiguration();
+  let reverseMap = Object.entries(localConfig.langCodeMapping).reduce(
+    (pv, [key, value]) => ((pv[value] = key), pv),
+    {}
+  );
+  return reverseMap;
+};
+
 const langConfigService = {
   getLocaleConfiguration,
+  getLangCodeMapping,
 };
 
 export default langConfigService;
