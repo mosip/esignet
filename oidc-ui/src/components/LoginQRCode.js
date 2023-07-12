@@ -9,6 +9,8 @@ import {
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 
+var authCodeFlag = false;
+
 export default function LoginQRCode({
   linkAuthService,
   openIDConnectService,
@@ -42,7 +44,19 @@ export default function LoginQRCode({
   const linkStatusGracePeriod =
     parseTimeout !== "NaN" ? parseTimeout : 25;
 
-  const GenerateQRCode = (text) => {
+  const GenerateQRCode = (response) => {
+    let text =
+      openIDConnectService.getEsignetConfiguration(
+        configurationKeys.qrCodeDeepLinkURI
+      ) ?? process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
+
+    text = text.replace(deepLinkParamPlaceholder.linkCode, response.linkCode);
+
+    text = text.replace(
+      deepLinkParamPlaceholder.linkExpiryDate,
+      response.expireDateTime
+    );
+
     QRCode.toDataURL(
       text,
       {
@@ -86,20 +100,7 @@ export default function LoginQRCode({
           defaultMsg: errors[0].errorMessage,
         });
       } else {
-        let qrCodeDeepLinkURI =
-          openIDConnectService.getEsignetConfiguration(configurationKeys.qrCodeDeepLinkURI) ??
-          process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
-
-        qrCodeDeepLinkURI = qrCodeDeepLinkURI.replace(
-          deepLinkParamPlaceholder.linkCode,
-          response.linkCode
-        );
-
-        qrCodeDeepLinkURI = qrCodeDeepLinkURI.replace(
-          deepLinkParamPlaceholder.linkExpiryDate,
-          response.expireDateTime
-        );
-        GenerateQRCode(qrCodeDeepLinkURI);
+        GenerateQRCode(response);
         setStatus({ state: states.LOADED, msg: "" });
         triggerLinkStatus(response.transactionId, response.linkCode);
       }
@@ -116,21 +117,25 @@ export default function LoginQRCode({
     try {
       let timeLeft = linkCodeExpireInSec;
       let timePassed = 0;
+      let qrExpired = false;
       let interval = setInterval(function () {
         timePassed++;
         timeLeft = linkCodeExpireInSec - timePassed;
         if (timeLeft === 0) {
+          timeLeft = -1;
           clearInterval(interval);
         }
       }, 1000);
 
       let linkStatusResponse;
-      while (timeLeft > linkStatusGracePeriod) {
+      while (timeLeft > 0) {
         try {
           linkStatusResponse = await post_LinkStatus(transactionId, linkCode);
         } catch {
           //ignore
         }
+
+        if (authCodeFlag) break;
 
         //return if invalid transactionId;
         if (linkStatusResponse?.errors[0] === "invalid_transaction") {
@@ -147,16 +152,24 @@ export default function LoginQRCode({
           clearInterval(interval);
           break;
         }
+
+        if (
+          !qrExpired &&
+          timeLeft < linkStatusGracePeriod &&
+          timeLeft !== -1 &&
+          (!linkStatusResponse || !linkStatusResponse?.response)
+        ) {
+          qrExpired = true;
+          console.log(status.state);
+          setError({
+            errorCode: "qr_code_expired",
+          });
+        }
       }
 
       clearInterval(interval);
-      //No response
-      if (!linkStatusResponse || !linkStatusResponse?.response) {
-        setError({
-          errorCode: "qr_code_expired",
-        });
-        return;
-      }
+
+      if (authCodeFlag) return;
 
       if (
         linkStatusResponse?.errors != null &&
@@ -166,13 +179,14 @@ export default function LoginQRCode({
           errorCode: linkStatusResponse.errors[0].errorCode,
           defaultMsg: linkStatusResponse.errors[0].errorMessage,
         });
-      } else {
+      } else if (linkStatusResponse?.response) {
         let response = linkStatusResponse.response;
         if (response.linkStatus != "LINKED") {
           setError({
             errorCode: "failed_to_link",
           });
         } else {
+          setError(null);
           setQr(null);
           setStatus({
             state: states.LOADING,
@@ -191,6 +205,7 @@ export default function LoginQRCode({
   };
 
   const triggerLinkAuth = async (transactionId, linkedCode) => {
+    authCodeFlag = true;
     try {
       let timeLeft = linkCodeExpireInSec;
       let timePassed = 0;
