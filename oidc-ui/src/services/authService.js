@@ -210,6 +210,8 @@ class authService {
    */
   buildRedirectParams = (nonce, state, oauthReponse, consentAction) => {
     let params = "?";
+    let authenticationTime = Math.floor(new Date().getTime() / 1000);
+
     if (nonce) {
       params = params + "nonce=" + nonce + "&";
     }
@@ -219,13 +221,11 @@ class authService {
     if (consentAction) {
       params = params + "consentAction=" + consentAction + "&";
     }
-    //removing last "&" or "?" character
-    params = params.substring(0, params.length - 1);
+    params = params + "authenticationTime=" + authenticationTime;
 
     let responseStr = JSON.stringify(oauthReponse);
     let responseB64 = Buffer.from(responseStr).toString("base64");
     params = params + "#" + responseB64;
-
     return params;
   };
 }
