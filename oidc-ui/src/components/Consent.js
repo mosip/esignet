@@ -23,7 +23,12 @@ export default function Consent({
       configurationKeys.consentScreenExpireInSec
     ) ?? process.env.REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC;
 
-  const timeoutBuffer = 5; // in seconds
+  // The transaction timer will be derived from the configuration file of e-Signet so buffer of -5 sec is added in the timer.  
+  const timeoutBuffer =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.consentScreenTimeOutBufferInSec
+    ) ?? process.env.REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC;
+
   const transactionTimeoutWithBuffer = authenticationExpireInSec - timeoutBuffer;
 
   const firstRender = useRef(true);
@@ -33,7 +38,7 @@ export default function Consent({
   const [clientName, setClientName] = useState("");
   const [clientLogoPath, setClientLogoPath] = useState("");
   const [claimsScopes, setClaimsScopes] = useState([]);
-  const [timeLeft, setTimeLeft] = useState(transactionTimeoutWithBuffer);
+  const [timeLeft, setTimeLeft] = useState(null);
   const [consentScreenTimer, setConsentScreenTimer] = useState(null);
 
   const hasAllElement = (mainArray, subArray) =>
@@ -186,17 +191,26 @@ export default function Consent({
       return;
     }
     scopeClaimChanges();
-    startConsentScreenTimer();
   }, [scope, claims]);
 
-  const startConsentScreenTimer = async () => {
+  useEffect(() => {
+    const currentTime = Math.floor(new Date().getTime() / 1000);
+    const searchParams = new URLSearchParams(window.location.search);
+    const authTime = searchParams.get("authenticationTime");
+    if (authTime) {
+      let timePassed = currentTime - authTime;
+      startConsentScreenTimer(timePassed);
+    }
+  }, [])
+
+  const startConsentScreenTimer = async (timePassed) => {
     clearInterval(consentScreenTimer);
-    let timePassed = 0
+    let tLeft = transactionTimeoutWithBuffer - timePassed;
+    setTimeLeft(tLeft);
+
     const interval = setInterval(() => {
-      timePassed++
-      let tLeft = transactionTimeoutWithBuffer - timePassed;
-      setTimeLeft(tLeft);
-      if (tLeft === 0) {
+      setTimeLeft(--tLeft);
+      if (tLeft <= 0) {
         clearInterval(interval);
         onError("invalid_transaction", t("invalid_transaction"));
       }
@@ -427,7 +441,7 @@ export default function Consent({
           )}
         </form>
         <div className="mt-4">
-          {timeLeft > 0 && status !== LoadingStates.LOADING && (
+          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
             <div className="text-center">
               <p className="text-gray-600">{t("transaction_timeout_msg")}</p>
               <p className="font-semibold">{formatTime(timeLeft)} </p>
