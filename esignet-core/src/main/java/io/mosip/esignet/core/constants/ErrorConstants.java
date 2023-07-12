@@ -65,4 +65,6 @@ public class ErrorConstants {
     public static final String FAILED_TO_GENERATE_HEADER_HASH = "failed_to_generate_header_hash";
     public static final String FAILED_TO_VALIDATE_CAPTCHA = "failed_to_validate_captcha";
     public static final String INVALID_CAPTCHA = "invalid_captcha";
+    public static final String INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT = "invalid_auth_factor_type_or_challenge_format";
+
 }
