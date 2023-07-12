@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "2bbed2fa-e3f2-4820-9abd-64ef5e1accee",
+		"_postman_id": "496855d4-693e-43f6-b0be-dd22c2cd3fa1",
 		"name": "MOSIP e-Signet Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20579541"
+		"_exporter_id": "6039892"
 	},
 	"item": [
 		{
@@ -465,6 +465,71 @@
 			"response": []
 		},
 		{
+			"name": "Authenticate User V2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+							"pm.environment.set(\"csrf_token\", token);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-key",
+						"value": "{{oauth_details_key}}",
+						"type": "text"
+					},
+					{
+						"key": "oauth-details-hash",
+						"value": "{{oauth_details_hash}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/authorization/v2/authenticate",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"authorization",
+						"v2",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Authorization Code",
 			"event": [
 				{
@@ -855,6 +920,86 @@
 			"response": []
 		},
 		{
+			"name": "Link Authenticate User (wallet) -V2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"//sign token",
+							"const private_key_jwk = {",
+							"    \"p\": \"xZDfG1GbHpd7C81k2au8ntvFsTCXj96iyimsHXBzgvKL9WdZfwVVjw5sWCZwSTqt6gL7wCTGxxUeQsN4IKfCalCAmHzFkvDANLi-7LmT2ZJM992j-E7oEOQOv7H4VRqBuir7bECpeeSRoI0qVs07olA5RCKUZpF4iBlecjVVD3M\",",
+							"    \"kty\": \"RSA\",",
+							"    \"q\": \"qGRtmjha2uqCwmGRZS19qWD3ICeLE8NjNgmqx6pI0SLEzD5uQS98T8JOWZxTUjyOm5LtisWBfhloZdT9UNnRX6yMFIswLovTKcYo38yD5fQ9K2gpqzD0K9_ngST08aTDOPY_IlCGe2RZeeHhulyA71MpFhSZLaU2rG2u5exwxBc\",",
+							"    \"d\": \"Of0lDpdIXY3jyhcKuatsw1N6zQpn20UQHxzMdZH2XHSHMzC1vYvbOQD2JmoSahggu2or0n5JeAMbs2k1BlabSqHM65TaJMgKjJVWIiSEAPBhPbqJqGF7nZKrHNk6jVgVYDI_rFGdo7DwNw8-RS0QSiuLBCbmCgCM9wiFWarn2pE9MpK9n_xEmRVNrSFhlvWyPmCCsr5TVVOrXF_7ERYevPDN22uZC0cYgdEtPI80AUZy5ofJnSnIZ0n0fZFO5I7rUFU_MDMuM7W2plKS__fT9UWCBk4mGCgqgqfIzBGFGT2sRDs1kMgVhMMoNFDlc8Hy3KptHmOOOGeb3rwYUixb0Q\",",
+							"    \"e\": \"AQAB\",",
+							"    \"use\": \"sig\",",
+							"    \"qi\": \"bLWOocu5x-RCoxh1MXtJ4Dkahk7vjdQ2iUGiRjmJEL61tKIV1NQk7D5yUl5BFlWanMBwdajRlwcg81ZYV81v2aE2qczOm8X23S8K1QQOSlb2-3p_cGCxaOb9LqV6kDcNetVp2sAxJ-naQLPstE0LQiLGnmij-LwarZFbrpQVVb8\",",
+							"    \"dp\": \"I5De-TYJrMosVoWVQDJQdHCv-CP9ROMZfzddSrdxtAMh-v2t-NXm_yfjjULuN-CeamA7He4A8tn0ZqR1vbs1npn7bHgZwUgh8dvIUyldWm-h94Uo_YyG7nN_zDans_pfnDocpPJHEDB7nuGK27F6qM-0X3WyLXzGrAmVHQ5Iz80\",",
+							"    \"alg\": \"RS256\",",
+							"    \"dq\": \"QJCBFaiV7WoNSMpwHQMcM11iY4nF4YYA_C8os_WuhcF3A3jMfWHfoBU4RVOS_u0JIM1tFtAznk3PoXvQxLc_eBeIfjf_-VjTVikMcwLPb9P9wC7oCyNx-4CWGwY4hI5P6_8-pcGKTrVjOUBKdFITfa-9CSJMuRunouVLMg0-D3E\",",
+							"    \"n\": \"gfSTlsfcU4hCChv8FZ-ffFfNlPesknqVsZubLOlPKB5JHEHEhyy4yRjRmUQK9hzgsSKNyNVrqJIePZnCBKdjs1wxR3uM895hCLfJTQXU1p1hON0VfX0lbG2-y-ZLD6zTkUbn3JNLFc1mxWn4IAiXeKmpXlBqUM3QPCKQWp95lmhfq45UkbdEPkCssdeqYoShkCJWd7GFhC5qOoMLfbNT71q5s3L7VoqKnEpbCsKhvN6BkT4jE1m4xy4jCpc80uZR6bnKG1gryN_LSjeubrodjWpfUrDKCXT23R-RKhMRjCK3sJQbnERJkzpIQ8b_GcOhRzL07BNAoXafRqhrsMhvVQ\"",
+							"}",
+							"",
+							"// Set headers for JWT",
+							"var certificate = eval(pm.environment.get('bind_certificate'));",
+							"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
+							"// Set headers for JWT",
+							"var header = {",
+							"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
+							"\t\"alg\": \"RS256\"",
+							"};",
+							"",
+							"//const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('individual_id'), pm.environment.get('wla_aud'), exp = 60,  \"RS256\");",
+							"",
+							"const signed_jwt = pmlib.jwtSign(private_key_jwk, {",
+							"    \"aud\" : pm.environment.get('wla_aud'),",
+							"\t\"sub\": pm.environment.get('individual_id'),",
+							"    \"iss\" : \"postman-inji\"",
+							"}, header, exp=600, alg = \"RS256\")",
+							"",
+							"pm.collectionVariables.set(\"wla_challenge\",signed_jwt);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/v2/authenticate",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"v2",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Link Consent Request (wallet)",
 			"event": [
 				{
@@ -899,6 +1044,103 @@
 					],
 					"path": [
 						"linked-authorization",
+						"consent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Consent Request (wallet) - V2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.response.code).not.equals(null);",
+							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'));",
+							"",
+							"const private_key_jwk = {",
+							"    \"p\": \"xZDfG1GbHpd7C81k2au8ntvFsTCXj96iyimsHXBzgvKL9WdZfwVVjw5sWCZwSTqt6gL7wCTGxxUeQsN4IKfCalCAmHzFkvDANLi-7LmT2ZJM992j-E7oEOQOv7H4VRqBuir7bECpeeSRoI0qVs07olA5RCKUZpF4iBlecjVVD3M\",",
+							"    \"kty\": \"RSA\",",
+							"    \"q\": \"qGRtmjha2uqCwmGRZS19qWD3ICeLE8NjNgmqx6pI0SLEzD5uQS98T8JOWZxTUjyOm5LtisWBfhloZdT9UNnRX6yMFIswLovTKcYo38yD5fQ9K2gpqzD0K9_ngST08aTDOPY_IlCGe2RZeeHhulyA71MpFhSZLaU2rG2u5exwxBc\",",
+							"    \"d\": \"Of0lDpdIXY3jyhcKuatsw1N6zQpn20UQHxzMdZH2XHSHMzC1vYvbOQD2JmoSahggu2or0n5JeAMbs2k1BlabSqHM65TaJMgKjJVWIiSEAPBhPbqJqGF7nZKrHNk6jVgVYDI_rFGdo7DwNw8-RS0QSiuLBCbmCgCM9wiFWarn2pE9MpK9n_xEmRVNrSFhlvWyPmCCsr5TVVOrXF_7ERYevPDN22uZC0cYgdEtPI80AUZy5ofJnSnIZ0n0fZFO5I7rUFU_MDMuM7W2plKS__fT9UWCBk4mGCgqgqfIzBGFGT2sRDs1kMgVhMMoNFDlc8Hy3KptHmOOOGeb3rwYUixb0Q\",",
+							"    \"e\": \"AQAB\",",
+							"    \"use\": \"sig\",",
+							"    \"qi\": \"bLWOocu5x-RCoxh1MXtJ4Dkahk7vjdQ2iUGiRjmJEL61tKIV1NQk7D5yUl5BFlWanMBwdajRlwcg81ZYV81v2aE2qczOm8X23S8K1QQOSlb2-3p_cGCxaOb9LqV6kDcNetVp2sAxJ-naQLPstE0LQiLGnmij-LwarZFbrpQVVb8\",",
+							"    \"dp\": \"I5De-TYJrMosVoWVQDJQdHCv-CP9ROMZfzddSrdxtAMh-v2t-NXm_yfjjULuN-CeamA7He4A8tn0ZqR1vbs1npn7bHgZwUgh8dvIUyldWm-h94Uo_YyG7nN_zDans_pfnDocpPJHEDB7nuGK27F6qM-0X3WyLXzGrAmVHQ5Iz80\",",
+							"    \"alg\": \"RS256\",",
+							"    \"dq\": \"QJCBFaiV7WoNSMpwHQMcM11iY4nF4YYA_C8os_WuhcF3A3jMfWHfoBU4RVOS_u0JIM1tFtAznk3PoXvQxLc_eBeIfjf_-VjTVikMcwLPb9P9wC7oCyNx-4CWGwY4hI5P6_8-pcGKTrVjOUBKdFITfa-9CSJMuRunouVLMg0-D3E\",",
+							"    \"n\": \"gfSTlsfcU4hCChv8FZ-ffFfNlPesknqVsZubLOlPKB5JHEHEhyy4yRjRmUQK9hzgsSKNyNVrqJIePZnCBKdjs1wxR3uM895hCLfJTQXU1p1hON0VfX0lbG2-y-ZLD6zTkUbn3JNLFc1mxWn4IAiXeKmpXlBqUM3QPCKQWp95lmhfq45UkbdEPkCssdeqYoShkCJWd7GFhC5qOoMLfbNT71q5s3L7VoqKnEpbCsKhvN6BkT4jE1m4xy4jCpc80uZR6bnKG1gryN_LSjeubrodjWpfUrDKCXT23R-RKhMRjCK3sJQbnERJkzpIQ8b_GcOhRzL07BNAoXafRqhrsMhvVQ\"",
+							"};",
+							"var certificate = eval(pm.environment.get('bind_certificate'));",
+							"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
+							"// Set headers for JWT",
+							"var header = {",
+							"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
+							"\t\"alg\": \"RS256\"",
+							"};",
+							"var payload = {}",
+							"var acceptedClaims = pm.environment.get('acceptedClaims');",
+							"if(acceptedClaims != undefined && Array.isArray(acceptedClaims)){",
+							"    payload[\"acceptedClaims\"] = acceptedClaims.sort()",
+							"}",
+							"var permittedAuthorizedScopes = eval(pm.environment.get('permittedAuthorizedScopes'));",
+							"if(permittedAuthorizedScopes != undefined && Array.isArray(permittedAuthorizedScopes)){",
+							"    payload[\"permittedAuthorizedScopes\"] = permittedAuthorizedScopes.sort()",
+							"}",
+							"const signedPayload = pmlib.rs.jws.JWS.sign(",
+							"    null, header, payload, private_key_jwk",
+							");",
+							"var parts = signedPayload.split(\".\");",
+							"var detachedSignature = parts[0] + \".\" + parts[2];",
+							"pm.environment.set(\"detachedSignature\",  detachedSignature);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-XSRF-TOKEN",
+						"value": "{{csrf_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": {{acceptedClaims}},\n        \"signature\": \"{{detachedSignature}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/linked-authorization/v2/consent",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"linked-authorization",
+						"v2",
 						"consent"
 					]
 				}
