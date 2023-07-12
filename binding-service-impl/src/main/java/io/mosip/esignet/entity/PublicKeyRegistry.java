@@ -42,7 +42,7 @@ public class PublicKeyRegistry {
 	@Column(name = "public_key")
 	private String publicKey;
 	
-	@Column(name = "expired_times")
+	@Column(name = "expire_dtimes")
 	private LocalDateTime expiredtimes;
 	
 	@NotBlank

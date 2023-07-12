@@ -7,23 +7,29 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.jose4j.keys.X509Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Base64;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KEY;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_PUBLIC_KEY;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.b64Encode;
 
@@ -61,13 +67,18 @@ public class KeyBindingHelperService {
         //same individual can be bound to different public keys each with different auth-factor-type.
         Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(partnerSpecificUserToken, authFactor);
         String walletBindingId = null;
+        String certifate=null;
         //Entry exists, consider to use same wallet-binding-id. Only update public-key & expireDT
         if (optionalPublicKeyRegistry.isPresent()) {
             walletBindingId = optionalPublicKeyRegistry.get().getWalletBindingId();
+            certifate=optionalPublicKeyRegistry.get().getCertificate();
             int noOfUpdatedRecords = publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash,
                     expireDTimes, partnerSpecificUserToken, certificateData, authFactor);
+
             log.info("Number of records updated successfully {}", noOfUpdatedRecords);
         }
+
+
 
         //Upsert one entry for the provided individual-id
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
@@ -79,7 +90,9 @@ public class KeyBindingHelperService {
         publicKeyRegistry.setExpiredtimes(expireDTimes);
         publicKeyRegistry.setWalletBindingId(walletBindingId == null ? generateWalletBindingId(partnerSpecificUserToken) : walletBindingId);
         publicKeyRegistry.setCertificate(certificateData);
-        publicKeyRegistry.setThumbprint(generateThumbprintByPublicKey(publicKey));
+       // publicKeyRegistry.setThumbprint(generateThumbprintByPublicKey(publicKey));
+        publicKeyRegistry.setThumbprint(generateThumbprintByCertificate(certificateData));
+        log.info("certificate date is {}",certificateData);
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
         log.info("Saved PublicKeyRegistry details successfully");
@@ -98,39 +111,32 @@ public class KeyBindingHelperService {
         return b64Encode(messageDigest.digest());
     }
 
-    public String getPublicKey(String psuToken, String thumbprint) {
-        Optional<PublicKeyRegistry> publicKeyRegistryOptional= publicKeyRegistryRepository.
-                findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(psuToken, thumbprint);
-        if(publicKeyRegistryOptional.isPresent())
-          return  publicKeyRegistryOptional.get().getPublicKey();
-        throw new EsignetException("INVALID psuToken or thumbprint");
-    }
-
-    //generating Thumbprint when we get Public key Object
-//    private String generateThumbprintByPublicKey(PublicKey publicKey) throws NoSuchAlgorithmException {
-//        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-//        byte[] publicKeyBytes = publicKey.getEncoded();
-//        byte[] digest = messageDigest.digest(publicKeyBytes);
-//        String fingerprint = Base64.getEncoder().encodeToString(digest);
-//        return fingerprint;
-//    }
-
-    //generating Thumbprint when we get Public key as String
-    private String generateThumbprintByPublicKey(String publicKey)  {
-        // Convert the public key string to bytes
-        byte[] publicKeyBytes = publicKey.getBytes(StandardCharsets.UTF_8);
-
-        // Hash the public key bytes using SHA-256
-        try{
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = messageDigest.digest(publicKeyBytes);
-            // Base64-encode the hash value to create the thumbprint
-            String thumbprint = Base64.getEncoder().encodeToString(hashBytes);
-            return thumbprint;
-        }catch (Exception e)
-        {
-            throw new EsignetException(INVALID_PUBLIC_KEY);
+    public  Certificate convertToCertificate(String certData) {
+        try {
+            StringReader strReader = new StringReader(certData);
+            PemReader pemReader = new PemReader(strReader);
+            PemObject pemObject = pemReader.readPemObject();
+            if (Objects.isNull(pemObject)) {
+                return null;
+            }
+            byte[] certBytes = pemObject.getContent();
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            return certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
+        } catch (IOException | CertificateException e) {
+            return null;
         }
     }
+    public String generateThumbprintByCertificate(String cerifacate)
+    {
+        X509Certificate certificate = (X509Certificate) convertToCertificate(cerifacate);
+        return X509Util.x5tS256(certificate);
+    }
 
+    public Certificate getCertificate(String psuToken, String thumbPrint) {
+        Optional<PublicKeyRegistry> publicKeyRegistryOptional= publicKeyRegistryRepository.
+                findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(psuToken, thumbPrint);
+        if(publicKeyRegistryOptional.isPresent())
+            return  convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
+        throw new EsignetException("INVALID psuToken or thumbPrint");
+    }
 }

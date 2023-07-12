@@ -6,6 +6,7 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
@@ -24,11 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import validator.ValidSignatureFormat;
-import java.security.KeyFactory;
+import org.springframework.util.CollectionUtils;
+
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -177,7 +178,8 @@ public class ConsentHelperService {
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
             if(linked ) {
                 if (!verifyConsentSignature(consentDetail))
-                    throw new EsignetException(ErrorConstants.INVALID_TRANSACTION_ID);
+                    //throw new EsignetException(ErrorConstants.INVALID_TRANSACTION_ID);
+                    return ConsentAction.CAPTURE;
             }
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
                     .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
@@ -194,16 +196,15 @@ public class ConsentHelperService {
     public boolean verifyConsentSignature(ConsentDetail consentDetail)  {
         try{
             String jwtToken = generateSignedObject(consentDetail);
-            if(jwtToken.isEmpty())return false;
+            if(jwtToken==null || jwtToken.isEmpty())return false;
             SignedJWT signedJWT = SignedJWT.parse(jwtToken);
             JWSHeader header = signedJWT.getHeader();
             String thumbPrint=header.getX509CertSHA256Thumbprint().toString();
-            String publicKey = keyBindingHelperService.getPublicKey(consentDetail.getPsuToken(),thumbPrint);
-            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey publickey = keyFactory.generatePublic(keySpec);
-            JWSVerifier verifierr = new RSASSAVerifier((RSAPublicKey) publickey);
+            Certificate jsonPulicKey=keyBindingHelperService.getCertificate(consentDetail.getPsuToken(),thumbPrint);
+
+            PublicKey publicKey =jsonPulicKey.getPublicKey();
+            JWSVerifier verifierr = new RSASSAVerifier((RSAPublicKey) publicKey);
+            log.info("signed jwt {} ", signedJWT.toString());
             if (signedJWT.verify(verifierr)) {
                 return true;
             } else {
@@ -218,14 +219,15 @@ public class ConsentHelperService {
     private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
         List<String> acceptedClaims = consentDetail.getAcceptedClaims();
         List<String> permittedScopes = consentDetail.getPermittedScopes();
-        //@ValidSignatureFormat
         String jws = consentDetail.getSignature();
-        if(!signatureFormatValidate(jws))return "";
+        if(!signatureFormatValidate(jws))return null;
         String[] parts = jws.split("\\.");
 
         String header = parts[0];
         String signature = parts[1];
+        if(!CollectionUtils.isEmpty(acceptedClaims))
         Collections.sort(acceptedClaims);
+        if(!CollectionUtils.isEmpty(permittedScopes))
         Collections.sort(permittedScopes);
 
         Map<String,Object> payLoadMap = new HashMap<>();
@@ -240,10 +242,11 @@ public class ConsentHelperService {
 
     private boolean signatureFormatValidate(String signature)
     {
+        if(signature==null || signature.isEmpty())return false;
         String jws[]=signature.split("\\.");
         if(jws.length!=2)return false;
         return true;
     }
-
+    private static final ObjectMapper mapper = new ObjectMapper();
 
 }
