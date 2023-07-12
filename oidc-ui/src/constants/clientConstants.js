@@ -72,7 +72,8 @@ const configurationKeys = {
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
   passwordRegex: "password.regex",
-  consentScreenExpireInSec: "mosip.esignet.authentication-expire-in-secs"
+  consentScreenExpireInSec: "consent.screen.timeout-in-secs",
+  consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs"
 };
 
 export {
