@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
@@ -56,14 +57,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     private List<String> NULL = Collections.singletonList(null);
 
-    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
-    @Override
-    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
-        if (result.isPresent()) {
-            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
-        }
-
+    private ClientDetail toClientDetailDTO(ClientDetailCreateRequest clientDetailCreateRequest) {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId(clientDetailCreateRequest.getClientId());
         clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequest.getPublicKey()));
@@ -89,31 +83,10 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
         clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
 
-        try {
-            clientDetail = clientDetailRepository.save(clientDetail);
-        } catch (ConstraintViolationException cve) {
-            log.error("Failed to create client details", cve);
-            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
-        }
-
-        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-        		Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
-
-        var response = new ClientDetailResponse();
-        response.setClientId(clientDetail.getId());
-        response.setStatus(clientDetail.getStatus());
-        return response;
+        return clientDetail;
     }
 
-    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
-    @Override
-    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
-        if (!result.isPresent()) {
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
-        }
-
-        ClientDetail clientDetail = result.get();
+    private ClientDetail toClientDetailDTO(ClientDetail clientDetail, ClientDetailUpdateRequest clientDetailUpdateRequest) {
         clientDetail.setName(clientDetailUpdateRequest.getClientName());
         clientDetail.setLogoUri(clientDetailUpdateRequest.getLogoUri());
 
@@ -133,15 +106,61 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailUpdateRequest.getClientAuthMethods()));
         clientDetail.setStatus(clientDetailUpdateRequest.getStatus());
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
+        return clientDetail;
+    }
+
+    private ClientDetailResponse toClientDetailResponseDTO(ClientDetail clientDetail) {
+        var response = new ClientDetailResponse();
+        response.setClientId(clientDetail.getId());
+        response.setStatus(clientDetail.getStatus());
+        return response;
+    }
+
+    private String toClientName(Map<String, String> clientNameMap, String clientName) {
+        clientNameMap.put("@none", clientName);
+        JSONObject clientNameObject = new JSONObject(clientNameMap);
+        return clientNameObject.toString();
+    }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
+    @Override
+    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
+        if (result.isPresent()) {
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = toClientDetailDTO(clientDetailCreateRequest);
+
+        try {
+            clientDetail = clientDetailRepository.save(clientDetail);
+        } catch (ConstraintViolationException cve) {
+            log.error("Failed to create client details", cve);
+            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+        }
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+        		Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
+
+        return toClientDetailResponseDTO(clientDetail);
+    }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
+    @Override
+    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+        if (!result.isPresent()) {
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = toClientDetailDTO(result.get(), clientDetailUpdateRequest);
+
         clientDetail = clientDetailRepository.save(clientDetail);
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
         		Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
-        var response = new ClientDetailResponse();
-        response.setClientId(clientDetail.getId());
-        response.setStatus(clientDetail.getStatus());
-        return response;
+        return toClientDetailResponseDTO(clientDetail);
     }
 
     @Cacheable(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
@@ -181,32 +200,13 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setId(clientDetailCreateV2Request.getClientId());
-        clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateV2Request.getPublicKey()));
-        clientDetail.setRpId(clientDetailCreateV2Request.getRelyingPartyId());
-        clientDetail.setLogoUri(clientDetailCreateV2Request.getLogoUri());
+        ClientDetail clientDetail = toClientDetailDTO(clientDetailCreateV2Request);
 
-        JSONObject clientNameObject = new JSONObject(clientDetailCreateV2Request.getClientName());
-        clientDetail.setName(clientNameObject.toString());
-
-        clientDetailCreateV2Request.getRedirectUris().removeAll(NULL);
-        clientDetail.setRedirectUris(JSONArray.toJSONString(clientDetailCreateV2Request.getRedirectUris()));
-
-        clientDetailCreateV2Request.getUserClaims().removeAll(NULL);
-        clientDetail.setClaims(JSONArray.toJSONString(clientDetailCreateV2Request.getUserClaims()));
-
-        clientDetailCreateV2Request.getAuthContextRefs().removeAll(NULL);
-        clientDetail.setAcrValues(JSONArray.toJSONString(clientDetailCreateV2Request.getAuthContextRefs()));
-
-        clientDetailCreateV2Request.getGrantTypes().removeAll(NULL);
-        clientDetail.setGrantTypes(JSONArray.toJSONString(clientDetailCreateV2Request.getGrantTypes()));
-
-        clientDetailCreateV2Request.getClientAuthMethods().removeAll(NULL);
-        clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailCreateV2Request.getClientAuthMethods()));
-
-        clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
-        clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
+        String clientName = toClientName(
+                clientDetailCreateV2Request.getClientNameLangMap(),
+                clientDetailCreateV2Request.getClientName()
+        );
+        clientDetail.setName(clientName);
 
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
@@ -218,10 +218,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateV2Request.getClientId()), null);
 
-        var response = new ClientDetailResponse();
-        response.setClientId(clientDetail.getId());
-        response.setStatus(clientDetail.getStatus());
-        return response;
+        return toClientDetailResponseDTO(clientDetail);
     }
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
@@ -232,37 +229,20 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = result.get();
+        ClientDetail clientDetail = toClientDetailDTO(result.get(), clientDetailUpdateV2Request);
 
-        JSONObject clientNameObject = new JSONObject(clientDetailUpdateV2Request.getClientName());
-        clientDetail.setName(clientNameObject.toString());
-        clientDetail.setLogoUri(clientDetailUpdateV2Request.getLogoUri());
+        String clientName = toClientName(
+                clientDetailUpdateV2Request.getClientNameLangMap(),
+                clientDetailUpdateV2Request.getClientName()
+        );
+        clientDetail.setName(clientName);
 
-        clientDetailUpdateV2Request.getRedirectUris().removeAll(NULL);
-        clientDetail.setRedirectUris(JSONArray.toJSONString(clientDetailUpdateV2Request.getRedirectUris()));
-
-        clientDetailUpdateV2Request.getUserClaims().removeAll(NULL);
-        clientDetail.setClaims(JSONArray.toJSONString(clientDetailUpdateV2Request.getUserClaims()));
-
-        clientDetailUpdateV2Request.getAuthContextRefs().removeAll(NULL);
-        clientDetail.setAcrValues(JSONArray.toJSONString(clientDetailUpdateV2Request.getAuthContextRefs()));
-
-        clientDetailUpdateV2Request.getGrantTypes().removeAll(NULL);
-        clientDetail.setGrantTypes(JSONArray.toJSONString(clientDetailUpdateV2Request.getGrantTypes()));
-
-        clientDetailUpdateV2Request.getClientAuthMethods().removeAll(NULL);
-        clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailUpdateV2Request.getClientAuthMethods()));
-        clientDetail.setStatus(clientDetailUpdateV2Request.getStatus());
-        clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         clientDetail = clientDetailRepository.save(clientDetail);
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
-        var response = new ClientDetailResponse();
-        response.setClientId(clientDetail.getId());
-        response.setStatus(clientDetail.getStatus());
-        return response;
+        return toClientDetailResponseDTO(clientDetail);
     }
 
 }
