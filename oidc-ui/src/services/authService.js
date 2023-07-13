@@ -9,7 +9,7 @@ const baseUrl =
 
 const sendOtpEndPoint = "/authorization/send-otp";
 const authenticateEndPoint = "/authorization/v2/authenticate";
-const oauthDetailsEndPoint = "/authorization/oauth-details";
+const oauthDetailsEndPoint = "/authorization/v2/oauth-details";
 const authCodeEndPoint = "/authorization/auth-code";
 const csrfEndPoint = "/csrf/token";
 
