@@ -42,8 +42,15 @@ export default function LoginQRCode({
   const linkStatusGracePeriod =
     parseTimeout !== "NaN" ? parseTimeout : 25;
 
-  const GenerateQRCode = (text) => {
-    QRCode.toDataURL(
+  const walletLogoURL =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.walletLogoURL
+    ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
+
+  const GenerateQRCode = (text, logoUrl) => {
+    const canvas = document.createElement("canvas");
+    QRCode.toCanvas(
+      canvas,
       text,
       {
         width: 500,
@@ -52,14 +59,44 @@ export default function LoginQRCode({
           dark: "#000000",
         },
       },
-      (err, text) => {
+      (err) => {
         if (err) {
           setError({
             errorCode: "link_code_refresh_failed",
           });
           return;
         }
-        setQr(text);
+        if (logoUrl) {
+          const logo = new Image();
+          logo.src = logoUrl;
+          logo.onload = () => {
+            const ctx = canvas.getContext("2d");
+            const size = canvas.width / 6;
+            const x = (canvas.width - size) / 2;
+            const y = (canvas.height - size) / 2;
+            // Create a new canvas to filter the logo image
+            const filterCanvas = document.createElement("canvas");
+            filterCanvas.width = logo.width;
+            filterCanvas.height = logo.height;
+            const filterCtx = filterCanvas.getContext("2d");
+            filterCtx.drawImage(logo, 0, 0);
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(x - 6, y - 6, size + 12, size + 12);
+            // Draw the filtered image onto the QR code canvas
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(200, 200, 100, 100);
+            ctx.drawImage(filterCanvas, x, y, size, size);
+            setQr(canvas.toDataURL());
+          };
+          logo.onerror = () => {
+            // If there's an error fetching the logo, generate QR code without the logo
+            setQr(canvas.toDataURL());
+          }
+        }
+        else {
+          // If logoUrl is not configured, generate QR code without the logo
+          setQr(canvas.toDataURL());
+        }
       }
     );
   };
@@ -99,7 +136,7 @@ export default function LoginQRCode({
           deepLinkParamPlaceholder.linkExpiryDate,
           response.expireDateTime
         );
-        GenerateQRCode(qrCodeDeepLinkURI);
+        GenerateQRCode(qrCodeDeepLinkURI, walletLogoURL);
         setStatus({ state: states.LOADED, msg: "" });
         triggerLinkStatus(response.transactionId, response.linkCode);
       }
