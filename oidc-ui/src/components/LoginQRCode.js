@@ -42,12 +42,12 @@ export default function LoginQRCode({
   const linkStatusGracePeriod =
     parseTimeout !== "NaN" ? parseTimeout : 25;
 
-    const walletLogoURL =
+  const walletLogoURL =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.walletLogoURL
     ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
 
-  const GenerateQRCode = (text) => {
+  const GenerateQRCode = (text, logoUrl) => {
     const canvas = document.createElement("canvas");
     QRCode.toCanvas(
       canvas,
@@ -66,9 +66,9 @@ export default function LoginQRCode({
           });
           return;
         }
-        if (walletLogoURL) {
+        if (logoUrl) {
           const logo = new Image();
-          logo.src = walletLogoURL;
+          logo.src = logoUrl;
           logo.onload = () => {
             const ctx = canvas.getContext("2d");
             const size = canvas.width / 6;
@@ -136,7 +136,7 @@ export default function LoginQRCode({
           deepLinkParamPlaceholder.linkExpiryDate,
           response.expireDateTime
         );
-        GenerateQRCode(qrCodeDeepLinkURI);
+        GenerateQRCode(qrCodeDeepLinkURI, walletLogoURL);
         setStatus({ state: states.LOADED, msg: "" });
         triggerLinkStatus(response.transactionId, response.linkCode);
       }
