@@ -31,7 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -115,21 +114,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oauthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
         //Cache the transaction
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
-        oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
-        oidcTransaction.setClientId(clientDetailDto.getId());
-        oidcTransaction.setRequestedClaims(resolvedClaims);
-        oidcTransaction.setRequestedAuthorizeScopes(oauthDetailResponse.getAuthorizeScopes());
-        oidcTransaction.setNonce(oauthDetailReqDto.getNonce());
-        oidcTransaction.setState(oauthDetailReqDto.getState());
-        oidcTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
-        oidcTransaction.setAuthTransactionId(getAuthTransactionId(transactionId));
-        oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
-        oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oauthDetailResponse));
-        cacheUtilService.setTransaction(transactionId, oidcTransaction);
-        auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, oidcTransaction), null);
+        setTransactionAndLogAudit(oauthDetailReqDto, clientDetailDto, resolvedClaims,
+                oauthDetailResponse.getAuthorizeScopes(), getOauthDetailsResponseHash(oauthDetailResponse), transactionId);;
+
         return oauthDetailResponse;
     }
 
@@ -165,22 +152,31 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailV2Response.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
         //Cache the transaction
+        setTransactionAndLogAudit(oauthDetailReqDto, clientDetailDto, resolvedClaims,
+                oAuthDetailV2Response.getAuthorizeScopes(), getOauthDetailsResponseHash(oAuthDetailV2Response), transactionId);
+
+        return oAuthDetailV2Response;
+    }
+
+    private void setTransactionAndLogAudit(
+            OAuthDetailRequest oauthDetailReqDto, ClientDetail clientDetailDto, Claims resolvedClaims,
+            List<String> authorizeScopes, String oauthDetailsHash, String transactionId) {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
         oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
         oidcTransaction.setClientId(clientDetailDto.getId());
         oidcTransaction.setRequestedClaims(resolvedClaims);
-        oidcTransaction.setRequestedAuthorizeScopes(oAuthDetailV2Response.getAuthorizeScopes());
+        oidcTransaction.setRequestedAuthorizeScopes(authorizeScopes);
         oidcTransaction.setNonce(oauthDetailReqDto.getNonce());
         oidcTransaction.setState(oauthDetailReqDto.getState());
         oidcTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(transactionId));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailV2Response));
+        oidcTransaction.setOauthDetailsHash(oauthDetailsHash);
+
         cacheUtilService.setTransaction(transactionId, oidcTransaction);
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, oidcTransaction), null);
-        return oAuthDetailV2Response;
     }
 
     private Map<String, String> convertClientName(String clientName) {
