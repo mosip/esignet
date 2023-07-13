@@ -10,6 +10,7 @@ import FormAction from "./FormAction";
 export default function Consent({
   authService,
   consentAction,
+  authTime,
   openIDConnectService,
   logoPath = "logo.png",
   i18nKeyPrefix = "consent",
@@ -39,7 +40,6 @@ export default function Consent({
   const [clientLogoPath, setClientLogoPath] = useState("");
   const [claimsScopes, setClaimsScopes] = useState([]);
   const [timeLeft, setTimeLeft] = useState(null);
-  const [consentScreenTimer, setConsentScreenTimer] = useState(null);
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -194,29 +194,29 @@ export default function Consent({
   }, [scope, claims]);
 
   useEffect(() => {
-    const currentTime = Math.floor(new Date().getTime() / 1000);
-    const searchParams = new URLSearchParams(window.location.search);
-    const authTime = searchParams.get("authenticationTime");
-    if (authTime) {
+    const timer = setTimeout(() => {
+      let currentTime = Math.floor(new Date().getTime() / 1000);
       let timePassed = currentTime - authTime;
-      startConsentScreenTimer(timePassed);
+      let tLeft = transactionTimeoutWithBuffer - timePassed;
+      if (tLeft <= 0) {
+        onError("invalid_transaction", t("invalid_transaction"));
+        return;
+      }
+      setTimeLeft(tLeft);
+    }, 1000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [timeLeft]);
+
+  useEffect(() => {
+    if (authTime) {
+      let currentTime = Math.floor(new Date().getTime() / 1000);
+      let timePassed = currentTime - authTime;
+      let tLeft = transactionTimeoutWithBuffer - timePassed;
+      setTimeLeft(tLeft);
     }
   }, [])
-
-  const startConsentScreenTimer = async (timePassed) => {
-    clearInterval(consentScreenTimer);
-    let tLeft = transactionTimeoutWithBuffer - timePassed;
-    setTimeLeft(tLeft);
-
-    const interval = setInterval(() => {
-      setTimeLeft(--tLeft);
-      if (tLeft <= 0) {
-        clearInterval(interval);
-        onError("invalid_transaction", t("invalid_transaction"));
-      }
-    }, 1000);
-    setConsentScreenTimer(interval);
-  }
 
   function formatTime(time) {
     const minutes = Math.floor(time / 60).toString().padStart(2, "0");
@@ -363,7 +363,7 @@ export default function Consent({
                       <div className="font-semibold">
                         {t(claimScope.label)}
                         <button
-                          id={claimScope.label+'_tooltip'}
+                          id={claimScope.label + '_tooltip'}
                           className="ml-1 text-sky-600 text-xl"
                           data-tooltip-content={t(claimScope.tooltip)}
                           data-tooltip-place="top"
