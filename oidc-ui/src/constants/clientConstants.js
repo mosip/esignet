@@ -71,9 +71,8 @@ const configurationKeys = {
   signInWithQRCodeEnable: "mosip.esignet.qr-code.enable",
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
-  passwordRegex: "password.regex",
-  consentScreenExpireInSec: "consent.screen.timeout-in-secs",
-  consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs"
+  passwordRegex : "password.regex",
+  walletLogoURL: "wallet.logo-url"
 };
 
 export {
