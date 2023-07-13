@@ -3,13 +3,14 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import LoadingIndicator from "../common/LoadingIndicator";
-import { buttonTypes } from "../constants/clientConstants";
+import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import { LoadingStates, LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 
 export default function Consent({
   authService,
   consentAction,
+  authTime,
   openIDConnectService,
   logoPath = "logo.png",
   i18nKeyPrefix = "consent",
@@ -18,6 +19,19 @@ export default function Consent({
 
   const post_AuthCode = authService.post_AuthCode;
 
+  const authenticationExpireInSec =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.consentScreenExpireInSec
+    ) ?? process.env.REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC;
+
+  // The transaction timer will be derived from the configuration file of e-Signet so buffer of -5 sec is added in the timer.  
+  const timeoutBuffer =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.consentScreenTimeOutBufferInSec
+    ) ?? process.env.REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC;
+
+  const transactionTimeoutWithBuffer = authenticationExpireInSec - timeoutBuffer;
+
   const firstRender = useRef(true);
   const [status, setStatus] = useState(states.LOADED);
   const [claims, setClaims] = useState([]);
@@ -25,6 +39,7 @@ export default function Consent({
   const [clientName, setClientName] = useState("");
   const [clientLogoPath, setClientLogoPath] = useState("");
   const [claimsScopes, setClaimsScopes] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(null);
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -178,6 +193,37 @@ export default function Consent({
     scopeClaimChanges();
   }, [scope, claims]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      let currentTime = Math.floor(new Date().getTime() / 1000);
+      let timePassed = currentTime - authTime;
+      let tLeft = transactionTimeoutWithBuffer - timePassed;
+      if (tLeft <= 0) {
+        onError("invalid_transaction", t("invalid_transaction"));
+        return;
+      }
+      setTimeLeft(tLeft);
+    }, 1000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [timeLeft]);
+
+  useEffect(() => {
+    if (authTime) {
+      let currentTime = Math.floor(new Date().getTime() / 1000);
+      let timePassed = currentTime - authTime;
+      let tLeft = transactionTimeoutWithBuffer - timePassed;
+      setTimeLeft(tLeft);
+    }
+  }, [])
+
+  function formatTime(time) {
+    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
+    const seconds = (time % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     submitConsent(claims, scope);
@@ -317,7 +363,7 @@ export default function Consent({
                       <div className="font-semibold">
                         {t(claimScope.label)}
                         <button
-                          id={claimScope.label+'_tooltip'}
+                          id={claimScope.label + '_tooltip'}
                           className="ml-1 text-sky-600 text-xl"
                           data-tooltip-content={t(claimScope.tooltip)}
                           data-tooltip-place="top"
@@ -394,6 +440,14 @@ export default function Consent({
             </div>
           )}
         </form>
+        <div className="mt-4">
+          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
+            <div className="text-center">
+              <p className="text-gray-600">{t("transaction_timeout_msg")}</p>
+              <p className="font-semibold">{formatTime(timeLeft)} </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
