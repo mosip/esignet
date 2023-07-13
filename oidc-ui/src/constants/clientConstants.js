@@ -71,7 +71,8 @@ const configurationKeys = {
   signInWithQRCodeEnable: "mosip.esignet.qr-code.enable",
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
-  passwordRegex : "password.regex"
+  passwordRegex : "password.regex",
+  walletLogoURL: "wallet.logo-url"
 };
 
 export {

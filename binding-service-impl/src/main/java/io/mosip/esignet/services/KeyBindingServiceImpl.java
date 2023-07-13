@@ -81,18 +81,18 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		return otpResponse;
 	}
 
-	private void ValidateChallengeListAuthFormat(List<AuthChallenge> challengeList){
+	private void validateChallengeListAuthFormat(List<AuthChallenge> challengeList){
 		if(!challengeList.stream().allMatch(challenge->keyBindingWrapper.getSupportedChallengeFormats(challenge.getAuthFactorType()).
 				contains(challenge.getFormat()))) {
-			log.error("Invalid challenge format in the challenge list");
-			throw new EsignetException(INVALID_CHALLENGE_FORMAT);
+			log.error("Invalid auth factor type or challenge format in the challenge list");
+			throw new EsignetException(INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT);
 		}
 	}
 
 	@Override
 	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws EsignetException {
 		log.debug("bindWallet :: Request headers >> {}", requestHeaders);
-		ValidateChallengeListAuthFormat(walletBindingRequest.getChallengeList());
+		validateChallengeListAuthFormat(walletBindingRequest.getChallengeList());
 		//Do not store format, only check if the format is supported by the wrapper.
 		if(!keyBindingWrapper.getSupportedChallengeFormats(walletBindingRequest.getAuthFactorType()).
 				contains(walletBindingRequest.getFormat()))
