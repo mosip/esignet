@@ -35,6 +35,16 @@ public class ClientManagementController {
     @Value("${mosip.esignet.audit.claim-name:preferred_username}")
     private String claimName;
 
+    /**
+     * @deprecated
+     * This method is no longer acceptable to create oidc client
+     * <p> Use {@link ClientManagementController#createClientV2(RequestWrapper<ClientDetailCreateRequest>)} </p>
+     *
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     */
+    @Deprecated()
     @RequestMapping(value = "/client-mgmt/oidc-client", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseWrapper<ClientDetailResponse> createClient(
@@ -51,6 +61,16 @@ public class ClientManagementController {
         return response;
     }
 
+    /**
+     * @deprecated
+     * This method is no longer acceptable to update oidc client
+     * <p> Use {@link ClientManagementController#updateClientV2(String, RequestWrapper<ClientDetailUpdateRequest>)} </p>
+     *
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     */
+    @Deprecated()
     @RequestMapping(value = "/client-mgmt/oidc-client/{client_id}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseWrapper<ClientDetailResponse> updateClient(@Valid @PathVariable("client_id") String clientId,

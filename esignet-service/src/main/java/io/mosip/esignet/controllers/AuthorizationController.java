@@ -30,6 +30,16 @@ public class AuthorizationController {
     @Autowired
     AuditPlugin auditWrapper;
 
+    /**
+     * @deprecated
+     * This method is no longer acceptable to get oauth detail response
+     * <p> Use {@link AuthorizationController#getOauthDetailsV2(RequestWrapper<OAuthDetailRequest>)} </p>
+     *
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     */
+    @Deprecated()
     @PostMapping("/oauth-details")
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                             requestWrapper) throws EsignetException {

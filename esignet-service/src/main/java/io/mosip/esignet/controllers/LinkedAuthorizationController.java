@@ -63,7 +63,16 @@ public class LinkedAuthorizationController {
         }
         return responseWrapper;
     }
-
+    /**
+     * @deprecated
+     * This method is no longer acceptable to link transaction
+     * <p> Use {@link LinkedAuthorizationController#linkTransactionV2(RequestWrapper<LinkTransactionRequest>)} </p>
+     *
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     */
+    @Deprecated()
     @PostMapping("/link-transaction")
     public ResponseWrapper<LinkTransactionResponse> linkTransaction(@Valid @RequestBody RequestWrapper<LinkTransactionRequest>
                                                                             requestWrapper) throws EsignetException {
