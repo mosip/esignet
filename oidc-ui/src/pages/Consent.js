@@ -15,6 +15,8 @@ export default function ConsentPage() {
   let nonce = searchParams.get("nonce");
   let state = searchParams.get("state");
   const consentAction = searchParams.get("consentAction");
+  const authTime = searchParams.get("authenticationTime");
+
 
   let parsedOauth = null;
   try {
@@ -35,6 +37,7 @@ export default function ConsentPage() {
       authService={new authService(oidcService)}
       openIDConnectService={oidcService}
       consentAction={consentAction}
+      authTime={authTime}
     />
   );
 }
