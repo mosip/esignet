@@ -42,6 +42,11 @@ export default function LoginQRCode({
   const linkStatusGracePeriod =
     parseTimeout !== "NaN" ? parseTimeout : 25;
 
+    const walletLogoURL =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.walletLogoURL
+    ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
+
   const GenerateQRCode = (text) => {
     const canvas = document.createElement("canvas");
     QRCode.toCanvas(
@@ -61,19 +66,37 @@ export default function LoginQRCode({
           });
           return;
         }
-
-        const logo = new Image();
-        logo.src = "logo.png";
-        logo.onload = () => {
-          const ctx = canvas.getContext("2d");
-          const size = canvas.width / 5;
-          const x = (canvas.width - size) / 2;
-          const y = (canvas.height - size) / 2;
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(200, 200, 105, 105);
-          ctx.drawImage(logo, x, y, size, size);
+        if (walletLogoURL) {
+          const logo = new Image();
+          logo.src = walletLogoURL;
+          logo.onload = () => {
+            const ctx = canvas.getContext("2d");
+            const size = canvas.width / 6;
+            const x = (canvas.width - size) / 2;
+            const y = (canvas.height - size) / 2;
+            // Create a new canvas to filter the logo image
+            const filterCanvas = document.createElement("canvas");
+            filterCanvas.width = logo.width;
+            filterCanvas.height = logo.height;
+            const filterCtx = filterCanvas.getContext("2d");
+            filterCtx.drawImage(logo, 0, 0);
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(x - 6, y - 6, size + 12, size + 12);
+            // Draw the filtered image onto the QR code canvas
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(200, 200, 100, 100);
+            ctx.drawImage(filterCanvas, x, y, size, size);
+            setQr(canvas.toDataURL());
+          };
+          logo.onerror = () => {
+            // If there's an error fetching the logo, generate QR code without the logo
+            setQr(canvas.toDataURL());
+          }
+        }
+        else {
+          // If logoUrl is not configured, generate QR code without the logo
           setQr(canvas.toDataURL());
-        };
+        }
       }
     );
   };
