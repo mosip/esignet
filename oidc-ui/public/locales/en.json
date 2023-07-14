@@ -3,6 +3,7 @@
     "authorization_failed_msg": "Authorization Failed",
     "consent_request_rejected": "Consent Request Rejected",
     "consent_request_msg": "{{clientName}} is requesting access to the following: ",
+    "transaction_timeout_msg":"Please take appropriate action in",
     "authorize_scope": "Authorize Scopes",
     "essential_claims": "Essential Claims",
     "voluntary_claims": "Voluntary Claims",

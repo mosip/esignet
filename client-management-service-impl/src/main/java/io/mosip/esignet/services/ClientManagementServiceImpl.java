@@ -12,11 +12,16 @@ import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
+import io.mosip.esignet.core.dto.ClientDetailResponse;
+import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
+import io.mosip.esignet.core.dto.ClientDetailCreateV2Request;
+import io.mosip.esignet.core.dto.ClientDetailUpdateV2Request;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
-import io.mosip.esignet.core.util.*;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -127,6 +132,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
         if (result.isPresent()) {
+            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
@@ -150,6 +156,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
+            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
@@ -197,6 +204,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetailResponse createOIDCClientV2(ClientDetailCreateV2Request clientDetailCreateV2Request) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateV2Request.getClientId());
         if (result.isPresent()) {
+            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
@@ -226,6 +234,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetailResponse updateOIDCClientV2(String clientId, ClientDetailUpdateV2Request clientDetailUpdateV2Request) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
+            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
