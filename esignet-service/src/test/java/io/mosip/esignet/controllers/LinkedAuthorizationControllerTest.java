@@ -21,6 +21,8 @@ import java.util.List;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 
+import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.Error;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,23 +43,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.Error;
-import io.mosip.esignet.core.dto.LinkAuthCodeRequest;
-import io.mosip.esignet.core.dto.LinkCodeRequest;
-import io.mosip.esignet.core.dto.LinkCodeResponse;
-import io.mosip.esignet.core.dto.LinkStatusRequest;
-import io.mosip.esignet.core.dto.LinkTransactionRequest;
-import io.mosip.esignet.core.dto.LinkTransactionResponse;
-import io.mosip.esignet.core.dto.LinkedConsentRequest;
-import io.mosip.esignet.core.dto.LinkedConsentRequestV2;
-import io.mosip.esignet.core.dto.LinkedConsentResponse;
-import io.mosip.esignet.core.dto.LinkedKycAuthRequest;
-import io.mosip.esignet.core.dto.LinkedKycAuthResponse;
-import io.mosip.esignet.core.dto.LinkedKycAuthResponseV2;
-import io.mosip.esignet.core.dto.OtpRequest;
-import io.mosip.esignet.core.dto.OtpResponse;
-import io.mosip.esignet.core.dto.RequestWrapper;
-import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.LinkedAuthorizationService;
@@ -189,6 +174,60 @@ public class LinkedAuthorizationControllerTest {
                 .thenThrow(new InvalidTransactionException());
 
         mockMvc.perform(post("/linked-authorization/link-transaction")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION));
+    }
+
+    @Test
+    public void linkTransactionV2_withValidRequest_thenPass() throws Exception {
+        RequestWrapper<LinkTransactionRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
+        linkTransactionRequest.setLinkCode("link-code");
+        requestWrapper.setRequest(linkTransactionRequest);
+
+        Mockito.when(linkedAuthorizationService.linkTransactionV2(Mockito.any(LinkTransactionRequest.class)))
+                .thenReturn(new LinkTransactionV2Response());
+
+        mockMvc.perform(post("/linked-authorization/v2/link-transaction")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response").exists())
+                .andExpect(jsonPath("$.errors").isEmpty());
+    }
+
+    @Test
+    public void linkTransactionV2_withInvalidLinkCode_thenFail() throws Exception {
+        RequestWrapper<LinkTransactionRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
+        linkTransactionRequest.setLinkCode("");
+        requestWrapper.setRequest(linkTransactionRequest);
+
+        mockMvc.perform(post("/linked-authorization/v2/link-transaction")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_LINK_CODE));
+    }
+
+    @Test
+    public void linkTransactionV2_withInvalidTransactionException_thenFail() throws Exception {
+        RequestWrapper<LinkTransactionRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
+        linkTransactionRequest.setLinkCode("link-code");
+        requestWrapper.setRequest(linkTransactionRequest);
+
+        Mockito.when(linkedAuthorizationService.linkTransactionV2(Mockito.any(LinkTransactionRequest.class)))
+                .thenThrow(new InvalidTransactionException());
+
+        mockMvc.perform(post("/linked-authorization/v2/link-transaction")
                         .content(objectMapper.writeValueAsString(requestWrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

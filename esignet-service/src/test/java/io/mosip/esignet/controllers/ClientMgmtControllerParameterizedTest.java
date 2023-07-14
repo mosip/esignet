@@ -8,9 +8,7 @@ package io.mosip.esignet.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.TestUtil;
-import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
-import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
-import io.mosip.esignet.core.dto.RequestWrapper;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.spi.ClientManagementService;
@@ -40,10 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -86,119 +81,119 @@ public class ClientMgmtControllerParameterizedTest {
 
     private static Map<String, Object> jwk = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
 
-    private ClientDetailCreateRequest clientDetailCreateRequest;
-    private ClientDetailUpdateRequest clientDetailUpdateRequest;
+    private ClientDetailCreateV2Request clientDetailCreateV2Request;
+    private ClientDetailUpdateV2Request clientDetailUpdateV2Request;
     private String clientIdQueryParam;
     private String errorCode;
     private String title;
 
-    public ClientMgmtControllerParameterizedTest(String title, ClientDetailCreateRequest clientDetailCreateRequest,
-                                                 ClientDetailUpdateRequest clientDetailUpdateRequest,
+    public ClientMgmtControllerParameterizedTest(String title, ClientDetailCreateV2Request clientDetailCreateV2Request,
+                                                 ClientDetailUpdateV2Request clientDetailUpdateV2Request,
                                                  String clientIdQueryParam,
                                                  String errorCode) {
         this.title = title;
-        this.clientDetailCreateRequest = clientDetailCreateRequest;
-        this.clientDetailUpdateRequest = clientDetailUpdateRequest;
+        this.clientDetailCreateV2Request = clientDetailCreateV2Request;
+        this.clientDetailUpdateV2Request = clientDetailUpdateV2Request;
         this.clientIdQueryParam = clientIdQueryParam;
         this.errorCode = errorCode;
     }
 
     private final static Object[][] TEST_CASES = new Object[][] {
             // test-name, ClientDetailCreateRequest, ClientDetailUpdateRequest, clientIdQueryParam, errorCode
-            { "Successful create", new ClientDetailCreateRequest("client-id-v1", "client-name", jwk,
+            new Object[]{"Successful create", new ClientDetailCreateV2Request("client-id-v1", "client-name", jwk,
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")),  null, null, null },
-            { "With Null ClientId", new ClientDetailCreateRequest(null, "client-name", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null, null},
+            { "With Null ClientId", new ClientDetailCreateV2Request(null, "client-name", jwk,
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_CLIENT_ID },
-            { "With Empty ClientName", new ClientDetailCreateRequest("client-id", " ", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}),  null, null, ErrorConstants.INVALID_CLIENT_ID },
+            { "With Empty ClientName", new ClientDetailCreateV2Request("client-id", " ", jwk,
                      "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLIENT_NAME },
-            { "With Invalid public key", new ClientDetailCreateRequest("client-id", "Test client", new HashMap<>(),
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_CLIENT_NAME },
+            { "With Invalid public key", new ClientDetailCreateV2Request("client-id", "Test client", new HashMap<>(),
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_PUBLIC_KEY },
-            { "With null public key", new ClientDetailCreateRequest("client-id", "Test client", null,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_PUBLIC_KEY },
+            { "With null public key", new ClientDetailCreateV2Request("client-id", "Test client", null,
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_PUBLIC_KEY },
-            { "With null relying party id", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_PUBLIC_KEY },
+            { "With null relying party id", new ClientDetailCreateV2Request("client-id", "Test client", jwk,
                     null, Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_RP_ID },
-            { "With empty relying party id", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_RP_ID },
+            { "With empty relying party id", new ClientDetailCreateV2Request("client-id", "Test client", jwk,
                     "  ", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_RP_ID },
-            { "With null user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_RP_ID },
+            { "With null user claims", new ClientDetailCreateV2Request("client-id", "Test client", jwk,
                     "rp-id", null,
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
-            { "With empty user claims", new ClientDetailCreateRequest("client-id", "Test client",
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_CLAIM },
+            { "With empty user claims", new ClientDetailCreateV2Request("client-id", "Test client",
                     TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject(),
                     "rp-id", Arrays.asList(),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null, null},
-            { "With invalid user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null, null},
+            { "With invalid user claims", new ClientDetailCreateV2Request("client-id", "Test client", jwk,
                     "rp-id", Arrays.asList(null, "given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
-            { "With valid & invalid user claims", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_CLAIM },
+            { "With valid & invalid user claims", new ClientDetailCreateV2Request("client-id", "Test client", jwk,
                     "rp-id", Arrays.asList("birthdate", "given_name", "gender", "street"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null,  ErrorConstants.INVALID_CLAIM },
-            { "With invalid acr", new ClientDetailCreateRequest("client-id-v2", "Test client", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_CLAIM },
+            { "With invalid acr", new ClientDetailCreateV2Request("client-id-v2", "Test client", jwk,
                     "rp-id", Arrays.asList("birthdate", "given_name", "gender"),
                     Arrays.asList("mosip:idp:acr:static-code-1"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null, ErrorConstants.INVALID_ACR },
-            { "With patterned redirectUri", new ClientDetailCreateRequest("client-id", "Test client", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null, ErrorConstants.INVALID_ACR },
+            { "With patterned redirectUri", new ClientDetailCreateV2Request("client-id", "Test client", jwk,
                     "rp-id", Arrays.asList("birthdate", "given_name", "gender"),
                     Arrays.asList("mosip:idp:acr:static-code-1"), "https://logo-url/png",
                     Arrays.asList("https://dev.mosip.net/home/**"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")), null, null, ErrorConstants.INVALID_ACR },
-            { "ClientId with spaces", new ClientDetailCreateRequest("client id", "client-name", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null, ErrorConstants.INVALID_ACR },
+            { "ClientId with spaces", new ClientDetailCreateV2Request("client id", "client-name", jwk,
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_CLIENT_ID },
-            { "RP-Id with spaces", new ClientDetailCreateRequest("cid#1", "client-name", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}),  null, null, ErrorConstants.INVALID_CLIENT_ID },
+            { "RP-Id with spaces", new ClientDetailCreateV2Request("cid#1", "client-name", jwk,
                     "rp id  1", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")),  null, null, ErrorConstants.INVALID_RP_ID },
-            { "with duplicate key", new ClientDetailCreateRequest("client-id-v34", "client-name", jwk,
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}),  null, null, ErrorConstants.INVALID_RP_ID },
+            { "with duplicate key", new ClientDetailCreateV2Request("client-id-v34", "client-name", jwk,
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")),  null, null, "unknown_error" },
-            { "update with invalid clientId", null,  new ClientDetailUpdateRequest("https://logo-url/png",
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}),  null, null, "unknown_error" },
+            { "update with invalid clientId", null,  new ClientDetailUpdateV2Request("https://logo-url/png",
                     Arrays.asList("https://logo-url/png"),Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "ACTIVE", Arrays.asList("authorization_code"),
-                    "client-name#1", Arrays.asList("private_key_jwt")), "cid#1", "invalid_client_id" },
-            { "update client-details", new ClientDetailCreateRequest("client-id-up1", "client-name",
+                    "client-name#1", Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), "cid#1", "invalid_client_id" },
+            { "update client-details", new ClientDetailCreateV2Request("client-id-up1", "client-name",
                     TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject(),
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                    Arrays.asList("private_key_jwt")),  new ClientDetailUpdateRequest("https://logo-url/png",
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}),  new ClientDetailUpdateV2Request("https://logo-url/png",
                     Arrays.asList("https://logo-url/png"),Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "ACTIVE", Arrays.asList("authorization_code"),
-                    "client-name#1", Arrays.asList("private_key_jwt")), "client-id-up1",  null }
+                    "client-name#1", Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), "client-id-up1",  null }
 
     };
 
@@ -233,20 +228,20 @@ public class ClientMgmtControllerParameterizedTest {
 
     @Test
     public void testClientManagementEndpoints() throws Exception {
-        if(this.clientDetailCreateRequest != null) {
-            ResultActions createResultActions = mockMvc.perform(post("/client-mgmt/oidc-client")
+        if(this.clientDetailCreateV2Request != null) {
+            ResultActions createResultActions = mockMvc.perform(post("/client-mgmt/v2/oidc-client")
                             .contentType(MediaType.APPLICATION_JSON_UTF8)
-                            .content(getRequestWrapper(this.clientDetailCreateRequest)));
-            evaluateResultActions(createResultActions, this.clientDetailCreateRequest.getClientId(),
+                            .content(getRequestWrapper(this.clientDetailCreateV2Request)));
+            evaluateResultActions(createResultActions, this.clientDetailCreateV2Request.getClientId(),
                     Constants.CLIENT_ACTIVE_STATUS, this.errorCode);
         }
 
-        if(this.clientDetailUpdateRequest != null) {
-           ResultActions updateResultActions = mockMvc.perform(put("/client-mgmt/oidc-client/"+this.clientIdQueryParam)
+        if(this.clientDetailUpdateV2Request != null) {
+           ResultActions updateResultActions = mockMvc.perform(put("/client-mgmt/v2/oidc-client/"+this.clientIdQueryParam)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(getRequestWrapper(this.clientDetailUpdateRequest)));
+                    .content(getRequestWrapper(this.clientDetailUpdateV2Request)));
             evaluateResultActions(updateResultActions, this.clientIdQueryParam,
-                    this.clientDetailUpdateRequest.getStatus(), this.errorCode);
+                    this.clientDetailUpdateV2Request.getStatus(), this.errorCode);
         }
     }
 
@@ -270,7 +265,7 @@ public class ClientMgmtControllerParameterizedTest {
             resultActions.andExpect(status().isOk())
                     .andExpect(jsonPath("$.errors").isEmpty())
                     .andExpect(jsonPath("$.response").isNotEmpty())
-                    .andExpect(jsonPath("$.response.clientId").value(this.clientDetailCreateRequest.getClientId()))
+                    .andExpect(jsonPath("$.response.clientId").value(this.clientDetailCreateV2Request.getClientId()))
                     .andExpect(jsonPath("$.response.status").value(Constants.CLIENT_ACTIVE_STATUS));
         }
     }
