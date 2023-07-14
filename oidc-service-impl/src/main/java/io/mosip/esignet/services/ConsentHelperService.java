@@ -14,18 +14,17 @@ import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.ConsentDetail;
-import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.dto.UserConsent;
-import io.mosip.esignet.core.dto.UserConsentRequest;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
+import io.mosip.esignet.core.spi.PublicKeyRegistryService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -44,7 +43,7 @@ public class ConsentHelperService {
     private ConsentService consentService;
 
     @Autowired
-    private KeyBindingHelperService keyBindingHelperService;
+    PublicKeyRegistryService publicKeyRegistryService;
 
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
@@ -126,7 +125,6 @@ public class ConsentHelperService {
         if(claims.getUserinfo()!=null){
             entryList = new ArrayList<>(claims.getUserinfo().entrySet());
             sortClaims(entryList, sortedMap);
-
         }
         //Now for sorting  id_token
         if(claims.getId_token()!=null)
@@ -176,9 +174,8 @@ public class ConsentHelperService {
         try {
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-            if(linked ) {
+            if(linked) {
                 if (!verifyConsentSignature(consentDetail))
-                    //throw new EsignetException(ErrorConstants.INVALID_TRANSACTION_ID);
                     return ConsentAction.CAPTURE;
             }
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
@@ -190,29 +187,36 @@ public class ConsentHelperService {
         } catch (JsonProcessingException e) {
             throw new EsignetException(ErrorConstants.INVALID_CLAIM);
         }
+        //compareing the new hash with the saved one
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
 
     public boolean verifyConsentSignature(ConsentDetail consentDetail)  {
         try{
             String jwtToken = generateSignedObject(consentDetail);
-            if(jwtToken==null || jwtToken.isEmpty())return false;
+            if (StringUtils.isEmpty(jwtToken)) {
+                return false;
+            }
             SignedJWT signedJWT = SignedJWT.parse(jwtToken);
             JWSHeader header = signedJWT.getHeader();
             String thumbPrint=header.getX509CertSHA256Thumbprint().toString();
-            Certificate jsonPulicKey=keyBindingHelperService.getCertificate(consentDetail.getPsuToken(),thumbPrint);
-
-            PublicKey publicKey =jsonPulicKey.getPublicKey();
-            JWSVerifier verifierr = new RSASSAVerifier((RSAPublicKey) publicKey);
-            log.info("signed jwt {} ", signedJWT.toString());
-            if (signedJWT.verify(verifierr)) {
-                return true;
-            } else {
+            Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryService.
+                    findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(consentDetail.getPsuToken(),thumbPrint);
+            if(publicKeyRegistryOptional.isPresent())
+            {
+                Certificate certificate=IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
+                PublicKey publicKey =certificate.getPublicKey();
+                JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
+                log.info("signed jwt {} ", signedJWT);
+                if(signedJWT.verify(verifier)){
+                    return true;
+                }else
                 return false;
             }
-        }catch (Exception e)
+            return false;
+        } catch (ParseException | JOSEException e)
         {
-            throw new EsignetException(e.getMessage());
+            throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
         }
     }
 
@@ -230,9 +234,9 @@ public class ConsentHelperService {
         if(!CollectionUtils.isEmpty(permittedScopes))
         Collections.sort(permittedScopes);
 
-        Map<String,Object> payLoadMap = new HashMap<>();
+        Map<String,Object> payLoadMap = new TreeMap<>();
         payLoadMap.put("accepted_claims",acceptedClaims);
-        payLoadMap.put("permitted_scopes",permittedScopes);
+        payLoadMap.put("permitted_authorized_scopes",permittedScopes);
 
         Payload payload=new Payload(new JSONObject(payLoadMap).toJSONString());
         StringBuilder sb = new StringBuilder();

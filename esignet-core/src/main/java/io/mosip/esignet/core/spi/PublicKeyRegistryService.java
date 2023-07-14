@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface PublicKeyRegistryService {
 
     Optional<PublicKeyRegistry> findLatestPublicKeyByPsuTokenAndAuthFactor(String psuToken, String authFactor);
-
+    Optional<PublicKeyRegistry> findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(String psuToken,String thumbPrint);
 }

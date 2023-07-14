@@ -33,4 +33,20 @@ public class PublicKeyRegistryServiceImpl implements PublicKeyRegistryService {
         }
         return Optional.empty();
     }
+
+    @Override
+    public Optional<PublicKeyRegistry> findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(String psuToken, String thumbPrint) {
+        Optional<io.mosip.esignet.entity.PublicKeyRegistry> optionalPublicKeyRegistry=publicKeyRegistryRepository
+                .findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(psuToken,thumbPrint);
+        if(optionalPublicKeyRegistry.isPresent()) {
+            PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+            publicKeyRegistry.setPublicKey(optionalPublicKeyRegistry.get().getPublicKey());
+            publicKeyRegistry.setPsuToken(optionalPublicKeyRegistry.get().getPsuToken());
+            publicKeyRegistry.setAuthFactor(optionalPublicKeyRegistry.get().getAuthFactor());
+            publicKeyRegistry.setCertificate(optionalPublicKeyRegistry.get().getCertificate());
+            return Optional.of(publicKeyRegistry);
+        }
+        return Optional.empty();
+
+    }
 }

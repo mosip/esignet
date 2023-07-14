@@ -7,28 +7,16 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
-import org.jose4j.keys.X509Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.StringReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Objects;
 import java.util.Optional;
-
 import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KEY;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.b64Encode;
@@ -43,8 +31,6 @@ public class KeyBindingHelperService {
     @Autowired
     private KeymanagerUtil keymanagerUtil;
 
-    @Autowired
-    private KeyBindingHelperService keyBindingHelperService;
 
     @Value("${mosip.esignet.binding.salt-length}")
     private int saltLength;
@@ -67,18 +53,14 @@ public class KeyBindingHelperService {
         //same individual can be bound to different public keys each with different auth-factor-type.
         Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(partnerSpecificUserToken, authFactor);
         String walletBindingId = null;
-        String certifate=null;
-        //Entry exists, consider to use same wallet-binding-id. Only update public-key & expireDT
+        //Entry exists i.e If already binded , consider to use same wallet-binding-id. Only update public-key & expireDT
         if (optionalPublicKeyRegistry.isPresent()) {
             walletBindingId = optionalPublicKeyRegistry.get().getWalletBindingId();
-            certifate=optionalPublicKeyRegistry.get().getCertificate();
             int noOfUpdatedRecords = publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash,
                     expireDTimes, partnerSpecificUserToken, certificateData, authFactor);
 
             log.info("Number of records updated successfully {}", noOfUpdatedRecords);
         }
-
-
 
         //Upsert one entry for the provided individual-id
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
@@ -90,9 +72,7 @@ public class KeyBindingHelperService {
         publicKeyRegistry.setExpiredtimes(expireDTimes);
         publicKeyRegistry.setWalletBindingId(walletBindingId == null ? generateWalletBindingId(partnerSpecificUserToken) : walletBindingId);
         publicKeyRegistry.setCertificate(certificateData);
-       // publicKeyRegistry.setThumbprint(generateThumbprintByPublicKey(publicKey));
-        publicKeyRegistry.setThumbprint(generateThumbprintByCertificate(certificateData));
-        log.info("certificate date is {}",certificateData);
+        publicKeyRegistry.setThumbprint(IdentityProviderUtil.generateThumbprintByCertificate(certificateData));
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
         log.info("Saved PublicKeyRegistry details successfully");
@@ -109,34 +89,5 @@ public class KeyBindingHelperService {
             throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
         return b64Encode(messageDigest.digest());
-    }
-
-    public  Certificate convertToCertificate(String certData) {
-        try {
-            StringReader strReader = new StringReader(certData);
-            PemReader pemReader = new PemReader(strReader);
-            PemObject pemObject = pemReader.readPemObject();
-            if (Objects.isNull(pemObject)) {
-                return null;
-            }
-            byte[] certBytes = pemObject.getContent();
-            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            return certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
-        } catch (IOException | CertificateException e) {
-            return null;
-        }
-    }
-    public String generateThumbprintByCertificate(String cerifacate)
-    {
-        X509Certificate certificate = (X509Certificate) convertToCertificate(cerifacate);
-        return X509Util.x5tS256(certificate);
-    }
-
-    public Certificate getCertificate(String psuToken, String thumbPrint) {
-        Optional<PublicKeyRegistry> publicKeyRegistryOptional= publicKeyRegistryRepository.
-                findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(psuToken, thumbPrint);
-        if(publicKeyRegistryOptional.isPresent())
-            return  convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
-        throw new EsignetException("INVALID psuToken or thumbPrint");
     }
 }

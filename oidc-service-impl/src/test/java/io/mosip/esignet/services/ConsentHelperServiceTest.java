@@ -16,8 +16,10 @@ import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.PublicKeyRegistry;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.spi.ConsentService;
+import io.mosip.esignet.core.spi.PublicKeyRegistryService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -54,7 +56,7 @@ public class ConsentHelperServiceTest {
     ConsentService consentService;
 
     @Mock
-    KeyBindingHelperService keyBindingHelperService;
+    PublicKeyRegistryService publicKeyRegistryService;
 
     @InjectMocks
     ConsentHelperService consentHelperService;
@@ -68,24 +70,25 @@ public class ConsentHelperServiceTest {
 
     static {
         try {
-            jwksString="{ \"keys\": [ { \"p\": \"vwr964uY-ffRVDKiguaQWuKIwqXZWRnAi2uROVKrE1eM1IGtdbUR9DabYr7SaUJMiNygPdcKzsQHzUL-HeZ265VHhSgUPoz9vYyxYwV8JHwu5u5AaT8HET1ahIYYVCIptmgW3C9r8nCKefDj_rtUW_g2ugVSNSN2GcdVF8Kh_CM\", \"kty\": \"RSA\", \"q\": \"rZ_YY8zsAbwC-gD-HwZOipJ7nDUWAClv6CZJDYvO6hoT0Ie4gDlppQkHr8ma5xY-rSycGzfJTDz26FeTdGOKHUfIxgrKmhLf53Z4XmNbCpJlzv-YYtLJSvDIyzHveBmDh44cILhfsKUe6hYf9puSyRhrHhxAOp5dkO0Nn5zBon0\", \"d\": \"bXn_PyzoO-GrBz6yZihby5506eCQURuJcKH4Z0Ye_AYTS6UcwBX0HqNO9F5RZgcvNxkvmjsN0gldnw6w1lCpBv35CPIjoHAUIbCVRxbZbJx81FAz-52uAxr4kHsaXgipygp7b4uOzpo3PJwWFruFX5YwO7ixpGfYfuQyzEBuKy-uB00_cD4SWdFkMqb0HpjYusknxHBdEVoMKteva58a-6VhEfd1mukA3yYLZ2XVoLdGmiW586noqmqG1ykBxB9SNFolPSKTcYqKzzBNj7r_ueS1L9HxfAd5S91s1nGQPCUL63J2UMjE2WZ6u-mE4gdm-VtLEGi5nFYQbQEI_qxckQ\", \"e\": \"AQAB\", \"use\": \"sig\", \"kid\": \"4iY9qs5wtSf4NXbL3SWgV-MGuvTF6-VgKqbCELkI5n8\", \"qi\": \"LbtqYfYomhY3-8ai2Ysc5H1XVvrzLYGvw0OAcPX2B2OEkoXMzjntmXRUsak28o5eQEt3QdSMk3w_1K80tjuHGxn1sW5MttNMEm3lGF4OETLCg-jPVQmqyXvz5aTN1ETJydWTFI3k704Vzk6OhUAeBjlkEg-XGeAkDMwR4jPzl6E\", \"dp\": \"dXzdC66eNZwiMBWzu6zvufT3Bj3YnOMpdpSAizA75XlCMq5NbsYcdIPgq6mO3QzY5JJKOb2199K2uZUpklnZaKg1g75SNOWgZqHPtYX6ArYcYgjDs_X-8qs4r6eH7rXT0UnSRTcku8RaZQOwM0ghaS4M-fmrxOI6D0B3JFWeKOE\", \"alg\": \"RS256\", \"dq\": \"Eqqq0yAHB7C1CTfuGlvNOezByWuTr_TEiUsEc6ZiWpzvIG5XEcIab5nm76lXNB0aI_g12F9JDx9G1HgF7G9_O-Kp3VDvs1zwIayFCHDaKurOc1Dbi1RqO9pjXCVEP79OetZ2g7YO46j9B-HVEehsAZ7UdWpIJYU9PgWef1iVIOk\", \"n\": \"gZG256MN5pTqHlErv2_qfkIc57xKdVC41SjYZ3oR2ui5YEhhlxFkoRp6siAABSTCa-e7XzO7mf3yHTgwU0v92m_vUJhvjurbReCAqzjWwAjFppzDAHqvs0LNaVJ2ML3XrjWPmAfoOo1A8wGFBRVnzZso8RvPRwup5LVYOGE-kUDxPn7yJD01I7K2y4n0gqnzCcBNbJm3mayd3bU6fDNvV5w_LWfO1L6A1HyhEeyJi6bdBSQkSXVJfHJbja2_uu7gZowZRAySR6EL5yuzX7n0Ojc-4vEJmmAujmwQWpvJX-snrjzVg1l9pcBqGEBnkKyx4Q1qrE0gg0GUgmhF9QlDFw\" } ] }";
+            jwksString="{ \"keys\": [ { \"p\": \"-lDLpWmbDNnAb6QEvY_1-WQLnAzJqjgAnCDIitaTSchJZWU6OHuGbLnwRGx-u86sPqk7V9KyudNxDTX9FCVNye2i5Rv4Ky0F29qiXT-xKNHa64xvFQ9imhFqZUL1-wQfJryVe_tR5Cxf45onFsT-BqeXLJqrgIpeCsHY1WOcxq0\", \"kty\": \"RSA\", \"q\": \"25GP6Hw-Xjj_A9M-dvKFTMPEI4rKUjznEAiro2TqSWM890XQiTuL92GCmTnDhG1RalTyQrED2pC0zwlhLnjuxPJTFjbxIoFfzWgf2o7sujmezDjahflB_1S2UmF2rc1HA0veCyb8d7rEcfX_D-gK8j2_7zcHKFUAY7amWQpFnQc\", \"d\": \"dj5vOzlQKJNQ_CKlhvbexsGA-GSyGFKkEJE9ZvwMFb1RkWq3PeImssKgigQgwUEcsAMDGBMDJBkjJXQ0w-DJB_nnnRqmtJpRESz-m118sHxgbOT1KMbd9mMWm5ElMm-gywD-rI7gCWStIbM9-X9K9HVpVRL9ZnR7Vq6mmOD3oCDDGNMXAEbPqhyeffCAzz4sCGm68W79xVf6N5zGNgpLwBx1U-ytoL49ljfO9CjMYHHLd9WIuFjRvebudAtmPL5dDuT6w3X81l8Uk0dvCYq9q0k6qbM9CgQuEVbEZYYB0clehcXDuMfotcq8dZTSh-x55Hr7WP3jP8Wmbq7Hb_9D-Q\", \"e\": \"AQAB\", \"use\": \"sig\", \"qi\": \"7UN1qEDk2-9vNglyoG9s3Y7HTXyJRQTd9gSF_xnlX9V2xwHFyzrBvQXEpmgcqUmd_d1Nwii0F6FIPDO2imewf05EDAzgQ0z7JfW5A28Cu7dgrTafw9wNwnhxX6XvQJN9d1mB1CGXvu6hjfmJf2d3w8Zx3S9ftHJfiJdYiovz2a4\", \"dp\": \"3Wb_aVSKVwh3RIfvxXeDGk5aUnGhIhUcvPvmRZ9bcaRc_vlVUMY5dQvVr7_DLPy1r0rieWCcwu55jTTWn64LKvMs5Lcjf5T4HKk6eX4vhapwl22Ehz0vepSy5dQfXCIeJ5YgJiR6H3b8bYVY07Pz-BDeDw7TaQN6AMvKrZvI_JU\", \"alg\": \"RS256\", \"dq\": \"fE2F-QoNjO4bgSDgZhqaWIEj0zNJoxEThsJB2TjSYkWqSBrgGjD55kzv0KshAyGYS-hXVmY8VkpB8kvPFq4kDp9ZZmQoU26GvBTMo8DyR-NDAT7Wh647LL_aj_zZYT-rijQzOoERwP6dJB8uDOVC_Sz0MgsnJDArDkhjGFl2W5U\", \"n\": \"1rFysE5-hwy2qvd3KBT6OzHzJdmIyLhR5bmO4L1qxkVQ78Danse9etQSY1c_v8jVvpA9IUVsAPdvIore4t5L2foqydn4H0VBQOcnX1f-6FcZ3_6nH5GFGQIVyuBPO7d7XM1vn8DEt3FY5-VGB0kpSHcxfLGVL0F7jPm31rDYaTROevkeIaMIib0tvMZpoxP7e9yfpix7L5p3-vLtcvpZk1hFiROa1m0nnpNg6k7-HunLMJV0UGOtYgDwmj_Fow56N26AGLzdVxpz-mjBu5RFZwCJba56mE7d77nndEUbiweYrOXIY04mUye55sU7-svOXprq925ckfRlAwUWLcKHuw\" } ] }";
             certificate="-----BEGIN CERTIFICATE-----\n" +
-                    "MIICrzCCAZegAwIBAgIGAYlJs0o1MA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
-                    "CE1vY2stSURBMB4XDTIzMDcxMjA1MTM1NFoXDTIzMDcyMjA1MTM1NFowHjEcMBoG\n" +
-                    "A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP\n" +
-                    "ADCCAQoCggEBAIGRtuejDeaU6h5RK79v6n5CHOe8SnVQuNUo2Gd6EdrouWBIYZcR\n" +
-                    "ZKEaerIgAAUkwmvnu18zu5n98h04MFNL/dpv71CYb47q20XggKs41sAIxaacwwB6\n" +
-                    "r7NCzWlSdjC91641j5gH6DqNQPMBhQUVZ82bKPEbz0cLqeS1WDhhPpFA8T5+8iQ9\n" +
-                    "NSOytsuJ9IKp8wnATWyZt5msnd21Onwzb1ecPy1nztS+gNR8oRHsiYum3QUkJEl1\n" +
-                    "SXxyW42tv7ru4GaMGUQMkkehC+crs1+59Do3PuLxCZpgLo5sEFqbyV/rJ6481YNZ\n" +
-                    "faXAahhAZ5CsseENaqxNIINBlIJoRfUJQxcCAwEAATANBgkqhkiG9w0BAQsFAAOC\n" +
-                    "AQEAnYL76cc5PFNjxFyMef1se1CUByukky4IOm21JiTY+nUuIJolasipYVL6Bo7Y\n" +
-                    "IObDEV7AW1hABXnUqQxFh2JUDnHrmQq0PbRIeWYItHGtvYBXBB8BY8xYZr93Rl+h\n" +
-                    "LvXgFyXROZt9POT074EzCQZgxdMedMLg5GqouBbZKH3V5elEo0w4Wa5A8QrVF8dN\n" +
-                    "qsKI1btm2vo0OMiP3bipyKvRVFyxZaGnVg7gSkRkNWIt+r6S+IJZ52v3TFSI5Yoo\n" +
-                    "RLQHoQpcdOIqM/FcL5w3RBy5SACe7dipcWw5WA0m5MdWNBmTZPWcHPZmVixPGNpz\n" +
-                    "NKM5jgxACiI4SDCEtTm1Dh7RiQ==\n" +
-                    "-----END CERTIFICATE-----\n";
+                    "MIIC6jCCAdKgAwIBAgIGAYlTAszKMA0GCSqGSIb3DQEBCwUAMDYxNDAyBgNVBAMM\n" +
+                    "K1c0bVhHakV4VU9YUl9Pc0dqUzRDUzR0N1VlRkZReE5yZXo1d05DRE1FY0UwHhcN\n" +
+                    "MjMwNzE0MDYwNzE5WhcNMjQwNTA5MDYwNzE5WjA2MTQwMgYDVQQDDCtXNG1YR2pF\n" +
+                    "eFVPWFJfT3NHalM0Q1M0dDdVZUZGUXhOcmV6NXdOQ0RNRWNFMIIBIjANBgkqhkiG\n" +
+                    "9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1rFysE5+hwy2qvd3KBT6OzHzJdmIyLhR5bmO\n" +
+                    "4L1qxkVQ78Danse9etQSY1c/v8jVvpA9IUVsAPdvIore4t5L2foqydn4H0VBQOcn\n" +
+                    "X1f+6FcZ3/6nH5GFGQIVyuBPO7d7XM1vn8DEt3FY5+VGB0kpSHcxfLGVL0F7jPm3\n" +
+                    "1rDYaTROevkeIaMIib0tvMZpoxP7e9yfpix7L5p3+vLtcvpZk1hFiROa1m0nnpNg\n" +
+                    "6k7+HunLMJV0UGOtYgDwmj/Fow56N26AGLzdVxpz+mjBu5RFZwCJba56mE7d77nn\n" +
+                    "dEUbiweYrOXIY04mUye55sU7+svOXprq925ckfRlAwUWLcKHuwIDAQABMA0GCSqG\n" +
+                    "SIb3DQEBCwUAA4IBAQDEncAcwSkKRFClDkYw354hxbzc2zvtT9Foc4JNrKJhg+rI\n" +
+                    "toHtrc/GLd6dPokrgIcfJs9ogTL9gGrO70X8CXBDPgFzKueeZOEFZSGd9wzVYHeZ\n" +
+                    "aCQpv08+Xm9HGYJKN/V0SDU5n2K6qjIGc9vUa5wLYyngkK4akcOLDcs/JYUWmMFs\n" +
+                    "u758AsRhM5nen6DTqiYf2VEoVP5QTtG5LKP8xirlfdTwtzPK2UFBut5JLsExDIoT\n" +
+                    "e1dYNxoRM1wKr5rDMvuzu0+X2y5FRcT4qnxxi/BQfQ9pRbZGxJsNawsZf+IorpR8\n" +
+                    "RjPbLKozzWxtGPTbpYWX5gqptSa1YCRuKHNm2g3N\n" +
+                    "-----END CERTIFICATE-----";
 
             thumbprint=generateThumbprintByCertificate(certificate);
             JWKSet jwkSet = JWKSet.parse(jwksString);
@@ -124,8 +127,6 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setRequestedAuthorizeScopes(Arrays.asList("openid","profile","email"));
         oidcTransaction.setRequestedClaims(claims);
 
-
-
         List<String> acceptedClaims =oidcTransaction.getAcceptedClaims();
         List<String> permittedScopes =oidcTransaction.getPermittedScopes();
         Collections.sort(acceptedClaims);
@@ -135,9 +136,9 @@ public class ConsentHelperServiceTest {
         payLoadMap.put("permitted_scopes",permittedScopes);
         String signature = generateSignature(payLoadMap);
 
-
-
-        Mockito.when(keyBindingHelperService.getCertificate(Mockito.any(),Mockito.any())).thenReturn(certi);
+        PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
+        publicKeyRegistry.setCertificate(certificate);
+        Mockito.when(publicKeyRegistryService.findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         consentHelperService.addUserConsent(oidcTransaction, true, signature);
 
@@ -335,9 +336,11 @@ public class ConsentHelperServiceTest {
         consentDetail.setSignature(signature);
         consentDetail.setPsuToken("psutoken");
 
-        Mockito.when(keyBindingHelperService.getCertificate(Mockito.any(),Mockito.any())).thenReturn(certi);
-        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
+        PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
+        publicKeyRegistry.setCertificate(certificate);
+        Mockito.when(publicKeyRegistryService.findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
+        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);
 
         Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
@@ -409,7 +412,9 @@ public class ConsentHelperServiceTest {
         consentDetail.setSignature(signature);
         consentDetail.setPsuToken("psutoken");
 
-       Mockito.when(keyBindingHelperService.getCertificate(Mockito.any(),Mockito.any())).thenReturn(certi);
+        PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
+        publicKeyRegistry.setCertificate(certificate);
+        Mockito.when(publicKeyRegistryService.findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);
@@ -443,10 +448,11 @@ public class ConsentHelperServiceTest {
         List<String> acceptedClaims =Arrays.asList("name","email","gender");
         List<String> permittedScopes =new ArrayList<>();
         Collections.sort(acceptedClaims);
-        //Collections.sort(permittedScopes);
-        Map<String,Object> payLoadMap = new HashMap<>();
+        Collections.sort(permittedScopes);
+        Map<String,Object> payLoadMap = new TreeMap<>();
+        payLoadMap.put("permitted_authorized_scopes",permittedScopes);
         payLoadMap.put("accepted_claims",acceptedClaims);
-        payLoadMap.put("permitted_scopes",permittedScopes);
+
         String signature = generateSignature(payLoadMap);
         log.info("Signature for accepted claims and permitted scope is {}",signature);
     }
@@ -462,7 +468,6 @@ public class ConsentHelperServiceTest {
         Payload payload = new Payload(payloadJson.toJSONString());
 
         // Generate the JWT with a private key
-        //privateKey=convertToPrivateKey(privateKeyString);
         JWSSigner signer = new RSASSASigner(privateKey);
         JWSObject jwsObject = new JWSObject(header,payload);
         jwsObject.sign(signer);

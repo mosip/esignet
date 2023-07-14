@@ -16,4 +16,5 @@ public class PublicKeyRegistry {
     private String authFactor;
     private String psuToken;
     private String publicKey;
+    private String certificate;
 }
