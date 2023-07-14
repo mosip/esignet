@@ -363,7 +363,7 @@ export default function Consent({
                       <div className="font-semibold">
                         {t(claimScope.label)}
                         <button
-                          id={claimScope.label + '_tooltip'}
+                          id={claimScope.tooltip}
                           className="ml-1 text-sky-600 text-xl"
                           data-tooltip-content={t(claimScope.tooltip)}
                           data-tooltip-place="top"
@@ -374,7 +374,7 @@ export default function Consent({
                         >
                           &#9432;
                         </button>
-                        <ReactTooltip anchorId={claimScope.label} />
+                        <ReactTooltip anchorId={claimScope.tooltip} />
                       </div>
                     </div>
                     <div className="flex justify-end">
