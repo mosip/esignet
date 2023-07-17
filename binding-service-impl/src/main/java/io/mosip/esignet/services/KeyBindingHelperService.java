@@ -31,7 +31,6 @@ public class KeyBindingHelperService {
     @Autowired
     private KeymanagerUtil keymanagerUtil;
 
-
     @Value("${mosip.esignet.binding.salt-length}")
     private int saltLength;
 
@@ -58,7 +57,6 @@ public class KeyBindingHelperService {
             walletBindingId = optionalPublicKeyRegistry.get().getWalletBindingId();
             int noOfUpdatedRecords = publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash,
                     expireDTimes, partnerSpecificUserToken, certificateData, authFactor);
-
             log.info("Number of records updated successfully {}", noOfUpdatedRecords);
         }
 

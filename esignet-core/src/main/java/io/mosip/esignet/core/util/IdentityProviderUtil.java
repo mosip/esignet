@@ -18,7 +18,12 @@ import java.security.cert.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.mosip.esignet.core.constants.Constants;
@@ -232,12 +237,16 @@ public class IdentityProviderUtil {
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             return certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
         } catch (IOException | CertificateException e) {
-            return null;
+            throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
         }
     }
     public static String  generateThumbprintByCertificate(String cerifacate)
     {
-        X509Certificate certificate = (X509Certificate) convertToCertificate(cerifacate);
-        return X509Util.x5tS256(certificate);
+        Object certObj = convertToCertificate(cerifacate);
+        if (certObj instanceof X509Certificate) {
+            X509Certificate certificate = (X509Certificate) certObj;
+            return X509Util.x5tS256(certificate);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
     }
 }
