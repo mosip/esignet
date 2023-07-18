@@ -45,9 +45,15 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
 		Assert.assertNotNull(publicKeyRegistry);
+
+		Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryRepository.
+				findFirstByPsuTokenAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc("test_token","thumbprint",LocalDateTime.now());
+
+		Assert.assertFalse(publicKeyRegistryOptional.isEmpty());
 
 		List<PublicKeyRegistry> list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLA"), LocalDateTime.now());
