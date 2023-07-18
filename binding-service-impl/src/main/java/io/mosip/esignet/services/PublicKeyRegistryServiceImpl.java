@@ -37,9 +37,9 @@ public class PublicKeyRegistryServiceImpl implements PublicKeyRegistryService {
     }
 
     @Override
-    public Optional<PublicKeyRegistry> findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(String psuToken, String thumbPrint) {
+    public Optional<PublicKeyRegistry> findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(String idHash, String thumbPrint) {
         Optional<io.mosip.esignet.entity.PublicKeyRegistry> optionalPublicKeyRegistry=publicKeyRegistryRepository
-                .findFirstByPsuTokenAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(psuToken,thumbPrint,LocalDateTime.now());
+                .findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(idHash,thumbPrint,LocalDateTime.now());
         if(optionalPublicKeyRegistry.isPresent()) {
             PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
             publicKeyRegistry.setPublicKey(optionalPublicKeyRegistry.get().getPublicKey());

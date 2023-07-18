@@ -101,7 +101,7 @@ public class ConsentHelperService {
             consentDetail.setSignature(userConsent.getSignature());
             consentDetail.setAcceptedClaims(userConsent.getAcceptedClaims());
             consentDetail.setPermittedScopes(userConsent.getPermittedScopes());
-            if (linked && !verifyConsentSignature(consentDetail)) {
+            if (linked && !verifyConsentSignature(consentDetail,transaction.getIndividualId())) {
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
             consentService.saveUserConsent(userConsent);
@@ -179,7 +179,7 @@ public class ConsentHelperService {
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
             if(linked) {
-                if (!verifyConsentSignature(consentDetail))
+                if (!verifyConsentSignature(consentDetail,transaction.getIndividualId()))
                     return ConsentAction.CAPTURE;
             }
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
@@ -195,7 +195,7 @@ public class ConsentHelperService {
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
 
-    public boolean verifyConsentSignature(ConsentDetail consentDetail)  {
+    public boolean verifyConsentSignature(ConsentDetail consentDetail,String individualId) {
         try{
             String jwtToken = generateSignedObject(consentDetail);
             if (StringUtils.isEmpty(jwtToken)) {
@@ -205,7 +205,7 @@ public class ConsentHelperService {
             JWSHeader header = signedJWT.getHeader();
             String thumbPrint=header.getX509CertSHA256Thumbprint().toString();
             Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryService.
-                    findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(consentDetail.getPsuToken(),thumbPrint);
+                    findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(getIndividualIdHash(individualId),thumbPrint);
             if(publicKeyRegistryOptional.isPresent())
             {
                 Certificate certificate=IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
@@ -221,6 +221,10 @@ public class ConsentHelperService {
         {
             throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
         }
+    }
+
+    public String getIndividualIdHash(String individualId) {
+        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId);
     }
 
     private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {

@@ -33,11 +33,5 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 			"pkr.certificate= :certificate where pkr.psuToken= :psuToken and pkr.authFactor= :authFactor")
 	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expireDTimes, String psuToken, String certificate, String authFactor);
 
-//	@Query(value = "SELECT p FROM public_key_registry p WHERE p.psu_Token = :psuToken AND p.thumbprint = :thumbPrint AND p.expire_dtimes > :currentDate ORDER BY p.expire_dtimes DESC")
-//	Optional<PublicKeyRegistry> findOptionalByPsuTokenAndThumPrint(String psuToken,String thumbPrint,LocalDateTime currentDate);
-
-//	@Query(value = "SELECT * FROM public_key_registry p WHERE p.psu_Token = ?1 AND p.thumbprint = ?2 AND p.expire_dtimes > ?3 ORDER BY p.expire_dtimes DESC")
-//	Optional<PublicKeyRegistry> findOptionalByPsuTokenAndThumPrint(String psuToken, String thumbPrint, LocalDateTime currentDate);
-
-	Optional<PublicKeyRegistry>findFirstByPsuTokenAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(String psuToken, String thumbPrint, LocalDateTime currentDate);
+	Optional<PublicKeyRegistry>findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(String psuToken, String thumbPrint, LocalDateTime currentDate);
 }

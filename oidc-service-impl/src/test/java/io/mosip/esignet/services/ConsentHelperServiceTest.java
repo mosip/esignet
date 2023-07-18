@@ -105,6 +105,7 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setAuthTransactionId("123");
         oidcTransaction.setAcceptedClaims(List.of("name","email"));
         oidcTransaction.setPermittedScopes(null);
+        oidcTransaction.setIndividualId("individualId");
         oidcTransaction.setConsentAction(ConsentAction.CAPTURE);
 
         Claims claims = new Claims();
@@ -134,7 +135,7 @@ public class ConsentHelperServiceTest {
 
         PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
         publicKeyRegistry.setCertificate(certificateString);
-        Mockito.when(publicKeyRegistryService.findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
+        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         consentHelperService.addUserConsent(oidcTransaction, true, signature);
     }
@@ -284,6 +285,7 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setPartnerSpecificUserToken("123");
         oidcTransaction.setRequestedAuthorizeScopes(List.of("openid","profile"));
         oidcTransaction.setPermittedScopes(List.of("openid","profile"));
+        oidcTransaction.setIndividualId("individualId");
 
         Claims claims = new Claims();
         Map<String, ClaimDetail> userinfo = new HashMap<>();
@@ -331,7 +333,7 @@ public class ConsentHelperServiceTest {
 
         PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
         publicKeyRegistry.setCertificate(certificateString);
-        Mockito.when(publicKeyRegistryService.findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
+        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);
@@ -348,6 +350,7 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setClientId("abc");
         oidcTransaction.setPartnerSpecificUserToken("123");
         oidcTransaction.setRequestedAuthorizeScopes(List.of("openid","profile"));
+        oidcTransaction.setIndividualId("individualId");
         oidcTransaction.setPermittedScopes(List.of("openid","profile"));
 
         Claims claims = new Claims();
@@ -407,7 +410,7 @@ public class ConsentHelperServiceTest {
 
         PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
         publicKeyRegistry.setCertificate(certificateString);
-        Mockito.when(publicKeyRegistryService.findFirstByPsuTokenAndThumbprintOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
+        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);

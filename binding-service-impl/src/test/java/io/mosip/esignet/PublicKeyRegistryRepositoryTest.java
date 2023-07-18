@@ -51,7 +51,7 @@ public class PublicKeyRegistryRepositoryTest {
 		Assert.assertNotNull(publicKeyRegistry);
 
 		Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryRepository.
-				findFirstByPsuTokenAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc("test_token","thumbprint",LocalDateTime.now());
+				findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc("test_id_hash","thumbprint",LocalDateTime.now().plus(4,ChronoUnit.DAYS));
 
 		Assert.assertFalse(publicKeyRegistryOptional.isEmpty());
 
