@@ -19,7 +19,6 @@ import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -532,7 +531,7 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void getOauthDetailsV2_withOutOpenIdScope_returnSuccessResponse() throws Exception {
+    public void getOauthDetailsV2_withOutOpenIdScope_returnErrorResponse() throws Exception {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
