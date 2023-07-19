@@ -86,4 +86,12 @@ public class ConsentServiceImpl implements ConsentService {
                 AuditHelper.buildAuditDto(userConsent.getClientId()), null);
         return consentDetailDto;
     }
+
+    @Override
+    @Transactional
+    public void deleteUserConsent(String clientId, String psuToken) {
+        if(consentRepository.existsByClientIdAndPsuToken(clientId,psuToken)) {
+            consentRepository.deleteByClientIdAndPsuToken(clientId, psuToken);
+        }
+    }
 }

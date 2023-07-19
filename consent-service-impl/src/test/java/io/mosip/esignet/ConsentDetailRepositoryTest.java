@@ -173,4 +173,38 @@ public class ConsentDetailRepositoryTest {
         Assert.fail();
     }
 
+    @Test
+    public void createAndDeleteConsent_withValidDetail_thenPass() {
+
+        ConsentDetail consentDetail =new ConsentDetail();
+        UUID uuid=UUID.randomUUID();
+        LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
+        consentDetail.setClientId("123");
+        consentDetail.setPsuToken("abc");
+        consentDetail.setClaims("claims");
+        consentDetail.setAuthorizationScopes("authorizationScopes");
+        consentDetail.setCreatedtimes(date);
+        consentDetail.setExpiredtimes(LocalDateTime.now());
+        consentDetail.setSignature("signature");
+        consentDetail.setHash("hash");
+        consentDetail.setAcceptedClaims("claim");
+        consentDetail.setPermittedScopes("scope");
+        consentDetail =consentRepository.save(consentDetail);
+        Assert.assertNotNull(consentDetail);
+
+        Optional<ConsentDetail> result;
+
+        result = consentRepository.findByClientIdAndPsuToken("123", "abc");
+        Assert.assertTrue(result.isPresent());
+
+        result = consentRepository.findByClientIdAndPsuToken("123", "abcd");
+        Assert.assertFalse(result.isPresent());
+
+        if(consentRepository.existsByClientIdAndPsuToken(consentDetail.getClientId(),consentDetail.getPsuToken())){
+            consentRepository.deleteByClientIdAndPsuToken(consentDetail.getClientId(),consentDetail.getPsuToken());
+            consentRepository.flush();
+        }
+        Assert.assertFalse(consentRepository.existsByClientIdAndPsuToken(consentDetail.getClientId(),consentDetail.getPsuToken()));
+    }
+
 }
