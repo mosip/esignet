@@ -143,7 +143,6 @@ public class ConsentServiceImplTest {
     public void deleteConsentByClientIdAndPsuToken_thenPass(){
         String clientId = "test-client-id";
         String psuToken = "test-psu-token";
-        Mockito.when(consentRepository.existsByClientIdAndPsuToken(clientId,psuToken)).thenReturn(true);
         consentService.deleteUserConsent(clientId,psuToken);
         Mockito.verify(consentRepository).deleteByClientIdAndPsuToken(clientId, psuToken);
     }

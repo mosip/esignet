@@ -199,12 +199,10 @@ public class ConsentDetailRepositoryTest {
 
         result = consentRepository.findByClientIdAndPsuToken("123", "abcd");
         Assert.assertFalse(result.isPresent());
-
-        if(consentRepository.existsByClientIdAndPsuToken(consentDetail.getClientId(),consentDetail.getPsuToken())){
-            consentRepository.deleteByClientIdAndPsuToken(consentDetail.getClientId(),consentDetail.getPsuToken());
-            consentRepository.flush();
-        }
-        Assert.assertFalse(consentRepository.existsByClientIdAndPsuToken(consentDetail.getClientId(),consentDetail.getPsuToken()));
+        consentRepository.deleteByClientIdAndPsuToken(consentDetail.getClientId(),consentDetail.getPsuToken());
+        consentRepository.flush();
+        Optional<ConsentDetail> consentDetailOptional = consentRepository.findByClientIdAndPsuToken("123", "abc");
+        Assert.assertFalse(consentDetailOptional.isPresent());
     }
 
 }

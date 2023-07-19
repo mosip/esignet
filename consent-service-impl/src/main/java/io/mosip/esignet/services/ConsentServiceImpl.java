@@ -90,8 +90,6 @@ public class ConsentServiceImpl implements ConsentService {
     @Override
     @Transactional
     public void deleteUserConsent(String clientId, String psuToken) {
-        if(consentRepository.existsByClientIdAndPsuToken(clientId,psuToken)) {
-            consentRepository.deleteByClientIdAndPsuToken(clientId, psuToken);
-        }
+        consentRepository.deleteByClientIdAndPsuToken(clientId, psuToken);
     }
 }
