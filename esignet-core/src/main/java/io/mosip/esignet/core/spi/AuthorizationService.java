@@ -21,6 +21,10 @@ public interface AuthorizationService {
     /**
      * All the query parameters of /authorize request are echoed to this request.
      * Resolves and returns auth-factors and claims required to IDP UI.
+     * 
+     * This response will contain map instead of string in clientName, which
+     * contain client's name in multiple language, where key is the language code
+     * and the default client name is provided as value for the key @none
      * @param oauthDetailRequest
      * @return
      */

@@ -37,7 +37,12 @@ public interface ClientManagementService {
     ClientDetail getClientDetails(String clientId) throws EsignetException;
 
     /**
-     * API to register relying party client
+     * API to register relying party client version 2
+     * 
+     * In this version there is a provision to provide client name
+     * in multiple languages as a map (clientNameLangMap), where key
+     * is the language code and the default client name is provided
+     * as value for the key @none, where @none is a fallback value
      * @param clientDetailCreateV2Request
      * @return
      * @throws EsignetException
@@ -45,7 +50,12 @@ public interface ClientManagementService {
     ClientDetailResponse createOIDCClientV2(ClientDetailCreateV2Request clientDetailCreateV2Request) throws EsignetException;
 
     /**
-     * API to update registered relying party client
+     * API to update registered relying party client version 2
+     * 
+     * In this version there is a provision to provide client name
+     * in multiple languages as a map (clientNameLangMap), where key
+     * is the language code and the default client name is provided
+     * as value for the key @none, where @none is a fallback value
      * @param clientId
      * @param clientDetailUpdateV2Request
      * @return

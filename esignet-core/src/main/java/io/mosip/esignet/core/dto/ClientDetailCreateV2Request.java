@@ -24,6 +24,7 @@ public class ClientDetailCreateV2Request extends ClientDetailCreateRequest {
     @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME)
     private Map<@Size(message= ErrorConstants.INVALID_CLIENT_NAME_MAP_KEY, min=3, max=3) String,
             @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientNameLangMap;
+            
     public ClientDetailCreateV2Request(String clientId, String clientName, Map<String, Object> publicKey, String relyingPartyId,
                                        List<String> userClaims, List<String> authContextRefs, String logoUri,
                                        List<String> redirectUris, List<String> grantTypes, List<String> clientAuthMethods,

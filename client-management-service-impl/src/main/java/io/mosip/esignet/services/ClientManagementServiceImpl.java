@@ -62,7 +62,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     private List<String> NULL = Collections.singletonList(null);
 
-    private ClientDetail toClientDetailDTO(ClientDetailCreateRequest clientDetailCreateRequest) {
+    private ClientDetail buildClientDetailEntity(ClientDetailCreateRequest clientDetailCreateRequest) {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId(clientDetailCreateRequest.getClientId());
         clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequest.getPublicKey()));
@@ -91,7 +91,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return clientDetail;
     }
 
-    private ClientDetail toClientDetailDTO(ClientDetail clientDetail, ClientDetailUpdateRequest clientDetailUpdateRequest) {
+    private ClientDetail buildClientDetailEntity(ClientDetail clientDetail, ClientDetailUpdateRequest clientDetailUpdateRequest) {
         clientDetail.setName(clientDetailUpdateRequest.getClientName());
         clientDetail.setLogoUri(clientDetailUpdateRequest.getLogoUri());
 
@@ -114,14 +114,14 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return clientDetail;
     }
 
-    private ClientDetailResponse toClientDetailResponseDTO(ClientDetail clientDetail) {
+    private ClientDetailResponse getClientDetailResponse(ClientDetail clientDetail) {
         var response = new ClientDetailResponse();
         response.setClientId(clientDetail.getId());
         response.setStatus(clientDetail.getStatus());
         return response;
     }
 
-    private String toClientName(Map<String, String> clientNameMap, String clientName) {
+    private String getClientNameLanguageMapAsJsonString(Map<String, String> clientNameMap, String clientName) {
         clientNameMap.put("@none", clientName);
         JSONObject clientNameObject = new JSONObject(clientNameMap);
         return clientNameObject.toString();
@@ -136,7 +136,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = toClientDetailDTO(clientDetailCreateRequest);
+        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateRequest);
 
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
@@ -148,7 +148,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
         		Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
 
-        return toClientDetailResponseDTO(clientDetail);
+        return getClientDetailResponse(clientDetail);
     }
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
@@ -160,14 +160,14 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = toClientDetailDTO(result.get(), clientDetailUpdateRequest);
+        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateRequest);
 
         clientDetail = clientDetailRepository.save(clientDetail);
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
         		Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
-        return toClientDetailResponseDTO(clientDetail);
+        return getClientDetailResponse(clientDetail);
     }
 
     @Cacheable(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
@@ -208,9 +208,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = toClientDetailDTO(clientDetailCreateV2Request);
+        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateV2Request);
 
-        String clientName = toClientName(
+        String clientName = getClientNameLanguageMapAsJsonString(
                 clientDetailCreateV2Request.getClientNameLangMap(),
                 clientDetailCreateV2Request.getClientName()
         );
@@ -226,7 +226,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateV2Request.getClientId()), null);
 
-        return toClientDetailResponseDTO(clientDetail);
+        return getClientDetailResponse(clientDetail);
     }
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
@@ -238,9 +238,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = toClientDetailDTO(result.get(), clientDetailUpdateV2Request);
+        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateV2Request);
 
-        String clientName = toClientName(
+        String clientName = getClientNameLanguageMapAsJsonString(
                 clientDetailUpdateV2Request.getClientNameLangMap(),
                 clientDetailUpdateV2Request.getClientName()
         );
@@ -251,7 +251,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
-        return toClientDetailResponseDTO(clientDetail);
+        return getClientDetailResponse(clientDetail);
     }
 
 }
