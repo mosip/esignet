@@ -201,6 +201,7 @@ public class KeyBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("111111");
+		authChallenge.setFormat("alpha-numeric");
 		List<AuthChallenge> authChallengeList = new ArrayList();
 		authChallengeList.add(authChallenge);
 		walletBindingRequest.setChallengeList(authChallengeList);
