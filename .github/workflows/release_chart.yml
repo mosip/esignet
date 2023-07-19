@@ -6,6 +6,7 @@ on:
       - 1.*
       - 0.*
       - develop
+      - bugfix-ES-177
     paths:
       - 'helm/**'
 
