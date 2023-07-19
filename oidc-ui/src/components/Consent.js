@@ -24,7 +24,7 @@ export default function Consent({
       configurationKeys.consentScreenExpireInSec
     ) ?? process.env.REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC;
 
-  // The transaction timer will be derived from the configuration file of e-Signet so buffer of -5 sec is added in the timer.  
+  // The transaction timer will be derived from the configuration file of e-Signet so buffer of -5 sec is added in the timer.
   const timeoutBuffer =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.consentScreenTimeOutBufferInSec
@@ -194,6 +194,9 @@ export default function Consent({
   }, [scope, claims]);
 
   useEffect(() => {
+    if (isNaN(authTime)) {
+      return;
+    }
     const timer = setTimeout(() => {
       let currentTime = Math.floor(new Date().getTime() / 1000);
       let timePassed = currentTime - authTime;
@@ -210,13 +213,14 @@ export default function Consent({
   }, [timeLeft]);
 
   useEffect(() => {
-    if (authTime) {
-      let currentTime = Math.floor(new Date().getTime() / 1000);
-      let timePassed = currentTime - authTime;
-      let tLeft = transactionTimeoutWithBuffer - timePassed;
-      setTimeLeft(tLeft);
+    if (isNaN(authTime)) {
+      return;
     }
-  }, [])
+    let currentTime = Math.floor(new Date().getTime() / 1000);
+    let timePassed = currentTime - authTime;
+    let tLeft = transactionTimeoutWithBuffer - timePassed;
+    setTimeLeft(tLeft);
+  }, []);
 
   function formatTime(time) {
     const minutes = Math.floor(time / 60).toString().padStart(2, "0");
