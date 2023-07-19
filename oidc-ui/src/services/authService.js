@@ -215,13 +215,18 @@ class authService {
     if (nonce) {
       params = params + "nonce=" + nonce + "&";
     }
+
     if (state) {
       params = params + "state=" + state + "&";
     }
+
     if (consentAction) {
       params = params + "consentAction=" + consentAction + "&";
+      params = params + "authenticationTime=" + authenticationTime + "&";
     }
-    params = params + "authenticationTime=" + authenticationTime;
+
+    //removing last "&" character
+    params = params.substring(0, params.length - 1);
 
     let responseStr = JSON.stringify(oauthReponse);
     let responseB64 = Buffer.from(responseStr).toString("base64");
