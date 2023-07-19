@@ -109,7 +109,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oauthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oauthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
         oauthDetailResponse.setConfigs(uiConfigMap);
-        oauthDetailResponse.setClientName(clientDetailDto.getName());
+        oauthDetailResponse.setClientName(convertClientNameToString(clientDetailDto.getName()));
         oauthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
         oauthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
@@ -146,7 +146,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailV2Response.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oAuthDetailV2Response.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
         oAuthDetailV2Response.setConfigs(uiConfigMap);
-        Map<String, String> clientNameMap = convertClientName(clientDetailDto.getName());
+        Map<String, String> clientNameMap = convertClientNameToMap(clientDetailDto.getName());
         oAuthDetailV2Response.setClientName(clientNameMap);
         oAuthDetailV2Response.setLogoUrl(clientDetailDto.getLogoUri());
         oAuthDetailV2Response.setRedirectUri(oauthDetailReqDto.getRedirectUri());
@@ -179,7 +179,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, oidcTransaction), null);
     }
 
-    private Map<String, String> convertClientName(String clientName) {
+    private Map<String, String> convertClientNameToMap(String clientName) {
         Map<String, String> clientNameMap = new HashMap<>();
         try {
             new JSONObject(clientName);
@@ -192,6 +192,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             return clientNameMap;
         }
         return clientNameMap;
+    }
+
+    private String convertClientNameToString(String clientName) {
+        Map<String, String> clientNameMap = convertClientNameToMap(clientName);
+        return clientNameMap.get("@none");
     }
 
     @Override

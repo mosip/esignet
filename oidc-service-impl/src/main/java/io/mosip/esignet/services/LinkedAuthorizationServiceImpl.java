@@ -27,7 +27,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -156,7 +155,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
         linkTransactionResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         linkTransactionResponse.setAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
-        linkTransactionResponse.setClientName(clientDetailDto.getName());
+        linkTransactionResponse.setClientName(convertClientNameToString(clientDetailDto.getName()));
         linkTransactionResponse.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionResponse.setConfigs(uiConfigMap);
 
@@ -199,7 +198,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionV2Response.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionV2Response.setConfigs(uiConfigMap);
 
-        Map<String, String> clientNameMap = convertClientName(clientDetailDto.getName());
+        Map<String, String> clientNameMap = convertClientNameToMap(clientDetailDto.getName());
         linkTransactionV2Response.setClientName(clientNameMap);
 
         //Publish message after successfully linking the transaction
@@ -208,7 +207,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         return linkTransactionV2Response;
     }
 
-    private Map<String, String> convertClientName(String clientName) {
+    private Map<String, String> convertClientNameToMap(String clientName) {
         Map<String, String> clientNameMap = new HashMap<>();
         try {
             new JSONObject(clientName);
@@ -221,6 +220,11 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
             return clientNameMap;
         }
         return clientNameMap;
+    }
+
+    private String convertClientNameToString(String clientName) {
+        Map<String, String> clientNameMap = convertClientNameToMap(clientName);
+        return clientNameMap.get("@none");
     }
 
     @Override
