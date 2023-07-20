@@ -49,6 +49,9 @@ public class ConsentHelperService {
     @Autowired
     PublicKeyRegistryService publicKeyRegistryService;
 
+    @Autowired
+    AuthorizationHelperService authorizationHelperService;
+
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
@@ -64,7 +67,6 @@ public class ConsentHelperService {
             transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
         }
     }
-
 
     public void addUserConsent(OIDCTransaction transaction, boolean linked, String signature) {
         if (ConsentAction.CAPTURE.equals(transaction.getConsentAction())) {
@@ -101,7 +103,7 @@ public class ConsentHelperService {
             consentDetail.setSignature(userConsent.getSignature());
             consentDetail.setAcceptedClaims(userConsent.getAcceptedClaims());
             consentDetail.setPermittedScopes(userConsent.getPermittedScopes());
-            if (linked && !verifyConsentSignature(consentDetail,transaction.getIndividualId())) {
+            if (linked && !verifyConsentSignature(consentDetail,transaction)) {
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
             consentService.saveUserConsent(userConsent);
@@ -179,7 +181,7 @@ public class ConsentHelperService {
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
             if(linked) {
-                if (!verifyConsentSignature(consentDetail,transaction.getIndividualId()))
+                if (!verifyConsentSignature(consentDetail,transaction))
                     return ConsentAction.CAPTURE;
             }
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
@@ -195,7 +197,7 @@ public class ConsentHelperService {
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
 
-    public boolean verifyConsentSignature(ConsentDetail consentDetail,String individualId) {
+    public boolean verifyConsentSignature(ConsentDetail consentDetail,OIDCTransaction transaction) {
         try{
             String jwtToken = generateSignedObject(consentDetail);
             if (StringUtils.isEmpty(jwtToken)) {
@@ -204,8 +206,9 @@ public class ConsentHelperService {
             SignedJWT signedJWT = SignedJWT.parse(jwtToken);
             JWSHeader header = signedJWT.getHeader();
             String thumbPrint=header.getX509CertSHA256Thumbprint().toString();
+            String idHash=getIndividualIdHash(authorizationHelperService.getIndividualId(transaction));
             Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryService.
-                    findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(getIndividualIdHash(individualId),thumbPrint);
+                    findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(idHash,thumbPrint);
             if(publicKeyRegistryOptional.isPresent())
             {
                 Certificate certificate=IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
