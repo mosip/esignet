@@ -9,6 +9,8 @@ fi
 NS=esignet
 CHART_VERSION=1.0.1
 
+ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
+
 echo Create $NS namespace
 kubectl create ns $NS
 
@@ -17,8 +19,22 @@ function installing_esignet() {
 
   ./keycloak-init.sh
 
+  echo Please enter the recaptcha admin site key for domain $ESIGNET_HOST
+  read ESITE_KEY
+  echo Please enter the recaptcha admin secret key for domain $ESIGNET_HOST
+  read ESECRET_KEY
+
+  echo Setting up captcha secrets
+  kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
+
   echo Copy configmaps
   ./copy_cm.sh
+
+  echo copy secrets
+  ./copy_secrets.sh
+
+  kubectl -n config-server rollout restart deploy config-server
+  kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
 
   echo "Do you have public domain & valid SSL? (Y/n) "
   echo "Y: if you have public domain & valid ssl certificate"
