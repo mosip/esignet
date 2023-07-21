@@ -90,4 +90,3 @@ API documentation is available [here](https://mosip.stoplight.io/docs/identity-p
 
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
-
