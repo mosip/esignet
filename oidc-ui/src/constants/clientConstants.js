@@ -65,7 +65,7 @@ const configurationKeys = {
   captchaSiteKey: "captcha.sitekey", //site key for ReCAPTCHA
 
   linkAuthCodeExpireInSec: "mosip.esignet.link-auth-code-expire-in-secs",
-  linkCodeDeferredTimeoutInSec: "mosip.esignet.link-status-deferred-response-timeout-secs",
+  qrCodeBufferInSecs: "wallet.qr-code-buffer-in-secs",
   qrCodeDeepLinkURI: "mosip.esignet.qr-code.deep-link-uri",
   appDownloadURI: "mosip.esignet.qr-code.download-uri",
   signInWithQRCodeEnable: "mosip.esignet.qr-code.enable",
