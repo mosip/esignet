@@ -33,7 +33,9 @@ function installing_esignet() {
   echo copy secrets
   ./copy_secrets.sh
 
-  kubectl -n config-server rollout restart deploy config-server
+  kubectl -n config-server set env --keys=esignet-captcha-site-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+  kubectl -n config-server set env --keys=esignet-captcha-secret-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+
   kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
 
   echo "Do you have public domain & valid SSL? (Y/n) "
