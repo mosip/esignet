@@ -1,5 +1,7 @@
-package validator;
+package io.mosip.esignet.core.validator;
 
+
+import io.mosip.esignet.core.constants.ErrorConstants;
 
 import javax.validation.Constraint;
 import java.lang.annotation.Documented;
@@ -10,15 +12,15 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({ElementType.LOCAL_VARIABLE, TYPE})
+@Target(value = {ElementType.FIELD, TYPE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = SignatureFormatValidator.class)
 @Documented
-public @interface ValidSignatureFormat {
+public @interface SignatureFormat
+{
+    String message() default ErrorConstants.INVALID_SIGNATURE_FORMAT;
 
-        String message() default "Invalid Signature Format";
+    Class<?>[] groups() default {};
 
-        Class<?>[] groups() default {};
-
-        Class<? extends javax.validation.Payload>[] payload() default {};
+    Class<?>[] payload() default {};
 }
