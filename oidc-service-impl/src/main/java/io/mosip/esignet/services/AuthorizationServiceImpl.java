@@ -113,6 +113,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         //Cache the transaction
         OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setTransactionId(transactionId);
         oidcTransaction.setEssentialClaims(oauthDetailResponse.getEssentialClaims());
         oidcTransaction.setVoluntaryClaims(oauthDetailResponse.getVoluntaryClaims());
         oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
