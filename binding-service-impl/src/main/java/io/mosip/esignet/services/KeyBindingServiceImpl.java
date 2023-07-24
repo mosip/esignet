@@ -93,10 +93,11 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	public WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws EsignetException {
 		log.debug("bindWallet :: Request headers >> {}", requestHeaders);
 		validateChallengeListAuthFormat(walletBindingRequest.getChallengeList());
+
 		//Do not store format, only check if the format is supported by the wrapper.
 		if(!keyBindingWrapper.getSupportedChallengeFormats(walletBindingRequest.getAuthFactorType()).
 				contains(walletBindingRequest.getFormat()))
-			throw new EsignetException(INVALID_CHALLENGE_FORMAT);
+			throw new EsignetException(INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT);
 
 		String publicKey = IdentityProviderUtil.getJWKString(walletBindingRequest.getPublicKey());
 		KeyBindingResult keyBindingResult;

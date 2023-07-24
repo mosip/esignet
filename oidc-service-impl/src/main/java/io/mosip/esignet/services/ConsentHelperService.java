@@ -74,7 +74,7 @@ public class ConsentHelperService {
         ){
             //delete old consent if it exists since this scenario doesn't require capture of consent.
             consentService.deleteUserConsent(transaction.getClientId(),transaction.getPartnerSpecificUserToken());
-            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(),transaction),null);
+            auditWrapper.logAudit(Action.DELETE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),transaction),null);
         }
         if(ConsentAction.CAPTURE.equals(transaction.getConsentAction())){
             UserConsent userConsent = new UserConsent();
@@ -98,10 +98,11 @@ public class ConsentHelperService {
             try {
                 userConsent.setHash(hashUserConsent(normalizedClaims, authorizeScopes));
             } catch (JsonProcessingException e) {
+                log.error("Failed to hash the user consent", e);
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
             consentService.saveUserConsent(userConsent);
-            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(),transaction),null);
+            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),transaction),null);
         }
     }
 
@@ -184,6 +185,7 @@ public class ConsentHelperService {
             normalizedClaims.setId_token(normalizeClaims(transaction.getRequestedClaims().getId_token()));
             hash = hashUserConsent(normalizedClaims, authorizeScopes);
         } catch (JsonProcessingException e) {
+            log.error("Failed to hash the user consent", e);
             throw new EsignetException(ErrorConstants.INVALID_CLAIM);
         }
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
