@@ -25,7 +25,6 @@ import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -270,7 +269,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-        consentHelperService.addUserConsent(transaction, true, linkedConsentRequest.getSignature());
+        consentHelperService.updateUserConsent(transaction, true, linkedConsentRequest.getSignature());
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
