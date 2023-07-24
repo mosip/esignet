@@ -24,4 +24,11 @@ public interface ConsentService {
      *
      */
     ConsentDetail saveUserConsent(UserConsent userConsent) throws EsignetException;
+
+    /**
+     * Api to delete user consent from Consent Registry
+     * @param psuToken
+     * @param clientId
+     */
+    void deleteUserConsent(String clientId, String psuToken);
 }

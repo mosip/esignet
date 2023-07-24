@@ -8,6 +8,9 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ConsentDetail;
@@ -16,10 +19,12 @@ import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -33,24 +38,44 @@ public class ConsentHelperService {
     @Autowired
     private ConsentService consentService;
 
+    @Autowired
+    private AuditPlugin auditWrapper;
+
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
         userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
         Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
 
-        ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction,consent.get(), linked);
+        if(CollectionUtils.isEmpty(transaction.getVoluntaryClaims())
+                && CollectionUtils.isEmpty(transaction.getEssentialClaims())
+                && CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes())){
+            transaction.setConsentAction(ConsentAction.NOCAPTURE);
+            transaction.setAcceptedClaims(List.of());
+            transaction.setPermittedScopes(List.of());
+        } else {
+            ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction, consent.get(), linked);
 
-        transaction.setConsentAction(consentAction);
+            transaction.setConsentAction(consentAction);
 
-        if(consentAction.equals(ConsentAction.NOCAPTURE)) {
-            transaction.setAcceptedClaims(consent.get().getAcceptedClaims()); //NOSONAR consent is already evaluated to be not null
-            transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
+            if (consentAction.equals(ConsentAction.NOCAPTURE)) {
+                transaction.setAcceptedClaims(consent.get().getAcceptedClaims()); //NOSONAR consent is already evaluated to be not null
+                transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
+            }
         }
     }
 
 
-    public void addUserConsent(OIDCTransaction transaction, boolean linked, String signature) {
+    public void updateUserConsent(OIDCTransaction transaction, boolean linked, String signature) {
+        if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())
+            && transaction.getEssentialClaims().isEmpty()
+                && transaction.getVoluntaryClaims().isEmpty()
+                && transaction.getRequestedAuthorizeScopes().isEmpty()
+        ){
+            //delete old consent if it exists since this scenario doesn't require capture of consent.
+            consentService.deleteUserConsent(transaction.getClientId(),transaction.getPartnerSpecificUserToken());
+            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(),transaction),null);
+        }
         if(ConsentAction.CAPTURE.equals(transaction.getConsentAction())){
             UserConsent userConsent = new UserConsent();
             userConsent.setClientId(transaction.getClientId());
@@ -76,6 +101,7 @@ public class ConsentHelperService {
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
             consentService.saveUserConsent(userConsent);
+            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(),transaction),null);
         }
     }
 
