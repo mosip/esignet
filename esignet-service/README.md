@@ -1,11 +1,69 @@
 ## e-Signet Service
 
-* Management - Endpoints for creation and updation of OIDC client details
-* OIDC - All OIDC compliant endpoints for performing the Open ID Connect flows
-* UI - All endpoints used by the UI application
-* Wallet-app - All endpoints used by wallet-app
+* AuthorizationController - All the endpoints used by oidc-ui to begin the OIDC transaction, authenticate, take consent and generate auth-code.
+* ClientManagementController - Endpoints to create/update OIDC clients
+* LinkedAuthorizationController - Endpoints to shift browser transaction to wallet app, perform linked auth and linked consent.
+* OAuthController - Endpoints specific to OAUTH spec like /token and /.well-known/jwks.json
+* OpenIdController - Endpoints specific to OIDC protocol like /userinfo and /.well-known/openid-configuration
+* SystemInfoController - Endpoints to get the pet public part of the keys managed in the keystore by keymanager.
+* KeyBindingController - Endpoints used by wallets to bind a key to an individual ID to support wallet local authentication.
 
-![](/docs/IdP-service-basic-flow.png)
+## e-Signet Plugins
+1. We have well-defined plugin interfaces in esignet-intergration-api. 
+2. Mock plugin implementations and the MOSIP specific plugin implementations are available.
+3. Check the below URL for more details:
+
+ > https://github.com/mosip/esignet-mock-services/tree/develop/mock-esignet-integration-impl
+
+ > https://github.com/mosip/id-authentication/tree/develop/authentication/esignet-integration-impl
+
+4. All the required plugins are runtime dependency to esignet-service.
+
+![](/docs/esignet-service-basic-interations.png)
+
+## Local setup of e-Signet with mock plugins
+
+1. Create database mosip_esignet.
+2. Run all the scripts under db_scripts/mosip_esignet/ddl folder.
+3. Run the below insert statements in mosip_esignet database:
+
+   > INSERT INTO KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES ('ROOT', 1095, 50, 'NA', true, 'mosipadmin', now());
+
+   > INSERT INTO KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES ('OIDC_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
+
+   > INSERT INTO KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES ('OIDC_PARTNER', 1095, 50, 'NA', true, 'mosipadmin', now());
+
+   > INSERT INTO KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES ('BINDING_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
+
+   > INSERT INTO KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES ('MOCK_BINDING_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
+   
+4. Build the plugin jar from below repo and add the built plugin jar as runtime dependency in esignet-service
+  
+   > https://github.com/mosip/esignet-mock-services/tree/develop/mock-esignet-integration-impl
+
+5. Build the current esignet repository with the below command:
+   
+   > mvn clean install -Dgpg.skip=true -DskipTests=true
+
+6. Run the below command to start the esignet-service with mock plugin
+
+   > java -jar -Dloader.path=mock-esignet-integration-impl.jar esignet-service.jar
+
+7. Once the service is up, swagger should be accessible with the below URL
+
+   > http://localhost:8088/v1/esignet/swagger-ui.html
+
+8. Also find the latest postman collection under "docs" folder with environment json
+
+   Order of execution in portman script for OIDC flow is:
+     * Create OIDC client
+     * Authorize / OAuthdetails request
+     * Send OTP 
+     * Authenticate user
+     * Authorization Code
+     * Get Tokens
+     * Get Userinfo
+
 
 ## Caching details
 
