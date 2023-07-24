@@ -60,7 +60,13 @@ The application runs on PORT=3000 by default.
   ```
 
 - Build and run on the local system:
-  Update ".env.development" file, add REACT_APP_ESIGNET_API_URL=<'Complete URL of Esignet Services'>
-  ```
-  $ npm start
-  ```
+  - Update ".env.development" file, add REACT_APP_ESIGNET_API_URL=<'Complete URL of Esignet Services'>
+  - Start oidc-ui
+    ```
+    $ npm start
+    ```
+  - Run the browser with web-security disabled. For Google chrome the command is
+    ```
+    chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
+    ```
+  - Open URL http://localhost:3000
