@@ -231,8 +231,6 @@ public class KeyBindingServiceTest {
 		walletBindingRequest.setPublicKey(
 				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
-				.thenReturn(null);
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
