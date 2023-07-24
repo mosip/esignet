@@ -26,10 +26,10 @@ export default function LoginQRCode({
   const [error, setError] = useState(null);
   const [qrCodeTimeOut, setQrCodeTimeout] = useState();
 
-  const linkAuthCodeExpireInSec =
+  const linkedTransactionExpireInSec =
     openIDConnectService.getEsignetConfiguration(
-      configurationKeys.linkAuthCodeExpireInSec
-    ) ?? process.env.REACT_APP_LINK_AUTH_CODE_TIMEOUT_IN_SEC;
+      configurationKeys.linkedTransactionExpireInSecs
+    ) ?? process.env.REACT_APP_LINKED_TRANSACTION_EXPIRE_IN_SEC;
 
   /*
   The QRCode will be valid even after expiring on the UI for the period of qrCodeBufferInSecs.
@@ -262,7 +262,7 @@ export default function LoginQRCode({
     try {
       let codeExpiryDateTime = new Date();
       codeExpiryDateTime.setSeconds(
-        codeExpiryDateTime.getSeconds() + Number(linkAuthCodeExpireInSec)
+        codeExpiryDateTime.getSeconds() + Number(linkedTransactionExpireInSec)
       );
       let timeLeft = (codeExpiryDateTime - new Date()) / 1000;
       let linkAuthResponse;

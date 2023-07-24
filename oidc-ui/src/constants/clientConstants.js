@@ -64,7 +64,7 @@ const configurationKeys = {
   captchaEnableComponents: "captcha.enable", //comma separated list of components where captcha needs to be shown
   captchaSiteKey: "captcha.sitekey", //site key for ReCAPTCHA
 
-  linkAuthCodeExpireInSec: "mosip.esignet.link-auth-code-expire-in-secs",
+  linkedTransactionExpireInSecs: "linked-transaction-expire-in-secs",
   qrCodeBufferInSecs: "wallet.qr-code-buffer-in-secs",
   qrCodeDeepLinkURI: "mosip.esignet.qr-code.deep-link-uri",
   appDownloadURI: "mosip.esignet.qr-code.download-uri",
