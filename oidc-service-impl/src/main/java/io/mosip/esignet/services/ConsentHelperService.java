@@ -8,6 +8,9 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ConsentDetail;
@@ -16,6 +19,7 @@ import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,9 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 public class ConsentHelperService {
     @Autowired
     private ConsentService consentService;
+
+    @Autowired
+    private AuditPlugin auditWrapper;
 
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
@@ -67,6 +74,7 @@ public class ConsentHelperService {
         ){
             //delete old consent if it exists since this scenario doesn't require capture of consent.
             consentService.deleteUserConsent(transaction.getClientId(),transaction.getPartnerSpecificUserToken());
+            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(),transaction),null);
         }
         if(ConsentAction.CAPTURE.equals(transaction.getConsentAction())){
             UserConsent userConsent = new UserConsent();
@@ -93,6 +101,7 @@ public class ConsentHelperService {
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
             consentService.saveUserConsent(userConsent);
+            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(),transaction),null);
         }
     }
 
