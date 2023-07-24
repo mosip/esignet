@@ -135,7 +135,7 @@ public class ConsentHelperServiceTest {
 
         PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
         publicKeyRegistry.setCertificate(certificateString);
-        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
+        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         consentHelperService.addUserConsent(oidcTransaction, true, signature);
     }
@@ -333,7 +333,7 @@ public class ConsentHelperServiceTest {
 
         PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
         publicKeyRegistry.setCertificate(certificateString);
-        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
+        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);
@@ -410,7 +410,7 @@ public class ConsentHelperServiceTest {
 
         PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
         publicKeyRegistry.setCertificate(certificateString);
-        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
+        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);

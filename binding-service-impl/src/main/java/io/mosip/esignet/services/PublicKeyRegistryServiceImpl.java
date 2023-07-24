@@ -37,7 +37,7 @@ public class PublicKeyRegistryServiceImpl implements PublicKeyRegistryService {
     }
 
     @Override
-    public Optional<PublicKeyRegistry> findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(String idHash, String thumbPrint) {
+    public Optional<PublicKeyRegistry> findFirstByIdHashAndThumbprintAndExpiredtimes(String idHash, String thumbPrint) {
         Optional<io.mosip.esignet.entity.PublicKeyRegistry> optionalPublicKeyRegistry=publicKeyRegistryRepository
                 .findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(idHash,thumbPrint,LocalDateTime.now());
         if(optionalPublicKeyRegistry.isPresent()) {

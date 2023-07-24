@@ -208,7 +208,7 @@ public class ConsentHelperService {
             String thumbPrint=header.getX509CertSHA256Thumbprint().toString();
             String idHash=getIndividualIdHash(authorizationHelperService.getIndividualId(transaction));
             Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryService.
-                    findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(idHash,thumbPrint);
+                    findFirstByIdHashAndThumbprintAndExpiredtimes(idHash,thumbPrint);
             if(publicKeyRegistryOptional.isPresent())
             {
                 Certificate certificate=IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
