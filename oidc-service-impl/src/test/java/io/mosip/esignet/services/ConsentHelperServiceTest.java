@@ -9,9 +9,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.spi.ConsentService;
 import io.mosip.esignet.core.util.KafkaHelperService;
@@ -50,13 +52,16 @@ public class ConsentHelperServiceTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Mock
+    AuditPlugin auditHelper;
+
 
     @Test
     public void addUserConsent_withValidLinkedTransaction_thenPass()
     {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setAuthTransactionId("123");
-        oidcTransaction.setAcceptedClaims(List.of("name","email"));
+        oidcTransaction.setAcceptedClaims(List.of("name"));
         oidcTransaction.setPermittedScopes(null);
         oidcTransaction.setConsentAction(ConsentAction.CAPTURE);
 
@@ -66,13 +71,18 @@ public class ConsentHelperServiceTest {
         ClaimDetail userinfoNameClaimDetail = new ClaimDetail("name", new String[]{"value1a", "value1b"}, true);
         ClaimDetail idTokenClaimDetail = new ClaimDetail("token", new String[]{"value2a", "value2b"}, false);
         userinfo.put("name", userinfoNameClaimDetail);
-        userinfo.put("email",null);
         id_token.put("idTokenKey", idTokenClaimDetail);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
         oidcTransaction.setRequestedClaims(claims);
         consentHelperService.updateUserConsent(oidcTransaction, true, null);
+        UserConsent userConsent = new UserConsent();
+        userConsent.setHash("PxQIckCdFC5TPmL7_G7NH0Zs4UmHC74rGpOkyldqRpg");
+        userConsent.setClaims(claims);
+        userConsent.setAuthorizationScopes(Map.of());
+        userConsent.setAcceptedClaims(List.of("name"));
+        Mockito.verify(consentService).saveUserConsent(userConsent);
 
     }
 
@@ -81,7 +91,7 @@ public class ConsentHelperServiceTest {
     {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setAuthTransactionId("123");
-        oidcTransaction.setAcceptedClaims(List.of("name","email"));
+        oidcTransaction.setAcceptedClaims(List.of("value1"));
         oidcTransaction.setPermittedScopes(null);
         oidcTransaction.setConsentAction(ConsentAction.CAPTURE);
 
@@ -100,6 +110,33 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.saveUserConsent(Mockito.any())).thenReturn(new ConsentDetail());
 
         consentHelperService.updateUserConsent(oidcTransaction, false, "");
+        UserConsent userConsent = new UserConsent();
+        userConsent.setHash("Cgh8oWpNM84WPYQVvluGj616_kd4z60elVXtc7R_lXw");
+        userConsent.setClaims(claims);
+        userConsent.setAuthorizationScopes(Map.of());
+        userConsent.setAcceptedClaims(List.of("value1"));
+        userConsent.setSignature("");
+        Mockito.verify(consentService).saveUserConsent(userConsent);
+    }
+
+    @Test
+    public void addUserConsent_withValidWebTransactionNoClaimsAndScopes_thenPass()
+    {
+        String clientId  = "clientId";
+        String psuToken = "psuToken";
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setAuthTransactionId("123");
+        oidcTransaction.setAcceptedClaims(List.of());
+        oidcTransaction.setRequestedAuthorizeScopes(List.of());
+        oidcTransaction.setConsentAction(ConsentAction.NOCAPTURE);
+        oidcTransaction.setVoluntaryClaims(List.of());
+        oidcTransaction.setEssentialClaims(List.of());
+        oidcTransaction.setAcceptedClaims(List.of());
+        oidcTransaction.setPermittedScopes(List.of());
+        oidcTransaction.setClientId(clientId);
+        oidcTransaction.setPartnerSpecificUserToken(psuToken);
+        consentHelperService.updateUserConsent(oidcTransaction, false, "");
+        Mockito.verify(consentService).deleteUserConsent(clientId, psuToken);
     }
 
     @Test
