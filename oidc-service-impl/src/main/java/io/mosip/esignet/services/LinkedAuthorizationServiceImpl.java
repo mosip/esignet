@@ -121,7 +121,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkCodeResponse.setTransactionId(linkCodeRequest.getTransactionId());
         linkCodeResponse.setExpireDateTime(expireDateTime == null ? null :
                 expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
-        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkCodeRequest.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return linkCodeResponse;
     }
 
@@ -161,7 +161,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         //Publish message after successfully linking the transaction
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
-        auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return linkTransactionResponse;
     }
 
@@ -176,7 +176,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         otpResponse.setTransactionId(otpRequest.getTransactionId());
         otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
         otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
-        auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(otpRequest.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return otpResponse;
     }
 
@@ -200,7 +200,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
-        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
+        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -232,7 +232,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         LinkedKycAuthResponseV2 authRespDto = new LinkedKycAuthResponseV2();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
         authRespDto.setConsentAction(transaction.getConsentAction());
-        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
+        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -253,7 +253,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
-        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkedConsentRequest.getLinkedTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -276,7 +276,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
-        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkedConsentRequest.getLinkedTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -311,7 +311,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
         if(oidcTransaction != null) {
-            auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkAuthCodeRequest.getTransactionId(), oidcTransaction), null);
+            auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oidcTransaction.getTransactionId(), oidcTransaction), null);
             deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), oidcTransaction));
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
