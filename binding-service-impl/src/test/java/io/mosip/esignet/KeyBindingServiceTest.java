@@ -201,6 +201,7 @@ public class KeyBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("111111");
+		authChallenge.setFormat("alpha-numeric");
 		List<AuthChallenge> authChallengeList = new ArrayList();
 		authChallengeList.add(authChallenge);
 		walletBindingRequest.setChallengeList(authChallengeList);
@@ -210,7 +211,7 @@ public class KeyBindingServiceTest {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
 		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE_FORMAT));
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT));
 		}
 	}
 

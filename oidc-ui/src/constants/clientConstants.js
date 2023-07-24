@@ -64,14 +64,17 @@ const configurationKeys = {
   captchaEnableComponents: "captcha.enable", //comma separated list of components where captcha needs to be shown
   captchaSiteKey: "captcha.sitekey", //site key for ReCAPTCHA
 
-  linkCodeExpireInSec: "mosip.esignet.link-code-expire-in-secs",
+  linkAuthCodeExpireInSec: "mosip.esignet.link-auth-code-expire-in-secs",
   linkCodeDeferredTimeoutInSec: "mosip.esignet.link-status-deferred-response-timeout-secs",
   qrCodeDeepLinkURI: "mosip.esignet.qr-code.deep-link-uri",
   appDownloadURI: "mosip.esignet.qr-code.download-uri",
   signInWithQRCodeEnable: "mosip.esignet.qr-code.enable",
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
-  passwordRegex : "password.regex"
+  passwordRegex : "password.regex",
+  walletLogoURL: "wallet.logo-url",
+  consentScreenExpireInSec: "consent.screen.timeout-in-secs",
+  consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs"
 };
 
 export {

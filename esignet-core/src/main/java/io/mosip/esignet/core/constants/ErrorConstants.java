@@ -67,4 +67,6 @@ public class ErrorConstants {
     public static final String INVALID_CAPTCHA = "invalid_captcha";
     public static final String  INVALID_CERTIFICATE = "invalid_certificate";
     public static final String INVALID_SIGNATURE_FORMAT = "invalid_signature_format";
+    public static final String INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT = "invalid_auth_factor_type_or_challenge_format";
+
 }

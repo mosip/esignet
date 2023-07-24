@@ -6,12 +6,14 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ConsentDetail;
@@ -22,6 +24,7 @@ import io.mosip.esignet.core.dto.PublicKeyRegistry;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
 import io.mosip.esignet.core.spi.PublicKeyRegistryService;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -52,23 +55,44 @@ public class ConsentHelperService {
     @Autowired
     AuthorizationHelperService authorizationHelperService;
 
+    @Autowired
+    private AuditPlugin auditWrapper;
+
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
         userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
         Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
 
-        ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction,consent.get(), linked);
+        if (CollectionUtils.isEmpty(transaction.getVoluntaryClaims())
+                && CollectionUtils.isEmpty(transaction.getEssentialClaims())
+                && CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes())) {
+            transaction.setConsentAction(ConsentAction.NOCAPTURE);
+            transaction.setAcceptedClaims(List.of());
+            transaction.setPermittedScopes(List.of());
+        } else {
+            ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction, consent.get(), linked);
 
-        transaction.setConsentAction(consentAction);
+            transaction.setConsentAction(consentAction);
 
-        if(consentAction.equals(ConsentAction.NOCAPTURE)) {
-            transaction.setAcceptedClaims(consent.get().getAcceptedClaims()); //NOSONAR consent is already evaluated to be not null
-            transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
+            if (consentAction.equals(ConsentAction.NOCAPTURE)) {
+                transaction.setAcceptedClaims(consent.get().getAcceptedClaims()); //NOSONAR consent is already evaluated to be not null
+                transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
+            }
+            }
         }
-    }
 
-    public void addUserConsent(OIDCTransaction transaction, boolean linked, String signature) {
+
+    public void updateUserConsent(OIDCTransaction transaction, boolean linked, String signature){
+        if (ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())
+                && transaction.getEssentialClaims().isEmpty()
+                && transaction.getVoluntaryClaims().isEmpty()
+                && transaction.getRequestedAuthorizeScopes().isEmpty()
+        ) {
+            //delete old consent if it exists since this scenario doesn't require capture of consent.
+            consentService.deleteUserConsent(transaction.getClientId(), transaction.getPartnerSpecificUserToken());
+            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(), transaction), null);
+        }
         if (ConsentAction.CAPTURE.equals(transaction.getConsentAction())) {
             UserConsent userConsent = new UserConsent();
             userConsent.setClientId(transaction.getClientId());
@@ -93,24 +117,12 @@ public class ConsentHelperService {
             } catch (JsonProcessingException e) {
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
-            ConsentDetail consentDetail = new ConsentDetail();
-            consentDetail.setPsuToken(userConsent.getPsuToken());
-            consentDetail.setClientId(userConsent.getClientId());
-            consentDetail.setClaims(userConsent.getClaims());
-            consentDetail.setAuthorizationScopes(userConsent.getAuthorizationScopes());
-            consentDetail.setExpiredtimes(userConsent.getExpirydtimes());
-            consentDetail.setHash(userConsent.getHash());
-            consentDetail.setSignature(userConsent.getSignature());
-            consentDetail.setAcceptedClaims(userConsent.getAcceptedClaims());
-            consentDetail.setPermittedScopes(userConsent.getPermittedScopes());
-            if (linked && !verifyConsentSignature(consentDetail,transaction)) {
-                throw new EsignetException(ErrorConstants.INVALID_CLAIM);
-            }
             consentService.saveUserConsent(userConsent);
+            auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getAuthTransactionId(), transaction), null);
         }
     }
 
-    public Map<String, ClaimDetail> normalizeClaims(Map<String, ClaimDetail> claims){
+    public Map<String, ClaimDetail> normalizeClaims (Map < String, ClaimDetail > claims){
         return claims.entrySet().stream().collect(
                 Collectors.toMap(
                         Map.Entry::getKey,
@@ -122,13 +134,14 @@ public class ConsentHelperService {
         );
     }
 
-    public String hashUserConsent(Claims claims,Map<String, Boolean> authorizeScopes) throws JsonProcessingException {
+    public String hashUserConsent (Claims claims, Map < String, Boolean > authorizeScopes) throws
+    JsonProcessingException {
 
-        Map<String,Object> claimsAndAuthorizeScopes = new LinkedHashMap<>();
+        Map<String, Object> claimsAndAuthorizeScopes = new LinkedHashMap<>();
 
         List<Map.Entry<String, ClaimDetail>> entryList;
         Map<String, ClaimDetail> sortedMap = new LinkedHashMap<>();
-        if(claims.getUserinfo()!=null){
+        if (claims.getUserinfo() != null) {
             entryList = new ArrayList<>(claims.getUserinfo().entrySet());
             sortClaims(entryList, sortedMap);
         }
@@ -137,12 +150,11 @@ public class ConsentHelperService {
         {
             entryList = new ArrayList<>(claims.getId_token().entrySet());
             sortClaims(entryList, sortedMap);
-
         }
         //Now for authorizeScopes
-        Map<String,Boolean> sortedAuthorzeScopeMap=new LinkedHashMap<>();
+        Map<String, Boolean> sortedAuthorzeScopeMap = new LinkedHashMap<>();
 
-        List<Map.Entry<String,Boolean>>authorizeScopesList = new ArrayList<>(authorizeScopes.entrySet());
+        List<Map.Entry<String, Boolean>> authorizeScopesList = new ArrayList<>(authorizeScopes.entrySet());
         authorizeScopesList.sort(new Comparator<Map.Entry<String, Boolean>>() {
             public int compare(Map.Entry<String, Boolean> o1, Map.Entry<String, Boolean> o2) {
                 return o1.getKey().compareTo(o2.getKey());
@@ -151,13 +163,14 @@ public class ConsentHelperService {
         for (Map.Entry<String, Boolean> entry : authorizeScopesList) {
             sortedAuthorzeScopeMap.put(entry.getKey(), entry.getValue());
         }
-        claimsAndAuthorizeScopes.put("claims",sortedMap);
-        claimsAndAuthorizeScopes.put("authorizeScopes",sortedAuthorzeScopeMap);
-        String s=claimsAndAuthorizeScopes.toString().trim().replace(" ","");
+        claimsAndAuthorizeScopes.put("claims", sortedMap);
+        claimsAndAuthorizeScopes.put("authorizeScopes", sortedAuthorzeScopeMap);
+        String s = claimsAndAuthorizeScopes.toString().trim().replace(" ", "");
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, s);
     }
 
-    private static void sortClaims(List<Map.Entry<String, ClaimDetail>> entryList, Map<String, ClaimDetail> sortedMap) {
+    private static void sortClaims
+    (List < Map.Entry < String, ClaimDetail >> entryList, Map < String, ClaimDetail > sortedMap){
         entryList.sort(new Comparator<>() {
             public int compare(Map.Entry<String, ClaimDetail> o1, Map.Entry<String, ClaimDetail> o2) {
                 return o1.getKey().compareTo(o2.getKey());
@@ -168,22 +181,23 @@ public class ConsentHelperService {
         }
     }
 
-    private static ClaimDetail sortClaimDetail(ClaimDetail claimDetail){
-        if(claimDetail!= null && claimDetail.getValues() != null) {
+    private static ClaimDetail sortClaimDetail (ClaimDetail claimDetail){
+        if (claimDetail != null && claimDetail.getValues() != null) {
             Arrays.sort(claimDetail.getValues());
         }
         return claimDetail;
     }
 
-    private ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail, boolean linked) {
+    private ConsentAction evaluateConsentAction (OIDCTransaction transaction, ConsentDetail consentDetail,
+    boolean linked){
         String hash;
         try {
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-            if(linked) {
-                if (!verifyConsentSignature(consentDetail,transaction))
-                    return ConsentAction.CAPTURE;
-            }
+        if(linked) {
+            if (!verifyConsentSignature(consentDetail,transaction))
+                return ConsentAction.CAPTURE;
+        }
             Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
                     .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
             Claims normalizedClaims = new Claims();
@@ -197,69 +211,66 @@ public class ConsentHelperService {
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
 
-    public boolean verifyConsentSignature(ConsentDetail consentDetail,OIDCTransaction transaction) {
-        try{
+    public boolean verifyConsentSignature (ConsentDetail consentDetail, OIDCTransaction transaction){
+        try {
             String jwtToken = generateSignedObject(consentDetail);
             if (StringUtils.isEmpty(jwtToken)) {
                 return false;
             }
             SignedJWT signedJWT = SignedJWT.parse(jwtToken);
             JWSHeader header = signedJWT.getHeader();
-            String thumbPrint=header.getX509CertSHA256Thumbprint().toString();
-            String idHash=getIndividualIdHash(authorizationHelperService.getIndividualId(transaction));
-            Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryService.
-                    findFirstByIdHashAndThumbprintAndExpiredtimes(idHash,thumbPrint);
-            if(publicKeyRegistryOptional.isPresent())
-            {
-                Certificate certificate=IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
-                PublicKey publicKey =certificate.getPublicKey();
+            String thumbPrint = header.getX509CertSHA256Thumbprint().toString();
+            String idHash = getIndividualIdHash(authorizationHelperService.getIndividualId(transaction));
+            Optional<PublicKeyRegistry> publicKeyRegistryOptional = publicKeyRegistryService.
+                    findFirstByIdHashAndThumbprintAndExpiredtimes(idHash, thumbPrint);
+            if (publicKeyRegistryOptional.isPresent()) {
+                Certificate certificate = IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
+                PublicKey publicKey = certificate.getPublicKey();
                 JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
                 log.info("signed jwt {} ", signedJWT);
-                if(signedJWT.verify(verifier)){
+                if (signedJWT.verify(verifier)) {
                     return true;
                 }
             }
             return false;
-        } catch (ParseException | JOSEException e)
-        {
+        } catch (ParseException | JOSEException e) {
             throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
         }
     }
 
-    public String getIndividualIdHash(String individualId) {
+    public String getIndividualIdHash (String individualId){
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId);
     }
 
-    private String generateSignedObject(ConsentDetail consentDetail) throws ParseException {
+    private String generateSignedObject (ConsentDetail consentDetail) throws ParseException {
         List<String> acceptedClaims = consentDetail.getAcceptedClaims();
         List<String> permittedScopes = consentDetail.getPermittedScopes();
         String jws = consentDetail.getSignature();
-        if(!signatureFormatValidate(jws))return null;
+        if (!signatureFormatValidate(jws)) return null;
         String[] parts = jws.split("\\.");
 
         String header = parts[0];
         String signature = parts[1];
-        if(!CollectionUtils.isEmpty(acceptedClaims))
-        Collections.sort(acceptedClaims);
-        if(!CollectionUtils.isEmpty(permittedScopes))
-        Collections.sort(permittedScopes);
+        if (!CollectionUtils.isEmpty(acceptedClaims))
+            Collections.sort(acceptedClaims);
+        if (!CollectionUtils.isEmpty(permittedScopes))
+            Collections.sort(permittedScopes);
 
-        Map<String,Object> payLoadMap = new TreeMap<>();
-        payLoadMap.put("accepted_claims",acceptedClaims);
-        payLoadMap.put("permitted_authorized_scopes",permittedScopes);
+        Map<String, Object> payLoadMap = new TreeMap<>();
+        payLoadMap.put("accepted_claims", acceptedClaims);
+        payLoadMap.put("permitted_authorized_scopes", permittedScopes);
 
-        Payload payload=new Payload(new JSONObject(payLoadMap).toJSONString());
+        Payload payload = new Payload(new JSONObject(payLoadMap).toJSONString());
         StringBuilder sb = new StringBuilder();
         sb.append(header).append(".").append(payload.toBase64URL()).append(".").append(signature);
         return sb.toString();
     }
 
-    private boolean signatureFormatValidate(String signature)
+    private boolean signatureFormatValidate (String signature)
     {
-        if(signature==null || signature.isEmpty())return false;
-        String jws[]=signature.split("\\.");
-        if(jws.length!=2)return false;
+        if (signature == null || signature.isEmpty()) return false;
+        String jws[] = signature.split("\\.");
+        if (jws.length != 2) return false;
         return true;
     }
-
 }
