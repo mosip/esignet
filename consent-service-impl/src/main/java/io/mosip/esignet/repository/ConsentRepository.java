@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 @Repository
 public interface ConsentRepository extends JpaRepository<ConsentDetail, UUID> {
+      boolean existsByClientIdAndPsuToken(String clientId, String psuToken);
       Optional<ConsentDetail> findByClientIdAndPsuToken(String clientId, String psuToken);
       void deleteByClientIdAndPsuToken(String clientId, String psuToken);
 
