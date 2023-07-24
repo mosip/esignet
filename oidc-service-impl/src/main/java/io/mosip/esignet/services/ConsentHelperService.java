@@ -261,6 +261,5 @@ public class ConsentHelperService {
         if(jws.length!=2)return false;
         return true;
     }
-    private static final ObjectMapper mapper = new ObjectMapper();
 
 }
