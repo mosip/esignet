@@ -27,6 +27,18 @@ public interface LinkedAuthorizationService {
     LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws EsignetException;
 
     /**
+     * Starts a linked-transaction for the provided valid and active link-code.
+     * The started linked-transaction is identified with linked-transaction-id
+     * 
+     * This response will contain map instead of string in clientName, which
+     * contain client's name in multiple language, where key is the language code
+     * and the default client name is provided as value for the key @none
+     * @param linkTransactionRequest
+     * @return
+     */
+    LinkTransactionV2Response linkTransactionV2(LinkTransactionRequest linkTransactionRequest) throws EsignetException;
+
+    /**
      * Returns the status of linked-transaction if any.
      * @param linkStatusRequest
      * @return
