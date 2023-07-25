@@ -53,9 +53,14 @@
 
    > http://localhost:8088/v1/esignet/swagger-ui.html
 
-8. Also find the latest postman collection under "docs" folder with environment json
+8. Mock plugins connect to mock-identity-system, refer below document to start mock-identity-system in parallel
+   
+   > https://github.com/mosip/esignet-mock-services/tree/develop/mock-identity-system#local-setup-of-mock-identity-system
 
-   Order of execution in portman script for OIDC flow is:
+9. Also find the latest postman collection under "docs/postman-collections" folder with environment json
+
+   Order of execution in postman script for OIDC flow is:
+     * Create identity
      * Create OIDC client
      * Authorize / OAuthdetails request
      * Send OTP 
