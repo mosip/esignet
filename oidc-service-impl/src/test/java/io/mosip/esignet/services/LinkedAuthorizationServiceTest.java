@@ -23,6 +23,8 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import io.mosip.esignet.core.util.LinkCodeQueue;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +39,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static org.mockito.ArgumentMatchers.any;
@@ -249,6 +252,72 @@ public class LinkedAuthorizationServiceTest {
 
         try {
             linkedAuthorizationService.linkTransaction(linkTransactionRequest);
+            Assert.fail();
+        } catch (InvalidTransactionException ex) {
+            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void linkTransactionV2_withValidInput_thenPass() {
+        String transactionId = "transaction-id";
+        Claims claims = new Claims();
+        ClaimDetail claimDetail = new ClaimDetail();
+        claimDetail.setValues(new String[]{"mosip:idp:acr:static-code"});
+        Map<String, ClaimDetail> map = new HashMap<>();
+        map.put(ACR, claimDetail);
+        claims.setId_token(map);
+        Map<String, ClaimDetail> userinfoMap = new HashMap<>();
+        userinfoMap.put("name", new ClaimDetail());
+        userinfoMap.get("name").setEssential(true);
+        userinfoMap.put("phone_number", new ClaimDetail());
+        claims.setUserinfo(userinfoMap);
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setRequestedClaims(claims);
+
+        LinkTransactionMetadata linkTransactionMetadata = new LinkTransactionMetadata(transactionId, null);
+        Mockito.when(cacheUtilService.getLinkCodeGenerated(Mockito.anyString())).thenReturn(linkTransactionMetadata);
+        Mockito.when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(oidcTransaction);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setName("client-name");
+        clientDetail.setLogoUri("https://test-client-portal/logo.png");
+        when(clientManagementService.getClientDetails(oidcTransaction.getClientId())).thenReturn(clientDetail);
+        when(cacheUtilService.setLinkedTransaction(transactionId, oidcTransaction)).thenReturn(oidcTransaction);
+        when(authenticationContextClassRefUtil.getAuthFactors(claimDetail.getValues())).thenReturn(new ArrayList<>());
+
+        LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
+        linkTransactionRequest.setLinkCode("link-code");
+        LinkTransactionV2Response linkTransactionV2Response = linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
+        Assert.assertNotNull(linkTransactionV2Response);
+        Assert.assertEquals(convertClientName(clientDetail.getName()), linkTransactionV2Response.getClientName());
+        Assert.assertEquals(clientDetail.getLogoUri(), linkTransactionV2Response.getLogoUrl());
+        Assert.assertNotNull(linkTransactionV2Response.getLinkTransactionId());
+    }
+
+    @Test
+    public void linkTransactionV2_withInvalidLinkCode_thenFail() {
+        LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
+        linkTransactionRequest.setLinkCode("link-code");
+        try {
+            linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(ErrorConstants.INVALID_LINK_CODE, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void linkTransactionV2_withInvalidTransactionId_thenFail() {
+        LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
+        linkTransactionRequest.setLinkCode("link-code");
+
+        LinkTransactionMetadata linkTransactionMetadata = new LinkTransactionMetadata("transaction-id", null);
+        Mockito.when(cacheUtilService.getLinkCodeGenerated(Mockito.anyString())).thenReturn(linkTransactionMetadata);
+
+        try {
+            linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
             Assert.fail();
         } catch (InvalidTransactionException ex) {
             Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
@@ -553,6 +622,21 @@ public class LinkedAuthorizationServiceTest {
         setErrorHandler(deferredResult);
         linkedAuthorizationService.getLinkAuthCode(deferredResult, linkAuthCodeRequest);
         Assert.assertNull(deferredResult.getResult());
+    }
+
+    private Map<String, String> convertClientName(String clientName) {
+        Map<String, String> clientNameMap = new HashMap<>();
+        try {
+            new JSONObject(clientName);
+            clientNameMap = Arrays
+                    .stream(clientName.replaceAll("[\"|\\{|\\}]","").split(","))
+                    .map(entry -> entry.split(":"))
+                    .collect(Collectors.toMap(entry -> entry[0], entry -> entry[1]));
+        } catch (JSONException e) {
+            clientNameMap.put("@none", clientName);
+            return clientNameMap;
+        }
+        return clientNameMap;
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {

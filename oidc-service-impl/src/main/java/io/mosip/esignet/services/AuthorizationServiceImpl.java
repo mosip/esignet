@@ -27,6 +27,8 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -107,11 +109,58 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oauthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oauthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
         oauthDetailResponse.setConfigs(uiConfigMap);
-        oauthDetailResponse.setClientName(clientDetailDto.getName());
+        oauthDetailResponse.setClientName(convertClientNameToString(clientDetailDto.getName()));
         oauthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
         oauthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 
         //Cache the transaction
+        setTransactionAndLogAudit(oauthDetailReqDto, clientDetailDto, resolvedClaims,
+                oauthDetailResponse.getAuthorizeScopes(), getOauthDetailsResponseHash(oauthDetailResponse), transactionId);;
+
+        return oauthDetailResponse;
+    }
+
+    @Override
+    public OAuthDetailV2Response getOauthDetailsV2(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
+
+        //Resolve the final set of claims based on registered and request parameter.
+        Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, clientDetailDto);
+        //Resolve and set ACR claim
+        resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(),
+                oauthDetailReqDto.getAcrValues(), oauthDetailReqDto.getClaims()));
+        log.info("Final resolved claims : {}", resolvedClaims);
+
+        final String transactionId = IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce());
+        OAuthDetailV2Response oAuthDetailV2Response = new OAuthDetailV2Response();
+        oAuthDetailV2Response.setTransactionId(transactionId);
+        oAuthDetailV2Response.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
+                resolvedClaims.getId_token().get(ACR).getValues()
+        ));
+
+        Map<String, List> claimsMap = authorizationHelperService.getClaimNames(resolvedClaims);
+        oAuthDetailV2Response.setEssentialClaims(claimsMap.get(ESSENTIAL));
+        oAuthDetailV2Response.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
+        oAuthDetailV2Response.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
+        oAuthDetailV2Response.setConfigs(uiConfigMap);
+        Map<String, String> clientNameMap = convertClientNameToMap(clientDetailDto.getName());
+        oAuthDetailV2Response.setClientName(clientNameMap);
+        oAuthDetailV2Response.setLogoUrl(clientDetailDto.getLogoUri());
+        oAuthDetailV2Response.setRedirectUri(oauthDetailReqDto.getRedirectUri());
+
+        //Cache the transaction
+        setTransactionAndLogAudit(oauthDetailReqDto, clientDetailDto, resolvedClaims,
+                oAuthDetailV2Response.getAuthorizeScopes(), getOauthDetailsResponseHash(oAuthDetailV2Response), transactionId);
+
+        return oAuthDetailV2Response;
+    }
+
+    private void setTransactionAndLogAudit(
+            OAuthDetailRequest oauthDetailReqDto, ClientDetail clientDetailDto, Claims resolvedClaims,
+            List<String> authorizeScopes, String oauthDetailsHash, String transactionId) {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setTransactionId(transactionId);
         oidcTransaction.setEssentialClaims(oauthDetailResponse.getEssentialClaims());
@@ -120,17 +169,37 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
         oidcTransaction.setClientId(clientDetailDto.getId());
         oidcTransaction.setRequestedClaims(resolvedClaims);
-        oidcTransaction.setRequestedAuthorizeScopes(oauthDetailResponse.getAuthorizeScopes());
+        oidcTransaction.setRequestedAuthorizeScopes(authorizeScopes);
         oidcTransaction.setNonce(oauthDetailReqDto.getNonce());
         oidcTransaction.setState(oauthDetailReqDto.getState());
         oidcTransaction.setClaimsLocales(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getClaimsLocales(), SPACE));
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(transactionId));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oauthDetailResponse));
+        oidcTransaction.setOauthDetailsHash(oauthDetailsHash);
+
         cacheUtilService.setTransaction(transactionId, oidcTransaction);
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, oidcTransaction), null);
-        return oauthDetailResponse;
+    }
+
+    private Map<String, String> convertClientNameToMap(String clientName) {
+        Map<String, String> clientNameMap = new HashMap<>();
+        try {
+            new JSONObject(clientName);
+            clientNameMap = Arrays
+                    .stream(clientName.replaceAll("[\"|\\{|\\}]","").split(","))
+                    .map(entry -> entry.split(":"))
+                    .collect(Collectors.toMap(entry -> entry[0], entry -> entry[1]));
+        } catch (JSONException e) {
+            clientNameMap.put("@none", clientName);
+            return clientNameMap;
+        }
+        return clientNameMap;
+    }
+
+    private String convertClientNameToString(String clientName) {
+        Map<String, String> clientNameMap = convertClientNameToMap(clientName);
+        return clientNameMap.get("@none");
     }
 
     @Override
@@ -310,6 +379,16 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
         try {
             String json = objectMapper.writeValueAsString(oauthDetailResponse);
+            return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
+        } catch (Exception e) {
+            log.error("Failed to generate oauth-details-response hash", e);
+        }
+        throw new EsignetException(ErrorConstants.FAILED_TO_GENERATE_HEADER_HASH);
+    }
+
+    private String getOauthDetailsResponseHash(OAuthDetailV2Response oauthDetailV2Response) {
+        try {
+            String json = objectMapper.writeValueAsString(oauthDetailV2Response);
             return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
         } catch (Exception e) {
             log.error("Failed to generate oauth-details-response hash", e);

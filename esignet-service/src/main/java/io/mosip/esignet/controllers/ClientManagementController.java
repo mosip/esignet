@@ -35,6 +35,16 @@ public class ClientManagementController {
     @Value("${mosip.esignet.audit.claim-name:preferred_username}")
     private String claimName;
 
+    /**
+     * @deprecated
+     * This method is no longer acceptable to create oidc client
+     * <p> Use {@link ClientManagementController#createClientV2(RequestWrapper<ClientDetailCreateRequest>)} </p>
+     *
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     */
+    @Deprecated()
     @RequestMapping(value = "/client-mgmt/oidc-client", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseWrapper<ClientDetailResponse> createClient(
@@ -51,6 +61,16 @@ public class ClientManagementController {
         return response;
     }
 
+    /**
+     * @deprecated
+     * This method is no longer acceptable to update oidc client
+     * <p> Use {@link ClientManagementController#updateClientV2(String, RequestWrapper<ClientDetailUpdateRequest>)} </p>
+     *
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     */
+    @Deprecated()
     @RequestMapping(value = "/client-mgmt/oidc-client/{client_id}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseWrapper<ClientDetailResponse> updateClient(@Valid @PathVariable("client_id") String clientId,
@@ -66,4 +86,35 @@ public class ClientManagementController {
         response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         return response;
     }
+
+    @PostMapping(value = "/client-mgmt/v2/oidc-client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseWrapper<ClientDetailResponse> createClientV2(@Valid @RequestBody RequestWrapper<ClientDetailCreateV2Request> requestWrapper) throws Exception {
+        ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
+        try {
+            response.setResponse(clientManagementService.createOIDCClientV2(requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                    Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
+        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        return response;
+    }
+
+
+    @PutMapping(value = "/client-mgmt/v2/oidc-client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseWrapper<ClientDetailResponse> updateClientV2(@Valid @PathVariable("client_id") String clientId,
+                                                              @Valid @RequestBody RequestWrapper<ClientDetailUpdateV2Request> requestWrapper) throws Exception {
+        ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
+        try {
+            response.setResponse(clientManagementService.updateOIDCClientV2(clientId, requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                    Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
+            throw ex;
+        }
+        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        return response;
+    }
+
 }
