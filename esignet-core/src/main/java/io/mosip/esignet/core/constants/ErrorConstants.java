@@ -10,6 +10,8 @@ public class ErrorConstants {
     public static final String INVALID_REQUEST="invalid_request";
     public static final String INVALID_CLIENT_ID="invalid_client_id";
     public static final String INVALID_CLIENT_NAME="invalid_client_name";
+    public static final String INVALID_CLIENT_NAME_MAP_KEY="invalid_language_code";
+    public static final String INVALID_CLIENT_NAME_MAP_VALUE="invalid_client_name_value";
     public static final String INVALID_URI="invalid_uri";
     public static final String INVALID_RP_ID="invalid_rp_id";
     public static final String INVALID_RESPONSE_TYPE="invalid_response_type";

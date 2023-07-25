@@ -23,6 +23,8 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -33,9 +35,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.esignet.core.constants.Constants.*;
@@ -155,7 +155,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
         linkTransactionResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         linkTransactionResponse.setAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
-        linkTransactionResponse.setClientName(clientDetailDto.getName());
+        linkTransactionResponse.setClientName(convertClientNameToString(clientDetailDto.getName()));
         linkTransactionResponse.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionResponse.setConfigs(uiConfigMap);
 
@@ -163,6 +163,68 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
         auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return linkTransactionResponse;
+    }
+
+    @Override
+    public LinkTransactionV2Response linkTransactionV2(LinkTransactionRequest linkTransactionRequest) throws EsignetException {
+        String linkCodeHash = authorizationHelperService.getKeyHash(linkTransactionRequest.getLinkCode());
+        LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
+        if(linkTransactionMetadata == null || linkTransactionMetadata.getTransactionId() == null)
+            throw new EsignetException(ErrorConstants.INVALID_LINK_CODE);
+
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(linkTransactionMetadata.getTransactionId());
+        if(transaction == null)
+            throw new InvalidTransactionException();
+
+        log.info("Valid link-code provided, proceeding to generate linkTransactionId");
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
+
+        //if valid, generate link-transaction-id and move transaction from preauth to linked cache
+        String linkedTransactionId = IdentityProviderUtil.createTransactionId(transaction.getNonce());
+        transaction.setLinkedTransactionId(linkedTransactionId);
+        transaction.setLinkedCodeHash(linkCodeHash);
+        transaction = cacheUtilService.setLinkedTransaction(linkTransactionMetadata.getTransactionId(), transaction);
+        linkTransactionMetadata.setLinkedTransactionId(linkedTransactionId);
+        cacheUtilService.setLinkedCode(linkCodeHash, linkTransactionMetadata);
+
+        LinkTransactionV2Response linkTransactionV2Response = new LinkTransactionV2Response();
+        linkTransactionV2Response.setLinkTransactionId(linkedTransactionId);
+        linkTransactionV2Response.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
+                transaction.getRequestedClaims().getId_token().get(ACR).getValues()));
+        Map<String, List> claimsMap = authorizationHelperService.getClaimNames(transaction.getRequestedClaims());
+        linkTransactionV2Response.setEssentialClaims(claimsMap.get(ESSENTIAL));
+        linkTransactionV2Response.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
+        linkTransactionV2Response.setAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
+        linkTransactionV2Response.setLogoUrl(clientDetailDto.getLogoUri());
+        linkTransactionV2Response.setConfigs(uiConfigMap);
+
+        Map<String, String> clientNameMap = convertClientNameToMap(clientDetailDto.getName());
+        linkTransactionV2Response.setClientName(clientNameMap);
+
+        //Publish message after successfully linking the transaction
+        kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
+        auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
+        return linkTransactionV2Response;
+    }
+
+    private Map<String, String> convertClientNameToMap(String clientName) {
+        Map<String, String> clientNameMap = new HashMap<>();
+        try {
+            new JSONObject(clientName);
+            clientNameMap = Arrays
+                    .stream(clientName.replaceAll("[\"|\\{|\\}]","").split(","))
+                    .map(entry -> entry.split(":"))
+                    .collect(Collectors.toMap(entry -> entry[0], entry -> entry[1]));
+        } catch (JSONException e) {
+            clientNameMap.put("@none", clientName);
+            return clientNameMap;
+        }
+        return clientNameMap;
+    }
+
+    private String convertClientNameToString(String clientName) {
+        Map<String, String> clientNameMap = convertClientNameToMap(clientName);
+        return clientNameMap.get("@none");
     }
 
     @Override

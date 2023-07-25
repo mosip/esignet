@@ -15,15 +15,19 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 import io.mosip.esignet.core.dto.ClientDetailResponse;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
+import io.mosip.esignet.core.dto.ClientDetailCreateV2Request;
+import io.mosip.esignet.core.dto.ClientDetailUpdateV2Request;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
-import io.mosip.esignet.core.util.*;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.json.simple.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
@@ -57,14 +62,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     private List<String> NULL = Collections.singletonList(null);
 
-    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
-    @Override
-    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
-        if (result.isPresent()) {
-            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
-        }
-
+    private ClientDetail buildClientDetailEntity(ClientDetailCreateRequest clientDetailCreateRequest) {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId(clientDetailCreateRequest.getClientId());
         clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequest.getPublicKey()));
@@ -90,31 +88,10 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setStatus(CLIENT_ACTIVE_STATUS);
         clientDetail.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
 
-        try {
-            clientDetail = clientDetailRepository.save(clientDetail);
-        } catch (ConstraintViolationException cve) {
-            log.error("Failed to create client details", cve);
-            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
-        }
-
-        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-        		Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
-
-        var response = new ClientDetailResponse();
-        response.setClientId(clientDetail.getId());
-        response.setStatus(clientDetail.getStatus());
-        return response;
+        return clientDetail;
     }
 
-    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
-    @Override
-    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
-        if (!result.isPresent()) {
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
-        }
-
-        ClientDetail clientDetail = result.get();
+    private ClientDetail buildClientDetailEntity(ClientDetail clientDetail, ClientDetailUpdateRequest clientDetailUpdateRequest) {
         clientDetail.setName(clientDetailUpdateRequest.getClientName());
         clientDetail.setLogoUri(clientDetailUpdateRequest.getLogoUri());
 
@@ -134,15 +111,63 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setClientAuthMethods(JSONArray.toJSONString(clientDetailUpdateRequest.getClientAuthMethods()));
         clientDetail.setStatus(clientDetailUpdateRequest.getStatus());
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
+        return clientDetail;
+    }
+
+    private ClientDetailResponse getClientDetailResponse(ClientDetail clientDetail) {
+        var response = new ClientDetailResponse();
+        response.setClientId(clientDetail.getId());
+        response.setStatus(clientDetail.getStatus());
+        return response;
+    }
+
+    private String getClientNameLanguageMapAsJsonString(Map<String, String> clientNameMap, String clientName) {
+        clientNameMap.put("@none", clientName);
+        JSONObject clientNameObject = new JSONObject(clientNameMap);
+        return clientNameObject.toString();
+    }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
+    @Override
+    public ClientDetailResponse createOIDCClient(ClientDetailCreateRequest clientDetailCreateRequest) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequest.getClientId());
+        if (result.isPresent()) {
+            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateRequest);
+
+        try {
+            clientDetail = clientDetailRepository.save(clientDetail);
+        } catch (ConstraintViolationException cve) {
+            log.error("Failed to create client details", cve);
+            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+        }
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+        		Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequest.getClientId()), null);
+
+        return getClientDetailResponse(clientDetail);
+    }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
+    @Override
+    public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+        if (!result.isPresent()) {
+            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateRequest);
+
         clientDetail = clientDetailRepository.save(clientDetail);
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
         		Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
-        var response = new ClientDetailResponse();
-        response.setClientId(clientDetail.getId());
-        response.setStatus(clientDetail.getStatus());
-        return response;
+        return getClientDetailResponse(clientDetail);
     }
 
     @Cacheable(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
@@ -173,4 +198,60 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
         return dto;
     }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateV2Request.getClientId()")
+    @Override
+    public ClientDetailResponse createOIDCClientV2(ClientDetailCreateV2Request clientDetailCreateV2Request) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateV2Request.getClientId());
+        if (result.isPresent()) {
+            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateV2Request);
+
+        String clientName = getClientNameLanguageMapAsJsonString(
+                clientDetailCreateV2Request.getClientNameLangMap(),
+                clientDetailCreateV2Request.getClientName()
+        );
+        clientDetail.setName(clientName);
+
+        try {
+            clientDetail = clientDetailRepository.save(clientDetail);
+        } catch (ConstraintViolationException cve) {
+            log.error("Failed to create client details", cve);
+            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+        }
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateV2Request.getClientId()), null);
+
+        return getClientDetailResponse(clientDetail);
+    }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
+    @Override
+    public ClientDetailResponse updateOIDCClientV2(String clientId, ClientDetailUpdateV2Request clientDetailUpdateV2Request) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+        if (!result.isPresent()) {
+            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateV2Request);
+
+        String clientName = getClientNameLanguageMapAsJsonString(
+                clientDetailUpdateV2Request.getClientNameLangMap(),
+                clientDetailUpdateV2Request.getClientName()
+        );
+        clientDetail.setName(clientName);
+
+        clientDetail = clientDetailRepository.save(clientDetail);
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
+
+        return getClientDetailResponse(clientDetail);
+    }
+
 }
