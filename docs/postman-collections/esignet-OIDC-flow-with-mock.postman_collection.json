@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "72de942d-aec3-4be1-8c60-844a13699599",
-		"name": "e-Signet OIDC",
+		"name": "esignet-OIDC-flow-with-mock",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20579541"
 	},
