@@ -284,6 +284,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
@@ -297,6 +298,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
@@ -319,6 +321,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
@@ -339,6 +342,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
 		Assert.assertNotNull(publicKeyRegistry);

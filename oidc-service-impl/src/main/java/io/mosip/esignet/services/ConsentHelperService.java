@@ -234,7 +234,7 @@ public class ConsentHelperService {
             }
             return false;
         } catch (ParseException | JOSEException e) {
-            throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
+            throw new EsignetException(ErrorConstants.INVALID_AUTH_TOKEN);
         }
     }
 
