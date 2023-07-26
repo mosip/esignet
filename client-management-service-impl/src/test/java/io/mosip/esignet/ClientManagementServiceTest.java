@@ -97,7 +97,7 @@ public class ClientManagementServiceTest {
 
     @Test
     public void createClientV2_withValidDetail_thenPass() throws Exception {
-        ClientDetailCreateV2Request clientCreateV2ReqDto = new ClientDetailCreateV2Request();
+        ClientDetailCreateRequestV2 clientCreateV2ReqDto = new ClientDetailCreateRequestV2();
         Map<String, String> clientnameLangMap = new HashMap<>();
         clientnameLangMap.put("eng", "client_name_v1");
         clientCreateV2ReqDto.setClientId("mock_id_v1");
@@ -125,7 +125,7 @@ public class ClientManagementServiceTest {
     @Test
     public void createClientV2_withExistingClientId_thenFail() {
         Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(new ClientDetail()));
-        ClientDetailCreateV2Request clientCreateV2ReqDto = new ClientDetailCreateV2Request();
+        ClientDetailCreateRequestV2 clientCreateV2ReqDto = new ClientDetailCreateRequestV2();
         clientCreateV2ReqDto.setClientId("client_id_v1");
         try {
             clientManagementService.createOIDCClientV2(clientCreateV2ReqDto);
@@ -199,7 +199,7 @@ public class ClientManagementServiceTest {
         clientDetail.setRedirectUris("[\"https://service.com/home\",\"https://service.com/dashboard\", \"v1/idp\"]");
         Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(clientDetail));
 
-        ClientDetailUpdateV2Request updateV2Request = new ClientDetailUpdateV2Request();
+        ClientDetailUpdateRequestV2 updateV2Request = new ClientDetailUpdateRequestV2();
         updateV2Request.setClientNameLangMap(new HashMap<>());
         updateV2Request.setClientName("client_name_v1");
         updateV2Request.setLogoUri("http://service.com/logo.png");

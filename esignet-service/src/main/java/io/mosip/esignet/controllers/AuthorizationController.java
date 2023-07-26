@@ -55,7 +55,7 @@ public class AuthorizationController {
     }
 
     @PostMapping("/v2/oauth-details")
-    public ResponseWrapper<OAuthDetailV2Response> getOauthDetailsV2(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
+    public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV2(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                         requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());

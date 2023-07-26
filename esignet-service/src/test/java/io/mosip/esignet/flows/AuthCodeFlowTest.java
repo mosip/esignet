@@ -147,8 +147,8 @@ public class AuthCodeFlowTest {
         String redirectionUrl = "https://service.client.com/home";
         String code = null;
 
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         log.info("Successfully received oauth details : {}", oAuthDetailResponse);
 
         oauthDetailsKeyHeader = oAuthDetailResponse.getTransactionId();
@@ -305,7 +305,7 @@ public class AuthCodeFlowTest {
         return response;
     }
 
-    private ResponseWrapper<OAuthDetailResponse> getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
+    private ResponseWrapper<OAuthDetailResponseV1> getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
         oAuthDetailRequest.setClientId(clientId);
         oAuthDetailRequest.setRedirectUri(redirectionUrl);
@@ -334,8 +334,8 @@ public class AuthCodeFlowTest {
                 .andExpect(jsonPath("$.response.essentialClaims.length()").value(1))
                 .andExpect(jsonPath("$.response.voluntaryClaims.length()").value(2)).andReturn();
 
-        ResponseWrapper<OAuthDetailResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
-                new TypeReference<ResponseWrapper<OAuthDetailResponse>>() {});
+        ResponseWrapper<OAuthDetailResponseV1> response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<ResponseWrapper<OAuthDetailResponseV1>>() {});
         return response;
     }
 

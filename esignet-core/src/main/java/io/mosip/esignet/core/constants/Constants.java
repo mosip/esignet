@@ -40,4 +40,5 @@ public class Constants {
     public static final String ESSENTIAL = "essential";
     public static final String VOLUNTARY = "voluntary";
     public static final String LINKED_STATUS = "LINKED";
+    public static final String NONE_LANG_KEY = "@none";
 }

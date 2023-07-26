@@ -12,11 +12,8 @@ import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
-import io.mosip.esignet.core.dto.ClientDetailResponse;
-import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
-import io.mosip.esignet.core.dto.ClientDetailCreateV2Request;
-import io.mosip.esignet.core.dto.ClientDetailUpdateV2Request;
+import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.ClientDetailCreateRequestV2;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
@@ -37,10 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
 
@@ -122,7 +116,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     }
 
     private String getClientNameLanguageMapAsJsonString(Map<String, String> clientNameMap, String clientName) {
-        clientNameMap.put("@none", clientName);
+        clientNameMap.put(Constants.NONE_LANG_KEY, clientName);
         JSONObject clientNameObject = new JSONObject(clientNameMap);
         return clientNameObject.toString();
     }
@@ -179,7 +173,13 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         io.mosip.esignet.core.dto.ClientDetail dto = new io.mosip.esignet.core.dto.ClientDetail();
         dto.setId(clientId);
-        dto.setName(result.get().getName());
+        try {
+            dto.setName(objectMapper.readValue(result.get().getName(), new TypeReference<Map<String, String>>() {}));
+        } catch (Exception e) {
+            log.error("Failed to parse client name as json falling back to @none");
+            dto.setName(new HashMap<>());
+            dto.getName().put(Constants.NONE_LANG_KEY, result.get().getName());
+        }
         dto.setRpId(result.get().getRpId());
         dto.setLogoUri(result.get().getLogoUri());
         dto.setStatus(result.get().getStatus());
@@ -199,20 +199,20 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return dto;
     }
 
-    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateV2Request.getClientId()")
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequestV2.getClientId()")
     @Override
-    public ClientDetailResponse createOIDCClientV2(ClientDetailCreateV2Request clientDetailCreateV2Request) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateV2Request.getClientId());
+    public ClientDetailResponse createOIDCClientV2(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV2.getClientId());
         if (result.isPresent()) {
             log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateV2Request);
+        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateRequestV2);
 
         String clientName = getClientNameLanguageMapAsJsonString(
-                clientDetailCreateV2Request.getClientNameLangMap(),
-                clientDetailCreateV2Request.getClientName()
+                clientDetailCreateRequestV2.getClientNameLangMap(),
+                clientDetailCreateRequestV2.getClientName()
         );
         clientDetail.setName(clientName);
 
@@ -224,25 +224,25 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-                Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateV2Request.getClientId()), null);
+                Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequestV2.getClientId()), null);
 
         return getClientDetailResponse(clientDetail);
     }
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
-    public ClientDetailResponse updateOIDCClientV2(String clientId, ClientDetailUpdateV2Request clientDetailUpdateV2Request) throws EsignetException {
+    public ClientDetailResponse updateOIDCClientV2(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
             log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
 
-        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateV2Request);
+        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateRequestV2);
 
         String clientName = getClientNameLanguageMapAsJsonString(
-                clientDetailUpdateV2Request.getClientNameLangMap(),
-                clientDetailUpdateV2Request.getClientName()
+                clientDetailUpdateRequestV2.getClientNameLangMap(),
+                clientDetailUpdateRequestV2.getClientName()
         );
         clientDetail.setName(clientName);
 
