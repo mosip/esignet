@@ -161,10 +161,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private void setTransactionAndLogAudit(
             OAuthDetailRequest oauthDetailReqDto, ClientDetail clientDetailDto, Claims resolvedClaims,
             List<String> authorizeScopes, String oauthDetailsHash, String transactionId) {
+        Map<String, List> claimsMap = authorizationHelperService.getClaimNames(resolvedClaims);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setTransactionId(transactionId);
-        oidcTransaction.setEssentialClaims(oauthDetailResponse.getEssentialClaims());
-        oidcTransaction.setVoluntaryClaims(oauthDetailResponse.getVoluntaryClaims());
+        oidcTransaction.setEssentialClaims(claimsMap.get(ESSENTIAL));
+        oidcTransaction.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
         oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
         oidcTransaction.setClientId(clientDetailDto.getId());
