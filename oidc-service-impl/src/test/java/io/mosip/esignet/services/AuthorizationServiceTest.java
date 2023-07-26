@@ -13,6 +13,7 @@ import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
@@ -114,6 +115,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(null);
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
@@ -128,7 +131,7 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -138,6 +141,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withNullClaimsInDbAndValidClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(null);
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
@@ -157,7 +162,7 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -167,6 +172,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidClaimsInDbAndValidClaimsInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
@@ -186,7 +193,7 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().size() == 1);
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -196,6 +203,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidClaimsInDbAndInValidClaimsInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code"));
@@ -215,7 +224,7 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
         Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
@@ -250,6 +259,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndNullAcrInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
@@ -268,7 +279,7 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
                 "mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 2);
     }
@@ -277,6 +288,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndValidAcrInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
@@ -293,7 +306,7 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
     }
@@ -302,6 +315,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndValidAcrInReq_orderOfPrecedencePreserved() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
@@ -318,7 +333,7 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet",
                 "mosip:idp:acr:generated-code"})).thenReturn(null);
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertNull(oauthDetailResponse.getAuthFactors());
     }
@@ -327,6 +342,8 @@ public class AuthorizationServiceTest {
     public void getOauthDetails_withValidAcrInDBAndValidAcrClaimInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code", "mosip:idp:acr:wallet"));
@@ -349,7 +366,7 @@ public class AuthorizationServiceTest {
         //Highest priority is given to ACR in claims request parameter
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
 
-        OAuthDetailResponse oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assert.assertNotNull(oauthDetailResponse);
         Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
     }
@@ -416,7 +433,8 @@ public class AuthorizationServiceTest {
     @Test
     public void getOauthDetailsV2_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(null);
@@ -432,16 +450,17 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertTrue(oauthDetailV2Response.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailV2Response.getVoluntaryClaims().isEmpty());
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
+        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
     public void getOauthDetailsV2_withNullClaimsInDbAndValidClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(null);
@@ -462,16 +481,17 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertTrue(oauthDetailV2Response.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailV2Response.getVoluntaryClaims().isEmpty());
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
+        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
     public void getOauthDetailsV2_withValidClaimsInDbAndValidClaimsInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
@@ -492,16 +512,17 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertTrue(oauthDetailV2Response.getEssentialClaims().size() == 1);
-        Assert.assertTrue(oauthDetailV2Response.getVoluntaryClaims().isEmpty());
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().size() == 1);
+        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
     public void getOauthDetailsV2_withValidClaimsInDbAndInValidClaimsInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
@@ -522,10 +543,10 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(new ArrayList<>());
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertTrue(oauthDetailV2Response.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailV2Response.getVoluntaryClaims().isEmpty());
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
+        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -556,7 +577,8 @@ public class AuthorizationServiceTest {
     @Test
     public void getOauthDetailsV2_withValidAcrInDBAndNullAcrInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
@@ -576,15 +598,16 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
                 "mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertTrue(oauthDetailV2Response.getAuthFactors().size() == 2);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 2);
     }
 
     @Test
     public void getOauthDetailsV2_withValidAcrInDBAndValidAcrInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
@@ -602,15 +625,16 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertTrue(oauthDetailV2Response.getAuthFactors().size() == 1);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 1);
     }
 
     @Test
     public void getOauthDetailsV2_withValidAcrInDBAndValidAcrInReq_orderOfPrecedencePreserved() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
@@ -628,15 +652,16 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet",
                 "mosip:idp:acr:generated-code"})).thenReturn(null);
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertNull(oauthDetailV2Response.getAuthFactors());
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertNull(oauthDetailResponseV2.getAuthFactors());
     }
 
     @Test
     public void getOauthDetailsV2_withValidAcrInDBAndValidAcrClaimInReq_thenPass() throws Exception {
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("clientname");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
@@ -660,9 +685,9 @@ public class AuthorizationServiceTest {
         //Highest priority is given to ACR in claims request parameter
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
 
-        OAuthDetailV2Response oauthDetailV2Response = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailV2Response);
-        Assert.assertTrue(oauthDetailV2Response.getAuthFactors().size() == 1);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponseV2);
+        Assert.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 1);
     }
 
     @Test

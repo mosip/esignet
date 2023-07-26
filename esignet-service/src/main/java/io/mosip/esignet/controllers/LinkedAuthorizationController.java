@@ -88,7 +88,7 @@ public class LinkedAuthorizationController {
     }
 
     @PostMapping("/v2/link-transaction")
-    public ResponseWrapper<LinkTransactionV2Response> linkTransactionV2(@Valid @RequestBody RequestWrapper<LinkTransactionRequest>
+    public ResponseWrapper<LinkTransactionResponseV2> linkTransactionV2(@Valid @RequestBody RequestWrapper<LinkTransactionRequest>
                                                                             requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());

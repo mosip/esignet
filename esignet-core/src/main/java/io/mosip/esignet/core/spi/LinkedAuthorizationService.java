@@ -36,7 +36,7 @@ public interface LinkedAuthorizationService {
      * @param linkTransactionRequest
      * @return
      */
-    LinkTransactionV2Response linkTransactionV2(LinkTransactionRequest linkTransactionRequest) throws EsignetException;
+    LinkTransactionResponseV2 linkTransactionV2(LinkTransactionRequest linkTransactionRequest) throws EsignetException;
 
     /**
      * Returns the status of linked-transaction if any.

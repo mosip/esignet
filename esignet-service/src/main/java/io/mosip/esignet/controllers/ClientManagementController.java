@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -88,7 +87,7 @@ public class ClientManagementController {
     }
 
     @PostMapping(value = "/client-mgmt/v2/oidc-client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseWrapper<ClientDetailResponse> createClientV2(@Valid @RequestBody RequestWrapper<ClientDetailCreateV2Request> requestWrapper) throws Exception {
+    public ResponseWrapper<ClientDetailResponse> createClientV2(@Valid @RequestBody RequestWrapper<ClientDetailCreateRequestV2> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
             response.setResponse(clientManagementService.createOIDCClientV2(requestWrapper.getRequest()));
@@ -104,7 +103,7 @@ public class ClientManagementController {
 
     @PutMapping(value = "/client-mgmt/v2/oidc-client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseWrapper<ClientDetailResponse> updateClientV2(@Valid @PathVariable("client_id") String clientId,
-                                                              @Valid @RequestBody RequestWrapper<ClientDetailUpdateV2Request> requestWrapper) throws Exception {
+                                                              @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequestV2> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
             response.setResponse(clientManagementService.updateOIDCClientV2(clientId, requestWrapper.getRequest()));

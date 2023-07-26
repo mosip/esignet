@@ -139,7 +139,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -238,7 +238,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -289,7 +289,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -316,7 +316,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -343,7 +343,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails( oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -420,9 +420,9 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailV2Response oauthDetailV2Response = new OAuthDetailV2Response();
-        oauthDetailV2Response.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailV2Response);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
@@ -519,9 +519,9 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailV2Response oauthDetailV2Response = new OAuthDetailV2Response();
-        oauthDetailV2Response.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailV2Response);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
@@ -570,9 +570,9 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailV2Response oauthDetailV2Response = new OAuthDetailV2Response();
-        oauthDetailV2Response.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailV2Response);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
@@ -597,9 +597,9 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailV2Response oauthDetailV2Response = new OAuthDetailV2Response();
-        oauthDetailV2Response.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailV2Response);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
@@ -624,9 +624,9 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailV2Response oauthDetailV2Response = new OAuthDetailV2Response();
-        oauthDetailV2Response.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetailsV2( oauthDetailRequest)).thenReturn(oauthDetailV2Response);
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2( oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
