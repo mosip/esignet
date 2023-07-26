@@ -244,6 +244,7 @@
     "invalid_value": "Invalid value",
     "duplicate_individual_id": "Individual ID already exists.",
     "password_error_msg": "Invalid Password",
+    "invalid_qrcode_config": "Invalid QRCode configuration. Please report to the site admin.",
     "0": "Success",
     "100": "Device Not Registered",
     "101": "Unable to Detect a Biometrics",
@@ -344,6 +345,9 @@
     "IDA-RST-005": "Timeout is invalid",
     "IDA-RST-006": "4XX - Client Error occurred",
     "IDA-RST-007": "5XX - Server Error occurred",
-    "IDA-RST-008": "Connection timed out"
+    "IDA-RST-008": "Connection timed out",
+    "IDA-KBT-001": "Bound certificate not found",
+    "IDA-KBT-002": "Signed token issued at (iat) is not in allowed time range.",
+    "IDA-KBT-003": "Error verifying key binded token."
   }
 }
