@@ -12,6 +12,7 @@ import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.*;
@@ -215,7 +216,8 @@ public class LinkedAuthorizationServiceTest {
         Mockito.when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(oidcTransaction);
 
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("client-name");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setLogoUri("https://test-client-portal/logo.png");
         when(clientManagementService.getClientDetails(oidcTransaction.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.setLinkedTransaction(transactionId, oidcTransaction)).thenReturn(oidcTransaction);
@@ -223,9 +225,9 @@ public class LinkedAuthorizationServiceTest {
 
         LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
         linkTransactionRequest.setLinkCode("link-code");
-        LinkTransactionResponse linkTransactionResponse = linkedAuthorizationService.linkTransaction(linkTransactionRequest);
+        LinkTransactionResponseV1 linkTransactionResponse = linkedAuthorizationService.linkTransaction(linkTransactionRequest);
         Assert.assertNotNull(linkTransactionResponse);
-        Assert.assertEquals(clientDetail.getName(), linkTransactionResponse.getClientName());
+        Assert.assertEquals(clientDetail.getName().get(Constants.NONE_LANG_KEY), linkTransactionResponse.getClientName());
         Assert.assertEquals(clientDetail.getLogoUri(), linkTransactionResponse.getLogoUrl());
         Assert.assertNotNull(linkTransactionResponse.getLinkTransactionId());
     }
@@ -281,7 +283,8 @@ public class LinkedAuthorizationServiceTest {
         Mockito.when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(oidcTransaction);
 
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setName("client-name");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
         clientDetail.setLogoUri("https://test-client-portal/logo.png");
         when(clientManagementService.getClientDetails(oidcTransaction.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.setLinkedTransaction(transactionId, oidcTransaction)).thenReturn(oidcTransaction);
@@ -289,11 +292,11 @@ public class LinkedAuthorizationServiceTest {
 
         LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
         linkTransactionRequest.setLinkCode("link-code");
-        LinkTransactionV2Response linkTransactionV2Response = linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
-        Assert.assertNotNull(linkTransactionV2Response);
-        Assert.assertEquals(convertClientName(clientDetail.getName()), linkTransactionV2Response.getClientName());
-        Assert.assertEquals(clientDetail.getLogoUri(), linkTransactionV2Response.getLogoUrl());
-        Assert.assertNotNull(linkTransactionV2Response.getLinkTransactionId());
+        LinkTransactionResponseV2 linkTransactionResponseV2 = linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
+        Assert.assertNotNull(linkTransactionResponseV2);
+        Assert.assertEquals(clientDetail.getName(), linkTransactionResponseV2.getClientName());
+        Assert.assertEquals(clientDetail.getLogoUri(), linkTransactionResponseV2.getLogoUrl());
+        Assert.assertNotNull(linkTransactionResponseV2.getLinkTransactionId());
     }
 
     @Test
@@ -622,21 +625,6 @@ public class LinkedAuthorizationServiceTest {
         setErrorHandler(deferredResult);
         linkedAuthorizationService.getLinkAuthCode(deferredResult, linkAuthCodeRequest);
         Assert.assertNull(deferredResult.getResult());
-    }
-
-    private Map<String, String> convertClientName(String clientName) {
-        Map<String, String> clientNameMap = new HashMap<>();
-        try {
-            new JSONObject(clientName);
-            clientNameMap = Arrays
-                    .stream(clientName.replaceAll("[\"|\\{|\\}]","").split(","))
-                    .map(entry -> entry.split(":"))
-                    .collect(Collectors.toMap(entry -> entry[0], entry -> entry[1]));
-        } catch (JSONException e) {
-            clientNameMap.put("@none", clientName);
-            return clientNameMap;
-        }
-        return clientNameMap;
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {

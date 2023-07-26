@@ -190,7 +190,7 @@ public class LinkedAuthorizationControllerTest {
         requestWrapper.setRequest(linkTransactionRequest);
 
         Mockito.when(linkedAuthorizationService.linkTransactionV2(Mockito.any(LinkTransactionRequest.class)))
-                .thenReturn(new LinkTransactionV2Response());
+                .thenReturn(new LinkTransactionResponseV2());
 
         mockMvc.perform(post("/linked-authorization/v2/link-transaction")
                         .content(objectMapper.writeValueAsString(requestWrapper))
