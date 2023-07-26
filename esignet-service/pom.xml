@@ -8,12 +8,12 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<version>1.2.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>io.mosip.esignet</groupId>
 	<artifactId>esignet-service</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>${project.parent.version}</version>
 	<name>esignet-service</name>
 	<description>e-Signet OIDC Service</description>
 	
@@ -24,7 +24,6 @@
 		<jackson.databind>2.12.0</jackson.databind>
 		<fasterxml.jackson.module.jsr310.version>2.12.0</fasterxml.jackson.module.jsr310.version>
 		<fasterxml.jackson.module.afterburner.version>2.12.0</fasterxml.jackson.module.afterburner.version>
-		<esignet.mock.services.version>0.0.1-SNAPSHOT</esignet.mock.services.version>
 	</properties>
 	
 	<dependencies>
