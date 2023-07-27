@@ -8,7 +8,6 @@ import { LoadingStates as states } from "../constants/states";
 
 export default function Authorize({
   authService,
-  langConfigService,
   i18nKeyPrefix = "authorize",
 }) {
   const { i18n } = useTranslation("translation", {
@@ -18,10 +17,6 @@ export default function Authorize({
   const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails = authService.post_OauthDetails;
   const buildRedirectParams = authService.buildRedirectParams;
-
-  const { getLocaleConfiguration } = {
-    ...langConfigService,
-  };
 
   const [status, setStatus] = useState(states.LOADING);
   const [oAuthDetailResponse, setOAuthDetailResponse] = useState(null);
@@ -93,47 +88,9 @@ export default function Authorize({
 
   useEffect(() => {
     if (status === states.LOADED) {
-      changeLanguage();
       redirectToLogin();
     }
   }, [status]);
-
-  const changeLanguage = async () => {
-    //Language detector priotity order: ['querystring', 'cookie', 'localStorage',
-    //      'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
-
-    //1. Check for ui locales param. Highest priority.
-    //This will override the language detectors selected language
-    let defaultConfigs = await getLocaleConfiguration();
-    let supportedLanguages = defaultConfigs.languages_2Letters;
-    let uiLocales = searchParams.get("ui_locales");
-    if (uiLocales) {
-      let languages = uiLocales.split(" ");
-      for (let idx in languages) {
-        if (supportedLanguages[languages[idx]]) {
-          i18n.changeLanguage(languages[idx]);
-          return;
-        }
-      }
-
-      // if language code not found in 2 letter codes, then check mapped language codes
-      let langCodeMapping = defaultConfigs.langCodeMapping;
-      for (let idx in languages) {
-        if (langCodeMapping[languages[idx]]) {
-          i18n.changeLanguage(langCodeMapping[languages[idx]]);
-          return;
-        }
-      }
-    }
-
-    //2. Check for cookie
-    //Language detector will store and use cookie "i18nextLng"
-
-    //3. Check for system locale
-    //Language detector will check navigator and subdomain to select proper language
-
-    //4. default lang set in env_configs file as fallback language.
-  };
 
   const redirectToLogin = async () => {
     if (!oAuthDetailResponse) {
