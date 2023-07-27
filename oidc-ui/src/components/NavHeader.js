@@ -27,6 +27,16 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     });
     setSelectedLang(lang);
 
+    if (lang == null) {
+
+      const storedLang = i18n.language;
+      const langCodeWithoutRegion = storedLang.split("-")[0];
+
+      // Find the language option that matches the extracted language code
+      const defaultLang = langOptions.find((option) => option.value === langCodeWithoutRegion);
+      setSelectedLang(defaultLang);
+    }
+
     //Gets fired when changeLanguage got called.
     i18n.on("languageChanged", function (lng) {
       let language = langOptions.find((option) => {
