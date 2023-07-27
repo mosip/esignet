@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
-
 import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KEY;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.b64Encode;
@@ -54,7 +53,7 @@ public class KeyBindingHelperService {
         //same individual can be bound to different public keys each with different auth-factor-type.
         Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(partnerSpecificUserToken, authFactor);
         String walletBindingId = null;
-        //Entry exists, consider to use same wallet-binding-id. Only update public-key & expireDT
+        //Entry exists i.e If already binded , consider to use same wallet-binding-id. Only update public-key & expireDT
         if (optionalPublicKeyRegistry.isPresent()) {
             walletBindingId = optionalPublicKeyRegistry.get().getWalletBindingId();
             int noOfUpdatedRecords = publicKeyRegistryRepository.updatePublicKeyRegistry(publicKey, publicKeyHash,
@@ -72,6 +71,7 @@ public class KeyBindingHelperService {
         publicKeyRegistry.setExpiredtimes(expireDTimes);
         publicKeyRegistry.setWalletBindingId(walletBindingId == null ? generateWalletBindingId(partnerSpecificUserToken) : walletBindingId);
         publicKeyRegistry.setCertificate(certificateData);
+        publicKeyRegistry.setThumbprint(IdentityProviderUtil.generateThumbprintByCertificate(certificateData));
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
         log.info("Saved PublicKeyRegistry details successfully");

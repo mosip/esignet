@@ -10,6 +10,7 @@ on:
       - 1.*
       - develop
       - main
+      - bugfix-ES-177
   
 jobs:
   call-workflow-codeql-analysis:

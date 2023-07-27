@@ -45,9 +45,15 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
 		Assert.assertNotNull(publicKeyRegistry);
+
+		Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryRepository.
+				findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc("test_id_hash","thumbprint",LocalDateTime.now().plus(4,ChronoUnit.DAYS));
+
+		Assert.assertFalse(publicKeyRegistryOptional.isEmpty());
 
 		List<PublicKeyRegistry> list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLA"), LocalDateTime.now());
@@ -278,6 +284,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
@@ -291,6 +298,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
@@ -313,6 +321,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assert.assertNotNull(publicKeyRegistry);
 
@@ -333,6 +342,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setPublicKeyHash("test_public_key_hash");
 		publicKeyRegistry.setCertificate("certificate");
 		publicKeyRegistry.setAuthFactor("WLA");
+		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
 		Assert.assertNotNull(publicKeyRegistry);

@@ -270,7 +270,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-        consentHelperService.addUserConsent(transaction, true, linkedConsentRequest.getSignature());
+        consentHelperService.updateUserConsent(transaction, true, linkedConsentRequest.getSignature());
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());

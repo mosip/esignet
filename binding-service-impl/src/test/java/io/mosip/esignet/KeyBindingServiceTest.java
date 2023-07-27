@@ -201,6 +201,7 @@ public class KeyBindingServiceTest {
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
 		authChallenge.setChallenge("111111");
+		authChallenge.setFormat("alpha-numeric");
 		List<AuthChallenge> authChallengeList = new ArrayList();
 		authChallengeList.add(authChallenge);
 		walletBindingRequest.setChallengeList(authChallengeList);
@@ -211,6 +212,30 @@ public class KeyBindingServiceTest {
 			Assert.fail();
 		} catch (EsignetException e) {
 			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE_FORMAT));
+		}
+	}
+
+	@Test
+	public void bindWallet_withInvalidAuthChallenge_thenFail() throws EsignetException, JsonProcessingException {
+		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+		walletBindingRequest.setIndividualId("8267411571");
+		walletBindingRequest.setAuthFactorType("WLA");
+		walletBindingRequest.setFormat("wt");
+
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("OTP");
+		authChallenge.setChallenge("111111");
+		authChallenge.setFormat("alpha");
+		List<AuthChallenge> authChallengeList = new ArrayList();
+		authChallengeList.add(authChallenge);
+		walletBindingRequest.setChallengeList(authChallengeList);
+		walletBindingRequest.setPublicKey(
+				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+		try {
+			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+			Assert.fail();
+		} catch (EsignetException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT));
 		}
 	}
 

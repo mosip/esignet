@@ -29,7 +29,6 @@ import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -114,6 +113,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         //Cache the transaction
         OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setEssentialClaims(oauthDetailResponse.getEssentialClaims());
+        oidcTransaction.setVoluntaryClaims(oauthDetailResponse.getVoluntaryClaims());
         oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
         oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
         oidcTransaction.setClientId(clientDetailDto.getId());
@@ -224,7 +225,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
         transaction.setAcceptedClaims(acceptedClaims);
         transaction.setPermittedScopes(acceptedScopes);
-        consentHelperService.addUserConsent(transaction, false, null);
+        consentHelperService.updateUserConsent(transaction, false, null);
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
         auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
 

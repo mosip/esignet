@@ -5,14 +5,16 @@
  */
 package io.mosip.esignet.core.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,6 +23,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.mosip.esignet.core.constants.Constants;
@@ -28,7 +31,10 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.keys.X509Util;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,5 +223,30 @@ public class IdentityProviderUtil {
         } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
             throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
+    }
+
+    public static Certificate convertToCertificate(String certData) {
+        try {
+            StringReader strReader = new StringReader(certData);
+            PemReader pemReader = new PemReader(strReader);
+            PemObject pemObject = pemReader.readPemObject();
+            if (Objects.isNull(pemObject)) {
+                return null;
+            }
+            byte[] certBytes = pemObject.getContent();
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            return certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
+        } catch (IOException | CertificateException e) {
+            throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
+        }
+    }
+    public static String  generateThumbprintByCertificate(String cerifacate)
+    {
+        Object certObj = convertToCertificate(cerifacate);
+        if (certObj instanceof X509Certificate) {
+            X509Certificate certificate = (X509Certificate) certObj;
+            return X509Util.x5tS256(certificate);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
     }
 }
