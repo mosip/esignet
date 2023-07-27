@@ -31,19 +31,60 @@ function App() {
             });
           }
         }
-
-        setLangOptions(langData);
+        changeLanguage(response);
         setDir(response.rtlLanguages.includes(i18n.language) ? "rtl" : "ltr");
 
         //Gets fired when changeLanguage got called.
         i18n.on("languageChanged", function (lng) {
           setDir(response.rtlLanguages.includes(lng) ? "rtl" : "ltr");
         });
+        setLangOptions(langData);
       });
+
     } catch (error) {
       console.error("Failed to load rtl languages!");
     }
+
   }, []);
+
+  const changeLanguage = (loadLang) => {
+    //Language detector priotity order: ['querystring', 'cookie', 'localStorage',
+    //      'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
+
+    //1. Check for ui locales param. Highest priority.
+    //This will override the language detectors selected language
+    // let defaultConfigs = await getLocaleConfiguration();
+    let supportedLanguages = loadLang.languages_2Letters;
+    let searchUrlParams = new URLSearchParams(window.location.search);
+    let uiLocales = searchUrlParams.get("ui_locales");
+    if (uiLocales) {
+      let languages = uiLocales.split(" ");
+      for (let idx in languages) {
+        if (supportedLanguages[languages[idx]]) {
+          i18n.changeLanguage(languages[idx]);
+          return;
+        }
+      }
+
+      // if language code not found in 2 letter codes, then check mapped language codes
+      let langCodeMapping = loadLang.langCodeMapping;
+      for (let idx in languages) {
+        if (langCodeMapping[languages[idx]]) {
+          i18n.changeLanguage(langCodeMapping[languages[idx]]);
+          return;
+        }
+      }
+    }
+
+
+    //2. Check for cookie
+    //Language detector will store and use cookie "i18nextLng"
+
+    //3. Check for system locale
+    //Language detector will check navigator and subdomain to select proper language
+
+    //4. default lang set in env_configs file as fallback language.
+  };
 
   return (
     <div dir={dir} className="h-screen">
