@@ -1,6 +1,5 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
@@ -8,11 +7,7 @@ import { LoadingStates as states } from "../constants/states";
 
 export default function Authorize({
   authService,
-  i18nKeyPrefix = "authorize",
 }) {
-  const { i18n } = useTranslation("translation", {
-    keyPrefix: i18nKeyPrefix,
-  });
 
   const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails = authService.post_OauthDetails;

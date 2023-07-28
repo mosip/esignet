@@ -8,11 +8,14 @@ import langConfigService from "./services/langConfigService";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import EsignetDetailsPage from "./pages/EsignetDetails";
+import LoadingIndicator from "./common/LoadingIndicator";
+import { LoadingStates as states } from "./constants/states";
 
 function App() {
   const { i18n } = useTranslation();
   const [langOptions, setLangOptions] = useState([]);
   const [dir, setDir] = useState("");
+  const [statusLoading, SetStatusLoading] = useState(states.LOADING);
 
   //Loading rtlLangs
   useEffect(() => {
@@ -39,12 +42,11 @@ function App() {
           setDir(response.rtlLanguages.includes(lng) ? "rtl" : "ltr");
         });
         setLangOptions(langData);
+        SetStatusLoading(states.LOADED)
       });
-
     } catch (error) {
       console.error("Failed to load rtl languages!");
     }
-
   }, []);
 
   const changeLanguage = (loadLang) => {
@@ -53,7 +55,6 @@ function App() {
 
     //1. Check for ui locales param. Highest priority.
     //This will override the language detectors selected language
-    // let defaultConfigs = await getLocaleConfiguration();
     let supportedLanguages = loadLang.languages_2Letters;
     let searchUrlParams = new URLSearchParams(window.location.search);
     let uiLocales = searchUrlParams.get("ui_locales");
@@ -86,19 +87,30 @@ function App() {
     //4. default lang set in env_configs file as fallback language.
   };
 
-  return (
-    <div dir={dir} className="h-screen">
-      <NavHeader langOptions={langOptions} />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<EsignetDetailsPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/authorize" element={<AuthorizePage />} />
-          <Route path="/consent" element={<ConsentPage />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
-  );
+  let el;
+
+  switch (statusLoading) {
+    case states.LOADING:
+      el = <LoadingIndicator size="medium" message={"loading_msg"} />;
+      break;
+    case states.LOADED:
+      el = (
+        <div dir={dir} className="h-screen">
+          <NavHeader langOptions={langOptions} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<EsignetDetailsPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/authorize" element={<AuthorizePage />} />
+              <Route path="/consent" element={<ConsentPage />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
+      );
+      break;
+  }
+
+  return el;
 }
 
 export default App;
