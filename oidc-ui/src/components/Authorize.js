@@ -106,7 +106,7 @@ export default function Authorize({
         let state = searchParams.get("state");
         let params = buildRedirectParams(nonce, state, response);
 
-        navigate("/login" + params, {
+        navigate(process.env.PUBLIC_URL + "/login" + params, {
           replace: true,
         });
       } catch (error) {

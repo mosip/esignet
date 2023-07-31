@@ -108,7 +108,7 @@ export default function Password({
           response.consentAction
         );
 
-        navigate("/consent" + params, {
+        navigate(process.env.PUBLIC_URL + "/consent" + params, {
           replace: true,
         });
       }
