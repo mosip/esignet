@@ -3,15 +3,11 @@
 #installs the pre-requisites.
 set -e
 
-echo "Downloading pre-requisites install scripts"
-wget --no-check-certificate --no-cache --no-cookies $artifactory_url_env/artifactory/libs-release-local/i18n/esignet-i18n-bundle.zip -O $i18n_path/esignet-i18n-bundle.zip
+echo "Replacing public url placeholder with public url"
 
-echo "unzip pre-requisites.."
-chmod 775 $i18n_path/*
+rpCmd="s/_PUBLIC_URL_/${OIDC_UI_PUBLIC_URL}/g"
+grep -rl '_PUBLIC_URL_' $base_path | xargs sed -i $rpCmd
 
-cd $i18n_path
-unzip -o esignet-i18n-bundle.zip
-
-echo "unzip pre-requisites completed."
+echo "Replacing completed."
 
 exec "$@"

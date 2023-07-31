@@ -1,5 +1,13 @@
 FROM node:12.18.4-alpine as build_esignet_ui
 COPY package*.json ./
+
+# Set a build-time environment variable (replace YOUR_ENV_VARIABLE_NAME with the desired variable name)
+ARG oidcUIPublicUrl
+ENV OIDC_UI_PUBLIC_URL=$oidcUIPublicUrl
+
+# Set the environment variable as a placeholder for PUBLIC_URL
+ENV PUBLIC_URL=/_PUBLIC_URL_
+
 RUN npm install
 #Copy the working directory
 COPY . ./
@@ -28,7 +36,7 @@ ARG container_user_uid=1001
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_gid=1001
 
-ENV base_path=/usr/share/nginx/html
+ENV base_path=/usr/share/nginx/$oidcUIPublicUrl
 ENV i18n_path=${base_path}/locales
 
 # can be passed during Docker build as build time environment for artifactory URL
@@ -42,7 +50,7 @@ WORKDIR /home/${container_user}
 
 # install packages and create user
 RUN apt-get -y update \
-    && apt-get install -y curl npm python wget unzip zip \
+    && apt-get install -y curl npm wget unzip zip \
     && groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
     && mkdir -p /var/run/nginx /var/tmp/nginx ${base_path}/locales \
@@ -55,7 +63,7 @@ RUN chmod +x configure_start.sh
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 # copy build files to nginx html directory
-COPY --from=build_esignet_ui /build /usr/share/nginx/html
+COPY --from=build_esignet_ui /build $base_path
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
