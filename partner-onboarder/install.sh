@@ -21,7 +21,7 @@ if [ "$flag" = "n" ]; then
 fi
 
 NS=esignet
-CHART_VERSION=12.0.1-B3
+CHART_VERSION=12.0.2
 
 echo Create $NS namespace
 kubectl create ns $NS
@@ -75,23 +75,44 @@ function installing_onboarder() {
     --set onboarding.configmaps.s3.s3-bucket-name="$s3_bucket" \
     $ENABLE_INSECURE \
     -f values.yaml \
-    --version $CHART_VERSION
+    --version $CHART_VERSION &
+    helm_install_pid=$!
+
+    # Wait for the Helm installation command to finish
+    wait $helm_install_pid
+
+    # Check the status of the Helm installation job
+    if [ $? -eq 0 ]; then
+      # Helm installation command completed successfully, now check job status
+      kubectl wait --for=condition=complete job/esignet-resident-oidc-partner-onboarder-esignet -n $NS --timeout=5m
+      kubectl wait --for=condition=complete job/esignet-resident-oidc-partner-onboarder-resident-oidc -n $NS --timeout=5m
+
+      # Check the status of the Helm installation job
+      if [ $? -eq 0 ]; then
+        # Helm installation job completed successfully, now run the other commands
+        misp_license_key=$(kubectl logs -n $NS job/esignet-resident-oidc-partner-onboarder-esignet | grep "MISP License Key:" | awk '{print $4}')
+        echo Misp License Key for Esignet Module is: $misp_license_key
+        resident_oidc_clientid=$(kubectl logs -n $NS job/esignet-resident-oidc-partner-onboarder-resident-oidc | grep "mpartner default resident OIDC clientId:" | awk '{print $6}')
+        echo Resident OIDC Client ID is: $resident_oidc_clientid
+        kubectl create secret generic onboarder-keys -n $NS --from-literal=mosip-esignet-misp-key=$misp_license_key --from-literal=resident-oidc-clientid=$resident_oidc_clientid --dry-run=client -o yaml | kubectl apply -f -
+        ./copy_cm_func.sh secret onboarder-keys esignet config-server
+        ./copy_cm_func.sh secret onboarder-keys esignet resident
+        kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/onboarder-keys deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+        kubectl -n config-server set env --keys=resident-oidc-clientid --from secret/onboarder-keys deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+        kubectl -n config-server get deploy -o name | xargs -n1 -t kubectl -n config-server rollout status
+        kubectl rollout restart deployment -n esignet esignet
+        kubectl rollout restart deployment -n resident resident
+        echo E-signet MISP License Key and Resident OIDC Client ID updated successfully.
+      else
+        # Helm installation job failed, handle the error here if needed
+        echo "Helm installation job failed. Please check the logs for more details."
+      fi
+    else
+      # Helm installation command failed, handle the error here if needed
+      echo "Helm installation failed. Please check the logs for more details."
+    fi
 
     echo Reports are moved to S3 under onboarder bucket
-
-    echo Updating esignet misp license key to secrets
-    MISPKEY=$(bash misp_key.sh)
-    echo "MISP License key is: $MISPKEY"
-
-    echo Setting up onboarder-keys secrets
-    kubectl -n $NS create secret generic onboarder-keys --from-literal=mosip-esignet-misp-key=$MISPKEY --dry-run=client -o yaml | kubectl apply -f -
-
-    ./copy_cm_func.sh secret onboarder-keys esignet config-server
-
-    kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/onboarder-keys deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
-
-    kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
-    echo E-signet MISP License Key successfully updated
 
     return 0
   fi
