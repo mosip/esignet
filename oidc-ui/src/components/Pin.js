@@ -92,7 +92,7 @@ export default function Pin({
           openIDConnectService.getOAuthDetails()
         );
 
-        navigate("/consent" + params, {
+        navigate(process.env.PUBLIC_URL + "/consent" + params, {
           replace: true,
         });
       }
