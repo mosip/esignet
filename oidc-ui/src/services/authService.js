@@ -85,7 +85,9 @@ class authService {
     display,
     maxAge,
     prompt,
-    uiLocales
+    uiLocales,
+    codeChallenge,
+    codeChallengeMethod
   ) => {
     let request = {
       requestTime: new Date().toISOString(),
@@ -103,6 +105,8 @@ class authService {
         maxAge: maxAge,
         prompt: prompt,
         uiLocales: uiLocales,
+        codeChallenge: codeChallenge,
+        codeChallengeMethod: codeChallengeMethod,
       },
     };
 

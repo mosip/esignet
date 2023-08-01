@@ -37,6 +37,8 @@ export default function Authorize({
         let maxAge = searchParams.get("max_age");
         let prompt = searchParams.get("prompt");
         let uiLocales = searchParams.get("ui_locales");
+        let codeChallenge = searchParams.get("code_challenge");
+        let codeChallengeMethod = searchParams.get("code_challenge_method");
 
         let claimsDecoded;
         if (claims == null) {
