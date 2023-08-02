@@ -68,7 +68,9 @@ export default function Authorize({
           display,
           maxAge,
           prompt,
-          uiLocales
+          uiLocales,
+          codeChallenge,
+          codeChallengeMethod
         );
 
         setOAuthDetailResponse(response);
