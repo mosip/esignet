@@ -170,7 +170,7 @@ public class ConsentHelperServiceTest {
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setClientId("123");
         consentDetail.setSignature("signature");
-        consentDetail.setAuthorizationScopes(Map.of("openid",true,"profile",true));
+        consentDetail.setAuthorizationScopes(Map.of("openid",false,"profile",false));
         consentDetail.setClaims(claims);
         Claims normalizedClaims = new Claims();
         normalizedClaims.setUserinfo(consentHelperService.normalizeClaims(claims.getUserinfo()));

@@ -37,7 +37,7 @@ COMMENT ON COLUMN consent_detail.id IS 'UUID : Unique id associated with each co
 COMMENT ON COLUMN consent_detail.client_id IS 'Client_id: associated with relying party';
 COMMENT ON COLUMN consent_detail.psu_token IS 'PSU token associated with user consent';
 COMMENT ON COLUMN consent_detail.claims IS 'Json of requested and user accepted claims';
-COMMENT ON COLUMN consent_detail.authorization_scopes IS 'Json string of user accepted authorization scope';
+COMMENT ON COLUMN consent_detail.authorization_scopes IS 'Json string of requested authorization scope';
 COMMENT ON COLUMN consent_detail.cr_dtimes IS 'Consent creation date';
 COMMENT ON COLUMN consent_detail.expire_dtimes IS 'Expiration date';
 COMMENT ON COLUMN consent_detail.signature IS 'Signature of consent object ';
