@@ -49,6 +49,12 @@ export default function LoginQRCode({
       configurationKeys.walletLogoURL
     ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
 
+  const walletQrCodeAutoRefreshLimit = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.walletQrCodeAutoRefreshLimit
+  ) ?? process.env.REACT_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
+
+  const maxUiRefreshes = 3;
+
   const GenerateQRCode = (response, logoUrl) => {
     let text =
       openIDConnectService.getEsignetConfiguration(
@@ -123,7 +129,26 @@ export default function LoginQRCode({
     };
   }, []);
 
+  let fetchQrCodeCounter = 0;
+  let qrCodeRefreshCount = 0;
+
   const fetchQRCode = async () => {
+    if (qrCodeRefreshCount >= walletQrCodeAutoRefreshLimit) {
+      // If fetchQRCode is triggered 10 times, show invalid transaction and redirect back to relying party UI.
+      setError({
+        errorCode: "invalid_transaction",
+        defaultMsg: "Invalid Transaction",
+      });
+      return;
+    }
+    if (fetchQrCodeCounter >= maxUiRefreshes) {
+      // If successfulFetchQrCount is 3, stop QR code generation and show QR code expired with a refresh button.
+      setError({
+        errorCode: "qr_code_expired",
+        defaultMsg: "QR code expired",
+      });
+      return;
+    }
     setQr("");
     setError(null);
     try {
@@ -177,6 +202,7 @@ export default function LoginQRCode({
           fetchQRCode();
         }, timeLeftWithBuffer * 1000);
         setQrCodeTimeout(_timer);
+        fetchQrCodeCounter++;
       }
     } catch (error) {
       setError({
@@ -185,6 +211,7 @@ export default function LoginQRCode({
         defaultMsg: error.message,
       });
     }
+    qrCodeRefreshCount++;
   };
 
   const triggerLinkStatus = async (
