@@ -90,6 +90,7 @@ public class ConsentHelperService {
             userConsent.setSignature(signature);
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> requestedAuthorizeScopes = transaction.getRequestedAuthorizeScopes();
+            // defaulting the essential boolean flag as false
             Map<String, Boolean> authorizeScopes = requestedAuthorizeScopes != null ? requestedAuthorizeScopes.stream()
                     .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
             userConsent.setAuthorizationScopes(authorizeScopes);
@@ -177,6 +178,7 @@ public class ConsentHelperService {
         String hash;
         try {
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
+            // defaulting the essential boolean flag as false
             Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
                     .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
             Claims normalizedClaims = new Claims();
