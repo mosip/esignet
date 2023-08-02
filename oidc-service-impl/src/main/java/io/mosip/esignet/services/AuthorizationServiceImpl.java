@@ -97,13 +97,20 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
+    public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
         oAuthDetailResponseV2 = (OAuthDetailResponseV2) pair.getFirst();
         oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
-        pair.getSecond().setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
+
+        OIDCTransaction oidcTransaction = pair.getSecond();
+        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
+
+        //PKCE support
+        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance(oauthDetailReqDto.getCodeChallenge(),
+                oauthDetailReqDto.getCodeChallengeMethod()));
+
         cacheUtilService.setTransaction(oAuthDetailResponseV2.getTransactionId(), pair.getSecond());
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oAuthDetailResponseV2.getTransactionId(),
                 pair.getSecond()), null);

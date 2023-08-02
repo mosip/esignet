@@ -403,7 +403,7 @@ public class AuthorizationServiceTest {
 
     @Test(expected = InvalidClientException.class)
     public void getOauthDetailsV2_withInvalidClientId_throwsException() throws EsignetException {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setNonce("test-nonce");
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenThrow(InvalidClientException.class);
@@ -416,7 +416,7 @@ public class AuthorizationServiceTest {
         clientDetail.setId("34567");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v2/idp");
         oauthDetailRequest.setNonce("test-nonce");
@@ -440,7 +440,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(null);
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -466,7 +466,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(null);
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setNonce("test-nonce");
         oauthDetailRequest.setScope("openid test-scope");
@@ -497,7 +497,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
@@ -528,7 +528,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setScope("test-scope openid resident");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
@@ -557,7 +557,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(null);
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -584,7 +584,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -613,7 +613,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -640,7 +640,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code","mosip:idp:acr:linked-wallet"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setClaims(null);
@@ -667,7 +667,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code", "mosip:idp:acr:wallet"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
@@ -698,7 +698,7 @@ public class AuthorizationServiceTest {
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:wallet"));
 
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setScope("resident service");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");

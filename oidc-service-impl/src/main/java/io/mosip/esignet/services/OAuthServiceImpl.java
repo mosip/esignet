@@ -75,6 +75,10 @@ public class OAuthServiceImpl implements OAuthService {
         if(transaction == null || transaction.getKycToken() == null)
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
+        if(transaction.getProofKeyCodeExchange() != null &&
+                transaction.getProofKeyCodeExchange().isValidPKCE(tokenRequest.getCode_verifier()))
+            throw new EsignetException(ErrorConstants.PKCE_FAILED);
+
         if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
             throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
 
@@ -107,14 +111,10 @@ public class OAuthServiceImpl implements OAuthService {
 
         auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
 
-        TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
+        TokenResponse tokenResponse = getTokenResponse(transaction);
+
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
-        tokenResponse.setId_token(tokenService.getIDToken(transaction));
-        tokenResponse.setExpires_in(accessTokenExpireSeconds);
-        tokenResponse.setToken_type(Constants.BEARER);
-
         // cache kyc with access-token as key
         transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
         cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
@@ -193,5 +193,26 @@ public class OAuthServiceImpl implements OAuthService {
         //verify signature
         //on valid signature, verify each claims on JWT payload
         tokenService.verifyClientAssertionToken(ClientId, jwk, clientAssertion);
+    }
+
+    private TokenResponse getTokenResponse(OIDCTransaction transaction) {
+        TokenResponse tokenResponse = new TokenResponse();
+
+        //TODO - For VCI, access-token MUST have below claims with required details
+        //TODO "aud" claim must have the "resource" parameter value added, should we cross check if its whitelisted?
+        //TODO also we will need c_nonce to be in access-token, so that credential endpoint will be able to validate.
+        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
+        tokenResponse.setId_token(tokenService.getIDToken(transaction));
+        tokenResponse.setExpires_in(accessTokenExpireSeconds);
+        tokenResponse.setToken_type(Constants.BEARER);
+
+        //TODO - need to change, we have to add c_nonce only if the request scope is one of the credential scope
+        if(transaction.getProofKeyCodeExchange() != null) {
+            //TODO Need to store this in a separate cache with TTL. Or shall we have it only in access-token?
+            //TODO separate method to generate c_nonce
+            tokenResponse.setC_nonce(IdentityProviderUtil.generateRandomAlphaNumeric(20));
+            tokenResponse.setC_nonce_expires_in(5*60); //TODO take this expire from config
+        }
+        return tokenResponse;
     }
 }

@@ -68,5 +68,9 @@ public class ErrorConstants {
     public static final String FAILED_TO_VALIDATE_CAPTCHA = "failed_to_validate_captcha";
     public static final String INVALID_CAPTCHA = "invalid_captcha";
     public static final String INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT = "invalid_auth_factor_type_or_challenge_format";
+    public static final String UNSUPPORTED_PKCE_CHALLENGE_METHOD = "unsupported_pkce_challenge_method";
+    public static final String INVALID_PKCE_CHALLENGE = "invalid_pkce_challenge";
+    public static final String INVALID_PKCE_CODE_VERFIER = "invalid_pkce_code_verifier";
+    public static final String PKCE_FAILED = "pkce_failed";
 
 }

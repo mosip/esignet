@@ -52,4 +52,9 @@ public class TokenRequest {
     @NotBlank(message = ErrorConstants.INVALID_ASSERTION)
     private String client_assertion;
 
+    /**
+     * The code verifier for the PKCE request.
+     */
+    private String code_verifier;
+
 }
