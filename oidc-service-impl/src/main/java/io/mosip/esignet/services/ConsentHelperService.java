@@ -89,9 +89,9 @@ public class ConsentHelperService {
             userConsent.setClaims(normalizedClaims);
             userConsent.setSignature(signature);
             List<String> permittedScopes = transaction.getPermittedScopes();
-            List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-            Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
-                    .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
+            List<String> requestedAuthorizeScopes = transaction.getRequestedAuthorizeScopes();
+            Map<String, Boolean> authorizeScopes = requestedAuthorizeScopes != null ? requestedAuthorizeScopes.stream()
+                    .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
             userConsent.setAuthorizationScopes(authorizeScopes);
             userConsent.setAcceptedClaims(acceptedClaims);
             userConsent.setPermittedScopes(permittedScopes);
@@ -176,10 +176,9 @@ public class ConsentHelperService {
     private ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail, boolean linked) {
         String hash;
         try {
-            List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-            Map<String, Boolean> authorizeScopes = permittedScopes != null ? permittedScopes.stream()
-                    .collect(Collectors.toMap(Function.identity(), authorizeScope::contains)) : Collections.emptyMap();
+            Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
+                    .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
             Claims normalizedClaims = new Claims();
             normalizedClaims.setUserinfo(normalizeClaims(transaction.getRequestedClaims().getUserinfo()));
             normalizedClaims.setId_token(normalizeClaims(transaction.getRequestedClaims().getId_token()));
