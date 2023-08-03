@@ -8,11 +8,14 @@ import langConfigService from "./services/langConfigService";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import EsignetDetailsPage from "./pages/EsignetDetails";
+import LoadingIndicator from "./common/LoadingIndicator";
+import { LoadingStates as states } from "./constants/states";
 
 function App() {
   const { i18n } = useTranslation();
   const [langOptions, setLangOptions] = useState([]);
   const [dir, setDir] = useState("");
+  const [statusLoading, SetStatusLoading] = useState(states.LOADING);
 
   //Loading rtlLangs
   useEffect(() => {
@@ -31,33 +34,83 @@ function App() {
             });
           }
         }
-
-        setLangOptions(langData);
+        changeLanguage(response);
         setDir(response.rtlLanguages.includes(i18n.language) ? "rtl" : "ltr");
 
         //Gets fired when changeLanguage got called.
         i18n.on("languageChanged", function (lng) {
           setDir(response.rtlLanguages.includes(lng) ? "rtl" : "ltr");
         });
+        setLangOptions(langData);
+        SetStatusLoading(states.LOADED)
       });
     } catch (error) {
       console.error("Failed to load rtl languages!");
     }
   }, []);
 
-  return (
-    <div dir={dir} className="h-screen">
-      <NavHeader langOptions={langOptions} />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<EsignetDetailsPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/authorize" element={<AuthorizePage />} />
-          <Route path="/consent" element={<ConsentPage />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
-  );
+  const changeLanguage = (loadLang) => {
+    //Language detector priotity order: ['querystring', 'cookie', 'localStorage',
+    //      'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
+
+    //1. Check for ui locales param. Highest priority.
+    //This will override the language detectors selected language
+    let supportedLanguages = loadLang.languages_2Letters;
+    let searchUrlParams = new URLSearchParams(window.location.search);
+    let uiLocales = searchUrlParams.get("ui_locales");
+    if (uiLocales) {
+      let languages = uiLocales.split(" ");
+      for (let idx in languages) {
+        if (supportedLanguages[languages[idx]]) {
+          i18n.changeLanguage(languages[idx]);
+          return;
+        }
+      }
+
+      // if language code not found in 2 letter codes, then check mapped language codes
+      let langCodeMapping = loadLang.langCodeMapping;
+      for (let idx in languages) {
+        if (langCodeMapping[languages[idx]]) {
+          i18n.changeLanguage(langCodeMapping[languages[idx]]);
+          return;
+        }
+      }
+    }
+
+
+    //2. Check for cookie
+    //Language detector will store and use cookie "i18nextLng"
+
+    //3. Check for system locale
+    //Language detector will check navigator and subdomain to select proper language
+
+    //4. default lang set in env_configs file as fallback language.
+  };
+
+  let el;
+
+  switch (statusLoading) {
+    case states.LOADING:
+      el = <LoadingIndicator size="medium" message={"loading_msg"} />;
+      break;
+    case states.LOADED:
+      el = (
+        <div dir={dir} className="h-screen">
+          <NavHeader langOptions={langOptions} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<EsignetDetailsPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/authorize" element={<AuthorizePage />} />
+              <Route path="/consent" element={<ConsentPage />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
+      );
+      break;
+  }
+
+  return el;
 }
 
 export default App;
