@@ -36,3 +36,9 @@ LANGUAGE 'plpgsql';
 UPDATE public_key_registry
 SET thumbprint = generate_thumbprint(certificate)
 WHERE thumbprint IS NULL;
+
+--  Drop the generate_thumbprint function
+DROP FUNCTION IF EXISTS generate_thumbprint(text);
+---Drop the Extension pgcrypto
+DROP EXTENSION IF EXISTS pgcrypto;
+
