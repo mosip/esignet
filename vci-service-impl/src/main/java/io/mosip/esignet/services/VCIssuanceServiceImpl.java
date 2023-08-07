@@ -43,13 +43,16 @@ import java.util.*;
 
 @Slf4j
 @Service
-class VCIssuanceServiceImpl implements VCIssuanceService {
+public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     @Value("${config.server.file.storage.uri:}")
     private String configServerFileStorageURL;
+
     @Value("#{${mosip.esignet.vc.context-url-map}}")
     private Map<String, String> contextUrlMap;
 
+
+    /*
     @Value("${mosip.esignet.vc.issuer-url:}")
     private String issuerUrl;
 
@@ -60,7 +63,7 @@ class VCIssuanceServiceImpl implements VCIssuanceService {
     private String proofType;
 
     @Value("${mosip.esignet.vc.proof-verificationmethod:}")
-    private String verificationMethod;
+    private String verificationMethod;*/
 
     @Autowired
     private RestTemplate restTemplate;
@@ -72,7 +75,7 @@ class VCIssuanceServiceImpl implements VCIssuanceService {
     private SignatureService signatureService;
 
     private static Set<String> REQUIRED_ACCESS_TOKEN_CLAIMS;
-    private JSONObject contextJson = null;
+  //  private JSONObject contextJson = null;
     private ConfigurableDocumentLoader confDocumentLoader = null;
 
     static {
@@ -86,7 +89,6 @@ class VCIssuanceServiceImpl implements VCIssuanceService {
 
     @PostConstruct
     public void init() {
-        contextJson = getContextJson();
         Map<URI, JsonDocument> jsonDocumentCacheMap = new HashMap<URI, JsonDocument> ();
         contextUrlMap.keySet().stream().forEach(contextUrl -> {
             String localConfigUrl = contextUrlMap.get(contextUrl);
@@ -106,7 +108,7 @@ class VCIssuanceServiceImpl implements VCIssuanceService {
 
     @Override
     public CredentialResponse getCredential(String authorizationHeader, CredentialRequest credentialRequest) {
-        validateBearerToken(authorizationHeader);
+        //validateBearerToken(authorizationHeader);
 
         JsonLDObject vcJsonLdObject = null;
         try {
@@ -145,10 +147,10 @@ class VCIssuanceServiceImpl implements VCIssuanceService {
         LdProof vcLdProof = LdProof.builder()
                 .defaultContexts(false)
                 .defaultTypes(false)
-                .type(proofType)
+                .type("RsaSignature2018")
                 .created(created)
-                .proofPurpose(proofPurpose)
-                .verificationMethod(new URI(verificationMethod))
+                .proofPurpose("assertionMethod")
+                .verificationMethod(new URI("http://localhost:8088/v1/esignet/oauth/.well-known/jwks.json"))
                 .build();
 
         URDNA2015Canonicalizer canonicalizer =	new URDNA2015Canonicalizer();

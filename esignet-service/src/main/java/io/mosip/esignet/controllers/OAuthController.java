@@ -66,6 +66,30 @@ public class OAuthController {
         }               
     }
 
+    @PostMapping(value = "/v2/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public TokenResponse getTokenV2(@RequestParam MultiValueMap<String,String> paramMap)
+            throws EsignetException {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode(paramMap.getFirst("code"));
+        tokenRequest.setClient_id(paramMap.getFirst("client_id"));
+        tokenRequest.setRedirect_uri(paramMap.getFirst("redirect_uri"));
+        tokenRequest.setGrant_type(paramMap.getFirst("grant_type"));
+        tokenRequest.setClient_assertion_type(paramMap.getFirst("client_assertion_type"));
+        tokenRequest.setClient_assertion(paramMap.getFirst("client_assertion"));
+        tokenRequest.setCode_verifier(paramMap.getFirst("code_verifier"));
+        Set<ConstraintViolation<TokenRequest>> violations = validator.validate(tokenRequest);
+        if(!violations.isEmpty() && violations.stream().findFirst().isPresent()) {
+            throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value
+        }
+        try {
+            return oAuthService.getTokens(tokenRequest);
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
+            throw ex;
+        }
+    }
+
     @GetMapping("/.well-known/jwks.json")
     public Map<String, Object> getAllJwks() {
         return oAuthService.getJwks();
