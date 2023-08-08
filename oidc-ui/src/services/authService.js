@@ -70,6 +70,8 @@ class authService {
    * @param {int} maxAge
    * @param {string} prompt
    * @param {string} uiLocales
+   * @params {string} codeChallenge
+   * @params {string} codeChallengeMethod
    * @returns /oauthDetails API response
    */
   post_OauthDetails = async (
