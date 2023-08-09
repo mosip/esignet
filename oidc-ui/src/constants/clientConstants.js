@@ -74,7 +74,8 @@ const configurationKeys = {
   passwordRegex : "password.regex",
   walletLogoURL: "wallet.logo-url",
   consentScreenExpireInSec: "consent.screen.timeout-in-secs",
-  consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs"
+  consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
+  walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit"
 };
 
 export {
