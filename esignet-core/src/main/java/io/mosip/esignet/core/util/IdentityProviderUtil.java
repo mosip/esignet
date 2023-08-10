@@ -5,8 +5,6 @@
  */
 package io.mosip.esignet.core.util;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -221,27 +219,6 @@ public class IdentityProviderUtil {
             return DatatypeConverter.printHexBinary(md.digest()).toLowerCase();
         } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
             throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
-        }
-    }
-
-    public static void main(String[] args) throws MalformedURLException {
-        Map<String,String> map = new HashMap<>();
-        map.put("io.mosip.residentapp://oauth", "io.mosip.residentapp://oauth");
-        map.put("io.mosip.residentapp://oauth/*", "io.mosip.residentapp://oauth/");
-        map.put("https://domain.com/resident", "https://domain.com/resident");
-        map.put("https://domain.com/resident/", "https://domain.com/resident/");
-        map.put("https://domain.com/resident/*", "https://domain.com/resident/oauth");
-        map.put("https://domain.com/resident/*", "https://domain.com/resident/oauth/dfgdfgdfgdfg/dfgdfg/fdgdfg");
-        map.put("https://domaincom/*/*", "https://domaincom/resident/oauth");
-        map.put("https://.*", "https://domain.com/resident/oauth");
-        map.put(".*", "https://domain.com/resident/oauth");
-
-        for(String registeredUri : map.keySet()) {
-            String requestedUri = map.get(registeredUri);
-            if(urlValidator.isValid(registeredUri) && urlValidator.isValid(requestedUri)) {
-                boolean matched = pathMatcher.match(registeredUri, requestedUri);
-                log.info("Registered : {}  Requested: {}   Matched: {}", registeredUri, requestedUri, matched);
-            }
         }
     }
 }

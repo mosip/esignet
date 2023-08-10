@@ -1,9 +1,7 @@
 package io.mosip.esignet.services;
 
-import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.document.JsonDocument;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -30,10 +28,8 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -45,24 +41,23 @@ import java.util.*;
 @Service
 public class VCIssuanceServiceImpl implements VCIssuanceService {
 
+    @Value("#{${mosip.esignet.vci.key-values}}")
+    private Map<String, Object> issuerMetadata;
+
     @Value("${config.server.file.storage.uri:}")
-    private String configServerFileStorageURL;
+    private String configServerFileStorageURL; //TODO Remove this later
 
     @Value("#{${mosip.esignet.vc.context-url-map}}")
-    private Map<String, String> contextUrlMap;
+    private Map<String, String> contextUrlMap; //TODO Remove this later
 
-    //TODO Remove this later
     @Value("#{${mosip.esignet.discovery.key-values}}")
-    private Map<String, Object> discoveryMap;
+    private Map<String, Object> discoveryMap; //TODO Remove this later
 
     @Autowired
-    private RestTemplate restTemplate;
+    private VCIUtilService vciUtilService;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private SignatureService signatureService;
+    private SignatureService signatureService; //TODO Remove this later
 
     private static Set<String> REQUIRED_ACCESS_TOKEN_CLAIMS;
 
@@ -78,11 +73,11 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() { //TODO Remove this later
         Map<URI, JsonDocument> jsonDocumentCacheMap = new HashMap<URI, JsonDocument> ();
         contextUrlMap.keySet().stream().forEach(contextUrl -> {
             String localConfigUrl = contextUrlMap.get(contextUrl);
-            JsonDocument jsonDocument = getContextJsonLd(configServerFileStorageURL, localConfigUrl);
+            JsonDocument jsonDocument = vciUtilService.readJsonLDDocument(configServerFileStorageURL+localConfigUrl);
             try {
                 jsonDocumentCacheMap.put(new URI(contextUrl), jsonDocument);
             } catch (URISyntaxException e) {
@@ -112,6 +107,11 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         credentialResponse.setCredential(new JSONObject(vcJsonLdObject.toMap()));
         credentialResponse.setFormat("ldp_vc");
         return credentialResponse;
+    }
+
+    @Override
+    public Map<String, Object> getCredentialIssuerMetadata() {
+        return issuerMetadata;
     }
 
     private JsonLDObject buildDummyJsonLDWithLDProof() throws Exception {
@@ -190,34 +190,5 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
             log.error("Access token claims verification failed", e);
             throw new NotAuthenticatedException();
         }
-    }
-
-
-    private JsonDocument getContextJsonLd(String configServerUrl, String fileName) {
-        try {
-            log.info("Downloading ContextJsonLd file {}{}", configServerUrl, fileName);
-            String vcContextStr = restTemplate.getForObject(configServerUrl+fileName, String.class);
-            JsonDocument jsonDocument = JsonDocument.of(new StringReader(vcContextStr));
-            return jsonDocument;
-        } catch (JsonLdError e) {
-            log.error("Failed to load VC context json LD document", e);
-        }
-        throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
-    }
-
-    private JSONObject getContextJson() {
-        try {
-           String vcContextStr = "{\n" +
-                    "   \"context\" : [\n" +
-                    "    \"https://www.w3.org/2018/credentials/v1\",\n" +
-                    "    \"https://w3id.org/security#\"\n" +
-                    "]\n" +
-                    "}";
-            JSONObject jsonObject = objectMapper.readValue(vcContextStr, JSONObject.class);
-            return jsonObject;
-        } catch (Exception e) {
-            log.error("Failed to load VC context json", e);
-        }
-        throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
     }
 }

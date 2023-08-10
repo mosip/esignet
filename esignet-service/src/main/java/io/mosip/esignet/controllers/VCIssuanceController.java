@@ -30,4 +30,13 @@ public class VCIssuanceController {
                                             @RequestBody CredentialRequest credentialRequest) throws EsignetException {
         return vcIssuanceService.getCredential(bearerToken, credentialRequest);
     }
+
+    /**
+     * Open endpoint to provide server metadata
+     * @return
+     */
+    @GetMapping(value = "/.well-known/openid-credential-issuer",produces = "application/json")
+    public Map<String, Object> getMetadata() {
+        return vcIssuanceService.getCredentialIssuerMetadata();
+    }
 }

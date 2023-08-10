@@ -76,7 +76,7 @@ public class OAuthServiceImpl implements OAuthService {
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
         if(transaction.getProofKeyCodeExchange() != null &&
-                transaction.getProofKeyCodeExchange().isValidPKCE(tokenRequest.getCode_verifier()))
+                !transaction.getProofKeyCodeExchange().isValidPKCE(tokenRequest.getCode_verifier()))
             throw new EsignetException(ErrorConstants.PKCE_FAILED);
 
         if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
