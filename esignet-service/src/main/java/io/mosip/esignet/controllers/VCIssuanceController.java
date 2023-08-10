@@ -6,7 +6,10 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.VCIssuanceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -15,6 +18,9 @@ public class VCIssuanceController {
 
     @Autowired
     private VCIssuanceService vcIssuanceService;
+
+    @Value("#{${mosip.esignet.vci.key-values}}")
+    private Map<String, Object> metadata;
 
     /**
      * 1. The credential Endpoint MUST accept Access Tokens
@@ -26,5 +32,10 @@ public class VCIssuanceController {
     public CredentialResponse getCredential(@RequestHeader("Authorization") String bearerToken,
                                             @RequestBody CredentialRequest credentialRequest) throws EsignetException {
         return vcIssuanceService.getCredential(bearerToken, credentialRequest);
+    }
+
+    @GetMapping(value = "/.well-known/openid-credential-issuer",produces = "application/json")
+    public Map<String, Object> getMetadata() {
+        return metadata;
     }
 }

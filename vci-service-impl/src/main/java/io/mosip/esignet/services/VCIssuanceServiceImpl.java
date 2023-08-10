@@ -51,19 +51,9 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     @Value("#{${mosip.esignet.vc.context-url-map}}")
     private Map<String, String> contextUrlMap;
 
-
-    /*
-    @Value("${mosip.esignet.vc.issuer-url:}")
-    private String issuerUrl;
-
-    @Value("${mosip.esignet.vc.proof-purpose:}")
-    private String proofPurpose;
-
-    @Value("${mosip.esignet.vc.proof-type:}")
-    private String proofType;
-
-    @Value("${mosip.esignet.vc.proof-verificationmethod:}")
-    private String verificationMethod;*/
+    //TODO Remove this later
+    @Value("#{${mosip.esignet.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -75,7 +65,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     private SignatureService signatureService;
 
     private static Set<String> REQUIRED_ACCESS_TOKEN_CLAIMS;
-  //  private JSONObject contextJson = null;
+
     private ConfigurableDocumentLoader confDocumentLoader = null;
 
     static {
@@ -103,12 +93,12 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         confDocumentLoader.setEnableHttps(false);
         confDocumentLoader.setEnableHttp(false);
         confDocumentLoader.setEnableFile(false);
-        log.info("Added cache for the list of configured URL Map: " + jsonDocumentCacheMap.keySet().toString());
+        log.info("Added cache for the list of configured URL Map: " + jsonDocumentCacheMap.keySet());
     }
 
     @Override
     public CredentialResponse getCredential(String authorizationHeader, CredentialRequest credentialRequest) {
-        //validateBearerToken(authorizationHeader);
+        validateBearerToken(authorizationHeader);
 
         JsonLDObject vcJsonLdObject = null;
         try {
@@ -150,7 +140,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
                 .type("RsaSignature2018")
                 .created(created)
                 .proofPurpose("assertionMethod")
-                .verificationMethod(new URI("http://localhost:8088/v1/esignet/oauth/.well-known/jwks.json"))
+                .verificationMethod(new URI((String) discoveryMap.get("jwks_uri")))
                 .build();
 
         URDNA2015Canonicalizer canonicalizer =	new URDNA2015Canonicalizer();
