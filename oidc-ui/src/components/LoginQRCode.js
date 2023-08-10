@@ -51,7 +51,7 @@ export default function LoginQRCode({
 
   const walletQrCodeAutoRefreshLimit = openIDConnectService.getEsignetConfiguration(
     configurationKeys.walletQrCodeAutoRefreshLimit
-  ) ?? process.env.REACT_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
+  ) ?? process.env.REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
 
   const GenerateQRCode = (response, logoUrl) => {
     let text =
