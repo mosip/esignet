@@ -19,9 +19,6 @@ public class VCIssuanceController {
     @Autowired
     private VCIssuanceService vcIssuanceService;
 
-    @Value("#{${mosip.esignet.vci.key-values}}")
-    private Map<String, Object> metadata;
-
     /**
      * 1. The credential Endpoint MUST accept Access Tokens
      * @param bearerToken
@@ -32,10 +29,5 @@ public class VCIssuanceController {
     public CredentialResponse getCredential(@RequestHeader("Authorization") String bearerToken,
                                             @RequestBody CredentialRequest credentialRequest) throws EsignetException {
         return vcIssuanceService.getCredential(bearerToken, credentialRequest);
-    }
-
-    @GetMapping(value = "/.well-known/openid-credential-issuer",produces = "application/json")
-    public Map<String, Object> getMetadata() {
-        return metadata;
     }
 }
