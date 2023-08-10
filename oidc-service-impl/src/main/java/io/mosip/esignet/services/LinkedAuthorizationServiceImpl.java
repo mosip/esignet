@@ -241,6 +241,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())){
             validateConsent(transaction, transaction.getAcceptedClaims(), transaction.getPermittedScopes());
             cacheUtilService.setLinkedConsentedTransaction(transaction.getLinkedTransactionId(), transaction);
+            consentHelperService.updateUserConsent(transaction,true, "");
             kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkedTransactionId());
         } else {
             cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);

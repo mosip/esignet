@@ -38,6 +38,12 @@ public class ConsentDetail {
     @Column(name = "claims")
     private String claims;
 
+    /*
+    It stores the requested authorization scopes from the relying party in a json string
+    {
+        "scope" : "boolean" (essential or optional)
+    }
+     */
     @NotNull
     @Column(name = "authorization_scopes")
     private String authorizationScopes;
