@@ -10,16 +10,16 @@ import org.springframework.util.StringUtils;
 
 import java.nio.charset.Charset;
 
+import static io.mosip.esignet.core.constants.Constants.S256;
+
 /**
- * PKCE support for OIDC transaction when using authorization code flow.
+ * Pkce support for OIDC transaction when using authorization code flow.
  * technique to mitigate auth-code interception attacks.
  */
 @Slf4j
 @Getter
 @Setter
 public class ProofKeyCodeExchange {
-
-    private static final String S256 = "S256";
 
     private String codeChallenge;
     private String codeChallengeMethod;
@@ -42,20 +42,5 @@ public class ProofKeyCodeExchange {
             default:
                 throw new EsignetException(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD);
         }
-    }
-
-    public boolean isValidPKCE(String codeVerifier) {
-        if(StringUtils.isEmpty(codeVerifier)) {
-            log.error("Null or empty code_verifier found in the request");
-            throw new EsignetException(ErrorConstants.INVALID_PKCE_CODE_VERFIER);
-        }
-
-        switch (this.codeChallengeMethod) {
-            case S256 :
-                byte[] verifierBytes = codeVerifier.getBytes(Charset.forName("US-ASCII"));
-                String codeVerifierHash = IdentityProviderUtil.generateB64EncodedHash(IdentityProviderUtil.ALGO_SHA_256, verifierBytes);
-                return codeVerifierHash.equals(this.codeChallenge);
-        }
-        throw new EsignetException(ErrorConstants.INVALID_PKCE_CODE_VERFIER);
     }
 }
