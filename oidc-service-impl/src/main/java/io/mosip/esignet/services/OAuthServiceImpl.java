@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -72,14 +73,8 @@ public class OAuthServiceImpl implements OAuthService {
     public TokenResponse getTokens(TokenRequest tokenRequest) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
-        if(transaction == null || transaction.getKycToken() == null)
-            throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
-        if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
-
-        if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
+        validateRequestParametersWithTransaction(tokenRequest, transaction);
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
@@ -107,14 +102,10 @@ public class OAuthServiceImpl implements OAuthService {
 
         auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
 
-        TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
+        TokenResponse tokenResponse = getTokenResponse(transaction);
+
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
-        tokenResponse.setId_token(tokenService.getIDToken(transaction));
-        tokenResponse.setExpires_in(accessTokenExpireSeconds);
-        tokenResponse.setToken_type(Constants.BEARER);
-
         // cache kyc with access-token as key
         transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
         cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
@@ -123,6 +114,7 @@ public class OAuthServiceImpl implements OAuthService {
                 transaction), null);
         return tokenResponse;
     }
+
 
     @Override
     public Map<String, Object> getJwks() {
@@ -175,6 +167,44 @@ public class OAuthServiceImpl implements OAuthService {
         return map;
     }
 
+    private void validateRequestParametersWithTransaction(TokenRequest tokenRequest, OIDCTransaction transaction) {
+        if(transaction == null || transaction.getKycToken() == null)
+            throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
+
+        if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
+            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
+
+        if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
+            throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
+
+        validatePKCE(transaction.getProofKeyCodeExchange(), tokenRequest.getCode_verifier());
+    }
+
+    private void validatePKCE(ProofKeyCodeExchange proofKeyCodeExchange, String codeVerifier) {
+        if(proofKeyCodeExchange == null) {
+            log.info("Proof Key Code Exchange is not applicable, Do nothing");
+            return;
+        }
+
+        if(StringUtils.isEmpty(codeVerifier)) {
+            log.error("Null or empty code_verifier found in the request");
+            throw new EsignetException(ErrorConstants.INVALID_PKCE_CODE_VERFIER);
+        }
+
+        String computedChallenge;
+        switch (proofKeyCodeExchange.getCodeChallengeMethod()) {
+            case S256 :
+                byte[] verifierBytes = codeVerifier.getBytes(Charset.forName("US-ASCII"));
+                computedChallenge = IdentityProviderUtil.generateB64EncodedHash(IdentityProviderUtil.ALGO_SHA_256, verifierBytes);
+                break;
+            default:
+                throw new EsignetException(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD);
+        }
+
+        if(StringUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
+            throw new EsignetException(ErrorConstants.PKCE_FAILED);
+    }
+
     private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws EsignetException {
         switch (tokenRequest.getClient_assertion_type()) {
             case JWT_BEARER_TYPE:
@@ -185,7 +215,6 @@ public class OAuthServiceImpl implements OAuthService {
         }
     }
 
-
     private void validateJwtClientAssertion(String ClientId, String jwk, String clientAssertion) throws EsignetException {
         if(clientAssertion == null || clientAssertion.isBlank())
             throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
@@ -193,5 +222,26 @@ public class OAuthServiceImpl implements OAuthService {
         //verify signature
         //on valid signature, verify each claims on JWT payload
         tokenService.verifyClientAssertionToken(ClientId, jwk, clientAssertion);
+    }
+
+    private TokenResponse getTokenResponse(OIDCTransaction transaction) {
+        TokenResponse tokenResponse = new TokenResponse();
+
+        //TODO - For VCI, access-token MUST have below claims with required details
+        //TODO "aud" claim must have the "resource" parameter value added, should we cross check if its whitelisted?
+        //TODO also we will need c_nonce to be in access-token, so that credential endpoint will be able to validate.
+        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
+        tokenResponse.setId_token(tokenService.getIDToken(transaction));
+        tokenResponse.setExpires_in(accessTokenExpireSeconds);
+        tokenResponse.setToken_type(Constants.BEARER);
+
+        //TODO - need to change, we have to add c_nonce only if the request scope is one of the credential scope
+        if(transaction.getProofKeyCodeExchange() != null) {
+            //TODO Need to store this in a separate cache with TTL. Or shall we have it only in access-token?
+            //TODO separate method to generate c_nonce
+            tokenResponse.setC_nonce(IdentityProviderUtil.generateRandomAlphaNumeric(20));
+            tokenResponse.setC_nonce_expires_in(5*60); //TODO take this expire from config
+        }
+        return tokenResponse;
     }
 }

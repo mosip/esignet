@@ -406,7 +406,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withInvalidAcr_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
@@ -505,7 +505,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withOnlyOpenIdScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid");
@@ -556,7 +556,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withOpenIdScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("profile openid");
@@ -583,7 +583,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withOnlyAuthorizeScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("resident-service");
@@ -610,7 +610,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withAuthorizeAndOpenIdScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid resident-service");
