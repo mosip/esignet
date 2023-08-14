@@ -15,7 +15,7 @@ public class PKCECodeChallengeMethodValidator implements ConstraintValidator<PKC
     private List<String> supportedMethods;
 
     @Override
-    public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        return (!StringUtils.isEmpty(s) && !supportedMethods.contains("S256")) ? false : true;
+    public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
+        return (!StringUtils.isEmpty(value) && !supportedMethods.contains(value)) ? false : true;
     }
 }
