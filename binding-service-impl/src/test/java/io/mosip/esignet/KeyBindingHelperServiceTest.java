@@ -36,6 +36,24 @@ import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KE
 @RunWith(MockitoJUnitRunner.class)
 public class KeyBindingHelperServiceTest {
 
+    private static final String cerificateString="-----BEGIN CERTIFICATE-----\n" +
+            "MIICrzCCAZegAwIBAgIGAYk++jfeMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
+            "CE1vY2stSURBMB4XDTIzMDcxMDAzMTUzM1oXDTIzMDcyMDAzMTUzM1owHjEcMBoG\n" +
+            "A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP\n" +
+            "ADCCAQoCggEBAJy7TzHJJNkjlnSi87fkUr8NMM9k3UIkoAtAqiH7J4uPG1wcdgQK\n" +
+            "luX1wfhsed7TUnblrZCZXOaxqT2kN1uniC28bekQPkWs/e0Mm8s3r7ncxyTtCMlS\n" +
+            "kSlg6ZFN3bV2m3x893vFx81yOGk534Jc9O9qxouxB7WMHn8ynM9BE8k0VaNXyj2/\n" +
+            "z0E7IXqpei4UDNdTU0avmqYGjw/YTsTdlrwQebwn9clwVvld2ZFV4jdgErTqLJ/Y\n" +
+            "u7wIZmYzL3ib5kf2+tVZhY/MnqsT0Bx+TFatnd2Aout5/Hs2V2HdwSBY6ET6SXVT\n" +
+            "NXKDtH3Sw6AyNPj+jo6l5IARsuOvWioTrfsCAwEAATANBgkqhkiG9w0BAQsFAAOC\n" +
+            "AQEAgOtPRuk9IyrRGOFWyFlwJdqZxqVO+78UAJKJmBiko6xxeezkYqqiAuwcyWFj\n" +
+            "XWmvvcwlTdCyfEnGWRi74r4ma7u0h5O4U3AJxPF0/BKklCF9nabRqtSC9ENPKHpf\n" +
+            "/MAsZF/dQkzQ+k8oqCVKgg/OpgmLGg1dBFvBUOsSUtzp2Mv3GhQO8cjHb32YsS2C\n" +
+            "EL2oRcBvJ0SQ9kmYaZ4Pb08xlbTTWbNtPJDj58w4S5Xs2PFlbJr/Ibe3DZM7nYym\n" +
+            "zfeCZDzlkLcSCpEaFCMdeuZSpmdSrRaJ9gquR+Ix3uYrqKNmd6eVq+yr1F5DXu9e\n" +
+            "c6Ny6Ira8ylf96JLLRfh3b5G4w==\n" +
+            "-----END CERTIFICATE-----\n";
+
     @InjectMocks
     private KeyBindingHelperService keyBindingHelperService;
 
@@ -64,29 +82,13 @@ public class KeyBindingHelperServiceTest {
         Mockito.when(keymanagerUtil.convertToCertificate(Mockito.anyString())).thenReturn(certificate);
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
         publicKeyRegistry.setWalletBindingId("wallet-binding-id");
-        publicKeyRegistry.setCertificate("-----BEGIN CERTIFICATE-----\n" +
-                "MIICrzCCAZegAwIBAgIGAYk++jfeMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
-                "CE1vY2stSURBMB4XDTIzMDcxMDAzMTUzM1oXDTIzMDcyMDAzMTUzM1owHjEcMBoG\n" +
-                "A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP\n" +
-                "ADCCAQoCggEBAJy7TzHJJNkjlnSi87fkUr8NMM9k3UIkoAtAqiH7J4uPG1wcdgQK\n" +
-                "luX1wfhsed7TUnblrZCZXOaxqT2kN1uniC28bekQPkWs/e0Mm8s3r7ncxyTtCMlS\n" +
-                "kSlg6ZFN3bV2m3x893vFx81yOGk534Jc9O9qxouxB7WMHn8ynM9BE8k0VaNXyj2/\n" +
-                "z0E7IXqpei4UDNdTU0avmqYGjw/YTsTdlrwQebwn9clwVvld2ZFV4jdgErTqLJ/Y\n" +
-                "u7wIZmYzL3ib5kf2+tVZhY/MnqsT0Bx+TFatnd2Aout5/Hs2V2HdwSBY6ET6SXVT\n" +
-                "NXKDtH3Sw6AyNPj+jo6l5IARsuOvWioTrfsCAwEAATANBgkqhkiG9w0BAQsFAAOC\n" +
-                "AQEAgOtPRuk9IyrRGOFWyFlwJdqZxqVO+78UAJKJmBiko6xxeezkYqqiAuwcyWFj\n" +
-                "XWmvvcwlTdCyfEnGWRi74r4ma7u0h5O4U3AJxPF0/BKklCF9nabRqtSC9ENPKHpf\n" +
-                "/MAsZF/dQkzQ+k8oqCVKgg/OpgmLGg1dBFvBUOsSUtzp2Mv3GhQO8cjHb32YsS2C\n" +
-                "EL2oRcBvJ0SQ9kmYaZ4Pb08xlbTTWbNtPJDj58w4S5Xs2PFlbJr/Ibe3DZM7nYym\n" +
-                "zfeCZDzlkLcSCpEaFCMdeuZSpmdSrRaJ9gquR+Ix3uYrqKNmd6eVq+yr1F5DXu9e\n" +
-                "c6Ny6Ira8ylf96JLLRfh3b5G4w==\n" +
-                "-----END CERTIFICATE-----\n");
+        publicKeyRegistry.setCertificate(cerificateString);
         Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),
                 Mockito.anyString())).thenReturn(Optional.of(publicKeyRegistry));
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(publicKeyRegistry);
 
         publicKeyRegistry = keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
-                "certificate", "WLA");
+                cerificateString, "WLA");
         Assert.assertNotNull(publicKeyRegistry);
     }
 
@@ -114,7 +116,7 @@ public class KeyBindingHelperServiceTest {
                 Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(new PublicKeyRegistry());
         Assert.assertNotNull(keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
-                "certificate", "WLA"));
+                cerificateString, "WLA"));
     }
 
     private X509Certificate getCertificate(JWK jwk) throws Exception {

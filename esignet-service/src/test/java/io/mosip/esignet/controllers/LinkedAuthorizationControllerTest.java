@@ -743,6 +743,7 @@ public class LinkedAuthorizationControllerTest {
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
         LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
         linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
+        linkedConsentRequestV2.setSignature("eyJ4NXQjUzI1NiI6InpCRm1ILW94QTJUczdtLTI2V3ZaTTFyaG9HckFuRXdpX3hLcHBoTFEzWnciLCJhbGciOiJSUzI1NiJ9.BYOnWu4gyzPluh5H6bWsznWSD39WPl_YcWmjGff6j0-CGlDwfq61VsDCQp1lZp0GOZj8ebHIhWJndg2UotRjBnw1HXjRL3UFTMgf3WoTecQsDQKjAE8HCUwYbtF7j1wYha5o5P2Ah-CVJhgVbY947ZoKFo7w1ER0Dgjc_GHESHuCkly_KFrw2Nd0MNtBmkkrhr01QGjM62LbLf_UrTyIapQbu8tSTPIcpScM-2cLNaT7PdA0KXedPOVDLKrcz7EpG4xgpg9uUZ6uxs10spp39k_orJNO3x8dxhLZQTu1KHRGFb3It6KJlKwOYrdeOVyJnA2KcqhZ-7u69YhWvDIp4w");
         requestWrapper.setRequest(linkedConsentRequestV2);
 
         LinkedConsentResponse linkedConsentResponse = new LinkedConsentResponse();
@@ -779,6 +780,7 @@ public class LinkedAuthorizationControllerTest {
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
         LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
         linkedConsentRequestV2.setLinkedTransactionId("  ");
+        linkedConsentRequestV2.setSignature("eyJ4NXQjUzI1NiI6InpCRm1ILW94QTJUczdtLTI2V3ZaTTFyaG9HckFuRXdpX3hLcHBoTFEzWnciLCJhbGciOiJSUzI1NiJ9.BYOnWu4gyzPluh5H6bWsznWSD39WPl_YcWmjGff6j0-CGlDwfq61VsDCQp1lZp0GOZj8ebHIhWJndg2UotRjBnw1HXjRL3UFTMgf3WoTecQsDQKjAE8HCUwYbtF7j1wYha5o5P2Ah-CVJhgVbY947ZoKFo7w1ER0Dgjc_GHESHuCkly_KFrw2Nd0MNtBmkkrhr01QGjM62LbLf_UrTyIapQbu8tSTPIcpScM-2cLNaT7PdA0KXedPOVDLKrcz7EpG4xgpg9uUZ6uxs10spp39k_orJNO3x8dxhLZQTu1KHRGFb3It6KJlKwOYrdeOVyJnA2KcqhZ-7u69YhWvDIp4w");
         requestWrapper.setRequest(linkedConsentRequestV2);
 
         mockMvc.perform(post("/linked-authorization/v2/consent")
