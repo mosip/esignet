@@ -1,13 +1,13 @@
 {
 	"info": {
-		"_postman_id": "496855d4-693e-43f6-b0be-dd22c2cd3fa1",
+		"_postman_id": "1a83d431-bc52-4c0d-bf25-4158e7a96e75",
 		"name": "MOSIP e-Signet Collection RealIDA",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "6039892"
 	},
 	"item": [
 		{
-			"name": "Auth API",
+			"name": "Auth API - Userid Password",
 			"event": [
 				{
 					"listen": "test",
@@ -53,7 +53,7 @@
 			"response": []
 		},
 		{
-			"name": "Create OIDC client",
+			"name": "Create OIDC client - Client Management",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -136,7 +136,7 @@
 			"response": []
 		},
 		{
-			"name": "Update OIDC",
+			"name": "Update OIDC - Client Management",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -194,17 +194,11 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.mec.mosip.net/v1/esignet/client-mgmt/oidc-client/OAjPQymFHSO50IKxlWDKzjvDHJpzLNIOq92Svhard8s",
-					"protocol": "https",
+					"raw": "{{url}}/client-mgmt/oidc-client/OAjPQymFHSO50IKxlWDKzjvDHJpzLNIOq92Svhard8s",
 					"host": [
-						"api",
-						"mec",
-						"mosip",
-						"net"
+						"{{url}}"
 					],
 					"path": [
-						"v1",
-						"esignet",
 						"client-mgmt",
 						"oidc-client",
 						"OAjPQymFHSO50IKxlWDKzjvDHJpzLNIOq92Svhard8s"
@@ -214,7 +208,7 @@
 			"response": []
 		},
 		{
-			"name": "PMS Authentication",
+			"name": "PMS Authentication - ClienID Secret",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -299,99 +293,6 @@
 						"{{internalUrl}}"
 					],
 					"path": [
-						"partnermanager",
-						"oidc",
-						"client"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create OIDC client 2",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate clientId\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
-							"});",
-							"",
-							"pm.test(\"Validate status\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"host": true,
-					"user-agent": true
-				}
-			},
-			"request": {
-				"auth": {
-					"type": "apikey",
-					"apikey": [
-						{
-							"key": "value",
-							"value": "Authorization={{authorizationToken}}",
-							"type": "string"
-						},
-						{
-							"key": "in",
-							"value": "header",
-							"type": "string"
-						},
-						{
-							"key": "key",
-							"value": "Cookie",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Host",
-						"value": "api-internal.dev3.mosip.net",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"id\": \"string\",\n    \"version\": \"string\",\n    \"requesttime\": \"2022-12-28T12:23:24.448Z\",\n    \"metadata\": {},\n    \"request\":{\n        \"name\": \"postman client\",\n        \"policyId\": \"17700\",\n        \"publicKey\": {{client_public_key}},\n        \"authPartnerId\": \"mpartner-default-demo-oidc\",\n        \"logoUri\": \"https://health-services.com/logo.png\",\n        \"redirectUris\": [\n        {{redirectionUrl}}\n        ],\n        \"grantTypes\": [\n        \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n        \"private_key_jwt\"\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://api-internal.dev3.mosip.net/v1/partnermanager/oidc/client",
-					"protocol": "https",
-					"host": [
-						"api-internal",
-						"dev3",
-						"mosip",
-						"net"
-					],
-					"path": [
-						"v1",
 						"partnermanager",
 						"oidc",
 						"client"
