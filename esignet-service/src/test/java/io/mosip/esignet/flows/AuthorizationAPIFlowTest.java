@@ -135,14 +135,14 @@ public class AuthorizationAPIFlowTest {
 
     @Test
     public void invalidClientId_thenFail() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails("invalid-client", redirectionUrl, state, nonce);
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails("invalid-client", redirectionUrl, state, nonce);
         assertErrorCode(oAuthDetailResponseWrapper, ErrorConstants.INVALID_CLIENT_ID);
     }
 
     @Test
     public void authWithInvalidTransactionId_thenFail() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(null);
         assertErrorCode(authResponseResponseWrapper, ErrorConstants.INVALID_TRANSACTION_ID);
@@ -165,8 +165,8 @@ public class AuthorizationAPIFlowTest {
 
     @Test
     public void callAuthTwiceWithValidTransactionId_thenFail() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
         Assert.assertNotNull(authResponseResponseWrapper);
         Assert.assertNotNull(authResponseResponseWrapper.getResponseTime());
@@ -179,8 +179,8 @@ public class AuthorizationAPIFlowTest {
 
     @Test
     public void getAuthCodeAfterAuthCall_thenPass() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
         Assert.assertNotNull(authResponseResponseWrapper);
@@ -200,16 +200,16 @@ public class AuthorizationAPIFlowTest {
 
     @Test
     public void getAuthCodeBeforeAuthCall_thenFail() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         ResponseWrapper<AuthCodeResponse> responseWrapper = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
         assertErrorCode(responseWrapper, ErrorConstants.INVALID_TRANSACTION);
     }
 
     @Test
     public void sendotpAfterSuccessAuthCall_thenFail() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
         Assert.assertNotNull(authResponseResponseWrapper);
@@ -224,8 +224,8 @@ public class AuthorizationAPIFlowTest {
 
     @Test
     public void sendotpAfterSuccessAuthcodeCall_thenFail() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
         Assert.assertNotNull(authResponseResponseWrapper);
@@ -249,8 +249,8 @@ public class AuthorizationAPIFlowTest {
 
     @Test
     public void sendotpAfterFailedAuthcodeCall_thenFail() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
         Assert.assertNotNull(authResponseResponseWrapper);
@@ -268,8 +268,8 @@ public class AuthorizationAPIFlowTest {
 
     @Test
     public void sendotpAfterFailedAuthCall_thenPass() throws Exception {
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticateWithInvalidPin(oAuthDetailResponse.getTransactionId());
         assertErrorCode(authResponseResponseWrapper, AUTH_FAILED);
@@ -447,7 +447,7 @@ public class AuthorizationAPIFlowTest {
         return response;
     }
 
-    private ResponseWrapper<OAuthDetailResponse> getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
+    private ResponseWrapper<OAuthDetailResponseV1> getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
         oAuthDetailRequest.setClientId(clientId);
         oAuthDetailRequest.setRedirectUri(redirectionUrl);
@@ -474,8 +474,8 @@ public class AuthorizationAPIFlowTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        ResponseWrapper<OAuthDetailResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
-                new TypeReference<ResponseWrapper<OAuthDetailResponse>>() {});
+        ResponseWrapper<OAuthDetailResponseV1> response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<ResponseWrapper<OAuthDetailResponseV1>>() {});
         return response;
     }
 }

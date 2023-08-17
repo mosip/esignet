@@ -14,7 +14,6 @@ import java.util.Map;
 public class LinkTransactionResponse {
 
     private String linkTransactionId;
-    private String clientName;
     private String logoUrl;
     private List<List<AuthenticationFactor>> authFactors;
     private List<String> authorizeScopes;
