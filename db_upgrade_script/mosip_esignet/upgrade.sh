@@ -27,7 +27,7 @@ echo "Terminated connections"
 # Execute upgrade or rollback
 if [ "$ACTION" == "upgrade" ]; then
   echo "Upgrading database from $CURRENT_VERSION to $UPGRADE_VERSION"
-  UPGRADE_SCRIPT_FILE="mosip_esignet/${CURRENT_VERSION}_to_${UPGRADE_VERSION}_upgrade.sql"
+  UPGRADE_SCRIPT_FILE="sql/${CURRENT_VERSION}_to_${UPGRADE_VERSION}_upgrade.sql"
   if [ -f "$UPGRADE_SCRIPT_FILE" ]; then
     echo "Executing upgrade script $UPGRADE_SCRIPT_FILE"
     PGPASSWORD=$SU_USER_PWD psql -v ON_ERROR_STOP=1 --username=$SU_USER --host=$DB_SERVERIP --port=$DB_PORT --dbname=$DEFAULT_DB_NAME -v primary_language_code=$PRIMARY_LANGUAGE_CODE -a -b -f $UPGRADE_SCRIPT_FILE
@@ -37,7 +37,7 @@ if [ "$ACTION" == "upgrade" ]; then
   fi
 elif [ "$ACTION" == "rollback" ]; then
   echo "Rolling back database for $CURRENT_VERSION to $UPGRADE_VERSION"
-  REVOKE_SCRIPT_FILE="mosip_esignet/${CURRENT_VERSION}_to_${UPGRADE_VERSION}_rollback.sql"
+  REVOKE_SCRIPT_FILE="sql/${CURRENT_VERSION}_to_${UPGRADE_VERSION}_rollback.sql"
   if [ -f "$REVOKE_SCRIPT_FILE" ]; then
     echo "Executing rollback script $REVOKE_SCRIPT_FILE"
     PGPASSWORD=$SU_USER_PWD psql -v ON_ERROR_STOP=1 --username=$SU_USER --host=$DB_SERVERIP --port=$DB_PORT --dbname=$DEFAULT_DB_NAME -v primary_language_code=$PRIMARY_LANGUAGE_CODE -a -b -f $REVOKE_SCRIPT_FILE
