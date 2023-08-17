@@ -10,7 +10,7 @@ on:
       - 1.*
       - develop
       - main
-      - MOSIP-28660
+      - PSA*
   
 jobs:
   call-workflow-codeql-analysis:
