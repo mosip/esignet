@@ -50,7 +50,7 @@ The application runs on PORT=3000 by default.
   - REACT_APP_SBI_IRIS_BIO_SUBTYPES: sbi subtypes for iris
   - REACT_APP_SBI_FINGER_BIO_SUBTYPES: sbi subtypes for finger
   - REACT_APP_SBI_ENV: Value that needs to be passed into sbi /capture request's evn parameter.
-  - REACT_APP_ESIGNET_API_URL: This will be internally resolved to Esignet services URL (`/v1/Esignet`).
+  - REACT_APP_ESIGNET_API_URL: This will be internally resolved to Esignet services URL (`/v1/esignet`).
 - Build and run Docker for a service:
 
   ```
