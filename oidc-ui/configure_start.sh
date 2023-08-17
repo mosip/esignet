@@ -33,4 +33,18 @@ rm -r temp
 
 echo "Pre-requisites download completed."
 
+echo "Replacing public url placeholder with public url"
+
+if [ -z "$OIDC_UI_PUBLIC_URL" ]; then
+  rpCmd="s/_PUBLIC_URL_//g"
+  grep -rl '_PUBLIC_URL_' $base_path/html | xargs sed -i $rpCmd
+else
+  mkdir $base_path/${OIDC_UI_PUBLIC_URL}
+  mv  -v $base_path/html/* $base_path/$OIDC_UI_PUBLIC_URL/
+  rpCmd="s/_PUBLIC_URL_/\/${OIDC_UI_PUBLIC_URL}/g"
+  grep -rl '_PUBLIC_URL_' $base_path/${OIDC_UI_PUBLIC_URL} | xargs sed -i $rpCmd
+fi
+
+echo "Replacing completed."
+
 exec "$@"

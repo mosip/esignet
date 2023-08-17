@@ -50,14 +50,29 @@ The application runs on PORT=3000 by default.
   - REACT_APP_SBI_IRIS_BIO_SUBTYPES: sbi subtypes for iris
   - REACT_APP_SBI_FINGER_BIO_SUBTYPES: sbi subtypes for finger
   - REACT_APP_SBI_ENV: Value that needs to be passed into sbi /capture request's evn parameter.
-  - REACT_APP_ESIGNET_API_URL: This will be internally resolved to Esignet services URL (/v1/Esignet).
-
+  - REACT_APP_ESIGNET_API_URL: This will be internally resolved to Esignet services URL (`/v1/esignet`).
 - Build and run Docker for a service:
 
   ```
   $ docker build -t <dockerImageName>:<tag> .
   $ docker run -it -d -p 3000:3000 <dockerImageName>:<tag>
   ```
+  To host oidc ui on a context path: 
+  1. Remove the location path with `/` in the nignx file and add the location with context path as below.
+    ```
+    location /oidc-ui {
+       alias /usr/share/nginx/oidc-ui;
+       try_files $uri $uri/ /oidc-ui/index.html;
+    }
+    ```
+  2. Provide the context path in the evn variable `OIDC_UI_PUBLIC_URL` during docker run.
+  ```
+  $ docker build -t <dockerImageName>:<tag> .
+  $ docker run -it -d -p 3000:3000 -e OIDC_UI_PUBLIC_URL='oidc-ui' <dockerImageName>:<tag>
+
+  # The UI will be hosted on http://<domain>/oidc-ui
+  ```
+  
 
 - Build and run on the local system:
   - Update ".env.development" file, add REACT_APP_ESIGNET_API_URL=<'Complete URL of Esignet Services'>
