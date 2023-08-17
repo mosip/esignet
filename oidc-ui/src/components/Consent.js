@@ -458,9 +458,9 @@ export default function Consent({
               />
               <FormAction
                 type={buttonTypes.button}
-                text={t("allow")}
+                text={t("continue")}
                 handleClick={handleSubmit}
-                id="allow"
+                id="continue"
               />
             </div>
           )}

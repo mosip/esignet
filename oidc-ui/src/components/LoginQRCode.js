@@ -24,29 +24,34 @@ export default function LoginQRCode({
   const [qr, setQr] = useState("");
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [error, setError] = useState(null);
+  const [qrCodeTimeOut, setQrCodeTimeout] = useState();
 
-  const linkAuthCodeExpireInSec =
+  const linkedTransactionExpireInSec =
     openIDConnectService.getEsignetConfiguration(
-      configurationKeys.linkAuthCodeExpireInSec
-    ) ?? process.env.REACT_APP_LINK_AUTH_CODE_TIMEOUT_IN_SEC;
+      configurationKeys.linkedTransactionExpireInSecs
+    ) ?? process.env.REACT_APP_LINKED_TRANSACTION_EXPIRE_IN_SEC;
 
   /*
-  linkCodeDeferredTimeoutInSec is link_status Grace period. link-status request will not be triggered 
-  if the linkCode is going to expire within grace period.
+  The QRCode will be valid even after expiring on the UI for the period of qrCodeBufferInSecs.
   */
-  const linkCodeDeferredTimeoutInSec =
+  const qrCodeBufferInSecs =
     openIDConnectService.getEsignetConfiguration(
-      configurationKeys.linkCodeDeferredTimeoutInSec
-    ) ?? process.env.REACT_APP_LINK_CODE_DEFERRED_TIMEOUT_IN_SEC;
+      configurationKeys.qrCodeBufferInSecs
+    ) ?? process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
-  let parseTimeout = parseInt(linkCodeDeferredTimeoutInSec);
-
-  const linkStatusGracePeriod = parseTimeout !== "NaN" ? parseTimeout : 25;
+  const qrCodeBuffer =
+    parseInt(qrCodeBufferInSecs) !== "NaN"
+      ? parseInt(qrCodeBufferInSecs)
+      : process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
   const walletLogoURL =
-  openIDConnectService.getEsignetConfiguration(
-    configurationKeys.walletLogoURL
-  ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.walletLogoURL
+    ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
+
+  const walletQrCodeAutoRefreshLimit = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.walletQrCodeAutoRefreshLimit
+  ) ?? process.env.REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
 
   const GenerateQRCode = (response, logoUrl) => {
     let text =
@@ -104,9 +109,8 @@ export default function LoginQRCode({
           logo.onerror = () => {
             // If there's an error fetching the logo, generate QR code without the logo
             setQr(canvas.toDataURL());
-          }
-        }
-        else {
+          };
+        } else {
           // If logoUrl is not configured, generate QR code without the logo
           setQr(canvas.toDataURL());
         }
@@ -116,9 +120,24 @@ export default function LoginQRCode({
 
   useEffect(() => {
     fetchQRCode();
+
+    return () => {
+      //clearing timeout before component unmount
+      clearTimeout(qrCodeTimeOut);
+    };
   }, []);
 
+  let qrCodeRefreshCount = 0;
+
   const fetchQRCode = async () => {
+    // If successfulFetchQrCount is 3, stop QR code generation and show QR code expired with a refresh button.
+    if (qrCodeRefreshCount >= walletQrCodeAutoRefreshLimit) {
+      setError({
+        errorCode: "qr_code_expired",
+        defaultMsg: "QR Code Expired",
+      });
+      return;
+    }
     setQr("");
     setError(null);
     try {
@@ -136,6 +155,28 @@ export default function LoginQRCode({
           defaultMsg: errors[0].errorMessage,
         });
       } else {
+        let qrCodeExpiryDateTime = new Date(response.expireDateTime);
+        let timeLeft = (qrCodeExpiryDateTime - new Date()) / 1000; // timeleft in sec
+
+        if (qrCodeBuffer > (timeLeft + 1) / 2) {
+          /* 
+            qrCodeBuffer should not be greater then the half of link-code-expire-in-secs.
+            It reduces the chances of more then 2 active link-status polling request at a time.
+           */
+          setError({
+            errorCode: "invalid_qrcode_config",
+            defaultMsg:
+              "Invalid QRCode configuration. Please report to the site admin.",
+          });
+          return;
+        }
+
+        /* 
+          considering buffer time before next qrcode render, which will allow previous
+          qrcode's link-status polling request to be active for the buffer period.
+        */
+        let timeLeftWithBuffer = timeLeft - qrCodeBuffer;
+
         GenerateQRCode(response, walletLogoURL);
         setStatus({ state: states.LOADED, msg: "" });
         triggerLinkStatus(
@@ -143,6 +184,14 @@ export default function LoginQRCode({
           response.linkCode,
           response.expireDateTime
         );
+
+        clearTimeout(qrCodeTimeOut);
+        let _timer = setTimeout(() => {
+          if (linkAuthTriggered) return;
+          fetchQRCode();
+        }, timeLeftWithBuffer * 1000);
+        setQrCodeTimeout(_timer);
+        qrCodeRefreshCount++;
       }
     } catch (error) {
       setError({
@@ -161,7 +210,6 @@ export default function LoginQRCode({
     try {
       let expiryDateTime = new Date(linkCodeExpiryDateTime);
       let timeLeft = (expiryDateTime - new Date()) / 1000; // timeleft in sec
-      let qrExpired = false;
       let linkStatusResponse;
       while (timeLeft > 0) {
         try {
@@ -187,17 +235,6 @@ export default function LoginQRCode({
         }
 
         timeLeft = (expiryDateTime - new Date()) / 1000;
-        if (
-          !qrExpired &&
-          timeLeft < linkStatusGracePeriod &&
-          (!linkStatusResponse || !linkStatusResponse?.response)
-        ) {
-          qrExpired = true;
-          // setError({
-          //   errorCode: "qr_code_expired",
-          // });
-          fetchQRCode();
-        }
       }
 
       if (linkAuthTriggered) return;
@@ -240,7 +277,7 @@ export default function LoginQRCode({
     try {
       let codeExpiryDateTime = new Date();
       codeExpiryDateTime.setSeconds(
-        codeExpiryDateTime.getSeconds() + Number(linkAuthCodeExpireInSec)
+        codeExpiryDateTime.getSeconds() + Number(linkedTransactionExpireInSec)
       );
       let timeLeft = (codeExpiryDateTime - new Date()) / 1000;
       let linkAuthResponse;

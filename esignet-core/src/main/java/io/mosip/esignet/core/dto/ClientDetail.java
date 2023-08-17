@@ -9,12 +9,13 @@ import lombok.Data;
 
 import java.util.List;
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 public class ClientDetail implements Serializable {
 
     private String id;
-    private String name;
+    private Map<String, String> name;
     private String rpId;
     private String logoUri;
     private List<String> redirectUris;
