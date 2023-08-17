@@ -57,7 +57,15 @@ The application runs on PORT=3000 by default.
   $ docker build -t <dockerImageName>:<tag> .
   $ docker run -it -d -p 3000:3000 <dockerImageName>:<tag>
   ```
-  To host oidc ui on a context path, provide the context path in the evn variable `OIDC_UI_PUBLIC_URL` during docker run
+  To host oidc ui on a context path: 
+  1. Remove the location path with `/` in the nignx file and add the location with context path as below.
+    ```
+    location /oidc-ui {
+       alias /usr/share/nginx/oidc-ui;
+       try_files $uri $uri/ /oidc-ui/index.html;
+    }
+    ```
+  2. Provide the context path in the evn variable `OIDC_UI_PUBLIC_URL` during docker run.
   ```
   $ docker build -t <dockerImageName>:<tag> .
   $ docker run -it -d -p 3000:3000 -e OIDC_UI_PUBLIC_URL='oidc-ui' <dockerImageName>:<tag>
