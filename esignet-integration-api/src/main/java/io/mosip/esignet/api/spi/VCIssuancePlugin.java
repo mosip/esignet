@@ -13,10 +13,10 @@ public interface VCIssuancePlugin {
     /**
      * WIP
      * @param vcRequestDto
-     * @param holderKey
-     * @param identityDetails parsed access-token or introspect endpoint response if token is opaque.
+     * @param holderId Holders key material as either DID / KID. This should be used for cryptographic binding of the VC
+     * @param identityDetails Parsed access-token or introspect endpoint response if token is opaque.
      * @return
      */
-    VCResult getVerifiableCredential(VCRequestDto vcRequestDto, String holderKey,
+    VCResult getVerifiableCredential(VCRequestDto vcRequestDto, String holderId,
                                      Map<String, Object> identityDetails);
 }
