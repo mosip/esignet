@@ -190,10 +190,15 @@ public class ClientMgmtControllerParameterizedTest {
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}),  new ClientDetailUpdateRequestV2("https://logo-url/png",
-                    Arrays.asList("https://logo-url/png"),Arrays.asList("given_name"),
+                    Arrays.asList("https://logo-url/png", "io.mosip.residentapp://oauth"),Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "ACTIVE", Arrays.asList("authorization_code"),
-                    "client-name#1", Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), "client-id-up1",  null }
-
+                    "client-name#1", Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), "client-id-up1",  null },
+            {"Create with app redirect URL", new ClientDetailCreateRequestV2("client-id3", "client-name",
+                    TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject(),
+                    "rp-id", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("io.mosip.residentapp://oauth", "residentapp://oauth/*"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null, null}
     };
 
     @Parameterized.Parameters(name = "Test {0}")
