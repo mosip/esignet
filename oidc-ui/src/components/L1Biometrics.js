@@ -163,7 +163,7 @@ export default function L1Biometrics({
         response.consentAction
       );
 
-      navigate("/consent" + params, {
+      navigate(process.env.PUBLIC_URL + "/consent" + params, {
         replace: true,
       });
     }

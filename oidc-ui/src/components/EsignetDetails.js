@@ -14,7 +14,7 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
     let detailList = [
       {
         name: "wellknown_api",
-        value: window.origin + "/.well-known/openid-configuration",
+        value: process.env.PUBLIC_URL + "/.well-known/openid-configuration",
       },
     ];
 
