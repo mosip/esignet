@@ -18,7 +18,7 @@ unzip -o esignet-i18n-bundle.zip
 #sign-in-button-plugin
 echo "Downloading plugins"
 
-wget --no-check-certificate --no-cache --no-cookies $artifactory_url_env/artifactory/libs-release-local/esignet-plugins/sign-in-with-esignet.zip -O $plugins_path/temp/sign-in-button-plugin.zip
+wget --no-check-certificate --no-cache --no-cookies $artifactory_url_env/artifactory/libs-release-local/mosip-plugins/sign-in-with-esignet.zip -O $plugins_path/temp/sign-in-button-plugin.zip
 
 echo "unzip plugins.."
 cd $plugins_path/temp
