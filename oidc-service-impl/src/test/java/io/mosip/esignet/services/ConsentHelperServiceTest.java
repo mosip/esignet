@@ -141,7 +141,6 @@ public class ConsentHelperServiceTest {
         consentHelperService.updateUserConsent(oidcTransaction, true, signature);
         UserConsent userConsent = new UserConsent();
         userConsent.setAuthorizationScopes(Map.of("openid",false,"profile",false,"email",false));
-        //String hashCode =consentHelperService.hashUserConsent(claims,userConsent.getAuthorizationScopes());
         userConsent.setHash("UrgNGrbWUB5v_oSvupBCqp7V31MJdE3nNqfGv9eazBc");
         userConsent.setClaims(claims);
         userConsent.setAcceptedClaims(List.of("email","gender","name"));
@@ -262,10 +261,7 @@ public class ConsentHelperServiceTest {
         payLoadMap.put("accepted_claims",acceptedClaims);
         payLoadMap.put("permitted_authorized_scopes",permittedScopes);
 
-        String signature = generateSignature(payLoadMap);
-
-        log.info("Signature for accepted claims and permitted scope is {}",signature);
-        log.info("The thumbprint is {}",thumbprint);
+        String signature = generateSignature(payLoadMap);;
         consentDetail.setSignature(signature);
         consentDetail.setPsuToken("psutoken");
 
@@ -273,7 +269,6 @@ public class ConsentHelperServiceTest {
         publicKeyRegistry.setCertificate(certificateString);
         Mockito.when(authorizationHelperService.getIndividualId(oidcTransaction)).thenReturn("individualId");
         Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
-
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
 
@@ -345,9 +340,6 @@ public class ConsentHelperServiceTest {
         payLoadMap.put("permitted_authorized_scopes",permittedScopes);
 
         String signature = generateSignature(payLoadMap);
-
-        log.info("Signature for accepted claims and permitted scope is {}",signature);
-        log.info("The thumbprint is {}",thumbprint);
         consentDetail.setSignature(signature);
         consentDetail.setPsuToken("psutoken");
 
@@ -408,8 +400,6 @@ public class ConsentHelperServiceTest {
         userConsentRequest.setPsuToken(oidcTransaction.getPartnerSpecificUserToken());
         consentHelperService.processConsent(oidcTransaction,true);
         Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
-       // String signature = generateSignature(payLoadMap);
-        //log.info("Signature for accepted claims and permitted scope is {}",signature);
     }
 
     private String generateSignature(Map<String,Object> payloadMap) throws Exception {
