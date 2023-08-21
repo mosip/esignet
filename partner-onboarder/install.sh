@@ -76,10 +76,9 @@ function installing_onboarder() {
     $ENABLE_INSECURE \
     -f values.yaml \
     --version $CHART_VERSION \
-    --wait
+    --set image.repository=akila1811/mosip-onboarding --set image.tag=v1 \
+    --wait --wait-for-jobs
 
-    kubectl wait --for=condition=complete job/esignet-resident-oidc-partner-onboarder-esignet -n $NS --timeout=5m
-    kubectl wait --for=condition=complete job/esignet-resident-oidc-partner-onboarder-resident-oidc -n $NS --timeout=5m
 
     misp_license_key=$(kubectl logs -n $NS job/esignet-resident-oidc-partner-onboarder-esignet | grep "MISP License Key:" | awk '{print $4}')
     echo Misp License Key for Esignet Module is: $misp_license_key
