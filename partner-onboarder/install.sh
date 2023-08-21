@@ -76,7 +76,6 @@ function installing_onboarder() {
     $ENABLE_INSECURE \
     -f values.yaml \
     --version $CHART_VERSION \
-    --set image.repository=akila1811/mosip-onboarding --set image.tag=v1 \
     --wait --wait-for-jobs
 
 
