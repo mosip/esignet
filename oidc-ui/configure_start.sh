@@ -35,14 +35,16 @@ echo "Pre-requisites download completed."
 
 echo "Replacing public url placeholder with public url"
 
+workingDir=$nginx_dir/html
 if [ -z "$OIDC_UI_PUBLIC_URL" ]; then
   rpCmd="s/_PUBLIC_URL_//g"
-  grep -rl '_PUBLIC_URL_' $nginx_dir/html | xargs sed -i $rpCmd
+  grep -rl '_PUBLIC_URL_' $workingDir | xargs sed -i $rpCmd
 else
-  mkdir $nginx_dir/${OIDC_UI_PUBLIC_URL}
-  mv  -v $nginx_dir/html/* $nginx_dir/$OIDC_UI_PUBLIC_URL/
+  workingDir=$nginx_dir/${OIDC_UI_PUBLIC_URL}
+  mkdir $workingDir
+  mv  -v $nginx_dir/html/* $workingDir/
   rpCmd="s/_PUBLIC_URL_/\/${OIDC_UI_PUBLIC_URL}/g"
-  grep -rl '_PUBLIC_URL_' $nginx_dir/${OIDC_UI_PUBLIC_URL} | xargs sed -i $rpCmd
+  grep -rl '_PUBLIC_URL_' $workingDir | xargs sed -i $rpCmd
 fi
 
 echo "Replacing completed."
