@@ -36,9 +36,9 @@ ARG container_user_uid=1001
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_gid=1001
 
-ENV base_path=/usr/share/nginx
-ENV i18n_path=${base_path}/html/locales
-ENV plugins_path=${base_path}/html/plugins
+ENV nginx_dir=/usr/share/nginx
+ENV i18n_path=${nginx_dir}/html/locales
+ENV plugins_path=${nginx_dir}/html/plugins
 ENV plugins_format=iife
 
 # can be passed during Docker build as build time environment for artifactory URL
@@ -55,8 +55,8 @@ RUN apt-get -y update \
     && apt-get install -y curl npm wget unzip zip \
     && groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
-    && mkdir -p /var/run/nginx /var/tmp/nginx ${base_path}/locales  ${base_path}/plugins  ${base_path}/plugins/temp \
-    && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${base_path}/locales ${base_path}/plugins ${base_path}/plugins/temp
+    && mkdir -p /var/run/nginx /var/tmp/nginx ${i18n_path} ${plugins_path}  ${plugins_path}/temp \
+    && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${i18n_path} ${plugins_path} ${plugins_path}/temp
 
 ADD configure_start.sh configure_start.sh
 
@@ -65,7 +65,7 @@ RUN chmod +x configure_start.sh
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 # copy build files to nginx html directory
-COPY --from=build_esignet_ui /build $base_path/html
+COPY --from=build_esignet_ui /build $nginx_dir/html
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
