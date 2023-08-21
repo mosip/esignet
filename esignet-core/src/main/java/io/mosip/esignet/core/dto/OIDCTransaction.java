@@ -17,6 +17,8 @@ import java.util.Set;
 @Data
 public class OIDCTransaction implements Serializable {
 
+    String transactionId;
+
     String clientId;
     String relyingPartyId;
     String redirectUri;

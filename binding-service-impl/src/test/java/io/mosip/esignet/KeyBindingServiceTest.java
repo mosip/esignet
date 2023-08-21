@@ -211,7 +211,7 @@ public class KeyBindingServiceTest {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();
 		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE_FORMAT));
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT));
 		}
 	}
 
@@ -255,8 +255,6 @@ public class KeyBindingServiceTest {
 		walletBindingRequest.setPublicKey(
 				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
-				.thenReturn(null);
 		try {
 			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
 			Assert.fail();

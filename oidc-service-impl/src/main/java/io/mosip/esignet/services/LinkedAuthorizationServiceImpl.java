@@ -11,6 +11,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
@@ -23,9 +24,11 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
+import org.springframework.data.util.Pair;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -34,9 +37,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.mosip.esignet.core.constants.Constants.*;
@@ -122,12 +123,28 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkCodeResponse.setTransactionId(linkCodeRequest.getTransactionId());
         linkCodeResponse.setExpireDateTime(expireDateTime == null ? null :
                 expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
-        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkCodeRequest.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return linkCodeResponse;
     }
 
     @Override
-    public LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws EsignetException {
+    public LinkTransactionResponseV1 linkTransaction(LinkTransactionRequest linkTransactionRequest) throws EsignetException {
+        LinkTransactionResponseV1 linkTransactionResponseV1 = new LinkTransactionResponseV1();
+        Pair<LinkTransactionResponse, ClientDetail> pair = checkAndPublishLinkedTransaction(linkTransactionRequest, linkTransactionResponseV1);
+        linkTransactionResponseV1.setClientName(pair.getSecond().getName().get(Constants.NONE_LANG_KEY));
+        return linkTransactionResponseV1;
+    }
+
+    @Override
+    public LinkTransactionResponseV2 linkTransactionV2(LinkTransactionRequest linkTransactionRequest) throws EsignetException {
+        LinkTransactionResponseV2 linkTransactionResponseV2 = new LinkTransactionResponseV2();
+        Pair<LinkTransactionResponse, ClientDetail> pair = checkAndPublishLinkedTransaction(linkTransactionRequest, linkTransactionResponseV2);
+        linkTransactionResponseV2.setClientName(pair.getSecond().getName());
+        return linkTransactionResponseV2;
+    }
+
+    private Pair<LinkTransactionResponse, ClientDetail> checkAndPublishLinkedTransaction(LinkTransactionRequest linkTransactionRequest,
+                                                                                         LinkTransactionResponse linkTransactionResponse) {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkTransactionRequest.getLinkCode());
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
         if(linkTransactionMetadata == null || linkTransactionMetadata.getTransactionId() == null)
@@ -148,7 +165,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionMetadata.setLinkedTransactionId(linkedTransactionId);
         cacheUtilService.setLinkedCode(linkCodeHash, linkTransactionMetadata);
 
-        LinkTransactionResponse linkTransactionResponse = new LinkTransactionResponse();
         linkTransactionResponse.setLinkTransactionId(linkedTransactionId);
         linkTransactionResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
                 transaction.getRequestedClaims().getId_token().get(ACR).getValues()));
@@ -156,14 +172,13 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
         linkTransactionResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         linkTransactionResponse.setAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
-        linkTransactionResponse.setClientName(clientDetailDto.getName());
         linkTransactionResponse.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionResponse.setConfigs(uiConfigMap);
 
         //Publish message after successfully linking the transaction
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
         auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
-        return linkTransactionResponse;
+        return Pair.of(linkTransactionResponse, clientDetailDto);
     }
 
     @Override
@@ -177,7 +192,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         otpResponse.setTransactionId(otpRequest.getTransactionId());
         otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
         otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
-        auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(otpRequest.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.LINK_SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return otpResponse;
     }
 
@@ -201,7 +216,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
         LinkedKycAuthResponse authRespDto = new LinkedKycAuthResponse();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
-        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
+        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -226,6 +241,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())){
             validateConsent(transaction, transaction.getAcceptedClaims(), transaction.getPermittedScopes());
             cacheUtilService.setLinkedConsentedTransaction(transaction.getLinkedTransactionId(), transaction);
+            consentHelperService.updateUserConsent(transaction,true, "");
             kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkedTransactionId());
         } else {
             cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
@@ -233,7 +249,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         LinkedKycAuthResponseV2 authRespDto = new LinkedKycAuthResponseV2();
         authRespDto.setLinkedTransactionId(linkedKycAuthRequest.getLinkedTransactionId());
         authRespDto.setConsentAction(transaction.getConsentAction());
-        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null, transaction), null);
+        auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -254,7 +270,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
-        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkedConsentRequest.getLinkedTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -277,7 +293,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         LinkedConsentResponse authRespDto = new LinkedConsentResponse();
         authRespDto.setLinkedTransactionId(linkedConsentRequest.getLinkedTransactionId());
-        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkedConsentRequest.getLinkedTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         return authRespDto;
     }
 
@@ -312,7 +328,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
         if(oidcTransaction != null) {
-            auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkAuthCodeRequest.getTransactionId(), oidcTransaction), null);
+            auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oidcTransaction.getTransactionId(), oidcTransaction), null);
             deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), oidcTransaction));
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);

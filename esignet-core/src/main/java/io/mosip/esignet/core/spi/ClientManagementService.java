@@ -5,11 +5,8 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.dto.ClientDetailResponse;
-import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.dto.ClientDetail;
-import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
 
 public interface ClientManagementService {
 
@@ -36,5 +33,32 @@ public interface ClientManagementService {
      * @return
      */
     ClientDetail getClientDetails(String clientId) throws EsignetException;
+
+    /**
+     * API to register relying party client version 2
+     * 
+     * In this version there is a provision to provide client name
+     * in multiple languages as a map (clientNameLangMap), where key
+     * is the language code and the default client name is provided
+     * as value for the key @none, where @none is a fallback value
+     * @param clientDetailCreateRequestV2
+     * @return
+     * @throws EsignetException
+     */
+    ClientDetailResponse createOIDCClientV2(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException;
+
+    /**
+     * API to update registered relying party client version 2
+     * 
+     * In this version there is a provision to provide client name
+     * in multiple languages as a map (clientNameLangMap), where key
+     * is the language code and the default client name is provided
+     * as value for the key @none, where @none is a fallback value
+     * @param clientId
+     * @param clientDetailUpdateRequestV2
+     * @return
+     * @throws EsignetException
+     */
+    ClientDetailResponse updateOIDCClientV2(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException;
 
 }

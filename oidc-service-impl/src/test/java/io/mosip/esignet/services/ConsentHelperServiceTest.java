@@ -138,21 +138,22 @@ public class ConsentHelperServiceTest {
         payLoadMap.put("accepted_claims",acceptedClaims);
         payLoadMap.put("permitted_authorized_scopes",permittedScopes);
         String signature = generateSignature(payLoadMap);
-        consentHelperService.updateUserConsent(oidcTransaction, true, null);
+        consentHelperService.updateUserConsent(oidcTransaction, true, signature);
         UserConsent userConsent = new UserConsent();
-        userConsent.setHash("zROJmDDbE3cdmjpt3veqJFpuDJa-hASHe_YupfOb-KQ");
+        userConsent.setAuthorizationScopes(Map.of("openid",false,"profile",false,"email",false));
+        userConsent.setHash("UrgNGrbWUB5v_oSvupBCqp7V31MJdE3nNqfGv9eazBc");
         userConsent.setClaims(claims);
-        userConsent.setAuthorizationScopes(Map.of());
         userConsent.setAcceptedClaims(List.of("email","gender","name"));
-        userConsent.setAuthorizationScopes(Map.of("openid",true,"profile",true,"email",true));
+
         userConsent.setPermittedScopes(List.of("email","openid","profile"));
+        userConsent.setSignature(signature);
 
         Mockito.verify(consentService).saveUserConsent(userConsent);
 
         PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
         publicKeyRegistry.setCertificate(certificateString);
 
-        consentHelperService.updateUserConsent(oidcTransaction, true, signature);
+
     }
 
     @Test
@@ -240,7 +241,7 @@ public class ConsentHelperServiceTest {
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setClientId("123");
         consentDetail.setSignature("signature");
-        consentDetail.setAuthorizationScopes(Map.of("openid",true,"profile",true));
+        consentDetail.setAuthorizationScopes(Map.of("openid",false,"profile",false));
         consentDetail.setClaims(claims);
         Claims normalizedClaims = new Claims();
         normalizedClaims.setUserinfo(consentHelperService.normalizeClaims(claims.getUserinfo()));
@@ -260,10 +261,7 @@ public class ConsentHelperServiceTest {
         payLoadMap.put("accepted_claims",acceptedClaims);
         payLoadMap.put("permitted_authorized_scopes",permittedScopes);
 
-        String signature = generateSignature(payLoadMap);
-
-        log.info("Signature for accepted claims and permitted scope is {}",signature);
-        log.info("The thumbprint is {}",thumbprint);
+        String signature = generateSignature(payLoadMap);;
         consentDetail.setSignature(signature);
         consentDetail.setPsuToken("psutoken");
 
@@ -271,7 +269,6 @@ public class ConsentHelperServiceTest {
         publicKeyRegistry.setCertificate(certificateString);
         Mockito.when(authorizationHelperService.getIndividualId(oidcTransaction)).thenReturn("individualId");
         Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes(Mockito.any(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
-
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
 
@@ -343,9 +340,6 @@ public class ConsentHelperServiceTest {
         payLoadMap.put("permitted_authorized_scopes",permittedScopes);
 
         String signature = generateSignature(payLoadMap);
-
-        log.info("Signature for accepted claims and permitted scope is {}",signature);
-        log.info("The thumbprint is {}",thumbprint);
         consentDetail.setSignature(signature);
         consentDetail.setPsuToken("psutoken");
 
@@ -406,8 +400,6 @@ public class ConsentHelperServiceTest {
         userConsentRequest.setPsuToken(oidcTransaction.getPartnerSpecificUserToken());
         consentHelperService.processConsent(oidcTransaction,true);
         Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
-       // String signature = generateSignature(payLoadMap);
-        //log.info("Signature for accepted claims and permitted scope is {}",signature);
     }
 
     private String generateSignature(Map<String,Object> payloadMap) throws Exception {

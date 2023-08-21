@@ -249,7 +249,7 @@ extraEnvVarsCM:
   - config-server-share
   - artifactory-share
   - softhsm-esignet-share
-  - oidc-ui-cm
+  - oidc-ui
 
 ## Secret with extra environment variables
 ##
@@ -420,6 +420,11 @@ metrics:
 oidc_ui:
   oidc_ui_port: '3000'
   oidc_service_host: 'esignet.esignet'
+  configmaps:
+    oidc-ui:
+      REACT_APP_API_BASE_URL: 'http://esignet.esignet/v1/esignet'
+      REACT_APP_SBI_DOMAIN_URI: 'http://esignet.$NS'
+      OIDC_UI_PUBLIC_URL: ''
 
 ## OIDC UI swagger should have only internal access. Hence linked to internal gateway
 ## We create a gateway for esignet specific URL(s) listed under `hosts`

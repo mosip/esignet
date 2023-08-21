@@ -98,14 +98,14 @@ public class OAuthServiceImpl implements OAuthService {
                     transaction.getClientId(), kycExchangeDto);
         } catch (KycExchangeException e) {
             log.error("KYC exchange failed", e);
-            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, AuditHelper.buildAuditDto(codeHash, transaction), e);
+            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), e);
             throw new EsignetException(e.getErrorCode());
         }
 
         if(kycExchangeResult == null || kycExchangeResult.getEncryptedKyc() == null)
             throw new EsignetException(DATA_EXCHANGE_FAILED);
 
-        auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(codeHash, transaction), null);
+        auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
@@ -119,7 +119,7 @@ public class OAuthServiceImpl implements OAuthService {
         transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
         cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
 
-        auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(codeHash,
+        auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
                 transaction), null);
         return tokenResponse;
     }

@@ -19,7 +19,6 @@ import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -140,7 +139,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -239,7 +238,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -290,7 +289,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -317,7 +316,7 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
@@ -344,11 +343,292 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
-        OAuthDetailResponse oauthDetailResponse = new OAuthDetailResponse();
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
         when(authorizationService.getOauthDetails( oauthDetailRequest)).thenReturn(oauthDetailResponse);
 
         mockMvc.perform(post("/authorization/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withInvalidTimestamp_returnErrorResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        requestTime = requestTime.plusMinutes(10);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REQUEST))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("requestTime: invalid_request"));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withInvalidRedirectUri_returnErrorResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri(" ");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REDIRECT_URI));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withInvalidAcr_returnSuccessResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code level2");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withInvalidDisplay_returnErrorResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("none");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_DISPLAY));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withInvalidPrompt_returnErrorResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("touch");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PROMPT));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withInvalidResponseType_returnErrorResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("none");
+        oauthDetailRequest.setResponseType("implicit");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_RESPONSE_TYPE));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withOnlyOpenIdScope_returnSuccessResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withOutOpenIdScope_returnErrorResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("profile");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_SCOPE));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withOpenIdScope_returnSuccessResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("profile openid");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withOnlyAuthorizeScope_returnSuccessResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("resident-service");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withAuthorizeAndOpenIdScope_returnSuccessResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid resident-service");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2( oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

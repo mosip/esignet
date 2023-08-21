@@ -30,6 +30,16 @@ public class AuthorizationController {
     @Autowired
     AuditPlugin auditWrapper;
 
+    /**
+     * @deprecated
+     * This method is no longer acceptable to get oauth detail response
+     * <p> Use {@link AuthorizationController#getOauthDetailsV2(RequestWrapper<OAuthDetailRequest>)} </p>
+     *
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     */
+    @Deprecated()
     @PostMapping("/oauth-details")
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                             requestWrapper) throws EsignetException {
@@ -37,6 +47,20 @@ public class AuthorizationController {
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/v2/oauth-details")
+    public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV2(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
+                                                                        requestWrapper) throws EsignetException {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        try {
+            responseWrapper.setResponse(authorizationService.getOauthDetailsV2(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;

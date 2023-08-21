@@ -11,9 +11,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.esignet.api.spi.AuditPlugin;
-import io.mosip.esignet.core.dto.ClientDetailCreateRequest;
-import io.mosip.esignet.core.dto.ClientDetailResponse;
-import io.mosip.esignet.core.dto.ClientDetailUpdateRequest;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.entity.ClientDetail;
@@ -34,10 +32,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
 
@@ -101,6 +96,45 @@ public class ClientManagementServiceTest {
     }
 
     @Test
+    public void createClientV2_withValidDetail_thenPass() throws Exception {
+        ClientDetailCreateRequestV2 clientCreateV2ReqDto = new ClientDetailCreateRequestV2();
+        Map<String, String> clientnameLangMap = new HashMap<>();
+        clientnameLangMap.put("eng", "client_name_v1");
+        clientCreateV2ReqDto.setClientId("mock_id_v1");
+        clientCreateV2ReqDto.setClientName("client_name_v1");
+        clientCreateV2ReqDto.setClientNameLangMap(clientnameLangMap);
+        clientCreateV2ReqDto.setLogoUri("http://service.com/logo.png");
+        clientCreateV2ReqDto.setPublicKey(PUBLIC_KEY);
+        clientCreateV2ReqDto.setRedirectUris(Arrays.asList("http://service.com/home"));
+        clientCreateV2ReqDto.setUserClaims(Arrays.asList("given_name"));
+        clientCreateV2ReqDto.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
+        clientCreateV2ReqDto.setRelyingPartyId("RELYING_PARTY_ID");
+        clientCreateV2ReqDto.setGrantTypes(Arrays.asList("authorization_code"));
+        clientCreateV2ReqDto.setClientAuthMethods(Arrays.asList("private_key_jwt"));
+
+        ClientDetail entity = new ClientDetail();
+        entity.setId("mock_id_v1");
+        entity.setStatus("active");
+        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        ClientDetailResponse clientDetailResponse = clientManagementService.createOIDCClientV2(clientCreateV2ReqDto);
+        Assert.assertNotNull(clientDetailResponse);
+        Assert.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
+        Assert.assertTrue(clientDetailResponse.getStatus().equals("active"));
+    }
+
+    @Test
+    public void createClientV2_withExistingClientId_thenFail() {
+        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(new ClientDetail()));
+        ClientDetailCreateRequestV2 clientCreateV2ReqDto = new ClientDetailCreateRequestV2();
+        clientCreateV2ReqDto.setClientId("client_id_v1");
+        try {
+            clientManagementService.createOIDCClientV2(clientCreateV2ReqDto);
+        } catch (EsignetException ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
+    }
+
+    @Test
     public void updateClient_withNonExistingClientId_thenFail() {
         Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.empty());
         try {
@@ -137,6 +171,49 @@ public class ClientManagementServiceTest {
         entity.setStatus("inactive");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponse clientDetailResponse = clientManagementService.updateOIDCClient("client_id_v1", updateRequest);
+        Assert.assertNotNull(clientDetailResponse);
+        Assert.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
+        Assert.assertTrue(clientDetailResponse.getStatus().equals("inactive"));
+    }
+
+    @Test
+    public void updateClientV2_withNonExistingClientId_thenFail() {
+        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.empty());
+        try {
+            clientManagementService.updateOIDCClientV2("client_id_v1", null);
+        } catch (EsignetException ex) {
+            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
+        }
+    }
+
+    @Test
+    public void updateClientV2_withValidClientId_thenPass() throws EsignetException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setName("client_id_v1");
+        clientDetail.setId("client_id_v1");
+        clientDetail.setLogoUri("http://service.com/logo.png");
+        clientDetail.setClaims("[\"given_name\", \"birthdate\"]");
+        clientDetail.setAcrValues("[\"mosip:idp:acr:static-code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setRedirectUris("[\"https://service.com/home\",\"https://service.com/dashboard\", \"v1/idp\"]");
+        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(clientDetail));
+
+        ClientDetailUpdateRequestV2 updateV2Request = new ClientDetailUpdateRequestV2();
+        updateV2Request.setClientNameLangMap(new HashMap<>());
+        updateV2Request.setClientName("client_name_v1");
+        updateV2Request.setLogoUri("http://service.com/logo.png");
+        updateV2Request.setRedirectUris(Arrays.asList("http://service.com/home"));
+        updateV2Request.setUserClaims(Arrays.asList("given_name"));
+        updateV2Request.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
+        updateV2Request.setGrantTypes(Arrays.asList("authorization_code"));
+        updateV2Request.setClientAuthMethods(Arrays.asList("private_key_jwt"));
+
+        ClientDetail entity = new ClientDetail();
+        entity.setId("client_id_v1");
+        entity.setStatus("inactive");
+        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        ClientDetailResponse clientDetailResponse = clientManagementService.updateOIDCClientV2("client_id_v1", updateV2Request);
         Assert.assertNotNull(clientDetailResponse);
         Assert.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
         Assert.assertTrue(clientDetailResponse.getStatus().equals("inactive"));
