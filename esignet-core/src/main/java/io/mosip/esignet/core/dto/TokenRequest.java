@@ -9,7 +9,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.OIDCGrantType;
 import io.mosip.esignet.core.validator.OIDCClientAssertionType;
 import lombok.Data;
-import org.hibernate.validator.constraints.URL;
+import io.mosip.esignet.core.validator.RedirectURL;
 
 import javax.validation.constraints.NotBlank;
 
@@ -36,8 +36,7 @@ public class TokenRequest {
     /**
      * Valid client redirect_uri.
      */
-    @NotBlank(message = ErrorConstants.INVALID_REDIRECT_URI)
-    @URL(message = ErrorConstants.INVALID_REDIRECT_URI)
+    @RedirectURL
     private String redirect_uri;
 
     /**
