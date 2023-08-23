@@ -231,7 +231,7 @@ public class IdentityProviderUtil {
             PemReader pemReader = new PemReader(strReader);
             PemObject pemObject = pemReader.readPemObject();
             if (Objects.isNull(pemObject)) {
-                return null;
+                throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
             }
             byte[] certBytes = pemObject.getContent();
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");

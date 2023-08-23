@@ -515,4 +515,29 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		Assert.assertFalse(validator.isValid(null, null));		
 	}
+
+	// ============================ Signature Format Validator =========================
+
+	@Test
+	public void test_Signature_FormatValidator_nullValue_thenFail() {
+		SignatureFormatValidator validator = new SignatureFormatValidator();
+		Assert.assertFalse(validator.isValid(null, null));
+		Assert.assertFalse(validator.isValid("", null));
+		Assert.assertFalse(validator.isValid("  ", null));
+	}
+
+	@Test
+	public void test_Signature_FormatValidator_validValue_thenPass() {
+		SignatureFormatValidator validator = new SignatureFormatValidator();
+		Assert.assertTrue(validator.isValid("ea12d.iba13", null));
+	}
+	@Test
+	public void test_Signature_FormatValidator_withInvalidValue_thenFail() {
+		SignatureFormatValidator validator = new SignatureFormatValidator();
+		Assert.assertFalse(validator.isValid("eab234", null));
+		Assert.assertFalse(validator.isValid("eabd2314.123cad.123d ", null));
+		Assert.assertFalse(validator.isValid("akf.ia*..aha", null));
+		Assert.assertFalse(validator.isValid("ajjf", null));
+	}
+
 }

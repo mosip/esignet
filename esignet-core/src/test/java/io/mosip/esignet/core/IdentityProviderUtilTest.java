@@ -160,6 +160,16 @@ public class IdentityProviderUtilTest {
     		Assert.fail();
         } catch (EsignetException e) {}
     }
+
+    @Test
+    public void test_generateThumbprintByCertificate()throws Exception{
+        String cerifacateString="-----BEGIN CERTIFICATE-----\nMIIDYjCCAkqgAwIBAgIIyF+UqkzoF9kwDQYJKoZIhvcNAQELBQAwgYIxCzAJBgNV\nBAYTAklOMQswCQYDVQQIDAJLQTESMBAGA1UEBwwJQkFOR0FMT1JFMQ0wCwYDVQQK\nDARJSVRCMSwwKgYDVQQLDCNNT1NJUC1URUNILUNFTlRFUiAoSURBX0tFWV9CSU5E\nSU5HKTEVMBMGA1UEAwwMd3d3Lm1vc2lwLmlvMB4XDTIzMDgyMjEyMTU1OVoXDTIz\nMTIyMDEyMTU1OVowGzEZMBcGA1UEAwwQVEVTVF9GVUxMTkFNRWVuZzCCASIwDQYJ\nKoZIhvcNAQEBBQADggEPADCCAQoCggEBANR6slnf+yDgQ8Z2oU5wcV7c7YEGx4J2\nk6RL5KxvigISwrxy3d7ZwdJvASuolzOSdspvAf32EoLjlMgCPCAUJ5VacbPa0YgX\n8srYwBdEzgecTorU9XGDQoAnAaI28JEDtQbuZJ8dMiwYk//g8QMj2xs1sw1t1A3q\n4lAfH4UxnmBNipq2p7wtn7PdOjq2TfKUkNDYx7hNbNQe75Z1KaXfN1mr02k7V0F+\nFgKScaBXtxWFZt6OoUdJQixTF9vz13Skl+J+/sCP3lyC4OptAbD0chYrvXlsAMDj\n9r0OXFPzT9pchi4ZojgGhu9HXV1REadfvVSyeysv2VSHGvuooKiyik0CAwEAAaNC\nMEAwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUV7X8HklamaYsSF8SKH3YlCQ7\nop4wDgYDVR0PAQH/BAQDAgKEMA0GCSqGSIb3DQEBCwUAA4IBAQC+eRZJoeBFyK5P\niOSnaSeXk6hFyF9tgh7QAXho/5nJ4QgYwU+16GjatMZNuYh5VFjmrmuf7fVnHI5R\nzGj+D4T3F78CB2B5l/Fh3v73C7fU8G6th5Le4aLhpEtOOqAYpx99uiDNs07+Up59\nHdYDQrX6k9IThAa+JrYjllShGJoPJYrRFOo/amBTFjQnKxFQ1IvUfBsuqalIGulh\n4K/5H4lC8aC9U2LaP+Ncu6six/MF/OiNurF86F9uAQucuxsay7hZSZk5I+iGGkcl\nGAJCVFB37kXviV4n4m6o/YPw/xeZ4tuRlFZ7+KkWekcXt7QwdNiCpmPrPYIshTYh\n5DMsAUrK\n-----END CERTIFICATE-----\n";
+        Assert.assertNotNull(IdentityProviderUtil.generateThumbprintByCertificate(cerifacateString));
+        try {
+             IdentityProviderUtil.generateThumbprintByCertificate("test");
+            Assert.fail();
+        } catch (EsignetException e) {}
+    }
     
     public static JWK generateJWK_RSA() {
         // Generate the RSA key pair

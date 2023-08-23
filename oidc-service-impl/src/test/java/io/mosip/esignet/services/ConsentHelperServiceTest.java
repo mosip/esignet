@@ -375,6 +375,122 @@ public class ConsentHelperServiceTest {
     }
 
     @Test
+    public void processConsent_withInvalidConsent_thenPass(){
+
+        OIDCTransaction oidcTransaction=new OIDCTransaction();
+        oidcTransaction.setClientId("abc");
+        oidcTransaction.setPartnerSpecificUserToken("123");
+        oidcTransaction.setVoluntaryClaims(List.of("email"));
+        oidcTransaction.setEssentialClaims(List.of());
+        oidcTransaction.setRequestedAuthorizeScopes(List.of());
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId(oidcTransaction.getClientId());
+        userConsentRequest.setPsuToken(oidcTransaction.getPartnerSpecificUserToken());
+
+        ConsentDetail consentDetail=new ConsentDetail();
+        consentDetail.setAcceptedClaims(Arrays.asList());
+        consentDetail.setSignature("haa");
+
+        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
+
+        consentHelperService.processConsent(oidcTransaction,true);
+        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+    }
+
+    @Test
+    public void processConsent_withInvalidIdHashOrThumbPrint_thenPass() throws Exception {
+
+        OIDCTransaction oidcTransaction=new OIDCTransaction();
+        oidcTransaction.setClientId("abc");
+        oidcTransaction.setPartnerSpecificUserToken("123");
+        oidcTransaction.setRequestedAuthorizeScopes(List.of("openid","profile"));
+        oidcTransaction.setPermittedScopes(List.of("openid","profile"));
+        oidcTransaction.setEssentialClaims(List.of("name"));
+        oidcTransaction.setVoluntaryClaims(List.of("email"));
+        oidcTransaction.setIndividualId("individualId");
+
+        Claims claims = new Claims();
+        Map<String, ClaimDetail> userinfo = new HashMap<>();
+        Map<String, ClaimDetail> id_token = new HashMap<>();
+        ClaimDetail userinfoNameClaimDetail = new ClaimDetail("name", new String[]{"value1a", "value1b"}, true);
+        ClaimDetail idTokenClaimDetail = new ClaimDetail("token", new String[]{"value2a", "value2b"}, false);
+        userinfo.put("name", userinfoNameClaimDetail);
+        userinfo.put("email",null);
+        id_token.put("idTokenKey", idTokenClaimDetail);
+        claims.setUserinfo(userinfo);
+        claims.setId_token(id_token);
+
+        oidcTransaction.setRequestedClaims(claims);
+
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId(oidcTransaction.getClientId());
+        userConsentRequest.setPsuToken(oidcTransaction.getPartnerSpecificUserToken());
+
+        ConsentDetail consentDetail = new ConsentDetail();
+        consentDetail.setClientId("123");
+        consentDetail.setSignature("signature");
+        consentDetail.setAuthorizationScopes(Map.of("openid",false,"profile",false));
+        consentDetail.setClaims(claims);
+        Claims normalizedClaims = new Claims();
+        normalizedClaims.setUserinfo(consentHelperService.normalizeClaims(claims.getUserinfo()));
+        normalizedClaims.setId_token(consentHelperService.normalizeClaims(claims.getId_token()));
+        String hashCode =consentHelperService.hashUserConsent(normalizedClaims,consentDetail.getAuthorizationScopes());
+        consentDetail.setHash(hashCode);
+
+        consentDetail.setAcceptedClaims(Arrays.asList("email","gender","name"));
+        consentDetail.setPermittedScopes(Arrays.asList("email","openid","profile"));
+
+        List<String> acceptedClaims = consentDetail.getAcceptedClaims();
+        List<String> permittedScopes = consentDetail.getPermittedScopes();
+        String jws = consentDetail.getSignature();
+        Collections.sort(acceptedClaims);
+        Collections.sort(permittedScopes);
+        Map<String,Object> payLoadMap = new TreeMap<>();
+        payLoadMap.put("accepted_claims",acceptedClaims);
+        payLoadMap.put("permitted_authorized_scopes",permittedScopes);
+
+        String signature = generateSignature(payLoadMap);;
+        consentDetail.setSignature(signature);
+        consentDetail.setPsuToken("psutoken");
+
+        PublicKeyRegistry publicKeyRegistry =new PublicKeyRegistry();
+        publicKeyRegistry.setCertificate(certificateString);
+        Mockito.when(authorizationHelperService.getIndividualId(oidcTransaction)).thenReturn("individualId");
+        Mockito.when(publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes(Mockito.any(),Mockito.any())).thenReturn(Optional.empty());
+
+        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
+
+        consentHelperService.processConsent(oidcTransaction,true);
+
+        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+    }
+
+    @Test
+    public void processConsent_withInvalidSignature_thenFail(){
+
+        OIDCTransaction oidcTransaction=new OIDCTransaction();
+        oidcTransaction.setClientId("abc");
+        oidcTransaction.setPartnerSpecificUserToken("123");
+        oidcTransaction.setVoluntaryClaims(List.of("email"));
+        oidcTransaction.setEssentialClaims(List.of());
+        oidcTransaction.setRequestedAuthorizeScopes(List.of());
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId(oidcTransaction.getClientId());
+        userConsentRequest.setPsuToken(oidcTransaction.getPartnerSpecificUserToken());
+
+        ConsentDetail consentDetail=new ConsentDetail();
+        consentDetail.setAcceptedClaims(Arrays.asList());
+        consentDetail.setSignature("haa.naa");
+
+        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
+
+        try{
+            consentHelperService.processConsent(oidcTransaction,true);
+            Assert.fail();
+        }catch (Exception e){}
+    }
+
+    @Test
     public void toGenerateTestingSignatrue() throws Exception {
        // Payload payload = new Payload();
         List<String> acceptedClaims =Arrays.asList("name","email","gender");
