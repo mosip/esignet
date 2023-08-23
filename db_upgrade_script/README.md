@@ -1,0 +1,1 @@
+Directory contains sql scripts to be executed for DB migrations.
