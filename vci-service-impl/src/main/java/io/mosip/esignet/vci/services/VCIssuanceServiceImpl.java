@@ -76,7 +76,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         VCResult<?> vcResult = getVerifiableCredential(credentialRequest, credentialMetadata, holderId);
         if(vcResult == null || vcResult.getCredential() == null) {
             log.error("Failed to generate VC : {}", vcResult);
-            throw new EsignetException(ErrorConstants.UNSUPPORTED_VC_FORMAT);
+            throw new EsignetException(ErrorConstants.VC_ISSUANCE_FAILED);
         }
         return getCredentialResponse(credentialRequest.getFormat(), vcResult);
     }

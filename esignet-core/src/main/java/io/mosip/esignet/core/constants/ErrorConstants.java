@@ -80,4 +80,5 @@ public class ErrorConstants {
     public static final String PROOF_OF_POSSESSION_FAILED = "proof_of_possession_failed";
     public static final String INVALID_TARGET = "invalid_target";
     public static final String UNSUPPORTED_VC_TYPE = "unsupported_credential_type";
+    public static final String VC_ISSUANCE_FAILED = "vc_issuance_failed";
 }
