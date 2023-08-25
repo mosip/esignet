@@ -9,11 +9,10 @@ public interface VCIssuanceService {
 
     /**
      *
-     * @param authorizationHeader
      * @param credentialRequest
      * @return
      */
-    CredentialResponse getCredential(String authorizationHeader, CredentialRequest credentialRequest);
+    <T> CredentialResponse<T> getCredential(CredentialRequest credentialRequest);
 
     Map<String, Object> getCredentialIssuerMetadata();
 }

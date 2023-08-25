@@ -73,4 +73,11 @@ public class ErrorConstants {
     public static final String INVALID_PKCE_CODE_VERFIER = "invalid_pkce_code_verifier";
     public static final String PKCE_FAILED = "pkce_failed";
     public static final String JSONLD_READ_FAILED = "jsonld_read_failed";
+    public static final String UNSUPPORTED_VC_FORMAT = "unsupported_credential_format";
+    public static final String INVALID_VC_FORMAT = "invalid_vc_format";
+    public static final String INVALID_PROOF = "invalid_proof";
+    public static final String UNSUPPORTED_PROOF_TYPE = "unsupported_proof_type";
+    public static final String PROOF_OF_POSSESSION_FAILED = "proof_of_possession_failed";
+    public static final String INVALID_TARGET = "invalid_target";
+    public static final String UNSUPPORTED_VC_TYPE = "unsupported_credential_type";
 }

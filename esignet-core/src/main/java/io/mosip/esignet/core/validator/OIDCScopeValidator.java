@@ -24,6 +24,9 @@ public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String
     @Value("#{${mosip.esignet.supported.openid.scopes}}")
     private List<String> openidScopes;
 
+    @Value("#{${mosip.esignet.supported.credential.scopes}}")
+    private List<String> credentialScopes;
+
     /**
      * 1. Unknown scopes are ignored
      * 2. Provided scope should have at least one of authorize / openid scope
@@ -47,10 +50,12 @@ public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String
         String[] openid_scopes = Arrays.stream(scopes)
                 .filter( s -> openidScopes.contains(s) || Constants.SCOPE_OPENID.equals(s))
                 .toArray(String[]::new);
+        String[] credential_scopes = Arrays.stream(scopes)
+                .filter( s -> credentialScopes.contains(s))
+                .toArray(String[]::new);
 
-        //at least one of authorize / openid scope MUST be present
-        if((!openid && authorized_scopes.length == 0 && openid_scopes.length == 0) ||
-                (authorized_scopes.length == 0 && openid_scopes.length == 0))
+        //at least one of authorize / openid / credential scope MUST be present
+        if(!openid && authorized_scopes.length == 0 && openid_scopes.length == 0 && credential_scopes.length == 0)
             return false;
 
         //any openid scopes then 'openid' MUST also be present

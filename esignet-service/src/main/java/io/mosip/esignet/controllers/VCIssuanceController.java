@@ -6,7 +6,6 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.VCIssuanceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -21,18 +20,17 @@ public class VCIssuanceController {
 
     /**
      * 1. The credential Endpoint MUST accept Access Tokens
-     * @param bearerToken
-     * @return
+     * @param credentialRequest VC credential request
+     * @return Credential Response w.r.t requested format
      * @throws EsignetException
      */
     @PostMapping(value = "/credential",produces = "application/json")
-    public CredentialResponse getCredential(@RequestHeader("Authorization") String bearerToken,
-                                            @RequestBody CredentialRequest credentialRequest) throws EsignetException {
-        return vcIssuanceService.getCredential(bearerToken, credentialRequest);
+    public CredentialResponse getCredential(@RequestBody CredentialRequest credentialRequest) throws EsignetException {
+        return vcIssuanceService.getCredential(credentialRequest);
     }
 
     /**
-     * Open endpoint to provide server metadata
+     * Open endpoint to provide VC issuer's metadata
      * @return
      */
     @GetMapping(value = "/.well-known/openid-credential-issuer",produces = "application/json")

@@ -66,6 +66,7 @@ public class OAuthController {
             throws EsignetException {
         TokenRequest tokenRequest = buildTokenRequest(paramMap);
         tokenRequest.setCode_verifier(paramMap.getFirst("code_verifier"));
+        tokenRequest.setResource(paramMap.getFirst("resource"));
         Set<ConstraintViolation<TokenRequest>> violations = validator.validate(tokenRequest);
         if(!violations.isEmpty() && violations.stream().findFirst().isPresent()) {
             throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value

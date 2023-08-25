@@ -8,6 +8,7 @@ package io.mosip.esignet.core.dto;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.OIDCGrantType;
 import io.mosip.esignet.core.validator.OIDCClientAssertionType;
+import io.mosip.esignet.core.validator.TargetResource;
 import lombok.Data;
 import io.mosip.esignet.core.validator.RedirectURL;
 
@@ -55,5 +56,12 @@ public class TokenRequest {
      * The code verifier for the PKCE request.
      */
     private String code_verifier;
+
+    /**
+     * Target resource may be URL or an identifier.
+     * If not provided then the client Id will be set in 'aud' claim
+     */
+    @TargetResource
+    private String resource;
 
 }

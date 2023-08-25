@@ -23,6 +23,9 @@ public interface TokenService {
     String JTI = "jti";
     String SCOPE = "scope";
     String ACCESS_TOKEN_HASH = "at_hash";
+    String C_NONCE = "c_nonce";
+    String C_NONCE_EXPIRES_IN = "c_nonce_expires_in";
+    String CLIENT_ID = "client_id";
 
 
     /**
@@ -84,9 +87,10 @@ public interface TokenService {
      * scope: REQUIRED. The list of OAuth scopes this token includes
      *
      * @param transaction
+     * @param cNonce
      * @return
      */
-     String getAccessToken(OIDCTransaction transaction);
+     String getAccessToken(OIDCTransaction transaction, String cNonce);
 
     /**
      * Client's authentication token when using token endpoint
