@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import static io.mosip.esignet.core.spi.TokenService.CLIENT_ID;
+import static io.mosip.esignet.core.spi.TokenService.C_NONCE;
+
 @Slf4j
 @Service
 public class VCIssuanceServiceImpl implements VCIssuanceService {
@@ -68,8 +71,11 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         }
 
         ProofValidator proofValidator = proofValidatorFactory.getProofValidator(credentialRequest.getProof().getProof_type());
-        if(!proofValidator.validate(credentialRequest.getProof()))
-            throw new EsignetException(ErrorConstants.PROOF_OF_POSSESSION_FAILED);
+        if(!proofValidator.validate((String)parsedAccessToken.getClaims().get(CLIENT_ID),
+                (String)parsedAccessToken.getClaims().get(C_NONCE),
+                credentialRequest.getProof())) {
+            throw new EsignetException(ErrorConstants.INVALID_PROOF);
+        }
         String holderId = proofValidator.getKeyMaterial(credentialRequest.getProof());
 
         //Get VC from configured plugin implementation

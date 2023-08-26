@@ -6,7 +6,7 @@ public interface ProofValidator {
 
     String getProofType();
 
-    boolean validate(CredentialProof credentialProof);
+    boolean validate(String clientId, String cNonce, CredentialProof credentialProof);
 
     String getKeyMaterial(CredentialProof credentialProof);
 }

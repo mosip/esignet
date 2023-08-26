@@ -27,11 +27,6 @@
             <artifactId>esignet-core</artifactId>
             <version>${esignet.core.version}</version>
         </dependency>
-        <dependency>
-            <groupId>info.weboftrust</groupId>
-            <artifactId>ld-signatures-java</artifactId>
-            <version>0.8.0</version>
-        </dependency>
     </dependencies>
 
 </project>
