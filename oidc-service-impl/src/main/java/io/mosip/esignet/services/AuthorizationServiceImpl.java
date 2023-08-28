@@ -110,7 +110,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailResponseV2.setCredentialScopes(oidcTransaction.getRequestedCredentialScopes());
 
         oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
-        oidcTransaction.setResource(oauthDetailReqDto.getResource());
 
         //PKCE support
         oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance(oauthDetailReqDto.getCodeChallenge(),

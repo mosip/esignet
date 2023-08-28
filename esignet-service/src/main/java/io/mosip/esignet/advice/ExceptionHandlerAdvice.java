@@ -192,7 +192,11 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
             return new ResponseEntity<VCError>(getVCErrorDto(INVALID_REQUEST, message), HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof InvalidRequestException | ex instanceof EsignetException | ex instanceof NotAuthenticatedException) {
+        if(ex instanceof NotAuthenticatedException) {
+            String errorCode = ((EsignetException) ex).getErrorCode();
+            return new ResponseEntity<VCError>(getVCErrorDto(errorCode, getMessage(errorCode)), HttpStatus.UNAUTHORIZED);
+        }
+        if(ex instanceof InvalidRequestException | ex instanceof EsignetException) {
             String errorCode = ((EsignetException) ex).getErrorCode();
             return new ResponseEntity<VCError>(getVCErrorDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
         }

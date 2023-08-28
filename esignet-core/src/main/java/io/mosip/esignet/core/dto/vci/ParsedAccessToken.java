@@ -8,5 +8,6 @@ import java.util.Map;
 public class ParsedAccessToken {
 
     private Map<String, Object> claims;
+    private String atHash;
     private boolean isActive;
 }

@@ -164,9 +164,6 @@ public class OAuthServiceImpl implements OAuthService {
             throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
 
         validatePKCE(transaction.getProofKeyCodeExchange(), tokenRequest.getCode_verifier());
-
-        if(StringUtils.hasText(tokenRequest.getResource()) && !tokenRequest.getResource().equals(transaction.getResource()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_TARGET);
     }
 
     private void validatePKCE(ProofKeyCodeExchange proofKeyCodeExchange, String codeVerifier) {

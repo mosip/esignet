@@ -76,6 +76,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.cnonce-expire-seconds:300}")
     private int cNonceExpireSeconds;
+
+    @Value("#{${mosip.esignet.credential.scope-resource-mapping}}")
+    private Map<String, String> scopesResourceMapping;
     
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
 
@@ -110,9 +113,8 @@ public class TokenServiceImpl implements TokenService {
     public String getAccessToken(OIDCTransaction transaction, String cNonce) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
-        payload.put(ISS, issuerId);
         payload.put(SUB, transaction.getPartnerSpecificUserToken());
-        payload.put(AUD, StringUtils.hasText(transaction.getResource()) ? transaction.getResource() : transaction.getClientId());
+        payload.put(AUD, transaction.getClientId());
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
@@ -122,6 +124,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(CLIENT_ID, transaction.getClientId());
 
         if(cNonce != null) {
+            payload.put(AUD, scopesResourceMapping.getOrDefault(transaction.getPermittedScopes().get(0), ""));
             payload.put(C_NONCE, cNonce);
             payload.put(C_NONCE_EXPIRES_IN, cNonceExpireSeconds);
         }

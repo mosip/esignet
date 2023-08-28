@@ -2,6 +2,7 @@ package io.mosip.esignet.vci.filter;
 
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +66,7 @@ public class AccessTokenValidationFilter implements Filter {
                     //Verifies signature and claim predicates, If invalid throws exception
                     Jwt jwt = getNimbusJwtDecoder().decode(token);
                     parsedAccessToken.setClaims(jwt.getClaims());
+                    parsedAccessToken.setAtHash(IdentityProviderUtil.generateOIDCAtHash(token));
                     parsedAccessToken.setActive(true);
                     chain.doFilter(request, response);
                     return;

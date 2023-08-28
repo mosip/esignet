@@ -58,6 +58,10 @@ public class OIDCScopeValidator implements ConstraintValidator<OIDCScope, String
         if(!openid && authorized_scopes.length == 0 && openid_scopes.length == 0 && credential_scopes.length == 0)
             return false;
 
+        //With credential scope, no other type of scopes are allowed
+        if(credential_scopes.length > 0 && (openid || authorized_scopes.length > 0 || openid_scopes.length > 0))
+            return false;
+
         //any openid scopes then 'openid' MUST also be present
         if(openid_scopes.length > 0 && !openid)
             return false;
