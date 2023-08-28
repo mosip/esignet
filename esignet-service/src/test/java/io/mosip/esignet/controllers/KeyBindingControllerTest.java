@@ -14,6 +14,7 @@ import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.spi.KeyBindingService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
@@ -65,6 +66,9 @@ public class KeyBindingControllerTest {
 
 	@MockBean
 	Authenticator authenticationWrapper;
+
+	@MockBean
+	ParsedAccessToken parsedAccessToken;
 
 	@Test
 	public void sendBindingOtp_withValidRequest_thenPass() throws Exception {

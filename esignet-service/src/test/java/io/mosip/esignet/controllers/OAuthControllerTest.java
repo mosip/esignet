@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
+import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
@@ -48,6 +49,9 @@ public class OAuthControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+
+    @MockBean
+    ParsedAccessToken parsedAccessToken;
 
     @Test
     public void getAllJwks_thenPass() throws Exception {

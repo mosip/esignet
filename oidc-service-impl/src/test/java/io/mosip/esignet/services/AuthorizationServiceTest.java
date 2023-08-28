@@ -71,6 +71,7 @@ public class AuthorizationServiceTest {
         claims.put("email", Arrays.asList("email","email_verified"));
         claims.put("phone", Arrays.asList("phone_number","phone_number_verified"));
         AuthorizationHelperService authorizationHelperService = new AuthorizationHelperService();
+        ReflectionTestUtils.setField(authorizationHelperService, "credentialScopes", Arrays.asList("sample_ldp_vc"));
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("resident-service"));
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationContextClassRefUtil", authenticationContextClassRefUtil);
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationWrapper", authenticationWrapper);

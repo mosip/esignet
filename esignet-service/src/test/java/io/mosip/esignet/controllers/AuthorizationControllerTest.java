@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -60,6 +61,9 @@ public class AuthorizationControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+
+    @MockBean
+    ParsedAccessToken parsedAccessToken;
 
     ObjectMapper objectMapper = new ObjectMapper();
 

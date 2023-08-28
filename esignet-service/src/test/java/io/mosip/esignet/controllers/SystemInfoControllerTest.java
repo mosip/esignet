@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
+import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -46,6 +47,9 @@ public class SystemInfoControllerTest {
     
     @MockBean
     AuditPlugin auditWrapper;
+
+    @MockBean
+    ParsedAccessToken parsedAccessToken;
 
     @Test
     public void getCertificate_withValidRequest_thenPass() throws Exception {
