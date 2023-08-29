@@ -66,7 +66,7 @@ public class AccessTokenValidationFilter implements Filter {
                     //Verifies signature and claim predicates, If invalid throws exception
                     Jwt jwt = getNimbusJwtDecoder().decode(token);
                     parsedAccessToken.setClaims(jwt.getClaims());
-                    parsedAccessToken.setAtHash(IdentityProviderUtil.generateOIDCAtHash(token));
+                    parsedAccessToken.setAccessTokenHash(IdentityProviderUtil.generateOIDCAtHash(token));
                     parsedAccessToken.setActive(true);
                     chain.doFilter(request, response);
                     return;

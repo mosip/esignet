@@ -95,6 +95,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     private VCResult<?> getVerifiableCredential(CredentialRequest credentialRequest, CredentialMetadata credentialMetadata,
                                                 String holderId) {
         VCRequestDto vcRequestDto = new VCRequestDto();
+        parsedAccessToken.getClaims().put("accessTokenHash", parsedAccessToken.getAccessTokenHash());
         switch (credentialRequest.getFormat()) {
             case "ldp_vc" :
                 validateLdpVcFormatRequest(credentialRequest, credentialMetadata);

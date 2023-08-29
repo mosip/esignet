@@ -214,12 +214,14 @@ public class OAuthServiceImpl implements OAuthService {
         TokenResponse tokenResponse = new TokenResponse();
         String cNonce = isTransactionVCScoped ? IdentityProviderUtil.generateRandomAlphaNumeric(20) : null;
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
-        tokenResponse.setId_token(tokenService.getIDToken(transaction));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setToken_type(Constants.BEARER);
         if(isTransactionVCScoped) {
             tokenResponse.setC_nonce(cNonce);
             tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);
+        }
+        else {
+            tokenResponse.setId_token(tokenService.getIDToken(transaction));
         }
         return tokenResponse;
     }

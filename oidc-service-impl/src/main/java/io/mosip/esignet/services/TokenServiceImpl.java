@@ -118,13 +118,21 @@ public class TokenServiceImpl implements TokenService {
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
-        if(!CollectionUtils.isEmpty(transaction.getPermittedScopes()))
+        if(!CollectionUtils.isEmpty(transaction.getPermittedScopes())) {
             payload.put(SCOPE, String.join(SPACE, transaction.getPermittedScopes()));
+            //AS of now taking only first matched credential scope, need to work on multiple resource support
+            Optional<String> result = Objects.requireNonNullElse(transaction.getRequestedCredentialScopes(), new ArrayList<String>())
+                    .stream()
+                    .filter( scope -> transaction.getPermittedScopes().contains(scope) )
+                    .findFirst();
+            if(result.isPresent()) {
+                payload.put(AUD, scopesResourceMapping.getOrDefault(result.get(), ""));
+            }
+        }
         payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
         payload.put(CLIENT_ID, transaction.getClientId());
 
         if(cNonce != null) {
-            payload.put(AUD, scopesResourceMapping.getOrDefault(transaction.getPermittedScopes().get(0), ""));
             payload.put(C_NONCE, cNonce);
             payload.put(C_NONCE_EXPIRES_IN, cNonceExpireSeconds);
         }
