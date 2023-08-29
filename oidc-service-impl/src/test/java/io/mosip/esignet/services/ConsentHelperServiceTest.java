@@ -14,11 +14,13 @@ import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.PublicKeyRegistry;
 import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
 import io.mosip.esignet.core.spi.PublicKeyRegistryService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -487,7 +489,9 @@ public class ConsentHelperServiceTest {
         try{
             consentHelperService.processConsent(oidcTransaction,true);
             Assert.fail();
-        }catch (Exception e){}
+        }catch (Exception e){
+            throw new EsignetException(ErrorConstants.INVALID_AUTH_TOKEN);
+        }
     }
 
     @Test
