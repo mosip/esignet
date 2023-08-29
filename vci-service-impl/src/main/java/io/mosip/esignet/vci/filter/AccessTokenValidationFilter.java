@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.vci.filter;
 
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
@@ -14,6 +19,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Objects;
 
 @Slf4j
@@ -65,7 +71,8 @@ public class AccessTokenValidationFilter implements Filter {
                 try {
                     //Verifies signature and claim predicates, If invalid throws exception
                     Jwt jwt = getNimbusJwtDecoder().decode(token);
-                    parsedAccessToken.setClaims(jwt.getClaims());
+                    parsedAccessToken.setClaims(new HashMap<>());
+                    parsedAccessToken.getClaims().putAll(jwt.getClaims());
                     parsedAccessToken.setAccessTokenHash(IdentityProviderUtil.generateOIDCAtHash(token));
                     parsedAccessToken.setActive(true);
                     chain.doFilter(request, response);
