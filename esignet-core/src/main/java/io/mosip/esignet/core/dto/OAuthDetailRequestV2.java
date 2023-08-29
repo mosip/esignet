@@ -10,5 +10,4 @@ public class OAuthDetailRequestV2 extends OAuthDetailRequest {
 
     @PKCECodeChallengeMethod
     private String codeChallengeMethod;
-
 }

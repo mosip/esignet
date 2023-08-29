@@ -55,5 +55,4 @@ public class TokenRequest {
      * The code verifier for the PKCE request.
      */
     private String code_verifier;
-
 }

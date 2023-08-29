@@ -15,6 +15,7 @@ public class TokenResponse {
     /**
      * OpenID Connect identity token.
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String id_token;
 
     /**

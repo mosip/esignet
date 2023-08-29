@@ -93,7 +93,7 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
         Assert.assertNotNull(tokenResponse);
@@ -138,7 +138,7 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
         Assert.assertNotNull(tokenResponse);
@@ -174,7 +174,7 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
         Assert.assertNotNull(tokenResponse);

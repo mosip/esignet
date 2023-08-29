@@ -1,7 +1,11 @@
 package io.mosip.esignet.core.dto.vci;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.Data;
+import lombok.NonNull;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -11,12 +15,14 @@ public class CredentialRequest {
     /**
      * REQUIRED. Format of the Credential to be issued.
      */
+    @NotBlank(message = ErrorConstants.INVALID_VC_FORMAT)
     private String format;
 
     /**
      * OPTIONAL.
      * JSON object containing proof of possession of the key material the issued Credential shall be bound to.
      */
+    @NotNull(message = ErrorConstants.INVALID_PROOF)
     private CredentialProof proof;
 
     /**

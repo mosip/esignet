@@ -105,6 +105,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
 
         OIDCTransaction oidcTransaction = pair.getSecond();
+
+        //TODO - Need to check to persist credential scopes in consent registry
+        oAuthDetailResponseV2.setCredentialScopes(oidcTransaction.getRequestedCredentialScopes());
+
         oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
 
         //PKCE support
@@ -159,7 +163,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-
+        oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -249,7 +253,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             acceptedScopes = transaction.getPermittedScopes();
         }
         authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
-        authorizationHelperService.validateAuthorizeScopes(transaction, acceptedScopes);
+        authorizationHelperService.validatePermittedScopes(transaction, acceptedScopes);
 
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
         // cache consent with auth-code-hash as key

@@ -16,6 +16,6 @@ public class PKCECodeChallengeMethodValidator implements ConstraintValidator<PKC
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
-        return (!StringUtils.isEmpty(value) && !supportedMethods.contains(value)) ? false : true;
+        return StringUtils.isEmpty(value) || supportedMethods.contains(value);
     }
 }

@@ -1,4 +1,4 @@
-package io.mosip.esignet.services;
+package io.mosip.esignet.vci.services;
 
 import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.document.JsonDocument;
