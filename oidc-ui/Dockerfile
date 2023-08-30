@@ -1,4 +1,8 @@
 FROM node:12.18.4-alpine as build_esignet_ui
+
+ARG sign_in_with_esignet_plugin_url
+ENV SIGN_IN_WITH_ESIGNET_PLUGIN_URL=$sign_in_with_esignet_plugin_url
+
 COPY package*.json ./
 RUN npm install
 #Copy the working directory
