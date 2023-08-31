@@ -99,23 +99,22 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     private VCResult<?> getVerifiableCredential(CredentialRequest credentialRequest, CredentialMetadata credentialMetadata,
                                                 String holderId) {
-        VCRequestDto vcRequestDto = new VCRequestDto();
         parsedAccessToken.getClaims().put("accessTokenHash", parsedAccessToken.getAccessTokenHash());
+        VCRequestDto vcRequestDto = new VCRequestDto();
+        vcRequestDto.setFormat(credentialRequest.getFormat());
+        vcRequestDto.setContext(credentialRequest.getCredential_definition().getContext());
+        vcRequestDto.setType(credentialRequest.getCredential_definition().getType());
+        vcRequestDto.setCredentialSubject(credentialRequest.getCredential_definition().getCredentialSubject());
+
         switch (credentialRequest.getFormat()) {
             case "ldp_vc" :
                 validateLdpVcFormatRequest(credentialRequest, credentialMetadata);
-                vcRequestDto.setFormat(credentialRequest.getFormat());
-                vcRequestDto.setTypes(credentialRequest.getCredential_definition().getTypes().toArray(new String[0]));
-                vcRequestDto.setCredentialSubject(credentialRequest.getCredential_definition().getCredentialSubject());
                 return vcIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(vcRequestDto, holderId,
                         parsedAccessToken.getClaims());
 
             // jwt_vc_json & jwt_vc_json-ld cases are merged
             case "jwt_vc_json-ld" :
-                vcRequestDto.setTypes(credentialRequest.getTypes().toArray(new String[0]));
-                vcRequestDto.setCredentialSubject(credentialRequest.getCredentialSubject());
             case "jwt_vc_json" :
-                vcRequestDto.setFormat(credentialRequest.getFormat());
                 return vcIssuancePlugin.getVerifiableCredential(vcRequestDto, holderId,
                         parsedAccessToken.getClaims());
             default:
@@ -164,11 +163,14 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         if(Objects.isNull(credentialRequest.getCredential_definition()))
             throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
 
-        if(Objects.isNull(credentialRequest.getCredential_definition().getTypes()))
+        if(Objects.isNull(credentialRequest.getCredential_definition().getType()))
             throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
 
-        if(!(credentialRequest.getCredential_definition().getTypes().contains("VerifiableCredential") &&
-        credentialRequest.getCredential_definition().getTypes().contains(credentialMetadata.getId())))
+        if(Objects.isNull(credentialRequest.getCredential_definition().getContext()))
+            throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
+
+        if(!(credentialRequest.getCredential_definition().getType().contains("VerifiableCredential") &&
+        credentialRequest.getCredential_definition().getType().contains(credentialMetadata.getId())))
             throw new InvalidRequestException(ErrorConstants.UNSUPPORTED_VC_TYPE);
 
         //TODO need to validate Credential_definition as JsonLD document, if invalid throw exception
