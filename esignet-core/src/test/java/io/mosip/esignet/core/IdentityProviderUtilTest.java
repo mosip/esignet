@@ -160,7 +160,7 @@ public class IdentityProviderUtilTest {
     		IdentityProviderUtil.getCertificateThumbprint("test", getCertificate());
     		Assert.fail();
         } catch (EsignetException e) {
-            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
+            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
@@ -172,7 +172,7 @@ public class IdentityProviderUtilTest {
             IdentityProviderUtil.generateThumbprintByCertificate("test");
             Assert.fail();
         } catch (EsignetException e) {
-            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
+            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_CERTIFICATE);
         }
     }
     
