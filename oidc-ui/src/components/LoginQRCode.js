@@ -87,6 +87,7 @@ export default function LoginQRCode({
         if (logoUrl) {
           const logo = new Image();
           logo.src = logoUrl;
+          logo.crossOrigin="anonymous"
           logo.onload = () => {
             const ctx = canvas.getContext("2d");
             const size = canvas.width / 6;
