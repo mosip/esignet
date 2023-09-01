@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @Slf4j
@@ -25,7 +26,7 @@ public class VCIssuanceController {
      * @throws EsignetException
      */
     @PostMapping(value = "/credential",produces = "application/json")
-    public CredentialResponse getCredential(@RequestBody CredentialRequest credentialRequest) throws EsignetException {
+    public CredentialResponse getCredential(@Valid @RequestBody CredentialRequest credentialRequest) throws EsignetException {
         return vcIssuanceService.getCredential(credentialRequest);
     }
 
