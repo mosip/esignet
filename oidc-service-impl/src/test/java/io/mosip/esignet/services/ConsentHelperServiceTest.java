@@ -490,7 +490,7 @@ public class ConsentHelperServiceTest {
             consentHelperService.processConsent(oidcTransaction,true);
             Assert.fail();
         }catch (Exception e){
-            throw new EsignetException(ErrorConstants.INVALID_AUTH_TOKEN);
+            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_AUTH_TOKEN);
         }
     }
 
