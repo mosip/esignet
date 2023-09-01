@@ -6,7 +6,6 @@
 package io.mosip.esignet.vci.filter;
 
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
-import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
