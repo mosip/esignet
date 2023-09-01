@@ -2,12 +2,10 @@ package io.mosip.esignet.core.dto.vci;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.Data;
-import lombok.NonNull;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
 
 @Data
 public class CredentialRequest {
@@ -22,6 +20,7 @@ public class CredentialRequest {
      * OPTIONAL.
      * JSON object containing proof of possession of the key material the issued Credential shall be bound to.
      */
+    @Valid
     @NotNull(message = ErrorConstants.INVALID_PROOF)
     private CredentialProof proof;
 
@@ -35,6 +34,7 @@ public class CredentialRequest {
      * types: REQUIRED. JSON array. This claim contains the type values the Wallet shall request
      * in the subsequent Credential Request.
      */
+    @Valid
     @NotNull(message = ErrorConstants.INVALID_REQUEST)
     private CredentialDefinition credential_definition;
 }

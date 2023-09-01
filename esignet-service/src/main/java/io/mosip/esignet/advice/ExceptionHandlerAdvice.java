@@ -185,12 +185,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         if(ex instanceof MethodArgumentNotValidException) {
             FieldError fieldError = ((MethodArgumentNotValidException) ex).getBindingResult().getFieldError();
             String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
-            return new ResponseEntity<VCError>(getVCErrorDto(INVALID_REQUEST, message), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<VCError>(getVCErrorDto(message, message), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof ConstraintViolationException) {
             Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
-            return new ResponseEntity<VCError>(getVCErrorDto(INVALID_REQUEST, message), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<VCError>(getVCErrorDto(message, message), HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof NotAuthenticatedException) {
             String errorCode = ((EsignetException) ex).getErrorCode();
