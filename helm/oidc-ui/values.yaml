@@ -137,7 +137,7 @@ additionalResources:
 
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## Clamav container already runs as 'mosip' user, so we may not need to enable this
-container_user: 'root'
+container_user: 'mosip'
 containerSecurityContext:
   enabled: true
   runAsUser: 0
