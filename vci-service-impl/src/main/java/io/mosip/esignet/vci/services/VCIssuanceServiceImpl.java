@@ -11,23 +11,25 @@ import io.mosip.esignet.api.dto.VCResult;
 import io.mosip.esignet.api.spi.VCIssuancePlugin;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.vci.CredentialMetadata;
-import io.mosip.esignet.core.dto.vci.CredentialRequest;
-import io.mosip.esignet.core.dto.vci.CredentialResponse;
-import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
+import io.mosip.esignet.core.dto.vci.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.VCIssuanceService;
+import io.mosip.esignet.core.util.SecurityHelperService;
+import io.mosip.esignet.vci.exception.InvalidNonceException;
 import io.mosip.esignet.vci.pop.ProofValidator;
 import io.mosip.esignet.vci.pop.ProofValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static io.mosip.esignet.core.spi.TokenService.CLIENT_ID;
@@ -37,11 +39,13 @@ import static io.mosip.esignet.core.spi.TokenService.C_NONCE;
 @Service
 public class VCIssuanceServiceImpl implements VCIssuanceService {
 
+    private static final String C_NONCE_EXPIRES_IN = "c_nonce_expires_in";
+
     @Value("#{${mosip.esignet.vci.key-values}}")
     private Map<String, Object> issuerMetadata;
 
-    @Autowired
-    private VCIUtilService vciUtilService;
+    @Value("${mosip.esignet.cnonce-expire-seconds:300}")
+    private int cNonceExpireSeconds;
 
     @Autowired
     private ParsedAccessToken parsedAccessToken;
@@ -51,6 +55,12 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     @Autowired
     private ProofValidatorFactory proofValidatorFactory;
+
+    @Autowired
+    private VCICacheService vciCacheService;
+
+    @Autowired
+    private SecurityHelperService securityHelperService;
 
     private List<LinkedHashMap<String, Object>> supportedCredentials;
 
@@ -76,8 +86,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         }
 
         ProofValidator proofValidator = proofValidatorFactory.getProofValidator(credentialRequest.getProof().getProof_type());
-        if(!proofValidator.validate((String)parsedAccessToken.getClaims().get(CLIENT_ID),
-                (String)parsedAccessToken.getClaims().get(C_NONCE),
+        if(!proofValidator.validate((String)parsedAccessToken.getClaims().get(CLIENT_ID), getValidClientNonce(),
                 credentialRequest.getProof())) {
             throw new EsignetException(ErrorConstants.INVALID_PROOF);
         }
@@ -174,5 +183,36 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
             throw new InvalidRequestException(ErrorConstants.UNSUPPORTED_VC_TYPE);
 
         //TODO need to validate Credential_definition as JsonLD document, if invalid throw exception
+    }
+
+    private String getValidClientNonce() {
+        VCIssuanceTransaction transaction = vciCacheService.getSetVCITransaction(parsedAccessToken.getAccessTokenHash(), null);
+        //If the transaction is null, it means that VCI service never created cNonce, its authorization server issued cNonce
+        String cNonce = (transaction == null) ?
+                (String) parsedAccessToken.getClaims().get(C_NONCE) :
+                transaction.getCNonce();
+        int cNonceExpire = (transaction == null) ?
+                (int) parsedAccessToken.getClaims().getOrDefault(C_NONCE_EXPIRES_IN, 0):
+                transaction.getCNonceExpireSeconds();
+        long issuedEpoch = (transaction == null) ?
+                (long) parsedAccessToken.getClaims().getOrDefault(JwtClaimNames.IAT, 0):
+                transaction.getCNonceIssuedEpoch();
+
+        if( cNonce == null ||
+                cNonceExpire <= 0 ||
+                ((issuedEpoch+cNonceExpire) < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)) ) {
+            log.error("Client Nonce not found / expired in the access token, generate new cNonce");
+            transaction = createVCITransaction();
+            throw new InvalidNonceException(transaction.getCNonce(), cNonceExpireSeconds);
+        }
+        return cNonce;
+    }
+
+    private VCIssuanceTransaction createVCITransaction() {
+        VCIssuanceTransaction transaction = new VCIssuanceTransaction();
+        transaction.setCNonce(securityHelperService.generateSecureRandomString(20));
+        transaction.setCNonceIssuedEpoch(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        transaction.setCNonceExpireSeconds(cNonceExpireSeconds);
+        return vciCacheService.getSetVCITransaction(parsedAccessToken.getAccessTokenHash(), transaction);
     }
 }

@@ -17,6 +17,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
+import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +65,9 @@ public class AuthorizationControllerTest {
 
     @MockBean
     ParsedAccessToken parsedAccessToken;
+
+    @MockBean
+    VCICacheService vciCacheService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 

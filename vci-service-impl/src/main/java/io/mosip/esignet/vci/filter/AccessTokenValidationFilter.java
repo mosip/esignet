@@ -7,6 +7,7 @@ package io.mosip.esignet.vci.filter;
 
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.vci.services.VCICacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Objects;
@@ -42,6 +45,9 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
     @Autowired
     private ParsedAccessToken parsedAccessToken;
 
+    @Autowired
+    private VCICacheService vciCacheService;
+
     private NimbusJwtDecoder nimbusJwtDecoder;
 
 
@@ -55,10 +61,12 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
             nimbusJwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
                     new JwtTimestampValidator(),
                     new JwtIssuerValidator(issuerUri),
-                    new JwtClaimValidator<>(JwtClaimNames.AUD, allowedAudiences::containsAll),
-                    new JwtClaimValidator<>(JwtClaimNames.SUB, Objects::nonNull),
-                    new JwtClaimValidator<>(JwtClaimNames.IAT, Objects::nonNull),
-                    new JwtClaimValidator<>(JwtClaimNames.EXP, Objects::nonNull)));
+                    new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, allowedAudiences::containsAll),
+                    new JwtClaimValidator<String>(JwtClaimNames.SUB, Objects::nonNull),
+                    new JwtClaimValidator<LocalDateTime>(JwtClaimNames.IAT,
+                            iat -> iat != null && iat.isBefore(LocalDateTime.now(ZoneOffset.UTC))),
+                    new JwtClaimValidator<LocalDateTime>(JwtClaimNames.EXP,
+                            exp -> exp != null && exp.isAfter(LocalDateTime.now(ZoneOffset.UTC)))));
         }
         return nimbusJwtDecoder;
     }

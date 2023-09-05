@@ -24,6 +24,7 @@ import javax.servlet.AsyncListener;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
+import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,6 +78,9 @@ public class LinkedAuthorizationControllerTest {
 
     @MockBean
     ParsedAccessToken parsedAccessToken;
+
+    @MockBean
+    VCICacheService vciCacheService;
 
     @Test
     public void generateLinkCode_withValidRequest_thenPass() throws Exception {
