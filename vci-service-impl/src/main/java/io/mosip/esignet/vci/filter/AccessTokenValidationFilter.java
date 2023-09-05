@@ -7,7 +7,6 @@ package io.mosip.esignet.vci.filter;
 
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.vci.services.VCICacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,9 +43,6 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
     @Autowired
     private ParsedAccessToken parsedAccessToken;
-
-    @Autowired
-    private VCICacheService vciCacheService;
 
     private NimbusJwtDecoder nimbusJwtDecoder;
 
