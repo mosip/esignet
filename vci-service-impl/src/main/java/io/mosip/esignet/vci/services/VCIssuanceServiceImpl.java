@@ -200,10 +200,10 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
         if( cNonce == null ||
                 cNonceExpire <= 0 ||
-                ((issuedEpoch+cNonceExpire) < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)) ) {
+                (issuedEpoch+cNonceExpire) < LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC) ) {
             log.error("Client Nonce not found / expired in the access token, generate new cNonce");
             transaction = createVCITransaction();
-            throw new InvalidNonceException(transaction.getCNonce(), cNonceExpireSeconds);
+            throw new InvalidNonceException(transaction.getCNonce(), transaction.getCNonceExpireSeconds());
         }
         return cNonce;
     }
