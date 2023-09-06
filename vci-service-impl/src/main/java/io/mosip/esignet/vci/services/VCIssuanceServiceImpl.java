@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -191,11 +192,11 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         String cNonce = (transaction == null) ?
                 (String) parsedAccessToken.getClaims().get(C_NONCE) :
                 transaction.getCNonce();
-        int cNonceExpire = (transaction == null) ?
-                (int) parsedAccessToken.getClaims().getOrDefault(C_NONCE_EXPIRES_IN, 0):
+        long cNonceExpire = (transaction == null) ?
+                (long) parsedAccessToken.getClaims().getOrDefault(C_NONCE_EXPIRES_IN, 0):
                 transaction.getCNonceExpireSeconds();
         long issuedEpoch = (transaction == null) ?
-                (long) parsedAccessToken.getClaims().getOrDefault(JwtClaimNames.IAT, 0):
+                ((Instant) parsedAccessToken.getClaims().getOrDefault(JwtClaimNames.IAT, Instant.MIN)).getEpochSecond():
                 transaction.getCNonceIssuedEpoch();
 
         if( cNonce == null ||
