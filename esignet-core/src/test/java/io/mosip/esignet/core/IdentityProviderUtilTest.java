@@ -135,6 +135,10 @@ public class IdentityProviderUtilTest {
     @Test
     public void test_generateOIDCAtHash() {
     	Assert.assertNotNull(IdentityProviderUtil.generateOIDCAtHash("test-access-token"));
+        try{
+            IdentityProviderUtil.generateOIDCAtHash("");
+            Assert.fail();
+        }catch (Exception e){}
     }
     
     @Test
@@ -165,7 +169,17 @@ public class IdentityProviderUtilTest {
     		Assert.fail();
         } catch (EsignetException e) {}
     }
-    
+
+    @Test
+    public void test_generateB64EncodedHashWithByte()
+    {
+        String testString="test-b64-hash";
+        Assert.assertNotNull(IdentityProviderUtil.generateB64EncodedHash("sha-256",testString.getBytes()));
+        try {
+            IdentityProviderUtil.generateB64EncodedHash("test-algorithm", testString.getBytes());
+            Assert.fail();
+        } catch (EsignetException e) {}
+    }
     public static JWK generateJWK_RSA() {
         // Generate the RSA key pair
         try {

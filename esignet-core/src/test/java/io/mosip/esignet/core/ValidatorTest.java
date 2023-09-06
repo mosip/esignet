@@ -521,4 +521,22 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		Assert.assertFalse(validator.isValid(null, null));		
 	}
+	//=========================Redirect URL Validator ============================================//
+
+	@Test
+	public void test_RedirectURLValidator_withValidURL_thenPass() {
+		RedirectURLValidator validator = new RedirectURLValidator();
+		Assert.assertTrue(validator.isValid("http://valid-authority.com", null));
+ 		Assert.assertTrue(validator.isValid("http://example.com/page#section", null));
+		Assert.assertTrue(validator.isValid("https://mosip.io", null));
+		Assert.assertTrue(validator.isValid("file://mosip.io", null));
+
+	}
+
+	@Test
+	public void test_RedirectURLValidator_withInvalidURL_thenFail() {
+		RedirectURLValidator validator = new RedirectURLValidator();
+		Assert.assertFalse(validator.isValid("http://www.example.com:abcd/path/to/resource:", null));
+		Assert.assertFalse(validator.isValid("123http://hollo.com", null));
+	}
 }
