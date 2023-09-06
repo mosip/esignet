@@ -81,6 +81,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
     private int linkCodeLimitPerTransaction;
 
+    @Value("${mosip.esignet.credential.scope.auto-permit:true}")
+    private boolean autoPermitCredentialScopes;
+
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
@@ -246,6 +249,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
+
+        if(transaction.getRequestedCredentialScopes() != null && autoPermitCredentialScopes) {
+            log.info("Permitting the requested credential scopes automatically");
+            authCodeRequest.getPermittedAuthorizeScopes().addAll(transaction.getRequestedCredentialScopes());
+        }
+
         List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
         List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {

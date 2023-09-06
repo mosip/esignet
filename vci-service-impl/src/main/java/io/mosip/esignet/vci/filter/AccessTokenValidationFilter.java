@@ -19,6 +19,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -59,10 +61,10 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
                     new JwtIssuerValidator(issuerUri),
                     new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, allowedAudiences::containsAll),
                     new JwtClaimValidator<String>(JwtClaimNames.SUB, Objects::nonNull),
-                    new JwtClaimValidator<LocalDateTime>(JwtClaimNames.IAT,
-                            iat -> iat != null && iat.isBefore(LocalDateTime.now(ZoneOffset.UTC))),
-                    new JwtClaimValidator<LocalDateTime>(JwtClaimNames.EXP,
-                            exp -> exp != null && exp.isAfter(LocalDateTime.now(ZoneOffset.UTC)))));
+                    new JwtClaimValidator<Instant>(JwtClaimNames.IAT,
+                            iat -> iat != null && iat.isBefore(Instant.now(Clock.systemUTC()))),
+                    new JwtClaimValidator<Instant>(JwtClaimNames.EXP,
+                            exp -> exp != null && exp.isAfter(Instant.now(Clock.systemUTC())))));
         }
         return nimbusJwtDecoder;
     }

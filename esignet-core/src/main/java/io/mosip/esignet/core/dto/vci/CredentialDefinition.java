@@ -14,10 +14,10 @@ import java.util.Map;
 public class CredentialDefinition {
 
     @JsonProperty("@context")
-    private List<String> context;
+    private List<@NotBlank(message = ErrorConstants.INVALID_REQUEST) String> context;
 
     @NotEmpty(message = ErrorConstants.INVALID_REQUEST)
-    private List<String> type;
+    private List<@NotBlank(message = ErrorConstants.INVALID_REQUEST) String> type;
 
     private Map<String, Object> credentialSubject;
 
