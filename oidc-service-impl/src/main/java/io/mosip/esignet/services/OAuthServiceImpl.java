@@ -65,6 +65,9 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private AuditPlugin auditWrapper;
 
+    @Autowired
+    private SecurityHelperService securityHelperService;
+
     @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
@@ -211,7 +214,7 @@ public class OAuthServiceImpl implements OAuthService {
 
     private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped) {
         TokenResponse tokenResponse = new TokenResponse();
-        String cNonce = isTransactionVCScoped ? IdentityProviderUtil.generateRandomAlphaNumeric(20) : null;
+        String cNonce = isTransactionVCScoped ? securityHelperService.generateSecureRandomString(20) : null;
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setToken_type(Constants.BEARER);

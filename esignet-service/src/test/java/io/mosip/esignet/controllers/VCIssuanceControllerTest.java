@@ -7,6 +7,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.vci.*;
 import io.mosip.esignet.core.spi.VCIssuanceService;
 import io.mosip.esignet.services.CacheUtilService;
+import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -43,6 +44,9 @@ public class VCIssuanceControllerTest {
 
     @MockBean
     VCIssuanceService vcIssuanceService;
+
+    @MockBean
+    VCICacheService vciCacheService;
 
     @Test
     public void getVC_withValidDetails_thenPass() throws Exception {

@@ -18,6 +18,7 @@ import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.spi.KeyBindingService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
+import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,6 +70,9 @@ public class KeyBindingControllerTest {
 
 	@MockBean
 	ParsedAccessToken parsedAccessToken;
+
+	@MockBean
+	VCICacheService vciCacheService;
 
 	@Test
 	public void sendBindingOtp_withValidRequest_thenPass() throws Exception {

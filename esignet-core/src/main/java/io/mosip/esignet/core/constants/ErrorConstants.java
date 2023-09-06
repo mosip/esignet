@@ -72,7 +72,6 @@ public class ErrorConstants {
     public static final String INVALID_PKCE_CHALLENGE = "invalid_pkce_challenge";
     public static final String INVALID_PKCE_CODE_VERFIER = "invalid_pkce_code_verifier";
     public static final String PKCE_FAILED = "pkce_failed";
-    public static final String JSONLD_READ_FAILED = "jsonld_read_failed";
     public static final String UNSUPPORTED_VC_FORMAT = "unsupported_credential_format";
     public static final String INVALID_VC_FORMAT = "invalid_vc_format";
     public static final String INVALID_PROOF = "invalid_proof";

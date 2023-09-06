@@ -249,7 +249,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     private String getMessage(String errorCode) {
         try {
-            messageSource.getMessage(errorCode, null, Locale.getDefault());
+            messageSource.getMessage(errorCode, null, errorCode, Locale.getDefault());
         } catch (NoSuchMessageException ex) {
             log.error("Message not found in the i18n bundle", ex);
         }

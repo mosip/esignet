@@ -173,6 +173,10 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionResponse.setConfigs(uiConfigMap);
 
+        if(linkTransactionResponse instanceof LinkTransactionResponseV2){
+            ((LinkTransactionResponseV2)linkTransactionResponse).setCredentialScopes(transaction.getRequestedCredentialScopes());
+        }
+
         //Publish message after successfully linking the transaction
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
         auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
