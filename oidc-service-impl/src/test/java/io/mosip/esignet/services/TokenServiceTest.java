@@ -93,7 +93,7 @@ public class TokenServiceTest {
         transaction.setClientId("client-id");
         transaction.setPartnerSpecificUserToken("psut");
         transaction.setPermittedScopes(Arrays.asList("read", "write"));
-        String token = tokenService.getAccessToken(transaction);
+        String token = tokenService.getAccessToken(transaction, null);
         Assert.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));

@@ -24,8 +24,6 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -174,6 +172,10 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
         linkTransactionResponse.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionResponse.setConfigs(uiConfigMap);
+
+        if(linkTransactionResponse instanceof LinkTransactionResponseV2){
+            ((LinkTransactionResponseV2)linkTransactionResponse).setCredentialScopes(transaction.getRequestedCredentialScopes());
+        }
 
         //Publish message after successfully linking the transaction
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
@@ -338,6 +340,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     private void validateConsent(OIDCTransaction transaction, List<String> acceptedClaims, List<String> permittedScopes) {
         authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
-        authorizationHelperService.validateAuthorizeScopes(transaction, permittedScopes);
+        authorizationHelperService.validatePermittedScopes(transaction, permittedScopes);
     }
 }

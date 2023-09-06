@@ -70,6 +70,8 @@ class authService {
    * @param {int} maxAge
    * @param {string} prompt
    * @param {string} uiLocales
+   * @params {string} codeChallenge
+   * @params {string} codeChallengeMethod
    * @returns /oauthDetails API response
    */
   post_OauthDetails = async (
@@ -85,7 +87,9 @@ class authService {
     display,
     maxAge,
     prompt,
-    uiLocales
+    uiLocales,
+    codeChallenge,
+    codeChallengeMethod
   ) => {
     let request = {
       requestTime: new Date().toISOString(),
@@ -103,6 +107,8 @@ class authService {
         maxAge: maxAge,
         prompt: prompt,
         uiLocales: uiLocales,
+        codeChallenge: codeChallenge,
+        codeChallengeMethod: codeChallengeMethod,
       },
     };
 
