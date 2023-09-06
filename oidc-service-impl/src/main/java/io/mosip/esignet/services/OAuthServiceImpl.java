@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -64,61 +65,40 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private AuditPlugin auditWrapper;
 
+    @Autowired
+    private SecurityHelperService securityHelperService;
+
     @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
+
+    @Value("${mosip.esignet.cnonce-expire-seconds:300}")
+    private int cNonceExpireSeconds;
 
 
     @Override
     public TokenResponse getTokens(TokenRequest tokenRequest) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
-        if(transaction == null || transaction.getKycToken() == null)
-            throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
-        if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
-
-        if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
+        validateRequestParametersWithTransaction(tokenRequest, transaction);
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto);
 
-        KycExchangeResult kycExchangeResult;
-        try {
-            KycExchangeDto kycExchangeDto = new KycExchangeDto();
-            kycExchangeDto.setTransactionId(transaction.getAuthTransactionId());
-            kycExchangeDto.setKycToken(transaction.getKycToken());
-            kycExchangeDto.setAcceptedClaims(transaction.getAcceptedClaims());
-            kycExchangeDto.setClaimsLocales(transaction.getClaimsLocales());
-            kycExchangeDto.setIndividualId(authorizationHelperService.getIndividualId(transaction));
-            kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
-                    transaction.getClientId(), kycExchangeDto);
-        } catch (KycExchangeException e) {
-            log.error("KYC exchange failed", e);
-            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), e);
-            throw new EsignetException(e.getErrorCode());
+        boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
+        if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
+            KycExchangeResult kycExchangeResult = doKycExchange(transaction);
+            transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
+            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         }
 
-        if(kycExchangeResult == null || kycExchangeResult.getEncryptedKyc() == null)
-            throw new EsignetException(DATA_EXCHANGE_FAILED);
-
-        auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
-
-        TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction));
+        TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped);
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
-        tokenResponse.setId_token(tokenService.getIDToken(transaction));
-        tokenResponse.setExpires_in(accessTokenExpireSeconds);
-        tokenResponse.setToken_type(Constants.BEARER);
-
         // cache kyc with access-token as key
-        transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
         cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
-
         auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
                 transaction), null);
         return tokenResponse;
@@ -175,6 +155,44 @@ public class OAuthServiceImpl implements OAuthService {
         return map;
     }
 
+    private void validateRequestParametersWithTransaction(TokenRequest tokenRequest, OIDCTransaction transaction) {
+        if(transaction == null || transaction.getKycToken() == null)
+            throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
+
+        if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
+            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
+
+        if(!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
+            throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
+
+        validatePKCE(transaction.getProofKeyCodeExchange(), tokenRequest.getCode_verifier());
+    }
+
+    private void validatePKCE(ProofKeyCodeExchange proofKeyCodeExchange, String codeVerifier) {
+        if(proofKeyCodeExchange == null) {
+            log.info("Proof Key Code Exchange is not applicable, Do nothing");
+            return;
+        }
+
+        if(StringUtils.isEmpty(codeVerifier)) {
+            log.error("Null or empty code_verifier found in the request");
+            throw new EsignetException(ErrorConstants.INVALID_PKCE_CODE_VERFIER);
+        }
+
+        String computedChallenge;
+        switch (proofKeyCodeExchange.getCodeChallengeMethod()) {
+            case S256 :
+                byte[] verifierBytes = codeVerifier.getBytes(StandardCharsets.US_ASCII);
+                computedChallenge = IdentityProviderUtil.generateB64EncodedHash(IdentityProviderUtil.ALGO_SHA_256, verifierBytes);
+                break;
+            default:
+                throw new EsignetException(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD);
+        }
+
+        if(StringUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
+            throw new EsignetException(ErrorConstants.PKCE_FAILED);
+    }
+
     private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws EsignetException {
         switch (tokenRequest.getClient_assertion_type()) {
             case JWT_BEARER_TYPE:
@@ -185,7 +203,6 @@ public class OAuthServiceImpl implements OAuthService {
         }
     }
 
-
     private void validateJwtClientAssertion(String ClientId, String jwk, String clientAssertion) throws EsignetException {
         if(clientAssertion == null || clientAssertion.isBlank())
             throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
@@ -193,5 +210,51 @@ public class OAuthServiceImpl implements OAuthService {
         //verify signature
         //on valid signature, verify each claims on JWT payload
         tokenService.verifyClientAssertionToken(ClientId, jwk, clientAssertion);
+    }
+
+    private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped) {
+        TokenResponse tokenResponse = new TokenResponse();
+        String cNonce = isTransactionVCScoped ? securityHelperService.generateSecureRandomString(20) : null;
+        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
+        tokenResponse.setExpires_in(accessTokenExpireSeconds);
+        tokenResponse.setToken_type(Constants.BEARER);
+        if(isTransactionVCScoped) {
+            tokenResponse.setC_nonce(cNonce);
+            tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);
+        }
+        else {
+            tokenResponse.setId_token(tokenService.getIDToken(transaction));
+        }
+        return tokenResponse;
+    }
+
+    private KycExchangeResult doKycExchange(OIDCTransaction transaction) {
+        KycExchangeResult kycExchangeResult;
+        try {
+            KycExchangeDto kycExchangeDto = new KycExchangeDto();
+            kycExchangeDto.setTransactionId(transaction.getAuthTransactionId());
+            kycExchangeDto.setKycToken(transaction.getKycToken());
+            kycExchangeDto.setAcceptedClaims(transaction.getAcceptedClaims());
+            kycExchangeDto.setClaimsLocales(transaction.getClaimsLocales());
+            kycExchangeDto.setIndividualId(authorizationHelperService.getIndividualId(transaction));
+            kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
+                    transaction.getClientId(), kycExchangeDto);
+        } catch (KycExchangeException e) {
+            log.error("KYC exchange failed", e);
+            auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), e);
+            throw new EsignetException(e.getErrorCode());
+        }
+
+        if(kycExchangeResult != null && kycExchangeResult.getEncryptedKyc() != null)
+            return kycExchangeResult;
+
+        throw new EsignetException(DATA_EXCHANGE_FAILED);
+    }
+
+    private boolean isTransactionVCScoped(OIDCTransaction transaction) {
+        return (transaction.getRequestedCredentialScopes() != null &&
+                transaction.getPermittedScopes() != null &&
+                transaction.getPermittedScopes().stream()
+                        .anyMatch(scope -> transaction.getRequestedCredentialScopes().contains(scope)));
     }
 }

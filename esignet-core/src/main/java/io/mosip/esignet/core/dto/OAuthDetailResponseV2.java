@@ -7,11 +7,12 @@ package io.mosip.esignet.core.dto;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
 public class OAuthDetailResponseV2 extends OAuthDetailResponse {
 
     private Map<String, String> clientName;
-
+    private List<String> credentialScopes;
 }

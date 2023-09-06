@@ -6,10 +6,7 @@
 package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.validator.AuthContextRef;
-import io.mosip.esignet.core.validator.OIDCClaim;
-import io.mosip.esignet.core.validator.OIDCClientAuth;
-import io.mosip.esignet.core.validator.OIDCGrantType;
+import io.mosip.esignet.core.validator.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +27,7 @@ public class ClientDetailUpdateRequest {
     @NotNull(message = ErrorConstants.INVALID_REDIRECT_URI)
     @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
     private List<@NotBlank(message = ErrorConstants.INVALID_REDIRECT_URI)
-    @URL(message = ErrorConstants.INVALID_REDIRECT_URI) String> redirectUris;
+                 @RedirectURL String> redirectUris;
 
     @NotNull(message = ErrorConstants.INVALID_CLAIM)
     @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)

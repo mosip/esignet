@@ -485,7 +485,10 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
 		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
-		Assert.assertTrue(validator.isValid("resident-service email openid", null));		
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertTrue(validator.isValid("resident-service email openid", null));
+		Assert.assertTrue(validator.isValid("resident-service", null));
+		Assert.assertTrue(validator.isValid("mosip_identity_json_vc", null));
 	}
 	
 	@Test
@@ -493,7 +496,9 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
 		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
-		Assert.assertFalse(validator.isValid("test scope", null));		
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertFalse(validator.isValid("test scope", null));
+		Assert.assertFalse(validator.isValid("resident-service sample_ldp_vc", null));
 	}
 	
 	@Test
@@ -501,7 +506,8 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
 		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
-		Assert.assertFalse(validator.isValid("email", null));		
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertFalse(validator.isValid("email", null));
 	}
 	
 	@Test

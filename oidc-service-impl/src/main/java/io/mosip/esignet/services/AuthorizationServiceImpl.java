@@ -27,6 +27,7 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -81,6 +82,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
     private int linkCodeLimitPerTransaction;
 
+    @Value("${mosip.esignet.credential.scope.auto-permit:true}")
+    private boolean autoPermitCredentialScopes;
+
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
@@ -97,13 +101,24 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
+    public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
         oAuthDetailResponseV2 = (OAuthDetailResponseV2) pair.getFirst();
         oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
-        pair.getSecond().setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
+
+        OIDCTransaction oidcTransaction = pair.getSecond();
+
+        //TODO - Need to check to persist credential scopes in consent registry
+        oAuthDetailResponseV2.setCredentialScopes(oidcTransaction.getRequestedCredentialScopes());
+
+        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
+
+        //PKCE support
+        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance(oauthDetailReqDto.getCodeChallenge(),
+                oauthDetailReqDto.getCodeChallengeMethod()));
+
         cacheUtilService.setTransaction(oAuthDetailResponseV2.getTransactionId(), pair.getSecond());
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oAuthDetailResponseV2.getTransactionId(),
                 pair.getSecond()), null);
@@ -152,7 +167,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-
+        oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -235,6 +250,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
+
+        if(CollectionUtils.isNotEmpty(transaction.getRequestedCredentialScopes()) && autoPermitCredentialScopes) {
+            log.info("Permitting the requested credential scopes automatically");
+            authCodeRequest.setPermittedAuthorizeScopes(transaction.getRequestedCredentialScopes());
+        }
+
         List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
         List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
@@ -242,7 +263,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             acceptedScopes = transaction.getPermittedScopes();
         }
         authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
-        authorizationHelperService.validateAuthorizeScopes(transaction, acceptedScopes);
+        authorizationHelperService.validatePermittedScopes(transaction, acceptedScopes);
 
         String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
         // cache consent with auth-code-hash as key
