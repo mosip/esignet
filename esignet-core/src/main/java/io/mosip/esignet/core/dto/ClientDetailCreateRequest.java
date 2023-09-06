@@ -51,7 +51,7 @@ public class ClientDetailCreateRequest {
     @NotNull(message = ErrorConstants.INVALID_REDIRECT_URI)
     @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
     private List<@NotBlank(message = ErrorConstants.INVALID_REDIRECT_URI)
-                 @URL(message = ErrorConstants.INVALID_REDIRECT_URI) String> redirectUris;
+                 @RedirectURL String> redirectUris;
 
     @NotNull(message = ErrorConstants.INVALID_GRANT_TYPE)
     @Size(message = ErrorConstants.INVALID_GRANT_TYPE, min = 1, max=3)

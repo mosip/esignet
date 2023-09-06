@@ -5,9 +5,12 @@
  */
 package io.mosip.esignet;
 
+import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.context.annotation.RequestScope;
 
 @SpringBootTest
 public class EsignetServiceApplicationTests {
@@ -16,6 +19,12 @@ public class EsignetServiceApplicationTests {
 	public void test() {
 		EsignetServiceApplication.main(new String[] {});
 		Assert.assertNotNull(EsignetServiceApplication.class);
+	}
+
+	@Bean
+	@RequestScope
+	public ParsedAccessToken parsedAccessToken() {
+		return new ParsedAccessToken();
 	}
 
 }
