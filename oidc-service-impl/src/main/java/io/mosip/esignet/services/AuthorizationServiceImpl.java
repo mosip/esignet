@@ -252,7 +252,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         if(transaction.getRequestedCredentialScopes() != null && autoPermitCredentialScopes) {
             log.info("Permitting the requested credential scopes automatically");
-            authCodeRequest.getPermittedAuthorizeScopes().addAll(transaction.getRequestedCredentialScopes());
+            authCodeRequest.setPermittedAuthorizeScopes(transaction.getRequestedCredentialScopes());
         }
 
         List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
