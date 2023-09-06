@@ -27,6 +27,7 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -250,9 +251,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new InvalidTransactionException();
         }
 
-        if(transaction.getRequestedCredentialScopes() != null && autoPermitCredentialScopes) {
+        if(CollectionUtils.isNotEmpty(transaction.getRequestedCredentialScopes()) && autoPermitCredentialScopes) {
             log.info("Permitting the requested credential scopes automatically");
-            authCodeRequest.getPermittedAuthorizeScopes().addAll(transaction.getRequestedCredentialScopes());
+            authCodeRequest.setPermittedAuthorizeScopes(transaction.getRequestedCredentialScopes());
         }
 
         List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
