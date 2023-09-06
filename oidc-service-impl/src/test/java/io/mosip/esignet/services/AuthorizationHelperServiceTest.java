@@ -369,7 +369,7 @@ public class AuthorizationHelperServiceTest {
     @Test
     public void validateAuthorizeScopes_withEmptyAcceptedScopes_thenPass() {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        authorizationHelperService.validateAuthorizeScopes(oidcTransaction, Arrays.asList());
+        authorizationHelperService.validatePermittedScopes(oidcTransaction, Arrays.asList());
     }
 
     @Test
@@ -377,7 +377,7 @@ public class AuthorizationHelperServiceTest {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setRequestedAuthorizeScopes(Arrays.asList());
         try {
-            authorizationHelperService.validateAuthorizeScopes(oidcTransaction, Arrays.asList("send-otp"));
+            authorizationHelperService.validatePermittedScopes(oidcTransaction, Arrays.asList("send-otp"));
             Assert.fail();
         } catch (EsignetException e) {
             Assert.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());
@@ -389,7 +389,7 @@ public class AuthorizationHelperServiceTest {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setRequestedAuthorizeScopes(Arrays.asList("resident_read", "resident_update"));
         try {
-            authorizationHelperService.validateAuthorizeScopes(oidcTransaction, Arrays.asList("send-otp"));
+            authorizationHelperService.validatePermittedScopes(oidcTransaction, Arrays.asList("send-otp"));
             Assert.fail();
         } catch (EsignetException e) {
             Assert.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());

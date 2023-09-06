@@ -11,13 +11,11 @@ import io.mosip.esignet.core.validator.OIDCPrompt;
 import io.mosip.esignet.core.validator.OIDCResponseType;
 import io.mosip.esignet.core.validator.OIDCScope;
 import lombok.Data;
-import org.hibernate.validator.constraints.URL;
 
+import io.mosip.esignet.core.validator.RedirectURL;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_REDIRECT_URI;
 
 @Data
 public class OAuthDetailRequest {
@@ -31,8 +29,7 @@ public class OAuthDetailRequest {
     @OIDCResponseType
     private String responseType;
 
-    @NotNull(message = INVALID_REDIRECT_URI)
-    @URL(message = INVALID_REDIRECT_URI)
+    @RedirectURL
     private String redirectUri;
 
     /**

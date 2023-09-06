@@ -24,11 +24,12 @@ public interface AuthorizationService {
      * 
      * This response will contain map instead of string in clientName, which
      * contain client's name in multiple language, where key is the language code
-     * and the default client name is provided as value for the key @none
-     * @param oauthDetailRequest
+     * and the default client name is provided as value for the key @none.
+     * PKCE support added.
+     * @param oAuthDetailRequestV2
      * @return
      */
-    OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequest oauthDetailRequest) throws EsignetException;
+    OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oAuthDetailRequestV2) throws EsignetException;
 
     /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel

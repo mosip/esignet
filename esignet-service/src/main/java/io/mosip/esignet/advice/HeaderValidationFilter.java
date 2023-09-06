@@ -49,13 +49,14 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     private MessageSource messageSource;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        final String path = request.getRequestURI();
+        return !pathsToValidate.contains(path);
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String path = request.getRequestURI();
-
-        if(!pathsToValidate.contains(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         try {
             log.info("Started to validate {} for oauth-details headers", path);
