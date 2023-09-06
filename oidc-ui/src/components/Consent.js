@@ -185,6 +185,14 @@ export default function Consent({
       });
 
       claimsScopes.push({
+        label: "credential_scope",
+        type: "scope",
+        required: false,
+        values: oAuthDetails?.credentialScopes,
+        tooltip: "credential_scope_tooltip",
+      });
+
+      claimsScopes.push({
         label: "essential_claims",
         type: "claim",
         required: true,
