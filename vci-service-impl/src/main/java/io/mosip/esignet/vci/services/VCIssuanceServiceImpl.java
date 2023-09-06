@@ -192,8 +192,9 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         String cNonce = (transaction == null) ?
                 (String) parsedAccessToken.getClaims().get(C_NONCE) :
                 transaction.getCNonce();
-        long cNonceExpire = (transaction == null) ?
-                (long) parsedAccessToken.getClaims().getOrDefault(C_NONCE_EXPIRES_IN, 0):
+        Object nonceExpireSeconds = parsedAccessToken.getClaims().getOrDefault(C_NONCE_EXPIRES_IN, 0);
+        int cNonceExpire = (transaction == null) ?
+                nonceExpireSeconds instanceof Long ? (int)(long)nonceExpireSeconds : (int)nonceExpireSeconds :
                 transaction.getCNonceExpireSeconds();
         long issuedEpoch = (transaction == null) ?
                 ((Instant) parsedAccessToken.getClaims().getOrDefault(JwtClaimNames.IAT, Instant.MIN)).getEpochSecond():

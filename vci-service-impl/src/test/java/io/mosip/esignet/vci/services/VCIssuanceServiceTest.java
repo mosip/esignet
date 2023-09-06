@@ -25,6 +25,8 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -74,7 +76,7 @@ public class VCIssuanceServiceTest {
     public void getCredential_withValidDetails_thenPass() {
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "sample_vc_ldp");
-        claims.put("iat", LocalDateTime.now(ZoneOffset.UTC).minusSeconds(10).toEpochSecond(ZoneOffset.UTC));
+        claims.put("iat", Instant.now(Clock.systemUTC()).minusSeconds(10));
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
         claims.put("accessTokenHash", "access-token-hash");
