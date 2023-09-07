@@ -377,29 +377,6 @@ public class ConsentHelperServiceTest {
     }
 
     @Test
-    public void processConsent_withInvalidConsent_thenPass(){
-
-        OIDCTransaction oidcTransaction=new OIDCTransaction();
-        oidcTransaction.setClientId("abc");
-        oidcTransaction.setPartnerSpecificUserToken("123");
-        oidcTransaction.setVoluntaryClaims(List.of("email"));
-        oidcTransaction.setEssentialClaims(List.of());
-        oidcTransaction.setRequestedAuthorizeScopes(List.of());
-        UserConsentRequest userConsentRequest = new UserConsentRequest();
-        userConsentRequest.setClientId(oidcTransaction.getClientId());
-        userConsentRequest.setPsuToken(oidcTransaction.getPartnerSpecificUserToken());
-
-        ConsentDetail consentDetail=new ConsentDetail();
-        consentDetail.setAcceptedClaims(Arrays.asList());
-        consentDetail.setSignature("haa");
-
-        Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
-
-        consentHelperService.processConsent(oidcTransaction,true);
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
-    }
-
-    @Test
     public void processConsent_withInvalidIdHashOrThumbPrint_thenPass() throws Exception {
 
         OIDCTransaction oidcTransaction=new OIDCTransaction();

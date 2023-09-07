@@ -240,7 +240,8 @@ public class IdentityProviderUtil {
             throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
         }
     }
-    public static String  generateThumbprintByCertificate(String cerifacate)
+
+    public static String generateCertificateThumbprint(String cerifacate)
     {
         Object certObj = convertToCertificate(cerifacate);
         if (certObj instanceof X509Certificate) {
