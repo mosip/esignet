@@ -24,8 +24,6 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -241,7 +239,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())){
             validateConsent(transaction, transaction.getAcceptedClaims(), transaction.getPermittedScopes());
             cacheUtilService.setLinkedConsentedTransaction(transaction.getLinkedTransactionId(), transaction);
-            consentHelperService.updateUserConsent(transaction,true, "");
+            consentHelperService.updateUserConsent(transaction, "");
             kafkaHelperService.publish(linkedAuthCodeTopicName, transaction.getLinkedTransactionId());
         } else {
             cacheUtilService.setLinkedAuthenticatedTransaction(linkedKycAuthRequest.getLinkedTransactionId(), transaction);
@@ -286,7 +284,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         // cache consent only, auth-code will be generated on link-auth-code-status API call
         transaction.setAcceptedClaims(linkedConsentRequest.getAcceptedClaims());
         transaction.setPermittedScopes(linkedConsentRequest.getPermittedAuthorizeScopes());
-        consentHelperService.updateUserConsent(transaction, true, linkedConsentRequest.getSignature());
+        consentHelperService.updateUserConsent(transaction, linkedConsentRequest.getSignature());
         cacheUtilService.setLinkedConsentedTransaction(linkedConsentRequest.getLinkedTransactionId(), transaction);
         //Publish message after successfully saving the consent
         kafkaHelperService.publish(linkedAuthCodeTopicName, linkedConsentRequest.getLinkedTransactionId());
