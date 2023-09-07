@@ -539,4 +539,23 @@ public class ValidatorTest {
 		Assert.assertFalse(validator.isValid("http://www.example.com:abcd/path/to/resource:", null));
 		Assert.assertFalse(validator.isValid("123http://hollo.com", null));
 	}
+
+	//=========================== PKCECode Challenge Method Validator ==============================//
+
+	@Test
+	public void test_PKCECodeChallengeMethodValidator_withInvalidMethod_thenFail() {
+		PKCECodeChallengeMethodValidator validator = new PKCECodeChallengeMethodValidator();
+		ReflectionTestUtils.setField(validator, "supportedMethods", Arrays.asList("S256"));
+		Assert.assertFalse(validator.isValid("s234", null));
+		Assert.assertFalse(validator.isValid("SS256", null));
+	}
+
+	@Test
+	public void test_PKCECodeChallengeMethodValidator_withValidMethod_thenPass() {
+		PKCECodeChallengeMethodValidator validator = new PKCECodeChallengeMethodValidator();
+		ReflectionTestUtils.setField(validator, "supportedMethods", Arrays.asList("S256","S512"));
+		Assert.assertTrue(validator.isValid("S256", null));
+		Assert.assertTrue(validator.isValid("S512", null));
+		Assert.assertTrue(validator.isValid("", null));
+	}
 }

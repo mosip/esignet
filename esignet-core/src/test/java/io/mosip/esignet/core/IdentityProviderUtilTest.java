@@ -136,7 +136,7 @@ public class IdentityProviderUtilTest {
     public void test_generateOIDCAtHash() {
     	Assert.assertNotNull(IdentityProviderUtil.generateOIDCAtHash("test-access-token"));
         try{
-            IdentityProviderUtil.generateOIDCAtHash("");
+            IdentityProviderUtil.generateOIDCAtHash(null);
             Assert.fail();
         }catch (Exception e){}
     }

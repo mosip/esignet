@@ -12,10 +12,8 @@ import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.dto.ClientDetail;
-import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.dto.TokenRequest;
-import io.mosip.esignet.core.dto.TokenResponse;
+import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.ClientManagementService;
@@ -101,6 +99,42 @@ public class OAuthServiceTest {
         Assert.assertNotNull(tokenResponse.getAccess_token());
         Assert.assertEquals(BEARER, tokenResponse.getToken_type());
         Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+    }
+
+    @Test
+    public void getTokens_withInValidRequest_thenFail() throws KycExchangeException {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+        tokenRequest.setCode_verifier("test");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance("test","S256"));
+        oidcTransaction.setIndividualId("individual-id");
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        try{
+            TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
+            Assert.fail();
+        }catch (EsignetException e)
+        {
+            Assert.assertEquals(e.getMessage(),ErrorConstants.PKCE_FAILED);
+        }
+
     }
 
     @Test

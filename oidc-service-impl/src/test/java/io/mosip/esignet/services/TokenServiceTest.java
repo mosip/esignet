@@ -1,6 +1,12 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
@@ -22,8 +28,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
 
@@ -111,6 +119,16 @@ public class TokenServiceTest {
     public void verifyClientAssertionToken_withInvalidToken_thenFail() {
         tokenService.verifyClientAssertionToken("client-id", publidKey, "client-assertion");
     }
+    @Test
+    public void verifyClientAssertionToken_withValidToken_thenPass() throws JOSEException, ParseException, NoSuchAlgorithmException {
+
+        TokenServiceImpl tokenServiceImpl=new TokenServiceImpl();
+        Map<String,String> map=new HashMap<>();
+        map.put("token_endpoint","http://localhost:8088/v1/esignet/oauth/token");
+        ReflectionTestUtils.setField(tokenServiceImpl,"discoveryMap",map);
+        String clienAssertioni=getClientAssertionToken();
+        tokenServiceImpl.verifyClientAssertionToken("client-id",publidKey,clienAssertioni);
+    }
 
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withNullToken_thenFail() {
@@ -168,5 +186,33 @@ public class TokenServiceTest {
                 return null;
             }
         };
+    }
+    private String getClientAssertionToken() throws JOSEException, ParseException {
+        JWK jwk = JWK.parse(testKey);
+        // Create the JWT claims set
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .issuer("client-id")
+                .subject("client-id")
+                .audience("http://localhost:8088/v1/esignet/oauth/token")
+                .expirationTime(Date.from(Instant.now().plusSeconds(65))) // Expires in 1 minute and 5 seconds
+                .notBeforeTime(Date.from(Instant.now()))
+                .issueTime(Date.from(Instant.now()))
+                .jwtID("5OgJKcoBhpGxUIEca_r0p")
+                .build();
+
+        // Create a signed JWT
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .type(JOSEObjectType.JWT)
+                .build();
+        SignedJWT signedJWT = new SignedJWT(header, claimsSet);
+
+        // Sign the JWT with the private key
+        JWSSigner signer = new RSASSASigner(((RSAKey) jwk).toPrivateKey());
+        signedJWT.sign(signer);
+
+        // Serialize the signed JWT to a string
+        String clientAssertion = signedJWT.serialize();
+        System.out.println("Client Assertion: " + clientAssertion);
+        return clientAssertion;
     }
 }
