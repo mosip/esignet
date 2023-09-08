@@ -9,7 +9,6 @@ on:
       - master
       - 1.*
       - develop
-      - feature-ES-4
   
 jobs:
   call-workflow-codeql-analysis:

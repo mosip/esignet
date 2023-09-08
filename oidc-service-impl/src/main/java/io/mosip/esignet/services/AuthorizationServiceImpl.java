@@ -251,17 +251,19 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new InvalidTransactionException();
         }
 
-        if(CollectionUtils.isNotEmpty(transaction.getRequestedCredentialScopes()) && autoPermitCredentialScopes) {
-            log.info("Permitting the requested credential scopes automatically");
-            authCodeRequest.setPermittedAuthorizeScopes(transaction.getRequestedCredentialScopes());
-        }
-
         List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
         List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
             acceptedClaims = transaction.getAcceptedClaims();
             acceptedScopes = transaction.getPermittedScopes();
         }
+
+        //Combination of OIDC and credential scopes are not allowed in single OIDC transaction
+        if(CollectionUtils.isNotEmpty(transaction.getRequestedCredentialScopes()) && autoPermitCredentialScopes) {
+            log.info("Permitting the requested credential scopes automatically");
+            acceptedScopes = transaction.getRequestedCredentialScopes();
+        }
+
         authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
         authorizationHelperService.validatePermittedScopes(transaction, acceptedScopes);
 
