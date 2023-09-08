@@ -56,7 +56,7 @@ public class VCIssuanceController {
         vcError.setError(ex.getErrorCode());
         vcError.setError_description(messageSource.getMessage(ex.getErrorCode(), null, ex.getErrorCode(), Locale.getDefault()));
         vcError.setC_nonce(ex.getClientNonce());
-        vcError.setC_nonce_expires_in(vcError.getC_nonce_expires_in());
+        vcError.setC_nonce_expires_in(ex.getClientNonceExpireSeconds());
         return vcError;
     }
 }

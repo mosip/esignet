@@ -27,6 +27,11 @@
             <artifactId>esignet-core</artifactId>
             <version>${esignet.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>3.14.4</version>
+        </dependency>
     </dependencies>
 
 </project>
