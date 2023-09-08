@@ -58,6 +58,10 @@ public class ConsentHelperService {
     @Autowired
     private AuditPlugin auditWrapper;
 
+    private final String ACCEPTED_CLAIMS="accepted_claims";
+
+    private final String PERMITTED_AUTHORIZED_SCOPES="permitted_authorized_scopes";
+
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
@@ -83,7 +87,7 @@ public class ConsentHelperService {
     }
 
 
-    public void updateUserConsent(OIDCTransaction transaction, boolean linked, String signature) {
+    public void updateUserConsent(OIDCTransaction transaction, String signature) {
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())
             && transaction.getEssentialClaims().isEmpty()
                 && transaction.getVoluntaryClaims().isEmpty()
@@ -237,6 +241,7 @@ public class ConsentHelperService {
             }
             return false;
         } catch (ParseException | JOSEException e) {
+            log.error("Failed to verify Signature ", e);
             throw new EsignetException(ErrorConstants.INVALID_AUTH_TOKEN);
         }
     }
@@ -249,7 +254,6 @@ public class ConsentHelperService {
         List<String> acceptedClaims = consentDetail.getAcceptedClaims();
         List<String> permittedScopes = consentDetail.getPermittedScopes();
         String jws = consentDetail.getSignature();
-        if (!signatureFormatValidate(jws)) return null;
         String[] parts = jws.split("\\.");
 
         String header = parts[0];
@@ -260,8 +264,8 @@ public class ConsentHelperService {
             Collections.sort(permittedScopes);
 
         Map<String, Object> payLoadMap = new TreeMap<>();
-        payLoadMap.put("accepted_claims", acceptedClaims);
-        payLoadMap.put("permitted_authorized_scopes", permittedScopes);
+        payLoadMap.put(ACCEPTED_CLAIMS, acceptedClaims);
+        payLoadMap.put(PERMITTED_AUTHORIZED_SCOPES, permittedScopes);
 
         Payload payload = new Payload(new JSONObject(payLoadMap).toJSONString());
         StringBuilder sb = new StringBuilder();
@@ -269,11 +273,4 @@ public class ConsentHelperService {
         return sb.toString();
     }
 
-    private boolean signatureFormatValidate (String signature)
-    {
-        if (signature == null || signature.isEmpty()) return false;
-        String jws[] = signature.split("\\.");
-        if (jws.length != 2) return false;
-        return true;
-    }
 }
