@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Objects;
+
+import static io.mosip.esignet.core.spi.TokenService.CLIENT_ID;
 
 @Slf4j
 @Component
@@ -61,6 +61,7 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
                     new JwtIssuerValidator(issuerUri),
                     new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, allowedAudiences::containsAll),
                     new JwtClaimValidator<String>(JwtClaimNames.SUB, Objects::nonNull),
+                    new JwtClaimValidator<String>(CLIENT_ID, Objects::nonNull),
                     new JwtClaimValidator<Instant>(JwtClaimNames.IAT,
                             iat -> iat != null && iat.isBefore(Instant.now(Clock.systemUTC()))),
                     new JwtClaimValidator<Instant>(JwtClaimNames.EXP,
