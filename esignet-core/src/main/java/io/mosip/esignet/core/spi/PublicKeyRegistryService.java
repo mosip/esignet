@@ -6,8 +6,6 @@
 package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.PublicKeyRegistry;
-
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface PublicKeyRegistryService {

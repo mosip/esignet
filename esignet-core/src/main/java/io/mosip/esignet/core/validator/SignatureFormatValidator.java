@@ -1,5 +1,7 @@
 package io.mosip.esignet.core.validator;
 
+import org.springframework.util.StringUtils;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -7,9 +9,7 @@ public class SignatureFormatValidator implements ConstraintValidator<SignatureFo
 
     @Override
     public boolean isValid(String signature, ConstraintValidatorContext context) {
-        if(signature==null || signature.isEmpty())return false;
-        String jws[]=signature.split("\\.");
-        if(jws.length!=2)return false;
+        if(signature==null || StringUtils.isEmpty(signature) || signature.split("\\.").length!=2)return false;
         return true;
     }
 }

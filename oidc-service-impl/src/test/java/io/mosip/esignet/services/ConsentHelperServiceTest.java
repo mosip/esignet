@@ -468,19 +468,6 @@ public class ConsentHelperServiceTest {
     }
 
     @Test
-    public void toGenerateTestingSignatrue() throws Exception {
-       // Payload payload = new Payload();
-        List<String> acceptedClaims =Arrays.asList("name","email","gender");
-        List<String> permittedScopes =new ArrayList<>();
-        Collections.sort(acceptedClaims);
-        Collections.sort(permittedScopes);
-        Map<String,Object> payLoadMap = new TreeMap<>();
-        payLoadMap.put("permitted_authorized_scopes",permittedScopes);
-        payLoadMap.put("accepted_claims",acceptedClaims);
-
-    }
-
-    @Test
     public void processConsent_withEmptyRequestedClaims_thenPass(){
         OIDCTransaction oidcTransaction=new OIDCTransaction();
         oidcTransaction.setClientId("abc");

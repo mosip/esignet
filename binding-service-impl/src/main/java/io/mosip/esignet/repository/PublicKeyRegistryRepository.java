@@ -33,5 +33,5 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 			"pkr.certificate= :certificate where pkr.psuToken= :psuToken and pkr.authFactor= :authFactor")
 	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expireDTimes, String psuToken, String certificate, String authFactor);
 
-	Optional<PublicKeyRegistry>findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(String psuToken, String thumbPrint, LocalDateTime currentDate);
+	Optional<PublicKeyRegistry>findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(String idHash, String thumbPrint, LocalDateTime currentDate);
 }

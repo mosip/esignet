@@ -214,13 +214,13 @@ public class ConsentHelperService {
             log.error("Failed to hash the user consent", e);
             throw new EsignetException(ErrorConstants.INVALID_CLAIM);
         }
-        //compareing the new hash with the saved one
+        //comparing the new hash with the saved one
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
     }
 
     public boolean verifyConsentSignature (ConsentDetail consentDetail, OIDCTransaction transaction){
         try {
-            String jwtToken = generateSignedObject(consentDetail);
+            String jwtToken = constructJWTObject(consentDetail);
             if (StringUtils.isEmpty(jwtToken)) {
                 return false;
             }
@@ -250,7 +250,7 @@ public class ConsentHelperService {
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId);
     }
 
-    private String generateSignedObject (ConsentDetail consentDetail) throws ParseException {
+    private String constructJWTObject(ConsentDetail consentDetail) throws ParseException {
         List<String> acceptedClaims = consentDetail.getAcceptedClaims();
         List<String> permittedScopes = consentDetail.getPermittedScopes();
         String jws = consentDetail.getSignature();
