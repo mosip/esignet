@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.vci.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -10,7 +15,7 @@ public class InvalidNonceException extends EsignetException {
     private int clientNonceExpireSeconds;
 
     public InvalidNonceException(String cNonce, int cNonceExpireSeconds) {
-        super(ErrorConstants.PROOF_INVALID_NONCE);
+        super(ErrorConstants.INVALID_PROOF);
         this.clientNonce = cNonce;
         this.clientNonceExpireSeconds = cNonceExpireSeconds;
     }
@@ -19,7 +24,7 @@ public class InvalidNonceException extends EsignetException {
         return this.clientNonce;
     }
 
-    public long getClientNonceExpireSeconds() {
+    public int getClientNonceExpireSeconds() {
         return this.clientNonceExpireSeconds;
     }
 }

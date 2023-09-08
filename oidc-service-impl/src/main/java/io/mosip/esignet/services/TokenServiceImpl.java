@@ -74,7 +74,7 @@ public class TokenServiceImpl implements TokenService {
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
-    @Value("${mosip.esignet.cnonce-expire-seconds:300}")
+    @Value("${mosip.esignet.cnonce-expire-seconds:60}")
     private int cNonceExpireSeconds;
 
     @Value("#{${mosip.esignet.credential.scope-resource-mapping}}")

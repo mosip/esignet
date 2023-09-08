@@ -33,14 +33,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static io.mosip.esignet.core.spi.TokenService.CLIENT_ID;
-import static io.mosip.esignet.core.spi.TokenService.C_NONCE;
+import static io.mosip.esignet.core.spi.TokenService.*;
 
 @Slf4j
 @Service
 public class VCIssuanceServiceImpl implements VCIssuanceService {
 
-    private static final String C_NONCE_EXPIRES_IN = "c_nonce_expires_in";
+    private static final String TYPE_VERIFIABLE_CREDENTIAL = "VerifiableCredential";
 
     @Value("#{${mosip.esignet.vci.key-values}}")
     private Map<String, Object> issuerMetadata;
@@ -170,16 +169,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     private void validateLdpVcFormatRequest(CredentialRequest credentialRequest,
                                                CredentialMetadata credentialMetadata) {
-        if(Objects.isNull(credentialRequest.getCredential_definition()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
-
-        if(Objects.isNull(credentialRequest.getCredential_definition().getType()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
-
-        if(Objects.isNull(credentialRequest.getCredential_definition().getContext()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
-
-        if(!(credentialRequest.getCredential_definition().getType().contains("VerifiableCredential") &&
+        if(!(credentialRequest.getCredential_definition().getType().contains(TYPE_VERIFIABLE_CREDENTIAL) &&
         credentialRequest.getCredential_definition().getType().contains(credentialMetadata.getId())))
             throw new InvalidRequestException(ErrorConstants.UNSUPPORTED_VC_TYPE);
 
@@ -187,7 +177,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     }
 
     private String getValidClientNonce() {
-        VCIssuanceTransaction transaction = vciCacheService.getSetVCITransaction(parsedAccessToken.getAccessTokenHash(), null);
+        VCIssuanceTransaction transaction = vciCacheService.getVCITransaction(parsedAccessToken.getAccessTokenHash());
         //If the transaction is null, it means that VCI service never created cNonce, its authorization server issued cNonce
         String cNonce = (transaction == null) ?
                 (String) parsedAccessToken.getClaims().get(C_NONCE) :
@@ -213,8 +203,8 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     private VCIssuanceTransaction createVCITransaction() {
         VCIssuanceTransaction transaction = new VCIssuanceTransaction();
         transaction.setCNonce(securityHelperService.generateSecureRandomString(20));
-        transaction.setCNonceIssuedEpoch(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        transaction.setCNonceIssuedEpoch(LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC));
         transaction.setCNonceExpireSeconds(cNonceExpireSeconds);
-        return vciCacheService.getSetVCITransaction(parsedAccessToken.getAccessTokenHash(), transaction);
+        return vciCacheService.setVCITransaction(parsedAccessToken.getAccessTokenHash(), transaction);
     }
 }
