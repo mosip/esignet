@@ -153,7 +153,7 @@ public class VCIssuanceServiceTest {
     }
 
     @Test
-    public void getCredential_withInvalidProofInAccessToken_thenFail() {
+    public void getCredential_withInvalidProof_thenFail() {
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "sample_vc_ldp");
