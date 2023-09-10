@@ -1,1500 +1,2408 @@
 {
 	"info": {
 		"_postman_id": "72de942d-aec3-4be1-8c60-844a13699599",
-		"name": "esignet-OIDC-flow-with-mock",
+		"name": "e-Signet Collection Mock IDA",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20579541"
 	},
 	"item": [
 		{
-			"name": "Get CSRF token",
-			"event": [
+			"name": "OIDC Client Mgmt",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-							"pm.environment.set(\"csrf_token\", token);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/csrf/token",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"csrf",
-						"token"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create OIDC client",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
-							"privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.prvKeyObj);",
-							"publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.pubKeyObj);",
-							"",
-							"pm.environment.set(\"privateKey_jwk\", JSON.stringify(privateKey_jwk));",
-							"pm.environment.set(\"publicKey_jwk\", JSON.stringify(publicKey_jwk));"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate clientId\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
-							"});",
-							"",
-							"pm.test(\"Validate status\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
+					"name": "Get CSRF token",
+					"event": [
 						{
-							"key": "token",
-							"value": "{{authorizationToken}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"clientName\": \"OpenCRVS\",\n        \"publicKey\": {{publicKey_jwk}},\n        \"relyingPartyId\": \"{{relayingPartyId}}\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"logoUri\": \"https://avatars.githubusercontent.com/u/60199888\",\n        \"redirectUris\": [\n             \"{{redirectionUrl}}\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/client-mgmt/oidc-client",
-					"host": [
-						"{{url}}"
 					],
-					"path": [
-						"client-mgmt",
-						"oidc-client"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Authorize / OAuthdetails request",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var btoa = require('btoa');",
-							"",
-							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-							"pm.environment.set(\"csrf_token\", token);",
-							"",
-							"pm.test(\"Validate transactionId\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.transactionId).not.equals(null);",
-							"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
-							"});",
-							"",
-							"pm.test(\"Validate auth factors\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));",
-							"});",
-							"",
-							"pm.test(\"set oauth-details-hash\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
-							"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
-							"    // Remove padding characters",
-							"    base64Encoded = base64Encoded.replace(/=+$/, '');",
-							"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding",
-							"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');",
-							"    console.log(\"base64Encoded : \" + base64Encoded);",
-							"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
-							"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/csrf/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"csrf",
+								"token"
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/authorization/oauth-details",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"authorization",
-						"oauth-details"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Send OTP",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
 					},
-					{
-						"key": "oauth-details-key",
-						"value": "{{oauth_details_key}}",
-						"type": "text"
-					},
-					{
-						"key": "oauth-details-hash",
-						"value": "{{oauth_details_hash}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/authorization/send-otp",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"authorization",
-						"send-otp"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Authenticate User",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-							"pm.environment.set(\"csrf_token\", token);"
-						],
-						"type": "text/javascript"
-					}
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					},
-					{
-						"key": "oauth-details-key",
-						"value": "{{oauth_details_key}}",
-						"type": "text"
-					},
-					{
-						"key": "oauth-details-hash",
-						"value": "{{oauth_details_hash}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/authorization/authenticate",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"authorization",
-						"authenticate"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Authenticate User V2",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-							"pm.environment.set(\"csrf_token\", token);"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					},
-					{
-						"key": "oauth-details-key",
-						"value": "{{oauth_details_key}}",
-						"type": "text"
-					},
-					{
-						"key": "oauth-details-hash",
-						"value": "{{oauth_details_hash}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/authorization/v2/authenticate",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"authorization",
-						"v2",
-						"authenticate"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Authorization Code",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-							"pm.environment.set(\"csrf_token\", token);",
-							"",
-							"pm.test(\"Validate code\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.code).not.equals(null);",
-							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"followRedirects": false
-			},
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					},
-					{
-						"key": "oauth-details-key",
-						"value": "{{oauth_details_key}}",
-						"type": "text"
-					},
-					{
-						"key": "oauth-details-hash",
-						"value": "{{oauth_details_hash}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [\"email\", \"name\", \"phone_number\", \"gender\"],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/authorization/auth-code",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"authorization",
-						"auth-code"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Tokens",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"",
-							"// Set headers for JWT",
-							"var header = {\t",
-							"\t\"alg\": \"RS256\"",
-							"};",
-							"",
-							"",
-							"//sign token",
-							"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
-							"//generated private and public keys are stored in the postman environment ",
-							"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"privateKey_jwk\")), pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
-							"",
-							"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate Id-token\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.id_token).not.equals(null);",
-							"});",
-							"",
-							"pm.test(\"Validate access-token\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.access_token).not.equals(null);",
-							"    pm.environment.set(\"access_token\", jsonData.access_token);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
+					"name": "Create OIDC client",
+					"event": [
 						{
-							"key": "code",
-							"value": "{{code}}",
-							"type": "text"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+									"privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.prvKeyObj);",
+									"publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.pubKeyObj);",
+									"",
+									"pm.environment.set(\"privateKey_jwk\", JSON.stringify(privateKey_jwk));",
+									"pm.environment.set(\"publicKey_jwk\", JSON.stringify(publicKey_jwk));"
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "client_id",
-							"value": "{{clientId}}",
-							"type": "text"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate clientId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
+									"});",
+									"",
+									"pm.test(\"Validate status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authorizationToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"clientName\": \"{{$randomAvatarImage}}\",\n        \"publicKey\": {{publicKey_jwk}},\n        \"relyingPartyId\": \"{{relayingPartyId}}\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"logoUri\": \"https://avatars.githubusercontent.com/u/60199888\",\n        \"redirectUris\": [\n             \"{{redirectionUrl}}\",\n             \"io.mosip.residentapp://oauth\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/client-mgmt/oidc-client",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"client-mgmt",
+								"oidc-client"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update OIDC",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "redirect_uri",
-							"value": "{{redirectionUrl}}",
-							"type": "text"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate clientId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
+									"});",
+									"",
+									"pm.test(\"Validate status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authorizationToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"https://avatars.githubusercontent.com/u/60199888\",\n        \"redirectUris\": [\n            \"{{redirectionUrl}}\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"Pension Scheme\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/client-mgmt/oidc-client/{{clientId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"client-mgmt",
+								"oidc-client",
+								"{{clientId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth API (Production Only)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var data = jsonData.response.token;",
+									"console.log(data);",
+									"pm.environment.set(\"authorizationToken\",data);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"string\",\n  \"version\": \"string\",\n  \"requesttime\": \"{{$isoTimestamp}}\",\n  \"metadata\": {},\n  \"request\": {\n    \"userName\": \"balaji\",\n    \"password\": \"mosip123\",\n    \"appId\": \"partner\",\n    \"clientId\": \"mosip-pms-client\",\n    \"clientSecret\": \"{{client_secret}}\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api-internal.dev1.mosip.net/v1/authmanager/authenticate/internal/useridPwd",
+							"protocol": "https",
+							"host": [
+								"api-internal",
+								"dev1",
+								"mosip",
+								"net"
+							],
+							"path": [
+								"v1",
+								"authmanager",
+								"authenticate",
+								"internal",
+								"useridPwd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PMS-Create client",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+									"privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.prvKeyObj);",
+									"publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.pubKeyObj);",
+									"",
+									"pm.environment.set(\"privateKey_jwk\", JSON.stringify(privateKey_jwk));",
+									"pm.environment.set(\"publicKey_jwk\", JSON.stringify(publicKey_jwk));"
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "grant_type",
-							"value": "authorization_code",
-							"type": "text"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate clientId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
+									"});",
+									"",
+									"pm.test(\"Validate status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "Authorization={{authorizationToken}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "Cookie",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"requestTime\": \"{{$isoTimestamp}}\",\n  \"request\": {\n    \"name\": \"{{$randomAvatarImage}}\",\n    \"publicKey\": {{publicKey_jwk}},\n    \"policyId\": \"83326\",\n    \"authPartnerId\": \"0MVfaV1h958Pl6P\",\n    \"logoUri\": \"https://healthservices.dev1.mosip.net/logo.png\",\n    \"redirectUris\": [\n      \"{{redirectionUrl}}\",\n      \"io.mosip.residentapp://oauth\"\n    ],\n    \"grantTypes\": [\n      \"authorization_code\"\n    ],\n    \"clientAuthMethods\": [\n      \"private_key_jwt\"\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api-internal.dev1.mosip.net/v1/partnermanager/oidc/client",
+							"protocol": "https",
+							"host": [
+								"api-internal",
+								"dev1",
+								"mosip",
+								"net"
+							],
+							"path": [
+								"v1",
+								"partnermanager",
+								"oidc",
+								"client"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mock-Identity-System",
+			"item": [
+				{
+					"name": "Create Mock Identity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"// Set headers for JWT",
+									"var header = {\t",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"",
+									"",
+									"//sign token",
+									"const private_key_jwk = {",
+									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+									"\t\"kty\": \"RSA\",",
+									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+									"\t\"e\": \"AQAB\",",
+									"\t\"use\": \"sig\",",
+									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+									"}",
+									"",
+									"",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"",
+									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "client_assertion_type",
-							"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-							"type": "text"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate Id-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id_token).not.equals(null);",
+									"});",
+									"",
+									"pm.test(\"Validate access-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).not.equals(null);",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\":  {\"individualId\":\"{{individual_id}}\",\"pin\":\"111111\",\"fullName\":[{\"language\":\"fra\",\"value\":\"Siddharth K Mansour\"},{\"language\":\"ara\",\"value\":\"تتگلدكنسَزقهِقِفل دسييسيكدكنوڤو\"},{\"language\":\"eng\",\"value\":\"Siddharth K Mansour\"}],\"gender\":[{\"language\":\"eng\",\"value\":\"Male\"},{\"language\":\"fra\",\"value\":\"Mâle\"},{\"language\":\"ara\",\"value\":\"ذكر\"}],\"dateOfBirth\":\"1987/11/25\",\"streetAddress\":[{\"language\":\"fra\",\"value\":\"yuān⥍\"},{\"language\":\"ara\",\"value\":\"$لُنگᆑ\"},{\"language\":\"eng\",\"value\":\"Slung\"}],\"locality\":[{\"language\":\"fra\",\"value\":\"yuān 2\"},{\"language\":\"ara\",\"value\":\"يَُانꉛ⥍\"},{\"language\":\"eng\",\"value\":\"yuan wee\"}],\"region\":[{\"language\":\"fra\",\"value\":\"yuān 3\"},{\"language\":\"ara\",\"value\":\"$لُنگᆑ\"},{\"language\":\"eng\",\"value\":\"yuan wee 3\"}],\"postalCode\":\"45009\",\"country\":[{\"language\":\"fra\",\"value\":\"CMâttye\"},{\"language\":\"ara\",\"value\":\"دسييسيكدك\"},{\"language\":\"eng\",\"value\":\"Cmattey\"}],\"encodedPhoto\":\"data:image/jpeg;base64,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\",\"individualBiometrics\":{\"format\":\"cbeff\",\"version\":1.0,\"value\":\"individualBiometrics_bio_CBEFF\"},\"email\":\"siddhartha.km@gmail.com\",\"phone\":\"+919427357934\"}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{mock-identity-system-url}}/identity",
+							"host": [
+								"{{mock-identity-system-url}}"
+							],
+							"path": [
+								"identity"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Mock Identity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(pm.environment.get(\"access_token\"));"
+								],
+								"type": "text/javascript"
+							}
 						},
 						{
-							"key": "client_assertion",
-							"value": "{{client_assertion}}",
-							"type": "text"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"const private_key_jwk = {",
+									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+									"\t\"kty\": \"RSA\",",
+									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+									"\t\"e\": \"AQAB\",",
+									"\t\"use\": \"sig\",",
+									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+									"}",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				},
-				"url": {
-					"raw": "{{url}}/oauth/token",
-					"host": [
-						"{{url}}"
 					],
-					"path": [
-						"oauth",
-						"token"
-					]
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{mock-identity-system-url}}identity/{{individual_id}}",
+							"host": [
+								"{{mock-identity-system-url}}identity"
+							],
+							"path": [
+								"{{individual_id}}"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Get UserInfo",
-			"event": [
+			"name": "AuthCode Flow with OTP login",
+			"item": [
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"console.log(pm.environment.get(\"access_token\"));"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"",
-							"const private_key_jwk = {",
-							"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
-							"\t\"kty\": \"RSA\",",
-							"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
-							"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
-							"\t\"e\": \"AQAB\",",
-							"\t\"use\": \"sig\",",
-							"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
-							"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
-							"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
-							"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
-							"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
-							"}",
-							"",
-							"",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
+					"name": "Get CSRF token",
+					"event": [
 						{
-							"key": "token",
-							"value": "{{access_token}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/oidc/userinfo",
-					"host": [
-						"{{url}}"
 					],
-					"path": [
-						"oidc",
-						"userinfo"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Generate Link code",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate linkCode\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.linkCode).not.equals(null);",
-							"    pm.environment.set(\"link_code\", jsonData.response.linkCode);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
 					},
-					{
-						"key": "oauth_details_key",
-						"value": "{{oauth_details_key}}",
-						"type": "text"
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/csrf/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"csrf",
+								"token"
+							]
+						}
 					},
-					{
-						"key": "oauth_details_hash",
-						"value": "{{oauth_details_hash}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/link-code",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"link-code"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Link transaction (wallet)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate linkTransactionId\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.linkTransactionId).not.equals(null);",
-							"    pm.environment.set(\"linkTransactionId\", jsonData.response.linkTransactionId);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkCode\": \"{{link_code}}\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/link-transaction",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"link-transaction"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Link status",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"linkCode\": \"{{link_code}}\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/link-status",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"link-status"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Link Authenticate User (wallet)",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"",
-							"// Set headers for JWT",
-							"var certificate = eval(pm.environment.get('bind_certificate'));",
-							"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
-							"// Set headers for JWT",
-							"var header = {",
-							"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
-							"\t\"alg\": \"RS256\"",
-							"};",
-							"",
-							"",
-							"//sign token",
-							"//Note: Key pair is generated in \"Wallet binding\" pre-requests script",
-							"//generated private and public keys are stored in the postman environment ",
-							"const signed_jwt = pmlib.jwtSign(JSON.parse(pm.environment.get(\"binding_privateKey_jwk\")), {",
-							"    \"aud\" : pm.environment.get('wla_aud'),",
-							"\t\"sub\": pm.environment.get('individual_id'),",
-							"    \"iss\" : \"postman-inji\"",
-							"}, header, exp=600, alg = \"RS256\")",
-							"",
-							"pm.collectionVariables.set(\"wla_challenge\",signed_jwt);",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/authenticate",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"authenticate"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Link Authenticate User (wallet) -V2",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"",
-							"",
-							"",
-							"// Set headers for JWT",
-							"var certificate = eval(pm.environment.get('bind_certificate'));",
-							"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
-							"// Set headers for JWT",
-							"var header = {",
-							"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
-							"\t\"alg\": \"RS256\"",
-							"};",
-							"",
-							"//sign token",
-							"//Note: Key pair is generated in \"Wallet binding\" pre-requests script",
-							"//generated private and public keys are stored in the postman environment ",
-							"const signed_jwt = pmlib.jwtSign(JSON.parse(pm.environment.get(\"binding_privateKey_jwk\")), {",
-							"    \"aud\" : pm.environment.get('wla_aud'),",
-							"\t\"sub\": pm.environment.get('individual_id'),",
-							"    \"iss\" : \"postman-inji\"",
-							"}, header, exp=600, alg = \"RS256\")",
-							"",
-							"pm.collectionVariables.set(\"wla_challenge\",signed_jwt);",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/v2/authenticate",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"v2",
-						"authenticate"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Link Consent Request (wallet)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate code\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.code).not.equals(null);",
-							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"followRedirects": false
-			},
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": [ \"name\", \"gender\", \"email\" ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/consent",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"consent"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Link Consent Request (wallet) - V2",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate code\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.code).not.equals(null);",
-							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'));",
-							"",
-							"const private_key_jwk = {",
-							"    \"p\": \"xZDfG1GbHpd7C81k2au8ntvFsTCXj96iyimsHXBzgvKL9WdZfwVVjw5sWCZwSTqt6gL7wCTGxxUeQsN4IKfCalCAmHzFkvDANLi-7LmT2ZJM992j-E7oEOQOv7H4VRqBuir7bECpeeSRoI0qVs07olA5RCKUZpF4iBlecjVVD3M\",",
-							"    \"kty\": \"RSA\",",
-							"    \"q\": \"qGRtmjha2uqCwmGRZS19qWD3ICeLE8NjNgmqx6pI0SLEzD5uQS98T8JOWZxTUjyOm5LtisWBfhloZdT9UNnRX6yMFIswLovTKcYo38yD5fQ9K2gpqzD0K9_ngST08aTDOPY_IlCGe2RZeeHhulyA71MpFhSZLaU2rG2u5exwxBc\",",
-							"    \"d\": \"Of0lDpdIXY3jyhcKuatsw1N6zQpn20UQHxzMdZH2XHSHMzC1vYvbOQD2JmoSahggu2or0n5JeAMbs2k1BlabSqHM65TaJMgKjJVWIiSEAPBhPbqJqGF7nZKrHNk6jVgVYDI_rFGdo7DwNw8-RS0QSiuLBCbmCgCM9wiFWarn2pE9MpK9n_xEmRVNrSFhlvWyPmCCsr5TVVOrXF_7ERYevPDN22uZC0cYgdEtPI80AUZy5ofJnSnIZ0n0fZFO5I7rUFU_MDMuM7W2plKS__fT9UWCBk4mGCgqgqfIzBGFGT2sRDs1kMgVhMMoNFDlc8Hy3KptHmOOOGeb3rwYUixb0Q\",",
-							"    \"e\": \"AQAB\",",
-							"    \"use\": \"sig\",",
-							"    \"qi\": \"bLWOocu5x-RCoxh1MXtJ4Dkahk7vjdQ2iUGiRjmJEL61tKIV1NQk7D5yUl5BFlWanMBwdajRlwcg81ZYV81v2aE2qczOm8X23S8K1QQOSlb2-3p_cGCxaOb9LqV6kDcNetVp2sAxJ-naQLPstE0LQiLGnmij-LwarZFbrpQVVb8\",",
-							"    \"dp\": \"I5De-TYJrMosVoWVQDJQdHCv-CP9ROMZfzddSrdxtAMh-v2t-NXm_yfjjULuN-CeamA7He4A8tn0ZqR1vbs1npn7bHgZwUgh8dvIUyldWm-h94Uo_YyG7nN_zDans_pfnDocpPJHEDB7nuGK27F6qM-0X3WyLXzGrAmVHQ5Iz80\",",
-							"    \"alg\": \"RS256\",",
-							"    \"dq\": \"QJCBFaiV7WoNSMpwHQMcM11iY4nF4YYA_C8os_WuhcF3A3jMfWHfoBU4RVOS_u0JIM1tFtAznk3PoXvQxLc_eBeIfjf_-VjTVikMcwLPb9P9wC7oCyNx-4CWGwY4hI5P6_8-pcGKTrVjOUBKdFITfa-9CSJMuRunouVLMg0-D3E\",",
-							"    \"n\": \"gfSTlsfcU4hCChv8FZ-ffFfNlPesknqVsZubLOlPKB5JHEHEhyy4yRjRmUQK9hzgsSKNyNVrqJIePZnCBKdjs1wxR3uM895hCLfJTQXU1p1hON0VfX0lbG2-y-ZLD6zTkUbn3JNLFc1mxWn4IAiXeKmpXlBqUM3QPCKQWp95lmhfq45UkbdEPkCssdeqYoShkCJWd7GFhC5qOoMLfbNT71q5s3L7VoqKnEpbCsKhvN6BkT4jE1m4xy4jCpc80uZR6bnKG1gryN_LSjeubrodjWpfUrDKCXT23R-RKhMRjCK3sJQbnERJkzpIQ8b_GcOhRzL07BNAoXafRqhrsMhvVQ\"",
-							"};",
-							"var certificate = eval(pm.environment.get('bind_certificate'));",
-							"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
-							"// Set headers for JWT",
-							"var header = {",
-							"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
-							"\t\"alg\": \"RS256\"",
-							"};",
-							"var payload = {}",
-							"var acceptedClaims = pm.environment.get('acceptedClaims');",
-							"if(acceptedClaims != undefined && Array.isArray(acceptedClaims)){",
-							"    payload[\"acceptedClaims\"] = acceptedClaims.sort()",
-							"}",
-							"var permittedAuthorizedScopes = eval(pm.environment.get('permittedAuthorizedScopes'));",
-							"if(permittedAuthorizedScopes != undefined && Array.isArray(permittedAuthorizedScopes)){",
-							"    payload[\"permittedAuthorizedScopes\"] = permittedAuthorizedScopes.sort()",
-							"}",
-							"const signedPayload = pmlib.rs.jws.JWS.sign(",
-							"    null, header, payload, private_key_jwk",
-							");",
-							"var parts = signedPayload.split(\".\");",
-							"var detachedSignature = parts[0] + \".\" + parts[2];",
-							"pm.environment.set(\"detachedSignature\",  detachedSignature);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"followRedirects": false
-			},
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": {{acceptedClaims}},\n        \"signature\": \"{{detachedSignature}}\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/v2/consent",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"v2",
-						"consent"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Link auth code request",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate code\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.code).not.equals(null);",
-							"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"linkedCode\": \"{{link_code}}\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/linked-authorization/link-auth-code",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"linked-authorization",
-						"link-auth-code"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "JWKS",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/oauth/.well-known/jwks.json",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"oauth",
-						".well-known",
-						"jwks.json"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Mock Identity",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"",
-							"// Set headers for JWT",
-							"var header = {\t",
-							"\t\"alg\": \"RS256\"",
-							"};",
-							"",
-							"",
-							"//sign token",
-							"const private_key_jwk = {",
-							"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
-							"\t\"kty\": \"RSA\",",
-							"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
-							"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
-							"\t\"e\": \"AQAB\",",
-							"\t\"use\": \"sig\",",
-							"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
-							"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
-							"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
-							"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
-							"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
-							"}",
-							"",
-							"",
-							"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
-							"",
-							"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate Id-token\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.id_token).not.equals(null);",
-							"});",
-							"",
-							"pm.test(\"Validate access-token\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.access_token).not.equals(null);",
-							"    pm.environment.set(\"access_token\", jsonData.access_token);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\":  {\"individualId\":\"8267411571\",\"pin\":\"111111\",\"fullName\":[{\"language\":\"fra\",\"value\":\"Siddharth K Mansour\"},{\"language\":\"ara\",\"value\":\"تتگلدكنسَزقهِقِفل دسييسيكدكنوڤو\"},{\"language\":\"eng\",\"value\":\"Siddharth K Mansour\"}],\"gender\":[{\"language\":\"eng\",\"value\":\"Male\"},{\"language\":\"fra\",\"value\":\"Mâle\"},{\"language\":\"ara\",\"value\":\"ذكر\"}],\"dateOfBirth\":\"1987/11/25\",\"streetAddress\":[{\"language\":\"fra\",\"value\":\"yuān⥍\"},{\"language\":\"ara\",\"value\":\"$لُنگᆑ\"},{\"language\":\"eng\",\"value\":\"Slung\"}],\"locality\":[{\"language\":\"fra\",\"value\":\"yuān 2\"},{\"language\":\"ara\",\"value\":\"يَُانꉛ⥍\"},{\"language\":\"eng\",\"value\":\"yuan wee\"}],\"region\":[{\"language\":\"fra\",\"value\":\"yuān 3\"},{\"language\":\"ara\",\"value\":\"$لُنگᆑ\"},{\"language\":\"eng\",\"value\":\"yuan wee 3\"}],\"postalCode\":\"45009\",\"country\":[{\"language\":\"fra\",\"value\":\"CMâttye\"},{\"language\":\"ara\",\"value\":\"دسييسيكدك\"},{\"language\":\"eng\",\"value\":\"Cmattey\"}],\"encodedPhoto\":\"data:image/jpeg;base64,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\",\"individualBiometrics\":{\"format\":\"cbeff\",\"version\":1.0,\"value\":\"individualBiometrics_bio_CBEFF\"},\"email\":\"siddhartha.km@gmail.com\",\"phone\":\"+919427357934\"}\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{mock-identity-system-url}}/identity",
-					"host": [
-						"{{mock-identity-system-url}}"
-					],
-					"path": [
-						"identity"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Mock Identity",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"console.log(pm.environment.get(\"access_token\"));"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"",
-							"const private_key_jwk = {",
-							"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
-							"\t\"kty\": \"RSA\",",
-							"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
-							"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
-							"\t\"e\": \"AQAB\",",
-							"\t\"use\": \"sig\",",
-							"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
-							"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
-							"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
-							"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
-							"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
-							"}",
-							"",
-							"",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{access_token}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{mock-identity-system-url}}identity/{{individual_id}}",
-					"host": [
-						"{{mock-identity-system-url}}identity"
-					],
-					"path": [
-						"{{individual_id}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Send Binding OTP",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate transactionId\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.transactionId).not.equals(null);",
-							"    pm.environment.set(\"binding_transaction_id\", jsonData.response.transactionId);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
+					"name": "Authorize / OAuthdetails request",
+					"event": [
 						{
-							"key": "token",
-							"value": "{{authorizationToken}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var btoa = require('btoa');",
+									"",
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);",
+									"",
+									"pm.test(\"Validate transactionId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.transactionId).not.equals(null);",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
+									"});",
+									"",
+									"pm.test(\"Validate auth factors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));",
+									"});",
+									"",
+									"pm.test(\"set oauth-details-hash\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
+									"    // Remove padding characters",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '');",
+									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding",
+									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');",
+									"    console.log(\"base64Encoded : \" + base64Encoded);",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					},
-					{
-						"key": "PARTNER-ID",
-						"value": "mpartner-default-keybindingtoken",
-						"type": "text"
-					},
-					{
-						"key": "PARTNER-API-KEY",
-						"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"individualId\" : \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\"]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/binding/binding-otp",
-					"host": [
-						"{{url}}"
 					],
-					"path": [
-						"binding",
-						"binding-otp"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Wallet binding",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var jsonData = JSON.parse(responseBody);",
-							"var cert = JSON.stringify(jsonData.response.certificate);",
-							"console.log(cert);",
-							"pm.environment.set(\"bind_certificate\",cert);"
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
 						],
-						"type": "text/javascript"
-					}
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"codeChallenge\" : \"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\",\n        \"codeChallengeMethod\" : \"S256\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/v2/oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"v2",
+								"oauth-details"
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"eval(pm.globals.get('pmlib_code'))",
-							"kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
-							"privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.prvKeyObj);",
-							"publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.pubKeyObj);",
-							"",
-							"pm.environment.set(\"binding_privateKey_jwk\", JSON.stringify(privateKey_jwk));",
-							"pm.environment.set(\"binding_publicKey_jwk\", JSON.stringify(publicKey_jwk));"
+					"name": "Send OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
 						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/send-otp",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"send-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authenticate User",
+					"event": [
 						{
-							"key": "token",
-							"value": "{{authorizationToken}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "PARTNER-ID",
-						"value": "mpartner-default-keybindingtoken",
-						"type": "text"
-					},
-					{
-						"key": "PARTNER-API-KEY",
-						"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
-						"type": "text"
-					},
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\": [\n            {\n                \"authFactorType\": \"OTP\",\n                \"challenge\": \"111111\",\n                \"format\": \"alpha-numeric\"\n            }\n        ],\n        \"publicKey\": {{binding_publicKey_jwk}},\n        \"authFactorType\": \"WLA\",\n        \"format\": \"jwt\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/binding/wallet-binding",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"binding",
-						"wallet-binding"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Auth API (Production Only)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var jsonData = JSON.parse(responseBody);",
-							"var data = jsonData.response.token;",
-							"console.log(data);",
-							"pm.environment.set(\"authorizationToken\",data);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"id\": \"string\",\n  \"version\": \"string\",\n  \"requesttime\": \"{{$isoTimestamp}}\",\n  \"metadata\": {},\n  \"request\": {\n    \"userName\": \"110070\",\n    \"password\": \"password\",\n    \"appId\": \"partner\",\n    \"clientId\": \"mosip-pms-client\",\n    \"clientSecret\": \"{{client_secret}}\"\n  }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://api-internal.dev3.mosip.net/v1/authmanager/authenticate/internal/useridPwd",
-					"protocol": "https",
-					"host": [
-						"api-internal",
-						"dev3",
-						"mosip",
-						"net"
-					],
-					"path": [
-						"v1",
-						"authmanager",
-						"authenticate",
-						"internal",
-						"useridPwd"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update OIDC",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Validate clientId\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.clientId).to.eql(pm.collectionVariables.get(\"clientId\"));",
-							"});",
-							"",
-							"pm.test(\"Validate status\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						},
 						{
-							"key": "token",
-							"value": "{{authorizationToken}}",
-							"type": "string"
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				},
-				"method": "PUT",
-				"header": [
-					{
-						"key": "X-XSRF-TOKEN",
-						"value": "{{csrf_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"https://avatars.githubusercontent.com/u/60199888\",\n        \"redirectUris\": [\n            \"{{redirectionUrl}}\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"Pension Scheme\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/client-mgmt/oidc-client/{{clientId}}",
-					"host": [
-						"{{url}}"
 					],
-					"path": [
-						"client-mgmt",
-						"oidc-client",
-						"{{clientId}}"
-					]
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"072259\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/authenticate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorization Code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);",
+									"",
+									"pm.test(\"Validate code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.code).not.equals(null);",
+									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [\"email\", \"name\", \"gender\"],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/auth-code",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"auth-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tokens",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"// Set headers for JWT",
+									"var header = {\t",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"",
+									"",
+									"//sign token",
+									"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
+									"//generated private and public keys are stored in the postman environment ",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"privateKey_jwk\")), pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"",
+									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate Id-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id_token).not.equals(null);",
+									"});",
+									"",
+									"pm.test(\"Validate access-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).not.equals(null);",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "code",
+									"value": "{{code}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{clientId}}",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirectionUrl}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{client_assertion}}",
+									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth/v2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth",
+								"v2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get UserInfo",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(pm.environment.get(\"access_token\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"const private_key_jwk = {",
+									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+									"\t\"kty\": \"RSA\",",
+									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+									"\t\"e\": \"AQAB\",",
+									"\t\"use\": \"sig\",",
+									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+									"}",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/oidc/userinfo",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oidc",
+								"userinfo"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
+		},
+		{
+			"name": "AuthCode Flow with Wallet login",
+			"item": [
+				{
+					"name": "Wallet-Binding",
+					"item": [
+						{
+							"name": "Send Binding OTP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Validate transactionId\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.response.transactionId).not.equals(null);",
+											"    pm.environment.set(\"binding_transaction_id\", jsonData.response.transactionId);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authorizationToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-XSRF-TOKEN",
+										"value": "{{csrf_token}}",
+										"type": "text"
+									},
+									{
+										"key": "PARTNER-ID",
+										"value": "mpartner-default-keybindingtoken",
+										"type": "text"
+									},
+									{
+										"key": "PARTNER-API-KEY",
+										"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"individualId\" : \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\"]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/binding/binding-otp",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"binding",
+										"binding-otp"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Wallet binding",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"var cert = JSON.stringify(jsonData.response.certificate);",
+											"console.log(cert);",
+											"pm.environment.set(\"bind_certificate\",cert);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"eval(pm.globals.get('pmlib_code'))",
+											"keyPair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+											"jwkPrivateKey = pmlib.rs.KEYUTIL.getJWK(keyPair.prvKeyObj);",
+											"jwkPublicKey  = pmlib.rs.KEYUTIL.getJWK(keyPair.pubKeyObj, nokid = true);",
+											"jwkPublicKey[\"alg\"] = \"RS256\";",
+											"jwkPublicKey[\"use\"] = \"sig\";",
+											"",
+											"pm.environment.set(\"binding_public_key\", JSON.stringify(jwkPublicKey))",
+											"pm.environment.set(\"binding_private_key\", JSON.stringify(jwkPrivateKey));"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authorizationToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "PARTNER-ID",
+										"value": "mpartner-default-keybindingtoken",
+										"type": "text"
+									},
+									{
+										"key": "PARTNER-API-KEY",
+										"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
+										"type": "text"
+									},
+									{
+										"key": "X-XSRF-TOKEN",
+										"value": "{{csrf_token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\": [\n            {\n                \"authFactorType\": \"OTP\",\n                \"challenge\": \"111111\",\n                \"format\": \"alpha-numeric\"\n            }\n        ],\n        \"publicKey\": {{binding_public_key}},\n        \"authFactorType\": \"WLA\",\n        \"format\": \"jwt\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/binding/wallet-binding",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"binding",
+										"wallet-binding"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Authorize / OAuthdetails request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var btoa = require('btoa');",
+									"",
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);",
+									"",
+									"pm.test(\"Validate transactionId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.transactionId).not.equals(null);",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
+									"});",
+									"",
+									"pm.test(\"Validate auth factors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));",
+									"});",
+									"",
+									"pm.test(\"set oauth-details-hash\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
+									"    // Remove padding characters",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '');",
+									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding",
+									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');",
+									"    console.log(\"base64Encoded : \" + base64Encoded);",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"codeChallenge\" : \"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\",\n        \"codeChallengeMethod\" : \"S256\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/v2/oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"v2",
+								"oauth-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Link code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate linkCode\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.linkCode).not.equals(null);",
+									"    pm.environment.set(\"link_code\", jsonData.response.linkCode);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth_details_key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth_details_hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/link-code",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"link-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link transaction (wallet)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate linkTransactionId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.linkTransactionId).not.equals(null);",
+									"    pm.environment.set(\"linkTransactionId\", jsonData.response.linkTransactionId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkCode\": \"{{link_code}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/link-transaction",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"link-transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"linkCode\": \"{{link_code}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/link-status",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"link-status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Authenticate User (wallet)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"// Set headers for JWT",
+									"var certificate = eval(pm.environment.get('bind_certificate'));",
+									"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
+									"// Set headers for JWT",
+									"var header = {",
+									"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"",
+									"",
+									"//sign token",
+									"//Note: Key pair is generated in \"Wallet binding\" pre-requests script",
+									"//generated private and public keys are stored in the postman environment ",
+									"const signed_jwt = pmlib.jwtSign(JSON.parse(pm.environment.get(\"binding_privateKey_jwk\")), {",
+									"    \"aud\" : pm.environment.get('wla_aud'),",
+									"\t\"sub\": pm.environment.get('individual_id'),",
+									"    \"iss\" : \"postman-inji\"",
+									"}, header, exp=600, alg = \"RS256\")",
+									"",
+									"pm.collectionVariables.set(\"wla_challenge\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/authenticate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Authenticate User (wallet) -V2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"//sign token",
+									"const private_key_jwk = JSON.parse(pm.environment.get(\"binding_private_key\"));",
+									"var certificate = eval(pm.environment.get('bind_certificate'));",
+									"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
+									"",
+									"// Set headers for JWT",
+									"var header = {",
+									"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"",
+									"const signed_jwt = pmlib.jwtSign(private_key_jwk, {",
+									"    \"aud\" : pm.environment.get('wla_aud'),",
+									"\t\"sub\": pm.environment.get('individual_id'),",
+									"    \"iss\" : \"postman-inji\"",
+									"}, header, exp=600, alg = \"RS256\")",
+									"",
+									"pm.collectionVariables.set(\"wla_challenge\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/v2/authenticate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"v2",
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Consent Request (wallet)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.code).not.equals(null);",
+									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": [ \"name\", \"gender\", \"email\" ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/consent",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Consent Request (wallet) - V2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.code).not.equals(null);",
+									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'));",
+									"",
+									"const private_key_jwk = JSON.parse(pm.environment.get(\"binding_private_key\"));",
+									"var certificate = eval(pm.environment.get('bind_certificate'));",
+									"var public_key_jwk = pmlib.rs.KEYUTIL.getJWK(certificate);",
+									"",
+									"// Set headers for JWT",
+									"var header = {",
+									"    \"x5t#S256\" : public_key_jwk['x5t#S256'],",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"var payload = {}",
+									"var acceptedClaims = pm.environment.get('acceptedClaims');",
+									"if(acceptedClaims != undefined && Array.isArray(acceptedClaims)){",
+									"    payload[\"acceptedClaims\"] = acceptedClaims.sort()",
+									"}",
+									"var permittedAuthorizedScopes = eval(pm.environment.get('permittedAuthorizedScopes'));",
+									"if(permittedAuthorizedScopes != undefined && Array.isArray(permittedAuthorizedScopes)){",
+									"    payload[\"permittedAuthorizedScopes\"] = permittedAuthorizedScopes.sort()",
+									"}",
+									"const signedPayload = pmlib.rs.jws.JWS.sign(",
+									"    null, header, payload, private_key_jwk",
+									");",
+									"var parts = signedPayload.split(\".\");",
+									"var detachedSignature = parts[0] + \".\" + parts[2];",
+									"pm.environment.set(\"detachedSignature\",  detachedSignature);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": {{acceptedClaims}},\n        \"signature\": \"{{detachedSignature}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/v2/consent",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"v2",
+								"consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Auth code request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.code).not.equals(null);",
+									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"linkedCode\": \"{{link_code}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/linked-authorization/link-auth-code",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"linked-authorization",
+								"link-auth-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tokens",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"// Set headers for JWT",
+									"var header = {\t",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"",
+									"",
+									"//sign token",
+									"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
+									"//generated private and public keys are stored in the postman environment ",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"privateKey_jwk\")), pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"",
+									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate Id-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id_token).not.equals(null);",
+									"});",
+									"",
+									"pm.test(\"Validate access-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).not.equals(null);",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "code",
+									"value": "{{code}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{clientId}}",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirectionUrl}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{client_assertion}}",
+									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth/v2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth",
+								"v2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get UserInfo",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(pm.environment.get(\"access_token\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"const private_key_jwk = {",
+									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+									"\t\"kty\": \"RSA\",",
+									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+									"\t\"e\": \"AQAB\",",
+									"\t\"use\": \"sig\",",
+									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+									"}",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/oidc/userinfo",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oidc",
+								"userinfo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CSRF token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/csrf/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"csrf",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "VCI",
+			"item": [
+				{
+					"name": "Get CSRF token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/csrf/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"csrf",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorize / OAuthdetails request V2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var btoa = require('btoa');",
+									"",
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);",
+									"",
+									"pm.test(\"Validate transactionId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.transactionId).not.equals(null);",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
+									"});",
+									"",
+									"pm.test(\"Validate auth factors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));",
+									"});",
+									"",
+									"pm.test(\"set oauth-details-hash\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
+									"    // Remove padding characters",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '');",
+									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding",
+									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');",
+									"    console.log(\"base64Encoded : \" + base64Encoded);",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"const pkce = pmlib.pkceChallenge();",
+									"pm.collectionVariables.set(\"codeChallenge\",pkce.code_challenge);",
+									"pm.collectionVariables.set(\"codeChallengeMethod\",pkce.code_challenge_method);",
+									"pm.collectionVariables.set(\"codeVerifier\",pkce.code_verifier);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"sample_vc_ldp\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"codeChallenge\" : \"{{codeChallenge}}\",\n        \"codeChallengeMethod\" : \"{{codeChallengeMethod}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/v2/oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"v2",
+								"oauth-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/send-otp",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"send-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authenticate User V2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/authenticate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorization Code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);",
+									"",
+									"pm.test(\"Validate code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.code).not.equals(null);",
+									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/auth-code",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"auth-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tokens V2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"// Set headers for JWT",
+									"var header = {\t",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"",
+									"",
+									"//sign token",
+									"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
+									"//generated private and public keys are stored in the postman environment ",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"privateKey_jwk\")), pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"",
+									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate Id-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id_token).not.equals(null);",
+									"});",
+									"",
+									"pm.test(\"Validate access-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).not.equals(null);",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"",
+									"    var jwt_parts = pm.environment.get('access_token').split('.'); // header.payload.signature",
+									"    var jwt_payload = JSON.parse(atob(jwt_parts[1]));",
+									"    pm.environment.set(\"c_nonce\", jwt_payload.c_nonce);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "code",
+									"value": "{{code}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{clientId}}",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirectionUrl}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{client_assertion}}",
+									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{codeVerifier}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth/v2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth",
+								"v2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Credential",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"keyPair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+									"jwkPrivateKey = pmlib.rs.KEYUTIL.getJWK(keyPair.prvKeyObj);",
+									"jwkPublicKey  = pmlib.rs.KEYUTIL.getJWK(keyPair.pubKeyObj);",
+									"jwkPublicKey[\"alg\"] = \"RS256\";",
+									"jwkPublicKey[\"use\"] = \"sig\";",
+									"",
+									"pm.environment.set(\"holder_public_key\", JSON.stringify(jwkPublicKey))",
+									"pm.environment.set(\"holder_private_key\", JSON.stringify(jwkPrivateKey));",
+									"",
+									"// Set headers for JWT",
+									"var header = {\t",
+									"\t\"alg\": \"RS256\",",
+									"    \"typ\" : \"openid4vci-proof+jwt\",",
+									"    \"jwk\" : JSON.parse(pm.environment.get(\"holder_public_key\"))",
+									"};",
+									"",
+									"",
+									"console.log(\"Getting c_nonce >> \" +  pm.environment.get('c_nonce'));",
+									"",
+									"const signed_jwt = pmlib.jwtSign(JSON.parse(pm.environment.get(\"holder_private_key\")), {",
+									"    \"aud\" : pm.environment.get('url'),",
+									"\t\"nonce\": pm.environment.get('c_nonce'),",
+									"    \"iss\" : pm.environment.get('clientId'),",
+									"}, header, exp=600, alg = \"RS256\")",
+									"",
+									"pm.collectionVariables.set(\"proof_jwt\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate c_nonce\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if(jsonData.c_nonce != null) {",
+									"        pm.environment.set(\"c_nonce\", jsonData.c_nonce);",
+									"        console.log(\"setting c_nonce\");",
+									"    }    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"ldp_vc\",\n    \"credential_definition\" : { \"type\" : [\"VerifiableCredential\", \"MOSIPVerifiableCredential\"], \"@context\" : [\"https://www.w3.org/2018/credentials/v1\"]},\n    \"proof\": {\n        \"proof_type\": \"jwt\",\n        \"jwt\": \"{{proof_jwt}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/vci/credential",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vci",
+								"credential"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Well-known endpoints",
+			"item": [
+				{
+					"name": "JWKS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/oauth/.well-known/jwks.json",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth",
+								".well-known",
+								"jwks.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Openid-configuration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/oidc/.well-known/openid-configuration",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oidc",
+								".well-known",
+								"openid-configuration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "VC issuer metadata",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vci/.well-known/openid-credential-issuer",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vci",
+								".well-known",
+								"openid-credential-issuer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -1611,6 +2519,22 @@
 			"key": "csrf_token",
 			"value": "08a17840-da3c-4b93-9ab3-83d9b297ac68",
 			"type": "string"
+		},
+		{
+			"key": "proof_jwt",
+			"value": ""
+		},
+		{
+			"key": "codeChallenge",
+			"value": ""
+		},
+		{
+			"key": "codeChallengeMethod",
+			"value": ""
+		},
+		{
+			"key": "codeVerifier",
+			"value": ""
 		}
 	]
 }
