@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.vci.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import foundation.identity.jsonld.JsonLDObject;
 import io.mosip.esignet.api.dto.VCRequestDto;
 import io.mosip.esignet.api.dto.VCResult;
@@ -61,6 +62,9 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     @Autowired
     private SecurityHelperService securityHelperService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private List<LinkedHashMap<String, Object>> supportedCredentials;
 
@@ -156,13 +160,8 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         Optional<LinkedHashMap<String, Object>> result = supportedCredentials.stream()
                 .filter(cm -> cm.get("scope").equals(scope)).findFirst();
         if(result.isPresent()){
-            CredentialMetadata credentialMetadata = new CredentialMetadata();
-            try {
-                BeanUtils.populate(credentialMetadata, result.get());
-                return Optional.of(credentialMetadata);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                log.error("Failed to create credentialMetadata from configured map", e);
-            }
+            CredentialMetadata credentialMetadata = objectMapper.convertValue(result.get(), CredentialMetadata.class);
+            return Optional.of(credentialMetadata);
         }
         return Optional.empty();
     }

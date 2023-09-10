@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.vci.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import foundation.identity.jsonld.JsonLDObject;
 import io.mosip.esignet.api.dto.VCResult;
 import io.mosip.esignet.api.spi.VCIssuancePlugin;
@@ -68,6 +69,7 @@ public class VCIssuanceServiceTest {
         supportedCredential.put("credential_definition", null);
         issuerMetadata.put("credentials_supported", Arrays.asList(supportedCredential));
         ReflectionTestUtils.setField(vcIssuanceService, "issuerMetadata", issuerMetadata);
+        ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
     }
 
 

@@ -2,7 +2,6 @@ package io.mosip.esignet.core.validator;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -16,6 +15,6 @@ public class PKCECodeChallengeMethodValidator implements ConstraintValidator<PKC
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
-        return StringUtils.isEmpty(value) || supportedMethods.contains(value);
+        return value==null || supportedMethods.contains(value);
     }
 }

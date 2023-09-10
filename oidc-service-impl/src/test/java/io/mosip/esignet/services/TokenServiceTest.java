@@ -102,6 +102,23 @@ public class TokenServiceTest {
         Assert.assertEquals("test-issuer", jsonObject.get(ISS));
     }
 
+    @Test
+    public void getAccessTokenWithNonce_test() throws JSONException {
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setClientId("client-id");
+        transaction.setPartnerSpecificUserToken("psut");
+        transaction.setPermittedScopes(Arrays.asList("read", "write"));
+        String token = tokenService.getAccessToken(transaction, "test_cnonce");
+        Assert.assertNotNull(token);
+        JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
+        Assert.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
+        Assert.assertEquals("read write", jsonObject.get(SCOPE));
+        Assert.assertEquals("test-issuer", jsonObject.get(ISS));
+        Assert.assertEquals("test_cnonce", jsonObject.get(C_NONCE));
+        Assert.assertNotNull(jsonObject.get(C_NONCE_EXPIRES_IN));
+    }
+
     @Test(expected = EsignetException.class)
     public void verifyClientAssertionToken_withNullAssertion_thenFail() {
         tokenService.verifyClientAssertionToken("client-id", publidKey, null);
