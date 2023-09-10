@@ -14,9 +14,11 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.vci.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
+import io.mosip.esignet.core.spi.VCIssuanceService;
 import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.esignet.vci.exception.InvalidNonceException;
 import io.mosip.esignet.vci.pop.JwtProofValidator;
+import io.mosip.esignet.vci.pop.ProofValidator;
 import io.mosip.esignet.vci.pop.ProofValidatorFactory;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,38 +34,49 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.mockito.Mockito.mock;
+
 public class VCIssuanceServiceTest {
 
-    @InjectMocks
-    private VCIssuanceServiceImpl vcIssuanceService;
+    private VCIssuanceService vcIssuanceService;
 
-    @Mock
-    private VCIssuancePlugin vcIssuancePlugin;
+    private VCIssuancePlugin vcIssuancePlugin = mock(VCIssuancePlugin.class);
 
-    @Mock
-    private ProofValidatorFactory proofValidatorFactory;
+    private VCICacheService vciCacheService = mock(VCICacheService.class);
 
-    @Mock
-    private VCICacheService vciCacheService;
+    private ParsedAccessToken parsedAccessToken = mock(ParsedAccessToken.class);
 
-    @Mock
-    private ParsedAccessToken parsedAccessToken;
+    private AuditPlugin auditPlugin = mock(AuditPlugin.class);
 
-    @Mock
-    private JwtProofValidator jwtProofValidator;
-
-    @Mock
-    private SecurityHelperService securityHelperService;
-
-    @Mock
-    private AuditPlugin auditPlugin;
-
-    @Mock
-    private ObjectMapper objectMapper;
 
     @Before
     public void setup() {
+        vcIssuanceService = new VCIssuanceServiceImpl();
+        ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
+        ProofValidatorFactory proofValidatorFactory = new ProofValidatorFactory();
+        ProofValidator jwtProofValidator = new ProofValidator() {
+            @Override
+            public String getProofType() {
+                return "jwt";
+            }
+            @Override
+            public boolean validate(String clientId, String cNonce, CredentialProof credentialProof) {
+                return credentialProof !=null && credentialProof.getJwt() != null ? true : false;
+            }
+            @Override
+            public String getKeyMaterial(CredentialProof credentialProof) {
+                return "holder-identifier";
+            }
+        };
+        ReflectionTestUtils.setField(proofValidatorFactory, "proofValidators", List.of(jwtProofValidator));
+        ReflectionTestUtils.setField(vcIssuanceService, "proofValidatorFactory", proofValidatorFactory);
+        ReflectionTestUtils.setField(vcIssuanceService, "securityHelperService", new SecurityHelperService());
+        ReflectionTestUtils.setField(vcIssuanceService, "securityHelperService", new SecurityHelperService());
+        ReflectionTestUtils.setField(vcIssuanceService, "vciCacheService", vciCacheService);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
+        ReflectionTestUtils.setField(vcIssuanceService, "auditWrapper", auditPlugin);
+        ReflectionTestUtils.setField(vcIssuanceService, "vcIssuancePlugin", vcIssuancePlugin);
+
         Map<String, Object> issuerMetadata = new HashMap<>();
         issuerMetadata.put("credential_issuer", "https://localhost:9090");
         issuerMetadata.put("credential_endpoint", "https://localhost:9090/v1/esignet/vci/credential");
@@ -75,13 +88,6 @@ public class VCIssuanceServiceTest {
         supportedCredential.put("credential_definition", null);
         issuerMetadata.put("credentials_supported", Arrays.asList(supportedCredential));
         ReflectionTestUtils.setField(vcIssuanceService, "issuerMetadata", issuerMetadata);
-
-        CredentialMetadata credentialMetadata = new CredentialMetadata();
-        credentialMetadata.setId("SampleVerifiableCredential_ldp");
-        credentialMetadata.setFormat("ldp_vc");
-        credentialMetadata.setScope("sample_vc_ldp");
-        credentialMetadata.setProof_types_supported(Arrays.asList("jwt"));
-        Mockito.when(objectMapper.convertValue(supportedCredential, CredentialMetadata.class)).thenReturn(credentialMetadata);
     }
 
 
@@ -111,10 +117,6 @@ public class VCIssuanceServiceTest {
 
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
-        Mockito.when(jwtProofValidator.validate(Mockito.anyString(), Mockito.anyString(), Mockito.any(CredentialProof.class)))
-                .thenReturn(true);
-        Mockito.when(jwtProofValidator.getKeyMaterial(credentialProof)).thenReturn("holder-identifier");
         Mockito.when(vcIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(vcResult);
         CredentialResponse credentialResponse = vcIssuanceService.getCredential(credentialRequest);
@@ -179,7 +181,6 @@ public class VCIssuanceServiceTest {
         CredentialProof credentialProof = new CredentialProof();
         credentialProof.setProof_type("jwt");
         credentialRequest.setProof(credentialProof);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(new JwtProofValidator());
         try {
             vcIssuanceService.getCredential(credentialRequest);
             Assert.fail();
@@ -201,13 +202,12 @@ public class VCIssuanceServiceTest {
         credentialRequest.setFormat("ldp_VC");
         CredentialProof credentialProof = new CredentialProof();
         credentialProof.setProof_type("jwt");
+        credentialProof.setJwt("test-jwt");
         credentialRequest.setProof(credentialProof);
         CredentialDefinition credentialDefinition = new CredentialDefinition();
         credentialDefinition.setContext(List.of());
         credentialDefinition.setType(List.of());
         credentialRequest.setCredential_definition(credentialDefinition);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
-        Mockito.when(jwtProofValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
         try {
             vcIssuanceService.getCredential(credentialRequest);
             Assert.fail();
@@ -225,13 +225,12 @@ public class VCIssuanceServiceTest {
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
-        Mockito.when(jwtProofValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
 
         CredentialRequest credentialRequest = new CredentialRequest();
         credentialRequest.setFormat("ldp_vc");
         CredentialProof credentialProof = new CredentialProof();
         credentialProof.setProof_type("jwt");
+        credentialProof.setJwt("test-jwt");
         credentialRequest.setProof(credentialProof);
         CredentialDefinition credentialDefinition = new CredentialDefinition();
         credentialDefinition.setContext(List.of());
@@ -295,7 +294,6 @@ public class VCIssuanceServiceTest {
 
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
         Mockito.when(vciCacheService.setVCITransaction(Mockito.any(), Mockito.any())).thenReturn(issuanceTransaction);
         try {
             vcIssuanceService.getCredential(credentialRequest);
@@ -326,7 +324,6 @@ public class VCIssuanceServiceTest {
 
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
 
         VCIssuanceTransaction expiredTransaction = new VCIssuanceTransaction();
         expiredTransaction.setCNonce("test-nonce");
