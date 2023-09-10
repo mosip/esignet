@@ -9,7 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import foundation.identity.jsonld.JsonLDObject;
 import io.mosip.esignet.api.dto.VCRequestDto;
 import io.mosip.esignet.api.dto.VCResult;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.VCIssuancePlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.vci.*;
@@ -17,6 +20,7 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.VCIssuanceService;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.esignet.vci.exception.InvalidNonceException;
 import io.mosip.esignet.vci.pop.ProofValidator;
@@ -66,6 +70,9 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private AuditPlugin auditWrapper;
+
     private List<LinkedHashMap<String, Object>> supportedCredentials;
 
 
@@ -100,8 +107,13 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         VCResult<?> vcResult = getVerifiableCredential(credentialRequest, credentialMetadata, holderId);
         if(vcResult == null || vcResult.getCredential() == null) {
             log.error("Failed to generate VC : {}", vcResult);
+            auditWrapper.logAudit(Action.VC_ISSUANCE, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), null), null);
             throw new EsignetException(ErrorConstants.VC_ISSUANCE_FAILED);
         }
+
+        auditWrapper.logAudit(Action.VC_ISSUANCE, ActionStatus.SUCCESS,
+                AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), null), null);
         return getCredentialResponse(credentialRequest.getFormat(), vcResult);
     }
 
