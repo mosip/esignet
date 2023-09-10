@@ -59,7 +59,8 @@ public class VCIssuanceServiceTest {
     @Mock
     private AuditPlugin auditPlugin;
 
-
+    @Mock
+    private ObjectMapper objectMapper;
 
     @Before
     public void setup() {
@@ -74,7 +75,13 @@ public class VCIssuanceServiceTest {
         supportedCredential.put("credential_definition", null);
         issuerMetadata.put("credentials_supported", Arrays.asList(supportedCredential));
         ReflectionTestUtils.setField(vcIssuanceService, "issuerMetadata", issuerMetadata);
-        ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
+
+        CredentialMetadata credentialMetadata = new CredentialMetadata();
+        credentialMetadata.setId("SampleVerifiableCredential_ldp");
+        credentialMetadata.setFormat("ldp_vc");
+        credentialMetadata.setScope("sample_vc_ldp");
+        credentialMetadata.setProof_types_supported(Arrays.asList("jwt"));
+        Mockito.when(objectMapper.convertValue(supportedCredential, CredentialMetadata.class)).thenReturn(credentialMetadata);
     }
 
 
