@@ -37,6 +37,8 @@ import java.util.*;
 @RunWith(MockitoJUnitRunner.class)
 public class VCIssuanceServiceTest {
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @InjectMocks
     private VCIssuanceServiceImpl vcIssuanceService;
 
@@ -72,7 +74,7 @@ public class VCIssuanceServiceTest {
         supportedCredential.put("credential_definition", null);
         issuerMetadata.put("credentials_supported", Arrays.asList(supportedCredential));
         ReflectionTestUtils.setField(vcIssuanceService, "issuerMetadata", issuerMetadata);
-        ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", objectMapper);
     }
 
 
