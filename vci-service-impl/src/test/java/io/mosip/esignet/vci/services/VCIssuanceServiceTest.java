@@ -51,6 +51,7 @@ public class VCIssuanceServiceTest {
         ConcurrentMapCacheManager concurrentMapCacheManager = new ConcurrentMapCacheManager("vcissuance");
         ReflectionTestUtils.setField(vciCacheService, "cacheManager", concurrentMapCacheManager);
         ReflectionTestUtils.setField(vcIssuanceService, "vciCacheService", vciCacheService);
+        ReflectionTestUtils.setField(vcIssuanceService, "cNonceExpireSeconds", 300);
 
         ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
         ProofValidatorFactory proofValidatorFactory = new ProofValidatorFactory();
@@ -333,7 +334,7 @@ public class VCIssuanceServiceTest {
             Assert.fail();
         } catch (InvalidNonceException ex) {
             Assert.assertNotNull(ex.getClientNonce());
-            Assert.assertNotNull(ex.getClientNonceExpireSeconds());
+            Assert.assertTrue(ex.getClientNonceExpireSeconds() > 0);
         }
     }
 
@@ -372,7 +373,7 @@ public class VCIssuanceServiceTest {
             Assert.fail();
         } catch (InvalidNonceException ex) {
             Assert.assertNotNull(ex.getClientNonce());
-            Assert.assertNotNull(ex.getClientNonceExpireSeconds());
+            Assert.assertTrue(ex.getClientNonceExpireSeconds() > 0);
         }
     }
 }
