@@ -21,24 +21,17 @@ import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.VCIssuanceService;
 import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.esignet.vci.exception.InvalidNonceException;
-import io.mosip.esignet.vci.pop.JwtProofValidator;
 import io.mosip.esignet.vci.pop.ProofValidator;
 import io.mosip.esignet.vci.pop.ProofValidatorFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
-
-import static org.mockito.Mockito.mock;
 
 public class VCIssuanceServiceTest {
 
@@ -53,8 +46,12 @@ public class VCIssuanceServiceTest {
 
     @Before
     public void setup() {
-        vciCacheService = mock(VCICacheService.class);
         vcIssuanceService = new VCIssuanceServiceImpl();
+        vciCacheService = new VCICacheService();
+        ConcurrentMapCacheManager concurrentMapCacheManager = new ConcurrentMapCacheManager("vcissuance");
+        ReflectionTestUtils.setField(vciCacheService, "cacheManager", concurrentMapCacheManager);
+        ReflectionTestUtils.setField(vcIssuanceService, "vciCacheService", vciCacheService);
+
         ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
         ProofValidatorFactory proofValidatorFactory = new ProofValidatorFactory();
         ProofValidator jwtProofValidator = new ProofValidator() {
@@ -74,8 +71,7 @@ public class VCIssuanceServiceTest {
         ReflectionTestUtils.setField(proofValidatorFactory, "proofValidators", List.of(jwtProofValidator));
         ReflectionTestUtils.setField(vcIssuanceService, "proofValidatorFactory", proofValidatorFactory);
         ReflectionTestUtils.setField(vcIssuanceService, "securityHelperService", new SecurityHelperService());
-        ReflectionTestUtils.setField(vcIssuanceService, "securityHelperService", new SecurityHelperService());
-        ReflectionTestUtils.setField(vcIssuanceService, "vciCacheService", vciCacheService);
+
         ReflectionTestUtils.setField(vcIssuanceService, "auditWrapper", new AuditPlugin() {
             @Override
             public void logAudit(Action action, ActionStatus status, AuditDTO audit, Throwable t) {}
@@ -137,6 +133,7 @@ public class VCIssuanceServiceTest {
         ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
         parsedAccessToken.setActive(true);
         parsedAccessToken.setClaims(claims);
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         CredentialResponse credentialResponse = vcIssuanceService.getCredential(credentialRequest);
@@ -163,6 +160,7 @@ public class VCIssuanceServiceTest {
         ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
         parsedAccessToken.setActive(true);
         parsedAccessToken.setClaims(new HashMap<>());
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
         try {
             vcIssuanceService.getCredential(new CredentialRequest());
@@ -179,6 +177,7 @@ public class VCIssuanceServiceTest {
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "mosip_identity_vc_ldp");
         parsedAccessToken.setClaims(claims);
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         try {
@@ -199,6 +198,7 @@ public class VCIssuanceServiceTest {
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
         parsedAccessToken.setClaims(claims);
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         CredentialRequest credentialRequest = new CredentialRequest();
@@ -223,6 +223,7 @@ public class VCIssuanceServiceTest {
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
         parsedAccessToken.setClaims(claims);
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         CredentialRequest credentialRequest = new CredentialRequest();
@@ -253,6 +254,7 @@ public class VCIssuanceServiceTest {
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
         parsedAccessToken.setClaims(claims);
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         CredentialRequest credentialRequest = new CredentialRequest();
@@ -324,14 +326,14 @@ public class VCIssuanceServiceTest {
         ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
         parsedAccessToken.setActive(true);
         parsedAccessToken.setClaims(claims);
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
-        Mockito.when(vciCacheService.setVCITransaction(Mockito.any(), Mockito.any())).thenReturn(issuanceTransaction);
         try {
             vcIssuanceService.getCredential(credentialRequest);
             Assert.fail();
         } catch (InvalidNonceException ex) {
-            Assert.assertEquals(issuanceTransaction.getCNonce(), ex.getClientNonce());
-            Assert.assertEquals(issuanceTransaction.getCNonceExpireSeconds(), ex.getClientNonceExpireSeconds());
+            Assert.assertNotNull(ex.getClientNonce());
+            Assert.assertNotNull(ex.getClientNonceExpireSeconds());
         }
     }
 
@@ -356,24 +358,21 @@ public class VCIssuanceServiceTest {
         ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
         parsedAccessToken.setActive(true);
         parsedAccessToken.setClaims(claims);
+        parsedAccessToken.setAccessTokenHash("access-token-hash");
         ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         VCIssuanceTransaction expiredTransaction = new VCIssuanceTransaction();
         expiredTransaction.setCNonce("test-nonce");
         expiredTransaction.setCNonceExpireSeconds(2);
         expiredTransaction.setCNonceIssuedEpoch(Instant.now(Clock.systemUTC()).minusSeconds(10).getEpochSecond());
-        Mockito.when(vciCacheService.getVCITransaction(Mockito.any())).thenReturn(expiredTransaction);
+        vciCacheService.setVCITransaction("access-token-hash", expiredTransaction);
 
-        VCIssuanceTransaction issuanceTransaction = new VCIssuanceTransaction();
-        issuanceTransaction.setCNonce("new_c_nonce");
-        issuanceTransaction.setCNonceExpireSeconds(400);
-        Mockito.when(vciCacheService.setVCITransaction(Mockito.any(), Mockito.any())).thenReturn(issuanceTransaction);
         try {
             vcIssuanceService.getCredential(credentialRequest);
             Assert.fail();
         } catch (InvalidNonceException ex) {
-            Assert.assertEquals(issuanceTransaction.getCNonce(), ex.getClientNonce());
-            Assert.assertEquals(issuanceTransaction.getCNonceExpireSeconds(), ex.getClientNonceExpireSeconds());
+            Assert.assertNotNull(ex.getClientNonce());
+            Assert.assertNotNull(ex.getClientNonceExpireSeconds());
         }
     }
 }
