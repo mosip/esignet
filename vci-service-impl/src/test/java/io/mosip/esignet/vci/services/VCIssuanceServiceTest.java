@@ -17,11 +17,9 @@ import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.esignet.vci.exception.InvalidNonceException;
 import io.mosip.esignet.vci.pop.JwtProofValidator;
-import io.mosip.esignet.vci.pop.ProofValidator;
 import io.mosip.esignet.vci.pop.ProofValidatorFactory;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -36,8 +34,6 @@ import java.util.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VCIssuanceServiceTest {
-
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private VCIssuanceServiceImpl vcIssuanceService;
@@ -55,10 +51,14 @@ public class VCIssuanceServiceTest {
     private ParsedAccessToken parsedAccessToken;
 
     @Mock
+    private JwtProofValidator jwtProofValidator;
+
+    @Mock
     private SecurityHelperService securityHelperService;
 
     @Mock
-    AuditPlugin auditWrapper;
+    private AuditPlugin auditPlugin;
+
 
 
     @Before
@@ -74,7 +74,7 @@ public class VCIssuanceServiceTest {
         supportedCredential.put("credential_definition", null);
         issuerMetadata.put("credentials_supported", Arrays.asList(supportedCredential));
         ReflectionTestUtils.setField(vcIssuanceService, "issuerMetadata", issuerMetadata);
-        ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", objectMapper);
+        ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
     }
 
 
@@ -104,9 +104,10 @@ public class VCIssuanceServiceTest {
 
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt"))
-                .thenReturn(getDummyProofValidator("jwt", true,"holder-identifier"));
+        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
+        Mockito.when(jwtProofValidator.validate(Mockito.anyString(), Mockito.anyString(), Mockito.any(CredentialProof.class)))
+                .thenReturn(true);
+        Mockito.when(jwtProofValidator.getKeyMaterial(credentialProof)).thenReturn("holder-identifier");
         Mockito.when(vcIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(vcResult);
         CredentialResponse credentialResponse = vcIssuanceService.getCredential(credentialRequest);
@@ -198,8 +199,8 @@ public class VCIssuanceServiceTest {
         credentialDefinition.setContext(List.of());
         credentialDefinition.setType(List.of());
         credentialRequest.setCredential_definition(credentialDefinition);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(
-                getDummyProofValidator("jwt", true,"holder-identifier"));
+        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
+        Mockito.when(jwtProofValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
         try {
             vcIssuanceService.getCredential(credentialRequest);
             Assert.fail();
@@ -208,9 +209,8 @@ public class VCIssuanceServiceTest {
         }
     }
 
-    @Ignore
     @Test
-    public void getCredential_withEmptyCredentialDefinition_thenFail() {
+    public void getCredential_withInvalidCredentialDefinition_thenFail() {
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "sample_vc_ldp");
@@ -218,8 +218,8 @@ public class VCIssuanceServiceTest {
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(
-                getDummyProofValidator("jwt", true,"holder-identifier"));
+        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
+        Mockito.when(jwtProofValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
 
         CredentialRequest credentialRequest = new CredentialRequest();
         credentialRequest.setFormat("ldp_vc");
@@ -236,30 +236,8 @@ public class VCIssuanceServiceTest {
         } catch (EsignetException ex) {
             Assert.assertEquals(ErrorConstants.UNSUPPORTED_VC_TYPE, ex.getErrorCode());
         }
-    }
 
-    @Ignore
-    @Test
-    public void getCredential_withOnlySuperTypeCredentialDefinition_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("scope", "sample_vc_ldp");
-        claims.put("iat", Instant.now(Clock.systemUTC()).minusSeconds(10));
-        claims.put("c_nonce", "test-nonce");
-        claims.put("c_nonce_expires_in", 60);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(
-                getDummyProofValidator("jwt", true,"holder-identifier"));
-
-        CredentialRequest credentialRequest = new CredentialRequest();
-        credentialRequest.setFormat("ldp_vc");
-        CredentialProof credentialProof = new CredentialProof();
-        credentialProof.setProof_type("jwt");
-        credentialRequest.setProof(credentialProof);
-        CredentialDefinition credentialDefinition = new CredentialDefinition();
-        credentialDefinition.setContext(List.of());
         credentialDefinition.setType(List.of("VerifiableCredential"));
-        credentialRequest.setCredential_definition(credentialDefinition);
         try {
             vcIssuanceService.getCredential(credentialRequest);
             Assert.fail();
@@ -274,30 +252,8 @@ public class VCIssuanceServiceTest {
         } catch (EsignetException ex) {
             Assert.assertEquals(ErrorConstants.UNSUPPORTED_VC_TYPE, ex.getErrorCode());
         }
-    }
 
-    @Ignore
-    @Test
-    public void getCredential_withOnlyChildTypeCredentialDefinition_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("scope", "sample_vc_ldp");
-        claims.put("iat", Instant.now(Clock.systemUTC()).minusSeconds(10));
-        claims.put("c_nonce", "test-nonce");
-        claims.put("c_nonce_expires_in", 60);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(
-                getDummyProofValidator("jwt", true,"holder-identifier"));
-
-        CredentialRequest credentialRequest = new CredentialRequest();
-        credentialRequest.setFormat("ldp_vc");
-        CredentialProof credentialProof = new CredentialProof();
-        credentialProof.setProof_type("jwt");
-        credentialRequest.setProof(credentialProof);
-        CredentialDefinition credentialDefinition = new CredentialDefinition();
-        credentialDefinition.setContext(List.of());
-        credentialDefinition.setType(List.of("SampleVerifiableCredential_ldp"));
-        credentialRequest.setCredential_definition(credentialDefinition);
+        credentialDefinition.setType(List.of("verifiableCredential", "SampleVerifiableCredential_ldp"));
         try {
             vcIssuanceService.getCredential(credentialRequest);
             Assert.fail();
@@ -332,8 +288,7 @@ public class VCIssuanceServiceTest {
 
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(
-                getDummyProofValidator("jwt", true,"holder-identifier"));
+        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
         Mockito.when(vciCacheService.setVCITransaction(Mockito.any(), Mockito.any())).thenReturn(issuanceTransaction);
         try {
             vcIssuanceService.getCredential(credentialRequest);
@@ -364,8 +319,7 @@ public class VCIssuanceServiceTest {
 
         Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
         Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(
-                getDummyProofValidator("jwt", true,"holder-identifier"));
+        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
 
         VCIssuanceTransaction expiredTransaction = new VCIssuanceTransaction();
         expiredTransaction.setCNonce("test-nonce");
@@ -384,24 +338,5 @@ public class VCIssuanceServiceTest {
             Assert.assertEquals(issuanceTransaction.getCNonce(), ex.getClientNonce());
             Assert.assertEquals(issuanceTransaction.getCNonceExpireSeconds(), ex.getClientNonceExpireSeconds());
         }
-    }
-
-    private ProofValidator getDummyProofValidator(String type, boolean isValid, String holderIdentifier) {
-        return new ProofValidator() {
-            @Override
-            public String getProofType() {
-                return type;
-            }
-
-            @Override
-            public boolean validate(String clientId, String cNonce, CredentialProof credentialProof) {
-                return isValid;
-            }
-
-            @Override
-            public String getKeyMaterial(CredentialProof credentialProof) {
-                return holderIdentifier;
-            }
-        };
     }
 }
