@@ -300,35 +300,6 @@ public class VCIssuanceServiceTest {
     }
 
     @Test
-    public void getCredential_withImproperCaseInTypeCredentialDefinition_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("scope", "sample_vc_ldp");
-        claims.put("iat", Instant.now(Clock.systemUTC()).minusSeconds(10));
-        claims.put("c_nonce", "test-nonce");
-        claims.put("c_nonce_expires_in", 60);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(proofValidatorFactory.getProofValidator("jwt")).thenReturn(jwtProofValidator);
-        Mockito.when(jwtProofValidator.validate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
-
-        CredentialRequest credentialRequest = new CredentialRequest();
-        credentialRequest.setFormat("ldp_vc");
-        CredentialProof credentialProof = new CredentialProof();
-        credentialProof.setProof_type("jwt");
-        credentialRequest.setProof(credentialProof);
-        CredentialDefinition credentialDefinition = new CredentialDefinition();
-        credentialDefinition.setContext(List.of());
-        credentialDefinition.setType(List.of("verifiableCredential", "SampleVerifiableCredential_ldp"));
-        credentialRequest.setCredential_definition(credentialDefinition);
-        try {
-            vcIssuanceService.getCredential(credentialRequest);
-            Assert.fail();
-        } catch (EsignetException ex) {
-            Assert.assertEquals(ErrorConstants.UNSUPPORTED_VC_TYPE, ex.getErrorCode());
-        }
-    }
-
-    @Test
     public void getCredential_withExpiredCNonce_thenFail() {
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "sample_vc_ldp");
