@@ -75,6 +75,10 @@ public class OAuthControllerTest {
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(415));
+
+        mockMvc.perform(post("/oauth/v2/token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(415));
     }
 
     @Test
@@ -91,12 +95,27 @@ public class OAuthControllerTest {
                         .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isOk());
+
+        mockMvc.perform(post("/oauth/v2/token")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .param("code", "code")
+                        .param("code_verifier", "code-verifier")
+                        .param("redirect_uri", "https://redirect-uri")
+                        .param("grant_type", "authorization_code")
+                        .param("client_id", "client_id")
+                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion", "client_assertion"))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void getToken_withInvalidInput_thenFail() throws Exception {
         Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(InvalidRequestException.class);
         mockMvc.perform(post("/oauth/token")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/oauth/v2/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest());
     }
@@ -114,8 +133,28 @@ public class OAuthControllerTest {
                 .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
 
+        mockMvc.perform(post("/oauth/v2/token")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .param("code", "code")
+                        .param("redirect_uri", "https://redirect-uri")
+                        .param("grant_type", "authorization_code")
+                        .param("client_id", "client_id")
+                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion", "client_assertion"))
+                .andExpect(status().isInternalServerError());
+
         Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .param("code", "code")
+                        .param("redirect_uri", "https://redirect-uri")
+                        .param("grant_type", "authorization_code")
+                        .param("client_id", "client_id")
+                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion", "client_assertion"))
+                .andExpect(status().isInternalServerError());
+
+        mockMvc.perform(post("/oauth/v2/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .param("code", "code")
                         .param("redirect_uri", "https://redirect-uri")
