@@ -26,13 +26,11 @@ import io.mosip.esignet.vci.exception.InvalidNonceException;
 import io.mosip.esignet.vci.pop.ProofValidator;
 import io.mosip.esignet.vci.pop.ProofValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
