@@ -25,6 +25,8 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.vci.CredentialProof;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -152,10 +154,12 @@ public class JwtProofValidator implements ProofValidator {
         if(keyId.startsWith(DID_JWK_PREFIX)) {
             try {
                 byte[] jwkBytes = Base64.getUrlDecoder().decode(keyId.substring(DID_JWK_PREFIX.length()));
-                return JWK.parse(new String(jwkBytes));
+                org.json.JSONObject jsonKey = new org.json.JSONObject(new String(jwkBytes));
+                jsonKey.put("kid", keyId);
+                return JWK.parse(jsonKey.toString());
             } catch (IllegalArgumentException e) {
                 log.error("Invalid base64 encoded ID : {}", keyId, e);
-            } catch (ParseException e) {
+            } catch (ParseException | JSONException e) {
                 log.error("Invalid jwk : {}", keyId, e);
             }
         }

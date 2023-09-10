@@ -521,4 +521,58 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		Assert.assertFalse(validator.isValid(null, null));		
 	}
+
+	@Test
+	public void test_OIDCScopeValidator_withBothOpenIdAndCredentialScope_thenFail() {
+		OIDCScopeValidator validator = new OIDCScopeValidator();
+		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
+		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertFalse(validator.isValid("profile sample_ldp_vc", null));
+	}
+
+	// ============================ PKCECodeChallengeMethodValidator Validator =========================
+
+	@Test
+	public void test_challengeMethodValidator_withValidValues_thenPass() {
+		PKCECodeChallengeMethodValidator validator = new PKCECodeChallengeMethodValidator();
+		ReflectionTestUtils.setField(validator, "supportedMethods", Arrays.asList("S256", "plain"));
+		Assert.assertTrue(validator.isValid("S256", null));
+		Assert.assertTrue(validator.isValid("plain", null));
+		Assert.assertTrue(validator.isValid(null, null));
+	}
+
+	@Test
+	public void test_challengeMethodValidator_withInvalidValues_thenFail() {
+		PKCECodeChallengeMethodValidator validator = new PKCECodeChallengeMethodValidator();
+		ReflectionTestUtils.setField(validator, "supportedMethods", Arrays.asList("S256", "plain"));
+		Assert.assertFalse(validator.isValid("s256", null));
+		Assert.assertFalse(validator.isValid("PLAIN", null));
+		Assert.assertFalse(validator.isValid("null", null));
+		Assert.assertFalse(validator.isValid("", null));
+		Assert.assertFalse(validator.isValid(" ", null));
+	}
+
+	// ============================ RedirectURLValidator Validator =========================
+
+	@Test
+	public void test_redirectURLValidator_withValidValues_thenPass() {
+		RedirectURLValidator validator = new RedirectURLValidator();
+		Assert.assertTrue(validator.isValid("https://domain.com/test", null));
+		Assert.assertTrue(validator.isValid("http://localhost:9090/png", null));
+		Assert.assertTrue(validator.isValid("http://domain.com/*", null));
+		Assert.assertTrue(validator.isValid("https://domain.com/test/*", null));
+		Assert.assertTrue(validator.isValid("io.mosip.residentapp://oauth", null));
+		Assert.assertTrue(validator.isValid("residentapp://oauth/*", null));
+	}
+
+	@Test
+	public void test_redirectURLValidator_withInvalidValues_thenFail() {
+		RedirectURLValidator validator = new RedirectURLValidator();
+		Assert.assertFalse(validator.isValid("*", null));
+		Assert.assertFalse(validator.isValid("https://domain*", null));
+		Assert.assertFalse(validator.isValid("io.mosip.residentapp://*", null));
+		Assert.assertFalse(validator.isValid("residentapp*", null));
+		Assert.assertFalse(validator.isValid("http*", null));
+	}
 }
