@@ -7,9 +7,13 @@ package io.mosip.esignet.vci.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import foundation.identity.jsonld.JsonLDObject;
+import io.mosip.esignet.api.dto.AuditDTO;
+import io.mosip.esignet.api.dto.VCRequestDto;
 import io.mosip.esignet.api.dto.VCResult;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.VCIssuancePlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.vci.*;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -40,17 +44,16 @@ public class VCIssuanceServiceTest {
 
     private VCIssuanceService vcIssuanceService;
 
-    private VCIssuancePlugin vcIssuancePlugin = mock(VCIssuancePlugin.class);
+    private VCICacheService vciCacheService;
 
-    private VCICacheService vciCacheService = mock(VCICacheService.class);
+    private VCResult<String> vcResult_jwt;
 
-    private ParsedAccessToken parsedAccessToken = mock(ParsedAccessToken.class);
-
-    private AuditPlugin auditPlugin = mock(AuditPlugin.class);
+    private VCResult<JsonLDObject> vcResult;
 
 
     @Before
     public void setup() {
+        vciCacheService = mock(VCICacheService.class);
         vcIssuanceService = new VCIssuanceServiceImpl();
         ReflectionTestUtils.setField(vcIssuanceService, "objectMapper", new ObjectMapper());
         ProofValidatorFactory proofValidatorFactory = new ProofValidatorFactory();
@@ -73,9 +76,29 @@ public class VCIssuanceServiceTest {
         ReflectionTestUtils.setField(vcIssuanceService, "securityHelperService", new SecurityHelperService());
         ReflectionTestUtils.setField(vcIssuanceService, "securityHelperService", new SecurityHelperService());
         ReflectionTestUtils.setField(vcIssuanceService, "vciCacheService", vciCacheService);
-        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
-        ReflectionTestUtils.setField(vcIssuanceService, "auditWrapper", auditPlugin);
-        ReflectionTestUtils.setField(vcIssuanceService, "vcIssuancePlugin", vcIssuancePlugin);
+        ReflectionTestUtils.setField(vcIssuanceService, "auditWrapper", new AuditPlugin() {
+            @Override
+            public void logAudit(Action action, ActionStatus status, AuditDTO audit, Throwable t) {}
+            @Override
+            public void logAudit(String username, Action action, ActionStatus status, AuditDTO audit, Throwable t) {}
+        });
+        ReflectionTestUtils.setField(vcIssuanceService, "vcIssuancePlugin", new VCIssuancePlugin() {
+            @Override
+            public VCResult<JsonLDObject> getVerifiableCredentialWithLinkedDataProof(VCRequestDto vcRequestDto, String holderId, Map<String, Object> identityDetails) {
+                vcResult = new VCResult<>();
+                vcResult.setCredential(new JsonLDObject());
+                vcResult.setFormat("ldp_vc");
+                return vcResult;
+            }
+
+            @Override
+            public VCResult<String> getVerifiableCredential(VCRequestDto vcRequestDto, String holderId, Map<String, Object> identityDetails) {
+                vcResult_jwt = new VCResult<>();
+                vcResult_jwt.setCredential("jwt");
+                vcResult_jwt.setFormat("jwt_vc_json-ld");
+                return vcResult_jwt;
+            }
+        });
 
         Map<String, Object> issuerMetadata = new HashMap<>();
         issuerMetadata.put("credential_issuer", "https://localhost:9090");
@@ -111,25 +134,17 @@ public class VCIssuanceServiceTest {
         credentialProof.setJwt("header.payload.signature");
         credentialRequest.setProof(credentialProof);
 
-        VCResult<JsonLDObject> vcResult = new VCResult<>();
-        vcResult.setCredential(new JsonLDObject());
-        vcResult.setFormat("ldp_vc");
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
+        parsedAccessToken.setClaims(claims);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
-        Mockito.when(vcIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(vcResult);
         CredentialResponse credentialResponse = vcIssuanceService.getCredential(credentialRequest);
         Assert.assertNotNull(credentialResponse);
         Assert.assertEquals(vcResult.getFormat(), credentialResponse.getFormat());
         Assert.assertEquals(vcResult.getCredential(), credentialResponse.getCredential());
 
         credentialRequest.setFormat("jwt_vc_json-ld");
-        VCResult<String> vcResult_jwt = new VCResult<>();
-        vcResult_jwt.setCredential("jwt");
-        vcResult_jwt.setFormat("jwt_vc_json-ld");
-        Mockito.when(vcIssuancePlugin.getVerifiableCredential(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(vcResult_jwt);
         CredentialResponse credentialResponse_jwt = vcIssuanceService.getCredential(credentialRequest);
         Assert.assertNotNull(credentialResponse_jwt);
         Assert.assertEquals(vcResult_jwt.getFormat(), credentialResponse_jwt.getFormat());
@@ -138,14 +153,17 @@ public class VCIssuanceServiceTest {
 
     @Test(expected = NotAuthenticatedException.class)
     public void getCredential_withInactiveAccessToken_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(false);
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
         vcIssuanceService.getCredential(new CredentialRequest());
     }
 
     @Test
     public void getCredential_withNoScopeInAccessToken_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(new HashMap<>());
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
+        parsedAccessToken.setClaims(new HashMap<>());
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
         try {
             vcIssuanceService.getCredential(new CredentialRequest());
             Assert.fail();
@@ -156,10 +174,13 @@ public class VCIssuanceServiceTest {
 
     @Test
     public void getCredential_withInvalidScopeInAccessToken_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "mosip_identity_vc_ldp");
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
+        parsedAccessToken.setClaims(claims);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
+
         try {
             vcIssuanceService.getCredential(new CredentialRequest());
             Assert.fail();
@@ -170,13 +191,16 @@ public class VCIssuanceServiceTest {
 
     @Test
     public void getCredential_withInvalidProof_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "sample_vc_ldp");
         claims.put("iat", Instant.now(Clock.systemUTC()).minusSeconds(10));
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
+        parsedAccessToken.setClaims(claims);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
+
         CredentialRequest credentialRequest = new CredentialRequest();
         CredentialProof credentialProof = new CredentialProof();
         credentialProof.setProof_type("jwt");
@@ -191,13 +215,16 @@ public class VCIssuanceServiceTest {
 
     @Test
     public void getCredential_withInvalidVCFormat_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "sample_vc_ldp");
         claims.put("iat", Instant.now(Clock.systemUTC()).minusSeconds(10));
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
+        parsedAccessToken.setClaims(claims);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
+
         CredentialRequest credentialRequest = new CredentialRequest();
         credentialRequest.setFormat("ldp_VC");
         CredentialProof credentialProof = new CredentialProof();
@@ -218,13 +245,15 @@ public class VCIssuanceServiceTest {
 
     @Test
     public void getCredential_withInvalidCredentialDefinition_thenFail() {
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
         Map<String, Object> claims = new HashMap<>();
         claims.put("scope", "sample_vc_ldp");
         claims.put("iat", Instant.now(Clock.systemUTC()).minusSeconds(10));
         claims.put("c_nonce", "test-nonce");
         claims.put("c_nonce_expires_in", 60);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
+        parsedAccessToken.setClaims(claims);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         CredentialRequest credentialRequest = new CredentialRequest();
         credentialRequest.setFormat("ldp_vc");
@@ -292,8 +321,10 @@ public class VCIssuanceServiceTest {
         issuanceTransaction.setCNonce("new_c_nonce");
         issuanceTransaction.setCNonceExpireSeconds(400);
 
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
+        parsedAccessToken.setClaims(claims);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
         Mockito.when(vciCacheService.setVCITransaction(Mockito.any(), Mockito.any())).thenReturn(issuanceTransaction);
         try {
             vcIssuanceService.getCredential(credentialRequest);
@@ -322,8 +353,10 @@ public class VCIssuanceServiceTest {
         credentialProof.setJwt("header.payload.signature");
         credentialRequest.setProof(credentialProof);
 
-        Mockito.when(parsedAccessToken.isActive()).thenReturn(true);
-        Mockito.when(parsedAccessToken.getClaims()).thenReturn(claims);
+        ParsedAccessToken parsedAccessToken = new ParsedAccessToken();
+        parsedAccessToken.setActive(true);
+        parsedAccessToken.setClaims(claims);
+        ReflectionTestUtils.setField(vcIssuanceService, "parsedAccessToken", parsedAccessToken);
 
         VCIssuanceTransaction expiredTransaction = new VCIssuanceTransaction();
         expiredTransaction.setCNonce("test-nonce");
