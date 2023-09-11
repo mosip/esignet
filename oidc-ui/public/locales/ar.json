@@ -178,6 +178,8 @@
     "invalid_assertion": "تأكيد العميل غير صالح",
     "invalid_acr": "مراجع فئة سياق المصادقة غير صالحة / غير مدعومة",
     "invalid_token": "رمز الوصول غير صالح / منتهي الصلاحية",
+    "invalid_language_code": "رمز اللغة غير صالح",
+    "invalid_client_name_value": "قيمة اسم العميل غير صالحة",
     "auth_failed": "المصادقة فشلت",
     "auth_passed": "نجاح المصادقة",
     "acr_amr_mapping_not_found": "لم يتم العثور على ملف تعيين ACR-AMR",

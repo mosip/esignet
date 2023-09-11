@@ -178,6 +178,8 @@
     "invalid_assertion": "Invalid Client Assertion",
     "invalid_acr": "Invalid/Unsupported Authentication Context Class Refs",
     "invalid_token": "Invalid/Expired Access token",
+    "invalid_language_code": "Invalid language code",
+    "invalid_client_name_value": "Invalid client name value",
     "auth_failed": "Authentication Failed",
     "auth_passed": "Authentication Success",
     "acr_amr_mapping_not_found": "ACR-AMR Mapping File Not Found",
