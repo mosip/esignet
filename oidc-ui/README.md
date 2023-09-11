@@ -54,7 +54,7 @@ The application runs on PORT=3000 by default.
   - REACT_APP_LINKED_TRANSACTION_EXPIRE_IN_SEC: link-auth-code request expiration time.
   - REACT_APP_QRCODE_DEEP_LINK_URI: Deep link uri for the QRCode, with LINK_CODE and LINK_EXPIRE_DT placeholders.
   - REACT_APP_QRCODE_APP_DOWNLOAD_URI: URL for the Inji app download.
-  - REACT_APP_QRCODE_ENABLE: Boolean vlaue.
+  - REACT_APP_QRCODE_ENABLE: Boolean value true or false to enable QR code.
   - REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC: Timer on the consent page which will expire in given secs.
   - REACT_APP_SBI_PORT_RANGE: Port range for sbi.
   - REACT_APP_RESEND_OTP_TIMEOUT_IN_SEC: Timer to enable resend OTP button.
