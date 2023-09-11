@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.validation.ConstraintValidatorContext;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
@@ -220,10 +221,11 @@ public class ConsentHelperService {
 
     public boolean verifyConsentSignature (ConsentDetail consentDetail, OIDCTransaction transaction){
         try {
-            String jwtToken = constructJWTObject(consentDetail);
-            if (StringUtils.isEmpty(jwtToken)) {
+            if(!signatureFormatValidator(consentDetail.getSignature())){
+                log.error("signature format is not valid {}",consentDetail.getSignature());
                 return false;
             }
+            String jwtToken = constructJWTObject(consentDetail);
             SignedJWT signedJWT = SignedJWT.parse(jwtToken);
             JWSHeader header = signedJWT.getHeader();
             String thumbPrint = header.getX509CertSHA256Thumbprint().toString();
@@ -234,11 +236,12 @@ public class ConsentHelperService {
                 Certificate certificate = IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
                 PublicKey publicKey = certificate.getPublicKey();
                 JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
-                log.info("signed jwt {} ", signedJWT);
                 if (signedJWT.verify(verifier)) {
+                    log.error("signature verification failed");
                     return true;
                 }
             }
+            log.error("no entry found in public key registry");
             return false;
         } catch (ParseException | JOSEException e) {
             log.error("Failed to verify Signature ", e);
@@ -273,4 +276,8 @@ public class ConsentHelperService {
         return sb.toString();
     }
 
+    private boolean signatureFormatValidator(String signature) {
+        if(signature==null || StringUtils.isEmpty(signature) || signature.split("\\.").length!=2)return false;
+        return true;
+    }
 }

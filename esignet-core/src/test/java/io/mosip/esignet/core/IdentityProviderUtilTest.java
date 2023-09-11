@@ -166,7 +166,7 @@ public class IdentityProviderUtilTest {
 
     @Test
     public void test_generateThumbprintByCertificate()throws EsignetException{
-        String thumbpring="YfRxd-cG6urE1r_Ij7yRwMzt0JHoIadZ-lqkdlE0FYo";
+        String thumbprint="YfRxd-cG6urE1r_Ij7yRwMzt0JHoIadZ-lqkdlE0FYo";
         String certificateString="-----BEGIN CERTIFICATE-----\n" +
                 "MIICrzCCAZegAwIBAgIGAYohPDZlMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
                 "CE1vY2stSURBMB4XDTIzMDgyMzAxNDE0OFoXDTIzMDkwMjAxNDE0OFowHjEcMBoG\n" +
@@ -184,7 +184,7 @@ public class IdentityProviderUtilTest {
                 "cXGZv5rZBqX/uuptptN7HhYD45Ir4ZAyNFlZuPusQvxiSm674bCkV3lN6oH0Jw2/\n" +
                 "dHnX5TRuFoits1+jx3cNSBHmjA==\n" +
                 "-----END CERTIFICATE-----\n";
-        Assert.assertEquals(thumbpring,IdentityProviderUtil.generateCertificateThumbprint(certificateString));
+        Assert.assertEquals(thumbprint,IdentityProviderUtil.generateCertificateThumbprint(certificateString));
         try {
             IdentityProviderUtil.generateCertificateThumbprint("test");
             Assert.fail();

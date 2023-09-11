@@ -52,8 +52,8 @@ public class PublicKeyRegistryRepositoryTest {
 
 		Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryRepository.
 				findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc("test_id_hash","thumbprint",LocalDateTime.now().plus(4,ChronoUnit.DAYS));
-
 		Assert.assertFalse(publicKeyRegistryOptional.isEmpty());
+		Assert.assertEquals(publicKeyRegistryOptional.get(),publicKeyRegistry);
 
 		List<PublicKeyRegistry> list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLA"), LocalDateTime.now());
