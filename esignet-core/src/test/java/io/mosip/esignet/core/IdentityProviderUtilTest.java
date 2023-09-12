@@ -47,8 +47,8 @@ public class IdentityProviderUtilTest {
                 "https://api.dev.mosip.net/home/werrrwqfdsfg5fgs34sdffggdfgsdfg?state=reefdf");
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/t*"),
                 "https://api.dev.mosip.net/home/testament?rr=rrr");
-        IdentityProviderUtil.validateRedirectURI(Arrays.asList("HTTPS://DEV.MOSIP.NET/home"),
-                "https://dev.mosip.net/home");
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("io.mosip.residentapp://oauth"),
+                "io.mosip.residentapp://oauth");
     }
 
     @Test
@@ -86,6 +86,11 @@ public class IdentityProviderUtilTest {
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("test-url"),
                     "https://api.dev.mosip.net/home/TEST1");
+            Assert.fail();
+        } catch (EsignetException e) {}
+        try {
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("HTTPS://DEV.MOSIP.NET/home"),
+                "https://dev.mosip.net/home");
             Assert.fail();
         } catch (EsignetException e) {}
     }

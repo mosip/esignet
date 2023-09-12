@@ -9,8 +9,6 @@ on:
       - master
       - 1.*
       - develop
-      - main
-      - feature-ES-90
   
 jobs:
   call-workflow-codeql-analysis:

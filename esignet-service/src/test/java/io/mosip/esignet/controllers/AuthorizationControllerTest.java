@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -16,6 +17,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
+import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,6 +62,12 @@ public class AuthorizationControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+
+    @MockBean
+    ParsedAccessToken parsedAccessToken;
+
+    @MockBean
+    VCICacheService vciCacheService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -406,7 +414,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withInvalidAcr_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
@@ -505,7 +513,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withOnlyOpenIdScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid");
@@ -556,7 +564,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withOpenIdScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("profile openid");
@@ -583,7 +591,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withOnlyAuthorizeScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("resident-service");
@@ -610,7 +618,7 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getOauthDetailsV2_withAuthorizeAndOpenIdScope_returnSuccessResponse() throws Exception {
-        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid resident-service");

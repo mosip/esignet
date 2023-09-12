@@ -94,6 +94,9 @@ public class AuthorizationHelperService {
     @Value("${mosip.esignet.send-otp.captcha-required:false}")
     private boolean captchaRequired;
 
+    @Value("#{${mosip.esignet.supported.credential.scopes}}")
+    private List<String> credentialScopes;
+
     protected void validateCaptchaToken(String captchaToken) {
         if(!captchaRequired) {
             log.warn("captcha validation is disabled");
@@ -168,6 +171,13 @@ public class AuthorizationHelperService {
                 .collect(Collectors.toList());
     }
 
+    protected List<String> getCredentialScopes(String requestedScopes) {
+        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE);
+        return Arrays.stream(scopes)
+                .filter( s -> credentialScopes.contains(s) )
+                .collect(Collectors.toList());
+    }
+
     protected KycAuthResult delegateAuthenticateRequest(String transactionId, String individualId,
                                                         List<AuthChallenge> challengeList, OIDCTransaction transaction) {
         KycAuthResult kycAuthResult;
@@ -223,14 +233,17 @@ public class AuthorizationHelperService {
         }
     }
 
-    protected void validateAuthorizeScopes(OIDCTransaction transaction, List<String> authorizeScopes) throws EsignetException {
-        if(CollectionUtils.isEmpty(authorizeScopes))
+    protected void validatePermittedScopes(OIDCTransaction transaction, List<String> permittedScopes) throws EsignetException {
+        if(CollectionUtils.isEmpty(permittedScopes))
             return;
 
-        if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()))
+        if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()) &&
+                CollectionUtils.isEmpty(transaction.getRequestedCredentialScopes()))
             throw new EsignetException(INVALID_PERMITTED_SCOPE);
 
-        if(!transaction.getRequestedAuthorizeScopes().containsAll(authorizeScopes))
+        List<String> authorizeScopes = Objects.requireNonNullElse(transaction.getRequestedAuthorizeScopes(), Collections.emptyList());
+        List<String> credentialScopes = Objects.requireNonNullElse(transaction.getRequestedCredentialScopes(), Collections.emptyList());
+        if(!permittedScopes.stream().allMatch(scope -> authorizeScopes.contains(scope) || credentialScopes.contains(scope)))
             throw new EsignetException(INVALID_PERMITTED_SCOPE);
     }
 

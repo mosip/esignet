@@ -14,7 +14,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.esignet</groupId>
 	<artifactId>esignet-parent</artifactId>
-	<version>1.2.0-SNAPSHOT</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>esignet</name>
 	<description>Parent project of MOSIP e-Signet</description>
@@ -62,6 +62,10 @@
             <enabled>false</enabled>
             </snapshots>
         </repository>
+		<repository>
+			<id>danubetech-maven-public</id>
+			<url>https://repo.danubetech.com/repository/maven-public/</url>
+		</repository>
     </repositories>
 
 	<distributionManagement>
@@ -105,6 +109,7 @@
         <module>client-management-service-impl</module>
         <module>oidc-service-impl</module>
 		<module>consent-service-impl</module>
+		<module>vci-service-impl</module>
     </modules>
 
 	<profiles>

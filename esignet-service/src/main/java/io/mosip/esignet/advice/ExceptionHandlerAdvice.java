@@ -8,6 +8,7 @@ package io.mosip.esignet.advice;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OAuthError;
 import io.mosip.esignet.core.dto.ResponseWrapper;
+import io.mosip.esignet.core.dto.vci.VCError;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
@@ -107,6 +108,10 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             return handleOpenIdConnectControllerExceptions(ex);
         }
 
+        if(!isInternalAPI && pathInfo.startsWith("/vci/")) {
+            return handleVCIControllerExceptions(ex);
+        }
+
         return handleInternalControllerException(ex);
     }
 
@@ -176,6 +181,29 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    public ResponseEntity<VCError> handleVCIControllerExceptions(Exception ex) {
+        if(ex instanceof MethodArgumentNotValidException) {
+            FieldError fieldError = ((MethodArgumentNotValidException) ex).getBindingResult().getFieldError();
+            String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
+            return new ResponseEntity<VCError>(getVCErrorDto(message, message), HttpStatus.BAD_REQUEST);
+        }
+        if(ex instanceof ConstraintViolationException) {
+            Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+            String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
+            return new ResponseEntity<VCError>(getVCErrorDto(message, message), HttpStatus.BAD_REQUEST);
+        }
+        if(ex instanceof NotAuthenticatedException) {
+            String errorCode = ((EsignetException) ex).getErrorCode();
+            return new ResponseEntity<VCError>(getVCErrorDto(errorCode, getMessage(errorCode)), HttpStatus.UNAUTHORIZED);
+        }
+        if(ex instanceof InvalidRequestException | ex instanceof EsignetException) {
+            String errorCode = ((EsignetException) ex).getErrorCode();
+            return new ResponseEntity<VCError>(getVCErrorDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
+        }
+        log.error("Unhandled exception encountered in handler advice", ex);
+        return new ResponseEntity<VCError>(getVCErrorDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private ResponseEntity handleExceptionWithHeader(Exception ex) {
         String errorCode = UNKNOWN_ERROR;
         if(ex instanceof NotAuthenticatedException) {
@@ -221,10 +249,17 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     private String getMessage(String errorCode) {
         try {
-            messageSource.getMessage(errorCode, null, Locale.getDefault());
+            messageSource.getMessage(errorCode, null, errorCode, Locale.getDefault());
         } catch (NoSuchMessageException ex) {
             log.error("Message not found in the i18n bundle", ex);
         }
         return errorCode;
+    }
+
+    private VCError getVCErrorDto(String errorCode, String description) {
+        VCError errorRespDto = new VCError();
+        errorRespDto.setError(errorCode);
+        errorRespDto.setError_description(description);
+        return errorRespDto;
     }
 }
