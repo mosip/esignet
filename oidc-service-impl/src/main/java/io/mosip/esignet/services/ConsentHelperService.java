@@ -237,7 +237,6 @@ public class ConsentHelperService {
                 PublicKey publicKey = certificate.getPublicKey();
                 JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
                 if (signedJWT.verify(verifier)) {
-                    log.error("signature verification failed");
                     return true;
                 }
             }
