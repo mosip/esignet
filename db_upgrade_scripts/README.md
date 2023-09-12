@@ -22,6 +22,6 @@
 
 **DBUSER_PWD=** Contains the password for Postgres db common secret
 
-**CURRENT_VERSION=** Contains Current esignet version
+**CURRENT_VERSION=** Contains current esignet version
 
 **UPGRADE_VERSION=** Contains esginet version to upgrade
