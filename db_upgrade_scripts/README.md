@@ -8,24 +8,20 @@
 
 **ACTION=** select action as per the requirement 'upgrade' or 'rollback'
 
-**MOSIP_DB_NAME=** Database name for which the deployment is scheduled.
+**MOSIP_DB_NAME=** Database name for which the 'upgrade' or 'rollback' is scheduled.
 
-**DB_SERVERIP=** Contains details of Destination SERVER_IP(Ex_1: 10.0.0.1) (Ex_2: postgres.sandbox.net) where the deployment is targeted.
+**DB_SERVERIP=** Contains details of Destination Postgres SERVER_IP(Ex_1: 10.0.0.1) (Ex_2: postgres.sandbox.net) where the 'upgrade' or 'rollback' is targeted.
 
-**DB_PORT=** Contains the postgres server port details where the postgres is allowed to connect. Ex: 5433
+**DB_PORT=** Contains the Postgres DB port details where the Postgres is allowed to connect. Ex: 5433
 
-**SU_USER=** Contains the postgres super-user name to connect to the postgres database i.e. postgres
+**SU_USER=** Contains the Postgres Super User name to connect to the postgres database i.e. postgres
 
-**SU_USER_PWD=** Contains the password for postgres super user
-
-**SYS_ADMIN_USER=** Variable contains the sysadmin use name which indeed is going to be the super user for the remaining actions going to be performed by shell script.
-
-**SYS_ADMIN_PWD=** Contains the credential details for SYSADMIN_USER.
+**SU_USER_PWD=** Contains the Super User password
 
 **DEFAULT_DB_NAME=** Default database name to connect with respective postgres server i.e. ex: postgres
 
-**DBUSER_PWD=** Contains the password for postgres db common secret
+**DBUSER_PWD=** Contains the password for Postgres db common secret
 
-**CURRENT_VERSION=** Contains current version
+**CURRENT_VERSION=** Contains Current esignet version
 
-**UPGRADE_VERSION=** Contains upgrade version
+**UPGRADE_VERSION=** Contains esginet version to upgrade
