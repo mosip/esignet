@@ -23,41 +23,41 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 
-function InitiateL1Biometrics(openIDConnectService, handleBackButtonClick) {
+function InitiateL1Biometrics(openIDConnectService, handleMoreWaysToSignIn) {
   return React.createElement(L1Biometrics, {
     param: bioLoginFields,
     authService: new authService(openIDConnectService),
     localStorageService: localStorageService,
     openIDConnectService: openIDConnectService,
     sbiService: new sbiService(openIDConnectService),
-    handleBackButtonClick: handleBackButtonClick,
+    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
   });
 }
 
-function InitiatePin(openIDConnectService, handleBackButtonClick) {
+function InitiatePin(openIDConnectService, handleMoreWaysToSignIn) {
   return React.createElement(Pin, {
     param: pinFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleBackButtonClick: handleBackButtonClick,
+    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
   });
 }
 
-function InitiatePassword(openIDConnectService, handleBackButtonClick) {
+function InitiatePassword(openIDConnectService, handleMoreWaysToSignIn) {
   return React.createElement(Password, {
     param: passwordFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleBackButtonClick: handleBackButtonClick,
+    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
   });
 }
 
-function InitiateOtp(openIDConnectService, handleBackButtonClick) {
+function InitiateOtp(openIDConnectService, handleMoreWaysToSignIn) {
   return React.createElement(Otp, {
     param: otpFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleBackButtonClick: handleBackButtonClick,
+    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
   });
 }
 
@@ -71,13 +71,13 @@ function InitiateSignInOptions(handleSignInOptionClick, openIDConnectService) {
 function InitiateLinkedWallet(
   authFactor,
   openIDConnectService,
-  handleBackButtonClick
+  handleMoreWaysToSignIn
 ) {
   return React.createElement(LoginQRCode, {
     walletDetail: authFactor,
     openIDConnectService: openIDConnectService,
     linkAuthService: new linkAuthService(openIDConnectService),
-    handleBackButtonClick: handleBackButtonClick,
+    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
   });
 }
 
@@ -88,7 +88,7 @@ function InitiateInvalidAuthFactor(errorMsg) {
 function createDynamicLoginElements(
   authFactor,
   oidcService,
-  handleBackButtonClick
+  handleMoreWaysToSignIn
 ) {
   const authFactorType = authFactor.type;
   if (typeof authFactorType === "undefined") {
@@ -98,26 +98,26 @@ function createDynamicLoginElements(
   }
 
   if (authFactorType === validAuthFactors.OTP) {
-    return InitiateOtp(oidcService, handleBackButtonClick);
+    return InitiateOtp(oidcService, handleMoreWaysToSignIn);
   }
 
   if (authFactorType === validAuthFactors.PIN) {
-    return InitiatePin(oidcService, handleBackButtonClick);
+    return InitiatePin(oidcService, handleMoreWaysToSignIn);
   }
 
   if (authFactorType === validAuthFactors.BIO) {
-    return InitiateL1Biometrics(oidcService, handleBackButtonClick);
+    return InitiateL1Biometrics(oidcService, handleMoreWaysToSignIn);
   }
 
   if (authFactorType === validAuthFactors.PWD) {
-    return InitiatePassword(oidcService, handleBackButtonClick);
+    return InitiatePassword(oidcService, handleMoreWaysToSignIn);
   }
 
   if (authFactorType === validAuthFactors.WLA) {
     return InitiateLinkedWallet(
       authFactor,
       oidcService,
-      handleBackButtonClick
+      handleMoreWaysToSignIn
     );
   }
 
@@ -128,8 +128,10 @@ function createDynamicLoginElements(
 export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
   const [compToShow, setCompToShow] = useState(null);
+  const [showMoreOption, setShowMoreOption] = useState(false);
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
+  const [appDownloadURI, setAppDownloadURI] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
@@ -159,27 +161,39 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
+  let value =
+    oidcService.getEsignetConfiguration(
+      configurationKeys.signInWithQRCodeEnable
+    ) ?? process.env.REACT_APP_QRCODE_ENABLE;
+
+  const qrCodeEnable = value?.toString().toLowerCase() === "true";
+
   const handleSignInOptionClick = (authFactor) => {
     //TODO handle multifactor auth
     setCompToShow(
       createDynamicLoginElements(
         authFactor,
         oidcService,
-        handleBackButtonClick
+        handleMoreWaysToSignIn
       )
     );
   };
 
-  const handleBackButtonClick = () => {
+  const handleMoreWaysToSignIn = () => {
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
   };
 
   const loadComponent = () => {
+    setAppDownloadURI(
+      oidcService.getEsignetConfiguration(configurationKeys.appDownloadURI) ??
+      process.env.REACT_APP_QRCODE_APP_DOWNLOAD_URI
+    );
+
     let oAuthDetailResponse = oidcService.getOAuthDetails();
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientName(oAuthDetailResponse?.clientName);
 
-    handleBackButtonClick();
+    handleMoreWaysToSignIn();
   };
 
   return (
@@ -191,6 +205,11 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
         clientName={clientName}
         backgroundImgPath="images/illustration_one.png"
         component={compToShow}
+        handleMoreWaysToSignIn={handleMoreWaysToSignIn}
+        showMoreOption={showMoreOption}
+        linkedWalletComp={InitiateLinkedWallet(oidcService)}
+        appDownloadURI={appDownloadURI}
+        qrCodeEnable={qrCodeEnable}
       />
     </>
   );
