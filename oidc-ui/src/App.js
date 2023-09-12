@@ -99,10 +99,10 @@ function App() {
           <NavHeader langOptions={langOptions} />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<EsignetDetailsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/authorize" element={<AuthorizePage />} />
-              <Route path="/consent" element={<ConsentPage />} />
+              <Route path={process.env.PUBLIC_URL + "/"} element={<EsignetDetailsPage />} />
+              <Route path={process.env.PUBLIC_URL + "/login"} element={<LoginPage />} />
+              <Route path={process.env.PUBLIC_URL + "/authorize"} element={<AuthorizePage />} />
+              <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
             </Routes>
           </BrowserRouter>
         </div>

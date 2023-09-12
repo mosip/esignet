@@ -7,10 +7,12 @@ package io.mosip.esignet.core.dto;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
 public class LinkTransactionResponseV2 extends  LinkTransactionResponse {
 
     private Map<String, String> clientName;
+    private List<String> credentialScopes;
 }

@@ -53,4 +53,8 @@ public class OIDCTransaction implements Serializable {
 
     String oauthDetailsHash;
     ConsentAction consentAction;
+
+    //PKCE support
+    ProofKeyCodeExchange proofKeyCodeExchange;
+    List<String> requestedCredentialScopes;
 }

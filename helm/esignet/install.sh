@@ -27,6 +27,11 @@ function installing_esignet() {
   echo Setting up captcha secrets
   kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
 
+  echo Setting up dummy values for esignet misp license key
+  kubectl create secret generic onboarder-keys -n $NS --from-literal=mosip-esignet-misp-key=111111 --dry-run=client -o yaml | kubectl apply -f -
+
+  ./copy_cm_func.sh secret onboarder-keys esignet config-server
+
   echo Copy configmaps
   ./copy_cm.sh
 
@@ -35,6 +40,7 @@ function installing_esignet() {
 
   kubectl -n config-server set env --keys=esignet-captcha-site-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
   kubectl -n config-server set env --keys=esignet-captcha-secret-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+  kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/onboarder-keys deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
 
   kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
 

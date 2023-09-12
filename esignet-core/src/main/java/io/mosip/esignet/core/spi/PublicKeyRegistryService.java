@@ -6,11 +6,10 @@
 package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.PublicKeyRegistry;
-
 import java.util.Optional;
 
 public interface PublicKeyRegistryService {
 
     Optional<PublicKeyRegistry> findLatestPublicKeyByPsuTokenAndAuthFactor(String psuToken, String authFactor);
-
+    Optional<PublicKeyRegistry> findFirstByIdHashAndThumbprintAndExpiredtimes(String idHash, String thumbPrint);
 }

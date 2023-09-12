@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -72,7 +73,12 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
-    
+
+    @Value("${mosip.esignet.cnonce-expire-seconds:60}")
+    private int cNonceExpireSeconds;
+
+    @Value("#{${mosip.esignet.credential.scope-resource-mapping}}")
+    private Map<String, String> scopesResourceMapping;
     
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
 
@@ -104,7 +110,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public String getAccessToken(OIDCTransaction transaction) {
+    public String getAccessToken(OIDCTransaction transaction, String cNonce) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
         payload.put(SUB, transaction.getPartnerSpecificUserToken());
@@ -112,9 +118,24 @@ public class TokenServiceImpl implements TokenService {
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
-        if(!CollectionUtils.isEmpty(transaction.getPermittedScopes()))
+        if(!CollectionUtils.isEmpty(transaction.getPermittedScopes())) {
             payload.put(SCOPE, String.join(SPACE, transaction.getPermittedScopes()));
+            //AS of now taking only first matched credential scope, need to work on multiple resource support
+            Optional<String> result = Objects.requireNonNullElse(transaction.getRequestedCredentialScopes(), new ArrayList<String>())
+                    .stream()
+                    .filter( scope -> transaction.getPermittedScopes().contains(scope) )
+                    .findFirst();
+            if(result.isPresent()) {
+                payload.put(AUD, scopesResourceMapping.getOrDefault(result.get(), ""));
+            }
+        }
         payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
+        payload.put(CLIENT_ID, transaction.getClientId());
+
+        if(cNonce != null) {
+            payload.put(C_NONCE, cNonce);
+            payload.put(C_NONCE_EXPIRES_IN, cNonceExpireSeconds);
+        }
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
 

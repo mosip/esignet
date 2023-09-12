@@ -9,7 +9,6 @@ on:
       - master
       - 1.*
       - develop
-      - main
   
 jobs:
   call-workflow-codeql-analysis:

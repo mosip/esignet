@@ -54,10 +54,16 @@ public class PublicKeyRegistry {
 	private String publicKeyHash;
 
 	@NotBlank
+	@Column(name = "thumbprint")
+	private String thumbprint;
+
+	@NotBlank
 	@Column(name = "certificate")
 	private String certificate;
 
 	@Column(name = "cr_dtimes")
 	private LocalDateTime createdtimes;
+
+
 
 }

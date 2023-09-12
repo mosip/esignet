@@ -6,6 +6,9 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -17,15 +20,23 @@ import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
+import io.mosip.esignet.core.dto.PublicKeyRegistry;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ConsentService;
+import io.mosip.esignet.core.spi.PublicKeyRegistryService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,7 +50,17 @@ public class ConsentHelperService {
     private ConsentService consentService;
 
     @Autowired
+    PublicKeyRegistryService publicKeyRegistryService;
+
+    @Autowired
+    AuthorizationHelperService authorizationHelperService;
+
+    @Autowired
     private AuditPlugin auditWrapper;
+
+    private final String ACCEPTED_CLAIMS="accepted_claims";
+
+    private final String PERMITTED_AUTHORIZED_SCOPES="permitted_authorized_scopes";
 
     public void processConsent(OIDCTransaction transaction, boolean linked) {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
@@ -66,7 +87,7 @@ public class ConsentHelperService {
     }
 
 
-    public void updateUserConsent(OIDCTransaction transaction, boolean linked, String signature) {
+    public void updateUserConsent(OIDCTransaction transaction, String signature) {
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())
             && transaction.getEssentialClaims().isEmpty()
                 && transaction.getVoluntaryClaims().isEmpty()
@@ -178,6 +199,10 @@ public class ConsentHelperService {
         String hash;
         try {
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
+        if(linked) {
+            if (!verifyConsentSignature(consentDetail,transaction))
+                return ConsentAction.CAPTURE;
+        }
             // defaulting the essential boolean flag as false
             Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
                     .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
@@ -189,6 +214,67 @@ public class ConsentHelperService {
             log.error("Failed to hash the user consent", e);
             throw new EsignetException(ErrorConstants.INVALID_CLAIM);
         }
+        //comparing the new hash with the saved one
         return consentDetail.getHash().equals(hash) ? ConsentAction.NOCAPTURE : ConsentAction.CAPTURE;
+    }
+
+    public boolean verifyConsentSignature (ConsentDetail consentDetail, OIDCTransaction transaction){
+        try {
+            if(!validateSignatureFormat(consentDetail.getSignature())){
+                log.error("signature format is not valid {}",consentDetail.getSignature());
+                return false;
+            }
+            String jwtToken = constructJWTObject(consentDetail);
+            SignedJWT signedJWT = SignedJWT.parse(jwtToken);
+            JWSHeader header = signedJWT.getHeader();
+            String thumbPrint = header.getX509CertSHA256Thumbprint().toString();
+            String idHash = getIndividualIdHash(authorizationHelperService.getIndividualId(transaction));
+            Optional<PublicKeyRegistry> publicKeyRegistryOptional = publicKeyRegistryService.
+                    findFirstByIdHashAndThumbprintAndExpiredtimes(idHash, thumbPrint);
+            if (publicKeyRegistryOptional.isPresent()) {
+                Certificate certificate = IdentityProviderUtil.convertToCertificate(publicKeyRegistryOptional.get().getCertificate());
+                PublicKey publicKey = certificate.getPublicKey();
+                JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
+                if (signedJWT.verify(verifier)) {
+                    return true;
+                }
+            }
+            log.error("no entry found in public key registry");
+            return false;
+        } catch (ParseException | JOSEException e) {
+            log.error("Failed to verify Signature ", e);
+            throw new EsignetException(ErrorConstants.INVALID_AUTH_TOKEN);
+        }
+    }
+
+    public String getIndividualIdHash (String individualId){
+        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId);
+    }
+
+    private String constructJWTObject(ConsentDetail consentDetail) throws ParseException {
+        List<String> acceptedClaims = consentDetail.getAcceptedClaims();
+        List<String> permittedScopes = consentDetail.getPermittedScopes();
+        String jws = consentDetail.getSignature();
+        String[] parts = jws.split("\\.");
+
+        String header = parts[0];
+        String signature = parts[1];
+        if (!CollectionUtils.isEmpty(acceptedClaims))
+            Collections.sort(acceptedClaims);
+        if (!CollectionUtils.isEmpty(permittedScopes))
+            Collections.sort(permittedScopes);
+
+        Map<String, Object> payLoadMap = new TreeMap<>();
+        payLoadMap.put(ACCEPTED_CLAIMS, acceptedClaims);
+        payLoadMap.put(PERMITTED_AUTHORIZED_SCOPES, permittedScopes);
+
+        Payload payload = new Payload(new JSONObject(payLoadMap).toJSONString());
+        StringBuilder sb = new StringBuilder();
+        sb.append(header).append(".").append(payload.toBase64URL()).append(".").append(signature);
+        return sb.toString();
+    }
+
+    private boolean validateSignatureFormat(String signature) {
+        return (StringUtils.isEmpty(signature) || signature.split("\\.").length!=2) ? false:true;
     }
 }

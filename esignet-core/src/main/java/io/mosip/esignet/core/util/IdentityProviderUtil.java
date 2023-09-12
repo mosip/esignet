@@ -5,14 +5,14 @@
  */
 package io.mosip.esignet.core.util;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,6 +21,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.mosip.esignet.core.constants.Constants;
@@ -28,7 +29,11 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.keys.X509Util;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +45,9 @@ import com.nimbusds.jose.util.ByteUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.xml.bind.DatatypeConverter;
+
+import static org.apache.commons.validator.routines.UrlValidator.ALLOW_ALL_SCHEMES;
+import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;
 
 @Slf4j
 public class IdentityProviderUtil {
@@ -54,11 +62,13 @@ public class IdentityProviderUtil {
     private static Base64.Encoder urlSafeEncoder;
     private static Base64.Decoder urlSafeDecoder;
     private static PathMatcher pathMatcher;
+    private static UrlValidator urlValidator;
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
         urlSafeDecoder = Base64.getUrlDecoder();
         pathMatcher = new AntPathMatcher();
+        urlValidator = new UrlValidator(ALLOW_ALL_SCHEMES+ALLOW_LOCAL_URLS);
     }
 
     /**
@@ -105,6 +115,17 @@ public class IdentityProviderUtil {
         try {
             MessageDigest digest = MessageDigest.getInstance(algorithm);
             byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+            return urlSafeEncoder.encodeToString(hash);
+        } catch (NoSuchAlgorithmException ex) {
+            logger.error("Invalid algorithm : {}", algorithm, ex);
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
+        }
+    }
+
+    public static String generateB64EncodedHash(String algorithm, byte[] bytes) throws EsignetException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
+            byte[] hash = digest.digest(bytes);
             return urlSafeEncoder.encodeToString(hash);
         } catch (NoSuchAlgorithmException ex) {
             logger.error("Invalid algorithm : {}", algorithm, ex);
@@ -180,16 +201,8 @@ public class IdentityProviderUtil {
     }
 
     private static boolean matchUri(String registeredUri, String requestedUri) {
-        try {
-            URL registered = new URL(registeredUri);
-            URL requested = new URL(requestedUri);
-            return registered.getProtocol().equalsIgnoreCase(requested.getProtocol()) &&
-                    registered.getHost().equalsIgnoreCase(requested.getHost()) &&
-                    pathMatcher.match(registered.getFile(), requested.getFile());
-        } catch (MalformedURLException e) {
-            log.error("Invalid redirect URLs found during validation", e);
-        }
-        return false;
+        return (urlValidator.isValid(registeredUri) && urlValidator.isValid(requestedUri))
+                && pathMatcher.match(registeredUri, requestedUri);
     }
     
 	public static byte[] generateSalt(int bytes) {
@@ -217,5 +230,31 @@ public class IdentityProviderUtil {
         } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
             throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
+    }
+
+    public static Certificate convertToCertificate(String certData) {
+        try {
+            StringReader strReader = new StringReader(certData);
+            PemReader pemReader = new PemReader(strReader);
+            PemObject pemObject = pemReader.readPemObject();
+            if (Objects.isNull(pemObject)) {
+                throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
+            }
+            byte[] certBytes = pemObject.getContent();
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            return certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
+        } catch (IOException | CertificateException e) {
+            throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
+        }
+    }
+
+    public static String generateCertificateThumbprint(String cerifacate)
+    {
+        Object certObj = convertToCertificate(cerifacate);
+        if (certObj instanceof X509Certificate) {
+            X509Certificate certificate = (X509Certificate) certObj;
+            return X509Util.x5tS256(certificate);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
     }
 }
