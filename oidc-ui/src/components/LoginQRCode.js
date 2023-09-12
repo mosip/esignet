@@ -8,6 +8,7 @@ import {
   deepLinkParamPlaceholder,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
+import { isOnMobile } from "../services/utilService";
 
 var linkAuthTriggered = false;
 
@@ -15,7 +16,7 @@ export default function LoginQRCode({
   walletDetail,
   linkAuthService,
   openIDConnectService,
-  handleBackButtonClick,
+  handleMoreWaysToSignIn,
   i18nKeyPrefix = "LoginQRCode",
 }) {
   const post_GenerateLinkCode = linkAuthService.post_GenerateLinkCode;
@@ -27,6 +28,7 @@ export default function LoginQRCode({
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [error, setError] = useState(null);
   const [qrCodeTimeOut, setQrCodeTimeout] = useState();
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   const linkedTransactionExpireInSec =
     openIDConnectService.getEsignetConfiguration(
@@ -46,6 +48,11 @@ export default function LoginQRCode({
       ? parseInt(qrCodeBufferInSecs)
       : process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
+  console.log(
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.walletLogoURL
+    )
+  );
   const walletLogoURL =
     walletDetail["wallet.logo-url"] ?? process.env.REACT_APP_WALLET_LOGO_URL;
 
@@ -92,12 +99,16 @@ export default function LoginQRCode({
           logo.onload = () => {
             const ctx = canvas.getContext("2d");
             const size = canvas.width / 6;
+            console.log({ size });
             const x = (canvas.width - size) / 2;
             const y = (canvas.height - size) / 2;
+            console.log({ x, y });
             // Create a new canvas to filter the logo image
             const filterCanvas = document.createElement("canvas");
             filterCanvas.width = logo.width;
             filterCanvas.height = logo.height;
+            console.log(filterCanvas.width);
+            console.log(filterCanvas.height);
             const filterCtx = filterCanvas.getContext("2d");
             filterCtx.drawImage(logo, 0, 0);
             ctx.fillStyle = "#000000";
@@ -105,6 +116,7 @@ export default function LoginQRCode({
             // Draw the filtered image onto the QR code canvas
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(200, 200, 100, 100);
+            console.log({ ctx });
             ctx.drawImage(filterCanvas, x, y, size, size);
             setQr(canvas.toDataURL());
           };
@@ -123,6 +135,7 @@ export default function LoginQRCode({
   useEffect(() => {
     fetchQRCode();
 
+    setIsMobileDevice(isOnMobile());
     return () => {
       //clearing timeout before component unmount
       clearTimeout(qrCodeTimeOut);
@@ -261,7 +274,6 @@ export default function LoginQRCode({
           setStatus({
             state: states.LOADING,
             msg: "link_auth_waiting",
-            msgParam: {walletName: walletDetail["wallet.name"]},
           });
           triggerLinkAuth(transactionId, linkCode);
         }
@@ -357,12 +369,26 @@ export default function LoginQRCode({
     }
   };
 
+  const openWalletApp = () => {
+    let w = null;
+    try {
+      w = window.open(walletDetail["wallet.deep-link-uri"], "_blank");
+    } catch (error) {
+      console.error("There is some issue while opening app");
+    }
+    if (w) {
+      window.close();
+    } else {
+      window.location = walletDetail["wallet.download-uri"];
+    }
+  };
+
   return (
     <>
       <div className="grid grid-cols-8 items-center">
         <div className="h-6 items-center text-center flex items-start">
           <button
-            onClick={() => handleBackButtonClick()}
+            onClick={() => handleMoreWaysToSignIn()}
             className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
           >
             &#8592;
@@ -413,17 +439,25 @@ export default function LoginQRCode({
         {status.state === states.LOADING && error === null && (
           <div className="absolute bottom-0 left-0 bg-white bg-opacity-80 h-full w-full flex justify-center items-center">
             <div className="rounded h-min bg-slate-50 w-full p-3 mx-4">
-              <LoadingIndicator
-                size="medium"
-                message={status.msg}
-                msgParam={status.msgParam}
-              />
+              <LoadingIndicator size="medium" message={status.msg} />
             </div>
           </div>
         )}
       </div>
 
       {/**footer */}
+      {isMobileDevice && (
+        <div className="text-center mt-4">
+          <button
+            onClick={openWalletApp}
+            className="w-full justify-center text-white bg-[#0953FA] hover:bg-[#0953FA]/90 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center mr-2 mb-2"
+          >
+            {t("open_wallet_app", {
+              walletName: walletDetail["wallet.name"],
+            })}
+          </button>
+        </div>
+      )}
       <div className="row-span-1 mt-5 mb-2">
         <div>
           <p className="text-center text-black-600 font-semibold">

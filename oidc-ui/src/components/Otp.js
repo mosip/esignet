@@ -12,7 +12,7 @@ export default function Otp({
   param,
   authService,
   openIDConnectService,
-  handleBackButtonClick,
+  handleMoreWaysToSignIn,
   i18nKeyPrefix = "otp",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -35,7 +35,7 @@ export default function Otp({
             onClick={() => {
               otpStatus === OTPStatusEnum.verifyOtp
                 ? setOtpStatus(OTPStatusEnum.getOtp)
-                : handleBackButtonClick();
+                : handleMoreWaysToSignIn();
             }}
             className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
           >

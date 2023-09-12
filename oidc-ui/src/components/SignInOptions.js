@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { configurationKeys } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
-import { getAllAuthFactors } from "../services/walletService";
+import { getAllAuthFactors } from "../services/utilService";
 
 export default function SignInOptions({
   openIDConnectService,
@@ -35,6 +35,7 @@ export default function SignInOptions({
       ) ?? process.env.REACT_APP_WALLET_CONFIG;
 
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
+    console.log({ loginOptions });
 
     setSinginOptions(loginOptions);
     setShowMoreOptions(loginOptions.length > 4 && loginOptions.length !== 5);
@@ -82,22 +83,14 @@ export default function SignInOptions({
 
       {showMoreOptions && (
         <div
-          className="text-center cursor-pointer font-medium text-[#0953FA] mt-3 flex flex-row rtl:flex-row-reverse items-center justify-center"
+          className="text-center font-medium text-[#0953FA]"
           onClick={() => setShowMoreOptions(false)}
         >
-          <span className="mr-2 rtl:ml-2">{t("more_ways_to_sign_in")}</span>
-          <span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="1em"
-              viewBox="0 0 512 512"
-            >
-              <path
-                className="fill-[#0953FA]"
-                d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
-              />
-            </svg>
-          </span>
+          {t("more_ways_to_sign_in")}
+          {/* <span className="mx-2 text-[#0953FA]">{"\u2304"}</span>
+          <span className="mx-2 text-[#0953FA]">{"\u02C5"}</span> */}
+          <span className="mx-2 text-[#0953FA] font-[100  0] text-xs">{"\u22C1"}</span>
+          
         </div>
       )}
     </>
