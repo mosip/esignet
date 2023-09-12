@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 @Slf4j
@@ -32,5 +34,21 @@ public class PublicKeyRegistryServiceImpl implements PublicKeyRegistryService {
             return Optional.of(publicKeyRegistry);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<PublicKeyRegistry> findFirstByIdHashAndThumbprintAndExpiredtimes(String idHash, String thumbPrint) {
+        Optional<io.mosip.esignet.entity.PublicKeyRegistry> optionalPublicKeyRegistry=publicKeyRegistryRepository
+                .findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(idHash,thumbPrint,LocalDateTime.now(ZoneOffset.UTC));
+        if(optionalPublicKeyRegistry.isPresent()) {
+            PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+            publicKeyRegistry.setPublicKey(optionalPublicKeyRegistry.get().getPublicKey());
+            publicKeyRegistry.setPsuToken(optionalPublicKeyRegistry.get().getPsuToken());
+            publicKeyRegistry.setAuthFactor(optionalPublicKeyRegistry.get().getAuthFactor());
+            publicKeyRegistry.setCertificate(optionalPublicKeyRegistry.get().getCertificate());
+            return Optional.of(publicKeyRegistry);
+        }
+        return Optional.empty();
+
     }
 }
