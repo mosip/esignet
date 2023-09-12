@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.validation.ConstraintValidatorContext;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
@@ -221,7 +220,7 @@ public class ConsentHelperService {
 
     public boolean verifyConsentSignature (ConsentDetail consentDetail, OIDCTransaction transaction){
         try {
-            if(!signatureFormatValidator(consentDetail.getSignature())){
+            if(!validateSignatureFormat(consentDetail.getSignature())){
                 log.error("signature format is not valid {}",consentDetail.getSignature());
                 return false;
             }
@@ -275,8 +274,7 @@ public class ConsentHelperService {
         return sb.toString();
     }
 
-    private boolean signatureFormatValidator(String signature) {
-        if(signature==null || StringUtils.isEmpty(signature) || signature.split("\\.").length!=2)return false;
-        return true;
+    private boolean validateSignatureFormat(String signature) {
+        return (StringUtils.isEmpty(signature) || signature.split("\\.").length!=2) ? false:true;
     }
 }

@@ -37,6 +37,7 @@ public class PublicKeyRegistryServiceImplTest {
         Assert.assertEquals(publicKeyRegistryOptional.get().getPublicKey(),publicKeyRegistry.getPublicKey());
         Assert.assertEquals(publicKeyRegistryOptional.get().getPsuToken(),publicKeyRegistry.getPsuToken());
     }
+
     @Test
     public void findLatestPublicKeyByPsuTokenAndAuthFactor_WithInValidDetail_ThenFail(){
         Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.empty());
@@ -59,6 +60,7 @@ public class PublicKeyRegistryServiceImplTest {
         Assert.assertEquals(publicKeyRegistryOptional.get().getPublicKey(),publicKeyRegistry.getPublicKey());
         Assert.assertEquals(publicKeyRegistryOptional.get().getPsuToken(),publicKeyRegistry.getPsuToken());
     }
+
     @Test
     public void findFirstByIdHashAndThumbprintAndExpiredtimes_WithInValidDetail_ThenFail(){
         Mockito.when(publicKeyRegistryRepository.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.anyString(),Mockito.anyString(),Mockito.any())).thenReturn(Optional.empty());

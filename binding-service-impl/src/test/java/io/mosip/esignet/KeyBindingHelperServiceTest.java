@@ -36,7 +36,7 @@ import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KE
 @RunWith(MockitoJUnitRunner.class)
 public class KeyBindingHelperServiceTest {
 
-    private static final String cerificateString="-----BEGIN CERTIFICATE-----\n" +
+    private static final String certificateString="-----BEGIN CERTIFICATE-----\n" +
             "MIICrzCCAZegAwIBAgIGAYk++jfeMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
             "CE1vY2stSURBMB4XDTIzMDcxMDAzMTUzM1oXDTIzMDcyMDAzMTUzM1owHjEcMBoG\n" +
             "A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP\n" +
@@ -82,13 +82,13 @@ public class KeyBindingHelperServiceTest {
         Mockito.when(keymanagerUtil.convertToCertificate(Mockito.anyString())).thenReturn(certificate);
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
         publicKeyRegistry.setWalletBindingId("wallet-binding-id");
-        publicKeyRegistry.setCertificate(cerificateString);
+        publicKeyRegistry.setCertificate(certificateString);
         Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),
                 Mockito.anyString())).thenReturn(Optional.of(publicKeyRegistry));
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(publicKeyRegistry);
 
         publicKeyRegistry = keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
-                cerificateString, "WLA");
+                certificateString, "WLA");
         Assert.assertNotNull(publicKeyRegistry);
     }
 
@@ -116,7 +116,7 @@ public class KeyBindingHelperServiceTest {
                 Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(new PublicKeyRegistry());
         Assert.assertNotNull(keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
-                cerificateString, "WLA"));
+                certificateString, "WLA"));
     }
 
     private X509Certificate getCertificate(JWK jwk) throws Exception {

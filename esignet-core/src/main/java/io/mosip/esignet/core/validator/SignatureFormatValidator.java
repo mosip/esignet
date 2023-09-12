@@ -9,7 +9,6 @@ public class SignatureFormatValidator implements ConstraintValidator<SignatureFo
 
     @Override
     public boolean isValid(String signature, ConstraintValidatorContext context) {
-        if(signature==null || StringUtils.isEmpty(signature) || signature.split("\\.").length!=2)return false;
-        return true;
+        return  (StringUtils.isEmpty(signature) || signature.split("\\.").length!=2) ? false : true;
     }
 }
