@@ -74,12 +74,15 @@
   "LoginQRCode": {
     "sign_in_with_inji": "Login with Inji",
     "scan_with_inji": "Scan with Inji App to Log In",
+    "scan_with_wallet": "Scan with {{walletName}} App to Log In",
     "inji_app": "Inji App",
     "dont_have_inji": "Don't Have Inji?",
+    "dont_have_wallet": "Don't Have {{walletName}}?",
     "download_now": "Download Now",
     "link_code_status": "Link Code Status",
     "failed": "Failed",
-    "refresh": "Refresh QR Code"
+    "refresh": "Refresh QR Code",
+    "open_wallet_app": "Open {{walletName}} App"
   },
   "otp": {
     "sign_in_with_otp": "Login with OTP",
@@ -109,7 +112,9 @@
     "QRCode": "QR Code",
     "WALLET": "Inji",
     "OTP": "OTP",
-    "PWD": "Password"
+    "PWD": "Password",
+    "preferred_mode_of_login": "Select a preferred mode of login",
+    "more_ways_to_sign_in": "More ways to sign in"
   },
   "esignetDetails": {
     "esignet_details_heading": "Esignet wellknown APIs",

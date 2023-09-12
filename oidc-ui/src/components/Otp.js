@@ -12,6 +12,7 @@ export default function Otp({
   param,
   authService,
   openIDConnectService,
+  handleMoreWaysToSignIn,
   i18nKeyPrefix = "otp",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -29,20 +30,23 @@ export default function Otp({
   return (
     <>
       <div className="grid grid-cols-8 items-center">
-        {otpStatus === OTPStatusEnum.verifyOtp && (
-          <div className="h-6 items-center text-center flex items-start">
-            <button
-              onClick={() => {
-                setOtpStatus(OTPStatusEnum.getOtp);
-              }}
-              className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
-            >
-              &#8701;
-            </button>
-          </div>
-        )}
+        <div className="h-6 items-center text-center flex items-start">
+          <button
+            onClick={() => {
+              otpStatus === OTPStatusEnum.verifyOtp
+                ? setOtpStatus(OTPStatusEnum.getOtp)
+                : handleMoreWaysToSignIn();
+            }}
+            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+          >
+            &#8592;
+          </button>
+        </div>
         <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1 className="text-center text-sky-600 font-semibold line-clamp-2" title={t("sign_in_with_otp")}>
+          <h1
+            className="text-center text-sky-600 font-semibold line-clamp-2"
+            title={t("sign_in_with_otp")}
+          >
             {t("sign_in_with_otp")}
           </h1>
         </div>

@@ -22,6 +22,7 @@ export default function Password({
   param,
   authService,
   openIDConnectService,
+  handleMoreWaysToSignIn,
   i18nKeyPrefix = "password",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -35,10 +36,11 @@ export default function Password({
   const [status, setStatus] = useState(states.LOADED);
 
   const passwordRegexValue =
-    openIDConnectService.getEsignetConfiguration(configurationKeys.passwordRegex) ??
-    process.env.REACT_APP_PASSWORD_REGEX;
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.passwordRegex
+    ) ?? process.env.REACT_APP_PASSWORD_REGEX;
 
-  const passwordRegex = new RegExp(passwordRegexValue)
+  const passwordRegex = new RegExp(passwordRegexValue);
 
   const navigate = useNavigate();
 
@@ -64,7 +66,7 @@ export default function Password({
       if (!passwordRegex.test(challenge)) {
         setError({
           defaultMsg: "Password Invalid",
-          errorCode: "password_error_msg"
+          errorCode: "password_error_msg",
         });
         return;
       }
@@ -124,12 +126,25 @@ export default function Password({
 
   return (
     <>
-      <h1
-        className="text-center text-sky-600 font-semibold line-clamp-2"
-        title={t("sign_in_with_password")}
-      >
-        {t("sign_in_with_password")}
-      </h1>
+      <div className="grid grid-cols-8 items-center">
+        <div className="h-6 items-center text-center flex items-start">
+          <button
+            onClick={() => handleMoreWaysToSignIn()}
+            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+          >
+            &#8592;
+          </button>
+        </div>
+        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+          <h1
+            className="text-center text-sky-600 font-semibold line-clamp-2"
+            title={t("sign_in_with_password")}
+          >
+            {t("sign_in_with_password")}
+          </h1>
+        </div>
+      </div>
+
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         {fields.map((field) => (
           <div className="-space-y-px">
@@ -146,11 +161,16 @@ export default function Password({
               placeholder={t(field.placeholder)}
               imgPath={
                 field.type === "password" ? null : "images/photo_scan.png"
-              } />
+              }
+            />
           </div>
         ))}
 
-        <FormAction type={buttonTypes.submit} text={t("login")} id="verify_password"/>
+        <FormAction
+          type={buttonTypes.submit}
+          text={t("login")}
+          id="verify_password"
+        />
       </form>
       {status === states.LOADING && (
         <div>
