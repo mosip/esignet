@@ -30,8 +30,6 @@ create table consent_detail (
     CONSTRAINT unique_client_token UNIQUE (client_id, psu_token)
 );
 
-CREATE INDEX IF NOT EXISTS idx_consent_psu_client ON consent_detail(psu_token, client_id);
-
 COMMENT ON TABLE consent_detail IS 'Contains user consent details';
 
 COMMENT ON COLUMN consent_detail.id IS 'UUID : Unique id associated with each consent';
