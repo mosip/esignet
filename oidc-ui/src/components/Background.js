@@ -42,16 +42,16 @@ export default function Background({
             </div>
           </div>
           <div className="rounded overflow-hidden shadow-lg py-4 w-full md:w-3/6 sm:w-1/2 sm:max-w-sm lg:ml-auto md:ml-auto">
-            <div className="lg:flex-grow lg:px-5 md:px-4 sm:px-3 px-3 flex flex-col">
+            <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3">
               <div className="w-full">
                 <h1 className="flex text-center justify-center title-font sm:text-3xl text-3xl mb-3 font-medium text-gray-900">
                   {heading}
                 </h1>
               </div>
               <div className="w-full flex mb-4 justify-center items-center">
-                <img className="h-12" src={clientLogoPath} alt={clientName} />
+                <img className="h-20 w-32 object-contain" src={clientLogoPath} alt={clientName} />
                 <span className="text-5xl flex mx-5">&#8651;</span>
-                <img className="h-12" src={logoPath} alt={t("logo_alt")} />
+                <img className="h-20 w-32 object-contain" src={logoPath} alt={t("logo_alt")} />
               </div>
             </div>
           </div>
