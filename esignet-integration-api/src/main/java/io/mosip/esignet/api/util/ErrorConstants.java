@@ -17,5 +17,7 @@ public class ErrorConstants {
     public static final String INVALID_CHALLENGE_FORMAT = "invalid_challenge_format";
     public static final String BINDING_AUTH_FAILED = "binding_auth_failed";
     public static final String VCI_EXCHANGE_FAILED = "vci_exchange_failed";
-    public static final String NOT_IMPLEMENTED = "not_implemented";
+
+
+
 }
