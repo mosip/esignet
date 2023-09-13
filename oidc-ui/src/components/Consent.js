@@ -15,6 +15,7 @@ export default function Consent({
   openIDConnectService,
   logoPath = "logo.png",
   i18nKeyPrefix = "consent",
+  backgroundImgPath
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -365,13 +366,21 @@ export default function Consent({
 
   return (
     <div className="flex items-center justify-center">
-      <div className="max-w-md w-full shadow-lg mt-5 rounded bg-[#F8F8F8] px-4 py-4">
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="flex justify-center items-center">
-            <img className="h-20" src={clientLogoPath} alt={clientName} />
-            <span className="text-6xl flex mx-5">&#8651;</span>
-            <img className="h-20" src={logoPath} alt={t("logo_alt")} />
-          </div>
+      <img
+        className="object-contain hidden sm:block"
+        alt={t("backgroud_image_alt")}
+        src={backgroundImgPath}
+      />
+      <div className="sm:max-w-md w-full sm:shadow-lg sm:mt-5 rounded-lg bg-white p-4 relative">
+        <div className="bg-red-50 rounded-t-lg absolute top-0 left-0 right-0 p-2">
+          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
+            <div className="text-center">
+              <p className="text-gray-600 font-semibold">{t("transaction_timeout_msg")}</p>
+              <p className="font-bold text-orange-400">{formatTime(timeLeft)} </p>
+            </div>
+          )}
+        </div>
+        <form className="space-y-4 mt-12" onSubmit={handleSubmit}>
           <div className="flex justify-center">
             <b>
               {t("consent_request_msg", {
@@ -383,61 +392,63 @@ export default function Consent({
             (claimScope) =>
               claimScope?.values?.length > 0 && (
                 <div key={claimScope.label}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex justify-start">
-                      <div className="font-semibold">
-                        {t(claimScope.label)}
-                        <button
-                          id={claimScope.tooltip}
-                          className="ml-1 text-sky-600 text-xl"
-                          data-tooltip-content={t(claimScope.tooltip)}
-                          data-tooltip-place="top"
-                          onClick={(e) => {
-                            e.preventDefault();
-                          }}
-                          role="tooltip"
-                        >
-                          &#9432;
-                        </button>
-                        <ReactTooltip anchorId={claimScope.tooltip} />
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      {!claimScope?.required &&
-                        claimScope.values.length > 1 &&
-                        sliderButtonDiv(claimScope.label, (e) =>
-                          selectUnselectAllScopeClaim(e, claimScope, true)
-                        )}
-                    </div>
-                  </div>
-
-                  <div className="divide-y">
-                    {claimScope?.values?.map((item) => (
-                      <div key={item}>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="flex justify-start relative items-center mb-1 mt-1">
-                            <label className="ml-3 text-sm text-black-900">
-                              {t(item)}
-                            </label>
-                          </div>
-                          <div className="flex justify-end">
-                            {claimScope?.required && (
-                              <label
-                                labelfor={item}
-                                className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
-                              >
-                                {t("required")}
-                              </label>
-                            )}
-                            {!claimScope?.required &&
-                              sliderButtonDiv(item, (e) =>
-                                selectUnselectAllScopeClaim(e, claimScope)
-                              )}
-                          </div>
+                  <ul className="list-disc marker:text-gray-400 ml-4 mr-4">
+                    <li className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4 gap-4">
+                      <div className="flex sm:justify-start">
+                        <div className="font-semibold">
+                          {t(claimScope.label)}
+                          <button
+                            id={claimScope.tooltip}
+                            className="ml-1 text-sky-600 text-xl"
+                            data-tooltip-content={t(claimScope.tooltip)}
+                            data-tooltip-place="top"
+                            onClick={(e) => {
+                              e.preventDefault();
+                            }}
+                            role="tooltip"
+                          >
+                            &#9432;
+                          </button>
+                          <ReactTooltip anchorId={claimScope.tooltip} />
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex justify-end">
+                        {!claimScope?.required &&
+                          claimScope.values.length > 1 &&
+                          sliderButtonDiv(claimScope.label, (e) =>
+                            selectUnselectAllScopeClaim(e, claimScope, true)
+                          )}
+                      </div>
+                    </li>
+
+                    <div className="divide-y">
+                      {claimScope?.values?.map((item) => (
+                        <li key={item}>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex justify-start relative items-center mb-1 mt-1">
+                              <label className="ml-3 text-sm text-black-900">
+                                {t(item)}
+                              </label>
+                            </div>
+                            <div className="flex justify-end">
+                              {claimScope?.required && (
+                                <label
+                                  labelfor={item}
+                                  className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
+                                >
+                                  {t("required")}
+                                </label>
+                              )}
+                              {!claimScope?.required &&
+                                sliderButtonDiv(item, (e) =>
+                                  selectUnselectAllScopeClaim(e, claimScope)
+                                )}
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </div>
+                  </ul>
                 </div>
               )
           )}
@@ -449,30 +460,22 @@ export default function Consent({
             </div>
           }
           {status !== LoadingStates.LOADING && (
-            <div className="grid grid-cols-2 gap-4">
-              <FormAction
-                type={buttonTypes.cancel}
-                text={t("cancel")}
-                handleClick={handleCancel}
-                id="cancel"
-              />
+            <div className="grid">
               <FormAction
                 type={buttonTypes.button}
                 text={t("continue")}
                 handleClick={handleSubmit}
                 id="continue"
               />
+              <FormAction
+                type={buttonTypes.cancel}
+                text={t("cancel")}
+                handleClick={handleCancel}
+                id="cancel"
+              />
             </div>
           )}
         </form>
-        <div className="mt-4">
-          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
-            <div className="text-center">
-              <p className="text-gray-600">{t("transaction_timeout_msg")}</p>
-              <p className="font-semibold">{formatTime(timeLeft)} </p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
