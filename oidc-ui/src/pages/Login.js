@@ -23,41 +23,41 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 
-function InitiateL1Biometrics(openIDConnectService, handleMoreWaysToSignIn) {
+function InitiateL1Biometrics(openIDConnectService, handleBackButtonClick) {
   return React.createElement(L1Biometrics, {
     param: bioLoginFields,
     authService: new authService(openIDConnectService),
     localStorageService: localStorageService,
     openIDConnectService: openIDConnectService,
     sbiService: new sbiService(openIDConnectService),
-    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
+    handleBackButtonClick: handleBackButtonClick,
   });
 }
 
-function InitiatePin(openIDConnectService, handleMoreWaysToSignIn) {
+function InitiatePin(openIDConnectService, handleBackButtonClick) {
   return React.createElement(Pin, {
     param: pinFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
+    handleBackButtonClick: handleBackButtonClick,
   });
 }
 
-function InitiatePassword(openIDConnectService, handleMoreWaysToSignIn) {
+function InitiatePassword(openIDConnectService, handleBackButtonClick) {
   return React.createElement(Password, {
     param: passwordFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
+    handleBackButtonClick: handleBackButtonClick,
   });
 }
 
-function InitiateOtp(openIDConnectService, handleMoreWaysToSignIn) {
+function InitiateOtp(openIDConnectService, handleBackButtonClick) {
   return React.createElement(Otp, {
     param: otpFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
+    handleBackButtonClick: handleBackButtonClick,
   });
 }
 
@@ -71,13 +71,13 @@ function InitiateSignInOptions(handleSignInOptionClick, openIDConnectService) {
 function InitiateLinkedWallet(
   authFactor,
   openIDConnectService,
-  handleMoreWaysToSignIn
+  handleBackButtonClick
 ) {
   return React.createElement(LoginQRCode, {
     walletDetail: authFactor,
     openIDConnectService: openIDConnectService,
     linkAuthService: new linkAuthService(openIDConnectService),
-    handleMoreWaysToSignIn: handleMoreWaysToSignIn,
+    handleBackButtonClick: handleBackButtonClick,
   });
 }
 
@@ -88,7 +88,7 @@ function InitiateInvalidAuthFactor(errorMsg) {
 function createDynamicLoginElements(
   authFactor,
   oidcService,
-  handleMoreWaysToSignIn
+  handleBackButtonClick
 ) {
   const authFactorType = authFactor.type;
   if (typeof authFactorType === "undefined") {
@@ -98,26 +98,26 @@ function createDynamicLoginElements(
   }
 
   if (authFactorType === validAuthFactors.OTP) {
-    return InitiateOtp(oidcService, handleMoreWaysToSignIn);
+    return InitiateOtp(oidcService, handleBackButtonClick);
   }
 
   if (authFactorType === validAuthFactors.PIN) {
-    return InitiatePin(oidcService, handleMoreWaysToSignIn);
+    return InitiatePin(oidcService, handleBackButtonClick);
   }
 
   if (authFactorType === validAuthFactors.BIO) {
-    return InitiateL1Biometrics(oidcService, handleMoreWaysToSignIn);
+    return InitiateL1Biometrics(oidcService, handleBackButtonClick);
   }
 
   if (authFactorType === validAuthFactors.PWD) {
-    return InitiatePassword(oidcService, handleMoreWaysToSignIn);
+    return InitiatePassword(oidcService, handleBackButtonClick);
   }
 
   if (authFactorType === validAuthFactors.WLA) {
     return InitiateLinkedWallet(
       authFactor,
       oidcService,
-      handleMoreWaysToSignIn
+      handleBackButtonClick
     );
   }
 
@@ -165,12 +165,12 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       createDynamicLoginElements(
         authFactor,
         oidcService,
-        handleMoreWaysToSignIn
+        handleBackButtonClick
       )
     );
   };
 
-  const handleMoreWaysToSignIn = () => {
+  const handleBackButtonClick = () => {
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
   };
 
@@ -179,7 +179,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientName(oAuthDetailResponse?.clientName);
 
-    handleMoreWaysToSignIn();
+    handleBackButtonClick();
   };
 
   return (
