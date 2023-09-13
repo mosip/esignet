@@ -72,8 +72,6 @@
     "password_placeholder": "Password"
   },
   "LoginQRCode": {
-    "sign_in_with_inji": "Login with Inji",
-    "scan_with_inji": "Scan with Inji App to Log In",
     "scan_with_wallet": "Scan with {{walletName}} App to Log In",
     "dont_have_wallet": "Don't Have {{walletName}}?",
     "download_now": "Download Now",
@@ -104,11 +102,9 @@
     "login_option_heading": "Choose How You Want to Login:",
     "login_with": "Login with {{option}}",
     "PIN": "PIN",
-    "Inji": "Inji",
     "Biometrics": "Biometrics",
     "BIO": "Biometrics",
     "QRCode": "QR Code",
-    "WALLET": "Inji",
     "OTP": "OTP",
     "PWD": "Password",
     "preferred_mode_of_login": "Select a preferred mode of login",
@@ -124,9 +120,6 @@
     "login_linkName": "Preregister",
     "more_ways_to_sign_in": "More Ways to Login",
     "invalid_auth_factor": "Invalid Auth Factors. Please Try Again...",
-    "here_tab_name": "Log In Here",
-    "inji_tab_name": "Log In with Inji",
-    "dont_have_inji": "Don't Have Inji?",
     "download_now": "Download Now",
     "logo_alt": "e-Signet",
     "backgroud_image_alt": "Sign in with e-Signet",
@@ -134,7 +127,6 @@
   },
   "tabs": {
     "pin_tab_name": "Login with PIN",
-    "inji_tab_name": "Login with Inji",
     "biometric_tab_name": "Login with Biometrics"
   },
   "loadingMsgs": {
