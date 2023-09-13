@@ -1,11 +1,5 @@
 import { validAuthFactors } from "../constants/clientConstants";
 
-const isOnMobile = () => {
-  const mobileRegex =
-    /(Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone)/i;
-  return mobileRegex.test(window.navigator.userAgent);
-};
-
 const modalityIconPath = {
   PIN: "images/otp_icon.svg",
   OTP: "images/otp_icon.svg",
@@ -47,4 +41,4 @@ const getAllAuthFactors = (authFactors, wlaList) => {
   return loginOptions;
 }
 
-export { isOnMobile, wlaToAuthfactor, toAuthfactor, getAllAuthFactors };
+export { wlaToAuthfactor, toAuthfactor, getAllAuthFactors };

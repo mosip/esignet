@@ -18,7 +18,7 @@ export default function L1Biometrics({
   param,
   authService,
   openIDConnectService,
-  handleMoreWaysToSignIn,
+  handleBackButtonClick,
   i18nKeyPrefix = "l1Biometrics",
 }) {
   const { i18n, t } = useTranslation("translation", {
@@ -216,7 +216,7 @@ export default function L1Biometrics({
       <div className="grid grid-cols-8 items-center">
         <div className="h-6 items-center text-center flex items-start">
           <button
-            onClick={() => handleMoreWaysToSignIn()}
+            onClick={() => handleBackButtonClick()}
             className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
           >
             &#8592;
