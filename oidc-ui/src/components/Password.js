@@ -22,7 +22,7 @@ export default function Password({
   param,
   authService,
   openIDConnectService,
-  handleMoreWaysToSignIn,
+  handleBackButtonClick,
   i18nKeyPrefix = "password",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -129,7 +129,7 @@ export default function Password({
       <div className="grid grid-cols-8 items-center">
         <div className="h-6 items-center text-center flex items-start">
           <button
-            onClick={() => handleMoreWaysToSignIn()}
+            onClick={() => handleBackButtonClick()}
             className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
           >
             &#8592;
