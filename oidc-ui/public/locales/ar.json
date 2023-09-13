@@ -72,11 +72,7 @@
     "password_placeholder": "كلمة المرور"
   },
   "LoginQRCode": {
-    "sign_in_with_inji": "تسجيل الدخول باستخدام Inji",
-    "scan_with_inji": "امسح باستخدام تطبيق Inji لتسجيل الدخول",
     "scan_with_wallet": "امسح باستخدام تطبيق {{walletName}} لتسجيل الدخول",
-    "inji_app": "تطبيق إنجي",
-    "dont_have_inji": "ليس لديك إنجي؟",
     "dont_have_wallet": "؟{{walletName}} ليس لديك",
     "download_now": "التحميل الان",
     "link_code_status": "حالة رمز الارتباط",
@@ -106,11 +102,9 @@
     "login_option_heading": "اختر كيف تريد تسجيل الدخول:",
     "login_with": "تسجيل الدخول باستخدام {{option}}",
     "PIN": "دبوس",
-    "Inji": "Inji",
     "Biometrics": "القياسات الحيوية",
     "BIO": "القياسات الحيوية",
     "QRCode": "رمز الاستجابة السريعة",
-    "WALLET": "إنجي",
     "OTP": "OTP",
     "PWD": "كلمة المرور",
     "preferred_mode_of_login": "حدد الوضع المفضل لتسجيل الدخول",
@@ -126,9 +120,6 @@
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "invalid_auth_factor": "عوامل المصادقة غير صالحة. حاول مرة اخرى...",
-    "here_tab_name": "تسجيل الدخول هنا",
-    "inji_tab_name": "تسجيل الدخول باستخدام Inji",
-    "dont_have_inji": "ليس لديك إنجي؟",
     "download_now": "التحميل الان",
     "logo_alt": "e-Signet",
     "backgroud_image_alt": "قم بتسجيل الدخول باستخدام e-Signet",
@@ -136,12 +127,11 @@
   },
   "tabs": {
     "pin_tab_name": "قم بتسجيل الدخول باستخدام PIN",
-    "inji_tab_name": "تسجيل الدخول باستخدام Inji",
     "biometric_tab_name": "تسجيل الدخول باستخدام القياسات الحيوية"
   },
   "loadingMsgs": {
     "redirecting_msg": "إعادة توجيه. أرجو الإنتظار...",
-    "link_auth_waiting": "يرجى المصادقة عبر INJI. لا تحديث هذه الصفحة",
+    "link_auth_waiting": "يرجى المصادقة عبر {{walletName}}. لا تقم بتحديث هذه الصفحة.",
     "authenticating_msg": "المصادقة. أرجو الإنتظار...",
     "scanning_devices_msg": "أجهزة المسح. أرجو الإنتظار...",
     "capture_initiated_msg": "تم بدء الالتقاط {{modality}} في {{deviceModel}}",
