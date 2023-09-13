@@ -8,6 +8,7 @@ package io.mosip.esignet.api.spi;
 import foundation.identity.jsonld.JsonLDObject;
 import io.mosip.esignet.api.dto.VCRequestDto;
 import io.mosip.esignet.api.dto.VCResult;
+import io.mosip.esignet.api.exception.VCIExchangeException;
 
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public interface VCIssuancePlugin {
      * @return
      */
     VCResult<JsonLDObject> getVerifiableCredentialWithLinkedDataProof(VCRequestDto vcRequestDto, String holderId,
-                                                                      Map<String, Object> identityDetails);
+                                                                      Map<String, Object> identityDetails) throws VCIExchangeException;
 
     /**
      * Applicable for formats : jwt_vc_json, jwt_vc_json-ld, mso_doc
@@ -31,5 +32,5 @@ public interface VCIssuancePlugin {
      * @return
      */
     VCResult<String> getVerifiableCredential(VCRequestDto vcRequestDto, String holderId,
-                                                                             Map<String, Object> identityDetails);
+                                                                             Map<String, Object> identityDetails) throws VCIExchangeException;
 }
