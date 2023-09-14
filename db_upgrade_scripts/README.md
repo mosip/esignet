@@ -22,6 +22,6 @@
 
 **DBUSER_PWD=** DB user password for required postgres DB
 
-**CURRENT_VERSION=** Contains Current DB version
+**CURRENT_VERSION=** Current DB version
 
 **UPGRADE_VERSION=** final DB version after upgrade
