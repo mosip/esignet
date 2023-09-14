@@ -6,22 +6,22 @@
 
 ## Properties file variable details and description,Properties file has to be updated with the required details for each database before proceeding with upgrade or rollback steps.
 
-**ACTION=** Action to be taken, possible values: upgrade or rollback
+**ACTION=** select action as per the requirement 'upgrade' or 'rollback'
 
-**MOSIP_DB_NAME=** Destination DB name to be upgrade
+**MOSIP_DB_NAME=** Database name for which the 'upgrade' or 'rollback' is scheduled.
 
-**DB_SERVERIP=** Contains details of Destination DB SERVER_IP(Ex_1: 10.0.0.1) (Ex_2: postgres.sandbox.net) where the 'upgrade' or 'rollback' is targeted.
+**DB_SERVERIP=** Contains details of Destination Postgres SERVER_IP(Ex_1: 10.0.0.1) (Ex_2: postgres.sandbox.net) where the 'upgrade' or 'rollback' is targeted.
 
-**DB_PORT=** Contains the DB server port details where the Postgres is allowed to connect. Ex: 5433
+**DB_PORT=** Contains the Postgres DB port details where the Postgres is allowed to connect. Ex: 5433
 
-**SU_USER=** Contains Super User to connect to DB server i.e. postgres
+**SU_USER=** Contains the Postgres Super User name to connect to the postgres database i.e. postgres
 
-**SU_USER_PWD=** Contains Super User password to connect to DB server
+**SU_USER_PWD=** Contains the Super User password
 
 **DEFAULT_DB_NAME=** Default database name to connect with respective postgres server i.e. ex: postgres
 
-**DBUSER_PWD=** Contains DB user password for required postgres DB
+**DBUSER_PWD=** Contains the password for Postgres db common secret
 
-**CURRENT_VERSION=** Contains Current DB version
+**CURRENT_VERSION=** Contains Current esignet version
 
-**UPGRADE_VERSION=** Contains final DB version after upgrade
+**UPGRADE_VERSION=** Contains esginet version to upgrade
