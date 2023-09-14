@@ -14,9 +14,9 @@
 
 **DB_PORT=** DB Server Port
 
-**SU_USER=** super user to connect to DB server
+**SU_USER=** Superuser to connect to DB server
 
-**SU_USER_PWD=** super user password to connect to DB
+**SU_USER_PWD=** Superuser password to connect to DB
 
 **DEFAULT_DB_NAME=** Default database name to connect with respective postgres server i.e. ex: postgres
 
