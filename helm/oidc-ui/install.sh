@@ -24,7 +24,7 @@ function installing_oidc-ui() {
 
   ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
 
-  echo "Create configmaps oidc-ui-cm, delete if exists"
+  echo "Create configmaps oidc-ui, delete if exists"
   kubectl -n $NS delete --ignore-not-found=true configmap oidc-ui
   kubectl -n $NS create configmap oidc-ui --from-literal="REACT_APP_API_BASE_URL=http://esignet.$NS/v1/esignet" --from-literal="SIGN_IN_WITH_ESIGNET_PLUGIN_URL=http://artifactory.artifactory:80/artifactory/libs-release-local/mosip-plugins/sign-in-with-esignet.zip" --from-literal="REACT_APP_SBI_DOMAIN_URI=http://esignet.$NS"
 
