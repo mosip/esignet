@@ -171,8 +171,8 @@ public class ConsentHelperService {
         for (Map.Entry<String, Boolean> entry : authorizeScopesList) {
             sortedAuthorzeScopeMap.put(entry.getKey(), entry.getValue());
         }
-        claimsAndAuthorizeScopes.put("claims",sortedMap);
-        claimsAndAuthorizeScopes.put("authorizeScopes",sortedAuthorzeScopeMap);
+        claimsAndAuthorizeScopes.put(ACCEPTED_CLAIMS,sortedMap);
+        claimsAndAuthorizeScopes.put(PERMITTED_AUTHORIZED_SCOPES,sortedAuthorzeScopeMap);
         String s=claimsAndAuthorizeScopes.toString().trim().replace(" ","");
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, s);
     }
@@ -199,10 +199,12 @@ public class ConsentHelperService {
         String hash;
         try {
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-        if(linked) {
-            if (!verifyConsentSignature(consentDetail,transaction))
+
+            if(linked && !verifyConsentSignature(consentDetail,transaction)) {
+                log.error("Invalid consent signature found during linked authorization! CAPTURE consent action");
                 return ConsentAction.CAPTURE;
-        }
+            }
+
             // defaulting the essential boolean flag as false
             Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
                     .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
