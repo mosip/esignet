@@ -142,7 +142,7 @@ public class ConsentHelperServiceTest {
         consentHelperService.updateUserConsent(oidcTransaction, signature);
         UserConsent userConsent = new UserConsent();
         userConsent.setAuthorizationScopes(Map.of("openid",false,"profile",false,"email",false));
-        userConsent.setHash("UrgNGrbWUB5v_oSvupBCqp7V31MJdE3nNqfGv9eazBc");
+        userConsent.setHash("-4MYsoAXbQn9TnLk0kQI2DLBexYzxaRBG2bl30SO4KY");
         userConsent.setClaims(claims);
         userConsent.setAcceptedClaims(List.of("email","gender","name"));
 
@@ -182,7 +182,7 @@ public class ConsentHelperServiceTest {
 
         consentHelperService.updateUserConsent(oidcTransaction, "");
         UserConsent userConsent = new UserConsent();
-        userConsent.setHash("Cgh8oWpNM84WPYQVvluGj616_kd4z60elVXtc7R_lXw");
+        userConsent.setHash("I2KXtAp9XFJHnDF6m1arzDUu_4hRyepyPrlGxmKBxLw");
         userConsent.setClaims(claims);
         userConsent.setAuthorizationScopes(Map.of());
         userConsent.setAcceptedClaims(List.of("name","email"));
