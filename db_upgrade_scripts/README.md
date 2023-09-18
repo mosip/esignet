@@ -2,8 +2,8 @@
 ## Prerequisities
 * Install psql, git, bash on your PC.
 * Make sure Destination DB server details where the DB will be setup is ready.
-* clone the repo for running the DB upgrade scripts.
-* add the db_name.properties file.
+* Clone the repo for running the DB upgrade scripts.
+* Update the upgrade.properties file.
 
 ## Properties file variable details
 * The properties file has to be updated with the required details for each database before proceeding with upgrade or rollback steps.
@@ -35,7 +35,7 @@ Ensure to update the upgrade.properties file as per your requirement. Run the be
 
 ```bash
 
-cd db_upgrade_script/<db-script>/
+cd db_upgrade_script/<db_name>/
 
 ./upgrade.sh upgrade.properties 
 ```
