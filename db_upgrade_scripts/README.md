@@ -7,6 +7,7 @@
 
 ## Properties file variable details
 * The properties file has to be updated with the required details for each database before proceeding with upgrade or rollback steps.
+* Make modifications to the respective database `upgrade.properties` file
 
 **ACTION=** Action to be taken, possible values: upgrade or rollback
 
@@ -29,7 +30,6 @@
 **UPGRADE_VERSION=** Final DB version after upgrade
 
 ## Upgrade / Rollback DB:
-* Make modifications to all the respective database properties files `<<schema>>_upgrade.properties` in the respective database directories.
 
 Ensure to update the upgrade.properties file as per your requirement. Run the below command to `Upgrade` / `Rollback` operation.
 
