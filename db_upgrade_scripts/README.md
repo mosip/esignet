@@ -26,7 +26,7 @@
 
 **CURRENT_VERSION=** Current DB version
 
-**UPGRADE_VERSION=** final DB version after upgrade
+**UPGRADE_VERSION=** Final DB version after upgrade
 
 ## Upgrade / Rollback DB:
 * Make modifications to all the respective database properties files `<<schema>>_upgrade.properties` in the respective database directories.
