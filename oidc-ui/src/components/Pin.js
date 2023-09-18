@@ -21,6 +21,7 @@ export default function Pin({
   param,
   authService,
   openIDConnectService,
+  handleBackButtonClick,
   i18nKeyPrefix = "pin",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -109,12 +110,25 @@ export default function Pin({
 
   return (
     <>
-      <h1
-        className="text-center text-sky-600 font-semibold line-clamp-2"
-        title={t("sign_in_with_pin")}
-      >
-        {t("sign_in_with_pin")}
-      </h1>
+      <div className="grid grid-cols-8 items-center">
+        <div className="h-6 items-center text-center flex items-start">
+          <button
+            onClick={() => handleBackButtonClick()}
+            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+          >
+            &#8592;
+          </button>
+        </div>
+        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+          <h1
+            className="text-center text-sky-600 font-semibold line-clamp-2"
+            title={t("sign_in_with_pin")}
+          >
+            {t("sign_in_with_pin")}
+          </h1>
+        </div>
+      </div>
+
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <div className="-space-y-px">
           {fields.map((field) => (
@@ -149,7 +163,11 @@ export default function Pin({
             </label>
           </div>
         </div>
-        <FormAction type={buttonTypes.submit} text={t("login")} id="verify_pin"/>
+        <FormAction
+          type={buttonTypes.submit}
+          text={t("login")}
+          id="verify_pin"
+        />
       </form>
       {status === states.LOADING && (
         <div>
