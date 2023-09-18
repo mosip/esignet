@@ -1,10 +1,9 @@
 ## Please update as per MOSIP README template
 ## Prerequisities
-* Postgres client (psql) has to be installed on the deployment servers.
-* DB Server and access details.
-* Copy database upgrade scripts(DDL, DML, .SH ... etc) from git/repository on to the DB deployment server.
-
-* Necessary details needs to be updated in peoperties file against to the relevant variables being used 
+* Install psql, git, bash on your PC.
+* Make sure Destination DB server details where the DB will be setup is ready.
+* clone the repo for running the DB upgrade scripts.
+* add the db_name.properties file.
 
 ## Properties file variable details
 * The properties file has to be updated with the required details for each database before proceeding with upgrade or rollback steps.
