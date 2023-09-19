@@ -90,7 +90,7 @@ public class BindingValidatorServiceImplTest {
 		authChallenge.setChallenge(wlaToken);
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
 				getPemData(certificate), LocalDateTime.now());
 		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
 				.thenReturn(Arrays.asList(publicKeyRegistry));
@@ -117,7 +117,7 @@ public class BindingValidatorServiceImplTest {
 		authChallenge.setChallenge(IdentityProviderUtil.b64Encode(headerJson.toJSONString())+"."+chunks[1]+"."+chunks[2]);
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
 				getPemData(certificate), LocalDateTime.now());
 		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
 				.thenReturn(Arrays.asList(publicKeyRegistry));
@@ -144,7 +144,7 @@ public class BindingValidatorServiceImplTest {
 		authChallenge.setChallenge(wlaToken);
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
 				getPemData(certificate), LocalDateTime.now());
 		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
 				.thenReturn(Arrays.asList(publicKeyRegistry));
@@ -180,7 +180,7 @@ public class BindingValidatorServiceImplTest {
 	@Test
 	public void validateBinding_withUnBoundAuthFactors_thenFail() throws EsignetException {
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
+				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
 				"certificate", LocalDateTime.now());
 		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList(publicKeyRegistry));
 
@@ -206,7 +206,7 @@ public class BindingValidatorServiceImplTest {
 	@Test
 	public void validateBinding_withInvalidChallenge_thenFail() throws EsignetException {
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash",
+                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","certificate",
                 "certificate", LocalDateTime.now());
         when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList(publicKeyRegistry));
 
