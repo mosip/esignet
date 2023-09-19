@@ -13,8 +13,8 @@ export default function Consent({
   consentAction,
   authTime,
   openIDConnectService,
-  logoPath = "logo.png",
   i18nKeyPrefix = "consent",
+  backgroundImgPath
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -365,14 +365,22 @@ export default function Consent({
 
   return (
     <div className="flex items-center justify-center">
-      <div className="max-w-md w-full shadow-lg mt-5 rounded bg-[#F8F8F8] px-4 py-4">
+      <img
+        className="object-contain hidden sm:block rtl:scale-x-[-1] sm:max-w-sm"
+        alt={t("backgroud_image_alt")}
+        src={backgroundImgPath}
+      />
+      <div className="sm:max-w-sm w-full shadow-lg sm:mt-5 rounded-lg bg-white p-4 relative">
+        <div className="bg-[#FFF9F0] rounded-t-lg absolute top-0 left-0 right-0 p-2">
+          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
+            <div className="text-center">
+              <p className="text-[#4E4E4E] font-semibold">{t("transaction_timeout_msg")}</p>
+              <p className="font-bold text-[#DE7A24]">{formatTime(timeLeft)} </p>
+            </div>
+          )}
+        </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="flex justify-center items-center">
-            <img className="h-20" src={clientLogoPath} alt={clientName} />
-            <span className="text-6xl flex mx-5">&#8651;</span>
-            <img className="h-20" src={logoPath} alt={t("logo_alt")} />
-          </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-12">
             <b>
               {t("consent_request_msg", {
                 clientName: clientName,
@@ -383,8 +391,8 @@ export default function Consent({
             (claimScope) =>
               claimScope?.values?.length > 0 && (
                 <div key={claimScope.label}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex justify-start">
+                  <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4 gap-4">
+                    <div className="flex sm:justify-start">
                       <div className="font-semibold">
                         {t(claimScope.label)}
                         <button
@@ -402,7 +410,7 @@ export default function Consent({
                         <ReactTooltip anchorId={claimScope.tooltip} />
                       </div>
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end mr-4 ml-4">
                       {!claimScope?.required &&
                         claimScope.values.length > 1 &&
                         sliderButtonDiv(claimScope.label, (e) =>
@@ -413,29 +421,31 @@ export default function Consent({
 
                   <div className="divide-y">
                     {claimScope?.values?.map((item) => (
-                      <div key={item}>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="flex justify-start relative items-center mb-1 mt-1">
-                            <label className="ml-3 text-sm text-black-900">
-                              {t(item)}
-                            </label>
-                          </div>
-                          <div className="flex justify-end">
-                            {claimScope?.required && (
-                              <label
-                                labelfor={item}
-                                className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
-                              >
-                                {t("required")}
+                      <ul className="list-disc marker:text-[#B9B9B9] ml-4 mr-4">
+                        <li key={item}>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex justify-start relative items-center mb-1 mt-1">
+                              <label className="text-sm text-black-900">
+                                {t(item)}
                               </label>
-                            )}
-                            {!claimScope?.required &&
-                              sliderButtonDiv(item, (e) =>
-                                selectUnselectAllScopeClaim(e, claimScope)
+                            </div>
+                            <div className="flex justify-end">
+                              {claimScope?.required && (
+                                <label
+                                  labelfor={item}
+                                  className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
+                                >
+                                  {t("required")}
+                                </label>
                               )}
+                              {!claimScope?.required &&
+                                sliderButtonDiv(item, (e) =>
+                                  selectUnselectAllScopeClaim(e, claimScope)
+                                )}
+                            </div>
                           </div>
-                        </div>
-                      </div>
+                        </li>
+                      </ul>
                     ))}
                   </div>
                 </div>
@@ -449,30 +459,22 @@ export default function Consent({
             </div>
           }
           {status !== LoadingStates.LOADING && (
-            <div className="grid grid-cols-2 gap-4">
-              <FormAction
-                type={buttonTypes.cancel}
-                text={t("cancel")}
-                handleClick={handleCancel}
-                id="cancel"
-              />
+            <div className="grid">
               <FormAction
                 type={buttonTypes.button}
                 text={t("continue")}
                 handleClick={handleSubmit}
                 id="continue"
               />
+              <FormAction
+                type={buttonTypes.cancel}
+                text={t("cancel")}
+                handleClick={handleCancel}
+                id="cancel"
+              />
             </div>
           )}
         </form>
-        <div className="mt-4">
-          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
-            <div className="text-center">
-              <p className="text-gray-600">{t("transaction_timeout_msg")}</p>
-              <p className="font-semibold">{formatTime(timeLeft)} </p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

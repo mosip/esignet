@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import foundation.identity.jsonld.JsonLDObject;
 import io.mosip.esignet.api.dto.VCRequestDto;
 import io.mosip.esignet.api.dto.VCResult;
+import io.mosip.esignet.api.exception.VCIExchangeException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.VCIssuancePlugin;
 import io.mosip.esignet.api.util.Action;
@@ -99,16 +100,10 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
                 credentialRequest.getProof())) {
             throw new EsignetException(ErrorConstants.INVALID_PROOF);
         }
-        String holderId = proofValidator.getKeyMaterial(credentialRequest.getProof());
 
         //Get VC from configured plugin implementation
-        VCResult<?> vcResult = getVerifiableCredential(credentialRequest, credentialMetadata, holderId);
-        if(vcResult == null || vcResult.getCredential() == null) {
-            log.error("Failed to generate VC : {}", vcResult);
-            auditWrapper.logAudit(Action.VC_ISSUANCE, ActionStatus.ERROR,
-                    AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), null), null);
-            throw new EsignetException(ErrorConstants.VC_ISSUANCE_FAILED);
-        }
+        VCResult<?> vcResult = getVerifiableCredential(credentialRequest, credentialMetadata,
+                proofValidator.getKeyMaterial(credentialRequest.getProof()));
 
         auditWrapper.logAudit(Action.VC_ISSUANCE, ActionStatus.SUCCESS,
                 AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), null), null);
@@ -129,20 +124,35 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
         vcRequestDto.setType(credentialRequest.getCredential_definition().getType());
         vcRequestDto.setCredentialSubject(credentialRequest.getCredential_definition().getCredentialSubject());
 
-        switch (credentialRequest.getFormat()) {
-            case "ldp_vc" :
-                validateLdpVcFormatRequest(credentialRequest, credentialMetadata);
-                return vcIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(vcRequestDto, holderId,
-                        parsedAccessToken.getClaims());
+        VCResult<?> vcResult = null;
+        try {
+            switch (credentialRequest.getFormat()) {
+                case "ldp_vc" :
+                    validateLdpVcFormatRequest(credentialRequest, credentialMetadata);
+                    vcResult = vcIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(vcRequestDto, holderId,
+                            parsedAccessToken.getClaims());
+                    break;
 
-            // jwt_vc_json & jwt_vc_json-ld cases are merged
-            case "jwt_vc_json-ld" :
-            case "jwt_vc_json" :
-                return vcIssuancePlugin.getVerifiableCredential(vcRequestDto, holderId,
-                        parsedAccessToken.getClaims());
-            default:
-                throw new EsignetException(ErrorConstants.UNSUPPORTED_VC_FORMAT);
+                // jwt_vc_json & jwt_vc_json-ld cases are merged
+                case "jwt_vc_json-ld" :
+                case "jwt_vc_json" :
+                    vcResult = vcIssuancePlugin.getVerifiableCredential(vcRequestDto, holderId,
+                            parsedAccessToken.getClaims());
+                    break;
+                default:
+                    throw new EsignetException(ErrorConstants.UNSUPPORTED_VC_FORMAT);
+            }
+        } catch (VCIExchangeException e) {
+            throw new EsignetException(e.getErrorCode());
         }
+
+        if(vcResult != null && vcResult.getCredential() != null)
+            return vcResult;
+
+        log.error("Failed to generate VC : {}", vcResult);
+        auditWrapper.logAudit(Action.VC_ISSUANCE, ActionStatus.ERROR,
+                AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), null), null);
+        throw new EsignetException(ErrorConstants.VC_ISSUANCE_FAILED);
     }
 
     private CredentialResponse<?> getCredentialResponse(String format, VCResult<?> vcResult) {

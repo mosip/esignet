@@ -6,6 +6,7 @@
 package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.validator.SignatureFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -27,5 +28,6 @@ public class LinkedConsentRequestV2 {
      */
     private List<String> permittedAuthorizeScopes;
 
+    @SignatureFormat
     private String signature;
 }
