@@ -25,6 +25,7 @@ CREATE TABLE public_key_registry(
 	public_key_hash character varying(100) NOT NULL,
 	certificate character varying NOT NULL,
 	cr_dtimes timestamp NOT NULL,
+	thumbprint character varying NOT NULL,
 	CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash, auth_factor)
 );
 
@@ -39,4 +40,5 @@ COMMENT ON COLUMN public_key_registry.public_key_hash IS 'Public Key Hash: Hash 
 COMMENT ON COLUMN public_key_registry.auth_factor IS 'Supported auth factor type.';
 COMMENT ON COLUMN public_key_registry.certificate IS 'Signed certificate';
 COMMENT ON COLUMN public_key_registry.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted.';
+COMMENT ON COLUMN public_key_registry.thumbprint IS 'Thumbprint generated from the certificate'
 -- ddl-end --

@@ -272,7 +272,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
         transaction.setAcceptedClaims(acceptedClaims);
         transaction.setPermittedScopes(acceptedScopes);
-        consentHelperService.updateUserConsent(transaction, false, null);
+        consentHelperService.updateUserConsent(transaction, null);
         transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
         auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
 
