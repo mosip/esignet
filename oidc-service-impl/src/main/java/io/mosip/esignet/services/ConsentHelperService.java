@@ -171,10 +171,10 @@ public class ConsentHelperService {
         for (Map.Entry<String, Boolean> entry : authorizeScopesList) {
             sortedAuthorzeScopeMap.put(entry.getKey(), entry.getValue());
         }
-        claimsAndAuthorizeScopes.put(ACCEPTED_CLAIMS,sortedMap);
-        claimsAndAuthorizeScopes.put(PERMITTED_AUTHORIZED_SCOPES,sortedAuthorzeScopeMap);
-        String s=claimsAndAuthorizeScopes.toString().trim().replace(" ","");
-        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, s);
+        claimsAndAuthorizeScopes.put("claims",sortedMap);
+        claimsAndAuthorizeScopes.put("authorizeScopes",sortedAuthorzeScopeMap);
+        String claimsAndAuthorizeScopesAsString = claimsAndAuthorizeScopes.toString().trim().replace(" ","");
+        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, claimsAndAuthorizeScopesAsString);
     }
 
     private static void sortClaims(List<Map.Entry<String, ClaimDetail>> entryList, Map<String, ClaimDetail> sortedMap) {
