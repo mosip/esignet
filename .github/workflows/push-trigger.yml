@@ -74,13 +74,13 @@ jobs:
           
           echo "find command"
           cd ${{ env.SERVICE_LOCATION }}
-          find ../${{ env.SERVICE_LOCATION }} -path '*/target/*' -name '*.jar'  -type f  -executable -exec zip ${{ env.NEW_BUILD_ARTIFACT }}.zip {} +
+          find ../${{ env.SERVICE_LOCATION }} -path '*/target/*' -name '*.jar'  -type f  -executable -exec zip /tmp/${{ env.NEW_BUILD_ARTIFACT }}.zip {} +
       - name: Upload the springboot jars
         if: ${{ !contains(github.ref, 'master') || !contains(github.ref, 'main') }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.NEW_BUILD_ARTIFACT }}
-          path: ${{ env.SERVICE_LOCATION }}/${{ env.NEW_BUILD_ARTIFACT }}.zip
+          path: /tmp/${{ env.NEW_BUILD_ARTIFACT }}.zip
 
   build-dockers:
     needs: recreate-zips
@@ -89,7 +89,7 @@ jobs:
         include:
           - SERVICE_LOCATION: 'esignet-service'
             SERVICE_NAME: 'esignet-service'
-            BUILD_ARTIFACT: 'esignet'
+            BUILD_ARTIFACT: 'esignet-service'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
