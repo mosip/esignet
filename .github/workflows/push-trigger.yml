@@ -70,7 +70,7 @@ jobs:
           echo "LS ./"
           ls .
           echo "unzip command"
-          unzip -uj "${{ env.BUILD_ARTIFACT }}.zip" "*target/*" -d "${{ env.SERVICE_LOCATION }}/target/"
+          unzip -uj "${{ env.BUILD_ARTIFACT }}.zip" "*/target/*" -d "${{ env.SERVICE_LOCATION }}/target/"
           
           echo "find command"
           cd ${{ env.SERVICE_LOCATION }}
