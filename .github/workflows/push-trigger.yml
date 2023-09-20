@@ -1,0 +1,138 @@
+name: Maven Package upon a push
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message for manually triggering'
+        required: false
+        default: 'Triggered for Updates'
+        type: string
+  push:
+    branches:
+      - '!release-branch'
+      - master
+      - 1.*
+      - develop
+      - MOSIP*
+      - release*
+
+jobs:
+  build-maven-esignet:
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    with:
+      SERVICE_LOCATION: ./
+      BUILD_ARTIFACT: esignet
+    secrets:
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  publish_to_nexus:
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
+    needs: build-maven-esignet
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
+    with:
+      SERVICE_LOCATION: ./
+    secrets:
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_URL: ${{ secrets.OSSRH_SNAPSHOT_URL }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  ## Recreate zips to provide support for docker unzip operation
+  recreate-zips:
+    needs: build-maven-esignet
+    runs-on: ubuntu-latest
+    env:
+      BUILD_ARTIFACT: esignet
+      NEW_BUILD_ARTIFACT: esignet-service
+      SERVICE_LOCATION: ./
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        if: ${{ ( env.BUILD_ARTIFACT != 'false' ) }}
+        with:
+          name: ${{ env.BUILD_ARTIFACT }}
+          path: ../
+      - name: recreate zip
+        run: |
+          cd ../
+          
+          echo "LS ./"
+          ls .
+          echo "unzip command"
+          unzip -uj "${{ env.BUILD_ARTIFACT }}.zip" "*target/*" -d "${{ env.SERVICE_LOCATION }}/target/"
+          
+          echo "find command"
+          cd ${{ env.SERVICE_LOCATION }}
+          find ../${{ env.SERVICE_LOCATION }} -path '*/target/*' -name '*.jar'  -type f  -executable -exec zip ${{ env.NEW_BUILD_ARTIFACT }}.zip {} +
+      - name: Upload the springboot jars
+        if: ${{ !contains(github.ref, 'master') || !contains(github.ref, 'main') }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.NEW_BUILD_ARTIFACT }}
+          path: ${{ env.NEW_BUILD_ARTIFACT }}.zip
+
+  build-dockers:
+    needs: recreate-zips
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: 'esignet-service'
+            SERVICE_NAME: 'esignet-service'
+            BUILD_ARTIFACT: 'esignet'
+      fail-fast: false
+    name: ${{ matrix.SERVICE_NAME }}
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  build-dockers-oidc-ui:
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: 'oidc-ui'
+            SERVICE_NAME: 'oidc-ui'
+      fail-fast: false
+    name: ${{ matrix.SERVICE_NAME }}
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+
+  sonar_analysis:
+    needs: build-maven-esignet
+    if: "${{  github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
+    with:
+      SERVICE_LOCATION: ./
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
