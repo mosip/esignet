@@ -70,7 +70,7 @@ jobs:
           echo "LS ./"
           ls .
           echo "unzip command"
-          unzip -uj "${{ env.BUILD_ARTIFACT }}.zip" "target/*" -d "${{ env.SERVICE_LOCATION }}/target/"
+          unzip -uj "${{ env.BUILD_ARTIFACT }}.zip" "*target/*" -d "${{ env.SERVICE_LOCATION }}/target/"
           
           echo "find command"
           cd ${{ env.SERVICE_LOCATION }}
@@ -89,7 +89,7 @@ jobs:
         include:
           - SERVICE_LOCATION: 'esignet-service'
             SERVICE_NAME: 'esignet-service'
-            BUILD_ARTIFACT: 'esignet-service'
+            BUILD_ARTIFACT: 'esignet'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
