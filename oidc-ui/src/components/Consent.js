@@ -364,12 +364,16 @@ export default function Consent({
   }
 
   return (
-    <div className="flex items-center justify-center">
-      <img
-        className="object-contain hidden sm:block rtl:scale-x-[-1] sm:max-w-sm"
-        alt={t("backgroud_image_alt")}
-        src={backgroundImgPath}
-      />
+    <div className="container flex mx-auto sm:flex-row flex-col">
+      <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
+        <div>
+          <img
+            className="object-contain rtl:scale-x-[-1]"
+            alt={t("backgroud_image_alt")}
+            src={backgroundImgPath}
+          />
+        </div>
+      </div>
       <div className="sm:max-w-sm w-full shadow-lg sm:mt-5 rounded-lg bg-white p-4 relative">
         <div className="bg-[#FFF9F0] rounded-t-lg absolute top-0 left-0 right-0 p-2">
           {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
