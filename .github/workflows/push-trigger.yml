@@ -87,7 +87,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - SERVICE_LOCATION: 'esignet-service'
+          - SERVICE_LOCATION: '../esignet-service'
             SERVICE_NAME: 'esignet-service'
             BUILD_ARTIFACT: 'esignet-service'
       fail-fast: false
