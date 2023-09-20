@@ -80,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.NEW_BUILD_ARTIFACT }}
-          path: ${{ env.NEW_BUILD_ARTIFACT }}.zip
+          path: ${{ env.SERVICE_LOCATION }}/${{ env.NEW_BUILD_ARTIFACT }}.zip
 
   build-dockers:
     needs: recreate-zips
@@ -89,7 +89,7 @@ jobs:
         include:
           - SERVICE_LOCATION: 'esignet-service'
             SERVICE_NAME: 'esignet-service'
-            BUILD_ARTIFACT: 'esignet'
+            BUILD_ARTIFACT: 'esignet-service'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
