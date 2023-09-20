@@ -72,7 +72,7 @@
     "password_placeholder": "كلمة المرور"
   },
   "LoginQRCode": {
-    "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",
+    "scan_with_wallet": "امسح باستخدام تطبيق {{walletName}} لتسجيل الدخول",
     "dont_have_wallet": "؟{{walletName}} ليس لديك",
     "download_now": "التحميل الان",
     "link_code_status": "حالة رمز الارتباط",
@@ -108,10 +108,7 @@
     "OTP": "OTP",
     "PWD": "كلمة المرور",
     "preferred_mode_of_login": "حدد الوضع المفضل لتسجيل الدخول",
-    "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
-    "or": "أو",
-    "sign_in_with" : "التحقق باستخدام {{idProviderName}}",
-    "verify_using_national_id":"التحقق باستخدام الهويات الوطنية الأخرى"
+    "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول"
   },
   "esignetDetails": {
     "esignet_details_heading": "واجهات برمجة التطبيقات Esignet معروفة جيدا",
@@ -270,8 +267,6 @@
     "proof_invalid_aud": "قيمة غير صالحة في مطالبة Aud Payload.",
     "proof_invalid_iat": "قيمة غير صالحة في مطالبة حمولة IAT.",
     "proof_invalid_nonce": "قيمة غير صالحة في مطالبة PHAILLOLL NONCE.",
-    "invalid_state_response": "حالة غير صالحة",
-    "authCode_missing": "رمز المصادقة مفقود",
     "0": "النجاح",
     "100": "الجهاز غير مسجل",
     "101": "غير قادر على الكشف عن كائن القياسات الحيوية",
