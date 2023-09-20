@@ -29,6 +29,7 @@ function installing_oidc-ui() {
   --set oidc_ui.configmaps.oidc-ui.REACT_APP_API_BASE_URL="http://esignet.$NS/v1/esignet" \
   --set oidc_ui.configmaps.oidc-ui.REACT_APP_SBI_DOMAIN_URI="http://esignet.$NS" \
   --set oidc_ui.configmaps.oidc-ui.OIDC_UI_PUBLIC_URL=''\
+  --set oidc_ui.configmaps.oidc-ui.SIGN_IN_WITH_ESIGNET_PLUGIN_URL='http://artifactory.artifactory:80/artifactory/libs-release-local/mosip-plugins/sign-in-with-esignet.zip' \
   --set istio.hosts\[0\]=$ESIGNET_HOST \
   --version $CHART_VERSION
 
