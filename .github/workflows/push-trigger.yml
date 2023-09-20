@@ -89,7 +89,7 @@ jobs:
         include:
           - SERVICE_LOCATION: 'esignet-service'
             SERVICE_NAME: 'esignet-service'
-            BUILD_ARTIFACT: 'esignet-service'
+            BUILD_ARTIFACT: 'esignet'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
