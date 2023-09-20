@@ -55,7 +55,7 @@ jobs:
     env:
       BUILD_ARTIFACT: esignet
       NEW_BUILD_ARTIFACT: esignet-service
-      SERVICE_LOCATION: esignet-service
+      SERVICE_LOCATION: ./
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
