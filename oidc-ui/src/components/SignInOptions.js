@@ -16,12 +16,13 @@ export default function SignInOptions({
   const [singinOptions, setSinginOptions] = useState(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
-  const boxStyle = {
-    background: "#FFFFFF 0% 0% no-repeat padding-box",
-    border: "1px solid #BCC0C7",
-    borderRadius: "6px",
-    opacity: 1,
+  const border = {
+    color: process.env.REACT_APP_LOGIN_CARD_BOX_COLOR ?? "#BCC0C7",
+    focusColor: process.env.REACT_APP_LOGIN_CARD_BOX_HOVER_COLOR ?? "#1263CA",
+    hoverColor: process.env.REACT_APP_LOGIN_CARD_BOX_FOCUS_COLOR ?? "#1263CA",
   };
+
+  const boxStyleClass = `bg-white bg-no-repeat bg-clip-padding rounded-md border border-solid border-[${border.color}] hover:border-[${border.hoverColor}] focus:border-[${border.focusColor}] opacity-100`;
 
   useEffect(() => {
     setStatus({ state: states.LOADING, msg: "loading_msg" });
@@ -60,8 +61,7 @@ export default function SignInOptions({
             .map((option, idx) => (
               <div
                 key={idx}
-                className="w-full flex py-2 px-1 my-1 cursor-pointer"
-                style={boxStyle}
+                className={`w-full flex py-2 px-1 my-1 cursor-pointer ${boxStyleClass}`}
                 id={option.id}
                 onClick={(e) => handleSignInOptionClick(option.value)}
               >
