@@ -146,8 +146,6 @@ export default function Consent({
   };
 
   i18next.on("languageChanged", () => {
-    console.log("language changed");
-    console.log(i18next.language);
     setClientMultiLang();
   });
 
