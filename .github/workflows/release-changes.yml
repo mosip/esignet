@@ -26,4 +26,3 @@ jobs:
       BASE: ${{ inputs.BASE }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-      ACTION_PAT: ${{ secrets.ACTION_PAT }}
