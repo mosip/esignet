@@ -10,11 +10,15 @@ export default function SignInOptions({
   handleSignInOptionClick,
   i18nKeyPrefix = "signInOption",
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { i18n, t } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix,
+  });
 
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [singinOptions, setSinginOptions] = useState(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [crossBorderSinginOptions, setCrossBorderSinginOptions] =
+    useState(null);
 
   useEffect(() => {
     setStatus({ state: states.LOADING, msg: "loading_msg" });
@@ -27,12 +31,55 @@ export default function SignInOptions({
         configurationKeys.walletConfig
       ) ?? process.env.REACT_APP_WALLET_CONFIG;
 
+    //TODO add default value in env file
+    let crossBorderConfigs =
+      openIDConnectService.getEsignetConfiguration(
+        configurationKeys.crossBorderAuthConfig
+      ) ?? process.env.REACT_APP_CROSS_BORDER_CONFIG;
+
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
 
+    setCrossBorderSinginOptions(getCrossBorderLoginOptions(crossBorderConfigs));
     setSinginOptions(loginOptions);
     setShowMoreOptions(loginOptions.length > 4 && loginOptions.length !== 5);
     setStatus({ state: states.LOADED, msg: "" });
+
+    i18n.on("languageChanged", function (lng) {
+      renderSignInButton();
+    });
   }, []);
+
+  const getCrossBorderLoginOptions = (crossBorderConfigs) => {
+    let crossBorderLoginOptions = [];
+    crossBorderConfigs.forEach((crossBorderConfig) => {
+      crossBorderLoginOptions.push({
+        ...crossBorderConfig,
+        client_id: crossBorderConfig.oidcConfig?.client_id,
+      });
+    });
+    return crossBorderLoginOptions;
+  };
+
+  useEffect(() => {
+    renderSignInButton();
+  }, [crossBorderSinginOptions]);
+
+  const renderSignInButton = () => {
+    crossBorderSinginOptions?.forEach((option) => {
+      let buttonConfig = {
+        ...option.buttonConfig,
+        width: "100%",
+        labelText: t("sign_in_with", {
+          idProviderName: option.idProviderName,
+        }),
+      };
+      window.SignInWithEsignetButton.init({
+        oidcConfig: option.oidcConfig,
+        buttonConfig: buttonConfig,
+        signInElement: document.getElementById(option.client_id),
+      });
+    });
+  };
 
   return (
     <>
@@ -70,6 +117,23 @@ export default function SignInOptions({
               </div>
             ))}
         </div>
+      )}
+
+      {status.state === states.LOADED && crossBorderSinginOptions && (
+        <>
+          <div className="flex w-full my-2 items-center px-5">
+            <div className="flex-1 h-px bg-zinc-400" />
+            <div>
+              <p className="w-14 text-center">{t("or")}</p>
+            </div>
+            <div className="flex-1 h-px bg-zinc-400" />
+          </div>
+          {crossBorderSinginOptions.map((option) => (
+            <div className="my-1">
+              <div key={option.client_id} id={option.client_id}></div>
+            </div>
+          ))}
+        </>
       )}
 
       {showMoreOptions && (
