@@ -1,0 +1,26 @@
+name: Release/pre-release Preparation.
+
+on:
+  workflow_dispatch:
+    inputs:
+      MESSAGE:
+        description: 'Triggered for release or pe-release'
+        required: false
+        default: 'Release Preparation'
+      RELEASE_TAG:
+        description: 'tag to update'
+        required: true
+      SNAPSHOT_TAG:
+        description: 'tag to be replaced'
+        required: true
+      BASE:
+        description: 'base branch for PR'
+        required: true
+jobs:
+  maven-release-preparation:
+    uses: mosip/kattu/.github/workflows/release-changes.yml@master
+    with:
+      MESSAGE: ${{ inputs.MESSAGE }}
+      RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
+      SNAPSHOT_TAG: ${{ inputs.SNAPSHOT_TAG }}
+      BASE: ${{ inputs.BASE }}

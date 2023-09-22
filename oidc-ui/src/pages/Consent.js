@@ -34,6 +34,7 @@ export default function ConsentPage() {
 
   return (
     <Consent
+      backgroundImgPath="images/illustration_one.png"
       authService={new authService(oidcService)}
       openIDConnectService={oidcService}
       consentAction={consentAction}
