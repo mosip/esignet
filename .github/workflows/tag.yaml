@@ -31,3 +31,5 @@ jobs:
       BODY: ${{ inputs.BODY }}
       PRE_RELEASE: ${{ inputs.PRE_RELEASE }}
       DRAFT: ${{ inputs.DRAFT }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
