@@ -29,20 +29,16 @@ export default function Background({
   const [openTab, setOpenTab] = useState(qrCodeEnable === true ? 0 : 1);
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
-  const backgroundColor = process.env.REACT_APP_LOGIN_BACKGROUND ?? "#FFFFFF";
-  {/* height is used by subtracting navbar height  */}
-  const sectionClass = `text-gray-600 pt-4 body-font bg-[${backgroundColor}] h-[calc(100%-54px)]`;
-
   return (
     <>
-      <section className={sectionClass}>
+    {/* height is used by subtracting navbar height  */}
+      <section className="text-gray-600 pt-4 body-font h-[calc(100%-54px)] section-background">
         <div className="container flex mx-auto px-5 sm:flex-row flex-col">
           <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
             <div>
               <img
-                className="object-contain rtl:scale-x-[-1]"
+                className="background-logo object-contain rtl:scale-x-[-1]"
                 alt={t("backgroud_image_alt")}
-                src={backgroundImgPath}
               />
             </div>
           </div>
