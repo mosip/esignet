@@ -341,13 +341,10 @@ export default function Consent({
           onChange={handleOnchange}
         />
         <div
-          className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none 
-            peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-['']
-            after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400
-            peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all
-            peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500
-            ltr:peer-checked:after:translate-x-full ltr:after:left-[2px]
-            rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"
+          className="w-9 h-5 after:h-4 after:w-4 border rounded-full peer after:content-['']
+          after:absolute after:top-[2px] after:border after:rounded-full after:transition-all
+          ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+          ltr:after:left-[2px] rtl:after:right-[2px] slide-toggle-button"
         ></div>
       </label>
     </div>
@@ -401,7 +398,7 @@ export default function Consent({
                         {t(claimScope.label)}
                         <button
                           id={claimScope.tooltip}
-                          className="ml-1 text-sky-600 text-xl"
+                          className="ml-1 text-sky-600 text-xl info-icon-button"
                           data-tooltip-content={t(claimScope.tooltip)}
                           data-tooltip-place="top"
                           onClick={(e) => {
