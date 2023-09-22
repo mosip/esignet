@@ -37,7 +37,7 @@ const getAllAuthFactors = (authFactors, wlaList) => {
     const authFactorType = authFactor[0].type;
     if (validAuthFactors[authFactorType]) {
       if (authFactorType === validAuthFactors.WLA) {
-        wlaList.forEach((wla) => loginOptions.push(wlaToAuthfactor(wla)));
+        wlaList?.forEach((wla) => loginOptions.push(wlaToAuthfactor(wla)));
       } else {
         loginOptions.push(toAuthfactor(authFactor));
       }

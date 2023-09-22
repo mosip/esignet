@@ -28,14 +28,11 @@ export default function SignInOptions({
 
     let wlaList =
       openIDConnectService.getEsignetConfiguration(
-        configurationKeys.walletConfig
-      ) ?? process.env.REACT_APP_WALLET_CONFIG;
+        configurationKeys.walletConfig);
 
-    //TODO add default value in env file
     let crossBorderConfigs =
       openIDConnectService.getEsignetConfiguration(
-        configurationKeys.crossBorderAuthConfig
-      ) ?? process.env.REACT_APP_CROSS_BORDER_CONFIG;
+        configurationKeys.crossBorderAuthConfig);
 
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
 
@@ -51,7 +48,7 @@ export default function SignInOptions({
 
   const getCrossBorderLoginOptions = (crossBorderConfigs) => {
     let crossBorderLoginOptions = [];
-    crossBorderConfigs.forEach((crossBorderConfig) => {
+    crossBorderConfigs?.forEach((crossBorderConfig) => {
       crossBorderLoginOptions.push({
         ...crossBorderConfig,
         client_id: crossBorderConfig.oidcConfig?.client_id,
@@ -73,7 +70,7 @@ export default function SignInOptions({
           idProviderName: option.idProviderName,
         }),
       };
-      window.SignInWithEsignetButton.init({
+      window.SignInWithEsignetButton?.init({
         oidcConfig: option.oidcConfig,
         buttonConfig: buttonConfig,
         signInElement: document.getElementById(option.client_id),
@@ -119,7 +116,8 @@ export default function SignInOptions({
         </div>
       )}
 
-      {status.state === states.LOADED && crossBorderSinginOptions && (
+      {status.state === states.LOADED && window.SignInWithEsignetButton && 
+      crossBorderSinginOptions && crossBorderSinginOptions.length > 0 && (
         <>
           <div className="flex w-full my-2 items-center px-5">
             <div className="flex-1 h-px bg-zinc-400" />
@@ -129,8 +127,8 @@ export default function SignInOptions({
             <div className="flex-1 h-px bg-zinc-400" />
           </div>
           {crossBorderSinginOptions.map((option) => (
-            <div className="my-1">
-              <div key={option.client_id} id={option.client_id}></div>
+            <div key={option.client_id} className="my-1">
+              <div id={option.client_id}></div>
             </div>
           ))}
         </>
