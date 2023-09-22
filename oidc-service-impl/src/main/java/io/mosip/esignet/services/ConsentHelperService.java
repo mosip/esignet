@@ -173,8 +173,8 @@ public class ConsentHelperService {
         }
         claimsAndAuthorizeScopes.put("claims",sortedMap);
         claimsAndAuthorizeScopes.put("authorizeScopes",sortedAuthorzeScopeMap);
-        String s=claimsAndAuthorizeScopes.toString().trim().replace(" ","");
-        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, s);
+        String claimsAndAuthorizeScopesAsString = claimsAndAuthorizeScopes.toString().trim().replace(" ","");
+        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, claimsAndAuthorizeScopesAsString);
     }
 
     private static void sortClaims(List<Map.Entry<String, ClaimDetail>> entryList, Map<String, ClaimDetail> sortedMap) {
@@ -199,10 +199,12 @@ public class ConsentHelperService {
         String hash;
         try {
             List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-        if(linked) {
-            if (!verifyConsentSignature(consentDetail,transaction))
+
+            if(linked && !verifyConsentSignature(consentDetail,transaction)) {
+                log.error("Invalid consent signature found during linked authorization! CAPTURE consent action");
                 return ConsentAction.CAPTURE;
-        }
+            }
+
             // defaulting the essential boolean flag as false
             Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
                     .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();

@@ -6,14 +6,17 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import {
   configurationKeys,
   deepLinkParamPlaceholder,
+  walletConfigKeys
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 
 var linkAuthTriggered = false;
 
 export default function LoginQRCode({
+  walletDetail,
   linkAuthService,
   openIDConnectService,
+  handleBackButtonClick,
   i18nKeyPrefix = "LoginQRCode",
 }) {
   const post_GenerateLinkCode = linkAuthService.post_GenerateLinkCode;
@@ -45,21 +48,18 @@ export default function LoginQRCode({
       : process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
   const walletLogoURL =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.walletLogoURL
-    ) ?? process.env.REACT_APP_WALLET_LOGO_URL;
+    walletDetail[walletConfigKeys.walletLogoUrl] ?? process.env.REACT_APP_WALLET_LOGO_URL;
 
-  const walletQrCodeAutoRefreshLimit = openIDConnectService.getEsignetConfiguration(
-    configurationKeys.walletQrCodeAutoRefreshLimit
-  ) ?? process.env.REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
+  let qrCodeDeepLinkURI =
+    walletDetail[walletConfigKeys.qrCodeDeepLinkURI] ?? process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
+
+  const walletQrCodeAutoRefreshLimit =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.walletQrCodeAutoRefreshLimit
+    ) ?? process.env.REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
 
   const GenerateQRCode = (response, logoUrl) => {
-    let text =
-      openIDConnectService.getEsignetConfiguration(
-        configurationKeys.qrCodeDeepLinkURI
-      ) ?? process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
-
-    text = text.replace(deepLinkParamPlaceholder.linkCode, response.linkCode);
+    let text = qrCodeDeepLinkURI.replace(deepLinkParamPlaceholder.linkCode, response.linkCode);
 
     text = text.replace(
       deepLinkParamPlaceholder.linkExpiryDate,
@@ -87,7 +87,7 @@ export default function LoginQRCode({
         if (logoUrl) {
           const logo = new Image();
           logo.src = logoUrl;
-          logo.crossOrigin="anonymous"
+          logo.crossOrigin = "anonymous";
           logo.onload = () => {
             const ctx = canvas.getContext("2d");
             const size = canvas.width / 6;
@@ -260,6 +260,7 @@ export default function LoginQRCode({
           setStatus({
             state: states.LOADING,
             msg: "link_auth_waiting",
+            msgParam: {walletName: walletDetail[walletConfigKeys.walletName]},
           });
           triggerLinkAuth(transactionId, linkCode);
         }
@@ -357,12 +358,27 @@ export default function LoginQRCode({
 
   return (
     <>
-      <h1
-        className="text-center text-sky-600 font-semibold line-clamp-2"
-        title={t("scan_with_inji")}
-      >
-        {t("scan_with_inji")}
-      </h1>
+      <div className="grid grid-cols-8 items-center">
+        <div className="h-6 items-center text-center flex items-start">
+          <button
+            onClick={() => handleBackButtonClick()}
+            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+          >
+            &#8592;
+          </button>
+        </div>
+        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+          <h1
+            className="text-center text-sky-600 font-semibold line-clamp-2"
+            title={t("scan_with_wallet", {
+              walletName: walletDetail[walletConfigKeys.walletName],
+            })}
+          >
+            {t("scan_with_wallet", { walletName: walletDetail[walletConfigKeys.walletName] })}
+          </h1>
+        </div>
+      </div>
+
       <div className="relative h-64 mt-6">
         {error && (
           <div className="absolute bottom-0 left-0 bg-white bg-opacity-90 h-full w-full flex justify-center items-center">
@@ -388,18 +404,41 @@ export default function LoginQRCode({
         )}
         {qr && (
           <div className="w-full flex justify-center">
-            <div className="border border-4 border-sky-600 rounded-3xl p-2 w-64 h-64">
-              <img src={qr} />
+            <div className="border border-4 border-sky-600 rounded-3xl p-2">
+              <img src={qr} style={{ height: "186px", width: "186px" }} />
             </div>
           </div>
         )}
         {status.state === states.LOADING && error === null && (
           <div className="absolute bottom-0 left-0 bg-white bg-opacity-80 h-full w-full flex justify-center items-center">
             <div className="rounded h-min bg-slate-50 w-full p-3 mx-4">
-              <LoadingIndicator size="medium" message={status.msg} />
+              <LoadingIndicator
+                size="medium"
+                message={status.msg}
+                msgParam={status.msgParam}
+              />
             </div>
           </div>
         )}
+      </div>
+
+      {/**footer */}
+      <div className="row-span-1 mt-5 mb-2">
+        <div>
+          <p className="text-center text-black-600 font-semibold">
+            {t("dont_have_wallet", {
+              walletName: walletDetail[walletConfigKeys.walletName],
+            })}
+            &nbsp;
+            <a
+              href={walletDetail[walletConfigKeys.appDownloadURI]}
+              className="text-sky-600"
+              id="download_now"
+            >
+              {t("download_now")}
+            </a>
+          </p>
+        </div>
       </div>
     </>
   );

@@ -25,7 +25,8 @@ const validAuthFactors = {
   PIN: "PIN",
   OTP: "OTP",
   BIO: "BIO",
-  PWD: "PWD"
+  PWD: "PWD",
+  WLA: "WLA"
 };
 
 const buttonTypes = {
@@ -38,6 +39,13 @@ const buttonTypes = {
 const deepLinkParamPlaceholder = {
   linkCode: "LINK_CODE",
   linkExpiryDate: "LINK_EXPIRE_DT",
+};
+
+const walletConfigKeys = {
+  walletName:"wallet.name",
+  walletLogoUrl: "wallet.logo-url",
+  qrCodeDeepLinkURI: "wallet.deep-link-uri",
+  appDownloadURI:"wallet.download-uri"
 };
 
 const configurationKeys = {
@@ -75,7 +83,8 @@ const configurationKeys = {
   walletLogoURL: "wallet.logo-url",
   consentScreenExpireInSec: "consent.screen.timeout-in-secs",
   consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
-  walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit"
+  walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit",
+  walletConfig: "wallet.config"
 };
 
 export {
@@ -85,5 +94,6 @@ export {
   validAuthFactors,
   deepLinkParamPlaceholder,
   buttonTypes,
-  challengeFormats
+  challengeFormats,
+  walletConfigKeys
 };
