@@ -77,7 +77,7 @@ export default function SignInOptions({
       console.log(authRequest);
 
       const encodedState = Buffer.from(
-        openIDConnectService.getTransactionId()
+        openIDConnectService.getTransactionId() + " " + openIDConnectService.getRedirectUri()
       ).toString("base64");
 
       let claims_locales = authRequest.claims_locales ?? "";
@@ -146,26 +146,6 @@ export default function SignInOptions({
         </div>
       )}
 
-      {status.state === states.LOADED &&
-        window.SignInWithEsignetButton &&
-        crossBorderSinginOptions &&
-        crossBorderSinginOptions.length > 0 && (
-          <>
-            <div className="flex w-full my-2 items-center px-5">
-              <div className="flex-1 h-px bg-zinc-400" />
-              <div>
-                <p className="w-14 text-center">{t("or")}</p>
-              </div>
-              <div className="flex-1 h-px bg-zinc-400" />
-            </div>
-            {crossBorderSinginOptions.map((option) => (
-              <div key={option.client_id} className="my-1">
-                <div id={option.client_id}></div>
-              </div>
-            ))}
-          </>
-        )}
-
       {showMoreOptions && (
         <div
           className="text-center cursor-pointer font-medium text-[#0953FA] mt-3 flex flex-row rtl:flex-row-reverse items-center justify-center"
@@ -186,6 +166,26 @@ export default function SignInOptions({
           </span>
         </div>
       )}
+
+      {status.state === states.LOADED &&
+        window.SignInWithEsignetButton &&
+        crossBorderSinginOptions &&
+        crossBorderSinginOptions.length > 0 && (
+          <>
+            <div className="flex w-full my-2 items-center px-5">
+              <div className="flex-1 h-px bg-zinc-400" />
+              <div>
+                <p className="w-14 text-center">{t("or")}</p>
+              </div>
+              <div className="flex-1 h-px bg-zinc-400" />
+            </div>
+            {crossBorderSinginOptions.map((option) => (
+              <div key={option.client_id} className="my-1">
+                <div id={option.client_id}></div>
+              </div>
+            ))}
+          </>
+        )}
     </>
   );
 }
