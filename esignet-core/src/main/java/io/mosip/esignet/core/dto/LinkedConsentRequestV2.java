@@ -21,12 +21,13 @@ public class LinkedConsentRequestV2 {
     /**
      * List of accepted claim names by end-user
      */
-    private List<String> acceptedClaims;
+    private List<@NotBlank(message = ErrorConstants.INVALID_ACCEPTED_CLAIM) String> acceptedClaims;
 
     /**
      * List of permitted authorize scopes
      */
-    private List<String> permittedAuthorizeScopes;
+
+    private List<@NotBlank(message = ErrorConstants.INVALID_PERMITTED_SCOPE) String> permittedAuthorizeScopes;
 
     @SignatureFormat
     private String signature;
