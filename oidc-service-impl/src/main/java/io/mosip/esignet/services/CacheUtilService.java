@@ -58,6 +58,12 @@ public class CacheUtilService {
         log.debug("Evicting entry from authCodeGeneratedCache");
     }
 
+    @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId", condition = "#transactionId != null")
+    @Cacheable(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#oidcTransaction.getCodeHash()")
+    public OIDCTransaction setProxyAuthCodeGeneratedTransaction(String transactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
+    }
+
     //---------------------------------------------- Linked authorization ----------------------------------------------
 
     @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
