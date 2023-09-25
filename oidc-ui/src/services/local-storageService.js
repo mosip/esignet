@@ -1,5 +1,6 @@
 const device_info_keyname = "deviceInfo";
 const discover_keyname = "discover";
+const authorize_details_keyname = "authorize";
 
 /**
  * Clear the cache of discovered devices
@@ -62,7 +63,7 @@ const getDeviceInfos = () => {
 };
 
 /**
- * retrieves cookie from the browser 
+ * retrieves cookie from the browser
  * @param {string} key
  * @returns cookie value
  */
@@ -71,13 +72,29 @@ function getCookie(key) {
   return b ? b.pop() : "";
 }
 
+/**
+ * cache authorize request details
+ */
+const storeAuthorizeRequest = (authorizeRequest) => {
+  localStorage.setItem(authorize_details_keyname, JSON.stringify(authorizeRequest));
+};
+
+/**
+ * cache authorize request details
+ */
+const getAuthorizeRequest = () => {
+  return JSON.parse(localStorage.getItem(authorize_details_keyname));
+};
+
 const localStorageService = {
   addDeviceInfos: addDeviceInfos,
   getDeviceInfos: getDeviceInfos,
   clearDeviceInfos: clearDeviceInfos,
   clearDiscoveredDevices: clearDiscoveredDevices,
   addDiscoveredDevices: addDiscoveredDevices,
-  getCookie: getCookie
+  getCookie: getCookie,
+  storeAuthorizeRequest,
+  getAuthorizeRequest
 };
 
 export default localStorageService;

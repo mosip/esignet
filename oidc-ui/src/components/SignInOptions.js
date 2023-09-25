@@ -4,10 +4,12 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import { configurationKeys } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import { getAllAuthFactors } from "../services/walletService";
+import { Buffer } from "buffer";
 
 export default function SignInOptions({
   openIDConnectService,
   handleSignInOptionClick,
+  localStorageService,
   i18nKeyPrefix = "signInOption",
 }) {
   const { i18n, t } = useTranslation("translation", {
@@ -26,13 +28,13 @@ export default function SignInOptions({
     let oAuthDetails = openIDConnectService.getOAuthDetails();
     let authFactors = oAuthDetails?.authFactors;
 
-    let wlaList =
-      openIDConnectService.getEsignetConfiguration(
-        configurationKeys.walletConfig);
+    let wlaList = openIDConnectService.getEsignetConfiguration(
+      configurationKeys.walletConfig
+    );
 
-    let crossBorderConfigs =
-      openIDConnectService.getEsignetConfiguration(
-        configurationKeys.crossBorderAuthConfig);
+    let crossBorderConfigs = openIDConnectService.getEsignetConfiguration(
+      configurationKeys.crossBorderAuthConfig
+    );
 
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
 
@@ -70,9 +72,37 @@ export default function SignInOptions({
           idProviderName: option.idProviderName,
         }),
       };
+
+      let authRequest = localStorageService.getAuthorizeRequest();
+      console.log(authRequest);
+
+      const encodedState = Buffer.from(
+        openIDConnectService.getTransactionId()
+      ).toString("base64");
+
+      let claims_locales = authRequest.claims_locales ?? "";
+
+      if (option.claims_locales)
+        claims_locales = (claims_locales + " " + option.claims_locales).trim();
+
+      let ui_locales = i18n.language;
+      let claims = authRequest.claims;
+      let response_type = authRequest.response_type;
+      let scope = authRequest.scope;
+
+      let oidcConfig = {
+        ...option.oidcConfig,
+        state: encodedState,
+        claims_locales,
+        ui_locales,
+        claims,
+        response_type,
+        scope,
+      };
+
       window.SignInWithEsignetButton?.init({
-        oidcConfig: option.oidcConfig,
-        buttonConfig: buttonConfig,
+        oidcConfig,
+        buttonConfig,
         signInElement: document.getElementById(option.client_id),
       });
     });
@@ -116,23 +146,25 @@ export default function SignInOptions({
         </div>
       )}
 
-      {status.state === states.LOADED && window.SignInWithEsignetButton && 
-      crossBorderSinginOptions && crossBorderSinginOptions.length > 0 && (
-        <>
-          <div className="flex w-full my-2 items-center px-5">
-            <div className="flex-1 h-px bg-zinc-400" />
-            <div>
-              <p className="w-14 text-center">{t("or")}</p>
+      {status.state === states.LOADED &&
+        window.SignInWithEsignetButton &&
+        crossBorderSinginOptions &&
+        crossBorderSinginOptions.length > 0 && (
+          <>
+            <div className="flex w-full my-2 items-center px-5">
+              <div className="flex-1 h-px bg-zinc-400" />
+              <div>
+                <p className="w-14 text-center">{t("or")}</p>
+              </div>
+              <div className="flex-1 h-px bg-zinc-400" />
             </div>
-            <div className="flex-1 h-px bg-zinc-400" />
-          </div>
-          {crossBorderSinginOptions.map((option) => (
-            <div key={option.client_id} className="my-1">
-              <div id={option.client_id}></div>
-            </div>
-          ))}
-        </>
-      )}
+            {crossBorderSinginOptions.map((option) => (
+              <div key={option.client_id} className="my-1">
+                <div id={option.client_id}></div>
+              </div>
+            ))}
+          </>
+        )}
 
       {showMoreOptions && (
         <div
