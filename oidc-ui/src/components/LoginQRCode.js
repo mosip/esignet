@@ -412,7 +412,7 @@ export default function LoginQRCode({
         )}
         {status.state === states.LOADING && error === null && (
           <div className="absolute bottom-0 left-0 bg-white bg-opacity-80 h-full w-full flex justify-center items-center">
-            <div className="rounded h-min bg-slate-50 w-full p-3 mx-4">
+            <div className="rounded h-min loading-indicator w-full p-3 mx-4">
               <LoadingIndicator
                 size="medium"
                 message={status.msg}
