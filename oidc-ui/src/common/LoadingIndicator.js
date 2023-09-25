@@ -27,7 +27,7 @@ const LoadingIndicator = ({
     <>
       <div
         role="status"
-        className="flex justify-center items-center"
+        className="flex justify-center items-center loading-indicator"
       >
         <svg
           style={dynamicSize[size]}
