@@ -88,17 +88,16 @@ public class OAuthServiceImpl implements OAuthService {
         authenticateClient(tokenRequest, clientDetailDto);
 
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
-        if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
+        if(!transaction.isProxy() && !isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
             KycExchangeResult kycExchangeResult = doKycExchange(transaction);
             transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
             auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         }
 
         TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped);
-        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
-        transaction.setAHash(accessTokenHash);
+
         // cache kyc with access-token as key
-        cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
+        cacheUtilService.setUserInfoTransaction(transaction.getAHash(), transaction);
         auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
                 transaction), null);
         return tokenResponse;
@@ -218,6 +217,10 @@ public class OAuthServiceImpl implements OAuthService {
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setToken_type(Constants.BEARER);
+
+        //set access-token hash in the transaction
+        transaction.setAHash(IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token()));
+
         if(isTransactionVCScoped) {
             tokenResponse.setC_nonce(cNonce);
             tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);

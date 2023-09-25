@@ -316,7 +316,7 @@ public class AuthorizationHelperService {
         return responseWrapper;
     }
 
-    protected String getKeyHash(@NotNull String value) {
+    public String getKeyHash(@NotNull String value) {
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, value);
     }
 
