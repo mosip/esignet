@@ -28,9 +28,8 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
         <div className="container flex mx-auto px-5 md:flex-row flex-col items-center">
           <div className="flex justify-center rounded-none rounded-r-lg lg:max-w-lg md:w-1/2 w-5/6 mb-10 md:mb-0">
             <img
-              className="rtl:scale-x-[-1]"
+              className="background-logo object-contain rtl:scale-x-[-1]"
               alt="user signing in"
-              src="images/illustration_one.png"
             />
           </div>
           <div className="lg:flex-grow md:w-1/2  flex flex-col md:items-start md:text-left items-center text-center">

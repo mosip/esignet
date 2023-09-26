@@ -5,7 +5,7 @@ const baseUrl =
   process.env.NODE_ENV === "development"
     ? process.env.REACT_APP_ESIGNET_API_URL
     : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
-const proxyAuthCodeEndpoint = "/proxy/auth-code";
+const proxyAuthCodeEndpoint = "/proxyauthorization/auth-code";
 
 const { getCookie } = { ...localStorageService };
  /**
@@ -19,7 +19,7 @@ const post_proxyAuthCode = async (authCode, transactionId) => {
     requestTime: new Date().toISOString(),
     request: {
       transactionId: transactionId,
-      authCode: authCode
+      proxyAuthorizationCode: authCode
     },
   };
 

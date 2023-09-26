@@ -38,71 +38,89 @@ export default function SignInOptions({
 
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
 
-    setCrossBorderSinginOptions(getCrossBorderLoginOptions(crossBorderConfigs));
+    let options = getCrossBorderLoginOptions(crossBorderConfigs);
+    setCrossBorderSinginOptions(options);
     setSinginOptions(loginOptions);
     setShowMoreOptions(loginOptions.length > 4 && loginOptions.length !== 5);
     setStatus({ state: states.LOADED, msg: "" });
 
     i18n.on("languageChanged", function (lng) {
-      renderSignInButton();
+      renderSignInButton(options);
     });
   }, []);
 
   const getCrossBorderLoginOptions = (crossBorderConfigs) => {
     let crossBorderLoginOptions = [];
     crossBorderConfigs?.forEach((crossBorderConfig) => {
-      crossBorderLoginOptions.push({
-        ...crossBorderConfig,
-        client_id: crossBorderConfig.oidcConfig?.client_id,
-      });
-    });
-    return crossBorderLoginOptions;
-  };
-
-  useEffect(() => {
-    renderSignInButton();
-  }, [crossBorderSinginOptions]);
-
-  const renderSignInButton = () => {
-    crossBorderSinginOptions?.forEach((option) => {
       let buttonConfig = {
-        ...option.buttonConfig,
+        ...crossBorderConfig.buttonConfig,
         width: "100%",
         labelText: t("sign_in_with", {
-          idProviderName: option.idProviderName,
+          idProviderName: crossBorderConfig.idProviderName,
         }),
       };
 
-      let authRequest = localStorageService.getAuthorizeRequest();
-      console.log(authRequest);
+      let authorizeRequest = localStorageService.getAuthorizeRequest();
 
+      //space seperated values
       const encodedState = Buffer.from(
-        openIDConnectService.getTransactionId() + " " + openIDConnectService.getRedirectUri()
+        openIDConnectService.getTransactionId() +
+          " " +
+          openIDConnectService.getRedirectUri()
       ).toString("base64");
 
-      let claims_locales = authRequest.claims_locales ?? "";
+      let claims_locales = authorizeRequest.claims_locales ?? "";
 
-      if (option.claims_locales)
-        claims_locales = (claims_locales + " " + option.claims_locales).trim();
+      if (crossBorderConfig.claims_locales)
+        claims_locales = (
+          claims_locales +
+          " " +
+          crossBorderConfig.claims_locales
+        ).trim();
 
       let ui_locales = i18n.language;
-      let claims = authRequest.claims;
-      let response_type = authRequest.response_type;
-      let scope = authRequest.scope;
+      let claims = authorizeRequest.claims;
+      let response_type = authorizeRequest.response_type;
+      let scope = authorizeRequest.scope;
+      let nonce = authorizeRequest.nonce;
 
       let oidcConfig = {
-        ...option.oidcConfig,
+        ...crossBorderConfig.oidcConfig,
         state: encodedState,
         claims_locales,
         ui_locales,
         claims,
         response_type,
         scope,
+        nonce,
+      };
+
+      crossBorderLoginOptions.push({
+        oidcConfig: oidcConfig,
+        buttonConfig: buttonConfig,
+        client_id: crossBorderConfig.oidcConfig?.client_id,
+        idProviderName: crossBorderConfig.idProviderName,
+      });
+    });
+    return crossBorderLoginOptions;
+  };
+
+  useEffect(() => {
+    renderSignInButton(crossBorderSinginOptions);
+  }, [crossBorderSinginOptions]);
+
+  const renderSignInButton = (crossBorderSinginOptions) => {
+    crossBorderSinginOptions?.forEach((option) => {
+      let buttonConfig = {
+        ...option.buttonConfig,
+        labelText: t("sign_in_with", {
+          idProviderName: option.idProviderName,
+        }),
       };
 
       window.SignInWithEsignetButton?.init({
-        oidcConfig,
-        buttonConfig,
+        oidcConfig: option.oidcConfig,
+        buttonConfig: buttonConfig,
         signInElement: document.getElementById(option.client_id),
       });
     });
