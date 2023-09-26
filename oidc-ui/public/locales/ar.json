@@ -108,7 +108,9 @@
     "OTP": "OTP",
     "PWD": "كلمة المرور",
     "preferred_mode_of_login": "حدد الوضع المفضل لتسجيل الدخول",
-    "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول"
+    "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
+    "or": "أو",
+    "sign_in_with" : "التحقق باستخدام {{idProviderName}}"
   },
   "esignetDetails": {
     "esignet_details_heading": "واجهات برمجة التطبيقات Esignet معروفة جيدا",

@@ -112,6 +112,8 @@ class authService {
       },
     };
 
+    localStorageService.storeAuthorizeRequest(request.request);
+
     var endpoint = baseUrl + oauthDetailsEndPoint;
 
     let response = await axios.post(endpoint, request, {

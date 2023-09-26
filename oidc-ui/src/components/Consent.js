@@ -14,7 +14,6 @@ export default function Consent({
   authTime,
   openIDConnectService,
   i18nKeyPrefix = "consent",
-  backgroundImgPath
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -146,8 +145,6 @@ export default function Consent({
   };
 
   i18next.on("languageChanged", () => {
-    console.log("language changed");
-    console.log(i18next.language);
     setClientMultiLang();
   });
 
@@ -365,9 +362,8 @@ export default function Consent({
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <div>
           <img
-            className="object-contain rtl:scale-x-[-1]"
+            className="background-logo object-contain rtl:scale-x-[-1]"
             alt={t("backgroud_image_alt")}
-            src={backgroundImgPath}
           />
         </div>
       </div>

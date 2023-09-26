@@ -4,17 +4,23 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import { configurationKeys } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import { getAllAuthFactors } from "../services/walletService";
+import { Buffer } from "buffer";
 
 export default function SignInOptions({
   openIDConnectService,
   handleSignInOptionClick,
+  localStorageService,
   i18nKeyPrefix = "signInOption",
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { i18n, t } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix,
+  });
 
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [singinOptions, setSinginOptions] = useState(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [crossBorderSinginOptions, setCrossBorderSinginOptions] =
+    useState(null);
 
   useEffect(() => {
     setStatus({ state: states.LOADING, msg: "loading_msg" });
@@ -22,17 +28,103 @@ export default function SignInOptions({
     let oAuthDetails = openIDConnectService.getOAuthDetails();
     let authFactors = oAuthDetails?.authFactors;
 
-    let wlaList =
-      openIDConnectService.getEsignetConfiguration(
-        configurationKeys.walletConfig
-      ) ?? process.env.REACT_APP_WALLET_CONFIG;
+    let wlaList = openIDConnectService.getEsignetConfiguration(
+      configurationKeys.walletConfig
+    );
+
+    let crossBorderConfigs = openIDConnectService.getEsignetConfiguration(
+      configurationKeys.crossBorderAuthConfig
+    );
 
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
 
+    let options = getCrossBorderLoginOptions(crossBorderConfigs);
+    setCrossBorderSinginOptions(options);
     setSinginOptions(loginOptions);
     setShowMoreOptions(loginOptions.length > 4 && loginOptions.length !== 5);
     setStatus({ state: states.LOADED, msg: "" });
+
+    i18n.on("languageChanged", function (lng) {
+      renderSignInButton(options);
+    });
   }, []);
+
+  const getCrossBorderLoginOptions = (crossBorderConfigs) => {
+    let crossBorderLoginOptions = [];
+    crossBorderConfigs?.forEach((crossBorderConfig) => {
+      let buttonConfig = {
+        ...crossBorderConfig.buttonConfig,
+        width: "100%",
+        labelText: t("sign_in_with", {
+          idProviderName: crossBorderConfig.idProviderName,
+        }),
+      };
+
+      let authorizeRequest = localStorageService.getAuthorizeRequest();
+
+      //space seperated values
+      const encodedState = Buffer.from(
+        openIDConnectService.getTransactionId() +
+          " " +
+          openIDConnectService.getRedirectUri()
+      ).toString("base64");
+
+      let claims_locales = authorizeRequest.claims_locales ?? "";
+
+      if (crossBorderConfig.claims_locales)
+        claims_locales = (
+          claims_locales +
+          " " +
+          crossBorderConfig.claims_locales
+        ).trim();
+
+      let ui_locales = i18n.language;
+      let claims = authorizeRequest.claims;
+      let response_type = authorizeRequest.response_type;
+      let scope = authorizeRequest.scope;
+      let nonce = authorizeRequest.nonce;
+
+      let oidcConfig = {
+        ...crossBorderConfig.oidcConfig,
+        state: encodedState,
+        claims_locales,
+        ui_locales,
+        claims,
+        response_type,
+        scope,
+        nonce,
+      };
+
+      crossBorderLoginOptions.push({
+        oidcConfig: oidcConfig,
+        buttonConfig: buttonConfig,
+        client_id: crossBorderConfig.oidcConfig?.client_id,
+        idProviderName: crossBorderConfig.idProviderName,
+      });
+    });
+    return crossBorderLoginOptions;
+  };
+
+  useEffect(() => {
+    renderSignInButton(crossBorderSinginOptions);
+  }, [crossBorderSinginOptions]);
+
+  const renderSignInButton = (crossBorderSinginOptions) => {
+    crossBorderSinginOptions?.forEach((option) => {
+      let buttonConfig = {
+        ...option.buttonConfig,
+        labelText: t("sign_in_with", {
+          idProviderName: option.idProviderName,
+        }),
+      };
+
+      window.SignInWithEsignetButton?.init({
+        oidcConfig: option.oidcConfig,
+        buttonConfig: buttonConfig,
+        signInElement: document.getElementById(option.client_id),
+      });
+    });
+  };
 
   return (
     <>
@@ -92,6 +184,26 @@ export default function SignInOptions({
           </span>
         </div>
       )}
+
+      {status.state === states.LOADED &&
+        window.SignInWithEsignetButton &&
+        crossBorderSinginOptions &&
+        crossBorderSinginOptions.length > 0 && (
+          <>
+            <div className="flex w-full my-2 items-center px-5">
+              <div className="flex-1 h-px bg-zinc-400" />
+              <div>
+                <p className="w-14 text-center">{t("or")}</p>
+              </div>
+              <div className="flex-1 h-px bg-zinc-400" />
+            </div>
+            {crossBorderSinginOptions.map((option) => (
+              <div key={option.client_id} className="my-1">
+                <div id={option.client_id}></div>
+              </div>
+            ))}
+          </>
+        )}
     </>
   );
 }

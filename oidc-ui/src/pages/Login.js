@@ -65,6 +65,7 @@ function InitiateSignInOptions(handleSignInOptionClick, openIDConnectService) {
   return React.createElement(SignInOptions, {
     openIDConnectService: openIDConnectService,
     handleSignInOptionClick: handleSignInOptionClick,
+    localStorageService: localStorageService,
   });
 }
 

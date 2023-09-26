@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import EsignetDetailsPage from "./pages/EsignetDetails";
 import LoadingIndicator from "./common/LoadingIndicator";
 import { LoadingStates as states } from "./constants/states";
+import ProxyAuthorizationPage from "./pages/ProxyAuthorization";
 
 function App() {
   const { i18n } = useTranslation();
@@ -103,6 +104,7 @@ function App() {
               <Route path={process.env.PUBLIC_URL + "/login"} element={<LoginPage />} />
               <Route path={process.env.PUBLIC_URL + "/authorize"} element={<AuthorizePage />} />
               <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
+              <Route path={process.env.PUBLIC_URL + "/proxy-authorization"} element={<ProxyAuthorizationPage />} />
             </Routes>
           </BrowserRouter>
         </div>

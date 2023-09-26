@@ -29,7 +29,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     });
 
     if (lang == null) {
-      const defaultLanguageCode = window["envConfigs"].defaultLang;
+      const defaultLanguageCode = window._env_.DEFAULT_LANG;
 
       // Find the language option that matches the extracted language code
       const defaultLang = langOptions.find(
