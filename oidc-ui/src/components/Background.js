@@ -3,10 +3,8 @@ import { useTranslation } from "react-i18next";
 
 export default function Background({
   heading,
-  logoPath,
   clientLogoPath,
   clientName,
-  backgroundImgPath,
   component,
   i18nKeyPrefix = "header",
 }) {
@@ -47,8 +45,7 @@ export default function Background({
                 />
                 <span className="text-5xl flex mx-5">&#8651;</span>
                 <img
-                  className="h-20 w-32 object-contain"
-                  src={logoPath}
+                  className="h-20 w-32 object-contain brand-only-logo"
                   alt={t("logo_alt")}
                 />
               </div>
