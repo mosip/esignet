@@ -50,7 +50,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   }, [langOptions]);
 
   return (
-    <nav className="bg-white border-gray-500 shadow px-2 sm:px-4 py-2">
+    <nav className="bg-white border-gray-500 shadow px-2 sm:px-4 py-2" id="navbar-header">
       <div className="flex justify-between">
         <div className="ltr:sm:ml-8 rtl:sm:mr-8 ltr:ml-1 rtl:mr-1">
           <img className="brand-logo" />
