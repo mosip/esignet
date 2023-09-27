@@ -187,10 +187,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     <>
       <Background
         heading={t("login_heading")}
-        logoPath="logo.png"
         clientLogoPath={clientLogoURL}
         clientName={clientName}
-        backgroundImgPath="images/illustration_one.png"
         component={compToShow}
       />
     </>
