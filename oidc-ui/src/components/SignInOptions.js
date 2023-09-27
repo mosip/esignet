@@ -202,7 +202,7 @@ export default function SignInOptions({
             </div>
             <div className="flex justify-center w-full">
               {crossBorderSinginOptions.map((option) => (
-                <div key={option.idProviderName} className="my-4 mx-2">
+                <div key={option.idProviderName} className="my-4 mx-2" title={option.idProviderName}>
                   <div id={option.idProviderName}></div>
                 </div>
               ))}
