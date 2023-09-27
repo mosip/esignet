@@ -54,7 +54,6 @@ export default function SignInOptions({
     crossBorderConfigs?.forEach((crossBorderConfig) => {
       let buttonConfig = {
         ...crossBorderConfig.buttonConfig,
-        width: "100%",
         labelText: t("sign_in_with", {
           idProviderName: crossBorderConfig.idProviderName,
         }),
@@ -98,7 +97,6 @@ export default function SignInOptions({
       crossBorderLoginOptions.push({
         oidcConfig: oidcConfig,
         buttonConfig: buttonConfig,
-        client_id: crossBorderConfig.oidcConfig?.client_id,
         idProviderName: crossBorderConfig.idProviderName,
       });
     });
@@ -121,7 +119,7 @@ export default function SignInOptions({
       window.SignInWithEsignetButton?.init({
         oidcConfig: option.oidcConfig,
         buttonConfig: buttonConfig,
-        signInElement: document.getElementById(option.client_id),
+        signInElement: document.getElementById(option.idProviderName),
       });
     });
   };
@@ -197,11 +195,18 @@ export default function SignInOptions({
               </div>
               <div className="flex-1 h-px bg-zinc-400" />
             </div>
-            {crossBorderSinginOptions.map((option) => (
-              <div key={option.client_id} className="my-1">
-                <div id={option.client_id}></div>
-              </div>
-            ))}
+            <div className="w-full">
+              <p className="w-full text-center font-medium">
+                Verify using National IDs
+              </p>
+            </div>
+            <div className="flex justify-center w-full">
+              {crossBorderSinginOptions.map((option) => (
+                <div key={option.idProviderName} className="my-4 mx-2">
+                  <div id={option.idProviderName}></div>
+                </div>
+              ))}
+            </div>
           </>
         )}
     </>
