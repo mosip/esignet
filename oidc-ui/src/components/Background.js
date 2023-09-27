@@ -25,7 +25,7 @@ export default function Background({
               />
             </div>
           </div>
-          <div className="rounded overflow-hidden shadow-lg py-4 w-full md:w-3/6 sm:w-1/2 sm:max-w-sm bg-white">
+          <div className="rounded shadow-lg py-4 w-full md:w-3/6 sm:w-1/2 sm:max-w-sm bg-white">
             <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3">
               <div className="w-full">
                 <h1 className="flex text-center justify-center title-font sm:text-base text-base mb-3 font-medium text-gray-900">
