@@ -28,7 +28,7 @@ function installing_esignet() {
   kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
 
   echo Setting up dummy values for esignet misp license key
-  kubectl create secret generic esignet-misp-onboarder-key -n $NS --from-literal=mosip-esignet-misp-key=111111 --dry-run=client -o yaml | kubectl apply -f -
+  kubectl create secret generic esignet-misp-onboarder-key -n $NS --from-literal=mosip-esignet-misp-key= --dry-run=client -o yaml | kubectl apply -f -
 
   ./copy_cm_func.sh secret esignet-misp-onboarder-key esignet config-server
 
