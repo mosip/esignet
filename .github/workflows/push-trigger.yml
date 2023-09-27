@@ -20,6 +20,7 @@ on:
       - develop
       - MOSIP*
       - release*
+      - demo-ES-278
 
 jobs:
   build-maven-esignet:
