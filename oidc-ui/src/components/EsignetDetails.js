@@ -11,16 +11,21 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
   useEffect(() => {
     setStatus({ state: states.LOADING, msg: t("loading_msg") });
 
-    let detailList = [
-      {
-        name: "wellknown_api",
-        value: process.env.PUBLIC_URL + "/.well-known/openid-configuration",
-      },
-    ];
+    // if the environment is not passed then this will assigned as empty list
+    let detailList = JSON.parse(process.env.REACT_APP_WELL_KNOWN_ENDPOINT_API_LIST ?? "[]");
 
     setDetails(detailList);
     setStatus({ state: states.LOADED, msg: "" });
   }, []);
+
+  // to open a well known endpoint in a separate blank tab
+  const openWellKnownEndpoint = (endpoint) => {
+    window.open(
+      process.env.PUBLIC_URL + endpoint,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
 
   return (
     <>
@@ -49,11 +54,14 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
                     <div className="divide-y-2 gap-2">
                       {details.map((detail, idx) => (
                         <div className="px-2 py-1 grid grid-cols-3">
-                          <div className="col-span-1 flex justify-center">
+                          <div className="col-span-1 flex justify-start">
                             {detail.icon && <img src={detail.icon} />}
-                            {!detail.icon && t(detail.name)}
+                            {!detail.icon && detail.name}
                           </div>
-                          <div className="col-span-2 flex justify-start">
+                          <div
+                            className="col-span-2 flex justify-start cursor-pointer"
+                            onClick={() => openWellKnownEndpoint(detail.value)}
+                          >
                             {detail.value}
                           </div>
                         </div>
