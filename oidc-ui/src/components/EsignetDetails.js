@@ -12,7 +12,7 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
     setStatus({ state: states.LOADING, msg: t("loading_msg") });
 
     // if the environment is not passed then this will assigned as empty list
-    let detailList = window._env_.DEFAULT_WELLKNOWN ?? [];
+    let detailList = JSON.parse(process.env.REACT_APP_WELL_KNOWN_ENDPOINT_API_LIST ?? "[]");
 
     setDetails(detailList);
     setStatus({ state: states.LOADED, msg: "" });
