@@ -34,7 +34,7 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
           </div>
           <div className="lg:flex-grow md:w-1/2  flex flex-col md:items-start md:text-left items-center text-center">
             <div className="w-full flex justify-center">
-              <img className="mb-4 h-20" src="logo.png" />
+              <img className="mb-4 h-20 w-32 brand-only-logo" />
             </div>
             <div className="w-full">
               <h1 className="flex justify-center title-font sm:text-3xl text-3xl mb-16 font-medium text-gray-900">
