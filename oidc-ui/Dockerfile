@@ -7,10 +7,14 @@ ENV SIGN_IN_WITH_ESIGNET_PLUGIN_URL=$sign_in_with_esignet_plugin_url
 ARG oidcUIPublicUrl
 ARG uiDefaultTheme
 ARG defaultLang
+ARG defaultFevicon
+ARG defaultTitle
 
 ENV OIDC_UI_PUBLIC_URL=$oidcUIPublicUrl
 ENV DEFAULT_THEME=$uiDefaultTheme
 ENV DEFAULT_LANG=$defaultLang
+ENV DEFAULT_FEVICON=$defaultFevicon
+ENV DEFAULT_TITLE=$defaultTitle
 
 # Set the environment variable as a placeholder for PUBLIC_URL
 ENV PUBLIC_URL=_PUBLIC_URL_
@@ -81,7 +85,7 @@ COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 # copy build files to nginx html directory
 COPY --from=build_esignet_ui /build  ${work_dir}
 
-RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env && echo "DEFAULT_LANG=$DEFAULT_LANG" >> ${work_dir}/env.env
+RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env && echo "DEFAULT_LANG=$DEFAULT_LANG" >> ${work_dir}/env.env && echo "DEFAULT_FEVICON=$DEFAULT_FEVICON" >> ${work_dir}/env.env env && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
