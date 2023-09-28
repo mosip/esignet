@@ -441,6 +441,58 @@ public class AuthorizationControllerTest {
     }
 
     @Test
+    public void getOauthDetailsV2_withInvalidChallengeCode_returnErrorResponse() throws Exception {
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri(" ");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setCodeChallenge("123");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PKCE_CHALLENGE));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withUnsupportedChallengeCodeMethod_returnErrorResponse() throws Exception {
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri(" ");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setCodeChallenge("123");
+        oauthDetailRequest.setCodeChallengeMethod("S123");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD));
+    }
+
+
+    @Test
     public void getOauthDetailsV2_withInvalidDisplay_returnErrorResponse() throws Exception {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
