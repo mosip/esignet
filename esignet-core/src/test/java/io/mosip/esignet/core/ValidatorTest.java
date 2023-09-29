@@ -613,21 +613,22 @@ public class ValidatorTest {
 		request.setCodeChallenge(null);
 		request.setCodeChallengeMethod(null);
 		Assert.assertTrue(validator.isValid(request,null));
-		request.setCodeChallenge("codeChallenge");
-		request.setCodeChallengeMethod(null);
-		Assert.assertFalse(validator.isValid(request,null));
+		request.setCodeChallenge("");
+		request.setCodeChallengeMethod("");
+		Assert.assertTrue(validator.isValid(request,null));
 	}
 
 	@Test
 	public void test_ValidCodeChallengeValidator_withInvalidDetails_thenFail(){
 		CodeChallengeValidator validator=new CodeChallengeValidator();
 		OAuthDetailRequestV2 request=new OAuthDetailRequestV2();
-		request.setCodeChallengeMethod("codeChallengeMethod");
-		Assert.assertFalse(validator.isValid(request,null));
 		request.setCodeChallenge("codeChallenge");
 		request.setCodeChallengeMethod(null);
 		Assert.assertFalse(validator.isValid(request,null));
 		request.setCodeChallenge(null);
+		request.setCodeChallengeMethod("codeChallengeMethod");
+		Assert.assertFalse(validator.isValid(request,null));
+		request.setCodeChallenge("");
 		request.setCodeChallengeMethod("codeChallengeMethod");
 		Assert.assertFalse(validator.isValid(request,null));
 	}
