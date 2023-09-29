@@ -113,7 +113,7 @@
     "sign_in_with": "Verify using {{idProviderName}}"
   },
   "esignetDetails": {
-    "esignet_details_heading": "Esignet wellknown APIs",
+    "esignet_details_heading": "wellknown APIs",
     "internal_api": "Internal API",
     "wellknown_api": ".wellknown API"
   },
