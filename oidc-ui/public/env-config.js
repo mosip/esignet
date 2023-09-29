@@ -10,9 +10,5 @@ window._env_ = {
       name: "Authorization Server",
       value: "/.well-known/oauth-authorization-server",
     },
-    {
-      name: "OpenID Credential Issuer",
-      value: "/.well-known/openid-credential-issuer",
-    },
   ],
 };
