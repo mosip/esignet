@@ -115,11 +115,7 @@ function createDynamicLoginElements(
   }
 
   if (authFactorType === validAuthFactors.WLA) {
-    return InitiateLinkedWallet(
-      authFactor,
-      oidcService,
-      handleBackButtonClick
-    );
+    return InitiateLinkedWallet(authFactor, oidcService, handleBackButtonClick);
   }
 
   // default element
@@ -163,11 +159,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const handleSignInOptionClick = (authFactor) => {
     //TODO handle multifactor auth
     setCompToShow(
-      createDynamicLoginElements(
-        authFactor,
-        oidcService,
-        handleBackButtonClick
-      )
+      createDynamicLoginElements(authFactor, oidcService, handleBackButtonClick)
     );
   };
 
@@ -186,7 +178,9 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   return (
     <>
       <Background
-        heading={t("login_heading")}
+        heading={t("login_heading", {
+          idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
+        })}
         clientLogoPath={clientLogoURL}
         clientName={clientName}
         component={compToShow}

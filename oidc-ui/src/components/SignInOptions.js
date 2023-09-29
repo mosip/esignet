@@ -197,7 +197,7 @@ export default function SignInOptions({
             </div>
             <div className="w-full">
               <p className="w-full text-center font-medium">
-                Verify using National IDs
+                {t("verify_using_national_id")}
               </p>
             </div>
             <div className="flex justify-center w-full">
