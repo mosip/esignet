@@ -1,4 +1,7 @@
-import { validAuthFactors } from "../constants/clientConstants";
+import {
+  validAuthFactors,
+  walletConfigKeys,
+} from "../constants/clientConstants";
 
 const modalityIconPath = {
   PIN: "images/otp_icon.svg",
@@ -10,10 +13,12 @@ const modalityIconPath = {
 
 const wlaToAuthfactor = (wla) => {
   return {
-    label: wla["wallet.name"],
+    label: wla[walletConfigKeys.walletName],
     value: { ...wla, type: "WLA" },
-    icon: wla["wallet.logo-url"],
-    id: `login_with_${wla["wallet.name"].replace(" ", "_").toLowerCase()}`,
+    icon: wla[walletConfigKeys.walletLogoUrl],
+    id: `login_with_${wla[walletConfigKeys.walletName]
+      .replace(" ", "_")
+      .toLowerCase()}`,
   };
 };
 
@@ -32,13 +37,13 @@ const getAllAuthFactors = (authFactors, wlaList) => {
     const authFactorType = authFactor[0].type;
     if (validAuthFactors[authFactorType]) {
       if (authFactorType === validAuthFactors.WLA) {
-        wlaList.forEach((wla) => loginOptions.push(wlaToAuthfactor(wla)))
+        wlaList.forEach((wla) => loginOptions.push(wlaToAuthfactor(wla)));
       } else {
         loginOptions.push(toAuthfactor(authFactor));
       }
     }
   });
   return loginOptions;
-}
+};
 
 export { wlaToAuthfactor, toAuthfactor, getAllAuthFactors };

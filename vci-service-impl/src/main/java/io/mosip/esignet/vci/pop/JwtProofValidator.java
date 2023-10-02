@@ -20,6 +20,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.vci.CredentialProof;
@@ -54,9 +55,17 @@ public class JwtProofValidator implements ProofValidator {
 
     private static final Set<JWSAlgorithm> allowedSignatureAlgorithms;
 
+    private static Set<String> REQUIRED_CLAIMS;
+
     static {
         allowedSignatureAlgorithms = new HashSet<>();
         allowedSignatureAlgorithms.addAll(List.of(JWSAlgorithm.Family.SIGNATURE.toArray(new JWSAlgorithm[0])));
+
+        REQUIRED_CLAIMS = new HashSet<>();
+        REQUIRED_CLAIMS.add("aud");
+        REQUIRED_CLAIMS.add("exp");
+        REQUIRED_CLAIMS.add("iss");
+        REQUIRED_CLAIMS.add("iat");
     }
 
     @Override
@@ -69,7 +78,6 @@ public class JwtProofValidator implements ProofValidator {
         try {
             SignedJWT jwt = (SignedJWT) JWTParser.parse(credentialProof.getJwt());
             validateHeaderClaims(jwt.getHeader());
-            validatePayloadClaims(clientId, cNonce, jwt.getJWTClaimsSet());
 
             JWK jwk = getKeyFromHeader(jwt.getHeader());
             if(jwk.isPrivate()) {
@@ -77,11 +85,19 @@ public class JwtProofValidator implements ProofValidator {
                 throw new InvalidRequestException(ErrorConstants.PROOF_HEADER_INVALID_KEY);
             }
 
+            DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
+                    .audience(credentialIdentifier)
+                    .issuer(clientId)
+                    .claim("nonce", cNonce)
+                    .build(), REQUIRED_CLAIMS);
+            claimsSetVerifier.setMaxClockSkew(0);
+
             JWSKeySelector keySelector = new JWSVerificationKeySelector(allowedSignatureAlgorithms,
                     new ImmutableJWKSet(new JWKSet(jwk)));
             ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
             jwtProcessor.setJWSKeySelector(keySelector);
             jwtProcessor.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier(new JOSEObjectType(HEADER_TYP)));
+            jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
             jwtProcessor.process(credentialProof.getJwt(), null);
             return true;
         } catch (InvalidRequestException e) {
@@ -122,20 +138,6 @@ public class JwtProofValidator implements ProofValidator {
             throw new InvalidRequestException(ErrorConstants.PROOF_HEADER_AMBIGUOUS_KEY);
 
         //TODO x5c and trust_chain validation
-    }
-
-    private void validatePayloadClaims(String clientId, String cNonce, JWTClaimsSet jwtClaimsSet) {
-        if(Objects.isNull(jwtClaimsSet.getIssuer()) || !jwtClaimsSet.getIssuer().equals(clientId))
-            throw new InvalidRequestException(ErrorConstants.PROOF_INVALID_ISS);
-
-        if(Objects.isNull(jwtClaimsSet.getAudience()) || !jwtClaimsSet.getAudience().contains(credentialIdentifier))
-            throw new InvalidRequestException(ErrorConstants.PROOF_INVALID_AUD);
-
-        if(Objects.isNull(jwtClaimsSet.getIssueTime())) //TODO - should we have any acceptable leeway?
-            throw new InvalidRequestException(ErrorConstants.PROOF_INVALID_IAT);
-
-        if(Objects.isNull(jwtClaimsSet.getClaim("nonce")) || !jwtClaimsSet.getClaim("nonce").equals(cNonce))
-            throw new InvalidRequestException(ErrorConstants.PROOF_INVALID_NONCE);
     }
 
     private JWK getKeyFromHeader(JWSHeader jwsHeader) {

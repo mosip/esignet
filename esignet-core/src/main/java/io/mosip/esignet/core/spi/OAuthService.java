@@ -38,4 +38,6 @@ public interface OAuthService {
      * @return list of all the keys used to sign access-token, id-token and user kyc data
      */
     Map<String, Object> getJwks();
+
+    Map<String, Object> getOAuthServerDiscoveryInfo();
 }
