@@ -41,6 +41,13 @@ const deepLinkParamPlaceholder = {
   linkExpiryDate: "LINK_EXPIRE_DT",
 };
 
+const walletConfigKeys = {
+  walletName:"wallet.name",
+  walletLogoUrl: "wallet.logo-url",
+  qrCodeDeepLinkURI: "wallet.deep-link-uri",
+  appDownloadURI:"wallet.download-uri"
+};
+
 const configurationKeys = {
   sbiEnv: "sbi.env",
   sbiPortRange: "sbi.port.range", //hyphen separated numbers (inclusive). default is 4501-4600
@@ -87,5 +94,6 @@ export {
   validAuthFactors,
   deepLinkParamPlaceholder,
   buttonTypes,
-  challengeFormats
+  challengeFormats,
+  walletConfigKeys
 };
