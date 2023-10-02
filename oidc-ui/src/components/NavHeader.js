@@ -46,7 +46,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   }, [langOptions]);
 
   return (
-    <nav className="bg-white border-gray-500 shadow px-2 sm:px-4 py-2">
+    <nav className="bg-white border-gray-500 shadow px-2 sm:px-4 py-2" id="navbar-header">
       <div className="flex grid justify-items-end">
         <div className="flex">
           <img src="images/language_icon.png" className="mx-2 rtl:scale-x-[-1]" alt={t("language")} />

@@ -77,6 +77,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -97,6 +98,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -117,6 +119,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "1231221124124")
                 .build();
 
@@ -137,6 +140,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -157,6 +161,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -177,6 +182,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("mock-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -197,6 +203,7 @@ public class JwtProofValidatorTest {
                 .issuer("unknown-client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -217,6 +224,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -238,6 +246,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -274,6 +283,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -293,6 +303,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -313,6 +324,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -333,6 +345,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
                 .claim("nonce", "test-nonce")
                 .build();
 
@@ -341,6 +354,29 @@ public class JwtProofValidatorTest {
         credentialProof.setJwt(signedJWT.serialize());
         String keymaterial = jwtProofValidator.getKeyMaterial(credentialProof);
         Assert.assertNotNull(keymaterial);
+    }
+
+    @Test
+    public void testValidate_withExpiredValidProof_thenFail() throws JOSEException {
+        Date iat = Date.from(Instant.now(Clock.systemUTC()));
+        Date exp = Date.from(Instant.now(Clock.systemUTC()).minusSeconds(1));
+        CredentialProof credentialProof = new CredentialProof();
+        JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .type(new JOSEObjectType("openid4vci-proof+jwt"))
+                .jwk(rsaKey.toPublicJWK())
+                .build();
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .issuer("client-id")
+                .audience("test-credential-issuer")
+                .issueTime(iat)
+                .expirationTime(exp)
+                .claim("nonce", "test-nonce")
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(jwsHeader, jwtClaimsSet);
+        signedJWT.sign(new RSASSASigner(rsaKey));
+        credentialProof.setJwt(signedJWT.serialize());
+        Assert.assertFalse(jwtProofValidator.validate("client-id", "test-nonce", credentialProof));
     }
 
     @Test(expected = InvalidRequestException.class)

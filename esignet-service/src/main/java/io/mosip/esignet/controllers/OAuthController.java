@@ -83,6 +83,11 @@ public class OAuthController {
         return oAuthService.getJwks();
     }
 
+    @GetMapping("/.well-known/oauth-authorization-server")
+    public Map<String, Object> getOAuthServerDiscoveryInfo() {
+        return oAuthService.getOAuthServerDiscoveryInfo();
+    }
+
 
     private TokenRequest buildTokenRequest(MultiValueMap<String,String> paramMap) {
         TokenRequest tokenRequest = new TokenRequest();

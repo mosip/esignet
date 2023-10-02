@@ -32,6 +32,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -440,6 +441,58 @@ public class AuthorizationControllerTest {
     }
 
     @Test
+    public void getOauthDetailsV2_withInvalidChallengeCode_returnErrorResponse() throws Exception {
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri(" ");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setCodeChallenge("123");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PKCE_CHALLENGE));
+    }
+
+    @Test
+    public void getOauthDetailsV2_withUnsupportedChallengeCodeMethod_returnErrorResponse() throws Exception {
+        OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri(" ");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setCodeChallenge("123");
+        oauthDetailRequest.setCodeChallengeMethod("S123");
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD));
+    }
+
+
+    @Test
     public void getOauthDetailsV2_withInvalidDisplay_returnErrorResponse() throws Exception {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
@@ -779,4 +832,74 @@ public class AuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_LIST))
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList: invalid_no_of_challenges"));
     }
+
+
+    @Test
+    public void getAuthorizationCode_withValidDetails_thenSuccessResposne() throws Exception {
+        AuthCodeRequest authCodeRequest = new AuthCodeRequest();
+        authCodeRequest.setTransactionId("1234567890");
+        authCodeRequest.setAcceptedClaims(Arrays.asList("name", "email"));
+        authCodeRequest.setPermittedAuthorizeScopes(Arrays.asList("openid", "profile"));
+
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authCodeRequest);
+
+        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
+        authCodeResponse.setCode("code");
+        when(authorizationService.getAuthCode(authCodeRequest)).thenReturn(authCodeResponse);
+        mockMvc.perform(post("/authorization/auth-code")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.code").value("code"));
+    }
+
+    @Test
+    public void getAuthorizationCode_withInValidAcceptedClaim_thenErrorResposne() throws Exception {
+        AuthCodeRequest authCodeRequest = new AuthCodeRequest();
+        authCodeRequest.setTransactionId("1234567890");
+        authCodeRequest.setAcceptedClaims(Arrays.asList("name",""));
+        authCodeRequest.setPermittedAuthorizeScopes(Arrays.asList("openid", "profile"));
+
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authCodeRequest);
+
+        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
+        authCodeResponse.setCode("code");
+        when(authorizationService.getAuthCode(authCodeRequest)).thenReturn(authCodeResponse);
+        mockMvc.perform(post("/authorization/auth-code")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_ACCEPTED_CLAIM));
+    }
+
+    @Test
+    public void getAuthorizationCode_withInValidPermittedAuthorizeScopes_thenErrorResposne() throws Exception {
+        AuthCodeRequest authCodeRequest = new AuthCodeRequest();
+        authCodeRequest.setTransactionId("1234567890");
+        authCodeRequest.setAcceptedClaims(Arrays.asList("name","email"));
+        authCodeRequest.setPermittedAuthorizeScopes(Arrays.asList(" ", "profile"));
+
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authCodeRequest);
+
+        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
+        authCodeResponse.setCode("code");
+        when(authorizationService.getAuthCode(authCodeRequest)).thenReturn(authCodeResponse);
+        mockMvc.perform(post("/authorization/auth-code")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PERMITTED_SCOPE));
+    }
+
 }

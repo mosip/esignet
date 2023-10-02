@@ -6,6 +6,7 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import {
   configurationKeys,
   deepLinkParamPlaceholder,
+  walletConfigKeys
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 
@@ -47,7 +48,10 @@ export default function LoginQRCode({
       : process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
   const walletLogoURL =
-    walletDetail["wallet.logo-url"] ?? process.env.REACT_APP_WALLET_LOGO_URL;
+    walletDetail[walletConfigKeys.walletLogoUrl] ?? process.env.REACT_APP_WALLET_LOGO_URL;
+
+  let qrCodeDeepLinkURI =
+    walletDetail[walletConfigKeys.qrCodeDeepLinkURI] ?? process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
 
   const walletQrCodeAutoRefreshLimit =
     openIDConnectService.getEsignetConfiguration(
@@ -55,12 +59,7 @@ export default function LoginQRCode({
     ) ?? process.env.REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
 
   const GenerateQRCode = (response, logoUrl) => {
-    let text =
-      openIDConnectService.getEsignetConfiguration(
-        configurationKeys.qrCodeDeepLinkURI
-      ) ?? process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
-
-    text = text.replace(deepLinkParamPlaceholder.linkCode, response.linkCode);
+    let text = qrCodeDeepLinkURI.replace(deepLinkParamPlaceholder.linkCode, response.linkCode);
 
     text = text.replace(
       deepLinkParamPlaceholder.linkExpiryDate,
@@ -261,7 +260,7 @@ export default function LoginQRCode({
           setStatus({
             state: states.LOADING,
             msg: "link_auth_waiting",
-            msgParam: {walletName: walletDetail["wallet.name"]},
+            msgParam: {walletName: walletDetail[walletConfigKeys.walletName]},
           });
           triggerLinkAuth(transactionId, linkCode);
         }
@@ -372,10 +371,10 @@ export default function LoginQRCode({
           <h1
             className="text-center text-sky-600 font-semibold line-clamp-2"
             title={t("scan_with_wallet", {
-              walletName: walletDetail["wallet.name"],
+              walletName: walletDetail[walletConfigKeys.walletName],
             })}
           >
-            {t("scan_with_wallet", { walletName: walletDetail["wallet.name"] })}
+            {t("scan_with_wallet", { walletName: walletDetail[walletConfigKeys.walletName] })}
           </h1>
         </div>
       </div>
@@ -428,11 +427,11 @@ export default function LoginQRCode({
         <div>
           <p className="text-center text-black-600 font-semibold">
             {t("dont_have_wallet", {
-              walletName: walletDetail["wallet.name"],
+              walletName: walletDetail[walletConfigKeys.walletName],
             })}
             &nbsp;
             <a
-              href={walletDetail["wallet.download-uri"]}
+              href={walletDetail[walletConfigKeys.appDownloadURI]}
               className="text-sky-600"
               id="download_now"
             >
