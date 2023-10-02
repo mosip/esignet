@@ -85,6 +85,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.credential.scope.auto-permit:true}")
     private boolean autoPermitCredentialScopes;
 
+    @Value("${mosip.esignet.credential.mandate-pkce:true}")
+    private boolean mandatePKCEForVC;
+
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
@@ -118,6 +121,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         //PKCE support
         oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance(oauthDetailReqDto.getCodeChallenge(),
                 oauthDetailReqDto.getCodeChallengeMethod()));
+
+        if(mandatePKCEForVC && CollectionUtils.isNotEmpty(oidcTransaction.getRequestedCredentialScopes()) &&
+                oidcTransaction.getProofKeyCodeExchange() == null) {
+            log.error("PKCE is mandated for VC scoped transactions");
+            throw new EsignetException(ErrorConstants.INVALID_PKCE_CHALLENGE);
+        }
 
         cacheUtilService.setTransaction(oAuthDetailResponseV2.getTransactionId(), pair.getSecond());
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oAuthDetailResponseV2.getTransactionId(),
