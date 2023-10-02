@@ -33,6 +33,7 @@ import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -153,7 +154,7 @@ public class OAuthServiceImpl implements OAuthService {
         if(jwk.getAlgorithm() != null) { map.put(JWK_KEY_ALG, jwk.getAlgorithm().getName()); }
         map.put(JWK_KEY_TYPE, jwk.getKeyType().getValue());
         if(jwk.getKeyUse() != null) { map.put(JWK_KEY_USE, jwk.getKeyUse().getValue()); }
-        map.put(JWK_KEY_EXPIRE, expireAt.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        map.put(JWK_KEY_EXPIRE, expireAt.toEpochSecond(ZoneOffset.UTC));
         List<String> certs = new ArrayList<>();
         jwk.getX509CertChain().forEach(c -> { certs.add(c.toString()); });
         map.put(JWK_KEY_CERT_CHAIN, certs);

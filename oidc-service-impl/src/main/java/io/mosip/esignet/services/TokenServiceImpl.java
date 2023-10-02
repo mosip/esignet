@@ -148,11 +148,12 @@ public class TokenServiceImpl implements TokenService {
       
             JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
                     new ImmutableJWKSet(new JWKSet(RSAKey.parse(jwk))));
-            JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
+            DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(Collections.singletonList((String)discoveryMap.get("token_endpoint")))
                     .issuer(clientId)
                     .subject(clientId)
                     .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
+            claimsSetVerifier.setMaxClockSkew(0);
 
             ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
             jwtProcessor.setJWSKeySelector(keySelector);
