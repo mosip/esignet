@@ -74,6 +74,9 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.cnonce-expire-seconds:300}")
     private int cNonceExpireSeconds;
 
+    @Value("#{${mosip.esignet.oauth.key-values}}")
+    private Map<String, Object> oauthServerDiscoveryMap;
+
 
     @Override
     public TokenResponse getTokens(TokenRequest tokenRequest) throws EsignetException {
@@ -135,6 +138,11 @@ public class OAuthServiceImpl implements OAuthService {
         Map<String, Object> response = new HashMap<>();
         response.put("keys", jwkList);
         return response;
+    }
+
+    @Override
+    public Map<String, Object> getOAuthServerDiscoveryInfo(){
+        return oauthServerDiscoveryMap;
     }
 
     private Map<String, Object> getJwk(String keyId, String certificate, LocalDateTime expireAt)
