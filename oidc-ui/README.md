@@ -101,3 +101,71 @@ The application runs on PORT=3000 by default.
     chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
     ```
   - Open URL http://localhost:3000
+
+## Custom Theme Configuration
+
+- First of all you have to create a file `variables.css` in `src` folder and specify your theme color configuration as well some of images url. You can have multiple theme as well in the same file with different theme name.
+
+```css
+/* src/variables.css */
+/**
+  You can specify color and image url in these variable
+*/
+[class="YOUR_THEME_NAME"] {
+  --login-card-box-color: #B1915D;
+  --login-card-box-hover-color: #1263CA;
+  --login-card-box-focus-color: #1263CA;
+  --login-background: #FCFAF7;
+  --language-icon-color: #FFFFFF;
+  --language-icon-bg-color: #B1915D;
+  --brand-only-logo-url: url("../public/images/eldoria_only_logo.svg");
+  --brand-logo-url: url("../public/images/eldoria_logo.svg");
+  --background-logo-url: url("../public/images/eldoria_bg.png");
+  --primary-button-color: #FFFFFF;
+  --primary-button-bg-color: #3B82F6;
+  --primary-button-hover-color: #FFFFFF;
+  --primary-button-hover-bg-color: #6C90C9;
+  --primary-button-disable-color: #94A3B8;
+  --primary-button-disable-bg-color: #FFFFFF;
+  --secondary-button-color: #111827;
+  --secondary-button-bg-color: #FFFFFF;
+  --secondary-button-hover-color: #111827;
+  --secondary-button-hover-bg-color: #F3F4F6;
+  --secondary-button-disable-color: #94A3B8;
+  --secondary-button-disable-bg-color: #FFFFFF;
+  --loading-indicator-ring-color: #B1915D;
+  --loading-indicator-bg-color: #FCFAF7;
+  --loading-indicator-font-color: #000000;
+  --qrcode-border-color: #B1915D;
+  --info-icon-color: #B1915D;
+  --toggle-button-inactive-bg-color: #FFFFFF;
+  --toggle-button-inactive-border-color: #808080;
+  --toggle-button-active-bg-color: #FFFFFF;
+  --toggle-button-active-border-color: #E77938;
+  --toggle-button-inactive-ball-color: #AAAAAD;
+  --toggle-button-inactive-ball-border-color: #AAAAAD;
+  --toggle-button-active-ball-color: #B1915D;
+  --toggle-button-active-ball-border-color: #B1915D;
+  --toggle-button-ring-color: #B1915D;
+}
+```
+
+- Then you have to add your theme name in `env-config.js` file which is located in `public` folder.
+
+```js
+// there will be other environment variable in this file,
+// don't touch other variables, just add your theme variable only 
+window._env_ = {
+  ...
+  DEFAULT_THEME: 'YOUR_THEME_NAME',
+  ...
+};
+```
+
+- After that you have to add a line in `theme-config.js` file in `public` folder (if this file is not present, please create a one with the same name)
+
+```js
+// add your theme name as a class name, in root element
+// taking the name from env-config.js
+document.getElementById("root").classList.add(window._env_.DEFAULT_THEME);
+```
