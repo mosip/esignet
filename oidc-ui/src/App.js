@@ -84,7 +84,7 @@ function App() {
     //3. Check for system locale
     //Language detector will check navigator and subdomain to select proper language
 
-    //4. default lang set in env_configs file as fallback language.
+    //4. default lang set in env-config file as fallback language.
   };
 
   let el;

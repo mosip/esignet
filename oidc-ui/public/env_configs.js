@@ -1,3 +1,0 @@
-window["envConfigs"] = {
-  defaultLang: "en",
-};
