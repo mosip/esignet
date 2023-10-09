@@ -37,7 +37,7 @@ public class ClientManagementController {
     /**
      * @deprecated
      * This method is no longer acceptable to create oidc client
-     * <p> Use {@link ClientManagementController#createOAuthClient(RequestWrapper<ClientDetailCreateRequest>)} </p>
+     * <p> Use {@link ClientManagementController#createClientV2(RequestWrapper<ClientDetailCreateRequest>)} </p>
      *
      * @param requestWrapper
      * @return
@@ -63,7 +63,7 @@ public class ClientManagementController {
     /**
      * @deprecated
      * This method is no longer acceptable to update oidc client
-     * <p> Use {@link ClientManagementController#updateOAuthClient(String, RequestWrapper<ClientDetailUpdateRequest>)} </p>
+     * <p> Use {@link ClientManagementController#updateClientV2(String, RequestWrapper<ClientDetailUpdateRequest>)} </p>
      *
      * @param requestWrapper
      * @return
@@ -87,13 +87,13 @@ public class ClientManagementController {
     }
 
     @PostMapping(value = "/client-mgmt/oauth-client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseWrapper<ClientDetailResponse> createOAuthClient(@Valid @RequestBody RequestWrapper<ClientDetailCreateRequestV2> requestWrapper) throws Exception {
+    public ResponseWrapper<ClientDetailResponse> createOauthClient(@Valid @RequestBody RequestWrapper<ClientDetailCreateRequestV2> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
-            response.setResponse(clientManagementService.createOAuthClient(requestWrapper.getRequest()));
+            response.setResponse(clientManagementService.createOauthClient(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
             auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-                    Action.OAUTH_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+                    Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;
         }
         response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -102,14 +102,14 @@ public class ClientManagementController {
 
 
     @PutMapping(value = "/client-mgmt/oauth-client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseWrapper<ClientDetailResponse> updateOAuthClient(@Valid @PathVariable("client_id") String clientId,
+    public ResponseWrapper<ClientDetailResponse> updateOauthClient(@Valid @PathVariable("client_id") String clientId,
                                                               @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequestV2> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
-            response.setResponse(clientManagementService.updateOAuthClient(clientId, requestWrapper.getRequest()));
+            response.setResponse(clientManagementService.updateOauthClient(clientId, requestWrapper.getRequest()));
         } catch (EsignetException ex) {
             auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-                    Action.OAUTH_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
+                    Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
             throw ex;
         }
         response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
