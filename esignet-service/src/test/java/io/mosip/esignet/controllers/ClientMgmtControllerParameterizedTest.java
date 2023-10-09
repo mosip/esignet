@@ -233,7 +233,7 @@ public class ClientMgmtControllerParameterizedTest {
     @Test
     public void testClientManagementEndpoints() throws Exception {
         if(this.clientDetailCreateRequestV2 != null) {
-            ResultActions createResultActions = mockMvc.perform(post("/client-mgmt/v2/oidc-client")
+            ResultActions createResultActions = mockMvc.perform(post("/client-mgmt/oauth-client")
                             .contentType(MediaType.APPLICATION_JSON_UTF8)
                             .content(getRequestWrapper(this.clientDetailCreateRequestV2)));
             evaluateResultActions(createResultActions, this.clientDetailCreateRequestV2.getClientId(),
@@ -241,7 +241,7 @@ public class ClientMgmtControllerParameterizedTest {
         }
 
         if(this.clientDetailUpdateRequestV2 != null) {
-           ResultActions updateResultActions = mockMvc.perform(put("/client-mgmt/v2/oidc-client/"+this.clientIdQueryParam)
+           ResultActions updateResultActions = mockMvc.perform(put("/client-mgmt/oauth-client/"+this.clientIdQueryParam)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .content(getRequestWrapper(this.clientDetailUpdateRequestV2)));
             evaluateResultActions(updateResultActions, this.clientIdQueryParam,

@@ -86,11 +86,11 @@ public class ClientManagementController {
         return response;
     }
 
-    @PostMapping(value = "/client-mgmt/v2/oidc-client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseWrapper<ClientDetailResponse> createClientV2(@Valid @RequestBody RequestWrapper<ClientDetailCreateRequestV2> requestWrapper) throws Exception {
+    @PostMapping(value = "/client-mgmt/oauth-client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseWrapper<ClientDetailResponse> createOauthClient(@Valid @RequestBody RequestWrapper<ClientDetailCreateRequestV2> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
-            response.setResponse(clientManagementService.createOIDCClientV2(requestWrapper.getRequest()));
+            response.setResponse(clientManagementService.createOauthClient(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
             auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                     Action.OIDC_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
@@ -101,12 +101,12 @@ public class ClientManagementController {
     }
 
 
-    @PutMapping(value = "/client-mgmt/v2/oidc-client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseWrapper<ClientDetailResponse> updateClientV2(@Valid @PathVariable("client_id") String clientId,
+    @PutMapping(value = "/client-mgmt/oauth-client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseWrapper<ClientDetailResponse> updateOauthClient(@Valid @PathVariable("client_id") String clientId,
                                                               @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequestV2> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
         try {
-            response.setResponse(clientManagementService.updateOIDCClientV2(clientId, requestWrapper.getRequest()));
+            response.setResponse(clientManagementService.updateOauthClient(clientId, requestWrapper.getRequest()));
         } catch (EsignetException ex) {
             auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                     Action.OIDC_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
