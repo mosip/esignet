@@ -201,7 +201,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequestV2.getClientId()")
     @Override
-    public ClientDetailResponse createOAuthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
+    public ClientDetailResponse createOauthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV2.getClientId());
         if (result.isPresent()) {
             log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
@@ -224,14 +224,14 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-                Action.OAUTH_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequestV2.getClientId()), null);
+                Action.OIDC_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequestV2.getClientId()), null);
 
         return getClientDetailResponse(clientDetail);
     }
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
-    public ClientDetailResponse updateOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException {
+    public ClientDetailResponse updateOauthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
             log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
@@ -249,7 +249,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail = clientDetailRepository.save(clientDetail);
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-                Action.OAUTH_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
+                Action.OIDC_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
         return getClientDetailResponse(clientDetail);
     }

@@ -116,7 +116,7 @@ public class ClientManagementServiceTest {
         entity.setId("mock_id_v1");
         entity.setStatus("active");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
-        ClientDetailResponse clientDetailResponse = clientManagementService.createOAuthClient(clientCreateV2ReqDto);
+        ClientDetailResponse clientDetailResponse = clientManagementService.createOauthClient(clientCreateV2ReqDto);
         Assert.assertNotNull(clientDetailResponse);
         Assert.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
         Assert.assertTrue(clientDetailResponse.getStatus().equals("active"));
@@ -128,7 +128,7 @@ public class ClientManagementServiceTest {
         ClientDetailCreateRequestV2 clientCreateV2ReqDto = new ClientDetailCreateRequestV2();
         clientCreateV2ReqDto.setClientId("client_id_v1");
         try {
-            clientManagementService.createOAuthClient(clientCreateV2ReqDto);
+            clientManagementService.createOauthClient(clientCreateV2ReqDto);
         } catch (EsignetException ex) {
             Assert.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
         }
@@ -180,7 +180,7 @@ public class ClientManagementServiceTest {
     public void updateClientV2_withNonExistingClientId_thenFail() {
         Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.empty());
         try {
-            clientManagementService.updateOAuthClient("client_id_v1", null);
+            clientManagementService.updateOauthClient("client_id_v1", null);
         } catch (EsignetException ex) {
             Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
@@ -213,7 +213,7 @@ public class ClientManagementServiceTest {
         entity.setId("client_id_v1");
         entity.setStatus("inactive");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
-        ClientDetailResponse clientDetailResponse = clientManagementService.updateOAuthClient("client_id_v1", updateV2Request);
+        ClientDetailResponse clientDetailResponse = clientManagementService.updateOauthClient("client_id_v1", updateV2Request);
         Assert.assertNotNull(clientDetailResponse);
         Assert.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
         Assert.assertTrue(clientDetailResponse.getStatus().equals("inactive"));

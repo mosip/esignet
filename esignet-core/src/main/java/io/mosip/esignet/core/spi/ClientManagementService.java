@@ -45,7 +45,7 @@ public interface ClientManagementService {
      * @return
      * @throws EsignetException
      */
-    ClientDetailResponse createOAuthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException;
+    ClientDetailResponse createOauthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException;
 
     /**
      * API to update registered relying party client version 2
@@ -59,6 +59,6 @@ public interface ClientManagementService {
      * @return
      * @throws EsignetException
      */
-    ClientDetailResponse updateOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException;
+    ClientDetailResponse updateOauthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException;
 
 }
