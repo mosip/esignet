@@ -3,6 +3,8 @@ package io.mosip.esignet.api.util;
 public enum Action {
     OIDC_CLIENT_CREATE,
     OIDC_CLIENT_UPDATE,
+    OAUTH_CLIENT_CREATE,
+    OAUTH_CLIENT_UPDATE,
     GET_OAUTH_DETAILS,
     TRANSACTION_STARTED,
     SEND_OTP,
