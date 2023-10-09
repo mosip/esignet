@@ -72,7 +72,7 @@
     "password_placeholder": "Password"
   },
   "LoginQRCode": {
-    "scan_with_wallet": "Scan with {{walletName}} App to Log In",
+    "scan_with_wallet": "Scan with {{walletName}} to login",
     "dont_have_wallet": "Don't Have {{walletName}}?",
     "download_now": "Download Now",
     "link_code_status": "Link Code Status",
@@ -108,7 +108,10 @@
     "OTP": "OTP",
     "PWD": "Password",
     "preferred_mode_of_login": "Select a preferred mode of login",
-    "more_ways_to_sign_in": "More ways to sign in"
+    "more_ways_to_sign_in": "More ways to sign in",
+    "or": "OR",
+    "sign_in_with": "Verify using {{idProviderName}}",
+    "verify_using_national_id":"Verify using other National IDs"
   },
   "esignetDetails": {
     "esignet_details_heading": "Esignet wellknown APIs",
@@ -130,13 +133,13 @@
     "biometric_tab_name": "Login with Biometrics"
   },
   "loadingMsgs": {
-    "redirecting_msg": "Redirecting. Please Wait...",
-    "link_auth_waiting": "Please Authenticate via {{walletName}}. Don't Refresh This Page.",
-    "authenticating_msg": "Authenticating. Please Wait...",
-    "scanning_devices_msg": "Scanning Devices. Please Wait...",
+    "redirecting_msg": "Redirecting. Please wait...",
+    "link_auth_waiting": "Please authenticate via {{walletName}}. Don't refresh this page.",
+    "authenticating_msg": "Authenticating. Please wait...",
+    "scanning_devices_msg": "Scanning Devices. Please wait...",
     "capture_initiated_msg": "{{modality}} capture initiated on {{deviceModel}}",
-    "sending_otp_msg": "Sending OTP. Please Wait...",
-    "loading_msg": "Loading. Please Wait..."
+    "sending_otp_msg": "Sending OTP. Please wait...",
+    "loading_msg": "Loading. Please wait..."
   },
   "tooltips": {
     "vid_tooltip": "Please fill in this field"
@@ -173,8 +176,6 @@
     "invalid_assertion": "Invalid Client Assertion",
     "invalid_acr": "Invalid/Unsupported Authentication Context Class Refs",
     "invalid_token": "Invalid/Expired Access token",
-    "invalid_language_code": "Invalid language code",
-    "invalid_client_name_value": "Invalid client name value",
     "auth_failed": "Authentication Failed",
     "auth_passed": "Authentication Success",
     "acr_amr_mapping_not_found": "ACR-AMR Mapping File Not Found",
@@ -269,6 +270,8 @@
     "proof_invalid_aud": "Invalid value in proof payload aud claim.",
     "proof_invalid_iat": "Invalid value in proof payload iat claim.",
     "proof_invalid_nonce": "Invalid value in proof payload nonce claim.",
+    "invalid_state_response": "Invalid state",
+    "authCode_missing": "AuthCode Missing",
     "0": "Success",
     "100": "Device Not Registered",
     "101": "Unable to Detect a Biometrics",
