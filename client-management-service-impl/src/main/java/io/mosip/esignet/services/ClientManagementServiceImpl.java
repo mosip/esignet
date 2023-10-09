@@ -201,7 +201,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequestV2.getClientId()")
     @Override
-    public ClientDetailResponse createOauthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
+    public ClientDetailResponse createOAuthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV2.getClientId());
         if (result.isPresent()) {
             log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
