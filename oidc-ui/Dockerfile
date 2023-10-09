@@ -6,11 +6,11 @@ ENV SIGN_IN_WITH_ESIGNET_PLUGIN_URL=$sign_in_with_esignet_plugin_url
 # Set a build-time environment variable (replace YOUR_ENV_VARIABLE_NAME with the desired variable name)
 ARG oidcUIPublicUrl
 ARG defaultLang
-ARG deafultWellknown
+ARG defaultWellknown
 
 ENV OIDC_UI_PUBLIC_URL=$oidcUIPublicUrl
 ENV DEFAULT_LANG=$defaultLang
-ENV DEFAULT_WELLKNOWN=$deafultWellknown
+ENV DEFAULT_WELLKNOWN=$defaultWellknown
 
 # Set the environment variable as a placeholder for PUBLIC_URL
 ENV PUBLIC_URL=_PUBLIC_URL_
