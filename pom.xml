@@ -110,6 +110,7 @@
         <module>oidc-service-impl</module>
 		<module>consent-service-impl</module>
 		<module>vci-service-impl</module>
+		<module>oidc-ui</module>
     </modules>
 
 	<profiles>
