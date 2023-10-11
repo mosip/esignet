@@ -214,7 +214,7 @@ export default function Consent({
     }
     scopeClaimChanges();
   }, [scope, claims]);
-  
+
   useEffect(() => {
     if (isNaN(authTime)) {
       return;
@@ -235,9 +235,6 @@ export default function Consent({
   }, [timeLeft]);
 
   useEffect(() => {
-    if (isNaN(authTime)) {
-      return;
-    }
     let currentTime = Math.floor(new Date().getTime() / 1000);
     let timePassed = currentTime - authTime;
     let tLeft = transactionTimeoutWithBuffer - timePassed;
@@ -251,12 +248,6 @@ export default function Consent({
     const seconds = (time % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
   }
-
-  useEffect(() => {
-    if (authTime === null) {
-      onError("invalid_transaction", t("invalid_transaction"));
-    }
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -336,6 +327,10 @@ export default function Consent({
     window.location.replace(redirect_uri + params);
   };
 
+  if (authTime === null) {
+    onError("invalid_transaction", t("invalid_transaction"));
+  }
+
   const sliderButtonDiv = (item, handleOnchange) => (
     <div>
       <label
@@ -373,7 +368,7 @@ export default function Consent({
   }
 
   return (
-    authTime !== null && (
+    authTime && (
       <div className="container flex mx-auto sm:flex-row flex-col">
         <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
           <div>
