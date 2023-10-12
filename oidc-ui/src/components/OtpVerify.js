@@ -211,7 +211,20 @@ export default function OtpVerify({
       setStatus({ state: states.ERROR, msg: "" });
     }
   };
+  
+  let styles = {
+    width: "40px",
+    height: "40px",
+    margin: "0 5px",
+    border: "",
+    borderBottom: "2px solid #0284c7",
+    color: "#0284c7"
+  };
 
+  if(window.screen.availWidth <= 375) {
+    styles = {...styles, width: "2em"}
+  }
+  
   return (
     <>
       <form className="mt-2 space-y-2" onSubmit={handleSubmit}>
@@ -246,14 +259,7 @@ export default function OtpVerify({
             type="numeric"
             inputMode="number"
             style={{ padding: "5px 0px" }}
-            inputStyle={{
-              width: "40px",
-              height: "40px",
-              margin: "0 5px",
-              border: "",
-              borderBottom: "2px solid #0284c7",
-              color: "#0284c7",
-            }}
+            inputStyle={styles}
             inputFocusStyle={{ borderBottom: "2px solid #075985" }}
             onComplete={(value, index) => {
               //TO handle case when user pastes OTP
