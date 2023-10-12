@@ -15,7 +15,7 @@ function App() {
   const { i18n } = useTranslation();
   const [langOptions, setLangOptions] = useState([]);
   const [dir, setDir] = useState("");
-  const [statusLoading, SetStatusLoading] = useState(states.LOADING);
+  const [statusLoading, setStatusLoading] = useState(states.LOADING);
 
   //Loading rtlLangs
   useEffect(() => {
@@ -42,7 +42,7 @@ function App() {
           setDir(response.rtlLanguages.includes(lng) ? "rtl" : "ltr");
         });
         setLangOptions(langData);
-        SetStatusLoading(states.LOADED)
+        setStatusLoading(states.LOADED);
       });
     } catch (error) {
       console.error("Failed to load rtl languages!");
@@ -91,7 +91,11 @@ function App() {
 
   switch (statusLoading) {
     case states.LOADING:
-      el = <LoadingIndicator size="medium" message={"loading_msg"} />;
+      el = (
+        <div className="h-screen flex justify-center content-center">
+          <LoadingIndicator size="medium" />
+        </div>
+      );
       break;
     case states.LOADED:
       el = (
