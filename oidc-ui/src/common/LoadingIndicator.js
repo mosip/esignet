@@ -47,15 +47,14 @@ const LoadingIndicator = ({
           />
         </svg>
         <span className="sr-only">Loading...</span>
-        {t(message, msgParam)}
+        {message && t(message, msgParam)}
       </div>
     </>
   );
 };
 
 LoadingIndicator.defaultProps = {
-  size: "medium",
-  message: "Loading",
+  size: "medium"
 };
 
 export default LoadingIndicator;
