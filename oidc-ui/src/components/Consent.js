@@ -14,7 +14,7 @@ export default function Consent({
   authTime,
   openIDConnectService,
   i18nKeyPrefix = "consent",
-  backgroundImgPath,
+  backgroundImgPath
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -31,8 +31,7 @@ export default function Consent({
       configurationKeys.consentScreenTimeOutBufferInSec
     ) ?? process.env.REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC;
 
-  const transactionTimeoutWithBuffer =
-    authenticationExpireInSec - timeoutBuffer;
+  const transactionTimeoutWithBuffer = authenticationExpireInSec - timeoutBuffer;
 
   const firstRender = useRef(true);
   const [status, setStatus] = useState(states.LOADED);
@@ -235,6 +234,9 @@ export default function Consent({
   }, [timeLeft]);
 
   useEffect(() => {
+    if (isNaN(authTime)) {
+      return;
+    }
     let currentTime = Math.floor(new Date().getTime() / 1000);
     let timePassed = currentTime - authTime;
     let tLeft = transactionTimeoutWithBuffer - timePassed;
@@ -242,9 +244,7 @@ export default function Consent({
   }, []);
 
   function formatTime(time) {
-    const minutes = Math.floor(time / 60)
-      .toString()
-      .padStart(2, "0");
+    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
     const seconds = (time % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
   }
@@ -330,7 +330,7 @@ export default function Consent({
   if (authTime === null) {
     onError("invalid_transaction", t("invalid_transaction"));
   }
-
+  
   const sliderButtonDiv = (item, handleOnchange) => (
     <div>
       <label
@@ -368,67 +368,55 @@ export default function Consent({
   }
 
   return (
-    authTime && (
-      <div className="container flex mx-auto sm:flex-row flex-col">
-        <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
-          <div>
-            <img
-              className="object-contain rtl:scale-x-[-1]"
-              alt={t("backgroud_image_alt")}
-              src={backgroundImgPath}
-            />
-          </div>
+    authTime && clientName && claimsScopes.length > 0 &&
+    <div className="container flex mx-auto sm:flex-row flex-col">
+      <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
+        <div>
+          <img
+            className="object-contain rtl:scale-x-[-1]"
+            alt={t("backgroud_image_alt")}
+            src={backgroundImgPath}
+          />
         </div>
-        <div className="sm:max-w-sm w-full shadow-lg sm:mt-5 rounded-lg bg-white p-4 relative">
-          <div className="bg-[#FFF9F0] rounded-t-lg absolute top-0 left-0 right-0 p-2">
-            {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
-              <div className="text-center">
-                <p className="text-[#4E4E4E] font-semibold">
-                  {t("transaction_timeout_msg")}
-                </p>
-                <p className="font-bold text-[#DE7A24]">
-                  {formatTime(timeLeft)}{" "}
-                </p>
-              </div>
-            )}
-          </div>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="flex justify-center mt-12">
-              <b>
-                {t("consent_request_msg", {
-                  clientName: clientName,
-                })}
-              </b>
+      </div>
+      <div className="sm:max-w-sm w-full shadow-lg sm:mt-5 rounded-lg bg-white p-4 relative">
+        <div className="bg-[#FFF9F0] rounded-t-lg absolute top-0 left-0 right-0 p-2">
+          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
+            <div className="text-center">
+              <p className="text-[#4E4E4E] font-semibold">{t("transaction_timeout_msg")}</p>
+              <p className="font-bold text-[#DE7A24]">{formatTime(timeLeft)} </p>
             </div>
-            {claimsScopes?.map(
-              (claimScope) =>
-                claimScope?.values?.length > 0 && (
-                  <div key={claimScope.label}>
-                    <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4 gap-4">
-                      <div className="flex sm:justify-start">
-                        <div className="font-semibold">
-                          {t(claimScope.label)}
-                          <button
-                            id={claimScope.tooltip}
-                            className="ml-1 text-sky-600 text-xl"
-                            data-tooltip-content={t(claimScope.tooltip)}
-                            data-tooltip-place="top"
-                            onClick={(e) => {
-                              e.preventDefault();
-                            }}
-                            role="tooltip"
-                          >
-                            &#9432;
-                          </button>
-                          <ReactTooltip anchorId={claimScope.tooltip} />
-                        </div>
-                      </div>
-                      <div className="flex justify-end mr-4 ml-4">
-                        {!claimScope?.required &&
-                          claimScope.values.length > 1 &&
-                          sliderButtonDiv(claimScope.label, (e) =>
-                            selectUnselectAllScopeClaim(e, claimScope, true)
-                          )}
+          )}
+        </div>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="flex justify-center mt-12">
+            <b>
+              {t("consent_request_msg", {
+                clientName: clientName,
+              })}
+            </b>
+          </div>
+          {claimsScopes?.map(
+            (claimScope) =>
+              claimScope?.values?.length > 0 && (
+                <div key={claimScope.label}>
+                  <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4 gap-4">
+                    <div className="flex sm:justify-start">
+                      <div className="font-semibold">
+                        {t(claimScope.label)}
+                        <button
+                          id={claimScope.tooltip}
+                          className="ml-1 text-sky-600 text-xl"
+                          data-tooltip-content={t(claimScope.tooltip)}
+                          data-tooltip-place="top"
+                          onClick={(e) => {
+                            e.preventDefault();
+                          }}
+                          role="tooltip"
+                        >
+                          &#9432;
+                        </button>
+                        <ReactTooltip anchorId={claimScope.tooltip} />
                       </div>
                     </div>
                     <div className="flex justify-end mr-4 ml-4">
@@ -440,24 +428,28 @@ export default function Consent({
                     </div>
                   </div>
 
-                    <div className="divide-y">
-                      {claimScope?.values?.map((item) => (
-                        <ul className="list-disc marker:text-[#B9B9B9] ml-4 mr-4">
-                          <li key={item}>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex justify-start relative items-center mb-1 mt-1">
-                                <label className="text-sm text-black-900">
-                                  {t(item)}
+                  <div className="divide-y">
+                    {claimScope?.values?.map((item) => (
+                      <ul className="list-disc marker:text-[#B9B9B9] ml-4 mr-4">
+                        <li key={item}>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex justify-start relative items-center mb-1 mt-1">
+                              <label className="text-sm text-black-900">
+                                {t(item)}
+                              </label>
+                            </div>
+                            <div className="flex justify-end">
+                              {claimScope?.required && (
+                                <label
+                                  labelfor={item}
+                                  className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
+                                >
+                                  {t("required")}
                                 </label>
-                              </div>
-                              <div className="flex justify-end">
-                                {claimScope?.required && (
-                                  <label
-                                    labelfor={item}
-                                    className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
-                                  >
-                                    {t("required")}
-                                  </label>
+                              )}
+                              {!claimScope?.required &&
+                                sliderButtonDiv(item, (e) =>
+                                  selectUnselectAllScopeClaim(e, claimScope)
                                 )}
                                 {!claimScope?.required &&
                                   sliderButtonDiv(item, (e) =>
@@ -465,39 +457,39 @@ export default function Consent({
                                   )}
                               </div>
                             </div>
-                          </li>
-                        </ul>
-                      ))}
-                    </div>
+                          </div>
+                        </li>
+                      </ul>
+                    ))}
                   </div>
-                )
-            )}
-            {
-              <div>
-                {status === LoadingStates.LOADING && (
-                  <LoadingIndicator size="medium" message="redirecting_msg" />
-                )}
-              </div>
-            }
-            {status !== LoadingStates.LOADING && (
-              <div className="grid">
-                <FormAction
-                  type={buttonTypes.button}
-                  text={t("continue")}
-                  handleClick={handleSubmit}
-                  id="continue"
-                />
-                <FormAction
-                  type={buttonTypes.cancel}
-                  text={t("cancel")}
-                  handleClick={handleCancel}
-                  id="cancel"
-                />
-              </div>
-            )}
-          </form>
-        </div>
+                </div>
+              )
+          )}
+          {
+            <div>
+              {status === LoadingStates.LOADING && (
+                <LoadingIndicator size="medium" message="redirecting_msg" />
+              )}
+            </div>
+          }
+          {status !== LoadingStates.LOADING && (
+            <div className="grid">
+              <FormAction
+                type={buttonTypes.button}
+                text={t("continue")}
+                handleClick={handleSubmit}
+                id="continue"
+              />
+              <FormAction
+                type={buttonTypes.cancel}
+                text={t("cancel")}
+                handleClick={handleCancel}
+                id="cancel"
+              />
+            </div>
+          )}
+        </form>
       </div>
-    )
+    </div>
   );
 }
