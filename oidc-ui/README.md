@@ -19,6 +19,8 @@ Esignet UI contains the following pages:
 
   - Sign in with Biometrics
   - Sign in with OTP
+  - Sign in with Password
+  - Sign in with Wallet
   - Sign in with PIN(MOCK)
 
   Each component allows the user to authenticate in a different way. Each component is mapped to an auth-factor constant.
@@ -27,6 +29,8 @@ Esignet UI contains the following pages:
   - BIO: Sign in with Biometrics
   - OTP: Sign in with OTP
   - PIN: Sign in with PIN
+  - PWD: Sign in with Password,
+  - WLA: Sign in with Wallet
 
   Loading of the component in this page depends on the auth-factors returned from the oauth-details endpoint (auth-factors are derived based on the acr_values parameter in authorize request).
 
@@ -53,13 +57,12 @@ The application runs on PORT=3000 by default.
   - REACT_APP_ESIGNET_API_URL: This will be internally resolved to Esignet services URL (`/v1/esignet`).
   - REACT_APP_LINKED_TRANSACTION_EXPIRE_IN_SEC: link-auth-code request expiration time.
   - REACT_APP_QRCODE_DEEP_LINK_URI: Deep link uri for the QRCode, with LINK_CODE and LINK_EXPIRE_DT placeholders.
-  - REACT_APP_QRCODE_APP_DOWNLOAD_URI: URL for the Inji app download.
-  - REACT_APP_QRCODE_ENABLE: Boolean value true or false to enable QR code.
   - REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC: Timer on the consent page which will expire in given secs.
   - REACT_APP_SBI_PORT_RANGE: Port range for sbi.
   - REACT_APP_RESEND_OTP_TIMEOUT_IN_SEC: Timer to enable resend OTP button.
   - REACT_APP_SEND_OTP_CHANNELS: comma-separated channels list, through which OTP will be sent.
   - REACT_APP_CAPTCHA_ENABLE: comma-separated components list, where the captcha should be shown.
+  - REACT_APP_CAPTCHA_SITE_KEY: site key for testing purposes only
   - REACT_APP_AUTH_TXN_ID_LENGTH: transaction ID length.
   - REACT_APP_OTP_LENGTH: Length of the otp.
   - REACT_APP_PASSWORD_REGEX: Password pattern using regex.
@@ -69,26 +72,47 @@ The application runs on PORT=3000 by default.
 
 - Build and run Docker for a service:
 
-  ```
-  $ docker build -t <dockerImageName>:<tag> .
-  $ docker run -it -d -p 3000:3000 <dockerImageName>:<tag>
-  ```
-  To host oidc ui on a context path: 
-  1. Remove the location path with `/` in the nignx file and add the location with context path as below.
+  - Oidc-ui docker service is depends on two variables
+
+    1. artifactory-service URL : This url is used for fetching the language bundle.
+    2. sign-in plugin's zip folder complete URL: This url is used for fetching the sign-in plugin's zip folder.
+
+  - Update the proxy_pass of all locations with the correct URL of esignet-service in the nignx file. For example
     ```
-    location /oidc-ui {
-       alias /usr/share/nginx/oidc-ui;
-       try_files $uri $uri/ /oidc-ui/index.html;
+    location /v1/esignet {
+      proxy_pass         http://<local-ip-address>/v1/esignet;
+      proxy_redirect     off;
+      .
+      .
+      .
     }
     ```
-  2. Provide the context path in the evn variable `OIDC_UI_PUBLIC_URL` during docker run.
+  Docker commands
   ```
   $ docker build -t <dockerImageName>:<tag> .
-  $ docker run -it -d -p 3000:3000 -e OIDC_UI_PUBLIC_URL='oidc-ui' <dockerImageName>:<tag>
+
+  $ docker run -it -d -p 3000:3000 -e artifactory_url_env='<artifactory-service URL>' -e SIGN_IN_WITH_ESIGNET_PLUGIN_URL=<sign-in plugin's zip folder complete URL> <dockerImageName>:<tag>
+  ```
+
+  To host oidc ui on a context path:
+
+  1. Remove the location path with `/` in the nignx file and add the location with context path as below.
+
+  ```
+  location /oidc-ui {
+     alias /usr/share/nginx/oidc-ui;
+     try_files $uri $uri/ /oidc-ui/index.html;
+  }
+  ```
+
+  2. Provide the context path in the evn variable `OIDC_UI_PUBLIC_URL` during docker run.
+
+  ```
+  $ docker build -t <dockerImageName>:<tag> .
+  $ docker run -it -d -p 3000:3000 -e OIDC_UI_PUBLIC_URL='oidc-ui' -e artifactory_url_env='<artifactory-service URL>' -e SIGN_IN_WITH_ESIGNET_PLUGIN_URL=<sign-in plugin's zip folder complete URL> <dockerImageName>:<tag>
 
   # The UI will be hosted on http://<domain>/oidc-ui
   ```
-  
 
 - Build and run on the local system:
   - Update ".env.development" file, add REACT_APP_ESIGNET_API_URL=<'Complete URL of Esignet Services'>
