@@ -72,12 +72,12 @@ The application runs on PORT=3000 by default.
 
 - Build and run Docker for a service:
 
-  - Oidc-ui docker service is depends on two variables
+  - Oidc-ui docker service depends on two variables
 
-    1. artifactory-service URL : This url is used for fetching the language bundle.
-    2. sign-in plugin's zip folder complete URL: This url is used for fetching the sign-in plugin's zip folder.
+    1. artifactory-service URL : This url is used for fetching the language bundle in configure_start.sh file.
+    2. sign-in plugin's zip folder complete URL: This url is used for fetching the sign-in plugin's zip folder in configure_start.sh file.
 
-  - Update the proxy_pass of all locations with the correct URL of esignet-service in the nignx file. For example
+  - Update the proxy_pass of all locations with the correct URL of esignet-service in the nignx/nginx.conf file. For example
     ```
     location /v1/esignet {
       proxy_pass         http://<local-ip-address>/v1/esignet;
