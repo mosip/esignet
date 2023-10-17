@@ -2,13 +2,12 @@ package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
-import java.nio.charset.Charset;
+import java.io.Serializable;
 
 import static io.mosip.esignet.core.constants.Constants.S256;
 
@@ -19,7 +18,7 @@ import static io.mosip.esignet.core.constants.Constants.S256;
 @Slf4j
 @Getter
 @Setter
-public class ProofKeyCodeExchange {
+public class ProofKeyCodeExchange implements Serializable {
 
     private String codeChallenge;
     private String codeChallengeMethod;
