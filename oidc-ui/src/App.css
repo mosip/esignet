@@ -31,6 +31,10 @@
   content: var(--brand-logo-url);
 }
 
+.brand-only-logo {
+  content: var(--brand-only-logo-url);
+}
+
 .background-logo {
   content: var(--background-logo-url);
 }
