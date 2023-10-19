@@ -5,10 +5,12 @@ ENV SIGN_IN_WITH_ESIGNET_PLUGIN_URL=$sign_in_with_esignet_plugin_url
 
 # Set a build-time environment variable (replace YOUR_ENV_VARIABLE_NAME with the desired variable name)
 ARG oidcUIPublicUrl
+ARG uiDefaultTheme
 ARG defaultLang
 ARG defaultWellknown
 
 ENV OIDC_UI_PUBLIC_URL=$oidcUIPublicUrl
+ENV DEFAULT_THEME=$uiDefaultTheme
 ENV DEFAULT_LANG=$defaultLang
 ENV DEFAULT_WELLKNOWN=$defaultWellknown
 
@@ -81,7 +83,7 @@ COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 # copy build files to nginx html directory
 COPY --from=build_esignet_ui /build  ${work_dir}
 
-RUN echo "DEFAULT_LANG=$DEFAULT_LANG" >> ${work_dir}/env.env && echo "DEFAULT_WELLKNOWN=$DEFAULT_WELLKNOWN" >> ${work_dir}/env.env
+RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env && echo "DEFAULT_LANG=$DEFAULT_LANG" >> ${work_dir}/env.env && echo "DEFAULT_WELLKNOWN=$DEFAULT_WELLKNOWN" >> ${work_dir}/env.env
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
