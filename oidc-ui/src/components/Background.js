@@ -30,7 +30,7 @@ export default function Background({
   return (
     <>
     {/* height is used by subtracting navbar height  */}
-      <section className="text-gray-600 pt-4 body-font h-[calc(100%-54px)] section-background">
+      <section className="text-gray-600 pt-4 body-font h-[calc(100%-55px)] section-background">
         <div className="container flex mx-auto px-5 sm:flex-row flex-col">
           <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
             <div>
