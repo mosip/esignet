@@ -114,7 +114,7 @@
     "verify_using_national_id":"التحقق باستخدام الهويات الوطنية الأخرى"
   },
   "esignetDetails": {
-    "esignet_details_heading": "واجهات برمجة التطبيقات Esignet معروفة جيدا",
+    "esignet_details_heading": "واجهات برمجة التطبيقات",
     "internal_api": "واجهة برمجة التطبيقات الداخلية",
     "wellknown_api": ".wellknown API"
   },
