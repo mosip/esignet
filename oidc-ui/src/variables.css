@@ -6,7 +6,7 @@
   --language-icon-color: #FFFFFF;
   --language-icon-bg-color: #B1915D;
   --brand-logo-url: url("../public/images/eldoria_logo.svg");
-  --background-logo-url: url("../public/images/illustration_one.png");
+  --background-logo-url: url("../public/images/eldoria_bg.png");
   --primary-button-color: #FFFFFF;
   --primary-button-bg-color: #3B82F6;
   --primary-button-hover-color: #FFFFFF;
@@ -25,7 +25,7 @@
   --qrcode-border-color: #B1915D;
   --info-icon-color: #B1915D;
   --toggle-button-inactive-bg-color: #FFFFFF;
-  --toggle-button-inactive-border-color: #E77938;
+  --toggle-button-inactive-border-color: #808080;
   --toggle-button-active-bg-color: #FFFFFF;
   --toggle-button-active-border-color: #E77938;
   --toggle-button-inactive-ball-color: #AAAAAD;
@@ -43,7 +43,7 @@
   --language-icon-color: #FFFFFF;
   --language-icon-bg-color: #E57E58;
   --brand-logo-url: url("../public/images/veridonia_logo.png");
-  --background-logo-url: url("../public/images/illustration_one.png");
+  --background-logo-url: url("../public/images/veridonia_bg.png");
   --primary-button-color: #FFFFFF;
   --primary-button-bg-color: #3B82F6;
   --primary-button-hover-color: #FFFFFF;
@@ -62,7 +62,7 @@
   --qrcode-border-color: #843B34;
   --info-icon-color: #E77938;
   --toggle-button-inactive-bg-color: #FFFFFF;
-  --toggle-button-inactive-border-color: #E77938;
+  --toggle-button-inactive-border-color: #808080;
   --toggle-button-active-bg-color: #FFFFFF;
   --toggle-button-active-border-color: #E77938;
   --toggle-button-inactive-ball-color: #AAAAAD;
