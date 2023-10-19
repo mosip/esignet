@@ -55,31 +55,39 @@
 .primary-button {
   color: var(--primary-button-color);
   background-color: var(--primary-button-bg-color);
+  border: 1px solid var(--primary-button-border-color);
+  border-radius: 5px;
 }
 
 .primary-button:disabled {
   color: var(--primary-button-disable-color);
   background-color: var(--primary-button-disable-bg-color);
+  border-color: var(--primary-button-disable-border-color);
 }
 
 .primary-button:hover {
   color: var(--primary-button-hover-color);
   background-color: var(--primary-button-hover-bg-color);
+  border-color: var(--primary-button-hover-border-color);
 }
 
 .secondary-button {
   color: var(--secondary-button-color);
   background-color: var(--secondary-button-bg-color);
+  border: 1px solid var(--secondary-button-border-color);
+  border-radius: 5px;
 }
 
 .secondary-button:disabled {
   color: var(--secondary-button-disable-color);
   background-color: var(--secondary-button-disable-bg-color);
+  border-color: var(--secondary-button-disable-border-color);
 }
 
 .secondary-button:hover {
   color: var(--secondary-button-hover-color);
   background-color: var(--secondary-button-hover-bg-color);
+  border-color: var(--secondary-button-hover-border-color);
 }
 
 .qrcode-border {
