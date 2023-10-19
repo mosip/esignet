@@ -10,6 +10,7 @@ ARG defaultLang
 ARG defaultWellknown
 ARG defaultFevicon
 ARG defaultTitle
+ARG defaultIdProviderName
 
 ENV OIDC_UI_PUBLIC_URL=$oidcUIPublicUrl
 ENV DEFAULT_THEME=$uiDefaultTheme
@@ -17,6 +18,7 @@ ENV DEFAULT_LANG=$defaultLang
 ENV DEFAULT_WELLKNOWN=$defaultWellknown
 ENV DEFAULT_FEVICON=$defaultFevicon
 ENV DEFAULT_TITLE=$defaultTitle
+ENV DEFAULT_ID_PROVIDER_NAME=$defaultIdProviderName
 
 # Set the environment variable as a placeholder for PUBLIC_URL
 ENV PUBLIC_URL=_PUBLIC_URL_
@@ -87,7 +89,7 @@ COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 # copy build files to nginx html directory
 COPY --from=build_esignet_ui /build  ${work_dir}
 
-RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env && echo "DEFAULT_LANG=$DEFAULT_LANG" >> ${work_dir}/env.env && echo "DEFAULT_WELLKNOWN=$DEFAULT_WELLKNOWN" >> ${work_dir}/env.env && echo "DEFAULT_FEVICON=$DEFAULT_FEVICON" >> ${work_dir}/env.env env && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env
+RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env && echo "DEFAULT_LANG=$DEFAULT_LANG" >> ${work_dir}/env.env && echo "DEFAULT_WELLKNOWN=$DEFAULT_WELLKNOWN" >> ${work_dir}/env.env && echo "DEFAULT_FEVICON=$DEFAULT_FEVICON" >> ${work_dir}/env.env env && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env && echo "DEFAULT_ID_PROVIDER_NAME=$DEFAULT_ID_PROVIDER_NAME" >> ${work_dir}/env.env
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
