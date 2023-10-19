@@ -119,7 +119,7 @@
     "wellknown_api": ".wellknown API"
   },
   "header": {
-    "login_heading": "تسجيل الدخول باستخدام e-Signet",
+    "login_heading": "قم بتسجيل الدخول باستخدام معرف {{idProviderName}} الخاص بك",
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "invalid_auth_factor": "عوامل المصادقة غير صالحة. حاول مرة اخرى...",
