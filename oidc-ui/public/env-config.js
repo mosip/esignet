@@ -15,4 +15,5 @@ window._env_ = {
       value: "/.well-known/openid-credential-issuer",
     },
   ],
+  DEFAULT_THEME: 'veridonia'
 };
