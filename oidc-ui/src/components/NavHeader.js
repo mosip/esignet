@@ -8,9 +8,6 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   });
   const [selectedLang, setSelectedLang] = useState();
 
-  const brandLogoUrl =
-    process.env.REACT_APP_AUTH_BRAND_LOGO_URL ?? "images/veridonia_logo.png";
-
   const changeLanguageHandler = (e) => {
     i18n.changeLanguage(e.value);
   };
