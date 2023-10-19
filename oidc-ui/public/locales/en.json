@@ -114,7 +114,7 @@
     "verify_using_national_id":"Verify using other National IDs"
   },
   "esignetDetails": {
-    "esignet_details_heading": "Esignet wellknown APIs",
+    "esignet_details_heading": "wellknown APIs",
     "internal_api": "Internal API",
     "wellknown_api": ".wellknown API"
   },
