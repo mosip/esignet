@@ -3,7 +3,7 @@ x-stoplight:
   id: 2c0p77qzs8cwq
 info:
   title: e-Signet
-  version: '1.0'
+  version: '1.2.0'
   contact:
     name: MOSIP Team
     email: info@mosip.io
@@ -16,6 +16,7 @@ info:
     <li> UI - All endpoints used by the UI application </li>
     <li> Wallet - All endpoints used by the Wallet application </li>
     <li> binding-service - All endpoints used by the UI application </li>
+    <li> VCI Service - All endpoints used by VC Issuance flow</li>
     </ul>
 
     <b>Abbreviations:</b></br></br>
@@ -27,8 +28,8 @@ info:
     UIN - Unique Identification Number</br>
     VID - Virtual Identifier</br>
     PSUT - Partner(Relying Party) Specific User Token</br>
-  
-  
+    VC - Verifiable Credential</br>
+    VCI - Verifiable Credential Issuance      
   
 
   license:
@@ -36,7 +37,7 @@ info:
     url: 'https://www.mozilla.org/en-US/MPL/2.0/'
   summary: Open ID Connect based identity provider for large scale authentication
 servers:
-  - url: 'https://api.esignet.io/v1/esignet'
+  - url: 'https://esignet.collab.mosip.net/v1/esignet'
 paths:
   /client-mgmt/oidc-client:
     post:
@@ -161,15 +162,27 @@ paths:
                 value:
                   requestTime: '2011-10-05T14:48:00.000Z'
                   request:
-                    clientId: e-health-service
-                    clientName: Health Service
-                    relyingPartyId: bharath-gov
-                    logoUri: 'http://example.com'
-                    publicKey: {}
+                    clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                    clientName: Fastlane e-Sim Service
+                    relyingPartyId: Fastlane
+                    logoUri: 'https://fastlane.com/fastline-esim.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                    publicKey:
+                      kty: RSA
+                      e: AQAB
+                      use: sig
+                      alg: RS256
+                      'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
                     authContextRefs:
-                      - 'mosip:idp:acr:static-code'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:linked-wallet'
                     userClaims:
                       - name
+                      - email
+                      - phone_number
+                      - address
                     grantTypes:
                       - authorization_code
                     clientAuthMethods:
@@ -199,6 +212,12 @@ paths:
                       clientId:
                         type: string
                         description: Client id as provided in the request.
+                      status:
+                        x-stoplight:
+                          id: 0c9663wceaxdz
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
                   errors:
                     type: array
                     items:
@@ -222,6 +241,13 @@ paths:
                             - invalid_client_auth
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: string
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
         '401':
           description: Unauthorized
       tags:
@@ -231,11 +257,12 @@ paths:
         - Authorization-add_oidc_client: []
       x-stoplight:
         id: s6blkzlwa8f1x
+      deprecated: true
     parameters: []
-  /client-mgmt/v2/oidc-client:
+  /client-mgmt/oauth-client:
     post:
-      summary: Create OIDC Client Endpoint V2
-      operationId: post-client-v2
+      summary: Create OAuth/OIDC Client Endpoint
+      operationId: post-oauth-client
       requestBody:
         content:
           application/json:
@@ -264,7 +291,7 @@ paths:
                   properties:
                     clientId:
                       type: string
-                      description: 'Unique OIDC client id (Case-Sensitive). If duplicates found, request will be rejected.'
+                      description: 'Unique client id (Case-Sensitive). If duplicates found, request will be rejected.'
                       example: 785b806d0e594657b05aabdb30fff8a4
                       maxLength: 50
                       minLength: 1
@@ -272,7 +299,7 @@ paths:
                       type: string
                       minLength: 1
                       maxLength: 256
-                      description: Name of OIDC client.
+                      description: Name of OAuth/OIDC client.
                       example: ABC Health Care
                     clientNameLangMap:
                       type: object
@@ -290,7 +317,7 @@ paths:
                       maxLength: 50
                     logoUri:
                       type: string
-                      description: Relying party logo URI which will used to display logo in OIDC login and consent pages.
+                      description: Relying party logo URI which will used to display logo in the login and consent pages.
                       format: uri
                       minLength: 1
                       maxLength: 1024
@@ -298,7 +325,7 @@ paths:
                       type: array
                       description: |-
                         Valid list of callback Uris of the relying party. 
-                        When OIDC authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.
+                        When the authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.
                       items:
                         type: string
                     authContextRefs:
@@ -315,8 +342,8 @@ paths:
                     publicKey:
                       type: object
                       description: |-
-                        OIDC client's public key used to verify the client's private_key_jwt when OIDC token endpoint is invoked. 
-                        This field will not be allowed to udpate later, if the private key is compromised, then new OIDC client to be created.
+                        OAuth/OIDC client's public key used to verify the client's private_key_jwt when token endpoint is invoked. 
+                        This field will not be allowed to udpate later, if the private key is compromised, then new OAuth/OIDC client to be created.
                         Format : Json Web Key (JWK).
                     userClaims:
                       type: array
@@ -361,34 +388,41 @@ paths:
                 value:
                   requestTime: '2011-10-05T14:48:00.000Z'
                   request:
-                    clientId: e-health-service
-                    clientName: Health Service
+                    clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                    clientName: Fastlane e-Sim Service
                     clientNameLangMap:
-                      eng: Health Service OIDC Client
-                      hin: स्वास्थ्य सेवा ओआईडीसी क्लाइंट
-                      tam: சுகாதார சேவை OIDC கிளையண்ட்
-                      kan: ಆರೋಗ್ಯ ಸೇವೆ OIDC ಕ್ಲೈಂಟ್
-                      ara: عميل OIDC للخدمات الصحية
-                    relyingPartyId: bharath-gov
-                    logoUri: 'http://example.com'
-                    publicKey: {}
+                      fra: Service e-Sim de Fastlane
+                      ara: خدمة فاست لين e-SIM
+                    relyingPartyId: Fastlane
+                    logoUri: 'https://fastlane.com/fastlane-esim.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                    publicKey:
+                      kty: RSA
+                      e: AQAB
+                      use: sig
+                      alg: RS256
+                      'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
                     authContextRefs:
-                      - 'mosip:idp:acr:static-code'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:linked-wallet'
                     userClaims:
                       - name
+                      - email
+                      - phone_number
+                      - address
                     grantTypes:
                       - authorization_code
                     clientAuthMethods:
                       - private_key_jwt
         description: ''
       description: |-
-        API to add new open ID connect (OIDC) clients, it can be invoked by other modules which manages the relying parties / partners.
+        API to add new OAuth or open ID connect (OIDC) clients. This API should be used to create client in esignet by the partner management modules in the integrated ID system.
 
-        Each relying party can associate to one or multiple OIDC client ids.
+        Each relying party can associate with one or more client ids.
 
-        Client name can be provided in multiple languages and default name when no language is selected.
-
-        On create, OIDC client status will be by default set to "**active**".
+        On create, client status will be by default set to "**active**".
       x-internal: false
       responses:
         '200':
@@ -407,6 +441,12 @@ paths:
                       clientId:
                         type: string
                         description: Client id as provided in the request.
+                      status:
+                        x-stoplight:
+                          id: 9iseixjanmh02
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
                   errors:
                     type: array
                     items:
@@ -432,6 +472,14 @@ paths:
                             - invalid_client_name_value
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: string
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
         '401':
           description: Unauthorized
       tags:
@@ -446,7 +494,7 @@ paths:
     parameters:
       - schema:
           type: string
-          example: 785b806d0e594657b05aabdb30fff8a4
+          example: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
         name: client_id
         in: path
         required: true
@@ -471,6 +519,12 @@ paths:
                       clientId:
                         type: string
                         description: OIDC client identifier.
+                      status:
+                        x-stoplight:
+                          id: mg42gkw74lymy
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
                     required:
                       - clientId
                   errors:
@@ -492,6 +546,15 @@ paths:
                             - invalid_client_auth
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    value:
+                      responseTime: string
+                      response:
+                        clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                        status: ACTIVE
+                      errors: []
       description: |-
         API to update existing Open ID Connect (OIDC) client, it can be invoked by other modules which manages the relying parties / partners when there any updates on the fields accepted in this API.
 
@@ -596,17 +659,24 @@ paths:
             examples:
               example-1:
                 value:
-                  requestTime: '2022-09-22T08:03:45.000Z'
+                  requestTime: '2011-10-05T14:48:00.000Z'
                   request:
-                    clientName: Health Service
-                    status: active
-                    logoUri: 'http://example.com'
+                    clientName: Fastlane e-Sim Service
+                    relyingPartyId: Fastlane
+                    logoUri: 'https://fastline.com/logo.png'
                     redirectUris:
-                      - 'http://example.com'
+                      - 'https://fastlane.com/homepage'
+                      - 'https://fastlane-dev.com/*'
+                      - 'fastlaneapp://oauth/*'
+                    authContextRefs:
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:linked-wallet'
                     userClaims:
                       - name
-                    authContextRefs:
-                      - 'mosip:idp:acr:static-code'
+                      - email
+                      - phone_number
+                      - address
                     grantTypes:
                       - authorization_code
                     clientAuthMethods:
@@ -618,18 +688,11 @@ paths:
         - Authorization-update_oidc_client: []
       x-stoplight:
         id: tb7ue7javd2f1
-  '/client-mgmt/v2/oidc-client/{client_id}':
-    parameters:
-      - schema:
-          type: string
-          example: 785b806d0e594657b05aabdb30fff8a4
-        name: client_id
-        in: path
-        required: true
-        description: Client Identifier
+      deprecated: true
+  '/client-mgmt/oauth-client/{client_id}':
     put:
-      summary: Update OIDC Client Endpoint V2
-      operationId: put-oidc-client-client_id-v2
+      summary: Update OAuth/OIDC Client Endpoint
+      operationId: put-oauth-client-client_id
       responses:
         '200':
           description: OK
@@ -646,7 +709,13 @@ paths:
                     properties:
                       clientId:
                         type: string
-                        description: OIDC client identifier.
+                        description: Client identifier.
+                      status:
+                        x-stoplight:
+                          id: 4dbx7y3pexzlf
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
                     required:
                       - clientId
                   errors:
@@ -670,8 +739,18 @@ paths:
                             - invalid_language_code
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    value:
+                      value:
+                        responseTime: string
+                        response:
+                          clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                          status: ACTIVE
+                        errors: []
       description: |-
-        API to update existing Open ID Connect (OIDC) client, it can be invoked by other modules which manages the relying parties / partners when there any updates on the fields accepted in this API.
+        API to update existing OAuth/Open ID Connect (OIDC) client, it can be invoked by other modules which manages the relying parties / partners when there any updates on the fields accepted in this API.
 
         **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
       requestBody:
@@ -699,30 +778,30 @@ paths:
                   properties:
                     clientName:
                       type: string
-                      description: Name of the OIDC client.
+                      description: Name of the OAuth/OIDC client.
                       minLength: 1
                       maxLength: 256
                       example: ABC Health Care
                     clientNameLangMap:
                       type: object
                       description: |-
-                        Client name in different languages. The language code needs to be passed as key and 
+                        Client name in different languages. The 3 letter language code needs to be passed as key and 
                         client name in the desired language needs to be passed as value
                     status:
                       type: string
                       enum:
                         - active
                         - inactive
-                      description: Status of OIDC client.
+                      description: Status of the Client.
                     logoUri:
                       type: string
-                      description: Relying party logo URI which will used to display logo in OIDC login and consent pages.
+                      description: Relying party logo URI which will used to display logo in the login and consent pages.
                       format: uri
                       minLength: 1
                       maxLength: 1024
                     redirectUris:
                       type: array
-                      description: 'Valid list of callback Uris of the relying party. When OIDC authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.'
+                      description: 'Valid list of callback Uris of the relying party. When the authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.'
                       minItems: 1
                       uniqueItems: true
                       items:
@@ -778,29 +857,34 @@ paths:
                 - requestTime
                 - request
             examples:
-              example-1:
+              Example 1:
                 value:
-                  requestTime: '2022-09-22T08:03:45.000Z'
-                  request:
-                    clientName: Health Service
-                    clientNameLangMap:
-                      eng: Health Service OIDC Client
-                      hin: स्वास्थ्य सेवा ओआईडीसी क्लाइंट
-                      tam: சுகாதார சேவை OIDC கிளையண்ட்
-                      kan: ಆರೋಗ್ಯ ಸೇವೆ OIDC ಕ್ಲೈಂಟ್
-                      ara: عميل OIDC للخدمات الصحية
-                    status: active
-                    logoUri: 'http://example.com'
-                    redirectUris:
-                      - 'http://example.com'
-                    userClaims:
-                      - name
-                    authContextRefs:
-                      - 'mosip:idp:acr:static-code'
-                    grantTypes:
-                      - authorization_code
-                    clientAuthMethods:
-                      - private_key_jwt
+                  value:
+                    requestTime: '2011-10-05T14:48:00.000Z'
+                    request:
+                      clientName: Fastlane e-Sim Service
+                      clientNameLangMap:
+                        fra: Service e-Sim de Fastlane
+                        ara: خدمة فاست لين e-SIM
+                      relyingPartyId: Fastlane
+                      logoUri: 'https://fastlane.com/logo.png'
+                      redirectUris:
+                        - 'https://fastlane.com/homepage'
+                        - 'http://fastlane-dev.com/*'
+                        - 'fastlaneapp://oauth/*'
+                      authContextRefs:
+                        - 'mosip:idp:acr:biometrics'
+                        - 'mosip:idp:acr:generated-code'
+                        - 'mosip:idp:acr:linked-wallet'
+                      userClaims:
+                        - name
+                        - email
+                        - phone_number
+                        - address
+                      grantTypes:
+                        - authorization_code
+                      clientAuthMethods:
+                        - private_key_jwt
         description: ''
       tags:
         - Management
@@ -808,6 +892,14 @@ paths:
         - Authorization-update_oidc_client: []
       x-stoplight:
         id: 06urgrccsldii
+    parameters:
+      - schema:
+          type: string
+          example: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+        name: client_id
+        in: path
+        required: true
+        description: Client Identifier
   /authorize:
     get:
       summary: Authorization Endpoint
@@ -919,12 +1011,12 @@ paths:
             type: string
           in: query
           name: code_challenge
-          description: A challenge derived from the code_verifier
+          description: 'A challenge derived from the code_verifier, This is required if its a VC scoped request.'
         - schema:
             type: string
           in: query
           name: code_challenge_method
-          description: A method that was used to derive code challenge
+          description: 'A method that was used to derive code challenge, This will be required if code_challenge is provided.'
       responses:
         '200':
           description: |-
@@ -1020,20 +1112,19 @@ paths:
                     responseTime: '2022-09-22T08:03:45.287Z'
                     response:
                       transactionId: vKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
-                      clientName: Health service OIDC Client
-                      logoUrl: 'https://health-services.com/logo.png'
+                      clientName: Fastlane e-Sim Service
+                      logoUrl: 'https://fastlane.com/logo.png'
                       authFactors:
-                        - - type: PIN
+                        - - type: OTP
                             count: 0
                             subTypes: null
                       authorizeScopes: []
                       essentialClaims:
-                        - given_name
-                        - email
+                        - name
+                        - address
                       voluntaryClaims:
-                        - birthdate
-                        - gender
-                        - phone
+                        - email
+                        - phone_number
                       configs:
                         sbi.env: Staging
                         sbi.threshold.face: 40
@@ -1122,24 +1213,22 @@ paths:
                 value:
                   requestTime: '2022-09-22T08:01:10.000Z'
                   request:
-                    clientId: healthservicev1
-                    scope: openid resident-service profile
+                    clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                    scope: openid profile
                     responseType: code
-                    redirectUri: 'http://health-services.com/userprofile'
+                    redirectUri: 'https://fastlane.com/homepage'
                     display: popup
                     prompt: login
-                    acrValues: 'mosip:idp:acr:static-code mosip:idp:acr:generated-code'
+                    acrValues: 'mosip:idp:acr:generated-code'
                     claims:
                       userinfo:
-                        given_name:
+                        name:
                           essential: true
-                        phone: null
+                        phone_number: null
                         email:
+                          essential: false
+                        address:
                           essential: true
-                        picture:
-                          essential: false
-                        gender:
-                          essential: false
                       id_token: {}
                     nonce: 973eieljzng
                     state: eree2311
@@ -1155,6 +1244,7 @@ paths:
         - UI
       x-stoplight:
         id: c1911yceexshx
+      deprecated: true
     parameters: []
   /authorization/v2/oauth-details:
     post:
@@ -1251,35 +1341,33 @@ paths:
               examples:
                 example-1:
                   value:
-                    responseTime: '2022-09-22T08:03:45.287Z'
-                    response:
-                      transactionId: vKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
-                      clientName:
-                        eng: Health Service OIDC Client
-                        hin: स्वास्थ्य सेवा ओआईडीसी क्लाइंट
-                        tam: சுகாதார சேவை OIDC கிளையண்ட்
-                        kan: ಆರೋಗ್ಯ ಸೇವೆ OIDC ಕ್ಲೈಂಟ್
-                        ara: عميل OIDC للخدمات الصحية
-                        '@none': Health service OIDC Client
-                      logoUrl: 'https://health-services.com/logo.png'
-                      authFactors:
-                        - - type: PIN
-                            count: 0
-                            subTypes: null
-                      authorizeScopes: []
-                      essentialClaims:
-                        - given_name
-                        - email
-                      voluntaryClaims:
-                        - birthdate
-                        - gender
-                        - phone
-                      configs:
-                        sbi.env: Staging
-                        sbi.threshold.face: 40
-                        sbi.threshold.finger: 40
-                        sbi.threshold.iris: 40
-                    errors: null
+                    value:
+                      responseTime: '2022-09-22T08:03:45.287Z'
+                      response:
+                        transactionId: vKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                        clientName:
+                          eng: Fastlane e-Sim Service
+                          fra: Service e-Sim de Fastlane
+                          ara: خدمة فاست لين e-SIM
+                        logoUrl: 'https://fastlane.com/logo.png'
+                        authFactors:
+                          - - type: OTP
+                              count: 0
+                              subTypes: null
+                        authorizeScopes: []
+                        credentialScopes: []
+                        essentialClaims:
+                          - name
+                          - address
+                        voluntaryClaims:
+                          - email
+                          - phone_number
+                        configs:
+                          sbi.env: Staging
+                          sbi.threshold.face: 40
+                          sbi.threshold.finger: 40
+                          sbi.threshold.iris: 40
+                      errors: null
       description: |
         OAuth details request is raised from the UI JS application on page load.
 
@@ -1371,30 +1459,31 @@ paths:
             examples:
               example-1:
                 value:
-                  requestTime: '2022-09-22T08:01:10.000Z'
-                  request:
-                    clientId: healthservicev1
-                    scope: openid resident-service profile
-                    responseType: code
-                    redirectUri: 'http://health-services.com/userprofile'
-                    display: popup
-                    prompt: login
-                    acrValues: 'mosip:idp:acr:static-code mosip:idp:acr:generated-code'
-                    claims:
-                      userinfo:
-                        given_name:
-                          essential: true
-                        phone: null
-                        email:
-                          essential: true
-                        picture:
-                          essential: false
-                        gender:
-                          essential: false
-                      id_token: {}
-                    nonce: 973eieljzng
-                    state: eree2311
-                    claimsLocales: en
+                  value:
+                    requestTime: '2022-09-22T08:01:10.000Z'
+                    request:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      scope: openid profile
+                      responseType: code
+                      redirectUri: 'https://fastlane.com/homepage'
+                      display: popup
+                      prompt: login
+                      acrValues: 'mosip:idp:acr:generated-code'
+                      claims:
+                        userinfo:
+                          name:
+                            essential: true
+                          phone_number: null
+                          email:
+                            essential: false
+                          address:
+                            essential: true
+                        id_token: {}
+                      nonce: 973eieljzng
+                      state: eree2311
+                      claimsLocales: en
+                      codeChallenge: UK95aVX_y3R44DF3hssd3wATvtZmO_WejE0P33-pwTs
+                      codeChallengeMethod: S256
       parameters:
         - schema:
             type: string
@@ -1452,6 +1541,15 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      transactionId: vKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      maskedEmail: sun****@gmail.com
+                      maskedMobile: 3*****12
+                    errors: []
       description: |-
         When end user want to authenticate using OTP auth factor, he/she will enter their individual id (UIN/VID) and click on the "Generate OTP" button on the UI application. Then this endpoint will be invoked by the JS UI application.
 
@@ -1486,9 +1584,6 @@ paths:
                       description: Actual UIN or VID value of the authenticating the end user.
                     otpChannels:
                       type: array
-                      enum:
-                        - email
-                        - sms
                       description: Channel to be used to deliver request OTP.
                       minItems: 1
                       uniqueItems: true
@@ -1503,6 +1598,17 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: vKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    individualId: '464737289558'
+                    otpChannels:
+                      - sms
+                      - email
+                    captchaToken: ALSKDJFURIEOQPZMKFURHFVBH
         description: ''
       parameters:
         - schema:
@@ -1572,6 +1678,15 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:11.000Z'
+                    response:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      maskedEmail: sun****@gmail.com
+                      maskedMobile: 3*****12
+                    errors: []
       description: |-
         When end user want to authenticate using OTP auth factor, he/she will enter their individual id (UIN/VID) and click on the "Generate OTP" button on the UI application. Then this endpoint will be invoked by wallet app with linked transactionId.
 
@@ -1605,9 +1720,6 @@ paths:
                       description: Actual UIN or VID value of the authenticating the end user.
                     otpChannels:
                       type: array
-                      enum:
-                        - email
-                        - sms
                       description: Channel to be used to deliver request OTP.
                       minItems: 1
                       uniqueItems: true
@@ -1619,6 +1731,16 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    individualId: '464737289558'
+                    otpChannels:
+                      - sms
+                      - email
         description: ''
       parameters: []
       tags:
@@ -1662,6 +1784,13 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    errors: []
       requestBody:
         content:
           application/json:
@@ -1692,6 +1821,17 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    individualId: '464737289558'
+                    challengeList:
+                      - authFactorType: OTP
+                        challenge: '111111'
+                        format: alpha-numeric
         description: ''
       description: |-
         Once end user provides the user identifier (UIN/VID) and all the required auth challenge to the UI application, this endpoint will be invoked.
@@ -1730,6 +1870,7 @@ paths:
         - WALLET
       x-stoplight:
         id: 3439343ywm7yy
+      deprecated: true
     parameters: []
   /authorization/v2/authenticate:
     post:
@@ -1776,6 +1917,14 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      consentAction: CAPTURE
+                    errors: []
       requestBody:
         content:
           application/json:
@@ -1806,6 +1955,18 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  value:
+                    requestTime: '2023-09-22T08:01:10.000Z'
+                    request:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      individualId: '464737289558'
+                      challengeList:
+                        - authFactorType: OTP
+                          challenge: '111111'
+                          format: alpha-numeric
         description: ''
       description: |-
         Once end user provides the user identifier (UIN/VID) and all the required auth challenge to the UI application, this endpoint will be invoked.
@@ -1887,6 +2048,17 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    permittedAuthorizeScopes: []
+                    acceptedClaims:
+                      - name
+                      - email
+                      - phone_number
       parameters:
         - schema:
             type: string
@@ -1945,6 +2117,16 @@ paths:
                             - invalid_permitted_scope
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      code: tyemdnjdfornfedg
+                      redirectUri: 'https://fastlane.com/homepage'
+                      nonce: 973eieljzng
+                      state: eree2311
+                    errors: []
       tags:
         - UI
         - WALLET
@@ -1991,6 +2173,15 @@ paths:
                             - invalid_transaction
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      linkCode: xl4cnYtLQkGRxUj
+                      expireDateTime: '2023-09-22T08:05:00.000Z'
+                    errors: []
       operationId: get-authorization-generate-link-code
       description: |-
         Generate link code request is raised from JS application.
@@ -2021,6 +2212,12 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
       parameters:
         - schema:
             type: string
@@ -2107,6 +2304,32 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    value:
+                      responseTime: '2023-09-22T08:01:13.000Z'
+                      response:
+                        linkTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                        clientName: Fastlane e-Sim Service
+                        logoUrl: 'https://fastlane.com/logo.png'
+                        authFactors:
+                          - - type: OTP
+                              count: 0
+                              subTypes: null
+                        authorizeScopes: []
+                        essentialClaims:
+                          - name
+                          - address
+                        voluntaryClaims:
+                          - email
+                          - phone_number
+                        configs:
+                          sbi.env: Staging
+                          sbi.threshold.face: 40
+                          sbi.threshold.finger: 40
+                          sbi.threshold.iris: 40
+                      errors: null
       requestBody:
         content:
           application/json:
@@ -2126,6 +2349,12 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    linkCode: xl4cnYtLQkGRxUj
       description: |-
         The link transaction endpoint is invoked from Wallet-app.
 
@@ -2139,6 +2368,7 @@ paths:
         - WALLET
       x-stoplight:
         id: 0gfjcs85275fx
+      deprecated: true
     parameters: []
   /linked-authorization/v2/link-transaction:
     post:
@@ -2215,6 +2445,35 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      linkTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                      clientName:
+                        eng: Fastlane e-Sim Service
+                        fra: Service e-Sim de Fastlane
+                        ara: خدمة فاست لين e-SIM
+                      logoUrl: 'https://fastlane.com/logo.png'
+                      authFactors:
+                        - - type: OTP
+                            count: 0
+                            subTypes: null
+                      authorizeScopes: []
+                      credentialScopes: []
+                      essentialClaims:
+                        - name
+                        - address
+                      voluntaryClaims:
+                        - email
+                        - phone_number
+                      configs:
+                        sbi.env: Staging
+                        sbi.threshold.face: 40
+                        sbi.threshold.finger: 40
+                        sbi.threshold.iris: 40
+                    errors: null
       requestBody:
         content:
           application/json:
@@ -2234,6 +2493,12 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    linkCode: xl4cnYtLQkGRxUj
       description: |-
         The link transaction endpoint is invoked from Wallet-app.
 
@@ -2291,6 +2556,15 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTIme: '2023-09-22T08:01:13.000Z'
+                    response:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      linkStatus: LINKED
+                      linkedDateTime: '2023-09-22T08:01:12.000Z'
+                    errors: []
       operationId: post-authorization-link-status
       requestBody:
         content:
@@ -2315,6 +2589,13 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    linkCode: xl4cnYtLQkGRxUj
       description: |-
         The link transaction endpoint is invoked from Wallet-app.
 
@@ -2383,6 +2664,13 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                    errors: []
       requestBody:
         content:
           application/json:
@@ -2413,6 +2701,17 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                    individualId: '34543276756'
+                    challengeList:
+                      - authFactorType: OTP
+                        challenge: '111111'
+                        format: alpha-numeric
         description: ''
       description: |-
         Once end user provides the user identifier (UIN/VID) and all the required auth challenge to the Wallet-app, this endpoint will be invoked from wallet-app.
@@ -2432,6 +2731,7 @@ paths:
         - WALLET
       x-stoplight:
         id: 73z5rks8w6jwy
+      deprecated: true
     parameters: []
   /linked-authorization/v2/authenticate:
     post:
@@ -2479,6 +2779,14 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                      consentAction: CAPTURE
+                    errors: []
       requestBody:
         content:
           application/json:
@@ -2509,6 +2817,17 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                    individualId: '34543276756'
+                    challengeList:
+                      - authFactorType: OTP
+                        challenge: '111111'
+                        format: alpha-numeric
         description: ''
       description: |-
         Once end user provides the user identifier (UIN/VID) and all the required auth challenge to the Wallet-app, this endpoint will be invoked from wallet-app.
@@ -2570,6 +2889,18 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                    permittedAuthorizeScopes: []
+                    acceptedClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
       parameters: []
       responses:
         '200':
@@ -2601,10 +2932,18 @@ paths:
                             - invalid_permitted_scope
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                    errors: []
       tags:
         - WALLET
       x-stoplight:
         id: ogv0thl4lyntt
+      deprecated: true
     parameters: []
   /linked-authorization/v2/consent:
     post:
@@ -2651,6 +2990,19 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:13.000Z'
+                  request:
+                    linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                    permittedAuthorizeScopes: []
+                    acceptedClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
+                    signature: <detached signature>
       parameters: []
       responses:
         '200':
@@ -2682,6 +3034,13 @@ paths:
                             - invalid_permitted_scope
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:14.000Z'
+                    response:
+                      linkedTransactionId: qwert_yt46_hX0xlBJNExl9cnYtL8kGvcbf555
+                    errors: []
       tags:
         - WALLET
       x-stoplight:
@@ -2733,6 +3092,16 @@ paths:
                             - unknown_error
                         errorMessage:
                           type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:14.000Z'
+                    response:
+                      code: Ertert4334dfgdQW
+                      redirectUri: 'https://fastlane.com/homepage'
+                      nonce: 973eieljzng
+                      state: eree2311
+                    errors: []
       operationId: post-authorization-link-auth
       requestBody:
         content:
@@ -2757,6 +3126,13 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:13.000Z'
+                  request:
+                    transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    linkedCode: xl4cnYtLQkGRxUj
       description: |-
         Link authorization code endpoint is invoked from JS application.
 
@@ -2836,6 +3212,13 @@ paths:
                   - access_token
                   - token_type
                   - expires_in
+              examples:
+                Example 1:
+                  value:
+                    id_token: eyJraWQiOiJ1aTdOZjdkU1EzcTcxd0hEejFQYXVRWG5hMnJ1TWs5dmE0N2tuZTNjYWhZIiwiYWxnIjoiUlMyNTYifQ.eyJhdF9oYXNoIjpudWxsLCJzdWIiOiIyNTgwMDg2NDcxMDgzMDEzNjAzMjA2NDYwMDYwMDU4NDE3NTEiLCJhdWQiOiJXTVg1cE82ZFlkQ0ZSM2lhVldHY2xWUE54VE5TQUREdi1rVjdWQmNuenZZIiwiYWNyIjoibW9zaXA6aWRwOmFjcjpnZW5lcmF0ZWQtY29kZSIsImF1dGhfdGltZSI6MTY5ODYzMTQ1NiwiaXNzIjoiaHR0cHM6XC9cL2VzaWduZXQuY29sbGFiLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE2OTg2MzUwNjcsImlhdCI6MTY5ODYzMTQ2Nywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.Vi7L3n30zE26as4w4piFZe2Qa6DkWYBddE5ktgfC7pr4HuBe_0QHhYz__YriK6GNQTEie0i4aPOOQoEvqVNtaSOLWltdmAfL864gPlnKsMRLeeqKIB98ETUodVWIBqZkfwyY9-EHczSwrrXxnPmuY_xSdZ6QFdWFB_lkq1othEnf6wPVSJD_HJxncptg7BowRCWYVExDvsOB1sA5qS-3eXb-ixg-WVOuFm1LZuJjvQb2p5IhBpFmokycNsSfiHGUuuITHU4S_DE3TuVD9ksC4LTGFEFGZQzBC--RpJ69QrZnd6STshMvVvqqVf9Ae2qQbgDChJmWEtWvfWpuT9rPMw
+                    token_type: Bearer
+                    access_token: eyJraWQiOiJ1aTdOZjdkU1EzcTcxd0hEejFQYXVRWG5hMnJ1TWs5dmE0N2tuZTNjYWhZIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIyNTgwMDg2NDcxMDgzMDEzNjAzMjA2NDYwMDYwMDU4NDE3NTEiLCJhdWQiOiJXTVg1cE82ZFlkQ0ZSM2lhVldHY2xWUE54VE5TQUREdi1rVjdWQmNuenZZIiwiaXNzIjoiaHR0cHM6XC9cL2VzaWduZXQuY29sbGFiLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE2OTg2MzUwNjYsImlhdCI6MTY5ODYzMTQ2NiwiY2xpZW50X2lkIjoiV01YNXBPNmRZZENGUjNpYVZXR2NsVlBOeFROU0FERHYta1Y3VkJjbnp2WSJ9.Af2Y3cBNuDIV88Irw5iAFJzNOl8BEnoDXH9qO100mbW2La22gALrmbkDgwFH37wPizPObXCq92VIBPgLcw9IVFsVzJ-_48T8g1llbbwqNl-FoYtqC7u3Vcek84qcHkW7l_8lpqemvNaNJBN4ZUCag5efp2YJ2x3ANIl6LufiesL4zixemvzgIAT4-CistBdCY5K8gZp-G56pO99N88Hl1VUYdwrLrJmtztTRJCQubJDYOuSkZeNJaG5Ox_nX3O8vjiMAKDiz6jK6s296zbzo1AYu1wTRxnQ34YyOJyWRpFFjtNEup6Y_Zcv6teGcMxlHZjwgyZTXxt9zH8GfBWZ83Q
+                    expires_in: 3600
           headers:
             Cache-Control:
               schema:
@@ -2924,6 +3307,15 @@ paths:
                 - client_assertion_type
                 - client_assertion
                 - redirect_uri
+            examples:
+              Example 1:
+                value:
+                  grant_type: authorization_code
+                  code: tyemdnjdfornfedg
+                  client_id: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv-kV7VBcnzvY
+                  client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                  client_assertion: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTg2MzE0NjAsIm5iZiI6MTY5ODYzMTQ2MCwiZXhwIjoxNjk4NjMxNTI1LCJqdGkiOiI1ZFFjaWhtb2lfQTlXMmlERGpYcDgiLCJzdWIiOiJXTVg1cE82ZFlkQ0ZSM2lhVldHY2xWUE54VE5TQUREdi1rVjdWQmNuenZZIiwiaXNzIjoiV01YNXBPNmRZZENGUjNpYVZXR2NsVlBOeFROU0FERHYta1Y3VkJjbnp2WSIsImF1ZCI6Imh0dHBzOi8vZXNpZ25ldC5jb2xsYWIubW9zaXAubmV0L3YxL2VzaWduZXQvb2F1dGgvdG9rZW4ifQ.G-OxPmb2wBq7R52PELNss9FCwvv_i2456FE4oag25BuZjwH6CgB8LDLmfCJdzeLGRuFp_MrKskGTkpsWI0RWLNtqZ7jvQTvSq8zQICusIFh9kcciWbkMsOZQqN91gPtdrn3WRS6xD7TxzwvrAeuqx4lTBbWNYTF2GQ3Zagq0t6ogOtPWg0wNioW3m11jWIdwooJ8jI2Z5oN772Lerrs1AXMnipLxQm4rdMM54taeHFrrXyxqFjoiq-bglrpHtCqeG6QFqhpQrRlIsLLoli8F1LU8Mu3Fw7ifCd6KEj9JNM_sPHjAy-JRg_dgjNdHL5tqtHzUsD5sSmLop33U4WH3Ow
+                  redirect_uri: 'https://fastlane.com/homepage'
         description: ''
       tags:
         - OIDC
@@ -2986,6 +3378,14 @@ paths:
                   - access_token
                   - token_type
                   - expires_in
+              examples:
+                Example 1:
+                  value:
+                    token_type: Bearer
+                    access_token: eyJraWQiOiJLT19tVHBfc1QwemxGRVVkX25UdGhmbzl0RTlTX21GQnJ6OTFwZjd5RFFBIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJQVlJtZkRwZ1pKcXZMTWZZcTZwcUItTDNZQTZXR3dYZmxiTlJpVWF6THJjIiwiYXVkIjoiaHR0cHM6XC9cL2VzaWduZXQtbW9jay5jb2xsYWIubW9zaXAubmV0XC92MVwvZXNpZ25ldFwvdmNpXC9jcmVkZW50aWFsIiwiY19ub25jZV9leHBpcmVzX2luIjo0MCwiY19ub25jZSI6IkN0OXJwUUZiOTZRU1N3Z0hBZkRPIiwic2NvcGUiOiJzYW1wbGVfdmNfbGRwIiwiaXNzIjoiaHR0cHM6XC9cL2VzaWduZXQtbW9jay5jb2xsYWIubW9zaXAubmV0XC92MVwvZXNpZ25ldCIsImV4cCI6MTY5ODYzNTczOSwiaWF0IjoxNjk4NjMyMTM5LCJjbGllbnRfaWQiOiI4OFZqdDM0YzVUd3oxb0oifQ.EAWkcaDUTMH1FcrXdsj4s-y9t8gVB1YBiIZ6VqZD3ZSGR3OrkIQUN2y8vbtvXJv8WAVV_0pvphFjIa9gVRP63_vdZipJ3h04vYcpyfTn50Yml-77uhB_JgHeQWZ0rnCQ1LQGSdSYKro9A1smevVCb1vyPf6QoQPumzKHJ9Jg7SojyhXON2sdIn94Xc5-gok-jGQEapbIBm3RhUEsFPGl7MjaMqBpodV-JOuEi0j_7VfxhLTXXoYZm_-h2aZCWJ9MQDtUC8TwNp-ap5f-O4lQx_M79jyn2mXa0NtoPPIQeffnCPq-uS43C0LZ9CQTfwIC4xV8-x2ema2fHWvtebSsmQ
+                    expires_in: 3600
+                    c_nonce: Ct9rpQFb96QSSwgHAfDO
+                    c_nonce_expires_in: 40
           headers:
             Cache-Control:
               schema:
@@ -3084,6 +3484,16 @@ paths:
                 - client_assertion_type
                 - client_assertion
                 - redirect_uri
+            examples:
+              Example 1:
+                value:
+                  grant_type: authorization_code
+                  code: tyemdnjdfornfedg
+                  client_id: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv-kV7VBcnzvY
+                  client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                  client_assertion: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTg2MzE0NjAsIm5iZiI6MTY5ODYzMTQ2MCwiZXhwIjoxNjk4NjMxNTI1LCJqdGkiOiI1ZFFjaWhtb2lfQTlXMmlERGpYcDgiLCJzdWIiOiJXTVg1cE82ZFlkQ0ZSM2lhVldHY2xWUE54VE5TQUREdi1rVjdWQmNuenZZIiwiaXNzIjoiV01YNXBPNmRZZENGUjNpYVZXR2NsVlBOeFROU0FERHYta1Y3VkJjbnp2WSIsImF1ZCI6Imh0dHBzOi8vZXNpZ25ldC5jb2xsYWIubW9zaXAubmV0L3YxL2VzaWduZXQvb2F1dGgvdG9rZW4ifQ.G-OxPmb2wBq7R52PELNss9FCwvv_i2456FE4oag25BuZjwH6CgB8LDLmfCJdzeLGRuFp_MrKskGTkpsWI0RWLNtqZ7jvQTvSq8zQICusIFh9kcciWbkMsOZQqN91gPtdrn3WRS6xD7TxzwvrAeuqx4lTBbWNYTF2GQ3Zagq0t6ogOtPWg0wNioW3m11jWIdwooJ8jI2Z5oN772Lerrs1AXMnipLxQm4rdMM54taeHFrrXyxqFjoiq-bglrpHtCqeG6QFqhpQrRlIsLLoli8F1LU8Mu3Fw7ifCd6KEj9JNM_sPHjAy-JRg_dgjNdHL5tqtHzUsD5sSmLop33U4WH3Ow
+                  redirect_uri: 'https://fastlane.com/homepage'
+                  code_verifier: MN1Q0nNAKkqOu5EaNBKf2gYD4maYv9ZxLd-48N2_kTM
         description: ''
       tags:
         - OIDC
@@ -3103,6 +3513,9 @@ paths:
                 type: string
                 format: jwt
                 description: 'The response is signed and then encrypted, with the result being a Nested JWT. Signed using the authentication system''s private key. Signed full JWT will then be encrypted using OIDC client''s public key.'
+              examples:
+                Example 1:
+                  value: eyJraWQiOiJlU0dtNm5LcGppUHRJMnAzbVVWNHBWWm9nY0VHaExMV2dCNXNuUzNvbUNzIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIyNTgwMDg2NDcxMDgzMDEzNjAzMjA2NDYwMDYwMDU4NDE3NTEiLCJhZGRyZXNzIjp7ImxvY2FsaXR5IjoiUmFiYXQgIn0sIm5hbWUiOiJhcnZpbmQiLCJwaG9uZV9udW1iZXIiOiI3ODY0ODQ2MzQzIiwiZW1haWwiOiJhcmF2aW5kaDIwOTBAZ21haWwuY29tIn0.WqkXaalFJu1nzAgoSmLKOHddX7_tkgcTEZRK8uedfl6rbNRZ7Lv0uayTT--3r4Z0Wlnjh1pUMreFvKd1yfirIf0LaPvuTBe5AVRRUMGPhPkSCq_ietytg75uNUH-Z91jLluh8mIZ5BlsGf_MfdkKD10pvzG9cWowWeWlD2hj-YNw05SUAdvZtHeN8ayMTaPOa-Jc0Sv3kXS0xM6Geizq5QCpIWaavZNw9GJF8GEizGK3klq3od9PfHKrh8XruUFM849iyAShIUTgr9mFlWzHVuTqbpcc2ZptLY_egOq8qKA5guBEplB92PlaxQQeyxRvMezZtDiRdzf5BSpM_1ok0g
         '401':
           description: Unauthorized
           headers:
@@ -3162,7 +3575,7 @@ paths:
   /vci/credential:
     parameters: []
     post:
-      summary: ''
+      summary: VC Issuance endpoint
       operationId: post-vci-credential
       responses:
         '200':
@@ -3187,6 +3600,31 @@ paths:
                 required:
                   - format
                   - credential
+              examples:
+                Example 1:
+                  value:
+                    format: ldp_vc
+                    credential:
+                      issuanceDate: '2023-10-30T06:17:28.025Z'
+                      credentialSubject:
+                        gender: Male
+                        name: John Doe
+                        id: 'did:jwk:eyJrdHkiOiJSU0EiLCJlIjoiQVFBQiIsInVzZSI6InNpZyIsImtpZCI6IkY1R0hPai1STHF0S19TSUtabmx4ckpoTFN4MFAyVlZsNFVzTXpuT1ByNW8iLCJhbGciOiJSUzI1NiIsIm4iOiJtYzdzbWdHd0N6ZzZ5WENoM2ZYc3hTc2ROZlFzM3BTZGdZZUstdnpnYWZCQkNBTnZ2YWxqeUJ2YTlYZzA5YWhLMG9KV0hZY2p3Rm5QeU5uX0dkSjJValZPRlJDbllZNWZvejUxbmt0NUJod2l1V1IteWpZN2NZaXI5MjAySlI2RldaNExpamVVNm54WUVrbnFxZ1B6LXZmU0pSa2M5b2t6VEJ4LW9qb0FaOWJTaUJqMm9XNzVsWkhrMlBoU0NkTDNtQzUyaVRkUWpra2NFNHY0ZVpzWVBrZVROSmlmWE1sQ1J3Mlg0X1N6d2N3YkNNWUJqWlhRUFJ1OXdudEJqd0NUOGZTaDJjZVlCdUs4YlViQXBLelhDSGotUnAwZHMyMDdtbEFhcnRlRURhMS1qbW5ZYWxxS2lfQ2tzU1ZuNEQyMThXOWZHSElYcEJlSXBTWjlHc3hHdXcifQ=='
+                        email: john.doe@mail.com
+                      id: 'urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5'
+                      proof:
+                        type: RsaSignature2018
+                        created: '2023-10-30T06:17:28Z'
+                        proofPurpose: assertionMethod
+                        verificationMethod: 'https://esignet-mock.collab.mosip.net/v1/esignet/oauth/.well-known/jwks.json'
+                        jws: eyJ4NWMiOlsiTUlJRHZUQ0NBcVdnQXdJQkFnSUk1VHhveEYydjhRQXdEUVlKS29aSWh2Y05BUUVMQlFBd2R6RUxNQWtHQTFVRUJoTUNTVTR4Q3pBSkJnTlZCQWdNQWt0Qk1SSXdFQVlEVlFRSERBbENRVTVIUVV4UFVrVXhEVEFMQmdOVkJBb01CRWxKVkVJeEdqQVlCZ05WQkFzTUVVMVBVMGxRTFZSRlEwZ3RRMFZPVkVWU01Sd3dHZ1lEVlFRRERCTjNkM2N1Ylc5emFYQXVhVzhnS0ZKUFQxUXBNQjRYRFRJek1ETXlOVEV3TWpFeE1Wb1hEVEkyTURNeU5ERXdNakV4TVZvd2Z6RUxNQWtHQTFVRUJoTUNTVTR4Q3pBSkJnTlZCQWdNQWt0Qk1SSXdFQVlEVlFRSERBbENRVTVIUVV4UFVrVXhEVEFMQmdOVkJBb01CRWxKVkVJeEdqQVlCZ05WQkFzTUVVMVBVMGxRTFZSRlEwZ3RRMFZPVkVWU01TUXdJZ1lEVlFRRERCdDNkM2N1Ylc5emFYQXVhVzhnS0U5SlJFTmZVMFZTVmtsRFJTa3dnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDeGJpYUt3M082dlI0SHczaExDc3FiQ1czRkc4UEthQ0RabDZNTUlEblVlbCtJa1FDMmxscTgrWlRMcmE3S1ViT294UHVxVzhwNDFmdVRqSlNzK0x3aEpRV3J2S2htbDB5THRSVkJCOUVTR2l5NVFYaWNSODBxVWRScjN3eVhRZkJGTFFEN1lRb1l4MUZMTUxaR21IYmd2N3Rnc3hxY2k1NEFjTTZmb1BXaUd0Z2NZbjJRenRsbTRjZ3FuWVNmcThDc3dtZ3o5N052ckxDRXF3bFhRZkpGQVZlRFF2SXFxNk00dkNkcXFLaldtNjlRVjlCUXUrczdCYkpFbUtGRDVtRTRhdWFwWW4zbWZLeXJWaGFGUGpFUW5iMHA0V3dGR3YzYTROTEFPRXVqVkJlVjUzZjJmdUZqSUxzZnBMK3MzRERRYUlYbEJKa3p3dWdjdWZ5Z1MzRm5BZ01CQUFHalJUQkRNQklHQTFVZEV3RUIvd1FJTUFZQkFmOENBUUV3SFFZRFZSME9CQllFRkg4dXN2ME52ekZHaWx4Sko2dExBYkVLSUJMQk1BNEdBMVVkRHdFQi93UUVBd0lDaERBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQWQ2ZVJmTzFZbHN2YXRMSktWZGVNcStzclhlYjNTblZJM0ZQSWlQa3d2STNsM1pmUVQ1ZzE0NWc2ajEzQisvOFZUNGFWZXBDZU5PbWNIczc3Y2g0OWxIUmg4anF3UXlqUFBsc1NmcW5Kd0JGUmRvNStkRnB5elZNeFdDUzBFRWJqb3RkZ2pvci9YaVVoRmFGMkhkZThyeHNnZWNmaUFZZS9nWnFZZjYzOFRxRi9RTnFCaTRhbitGQmNtT0FDalR6THE5Z01tSnJYa2h3V3V5dm5Sc0hKM2g2ZXd0b0RMN2gycm5QK2hBT1o3ckd1SEhDaVVXayt6eUcxdjdKT0NwSUJ2TEJyalpVbzNDRmxacEs3NERkbHBSVU1nK3JvcVdDNnFkTmZuemc5dFZBb1ZlVy9uUHAweit1QUtmb2w2NENlRUJmUmsrUXV2SmRyKzhCL1JaOHp4QT09Il0sIng1dCNTMjU2IjoiZkxnNTQ5dGFabmViUGZ6OTVlRzhyZXZuX2lSU2luMTFKZGxteFhOaUE5RSIsImtpZCI6IktPX21UcF9zVDB6bEZFVWRfblR0aGZvOXRFOVNfbUZCcno5MXBmN3lEUUEiLCJhbGciOiJSUzI1NiJ9..pZkf21YoT2mqzYlEJy9fkBartMTvEMMOUZPXw4-HIc6DeDUTqAMcRSkEfP1_ozvBE1ukxzqM2_IYpdQCVbYXEsCQLAXUmDQTfbdf8GImWBkRV7hXpCAJCN14A69trZCLvsW0jhIkIoSwPSszGk4MZ9rW7fBRpG9kbCF4nWajP5nRsPdC6tSckHWlHAWus0IhsYhSh85y2VYtBHTZ9g_NaB5S2pSp4MR_BBFdlpSfrgoepr7D9EY1hhU-b8vbjve9QnGSesqfPXUOKMwNA5UZ7tUYStWX8y9-19wwC3e_FjKhnKXMZrlAhCOLSL5O81r3ZWI3bpfOufHFZIZ7_gdvnQ
+                      type:
+                        - VerifiableCredential
+                        - Person
+                      '@context':
+                        - 'https://www.w3.org/2018/credentials/v1'
+                        - 'https://schema.org/'
+                      issuer: 'did:example:123456789'
         '400':
           description: Bad Request
           content:
@@ -3207,10 +3645,23 @@ paths:
                       - vc_issuance_failed
                       - unsupported_credential_format
                       - unsupported_credential_type
+                      - proof_invalid_nonce
                   error_description:
                     type: string
                     x-stoplight:
                       id: wp66ehahr6w31
+                  c_nonce:
+                    type: string
+                    x-stoplight:
+                      id: i5tln0gl7w7ul
+                    description: This will have the value only when the error is "proof_invalid_nonce".
+                  c_nonce_expires_in:
+                    type: integer
+                    x-stoplight:
+                      id: 8rdu3yxwc0vi2
+                    description: This will have the value only when the error is "proof_invalid_nonce".
+                required:
+                  - error
         '401':
           description: Unauthorized
           content:
@@ -3266,6 +3717,21 @@ paths:
                 - format
                 - proof
                 - credential_definition
+            examples:
+              Example 1:
+                value:
+                  format: ldp_vc
+                  credential_definition:
+                    type:
+                      - VerifiableCredential
+                      - SampleVerifiableCredential_ldp
+                    '@context':
+                      - 'https://www.w3.org/2018/credentials/v1'
+                  proof:
+                    proof_type: jwt
+                    jwt: eyJ0eXAiOiJvcGVuaWQ0dmNpLXByb29mK2p3dCIsImFsZyI6IlJTMjU2IiwiandrIjp7Imt0eSI6IlJTQSIsIm4iOiJtYzdzbWdHd0N6ZzZ5WENoM2ZYc3hTc2ROZlFzM3BTZGdZZUstdnpnYWZCQkNBTnZ2YWxqeUJ2YTlYZzA5YWhLMG9KV0hZY2p3Rm5QeU5uX0dkSjJValZPRlJDbllZNWZvejUxbmt0NUJod2l1V1IteWpZN2NZaXI5MjAySlI2RldaNExpamVVNm54WUVrbnFxZ1B6LXZmU0pSa2M5b2t6VEJ4LW9qb0FaOWJTaUJqMm9XNzVsWkhrMlBoU0NkTDNtQzUyaVRkUWpra2NFNHY0ZVpzWVBrZVROSmlmWE1sQ1J3Mlg0X1N6d2N3YkNNWUJqWlhRUFJ1OXdudEJqd0NUOGZTaDJjZVlCdUs4YlViQXBLelhDSGotUnAwZHMyMDdtbEFhcnRlRURhMS1qbW5ZYWxxS2lfQ2tzU1ZuNEQyMThXOWZHSElYcEJlSXBTWjlHc3hHdXciLCJlIjoiQVFBQiIsImtpZCI6IkY1R0hPai1STHF0S19TSUtabmx4ckpoTFN4MFAyVlZsNFVzTXpuT1ByNW8iLCJhbGciOiJSUzI1NiIsInVzZSI6InNpZyJ9fQ.eyJpYXQiOjE2OTg2NDY2NDMsIm5iZiI6MTY5ODY0NjY0MywiZXhwIjoxNjk4NjQ3MjQ4LCJqdGkiOiJPR0J3RjRCNGNsSWJzWUxGT3ZWM2IiLCJhdWQiOiJodHRwczovL2VzaWduZXQtbW9jay5jb2xsYWIubW9zaXAubmV0L3YxL2VzaWduZXQiLCJub25jZSI6IllXZUluR2MwdVljcHQ1TlZLcTVYIiwiaXNzIjoiODhWanQzNGM1VHd6MW9KIn0.MMVBHdIpvmRwBw4-MY6LaE4p-k5NwCRcwktKCK3MvNiJ5LNqx_Z4lJ23x359IxFtpMNbH0xnC0ajU-mYLJRJ7WsbKWemENmHp3e7nRDzDlDufu92vzh_dmHvxmcxQQKEEr_xH5c8vypUANsAbg8Ltas6eoe5jFoSrS-Oi4TNplw8aoS4cdH16ezEdb1RtluSKi5tajM9eS2reREj3sFXyVphxIxCUD6VbwuvByPPOWhSVf4bW_pCAoztiRJ9Fc_WXR7XLTIn3i46QczopaBIp8xPwEbBE_cl3Lo9etA0oLOxnRz6bzk5sa-ZtvVnsW4vOusy3mzSjVe10oHxWgw2CQ
+      tags:
+        - VCI
   /binding/binding-otp:
     post:
       summary: Send Binding OTP Endpoint
@@ -3305,6 +3771,14 @@ paths:
                           type: string
                 required:
                   - responseTIme
+              examples:
+                Example 1:
+                  value:
+                    responseTIme: '2023-09-22T08:01:16.000Z'
+                    response:
+                      maskedEmail: XXdXXaXXhXXkX@gmail.com
+                      maskedMobile: XXXXXXX357934
+                    errors: []
       parameters:
         - schema:
             type: string
@@ -3341,6 +3815,15 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:13.000Z'
+                  request:
+                    individualId: '24554655645'
+                    otpChannels:
+                      - sms
+                      - email
       description: Send wallet binding OTP endpoint is invoked by Mimoto server.
       security:
         - Authorization-send_binding_otp: []
@@ -3392,6 +3875,15 @@ paths:
                           type: string
                 required:
                   - responseTime
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:16.000Z'
+                    response:
+                      walletUserId: <walletUserId>
+                      certificate: <Server signed Certificate>
+                      expireDateTime: <Certificate expire datetime>
+                    errors: []
       requestBody:
         content:
           application/json:
@@ -3428,6 +3920,24 @@ paths:
               required:
                 - requestTime
                 - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:15.000Z'
+                  request:
+                    individualId: '24554655645'
+                    authFactorType: WLA
+                    format: jwt
+                    challengeList:
+                      - authFactorType: OTP
+                        challenge: '111111'
+                        format: alpha-numeric
+                    publicKey:
+                      kty: RSA
+                      e: AQAB
+                      use: sig
+                      alg: RS256
+                      'n': sfIT-5o9ZSr8lJuBsRTzodJYvEgNeIayJRd9WLip6tU9NZ_5VvVS_jq5STza9WELs127xH7e6rgGJ31B6VLBbrRRgLm2sz2_0s1p9ilRSrae0P3cJHK7aIgY0c-E1SwbzrKmV4FQKzARfHG-M-DmAD8V38LclxZycAu7gXWFVS7RPW_NpmjtVGDpnx0pKYgfJb8QgzGEbSKUGB39GRWNA2ij-6tEPQQwYSO5akyFup-bVaJrKKaIWn37iiB9T7umXnmzp-3HuP1SQp6cPQLkeWp64lozxTq4To12gbietIKyfJto7r9sra1wRyq0XNKhQvswLmuQcORJKhEMJWVCpQ
       description: |-
         Wallet binding endpoint is invoked by Mimoto server.
 
@@ -3520,6 +4030,28 @@ paths:
                         - x5t#S256
                         - x5c
                         - exp
+              examples:
+                Example 1:
+                  value:
+                    keys:
+                      - kty: RSA
+                        x5t#S256: Apdg6S6RmjkiBjvEUYYCa-KF-yrJbl6x1wzKrc4smt0
+                        e: AQAB
+                        use: sig
+                        kid: GTERCOmvD5PlZ65lo2Na-4Udc2xgA6EkaHuEsnMevRA
+                        x5c:
+                          - MIIDvTCCAqWgAwIBAgIIvSVFZ0ayWuswDQYJKoZIhvcNAQELBQAwdzELMAkGA1UEBhMCSU4xCzAJBgNVBAgMAktBMRIwEAYDVQQHDAlCQU5HQUxPUkUxDTALBgNVBAoMBElJVEIxGjAYBgNVBAsMEU1PU0lQLVRFQ0gtQ0VOVEVSMRwwGgYDVQQDDBN3d3cubW9zaXAuaW8gKFJPT1QpMB4XDTIzMDcxNDA0MTI0NFoXDTI2MDcxMzA0MTI0NFowfzELMAkGA1UEBhMCSU4xCzAJBgNVBAgMAktBMRIwEAYDVQQHDAlCQU5HQUxPUkUxDTALBgNVBAoMBElJVEIxGjAYBgNVBAsMEU1PU0lQLVRFQ0gtQ0VOVEVSMSQwIgYDVQQDDBt3d3cubW9zaXAuaW8gKE9JRENfU0VSVklDRSkwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCupTNBR7kbfC0V8FBOnVgjKcgISV4BebWsmQNvTiM4So4kgOU8Tcg1ER+Qk5+/v6c3NGZ8ZuAF8oxEW75xs6ltN2z6NIA3Q9fE6pYJXf9ixPsOzZsn5bjYMJw8C1NmE5UiYfzQCARh8dXY+8eA9WigoDzCFIWeAdb33X4S86yiDsIuY1V8mxA4PWER929Ssg/Nnr04ZHdFFbctPLfnG1xJMhelTc+v0H95FwY5CotKfipFy6wUW1ZEJL1uDjnsfBrgNH1HbTvYOzRNyW/TtQFI74xShRoThYs9gGcHPENhof8KSPRVwRztP7AWFJqAKhAnXGmrYyDObUZWa2LczuoLAgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYEFKzJuyUw9RQffaJaMNvPMGU5bSRtMA4GA1UdDwEB/wQEAwIChDANBgkqhkiG9w0BAQsFAAOCAQEAmGEzeokV0q6sNkpbslncnFi7Map33bGv94VvWPgA2fFqc1OQq/fHYar8S8hgQeqQeyFF8RQPa8Ga/RJfA6a0VS280nO3Q/ITHfuGz1g6QNxcfE1d5OOdQwe1sdAbc53kAX7ZasTEuam7II1H/O0wftFWU369mAWVfmp/8DCtF7I6ir84SnPyNFxINhggSLxqPLGuZDK8xbz0DsB2eBklf+B+dwUM48CfwQ3sAFBrU8lxqrUXMK/fKV+BZLyec7+7G1J8upxUGDvVgWoA7jfStA8jdqWNffi64+1GU+KtVha7PjnyabkmLwmm8TSVUHewXa1P7PiuzKfPHltoijGQyw==
+                        exp: 1783915964
+                        'n': rqUzQUe5G3wtFfBQTp1YIynICEleAXm1rJkDb04jOEqOJIDlPE3INREfkJOfv7-nNzRmfGbgBfKMRFu-cbOpbTds-jSAN0PXxOqWCV3_YsT7Ds2bJ-W42DCcPAtTZhOVImH80AgEYfHV2PvHgPVooKA8whSFngHW991-EvOsog7CLmNVfJsQOD1hEfdvUrIPzZ69OGR3RRW3LTy35xtcSTIXpU3Pr9B_eRcGOQqLSn4qRcusFFtWRCS9bg457Hwa4DR9R2072Ds0Tclv07UBSO-MUoUaE4WLPYBnBzxDYaH_Ckj0VcEc7T-wFhSagCoQJ1xpq2Mgzm1GVmti3M7qCw
+                      - kty: RSA
+                        x5t#S256: 2r6FoSf1IrA1Mn1hTtO50Le2SeiDO3dxT24oeAPCISA
+                        e: AQAB
+                        use: sig
+                        kid: R3V2vggI0S-98bJabimOEpZIE0vPkk2uhxRzmPsqX4w
+                        x5c:
+                          - MIIDrTCCApWgAwIBAgIIi2nvBziQ2uMwDQYJKoZIhvcNAQELBQAwcDELMAkGA1UEBhMCSU4xCzAJBgNVBAgMAktBMRIwEAYDVQQHDAlCQU5HQUxPUkUxDTALBgNVBAoMBElJVEIxGjAYBgNVBAsMEU1PU0lQLVRFQ0gtQ0VOVEVSMRUwEwYDVQQDDAx3d3cubW9zaXAuaW8wHhcNMjMwNzEzMTU1OTQwWhcNMjYwNzEyMTU1OTQwWjB2MQswCQYDVQQGEwJJTjELMAkGA1UECAwCS0ExEjAQBgNVBAcMCUJBTkdBTE9SRTENMAsGA1UECgwESUlUQjEgMB4GA1UECwwXTU9TSVAtVEVDSC1DRU5URVIgKElEQSkxFTATBgNVBAMMDHd3dy5tb3NpcC5pbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALGOdFQsHmCelxq8ZdJG0DbGU7dV8MJhuCi8KYdOQpXgzd2qUWY7V31OVlyTFs+YWHDR5KRkfw7pUAI+jswMWC32qn2R+BsOzMs16tZ8C3sVIpkUeZ8XhIBIugVkXMpuIbkoZ7CBcm2zetRVRdNGQC5Vdi5vZnyjsQv7ULiDAkWtOibaeDjprj0lHxaDffmWPukcBBpyOaAVLyk98hUbgDwHxBfnn2edjkDlYt07VVU+EWQoolE1MQvn8kgDN+kSicecJ8IBpJBs8i9MJDor2+PgC63lAgb6vr2/bXyswlF8V4UGQHSrGgFAxIMc6PlouagwhiwOLXyAMiNJa/8N5ccCAwEAAaNFMEMwEgYDVR0TAQH/BAgwBgEB/wIBATAdBgNVHQ4EFgQUAjl/vGghgtS+VWEU0ozokioAHxQwDgYDVR0PAQH/BAQDAgKEMA0GCSqGSIb3DQEBCwUAA4IBAQAXCpz+2p93DNR8G/XtjmZAB62r6aYWMhrRPM8BwBvfZ5z9LNLhhxC1K4V5JFE5yX2HtcHiVBFq8bJitGgDZH+3QEj2yLK5donfIEcQxX+h3QqVmkOTkphyAOydT+fMFKqWMg9zfqwD3v3rASP9/XkqubjqaE2g8BYlJGue3S26TkjBCXsuA42hnk34YkmX3kxhn3irqxBW4JcZgqj2tVy57MSp3m8BY9DzL24QCud7FHzzg0mos+Pb1FdGU/5Lmcbu9UAgBEvThyWMhOWKz0Sr2XJZtNtghBfzQ/ed/dS4o43xPHe9Sx6hCYIfR4gc/ppYUUv+yGrTH5ecPVauc8+8
+                        exp: 1783871980
+                        'n': sY50VCweYJ6XGrxl0kbQNsZTt1XwwmG4KLwph05CleDN3apRZjtXfU5WXJMWz5hYcNHkpGR_DulQAj6OzAxYLfaqfZH4Gw7MyzXq1nwLexUimRR5nxeEgEi6BWRcym4huShnsIFybbN61FVF00ZALlV2Lm9mfKOxC_tQuIMCRa06Jtp4OOmuPSUfFoN9-ZY-6RwEGnI5oBUvKT3yFRuAPAfEF-efZ52OQOVi3TtVVT4RZCiiUTUxC-fySAM36RKJx5wnwgGkkGzyL0wkOivb4-ALreUCBvq-vb9tfKzCUXxXhQZAdKsaAUDEgxzo-Wi5qDCGLA4tfIAyI0lr_w3lxw
       operationId: get-certs
       description: Endpoint to fetch all the public keys of the e-Signet server. Returns public key set in the JWKS format.
       x-stoplight:
@@ -3645,6 +4177,57 @@ paths:
                   - registration_endpoint
                   - scopes_supported
                   - response_types_supported
+              examples:
+                Example 1:
+                  value:
+                    issuer: 'https://esignet.collab.mosip.net'
+                    authorization_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/authorize'
+                    token_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/oauth/token'
+                    userinfo_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/oidc/userinfo'
+                    scopes_supported:
+                      - profile
+                      - email
+                      - phone
+                    response_types_supported:
+                      - code
+                    response_modes_supported:
+                      - query
+                    token_endpoint_auth_methods_supported:
+                      - private_key_jwt
+                    token_endpoint_auth_signing_alg_values_supported:
+                      - RS256
+                    userinfo_signing_alg_values_supported:
+                      - RS256
+                    userinfo_encryption_alg_values_supported:
+                      - RSAXXXXX
+                    userinfo_encryption_enc_values_supported:
+                      - A128GCM
+                    id_token_signing_alg_values_supported:
+                      - RS256
+                    claim_types_supported:
+                      - normal
+                    claims_parameter_supported: true
+                    display_values_supported:
+                      - page
+                      - popup
+                      - touch
+                      - wap
+                    subject_types_supported:
+                      - pairwise
+                    claims_supported:
+                      - name
+                      - picture
+                      - gender
+                      - birthdate
+                      - address
+                      - email
+                      - phone_number
+                    acr_values_supported:
+                      - 'mosip:idp:acr:static-code'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:linked-wallet'
+                      - 'mosip:idp:acr:biometrics'
+                    request_parameter_supported: false
       operationId: get-.well-known-openid-configuration
       description: |-
         Open ID Connect dynamic provider discovery is not supported currently, this endpoint is only for facilitating the OIDC provider details in a standard way.
@@ -3653,7 +4236,7 @@ paths:
       x-stoplight:
         id: fu84pt55lt5b1
     parameters: []
-  vci/.well-known/openid-credential-issuer:
+  /.well-known/openid-credential-issuer:
     get:
       summary: VC Issuer metadata Endpoint
       tags:
@@ -3720,6 +4303,44 @@ paths:
                   - credential_endpoint
                   - credentials_supported
                   - display
+              examples:
+                Example 1:
+                  value:
+                    credential_issuer: 'https://esignet.collab.mosip.net'
+                    credential_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/vci/credential'
+                    credentials_supported:
+                      - format: ldp_vc
+                        id: SampleVerifiableCredential_ldp
+                        scope: sample_vc_ldp
+                        cryptographic_binding_methods_supported:
+                          - 'did:jwk'
+                        cryptographic_suites_supported:
+                          - RsaSignature2018
+                        proof_types_supported:
+                          - jwt
+                        credential_definition:
+                          type:
+                            - VerifiableCredential
+                          credentialSubject:
+                            name:
+                              display:
+                                - name: Given Name
+                                  locale: en
+                            age:
+                              display:
+                                - name: Age
+                                  locale: en
+                        display:
+                          - name: Sample Verifiable Credential by e-Signet
+                            locale: en
+                            logo:
+                              url: 'https://esignet.collab.mosip.net/logo.png'
+                              alt_text: a square logo of a MOSIP
+                            background_color: '#12107c'
+                            text_color: '#FFFFFF'
+                    display:
+                      - name: MOSIP
+                        locale: en
       operationId: get-.well-known-openid-configuration
       description: |-
         Open endpoint to provide VC issuer's metadata
