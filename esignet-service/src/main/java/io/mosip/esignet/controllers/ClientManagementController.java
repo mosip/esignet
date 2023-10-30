@@ -37,7 +37,7 @@ public class ClientManagementController {
     /**
      * @deprecated
      * This method is no longer acceptable to create oidc client
-     * <p> Use {@link ClientManagementController#createClientV2(RequestWrapper<ClientDetailCreateRequest>)} </p>
+     * <p> Use {@link ClientManagementController#createOAuthClient(RequestWrapper<ClientDetailCreateRequest>)} </p>
      *
      * @param requestWrapper
      * @return
@@ -63,7 +63,7 @@ public class ClientManagementController {
     /**
      * @deprecated
      * This method is no longer acceptable to update oidc client
-     * <p> Use {@link ClientManagementController#updateClientV2(String, RequestWrapper<ClientDetailUpdateRequest>)} </p>
+     * <p> Use {@link ClientManagementController#updateOAuthClient(String, RequestWrapper<ClientDetailUpdateRequest>)} </p>
      *
      * @param requestWrapper
      * @return
