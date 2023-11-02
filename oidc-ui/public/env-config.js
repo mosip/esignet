@@ -15,8 +15,8 @@ window._env_ = {
       value: "/.well-known/openid-credential-issuer",
     },
   ],
-  DEFAULT_THEME: 'eldoria',
-  DEFAULT_FEVICON: 'favicon-eldoria.ico',
-  DEFAULT_TITLE: 'Eldoria Authentication Platform',
-  DEFAULT_ID_PROVIDER_NAME: 'Eldoria'
+  DEFAULT_THEME: '',
+  DEFAULT_FEVICON: 'favicon.ico',
+  DEFAULT_TITLE: 'e-Signet',
+  DEFAULT_ID_PROVIDER_NAME: 'e-Signet'
 };
