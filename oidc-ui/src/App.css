@@ -1,5 +1,3 @@
-@import "variables.css";
-
 .section-background {
   background-color: var(--login-background);
 }
