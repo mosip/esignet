@@ -40,7 +40,13 @@
     "Manage-Authentication": "السماح بالوصول لإدارة المصادقة",
     "Manage-Service-Requests": "السماح بالوصول لإدارة طلبات الخدمة",
     "Manage-Credentials": "السماح بالوصول لإدارة الاعتمادات",
-    "individual_id": "مُعرّف UIN/VID المستخدم في تسجيل الدخول"
+    "individual_id": "مُعرّف UIN/VID المستخدم في تسجيل الدخول",
+    "cancelpopup": {
+      "confirm_header": "يرجى تأكيد",
+      "confirm_text": "هل أنت متأكد أنك تريد إيقاف عملية تسجيل الدخول؟",
+      "stay_btn": "يقضي",
+      "discontinue_btn": "توقف"
+    }
   },
   "l1Biometrics": {
     "scan_and_verify": "المسح والتحقق",
