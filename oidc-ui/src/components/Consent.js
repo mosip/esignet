@@ -256,6 +256,7 @@ export default function Consent({
     submitConsent(claims, scope);
   };
 
+  // open the modalpopup
   const handleCancel = (e) => {
     setCancelPopup(true);
     e.preventDefault();
@@ -369,16 +370,18 @@ export default function Consent({
     );
   }
 
-  // buttons with it's functionalities for the modalpopup footer
+  // close the modalpopup
   const handleStay = () => {
     setCancelPopup(false);
   };
 
+  // close the modalpopup and redirect to Relying Party landing page
   const handleDiscontinue = () => {
     setCancelPopup(false);
-    window.location.replace(openIDConnectService.getRedirectUri());
+    onError("consent_request_rejected", t("consent_request_rejected"));
   };
 
+  // buttons for the modalpopup footer
   var footerButtons = (
     <>
       <div className="mx-5 w-full">
