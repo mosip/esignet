@@ -12,7 +12,9 @@ e-Signet repository contains following:
 4. client-management-service-impl - Client management implementations classes.
 5. oidc-service-impl - Oauth and OIDC implementation classes.
 6. binding-service-impl - key and individualId binding service implementation classes.
-7. db_scripts - Contains all the db scripts required to setup or upgrade the DB for esignet module.
+7. consent-service-impl - Service to manage user consent per client. 
+8. vci-service-impl - Credential issuance service implementation classes.
+9. db_scripts - Contains all the db scripts required to setup or upgrade the DB for esignet module.
 
 
 ## Databases
@@ -36,7 +38,7 @@ The project requires JDK 11.
 1. Add / merge below mentioned properties files into existing config branch:
     * [esignet-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/esignet-default.properties) 
     * [application-default.properties](https://github.com/mosip/mosip-config/blob/v1.2.0.1-B3/application-default.properties)
-1. Below are the dependent services required for esignet service:
+1. Below are the dependent services required for esignet service integrated with MOSIP IDA:
    | Chart | Chart version |
    |---|---|
    |[Keycloak](https://github.com/mosip/mosip-infra/tree/v1.2.0.1-B3/deployment/v3/external/iam) | 7.1.18 |

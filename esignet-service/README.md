@@ -7,15 +7,16 @@
 * OpenIdController - Endpoints specific to OIDC protocol like /userinfo and /.well-known/openid-configuration
 * SystemInfoController - Endpoints to get the pet public part of the keys managed in the keystore by keymanager.
 * KeyBindingController - Endpoints used by wallets to bind a key to an individual ID to support wallet local authentication.
+* VCIController - Wallet initiated /credential endpoint returning just in time credential and /.well-known/openid-credential-issuer endpoint specific to [OpenID4VCI specification Draft 13](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html)
 
 ## e-Signet Plugins
 1. We have well-defined plugin interfaces in esignet-intergration-api. 
 2. Mock plugin implementations and the MOSIP specific plugin implementations are available.
 3. Check the below URL for more details:
 
- > https://github.com/mosip/esignet-mock-services/tree/develop/mock-esignet-integration-impl
+ > https://github.com/mosip/esignet-mock-services/tree/master/mock-esignet-integration-impl
 
- > https://github.com/mosip/id-authentication/tree/develop/authentication/esignet-integration-impl
+ > https://github.com/mosip/id-authentication/tree/master/authentication/esignet-integration-impl
 
 4. All the required plugins are runtime dependency to esignet-service.
 
@@ -39,7 +40,7 @@
    
 4. Build the plugin jar from below repo and add the built plugin jar as runtime dependency in esignet-service
   
-   > https://github.com/mosip/esignet-mock-services/tree/develop/mock-esignet-integration-impl
+   > https://github.com/mosip/esignet-mock-services/tree/master/mock-esignet-integration-impl
 
 5. Build the current esignet repository with the below command:
    
@@ -55,7 +56,7 @@
 
 8. Mock plugins connect to mock-identity-system, refer below document to start mock-identity-system in parallel
    
-   > https://github.com/mosip/esignet-mock-services/tree/develop/mock-identity-system#local-setup-of-mock-identity-system
+   > https://github.com/mosip/esignet-mock-services/tree/master/mock-identity-system#local-setup-of-mock-identity-system
 
 9. Also find the latest postman collection under "docs/postman-collections" folder with environment json
 
@@ -93,7 +94,7 @@ Linked transactions
 | linkStatus |                                                                                                         |                                                                                                                                                                     |
 | authenticate    | linkedauth (k: linkTransactionId, v: OIDCTransaction)                                                    | linked (k: linkTransactionId, v: OIDCTransaction)                                                                                                                    |                                   |
 | saveConsent     | consented (k: linkedTransactionId, v: OIDCTransaction)                                                   | linkedauth (k: linkTransactionId, v: OIDCTransaction)                                                                                                                | topic: consented, v: linkTransactionId |
- | linkAuthCode | authcodegenerated (k: codeHash, v: OIDCTransaction)                                                    |                                                                                                                                                                     ||
+| linkAuthCode | authcodegenerated (k: codeHash, v: OIDCTransaction)                                                    |                                                                                                                                                                     ||
 | token           | userinfo  (k: accessTokenHash)                                                                          | authcodegenerated (k: codeHash, v: OIDCTransaction), consented (k: linkedTransactionId, v: OIDCTransaction), linkedcode (k: linkCodeHash, v: LinkTransactionMetadata) |                                   |
 | userinfo |                                                                                                         |                                                                                                                                                                     |
 
