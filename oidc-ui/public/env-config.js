@@ -15,4 +15,8 @@ window._env_ = {
       value: "/.well-known/openid-credential-issuer",
     },
   ],
+  DEFAULT_THEME: '',
+  DEFAULT_FEVICON: 'favicon.ico',
+  DEFAULT_TITLE: 'e-Signet',
+  DEFAULT_ID_PROVIDER_NAME: 'e-Signet'
 };

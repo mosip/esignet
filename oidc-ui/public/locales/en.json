@@ -114,12 +114,12 @@
     "verify_using_national_id":"Verify using other National IDs"
   },
   "esignetDetails": {
-    "esignet_details_heading": "Esignet wellknown APIs",
+    "esignet_details_heading": "wellknown APIs",
     "internal_api": "Internal API",
     "wellknown_api": ".wellknown API"
   },
   "header": {
-    "login_heading": "Login with e-Signet",
+    "login_heading": "Login with your {{idProviderName}} ID",
     "login_linkName": "Preregister",
     "more_ways_to_sign_in": "More Ways to Login",
     "invalid_auth_factor": "Invalid Auth Factors. Please Try Again...",

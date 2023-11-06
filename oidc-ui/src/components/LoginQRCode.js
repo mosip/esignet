@@ -404,14 +404,14 @@ export default function LoginQRCode({
         )}
         {qr && (
           <div className="w-full flex justify-center">
-            <div className="border border-4 border-sky-600 rounded-3xl p-2">
+            <div className="border border-4 qrcode-border rounded-3xl p-2">
               <img src={qr} style={{ height: "186px", width: "186px" }} />
             </div>
           </div>
         )}
         {status.state === states.LOADING && error === null && (
           <div className="absolute bottom-0 left-0 bg-white bg-opacity-80 h-full w-full flex justify-center items-center">
-            <div className="rounded h-min bg-slate-50 w-full p-3 mx-4">
+            <div className="rounded h-min loading-indicator w-full p-3 mx-4">
               <LoadingIndicator
                 size="medium"
                 message={status.msg}

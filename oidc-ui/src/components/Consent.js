@@ -14,7 +14,6 @@ export default function Consent({
   authTime,
   openIDConnectService,
   i18nKeyPrefix = "consent",
-  backgroundImgPath
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -146,8 +145,6 @@ export default function Consent({
   };
 
   i18next.on("languageChanged", () => {
-    console.log("language changed");
-    console.log(i18next.language);
     setClientMultiLang();
   });
 
@@ -345,13 +342,10 @@ export default function Consent({
           onChange={handleOnchange}
         />
         <div
-          className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none 
-            peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-['']
-            after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400
-            peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all
-            peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500
-            ltr:peer-checked:after:translate-x-full ltr:after:left-[2px]
-            rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"
+          className="w-9 h-5 after:h-4 after:w-4 border rounded-full peer after:content-['']
+          after:absolute after:top-[2px] after:border after:rounded-full after:transition-all
+          ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+          ltr:after:left-[2px] rtl:after:right-[2px] slide-toggle-button"
         ></div>
       </label>
     </div>
@@ -360,7 +354,7 @@ export default function Consent({
   if (consentAction === "NOCAPTURE") {
     return (
       <div className="flex items-center justify-center">
-        <div className="max-w-md w-full shadow-lg mt-5 rounded bg-[#F8F8F8] px-4 py-4">
+        <div className="max-w-md w-full shadow-lg mt-5 rounded loading-indicator px-4 py-4">
           <LoadingIndicator size="medium" message="redirecting_msg" />
         </div>
       </div>
@@ -373,9 +367,8 @@ export default function Consent({
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <div>
           <img
-            className="object-contain rtl:scale-x-[-1]"
+            className="background-logo object-contain rtl:scale-x-[-1]"
             alt={t("backgroud_image_alt")}
-            src={backgroundImgPath}
           />
         </div>
       </div>
@@ -406,7 +399,7 @@ export default function Consent({
                         {t(claimScope.label)}
                         <button
                           id={claimScope.tooltip}
-                          className="ml-1 text-sky-600 text-xl"
+                          className="ml-1 text-sky-600 text-xl info-icon-button"
                           data-tooltip-content={t(claimScope.tooltip)}
                           data-tooltip-place="top"
                           onClick={(e) => {

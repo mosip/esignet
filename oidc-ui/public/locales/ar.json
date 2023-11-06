@@ -114,12 +114,12 @@
     "verify_using_national_id":"التحقق باستخدام الهويات الوطنية الأخرى"
   },
   "esignetDetails": {
-    "esignet_details_heading": "واجهات برمجة التطبيقات Esignet معروفة جيدا",
+    "esignet_details_heading": "واجهات برمجة التطبيقات",
     "internal_api": "واجهة برمجة التطبيقات الداخلية",
     "wellknown_api": ".wellknown API"
   },
   "header": {
-    "login_heading": "تسجيل الدخول باستخدام e-Signet",
+    "login_heading": "قم بتسجيل الدخول باستخدام معرف {{idProviderName}} الخاص بك",
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "invalid_auth_factor": "عوامل المصادقة غير صالحة. حاول مرة اخرى...",

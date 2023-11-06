@@ -185,11 +185,11 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   return (
     <>
       <Background
-        heading={t("login_heading")}
-        logoPath="logo.png"
+        heading={t("login_heading", {
+          idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
+        })}
         clientLogoPath={clientLogoURL}
         clientName={clientName}
-        backgroundImgPath="images/illustration_one.png"
         component={compToShow}
       />
     </>
