@@ -87,6 +87,13 @@ function App() {
     //4. default lang set in env-config file as fallback language.
   };
 
+  let footerComponent = (
+    <footer className="footer-container flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-1 border-t border-blue-gray-50 text-center">
+      Powered by 
+      <img className="footer-brand-logo" alt="abcd"/>
+    </footer>
+    );
+
   let el;
 
   switch (statusLoading) {
@@ -109,6 +116,7 @@ function App() {
               <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
             </Routes>
           </BrowserRouter>
+          {process.env.REACT_APP_FOOTER === "true" && footerComponent}
         </div>
       );
       break;

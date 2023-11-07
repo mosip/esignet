@@ -66,6 +66,12 @@ The application runs on PORT=3000 by default.
   - REACT_APP_WALLET_LOGO_URL: URL for the logo in the wallet QRCode. This feature supports cross-origin-enabled image URLs only.
   - REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC: Buffer time for the consent screen expiry timer.
   - REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT: Limit for the QR code auto refresh.
+  - REACT_APP_BACKGROUND_LOGO: Set a logo in the main page, in ledt side of the main card
+  - REACT_APP_FOOTER: Set footer in the main page
+
+- Theme based configuration
+
+  For theming your oidc-ui you have to change variable in `variables.css` which can be find inside `public` folder. According to your need you change the css variable, which will reflect in your oidc-ui. It contains color, images path and number in px (for height, width etc.).
 
 - Build and run Docker for a service:
 
