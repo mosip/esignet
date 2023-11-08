@@ -7,6 +7,7 @@ import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import { LoadingStates, LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import langConfigService from "./../services/langConfigService";
+import ModalPopup from "../common/ModalPopup";
 
 export default function Consent({
   authService,
@@ -41,6 +42,7 @@ export default function Consent({
   const [claimsScopes, setClaimsScopes] = useState([]);
   const [langMap, setLangMap] = useState("");
   const [timeLeft, setTimeLeft] = useState(null);
+  const [cancelPopup, setCancelPopup] = useState(false);
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -251,9 +253,10 @@ export default function Consent({
     submitConsent(claims, scope);
   };
 
+  // open the modalpopup
   const handleCancel = (e) => {
+    setCancelPopup(true);
     e.preventDefault();
-    onError("consent_request_rejected", t("consent_request_rejected"));
   };
 
   //Handle Login API Integration here
@@ -361,9 +364,47 @@ export default function Consent({
     );
   }
 
+  // close the modalpopup
+  const handleStay = () => {
+    setCancelPopup(false);
+  };
+
+  // close the modalpopup and redirect to Relying Party landing page
+  const handleDiscontinue = () => {
+    setCancelPopup(false);
+    onError("consent_request_rejected", t("consent_request_rejected"));
+  };
+
+  // buttons for the modalpopup footer
+  var footerButtons = (
+    <>
+      <div className="mx-5 w-full">
+        <div className="mb-1">
+        <FormAction
+          type={buttonTypes.button}
+          text={t("cancelpopup.stay_btn")}
+          handleClick={handleStay}
+          id="stay"
+        />
+        </div>
+        <div className="mt-1">
+        <FormAction
+          type={buttonTypes.cancel}
+          text={t("cancelpopup.discontinue_btn")}
+          handleClick={handleDiscontinue}
+          id="discontinue"
+        />
+        </div>
+      </div>
+    </>
+  );
+
   return (
     authTime && clientName && claimsScopes.length > 0 &&
     <div className="container flex mx-auto sm:flex-row flex-col">
+      {cancelPopup && 
+        <ModalPopup alertIcon="images/warning_message_icon.svg" header={t("cancelpopup.confirm_header")}
+        body={t("cancelpopup.confirm_text")} footer={footerButtons}/>}
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <div>
           <img
