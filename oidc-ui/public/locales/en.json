@@ -40,7 +40,13 @@
     "Manage-Authentication": "Allow access to manage Authentication",
     "Manage-Service-Requests": "Allow access to manage Service Requests",
     "Manage-Credentials": "Allow access to manage Credentials",
-    "individual_id": "UIN/VID used in login"
+    "individual_id": "UIN/VID used in login",
+    "cancelpopup": {
+      "confirm_header": "Please confirm",
+      "confirm_text": "Are you sure you want to discontinue the login process?",
+      "stay_btn": "Stay",
+      "discontinue_btn": "Discontinue"
+    }
   },
   "l1Biometrics": {
     "scan_and_verify": "Scan and Verify",
