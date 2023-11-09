@@ -64,6 +64,6 @@ databases:
       user: postgres
       secret:
         name: postgres-postgresql
-        key: postgresql-password
+        key: postgres-password
     dml: 1
     branch: develop
