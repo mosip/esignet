@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { configurationKeys } from "../constants/clientConstants";
+import { useLocation } from "react-router-dom";
 
 export default function Background({
   heading,
@@ -7,8 +9,24 @@ export default function Background({
   clientName,
   component,
   i18nKeyPrefix = "header",
+  oidcService
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+
+  const location = useLocation();
+  const [signupBanner, setSignupBanner] = useState(false);
+  const [signupURL, setSignupURL] = useState("");
+
+  let signupConfig = oidcService.getEsignetConfiguration(
+    configurationKeys.signupConfig
+  );
+
+  useEffect(() => {
+    if(signupConfig?.[configurationKeys.signupBanner]) {
+      setSignupBanner(true);
+      setSignupURL(signupConfig[configurationKeys.signupURL] + location.search + location.hash)
+    }
+  }, []);
 
   const backgroundLogo = process.env.REACT_APP_BACKGROUND_LOGO === "true";
   const sectionClass = process.env.REACT_APP_FOOTER === "true" ? "flexible-header-footer" : "flexible-header-only";
@@ -52,6 +70,12 @@ export default function Background({
               ></div>
               {component}
             </div>
+            {/* Enable the signup banner when it is true in the signup.config of oauth-details */}
+            {signupBanner && 
+            <div className="text-center bg-[#FFF9F0] py-3 relative top-4 mt-2">
+              <p className="text-sm">{t("noAccount")}</p>
+              <a className="text-[#2F8EA3] hover:text-sky-600 focus:text-sky-600 font-semibold" href={signupURL} target="_self">{t("signup_with_one_login")}</a>
+            </div>}
           </div>
         </div>
       </section>
