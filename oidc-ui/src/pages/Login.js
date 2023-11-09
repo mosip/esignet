@@ -191,6 +191,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
         clientLogoPath={clientLogoURL}
         clientName={clientName}
         component={compToShow}
+        oidcService={oidcService}
       />
     </>
   );
