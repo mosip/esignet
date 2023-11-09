@@ -7,7 +7,10 @@
 * OpenIdController - Endpoints specific to OIDC protocol like /userinfo and /.well-known/openid-configuration
 * SystemInfoController - Endpoints to get the pet public part of the keys managed in the keystore by keymanager.
 * KeyBindingController - Endpoints used by wallets to bind a key to an individual ID to support wallet local authentication.
-* VCIController - Wallet initiated /credential endpoint returning just in time credential and /.well-known/openid-credential-issuer endpoint specific to [OpenID4VCI specification Draft 13](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html)
+* VCIController - Wallet initiated /credential endpoint returning just in time credential and /.well-known/openid-credential-issuer endpoint specific to [OpenID4VCI specification](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)
+
+Note: VCI implementations currently only supports ldp_vc format with 'jwt' PoP. And we only issue scope based VC. 
+Both mock plugin and the MOSIP IDA plugin supports only scoped based VC issuance.
 
 ## e-Signet Plugins
 1. We have well-defined plugin interfaces in esignet-intergration-api. 
