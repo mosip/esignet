@@ -132,7 +132,9 @@
     "download_now": "Download Now",
     "logo_alt": "e-Signet",
     "backgroud_image_alt": "Sign in with e-Signet",
-    "language": "Language"
+    "language": "Language",
+    "noAccount": "Don't have an account?",
+    "signup_with_one_login": "Sign Up with One-Login System"
   },
   "footer": {
     "powered_by": "Powered by",

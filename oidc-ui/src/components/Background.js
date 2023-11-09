@@ -1,31 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { configurationKeys } from "../constants/clientConstants";
+import { useLocation } from "react-router-dom";
 
 export default function Background({
   heading,
   clientLogoPath,
   clientName,
   component,
-  handleMoreWaysToSignIn,
-  showMoreOption,
-  linkedWalletComp,
-  appDownloadURI,
-  qrCodeEnable,
   i18nKeyPrefix = "header",
+  oidcService
 }) {
-  const tabs = [
-    {
-      id: "wallet_tab_id",
-      name: "inji_tab_name",
-    },
-    {
-      id: "here_tab_id",
-      name: "here_tab_name",
-    },
-  ];
-
-  const [openTab, setOpenTab] = useState(qrCodeEnable === true ? 0 : 1);
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+
+  const location = useLocation();
+  const [signupBanner, setSignupBanner] = useState(false);
+  const [signupURL, setSignupURL] = useState("");
+
+  let signupConfig = oidcService.getEsignetConfiguration(
+    configurationKeys.signupConfig
+  );
+
+  useEffect(() => {
+    if(signupConfig?.[configurationKeys.signupBanner]) {
+      setSignupBanner(true);
+      setSignupURL(signupConfig[configurationKeys.signupURL] + location.search + location.hash)
+    }
+  }, []);
 
   const backgroundLogo = process.env.REACT_APP_BACKGROUND_LOGO === "true";
   const sectionClass = process.env.REACT_APP_FOOTER === "true" ? "flexible-header-footer" : "flexible-header-only";
@@ -44,7 +45,7 @@ export default function Background({
           <div className="rounded shadow-lg py-4 w-full md:w-3/6 sm:w-1/2 sm:max-w-sm bg-white">
             <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3">
               <div className="w-full">
-                <h1 className="flex text-center justify-center title-font sm:text-3xl text-3xl mb-3 font-medium text-gray-900">
+                <h1 className="flex text-center justify-center title-font sm:text-base text-base mb-3 font-medium text-gray-900">
                   {heading}
                 </h1>
               </div>
@@ -60,7 +61,21 @@ export default function Background({
                   alt={t("logo_alt")}
                 />
               </div>
+              <div
+                className="h-5 text-black -mx-5 mb-2"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(0deg, #FFFFFF 0%, #F7FCFF 100%)",
+                }}
+              ></div>
+              {component}
             </div>
+            {/* Enable the signup banner when it is true in the signup.config of oauth-details */}
+            {signupBanner && 
+            <div className="text-center bg-[#FFF9F0] py-3 relative top-4 mt-2">
+              <p className="text-sm">{t("noAccount")}</p>
+              <a className="text-[#2F8EA3] hover:text-sky-600 focus:text-sky-600 font-semibold" href={signupURL} target="_self">{t("signup_with_one_login")}</a>
+            </div>}
           </div>
         </div>
       </section>

@@ -128,10 +128,8 @@ function createDynamicLoginElements(
 export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
   const [compToShow, setCompToShow] = useState(null);
-  const [showMoreOption, setShowMoreOption] = useState(false);
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
-  const [appDownloadURI, setAppDownloadURI] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
@@ -161,13 +159,6 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
-  let value =
-    oidcService.getEsignetConfiguration(
-      configurationKeys.signInWithQRCodeEnable
-    ) ?? process.env.REACT_APP_QRCODE_ENABLE;
-
-  const qrCodeEnable = value?.toString().toLowerCase() === "true";
-
   const handleSignInOptionClick = (authFactor) => {
     //TODO handle multifactor auth
     setCompToShow(
@@ -184,11 +175,6 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   };
 
   const loadComponent = () => {
-    setAppDownloadURI(
-      oidcService.getEsignetConfiguration(configurationKeys.appDownloadURI) ??
-      process.env.REACT_APP_QRCODE_APP_DOWNLOAD_URI
-    );
-
     let oAuthDetailResponse = oidcService.getOAuthDetails();
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientName(oAuthDetailResponse?.clientName);
@@ -205,11 +191,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
         clientLogoPath={clientLogoURL}
         clientName={clientName}
         component={compToShow}
-        handleMoreWaysToSignIn={handleMoreWaysToSignIn}
-        showMoreOption={showMoreOption}
-        linkedWalletComp={InitiateLinkedWallet(oidcService)}
-        appDownloadURI={appDownloadURI}
-        qrCodeEnable={qrCodeEnable}
+        oidcService={oidcService}
       />
     </>
   );
