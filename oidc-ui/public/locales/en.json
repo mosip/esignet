@@ -134,6 +134,10 @@
     "backgroud_image_alt": "Sign in with e-Signet",
     "language": "Language"
   },
+  "footer": {
+    "powered_by": "Powered by",
+    "logo_alt": "Footer logo"
+  },
   "tabs": {
     "pin_tab_name": "Login with PIN",
     "biometric_tab_name": "Login with Biometrics"

@@ -117,3 +117,21 @@
   border-color: var(--toggle-button-active-ball-border-color);
   background-color: var(--toggle-button-active-ball-color);
 }
+
+.footer-brand-logo {
+  content: var(--footer-brand-logo-url);
+  height: 25px;
+}
+
+.footer-container {
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+
+.flexible-header-only {
+  height: calc(100% - var(--header-height));
+}
+
+.flexible-header-footer {
+  height: calc(100% - var(--header-footer-height));
+}

@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import EsignetDetailsPage from "./pages/EsignetDetails";
 import LoadingIndicator from "./common/LoadingIndicator";
 import { LoadingStates as states } from "./constants/states";
+import Footer from "./components/Footer";
 
 function App() {
   const { i18n } = useTranslation();
@@ -109,6 +110,7 @@ function App() {
               <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
             </Routes>
           </BrowserRouter>
+          <Footer />
         </div>
       );
       break;
