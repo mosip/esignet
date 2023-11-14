@@ -134,6 +134,10 @@
     "backgroud_image_alt": "قم بتسجيل الدخول باستخدام e-Signet",
     "language": "لغة"
   },
+  "footer": {
+    "powered_by": "مشغل بواسطة",
+    "logo_alt": "شعار التذييل"
+  },
   "tabs": {
     "pin_tab_name": "قم بتسجيل الدخول باستخدام PIN",
     "biometric_tab_name": "تسجيل الدخول باستخدام القياسات الحيوية"

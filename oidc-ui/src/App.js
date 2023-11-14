@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import EsignetDetailsPage from "./pages/EsignetDetails";
 import LoadingIndicator from "./common/LoadingIndicator";
 import { LoadingStates as states } from "./constants/states";
+import Footer from "./components/Footer";
 
 function App() {
   const { i18n } = useTranslation();
@@ -87,13 +88,6 @@ function App() {
     //4. default lang set in env-config file as fallback language.
   };
 
-  let footerComponent = (
-    <footer className="footer-container flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-1 border-t border-blue-gray-50 text-center">
-      Powered by 
-      <img className="footer-brand-logo" alt="abcd"/>
-    </footer>
-    );
-
   let el;
 
   switch (statusLoading) {
@@ -116,7 +110,7 @@ function App() {
               <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
             </Routes>
           </BrowserRouter>
-          {process.env.REACT_APP_FOOTER === "true" && footerComponent}
+          <Footer />
         </div>
       );
       break;
