@@ -5,6 +5,8 @@ on:
     types: [published]
   pull_request:
     types: [opened, reopened, synchronize]
+    paths:
+      - 'db_scripts/**'
   workflow_dispatch:
     inputs:
       message:
