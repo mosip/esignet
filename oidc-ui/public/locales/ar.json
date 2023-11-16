@@ -132,7 +132,9 @@
     "download_now": "التحميل الان",
     "logo_alt": "e-Signet",
     "backgroud_image_alt": "قم بتسجيل الدخول باستخدام e-Signet",
-    "language": "لغة"
+    "language": "لغة",
+    "noAccount": "ليس لديك حساب؟",
+    "signup_with_one_login": "قم بالتسجيل باستخدام نظام تسجيل الدخول الواحد"
   },
   "footer": {
     "powered_by": "مشغل بواسطة",
