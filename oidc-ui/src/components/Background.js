@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { configurationKeys } from "../constants/clientConstants";
-import { useLocation } from "react-router-dom";
 
 export default function Background({
   heading,
   clientLogoPath,
   clientName,
   component,
+  oidcService,
+  authService,
   i18nKeyPrefix = "header",
-  oidcService
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
-  const location = useLocation();
   const [signupBanner, setSignupBanner] = useState(false);
   const [signupURL, setSignupURL] = useState("");
 
@@ -24,7 +23,7 @@ export default function Background({
   useEffect(() => {
     if(signupConfig?.[configurationKeys.signupBanner]) {
       setSignupBanner(true);
-      setSignupURL(signupConfig[configurationKeys.signupURL] + location.search + location.hash)
+      setSignupURL(signupConfig[configurationKeys.signupURL] + "#" + authService.getAuthorizeQueryParam())
     }
   }, []);
 
