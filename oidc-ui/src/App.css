@@ -135,3 +135,41 @@
 .flexible-header-footer {
   height: calc(100% - var(--header-footer-height));
 }
+
+.signup-banner {
+  background-color: var(--signup-banner-background-color);
+  border-radius: 0px 0px var(--signup-banner-bottom-radius)
+    var(--signup-banner-bottom-radius);
+  text-align: center;
+  padding-top: var(--signup-banner-padding-top);
+  padding-bottom: var(--signup-banner-padding-bottom);
+  margin-top: var(--signup-banner-margin-top);
+}
+
+.signup-banner-text {
+  font: normal normal normal 15px/19px Inter;
+  letter-spacing: 0px;
+}
+
+.signup-banner-hyperlink {
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: 0px;
+  color: var(--signup-banner-signup-url-color);
+}
+
+.signup-banner-hyperlink:hover {
+  color: var(--signup-banner-signup-url-color-hover);
+}
+
+.signup-banner-hyperlink:focus {
+  color: var(--signup-banner-signup-url-color-focus);
+}
+
+.multipurpose-login-card {
+  border-radius: var(--multipurpose-login-card-border-radius);
+  background-color: var(--multipurpose-login-card-background-color);
+}
