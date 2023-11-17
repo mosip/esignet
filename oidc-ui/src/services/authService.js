@@ -12,6 +12,7 @@ const authenticateEndPoint = "/authorization/v2/authenticate";
 const oauthDetailsEndPoint = "/authorization/v2/oauth-details";
 const authCodeEndPoint = "/authorization/auth-code";
 const csrfEndPoint = "/csrf/token";
+const authorizeQueryParam = "authorize_query_param";
 
 const { getCookie } = { ...localStorageService };
 
@@ -238,6 +239,24 @@ class authService {
     let responseB64 = Buffer.from(responseStr).toString("base64");
     params = params + "#" + responseB64;
     return params;
+  };
+
+  /**
+   * Set Authroize url's query parameter in local storage in encoded form
+   * @param {string} queryParam
+   */
+  storeQueryParam = (queryParam) => {
+    const encodedBase64 = Buffer.from(queryParam).toString("base64");
+    localStorage.setItem(authorizeQueryParam, encodedBase64);
+  };
+
+  /**
+   * Get encoded authorize's query param, which is stored in
+   * localstorage with "authorize_query_param" key
+   * @returns {string} encodedAuthorizeQueryParam
+   */
+  getAuthorizeQueryParam = () => {
+    return localStorage.getItem(authorizeQueryParam) ?? "";
   };
 }
 
