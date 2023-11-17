@@ -192,6 +192,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
         clientName={clientName}
         component={compToShow}
         oidcService={oidcService}
+        authService={new authService(null)}
       />
     </>
   );
