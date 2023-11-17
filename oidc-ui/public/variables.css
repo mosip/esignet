@@ -43,4 +43,14 @@
   --toggle-button-ring-color: #1262C9;
   --header-height: 55px;
   --header-footer-height: 103px;
+  --signup-banner-background-color: #FFF6F2;
+  --signup-banner-bottom-radius: 20px;
+  --signup-banner-padding-top: 20px;
+  --signup-banner-padding-bottom: 20px;
+  --signup-banner-margin-top: 16px;
+  --signup-banner-signup-url-color: #EB6F2D;
+  --signup-banner-signup-url-color-hover: #2F8EA3;
+  --signup-banner-signup-url-color-focus: #2F8EA3;
+  --multipurpose-login-card-border-radius: 20px;
+  --multipurpose-login-card-background-color: #FFFFFF;
 }
