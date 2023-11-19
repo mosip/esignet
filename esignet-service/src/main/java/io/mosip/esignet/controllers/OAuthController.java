@@ -53,7 +53,7 @@ public class OAuthController {
         	throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value
         }
         try {
-        	return oAuthService.getTokens(tokenRequest);
+        	return oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
             throw ex;
@@ -71,7 +71,7 @@ public class OAuthController {
             throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value
         }
         try {
-            return oAuthService.getTokens(tokenRequest);
+            return oAuthService.getTokens(tokenRequest,true);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
             throw ex;
