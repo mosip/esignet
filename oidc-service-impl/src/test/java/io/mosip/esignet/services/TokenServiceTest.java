@@ -71,7 +71,7 @@ public class TokenServiceTest {
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setClientId("client-id");
         transaction.setPartnerSpecificUserToken("psut");
-        transaction.setNonce("monce");
+        transaction.setNonce("nonce");
         transaction.setAuthTimeInSeconds(22);
         transaction.setAHash("access-token-hash");
         transaction.setProvidedAuthFactors(new HashSet<>());
@@ -121,12 +121,12 @@ public class TokenServiceTest {
 
     @Test(expected = EsignetException.class)
     public void verifyClientAssertionToken_withNullAssertion_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", publidKey, null);
+        tokenService.verifyClientAssertionToken("client-id", publidKey, null,"audience");
     }
 
     @Test(expected = InvalidRequestException.class)
     public void verifyClientAssertionToken_withInvalidToken_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", publidKey, "client-assertion");
+        tokenService.verifyClientAssertionToken("client-id", publidKey, "client-assertion","audience");
     }
 
     @Test(expected = NotAuthenticatedException.class)
