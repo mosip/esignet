@@ -209,7 +209,7 @@ public class OAuthServiceImpl implements OAuthService {
         switch (tokenRequest.getClient_assertion_type()) {
             case JWT_BEARER_TYPE:
                 validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion(),
-                        isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") :discoveryIssuerId+"/v1/esignet/oauth/token");
+                        isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") :discoveryIssuerId+"/oauth/token");
                 break;
             default:
                 throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);
