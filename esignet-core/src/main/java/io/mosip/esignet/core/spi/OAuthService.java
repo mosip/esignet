@@ -31,7 +31,7 @@ public interface OAuthService {
      * @return
      * @throws EsignetException
      */
-    TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws EsignetException;
+    TokenResponse getTokens(@Valid TokenRequest tokenRequest,boolean isV2) throws EsignetException;
 
     /**
      * API to get list of IdP public keys
