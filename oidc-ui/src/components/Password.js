@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
@@ -13,10 +13,11 @@ import { passwordFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const fields = passwordFields;
 let fieldsState = {};
-fields.forEach((field) => (fieldsState["Password" + field.id] = ""));
+fields.forEach((field) => (fieldsState["Password_" + field.id] = ""));
 
 export default function Password({
   param,
@@ -25,7 +26,11 @@ export default function Password({
   handleBackButtonClick,
   i18nKeyPrefix = "password",
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t, i18n } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix,
+  });
+
+  const inputCustomClass = "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
   const fields = param;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
@@ -34,6 +39,7 @@ export default function Password({
   const [loginState, setLoginState] = useState(fieldsState);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState(states.LOADED);
+  const [invalidState, setInvalidState] = useState(true);
 
   const passwordRegexValue =
     openIDConnectService.getEsignetConfiguration(
@@ -51,6 +57,29 @@ export default function Password({
   const handleSubmit = (e) => {
     e.preventDefault();
     authenticateUser();
+  };
+  const captchaEnableComponents =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.captchaEnableComponents
+    ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
+
+  const captchaEnableComponentsList = captchaEnableComponents
+    .split(",")
+    .map((x) => x.trim().toLowerCase());
+
+  const [showCaptcha, setShowCaptcha] = useState(
+    captchaEnableComponentsList.indexOf("pwd") !== -1
+  );
+
+  const captchaSiteKey =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.captchaSiteKey
+    ) ?? process.env.REACT_APP_CAPTCHA_SITE_KEY;
+
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const _reCaptchaRef = useRef(null);
+  const handleCaptchaChange = (value) => {
+    setCaptchaToken(value);
   };
 
   //Handle Login API Integration here
@@ -124,6 +153,26 @@ export default function Password({
     }
   };
 
+  useEffect(() => {
+    let loadComponent = async () => {
+      i18n.on("languageChanged", () => {
+        if (showCaptcha) {
+          //to rerender recaptcha widget on language change
+          setShowCaptcha(false);
+          setTimeout(() => {
+            setShowCaptcha(true);
+          }, 1);
+        }
+      });
+    };
+
+    loadComponent();
+  }, []);
+
+  useEffect(() => {
+    setInvalidState(!Object.values(loginState).every((value) => value?.trim()));
+  }, [loginState]);
+
   return (
     <>
       <div className="grid grid-cols-8 items-center">
@@ -159,17 +208,28 @@ export default function Password({
               type={field.type}
               isRequired={field.isRequired}
               placeholder={t(field.placeholder)}
-              imgPath={
-                field.type === "password" ? null : "images/photo_scan.png"
-              }
+              customClass={inputCustomClass}
+              imgPath={null}
             />
           </div>
         ))}
+
+        {showCaptcha && (
+          <div className="flex justify-center mt-5 mb-5">
+            <ReCAPTCHA
+              hl={i18n.language}
+              ref={_reCaptchaRef}
+              onChange={handleCaptchaChange}
+              sitekey={captchaSiteKey}
+            />
+          </div>
+        )}
 
         <FormAction
           type={buttonTypes.submit}
           text={t("login")}
           id="verify_password"
+          disabled={invalidState || (showCaptcha && captchaToken === null)}
         />
       </form>
       {status === states.LOADING && (
