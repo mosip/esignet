@@ -72,10 +72,10 @@
     "sign_in_with_password": "Login with Password",
     "remember_me": "Remember Me",
     "login": "Login",
-    "uin_label_text": "Enter your VID",
-    "password_label_text": "Enter Password",
-    "uin_placeholder": "VID",
-    "password_placeholder": "Password"
+    "uin_label_text": "Username",
+    "password_label_text": "Password",
+    "uin_placeholder": "Enter 8-9 digit mobile number",
+    "password_placeholder": "Enter password"
   },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
