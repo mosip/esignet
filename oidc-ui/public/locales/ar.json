@@ -72,10 +72,10 @@
     "sign_in_with_password": "تسجيل الدخول باستخدام كلمة المرور",
     "remember_me": "تذكرنى",
     "login": "تسجيل الدخول",
-    "uin_label_text": "أدخل VID الخاص بك",
-    "password_label_text": "أدخل كلمة المرور",
-    "uin_placeholder": "VID",
-    "password_placeholder": "كلمة المرور"
+    "uin_label_text": "اسم المستخدم",
+    "password_label_text": "كلمة المرور",
+    "uin_placeholder": "أدخل رقم الجوال المكون من 8-9 أرقام",
+    "password_placeholder": "أدخل كلمة المرور"
   },
   "LoginQRCode": {
     "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",
