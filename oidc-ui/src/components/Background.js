@@ -39,7 +39,7 @@ export default function Background({
   return (
     <>
     {/* height is used by subtracting navbar height  */}
-      <section className={"text-gray-600 pt-4 body-font section-background " + sectionClass}>
+      <section className={"login-text pt-4 body-font section-background " + sectionClass}>
         <div className="container justify-center flex mx-auto px-5 sm:flex-row flex-col">
           {backgroundLogo && (<div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
             <img
@@ -47,7 +47,7 @@ export default function Background({
               alt={t("backgroud_image_alt")}
             />
           </div>)}
-          <div className={"multipurpose-login-card shadow-lg w-full md:w-3/6 sm:w-1/2 sm:max-w-sm " + conditionalPadding}>
+          <div className={"multipurpose-login-card shadow w-full md:w-3/6 sm:w-1/2 sm:max-w-sm " + conditionalPadding}>
             <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3">
               <div className="w-full">
                 <h1 className="flex text-center justify-center title-font sm:text-base text-base mb-3 font-medium text-gray-900">
@@ -56,13 +56,13 @@ export default function Background({
               </div>
               <div className="w-full flex mb-4 justify-center items-center">
                 <img
-                  className="h-20 w-32 object-contain"
+                  className="object-contain clientLogo"
                   src={clientLogoPath}
                   alt={clientName}
                 />
-                <span className="text-5xl flex mx-5">&#8651;</span>
+                <span className="flex mx-5 alternate-arrow"></span>
                 <img
-                  className="h-20 w-32 object-contain brand-only-logo"
+                  className="object-contain brand-only-logo"
                   alt={t("logo_alt")}
                 />
               </div>
