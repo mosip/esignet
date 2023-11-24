@@ -31,6 +31,8 @@
 
 .brand-only-logo {
   content: var(--brand-only-logo-url);
+  height: var(--login-client-logo-image-height);
+  width: var(--login-client-logo-image-width);
 }
 
 .background-logo {
@@ -172,4 +174,21 @@
 .multipurpose-login-card {
   border-radius: var(--multipurpose-login-card-border-radius);
   background-color: var(--multipurpose-login-card-background-color);
+}
+
+.clientLogo {
+  height: var(--login-client-logo-image-height);
+  width: var(--login-client-logo-image-width);
+}
+
+.alternate-arrow {
+  font-size: var(--login-alternate-arrow-size);
+}
+
+.alternate-arrow::after {
+  content: var(--login-alternate-arrow);
+}
+
+.login-text {
+  color: var(--login-text-color);
 }

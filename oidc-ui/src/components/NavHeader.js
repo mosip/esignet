@@ -12,11 +12,24 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     i18n.changeLanguage(e.value);
   };
 
+  const isOrangeTheme = window._env_.DEFAULT_THEME === "orange_theme";
+
   const customStyles = {
-    control: (base) => ({
-      ...base,
-      border: 0,
-    }),
+      control: (base) => ({
+        ...base,
+        border: 0,
+      })
+  };
+
+  const orangeThemeCustomStyles = {
+      control: (base) => ({
+        ...base,
+        border: 0,
+      }),
+      valueContainer: (base) => ({
+        ...base,
+        padding: 0,
+      })
   };
 
   useEffect(() => {
@@ -95,13 +108,16 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             </svg>
           </div>
           <Select
-            styles={customStyles}
+            styles={isOrangeTheme ? orangeThemeCustomStyles : customStyles}
             isSearchable={false}
             className="appearance-none"
             value={selectedLang}
             options={langOptions}
             onChange={changeLanguageHandler}
             id="language_selection"
+            components={isOrangeTheme && {
+              IndicatorSeparator: () => null
+            }}
           />
         </div>
       </div>
