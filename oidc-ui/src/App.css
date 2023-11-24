@@ -199,3 +199,8 @@
 .login-text {
   color: var(--login-text-color);
 }
+
+.login-card-separator {
+  height: var(--login-card-separator-height);
+  background-image: var(--login-card-separator);
+}

@@ -79,11 +79,7 @@ export default function Background({
                 />
               </div>
               <div
-                className="h-5 text-black -mx-5 mb-2"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(0deg, #FFFFFF 0%, #F7FCFF 100%)",
-                }}
+                className="text-black lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 mb-2 login-card-separator"
               ></div>
               {component}
             </div>
