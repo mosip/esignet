@@ -44,9 +44,9 @@ public class AuthorizationController {
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                             requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;
@@ -58,9 +58,9 @@ public class AuthorizationController {
     public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV2(@Valid @RequestBody RequestWrapper<OAuthDetailRequestV2>
                                                                         requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.getOauthDetailsV2(requestWrapper.getRequest()));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
             throw ex;
@@ -72,9 +72,9 @@ public class AuthorizationController {
     public ResponseWrapper<OtpResponse> sendOtp(@Valid @RequestBody RequestWrapper<OtpRequest> requestWrapper)
             throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.sendOtp(requestWrapper.getRequest()));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.SEND_OTP, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
@@ -86,9 +86,9 @@ public class AuthorizationController {
     public ResponseWrapper<AuthResponse> authenticateEndUser(@Valid @RequestBody RequestWrapper<AuthRequest>
                                                                         requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.authenticateUser(requestWrapper.getRequest()));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
@@ -100,9 +100,9 @@ public class AuthorizationController {
     public ResponseWrapper<AuthCodeResponse> getAuthorizationCode(@Valid @RequestBody RequestWrapper<AuthCodeRequest>
                                                                               requestWrapper) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             responseWrapper.setResponse(authorizationService.getAuthCode(requestWrapper.getRequest()));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
@@ -114,10 +114,25 @@ public class AuthorizationController {
     public ResponseWrapper<AuthResponseV2> authenticateEndUserV2(@Valid @RequestBody RequestWrapper<AuthRequest>
                                                                        requestWrapper) throws EsignetException {
         ResponseWrapper<AuthResponseV2> responseWrapper = new ResponseWrapper<>();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         try {
             AuthResponseV2 authResponse = authorizationService.authenticateUserV2(requestWrapper.getRequest());
             responseWrapper.setResponse(authResponse);
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/v3/authenticate")
+    public ResponseWrapper<AuthResponseV2> authenticateEndUserV3(@Valid @RequestBody RequestWrapper<AuthRequestV2>
+                                                                         requestWrapper) throws EsignetException {
+        ResponseWrapper<AuthResponseV2> responseWrapper = new ResponseWrapper<>();
+        try {
+            AuthResponseV2 authResponse = authorizationService.authenticateUserV3(requestWrapper.getRequest());
+            responseWrapper.setResponse(authResponse);
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
             throw ex;
