@@ -27,17 +27,28 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
     );
   };
 
+  // check if background logo is needed or not,
+  // create div according to the environment variable
+  const backgroundLogoDiv =
+    process.env.REACT_APP_BACKGROUND_LOGO === "true" ? (
+      <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
+        <img
+          className="background-logo object-contain rtl:scale-x-[-1]"
+          alt={t("backgroud_image_alt")}
+        />
+      </div>
+    ) : (
+      <>
+        <img className="top_left_bg_logo" alt="top left background" />
+        <img className="bottom_left_bg_logo" alt="bottom right background" />
+      </>
+    );
   return (
     <>
-      <section className="text-gray-600 mt-7 body-font">
-        <div className="container flex mx-auto px-5 md:flex-row flex-col items-center">
-          <div className="flex justify-center rounded-none rounded-r-lg lg:max-w-lg md:w-1/2 w-5/6 mb-10 md:mb-0">
-            <img
-              className="background-logo object-contain rtl:scale-x-[-1]"
-              alt="user signing in"
-            />
-          </div>
-          <div className="lg:flex-grow md:w-1/2  flex flex-col md:items-start md:text-left items-center text-center">
+      <section className="text-gray-600 body-font section-background">
+        <div className="container justify-center flex mx-auto px-5 sm:flex-row flex-col">
+          {backgroundLogoDiv}
+          <div className="lg:flex-grow md:w-1/2 flex flex-col md:items-start text-left items-center">
             <div className="w-full flex justify-center">
               <img className="mb-4 h-20 brand-only-logo" />
             </div>

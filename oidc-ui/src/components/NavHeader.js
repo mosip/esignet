@@ -12,11 +12,28 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     i18n.changeLanguage(e.value);
   };
 
+  const isOrangeTheme = window._env_.DEFAULT_THEME === "orange_theme";
+
   const customStyles = {
-    control: (base) => ({
-      ...base,
-      border: 0,
-    }),
+      control: (base) => ({
+        ...base,
+        border: 0,
+      }),
+      ...(isOrangeTheme && {
+        valueContainer: (base) => ({
+          ...base,
+          padding: 0,
+        }),
+        indicatorSeparator: (base) => ({
+          ...base,
+          display: "none",
+        }),
+        dropdownIndicator: (base) => ({
+          ...base,
+          'padding-left': 0,
+          color: '#140701',
+        }),
+      })
   };
 
   useEffect(() => {
