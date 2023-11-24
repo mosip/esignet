@@ -425,7 +425,14 @@ oidc_ui:
       REACT_APP_API_BASE_URL: 'http://esignet.esignet/v1/esignet'
       REACT_APP_SBI_DOMAIN_URI: 'http://esignet.$NS'
       OIDC_UI_PUBLIC_URL: ''
-      SIGN_IN_WITH_ESIGNET_PLUGIN_URL: 'http://artifactory.artifactory:80/artifactory/libs-release-local/mosip-plugins/sign-in-with-esignet.zip'
+      SIGN_IN_WITH_ESIGNET_PLUGIN_URL: 'http://artifactory.artifactory:80/artifactory/libs-release-local/mosip-plugins/sign-in-with-esignet.zip
+      DEFAULT_THEME: ''
+      DEFAULT_LANG: 'en'
+      DEFAULT_FEVICON: 'favicon.ico'
+      DEFAULT_TITLE: 'e-Signet'
+      DEFAULT_ID_PROVIDER_NAME: 'e-Signet'
+      REACT_APP_BACKGROUND_LOGO: 'false'
+      REACT_APP_FOOTER: 'true'
 
 ## OIDC UI swagger should have only internal access. Hence linked to internal gateway
 ## We create a gateway for esignet specific URL(s) listed under `hosts`
