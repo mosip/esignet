@@ -1,0 +1,39 @@
+name: PostgreSQL Test
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'db_scripts/**'
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message for manually triggering'
+        required: false
+        default: 'Triggered for Updates'
+        type: string
+  push:
+    branches:
+      - '!release-branch'
+      - release*
+      - master
+      - 1.*
+      - develop*
+      - MOSIP*
+    paths:
+      - 'db_scripts/**'
+
+jobs:
+  build-db-test:
+    strategy:
+      matrix:
+        include:
+          - DB_LOCATION: 'db_scripts/mosip_esignet'
+            DB_NAME: 'mosip_esignet'
+      fail-fast: false
+    name: ${{ matrix.DB_NAME }}
+    uses: mosip/kattu/.github/workflows/db-test.yml@master
+    with:
+      DB_LOCATION: ${{ matrix.DB_LOCATION}}
