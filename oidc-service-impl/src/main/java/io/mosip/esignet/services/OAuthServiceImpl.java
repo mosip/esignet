@@ -231,6 +231,8 @@ public class OAuthServiceImpl implements OAuthService {
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setToken_type(Constants.BEARER);
+        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
+        transaction.setAHash(accessTokenHash);
         if(isTransactionVCScoped) {
             tokenResponse.setC_nonce(cNonce);
             tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);
