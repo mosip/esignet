@@ -88,6 +88,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.credential.mandate-pkce:true}")
     private boolean mandatePKCEForVC;
 
+    @Value("#{${mosip.esignet.captcha.required.auth-factors}}")
+    private List<String> authFactorsRequireCaptchaValidation;
+
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
@@ -134,6 +137,118 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return oAuthDetailResponseV2;
     }
 
+    @Override
+    public OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException {
+        authorizationHelperService.validateSendOtpCaptchaToken(otpRequest.getCaptchaToken());
+
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
+        if(transaction == null)
+            throw new InvalidTransactionException();
+
+        SendOtpResult sendOtpResult = authorizationHelperService.delegateSendOtpRequest(otpRequest, transaction);
+        OtpResponse otpResponse = new OtpResponse();
+        otpResponse.setTransactionId(otpRequest.getTransactionId());
+        otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
+        otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
+        auditWrapper.logAudit(Action.SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(otpRequest.getTransactionId(), transaction), null);
+        return otpResponse;
+    }
+
+    @Override
+    public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
+        authenticate(authRequest, false);
+        AuthResponse authRespDto = new AuthResponse();
+        authRespDto.setTransactionId(authRequest.getTransactionId());
+        return authRespDto;
+    }
+
+    @Override
+    public AuthResponseV2 authenticateUserV2(AuthRequest authRequest) throws EsignetException {
+        OIDCTransaction transaction = authenticate(authRequest, true);
+        AuthResponseV2 authRespDto = new AuthResponseV2();
+        authRespDto.setTransactionId(authRequest.getTransactionId());
+        authRespDto.setConsentAction(transaction.getConsentAction());
+        return authRespDto;
+    }
+
+    @Override
+    public AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest) throws EsignetException {
+        if(!CollectionUtils.isEmpty(authFactorsRequireCaptchaValidation) &&
+                authRequest.getChallengeList().stream().anyMatch(authChallenge ->
+                        authFactorsRequireCaptchaValidation.contains(authChallenge.getAuthFactorType()))) {
+            authorizationHelperService.validateCaptchaToken(authRequest.getCaptchaToken());
+        }
+        return authenticateUserV2(authRequest);
+    }
+
+    @Override
+    public AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException {
+        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
+        if(transaction == null) {
+            throw new InvalidTransactionException();
+        }
+
+        List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
+        List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
+        if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
+            acceptedClaims = transaction.getAcceptedClaims();
+            acceptedScopes = transaction.getPermittedScopes();
+        }
+
+        //Combination of OIDC and credential scopes are not allowed in single OIDC transaction
+        if(CollectionUtils.isNotEmpty(transaction.getRequestedCredentialScopes()) && autoPermitCredentialScopes) {
+            log.info("Permitting the requested credential scopes automatically");
+            acceptedScopes = transaction.getRequestedCredentialScopes();
+        }
+
+        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
+        authorizationHelperService.validatePermittedScopes(transaction, acceptedScopes);
+
+        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
+        // cache consent with auth-code-hash as key
+        transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
+        transaction.setAcceptedClaims(acceptedClaims);
+        transaction.setPermittedScopes(acceptedScopes);
+        consentHelperService.updateUserConsent(transaction, null);
+        transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
+        auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
+
+        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
+        authCodeResponse.setCode(authCode);
+        authCodeResponse.setRedirectUri(transaction.getRedirectUri());
+        authCodeResponse.setNonce(transaction.getNonce());
+        authCodeResponse.setState(transaction.getState());
+        return authCodeResponse;
+    }
+
+    private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction) {
+        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
+        if(transaction == null)
+            throw new InvalidTransactionException();
+
+        //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
+        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
+                authRequest.getChallengeList());
+        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
+                authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+        //cache tokens on successful response
+        transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
+        transaction.setKycToken(kycAuthResult.getKycToken());
+        transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
+        transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
+                .map(AuthenticationFactor::getType)
+                .collect(Collectors.toList())).collect(Collectors.toSet()));
+        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
+
+        if(checkConsentAction) {
+            consentHelperService.processConsent(transaction, false);
+        }
+
+        cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
+        auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
+        return transaction;
+    }
+
     private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
                                                                                     ClientDetail clientDetailDto,
                                                                                     OAuthDetailResponse oAuthDetailResponse) {
@@ -178,119 +293,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
-    }
-
-    @Override
-    public OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException {
-        authorizationHelperService.validateCaptchaToken(otpRequest.getCaptchaToken());
-
-        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
-        if(transaction == null)
-            throw new InvalidTransactionException();
-
-        SendOtpResult sendOtpResult = authorizationHelperService.delegateSendOtpRequest(otpRequest, transaction);
-        OtpResponse otpResponse = new OtpResponse();
-        otpResponse.setTransactionId(otpRequest.getTransactionId());
-        otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
-        otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
-        auditWrapper.logAudit(Action.SEND_OTP, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(otpRequest.getTransactionId(), transaction), null);
-        return otpResponse;
-    }
-
-    @Override
-    public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
-        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
-        if(transaction == null)
-            throw new InvalidTransactionException();
-
-        //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
-        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
-                authRequest.getChallengeList());
-        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
-                authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
-        //cache tokens on successful response
-        transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
-        transaction.setKycToken(kycAuthResult.getKycToken());
-        transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
-        transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
-                .map(AuthenticationFactor::getType)
-                .collect(Collectors.toList())).collect(Collectors.toSet()));
-        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
-        cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
-        auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
-
-        AuthResponse authRespDto = new AuthResponse();
-        authRespDto.setTransactionId(authRequest.getTransactionId());
-        return authRespDto;
-    }
-
-    @Override
-    public AuthResponseV2 authenticateUserV2(AuthRequest authRequest) throws EsignetException {
-        OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
-        if(transaction == null)
-            throw new InvalidTransactionException();
-
-        //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
-        Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
-                authRequest.getChallengeList());
-        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
-                authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
-        //cache tokens on successful response
-        transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
-        transaction.setKycToken(kycAuthResult.getKycToken());
-        transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
-        transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
-                .map(AuthenticationFactor::getType)
-                .collect(Collectors.toList())).collect(Collectors.toSet()));
-        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
-        consentHelperService.processConsent(transaction, false);
-        cacheUtilService.setAuthenticatedTransaction(authRequest.getTransactionId(), transaction);
-        auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authRequest.getTransactionId(), transaction), null);
-
-        AuthResponseV2 authRespDto = new AuthResponseV2();
-        authRespDto.setTransactionId(authRequest.getTransactionId());
-        authRespDto.setConsentAction(transaction.getConsentAction());
-        return authRespDto;
-    }
-
-    @Override
-    public AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException {
-        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(authCodeRequest.getTransactionId());
-        if(transaction == null) {
-            throw new InvalidTransactionException();
-        }
-
-        List<String> acceptedClaims = authCodeRequest.getAcceptedClaims();
-        List<String> acceptedScopes = authCodeRequest.getPermittedAuthorizeScopes();
-        if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())) {
-            acceptedClaims = transaction.getAcceptedClaims();
-            acceptedScopes = transaction.getPermittedScopes();
-        }
-
-        //Combination of OIDC and credential scopes are not allowed in single OIDC transaction
-        if(CollectionUtils.isNotEmpty(transaction.getRequestedCredentialScopes()) && autoPermitCredentialScopes) {
-            log.info("Permitting the requested credential scopes automatically");
-            acceptedScopes = transaction.getRequestedCredentialScopes();
-        }
-
-        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
-        authorizationHelperService.validatePermittedScopes(transaction, acceptedScopes);
-
-        String authCode = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, UUID.randomUUID().toString());
-        // cache consent with auth-code-hash as key
-        transaction.setCodeHash(authorizationHelperService.getKeyHash(authCode));
-        transaction.setAcceptedClaims(acceptedClaims);
-        transaction.setPermittedScopes(acceptedScopes);
-        consentHelperService.updateUserConsent(transaction, null);
-        transaction = cacheUtilService.setAuthCodeGeneratedTransaction(authCodeRequest.getTransactionId(), transaction);
-        auditWrapper.logAudit(Action.GET_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(authCodeRequest.getTransactionId(), transaction), null);
-
-        AuthCodeResponse authCodeResponse = new AuthCodeResponse();
-        authCodeResponse.setCode(authCode);
-        authCodeResponse.setRedirectUri(transaction.getRedirectUri());
-        authCodeResponse.setNonce(transaction.getNonce());
-        authCodeResponse.setState(transaction.getState());
-        return authCodeResponse;
     }
 
     private Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)
