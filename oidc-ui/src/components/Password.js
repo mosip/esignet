@@ -48,6 +48,8 @@ export default function Password({
 
   const passwordRegex = new RegExp(passwordRegexValue);
 
+  const isOrangeTheme = window._env_.DEFAULT_THEME === "orange_theme";
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -175,24 +177,26 @@ export default function Password({
 
   return (
     <>
-      <div className="grid grid-cols-8 items-center">
-        <div className="h-6 items-center text-center flex items-start">
-          <button
-            onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
-          >
-            &#8592;
-          </button>
+      {!isOrangeTheme && (
+        <div className="grid grid-cols-8 items-center">
+          <div className="h-6 items-center text-center flex items-start">
+            <button
+              onClick={() => handleBackButtonClick()}
+              className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+            >
+              &#8592;
+            </button>
+          </div>
+          <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+            <h1
+              className="text-center text-sky-600 font-semibold line-clamp-2"
+              title={t("sign_in_with_password")}
+            >
+              {t("sign_in_with_password")}
+            </h1>
+          </div>
         </div>
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_password")}
-          >
-            {t("sign_in_with_password")}
-          </h1>
-        </div>
-      </div>
+      )}
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         {fields.map((field) => (

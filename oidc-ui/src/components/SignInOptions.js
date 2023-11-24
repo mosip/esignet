@@ -29,6 +29,10 @@ export default function SignInOptions({
 
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
 
+    if (loginOptions.length === 1) {
+      handleSignInOptionClick(loginOptions[0].value);
+    }
+
     setSinginOptions(loginOptions);
     setShowMoreOptions(loginOptions.length > 4 && loginOptions.length !== 5);
     setStatus({ state: states.LOADED, msg: "" });
