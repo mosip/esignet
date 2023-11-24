@@ -97,12 +97,15 @@ public class AuthorizationHelperService {
     @Value("#{${mosip.esignet.supported.credential.scopes}}")
     private List<String> credentialScopes;
 
-    protected void validateCaptchaToken(String captchaToken) {
+    protected void validateSendOtpCaptchaToken(String captchaToken) {
         if(!captchaRequired) {
-            log.warn("captcha validation is disabled");
+            log.warn("captcha validation is disabled for send-otp request!");
             return;
         }
+        validateCaptchaToken(captchaToken);
+    }
 
+    protected void validateCaptchaToken(String captchaToken) {
         if(captchaValidator == null) {
             log.error("Captcha validator instance is NULL, Unable to validate captcha token");
             throw new EsignetException(ErrorConstants.FAILED_TO_VALIDATE_CAPTCHA);
