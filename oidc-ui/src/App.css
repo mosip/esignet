@@ -1,5 +1,8 @@
 .section-background {
+  position: relative;
   background-color: var(--login-background);
+  padding-top: 42px;
+  padding-bottom: 64px;
 }
 
 .language-icon-color {
@@ -31,8 +34,6 @@
 
 .brand-only-logo {
   content: var(--brand-only-logo-url);
-  height: var(--login-client-logo-image-height);
-  width: var(--login-client-logo-image-width);
 }
 
 .background-logo {
@@ -130,14 +131,6 @@
   padding-bottom: 11px;
 }
 
-.flexible-header-only {
-  height: calc(100% - var(--header-height));
-}
-
-.flexible-header-footer {
-  height: calc(100% - var(--header-footer-height));
-}
-
 .signup-banner {
   background-color: var(--signup-banner-background-color);
   border-radius: 0px 0px var(--signup-banner-bottom-radius)
@@ -176,7 +169,21 @@
   background-color: var(--multipurpose-login-card-background-color);
 }
 
-.clientLogo {
+.section-background .top_left_bg_logo {
+  content: var(--top-left-bg-logo-url);
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.section-background .bottom_left_bg_logo {
+  content: var(--bottom-right-bg-logo-url);
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+
+.client-logo-size {
   height: var(--login-client-logo-image-height);
   width: var(--login-client-logo-image-width);
 }

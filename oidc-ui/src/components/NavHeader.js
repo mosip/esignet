@@ -18,17 +18,21 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
       control: (base) => ({
         ...base,
         border: 0,
-      })
-  };
-
-  const orangeThemeCustomStyles = {
-      control: (base) => ({
-        ...base,
-        border: 0,
       }),
-      valueContainer: (base) => ({
-        ...base,
-        padding: 0,
+      ...(isOrangeTheme && {
+        valueContainer: (base) => ({
+          ...base,
+          padding: 0,
+        }),
+        indicatorSeparator: (base) => ({
+          ...base,
+          display: "none",
+        }),
+        dropdownIndicator: (base) => ({
+          ...base,
+          'padding-left': 0,
+          color: '#140701',
+        }),
       })
   };
 
@@ -108,16 +112,13 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             </svg>
           </div>
           <Select
-            styles={isOrangeTheme ? orangeThemeCustomStyles : customStyles}
+            styles={customStyles}
             isSearchable={false}
             className="appearance-none"
             value={selectedLang}
             options={langOptions}
             onChange={changeLanguageHandler}
             id="language_selection"
-            components={isOrangeTheme && {
-              IndicatorSeparator: () => null
-            }}
           />
         </div>
       </div>
