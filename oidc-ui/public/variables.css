@@ -60,6 +60,8 @@
   --login-alternate-arrow: "\21CB";
   --login-alternate-arrow-size: 3rem;
   --login-text-color: #4B5563;
+  --login-card-separator: linear-gradient(0deg, #FFFFFF 0%, #F7FCFF 100%);
+  --login-card-separator-height: 20px;
 }
 
 [class="orange_theme"] {
@@ -124,4 +126,6 @@
   --login-alternate-arrow: "\21C4";
   --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #333333;
+  --login-card-separator: linear-gradient(0deg, rgb(0,0,0,0.2) 0%, rgb(0,0,0,0.2) 100%);
+  --login-card-separator-height: 1px;
 }
