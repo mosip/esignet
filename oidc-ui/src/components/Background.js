@@ -40,8 +40,8 @@ export default function Background({
       </div>
     ) : (
       <>
-        <img className="top_left_bg_logo" alt="top left background" />
-        <img className="bottom_left_bg_logo" alt="bottom right background" />
+        <span className="top_left_bg_logo" alt="top left background"></span>
+        <span className="bottom_left_bg_logo" alt="bottom right background"></span>
       </>
     );
     
@@ -75,10 +75,10 @@ export default function Background({
                   alt={clientName}
                 />
                 <span className="flex mx-5 alternate-arrow"></span>
-                <img
+                <span
                   className="object-contain brand-only-logo client-logo-size"
                   alt={t("logo_alt")}
-                />
+                ></span>
               </div>
               <div
                 className="text-black lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 mb-2 login-card-separator"
