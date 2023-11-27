@@ -45,7 +45,7 @@ export default function Consent({
   const [timeLeft, setTimeLeft] = useState(null);
   const [cancelPopup, setCancelPopup] = useState(false);
 
-  const isOrangeTheme = window._env_.DEFAULT_THEME === "orange_theme";
+  const slideToggleClass = process.env.REACT_APP_NO_OUTLINE_TOGGLE === "true" ? "toggle-no-outline" : "toggle-outline";
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -338,32 +338,19 @@ export default function Consent({
 
   const sliderButtonDiv = (item, handleOnchange) => (
     <div>
-      {isOrangeTheme ?
-      <label className="relative inline-flex cursor-pointer items-center" labelfor={item}>
-        <input type="checkbox" value="" id={item} className="sr-only peer" onChange={handleOnchange} />
-        <label for="switch-2" className="hidden"></label>
-        <div className="peer h-2 w-8 rounded-full border border-[#FFDECC] after:absolute after:-top-1 after:left-0 after:h-4 after:w-4 after:rounded-full after:border after:border-[#EB6F2D] after:bg-[#EB6F2D] after:transition-all after:content-[''] peer-checked:bg-[#FFDECC] peer-checked:after:translate-x-full"></div>
-      </label>
-      :
       <label
-      labelfor={item}
-      className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
-    >
-      <input
-        type="checkbox"
-        value=""
-        id={item}
-        className="sr-only peer"
-        onChange={handleOnchange}
-      />
-      <div
-        className="w-9 h-5 after:h-4 after:w-4 border rounded-full peer after:content-['']
-        after:absolute after:top-[2px] after:border after:rounded-full after:transition-all
-        ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
-        ltr:after:left-[2px] rtl:after:right-[2px] slide-toggle-button"
-      ></div>
+        labelfor={item}
+        className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          value=""
+          id={item}
+          className="sr-only peer"
+          onChange={handleOnchange}
+        />
+        <div className={"peer ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full border after:border after:h-4 after:w-4 rounded-full after:rounded-full after:transition-all after:content-[''] after:absolute ltr:after:left-[2px] rtl:after:right-[2px] slide-toggle-button "+slideToggleClass}></div>
       </label>
-      }
     </div>
   );
 
