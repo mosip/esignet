@@ -12,14 +12,14 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     i18n.changeLanguage(e.value);
   };
 
-  const isOrangeTheme = window._env_.DEFAULT_THEME === "orange_theme";
+  const removeIndicatorPipe = process.env.REACT_APP_REMOVE_INDICATOR_PIPE === "true";
 
   const customStyles = {
       control: (base) => ({
         ...base,
         border: 0,
       }),
-      ...(isOrangeTheme && {
+      ...(removeIndicatorPipe && {
         valueContainer: (base) => ({
           ...base,
           padding: 0,
