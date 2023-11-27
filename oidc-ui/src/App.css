@@ -30,6 +30,7 @@
 
 .brand-logo {
   content: var(--brand-logo-url);
+  height: 40px;
 }
 
 .brand-only-logo {
