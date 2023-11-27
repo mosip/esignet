@@ -40,7 +40,7 @@ on:
       - MOSIP*
       - release*
     paths:
-      - 'helm/**'
+      - 'helm/charts/**'
 
 jobs:
   chart-lint-publish:
