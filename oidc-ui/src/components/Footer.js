@@ -4,7 +4,8 @@ import { getBooleanValue } from "../services/utilService";
 export default function Footer({ i18nKeyPrefix = "footer" }) {
   console.log(process.env.REACT_APP_FOOTER)
   console.log(typeof process.env.REACT_APP_FOOTER)
-  const footerCheck = getBooleanValue(process.env.REACT_APP_FOOTER);
+  console.log("REACT_APP_FOOTER", getBooleanValue("REACT_APP_FOOTER"))
+  const footerCheck = getBooleanValue("REACT_APP_FOOTER");
 
   const { t } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,

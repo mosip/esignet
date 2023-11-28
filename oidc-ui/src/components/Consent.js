@@ -47,7 +47,7 @@ export default function Consent({
   const [cancelPopup, setCancelPopup] = useState(false);
 
   const slideToggleClass = getBooleanValue(
-    process.env.REACT_APP_NO_OUTLINE_TOGGLE
+    "REACT_APP_NO_OUTLINE_TOGGLE"
   )
     ? "toggle-no-outline"
     : "toggle-outline";
@@ -406,8 +406,9 @@ export default function Consent({
 
   // check if background logo is needed or not,
   // create div according to the environment variable
+  console.log("REACT_APP_BACKGROUND_LOGO_CONSENT", getBooleanValue("REACT_APP_BACKGROUND_LOGO"))
   const backgroundLogoDiv =
-    getBooleanValue(process.env.REACT_APP_BACKGROUND_LOGO) ? (
+    getBooleanValue("REACT_APP_BACKGROUND_LOGO") ? (
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <img
           className="background-logo object-contain rtl:scale-x-[-1]"

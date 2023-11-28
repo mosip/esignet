@@ -1,9 +1,13 @@
 const getBooleanValue = (inputValue) => {
-    if (typeof(inputValue) === 'undefined' || inputValue === null || inputValue === '') {
-        console.log("no input provided")
+    var val = process.env[inputValue]
+    console.log(inputValue, val)
+    console.log(typeof val)
+    if (typeof(val) === 'undefined' || val === null || val === '') {
+        console.log("no input provided", inputValue)
         return false;
     }
-    return /^true$/i.test(inputValue);
+    console.log("valid input provided", inputValue)
+    return /^true$/i.test(val);
 }
 
 export { getBooleanValue };
