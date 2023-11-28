@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=1.2.0-ES
+CHART_VERSION=1.2.0
 
 ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
 
