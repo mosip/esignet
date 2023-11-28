@@ -140,6 +140,22 @@
   top: 2px;
 }
 
+[dir="ltr"] .toggle-no-outline::after {
+  left: 0px;
+}
+
+[dir="rtl"] .toggle-no-outline::after {
+  right: 0px;
+}
+
+[dir="ltr"] .toggle-outline::after {
+  left: 2px;
+}
+
+[dir="rtl"] .toggle-outline::after {
+  right: 2px;
+}
+
 .footer-brand-logo {
   content: var(--footer-brand-logo-url);
   height: 25px;
