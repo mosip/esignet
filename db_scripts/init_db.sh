@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=12.0.2
+CHART_VERSION=12.0-ES
 
 helm repo add mosip https://mosip.github.io/mosip-helm
 helm repo update
