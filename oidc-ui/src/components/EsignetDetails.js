@@ -35,7 +35,6 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
 
   // check if background logo is needed or not,
   // create div according to the environment variable
-  console.log("REACT_APP_BACKGROUND_LOGO_ESIGNETDETAILS", getBooleanValue("REACT_APP_BACKGROUND_LOGO"))
   const backgroundLogoDiv =
     getBooleanValue("REACT_APP_BACKGROUND_LOGO") ? (
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
