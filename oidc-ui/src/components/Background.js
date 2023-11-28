@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { configurationKeys } from "../constants/clientConstants";
+import { getBooleanValue } from "../services/utilService";
 
 export default function Background({
   heading,
@@ -31,7 +32,7 @@ export default function Background({
   // check if background logo is needed or not,
   // create div according to the environment variable
   const backgroundLogoDiv =
-    process.env.REACT_APP_BACKGROUND_LOGO === "true" ? (
+    getBooleanValue(process.env.REACT_APP_BACKGROUND_LOGO) ? (
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <img
           className="background-logo object-contain rtl:scale-x-[-1]"
