@@ -73,6 +73,7 @@ const configurationKeys = {
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
   passwordRegex : "password.regex",
+  usernameRegex : "username.regex",
   consentScreenExpireInSec: "consent.screen.timeout-in-secs",
   consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
   walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit",

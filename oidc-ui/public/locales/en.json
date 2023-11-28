@@ -158,6 +158,8 @@
     "vid_tooltip": "Please fill in this field"
   },
   "errors": {
+    "username_not_valid": "Username is not valid",
+    "password_not_valid": "Password rule is invalid",
     "no_response_msg": "No Response",
     "no_devices_found_msg": "Device Not Found. Please Check the Connectivity and Retry.",
     "link_code_refresh_failed": "Failed to Load",
