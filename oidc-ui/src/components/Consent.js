@@ -354,7 +354,7 @@ export default function Consent({
           className="sr-only peer"
           onChange={handleOnchange}
         />
-        <div className={"peer ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full border after:border after:h-4 after:w-4 rounded-full after:rounded-full after:transition-all after:content-[''] after:absolute ltr:after:left-[2px] rtl:after:right-[2px] slide-toggle-button "+slideToggleClass}></div>
+        <div className={"peer ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full border after:border after:h-4 after:w-4 rounded-full after:rounded-full after:transition-all after:content-[''] after:absolute slide-toggle-button "+slideToggleClass}></div>
       </label>
     </div>
   );
