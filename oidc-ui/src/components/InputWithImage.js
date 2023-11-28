@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 const fixedInputClass =
@@ -27,11 +27,12 @@ export default function InputWithImage({
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
   const [showPassword, setShowPassword] = useState(false);
+  const inputVal = useRef(value);
 
   const changePasswordState = () => {
-    setShowPassword(!showPassword);
     let passwordRef = document.getElementById(id);
-    passwordRef.setAttribute("type", showPassword ? "text" : "password");
+    passwordRef.setAttribute("type", !showPassword ? "text" : "password");
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -59,6 +60,7 @@ export default function InputWithImage({
           </div>
         }
         <input
+          ref={inputVal}
           disabled={disabled}
           onChange={handleChange}
           onBlur={blurChange}
@@ -71,7 +73,7 @@ export default function InputWithImage({
           placeholder={placeholder}
           title={t(tooltipMsg)}
         />
-        {type === "password" && (
+        {type === "password" && inputVal.current.value !== "" && (
           <span
             className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 cursor-pointer"
             onClick={changePasswordState}
