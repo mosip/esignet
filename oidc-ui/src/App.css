@@ -140,6 +140,22 @@
   top: 2px;
 }
 
+[dir="ltr"] .toggle-no-outline::after {
+  left: 0px;
+}
+
+[dir="rtl"] .toggle-no-outline::after {
+  right: 0px;
+}
+
+[dir="ltr"] .toggle-outline::after {
+  left: 2px;
+}
+
+[dir="rtl"] .toggle-outline::after {
+  right: 2px;
+}
+
 .footer-brand-logo {
   content: var(--footer-brand-logo-url);
   height: 25px;
@@ -226,4 +242,16 @@
 .login-card-separator {
   height: var(--login-card-separator-height);
   background-image: var(--login-card-separator);
+}
+
+.error-banner {
+  color: #D52929;
+  background-color: #FAEFEF;
+  height: 40px;
+}
+
+.error-banner-text {
+  font: normal normal 600 14px/17px Inter;
+  letter-spacing: 0px;
+  opacity: 1;
 }

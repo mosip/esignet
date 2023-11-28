@@ -354,7 +354,7 @@ export default function Consent({
           className="sr-only peer"
           onChange={handleOnchange}
         />
-        <div className={"peer ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full border after:border after:h-4 after:w-4 rounded-full after:rounded-full after:transition-all after:content-[''] after:absolute ltr:after:left-[2px] rtl:after:right-[2px] slide-toggle-button "+slideToggleClass}></div>
+        <div className={"peer ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full border after:border after:h-4 after:w-4 rounded-full after:rounded-full after:transition-all after:content-[''] after:absolute slide-toggle-button "+slideToggleClass}></div>
       </label>
     </div>
   );
@@ -406,7 +406,6 @@ export default function Consent({
 
   // check if background logo is needed or not,
   // create div according to the environment variable
-  console.log("REACT_APP_BACKGROUND_LOGO_CONSENT", getBooleanValue("REACT_APP_BACKGROUND_LOGO"))
   const backgroundLogoDiv =
     getBooleanValue("REACT_APP_BACKGROUND_LOGO") ? (
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">

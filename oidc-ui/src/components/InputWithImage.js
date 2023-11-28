@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const fixedInputClass =
@@ -5,6 +6,7 @@ const fixedInputClass =
 
 export default function InputWithImage({
   handleChange,
+  blurChange,
   value,
   labelText,
   labelFor,
@@ -18,9 +20,19 @@ export default function InputWithImage({
   tooltipMsg = "vid_tooltip",
   disabled = false,
   formError = "",
+  passwordShowIcon = "images/password_show.svg",
+  passwordHideIcon = "images/password_hide.svg",
   i18nKeyPrefix = "tooltips",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const changePasswordState = () => {
+    setShowPassword(!showPassword);
+    let passwordRef = document.getElementById(id);
+    passwordRef.setAttribute("type", showPassword ? "text" : "password");
+  };
 
   return (
     <>
@@ -49,6 +61,7 @@ export default function InputWithImage({
         <input
           disabled={disabled}
           onChange={handleChange}
+          onBlur={blurChange}
           value={value}
           type={type}
           id={id}
@@ -58,6 +71,18 @@ export default function InputWithImage({
           placeholder={placeholder}
           title={t(tooltipMsg)}
         />
+        {type === "password" && (
+          <span
+            className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 cursor-pointer"
+            onClick={changePasswordState}
+          >
+            {showPassword ? (
+              <img className="w-6 h-6" src={passwordShowIcon} />
+            ) : (
+              <img className="w-6 h-6" src={passwordHideIcon} />
+            )}
+          </span>
+        )}
       </div>
     </>
   );

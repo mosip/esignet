@@ -14,6 +14,7 @@ import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
+import ErrorBanner from "../common/ErrorBanner";
 
 const fields = passwordFields;
 let fieldsState = {};
@@ -38,6 +39,7 @@ export default function Password({
 
   const [loginState, setLoginState] = useState(fieldsState);
   const [error, setError] = useState(null);
+  const [errorBanner, setErrorBanner] = useState([]);
   const [status, setStatus] = useState(states.LOADED);
   const [invalidState, setInvalidState] = useState(true);
 
@@ -46,7 +48,13 @@ export default function Password({
       configurationKeys.passwordRegex
     ) ?? process.env.REACT_APP_PASSWORD_REGEX;
 
+  const usernameRegexValue =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.usernameRegex
+    ) ?? process.env.REACT_APP_USERNAME_REGEX;
+
   const passwordRegex = new RegExp(passwordRegexValue);
+  const usernameRegex = new RegExp(usernameRegexValue);
 
   const navigate = useNavigate();
 
@@ -91,14 +99,6 @@ export default function Password({
       let challengeType = challengeTypes.pwd;
       let challenge = loginState["Password_password"];
       let challengeFormat = challengeFormats.pwd;
-
-      if (!passwordRegex.test(challenge)) {
-        setError({
-          defaultMsg: "Password Invalid",
-          errorCode: "password_error_msg",
-        });
-        return;
-      }
 
       let challengeList = [
         {
@@ -174,6 +174,52 @@ export default function Password({
     setInvalidState(!Object.values(loginState).every((value) => value?.trim()));
   }, [loginState]);
 
+  const onCloseHandle = () => {
+    let tempBanner = errorBanner.map((_) => _);
+    tempBanner[0].show = false;
+    setErrorBanner(tempBanner);
+  };
+
+  const onBlurChange = (e) => {
+    const formId = e.target.id;
+    const formValue = e.target.value;
+    let bannerIndex = errorBanner.findIndex((_) => _.id === e.target.id);
+    let currentRegex = new RegExp("");
+    let errorCode = "";
+    if (formId.includes("mosip-uin")) {
+      currentRegex = usernameRegex;
+      errorCode = "username_not_valid";
+    } else if (formId.includes("password")) {
+      currentRegex = passwordRegex;
+      errorCode = "password_not_valid";
+    }
+    let tempBanner = errorBanner.map((_) => {
+      return { ..._, show: true };
+    });
+
+    // checking regex matching for username & password
+    if (currentRegex.test(formValue)) {
+      // if username or password is matched
+      // then remove error from errorBanner
+      if (bannerIndex > -1) {
+        tempBanner.splice(bannerIndex, 1);
+      }
+    } else {
+      // if username or passwors is not matched
+      // with regex, then add the error
+      if (bannerIndex === -1) {
+        tempBanner.unshift({
+          id: e.target.id,
+          errorCode,
+          show: true,
+        });
+      }
+    }
+
+    // setting the error in errorBanner
+    setErrorBanner(tempBanner);
+  };
+
   return (
     <>
       <div className="grid grid-cols-8 items-center">
@@ -194,13 +240,22 @@ export default function Password({
           </h1>
         </div>
       </div>
-      
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+
+      {errorBanner.length > 0 && (
+        <ErrorBanner
+          showBanner={errorBanner[0]?.show}
+          errorCode={errorBanner[0]?.errorCode}
+          onCloseHandle={onCloseHandle}
+        />
+      )}
+
+      <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {fields.map((field) => (
           <div className="-space-y-px">
             <InputWithImage
               key={"Password_" + field.id}
               handleChange={handleChange}
+              blurChange={onBlurChange}
               value={loginState["Password_" + field.id]}
               labelText={t(field.labelText)}
               labelFor={field.labelFor}
@@ -230,11 +285,15 @@ export default function Password({
           type={buttonTypes.submit}
           text={t("login")}
           id="verify_password"
-          disabled={invalidState || (showCaptcha && captchaToken === null)}
+          disabled={
+            invalidState ||
+            (errorBanner && errorBanner.length > 0) ||
+            (showCaptcha && captchaToken === null)
+          }
         />
       </form>
       {status === states.LOADING && (
-        <div>
+        <div className="mt-2">
           <LoadingIndicator size="medium" message="authenticating_msg" />
         </div>
       )}

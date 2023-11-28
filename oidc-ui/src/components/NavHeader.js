@@ -34,6 +34,10 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
           'padding-left': 0,
           color: '#140701',
         }),
+        menu: (base) => ({
+          ...base,
+          'min-width': '100px'
+        })
       })
   };
 
