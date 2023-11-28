@@ -245,9 +245,9 @@
 }
 
 .error-banner {
-  color: var(--error-banner-color);
-  background-color: var(--error-banner-bg-color);
-  height: var(--error-banner-height);
+  color: #D52929;
+  background-color: #FAEFEF;
+  height: 40px;
 }
 
 .error-banner-text {

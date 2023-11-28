@@ -100,14 +100,6 @@ export default function Password({
       let challenge = loginState["Password_password"];
       let challengeFormat = challengeFormats.pwd;
 
-      if (!passwordRegex.test(challenge)) {
-        setError({
-          defaultMsg: "Password Invalid",
-          errorCode: "password_error_msg",
-        });
-        return;
-      }
-
       let challengeList = [
         {
           authFactorType: challengeType,
@@ -194,15 +186,12 @@ export default function Password({
     let bannerIndex = errorBanner.findIndex((_) => _.id === e.target.id);
     let currentRegex = new RegExp("");
     let errorCode = "";
-    let defaultMsg = "";
     if (formId.includes("mosip-uin")) {
       currentRegex = usernameRegex;
       errorCode = "username_not_valid";
-      defaultMsg = "Username is not valid";
     } else if (formId.includes("password")) {
       currentRegex = passwordRegex;
       errorCode = "password_not_valid";
-      defaultMsg = "Password is not valid";
     }
     let tempBanner = errorBanner.map((_) => {
       return { ..._, show: true };
@@ -222,7 +211,6 @@ export default function Password({
         tempBanner.unshift({
           id: e.target.id,
           errorCode,
-          defaultMsg,
           show: true,
         });
       }
@@ -257,7 +245,6 @@ export default function Password({
         <ErrorBanner
           showBanner={errorBanner[0]?.show}
           errorCode={errorBanner[0]?.errorCode}
-          defaultMsg={errorBanner[0]?.defaultMsg}
           onCloseHandle={onCloseHandle}
         />
       )}

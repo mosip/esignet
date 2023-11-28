@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 const ErrorBanner = ({
   showBanner,
   errorCode,
-  defaultMsg,
   onCloseHandle,
   customClass = "",
   i18nKeyPrefix = "errors",
@@ -17,7 +16,7 @@ const ErrorBanner = ({
         customClass
       }
     >
-      <div className="error-banner-text">{t(errorCode, defaultMsg)}</div>
+      <div className="error-banner-text">{t(errorCode)}</div>
       <img
         onClick={onCloseHandle}
         className="h-2.5 w-2.5"
