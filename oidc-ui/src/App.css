@@ -227,3 +227,15 @@
   height: var(--login-card-separator-height);
   background-image: var(--login-card-separator);
 }
+
+.error-banner {
+  color: var(--error-banner-color);
+  background-color: var(--error-banner-bg-color);
+  height: var(--error-banner-height);
+}
+
+.error-banner-text {
+  font: normal normal 600 14px/17px Inter;
+  letter-spacing: 0px;
+  opacity: 1;
+}
