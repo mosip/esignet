@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Select from "react-select";
+import { getBooleanValue } from "../services/utilService";
 
 export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   const { t, i18n } = useTranslation("translation", {
@@ -12,7 +13,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     i18n.changeLanguage(e.value);
   };
 
-  const removeIndicatorPipe = process.env.REACT_APP_REMOVE_INDICATOR_PIPE === "true";
+  const removeIndicatorPipe = getBooleanValue(process.env.REACT_APP_REMOVE_INDICATOR_PIPE);
 
   const customStyles = {
       control: (base) => ({

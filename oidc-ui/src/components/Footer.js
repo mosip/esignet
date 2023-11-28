@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { getBooleanValue } from "../services/utilService";
 
 export default function Footer({ i18nKeyPrefix = "footer" }) {
-  const footerCheck = process.env.REACT_APP_FOOTER === "true";
+  const footerCheck = getBooleanValue(process.env.REACT_APP_FOOTER);
 
   const { t } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,
