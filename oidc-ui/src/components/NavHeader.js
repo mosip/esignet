@@ -13,7 +13,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     i18n.changeLanguage(e.value);
   };
 
-  const removeIndicatorPipe = getBooleanValue(process.env.REACT_APP_REMOVE_INDICATOR_PIPE);
+  const removeIndicatorPipe = getBooleanValue("REACT_APP_REMOVE_INDICATOR_PIPE");
 
   const customStyles = {
       control: (base) => ({
