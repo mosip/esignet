@@ -9,7 +9,7 @@ const challengeTypes = {
   pin: "PIN",
   otp: "OTP",
   wallet: "WALLET",
-  pwd: "PWD"
+  pwd: "PWD",
 };
 
 const challengeFormats = {
@@ -17,16 +17,15 @@ const challengeFormats = {
   pin: "number",
   otp: "alpha-numeric",
   wallet: "jwt",
-  pwd: "alpha-numeric"
+  pwd: "alpha-numeric",
 };
-
 
 const validAuthFactors = {
   PIN: "PIN",
   OTP: "OTP",
   BIO: "BIO",
   PWD: "PWD",
-  WLA: "WLA"
+  WLA: "WLA",
 };
 
 const buttonTypes = {
@@ -42,10 +41,10 @@ const deepLinkParamPlaceholder = {
 };
 
 const walletConfigKeys = {
-  walletName:"wallet.name",
+  walletName: "wallet.name",
   walletLogoUrl: "wallet.logo-url",
   qrCodeDeepLinkURI: "wallet.deep-link-uri",
-  appDownloadURI:"wallet.download-uri"
+  appDownloadURI: "wallet.download-uri",
 };
 
 const configurationKeys = {
@@ -72,15 +71,23 @@ const configurationKeys = {
   qrCodeBufferInSecs: "wallet.qr-code-buffer-in-secs",
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
-  passwordRegex : "password.regex",
-  usernameRegex : "username.regex",
+  passwordRegex: "password.regex",
+  usernameRegex: "username.regex",
   consentScreenExpireInSec: "consent.screen.timeout-in-secs",
   consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
   walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit",
   walletConfig: "wallet.config",
   signupConfig: "signup.config",
   signupBanner: "signup.banner",
-  signupURL: "signup.url"
+  signupURL: "signup.url",
+};
+
+const modalityIconPath = {
+  PIN: "images/otp_icon.svg",
+  OTP: "images/otp_icon.svg",
+  WALLET: "images/wallet_icon.svg",
+  BIO: "images/bio_icon.svg",
+  PWD: "images/sign_in_with_otp.png",
 };
 
 export {
@@ -91,5 +98,6 @@ export {
   deepLinkParamPlaceholder,
   buttonTypes,
   challengeFormats,
-  walletConfigKeys
+  walletConfigKeys,
+  modalityIconPath,
 };

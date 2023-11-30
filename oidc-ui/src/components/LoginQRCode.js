@@ -6,7 +6,7 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import {
   configurationKeys,
   deepLinkParamPlaceholder,
-  walletConfigKeys
+  walletConfigKeys,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 
@@ -16,7 +16,7 @@ export default function LoginQRCode({
   walletDetail,
   linkAuthService,
   openIDConnectService,
-  handleBackButtonClick,
+  backButtonDiv,
   i18nKeyPrefix = "LoginQRCode",
 }) {
   const post_GenerateLinkCode = linkAuthService.post_GenerateLinkCode;
@@ -48,10 +48,12 @@ export default function LoginQRCode({
       : process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
   const walletLogoURL =
-    walletDetail[walletConfigKeys.walletLogoUrl] ?? process.env.REACT_APP_WALLET_LOGO_URL;
+    walletDetail[walletConfigKeys.walletLogoUrl] ??
+    process.env.REACT_APP_WALLET_LOGO_URL;
 
   let qrCodeDeepLinkURI =
-    walletDetail[walletConfigKeys.qrCodeDeepLinkURI] ?? process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
+    walletDetail[walletConfigKeys.qrCodeDeepLinkURI] ??
+    process.env.REACT_APP_QRCODE_DEEP_LINK_URI;
 
   const walletQrCodeAutoRefreshLimit =
     openIDConnectService.getEsignetConfiguration(
@@ -59,7 +61,10 @@ export default function LoginQRCode({
     ) ?? process.env.REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT;
 
   const GenerateQRCode = (response, logoUrl) => {
-    let text = qrCodeDeepLinkURI.replace(deepLinkParamPlaceholder.linkCode, response.linkCode);
+    let text = qrCodeDeepLinkURI.replace(
+      deepLinkParamPlaceholder.linkCode,
+      response.linkCode
+    );
 
     text = text.replace(
       deepLinkParamPlaceholder.linkExpiryDate,
@@ -260,7 +265,7 @@ export default function LoginQRCode({
           setStatus({
             state: states.LOADING,
             msg: "link_auth_waiting",
-            msgParam: {walletName: walletDetail[walletConfigKeys.walletName]},
+            msgParam: { walletName: walletDetail[walletConfigKeys.walletName] },
           });
           triggerLinkAuth(transactionId, linkCode);
         }
@@ -359,14 +364,7 @@ export default function LoginQRCode({
   return (
     <>
       <div className="grid grid-cols-8 items-center">
-        <div className="h-6 items-center text-center flex items-start">
-          <button
-            onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
-          >
-            &#8592;
-          </button>
-        </div>
+        {backButtonDiv}
         <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
           <h1
             className="text-center text-sky-600 font-semibold line-clamp-2"
@@ -374,7 +372,9 @@ export default function LoginQRCode({
               walletName: walletDetail[walletConfigKeys.walletName],
             })}
           >
-            {t("scan_with_wallet", { walletName: walletDetail[walletConfigKeys.walletName] })}
+            {t("scan_with_wallet", {
+              walletName: walletDetail[walletConfigKeys.walletName],
+            })}
           </h1>
         </div>
       </div>

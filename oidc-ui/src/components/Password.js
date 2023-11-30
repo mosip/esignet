@@ -24,14 +24,15 @@ export default function Password({
   param,
   authService,
   openIDConnectService,
-  handleBackButtonClick,
+  backButtonDiv,
   i18nKeyPrefix = "password",
 }) {
   const { t, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,
   });
 
-  const inputCustomClass = "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
+  const inputCustomClass =
+    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
   const fields = param;
   const post_AuthenticateUser = authService.post_PasswordAuthenticate;
@@ -223,14 +224,7 @@ export default function Password({
   return (
     <>
       <div className="grid grid-cols-8 items-center">
-        <div className="h-6 items-center text-center flex items-start">
-          <button
-            onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
-          >
-            &#8592;
-          </button>
-        </div>
+        {backButtonDiv}
         <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
           <h1
             className="text-center text-sky-600 font-semibold line-clamp-2"
