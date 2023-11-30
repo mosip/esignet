@@ -83,6 +83,7 @@ function installing_onboarder() {
    ./copy_cm_func.sh secret resident-oidc-onboarder-key esignet resident
     kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/esignet-misp-onboarder-key deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
     kubectl -n config-server set env --keys=resident-oidc-clientid --from secret/resident-oidc-onboarder-key deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+    kubectl -n config-server rollout restart deploy config-server
     kubectl -n config-server get deploy -o name | xargs -n1 -t kubectl -n config-server rollout status
     kubectl rollout restart deployment -n esignet esignet
     kubectl rollout restart deployment -n resident resident
