@@ -11,6 +11,7 @@ import InputWithImage from "./InputWithImage";
 import ErrorIndicator from "../common/ErrorIndicator";
 import { useTranslation } from "react-i18next";
 import { init, propChange } from "secure-biometric-interface-integrator";
+import { getBooleanValue } from "../services/utilService";
 
 let fieldsState = {};
 
@@ -215,14 +216,16 @@ export default function L1Biometrics({
     <>
       <div className="grid grid-cols-8 items-center">
         {backButtonDiv}
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_biometric")}
-          >
-            {t("sign_in_with_biometric")}
-          </h1>
-        </div>
+        {!getBooleanValue("REACT_APP_DISABLE_LOGIN_SUBHEADER") && (
+          <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+            <h1
+              className="text-center text-sky-600 font-semibold line-clamp-2"
+              title={t("sign_in_with_biometric")}
+            >
+              {t("sign_in_with_biometric")}
+            </h1>
+          </div>
+        )}
       </div>
 
       <form className="relative mt-8 space-y-5">

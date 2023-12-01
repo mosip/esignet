@@ -9,6 +9,7 @@ import {
   walletConfigKeys,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
+import { getBooleanValue } from "../services/utilService";
 
 var linkAuthTriggered = false;
 
@@ -365,18 +366,20 @@ export default function LoginQRCode({
     <>
       <div className="grid grid-cols-8 items-center">
         {backButtonDiv}
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("scan_with_wallet", {
-              walletName: walletDetail[walletConfigKeys.walletName],
-            })}
-          >
-            {t("scan_with_wallet", {
-              walletName: walletDetail[walletConfigKeys.walletName],
-            })}
-          </h1>
-        </div>
+        {!getBooleanValue("REACT_APP_DISABLE_LOGIN_SUBHEADER") && (
+          <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+            <h1
+              className="text-center text-sky-600 font-semibold line-clamp-2"
+              title={t("scan_with_wallet", {
+                walletName: walletDetail[walletConfigKeys.walletName],
+              })}
+            >
+              {t("scan_with_wallet", {
+                walletName: walletDetail[walletConfigKeys.walletName],
+              })}
+            </h1>
+          </div>
+        )}
       </div>
 
       <div className="relative h-64 mt-6">
