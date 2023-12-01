@@ -12,6 +12,7 @@ import { otpFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import Input from "./Input";
+import { getBooleanValue } from "../services/utilService";
 
 const fields = otpFields;
 let fieldsState = {};
@@ -21,7 +22,7 @@ export default function Pin({
   param,
   authService,
   openIDConnectService,
-  handleBackButtonClick,
+  backButtonDiv,
   i18nKeyPrefix = "pin",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -111,22 +112,17 @@ export default function Pin({
   return (
     <>
       <div className="grid grid-cols-8 items-center">
-        <div className="h-6 items-center text-center flex items-start">
-          <button
-            onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
-          >
-            &#8592;
-          </button>
-        </div>
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_pin")}
-          >
-            {t("sign_in_with_pin")}
-          </h1>
-        </div>
+        {backButtonDiv}
+        {!getBooleanValue("REACT_APP_DISABLE_LOGIN_SUBHEADER") && (
+          <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+            <h1
+              className="text-center text-sky-600 font-semibold line-clamp-2"
+              title={t("sign_in_with_pin")}
+            >
+              {t("sign_in_with_pin")}
+            </h1>
+          </div>
+        )}
       </div>
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
