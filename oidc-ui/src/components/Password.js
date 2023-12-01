@@ -15,6 +15,7 @@ import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
+import { getBooleanValue } from "../services/utilService";
 
 const fields = passwordFields;
 let fieldsState = {};
@@ -225,14 +226,16 @@ export default function Password({
     <>
       <div className="grid grid-cols-8 items-center">
         {backButtonDiv}
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_password")}
-          >
-            {t("sign_in_with_password")}
-          </h1>
-        </div>
+        {!getBooleanValue("REACT_APP_DISABLE_LOGIN_SUBHEADER") && (
+          <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+            <h1
+              className="text-center text-sky-600 font-semibold line-clamp-2"
+              title={t("sign_in_with_password")}
+            >
+              {t("sign_in_with_password")}
+            </h1>
+          </div>
+        )}
       </div>
 
       {errorBanner.length > 0 && (

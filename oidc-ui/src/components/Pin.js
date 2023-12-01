@@ -12,6 +12,7 @@ import { otpFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import Input from "./Input";
+import { getBooleanValue } from "../services/utilService";
 
 const fields = otpFields;
 let fieldsState = {};
@@ -112,14 +113,16 @@ export default function Pin({
     <>
       <div className="grid grid-cols-8 items-center">
         {backButtonDiv}
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_pin")}
-          >
-            {t("sign_in_with_pin")}
-          </h1>
-        </div>
+        {!getBooleanValue("REACT_APP_DISABLE_LOGIN_SUBHEADER") && (
+          <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+            <h1
+              className="text-center text-sky-600 font-semibold line-clamp-2"
+              title={t("sign_in_with_pin")}
+            >
+              {t("sign_in_with_pin")}
+            </h1>
+          </div>
+        )}
       </div>
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
