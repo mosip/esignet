@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import OtpGet from "./OtpGet";
 import OtpVerify from "./OtpVerify";
+import { getBooleanValue } from "../services/utilService";
 
 const OTPStatusEnum = {
   getOtp: "GETOTP",
@@ -42,14 +43,16 @@ export default function Otp({
         ) : (
           backButtonDiv
         )}
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_otp")}
-          >
-            {t("sign_in_with_otp")}
-          </h1>
-        </div>
+        {!getBooleanValue("REACT_APP_DISABLE_LOGIN_SUBHEADER") && (
+          <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
+            <h1
+              className="text-center text-sky-600 font-semibold line-clamp-2"
+              title={t("sign_in_with_otp")}
+            >
+              {t("sign_in_with_otp")}
+            </h1>
+          </div>
+        )}
       </div>
 
       {otpStatus === OTPStatusEnum.getOtp && (
