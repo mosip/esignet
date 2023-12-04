@@ -253,6 +253,7 @@ export default function Password({
               placeholder={t(field.placeholder)}
               customClass={inputCustomClass}
               imgPath={null}
+              icon={field.infoIcon}
             />
           </div>
         ))}
