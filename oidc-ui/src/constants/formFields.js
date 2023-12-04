@@ -1,3 +1,5 @@
+import configService from "../services/configService";
+
 const pinFields = [
   {
     labelText: "uin_label_text", //translation key for pin namespace
@@ -30,6 +32,7 @@ const passwordFields = [
     autoComplete: "uin",
     isRequired: true,
     placeholder: "uin_placeholder", //translation key for password namespace
+    infoIcon: configService("username_info_icon"),
   },
   {
     labelText: "password_label_text",
