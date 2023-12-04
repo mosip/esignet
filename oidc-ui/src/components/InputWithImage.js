@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import PopoverContainer from "../common/Popover";
 
 const fixedInputClass =
   "rounded-md bg-white shadow-lg appearance-none block w-full px-3.5 py-2.5 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm p-2.5 ltr:pr-10 rtl:pl-10 ";
@@ -22,7 +23,9 @@ export default function InputWithImage({
   formError = "",
   passwordShowIcon = "images/password_show.svg",
   passwordHideIcon = "images/password_hide.svg",
+  infoIcon = "images/info_icon.svg",
   i18nKeyPrefix = "tooltips",
+  icon
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -38,12 +41,17 @@ export default function InputWithImage({
   return (
     <>
       <div className="flex items-center justify-between">
+        <div className="flex justify-start">
         <label
           htmlFor={labelFor}
           className="block mb-2 text-xs font-medium text-gray-900 text-opacity-70"
         >
           {labelText}
         </label>
+          {icon && (
+          <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]"/>} content={t("username_info")} position="right" contentSize="text-xs"/>
+          )}
+        </div>
         {formError && (
           <label
             htmlFor={labelFor}
