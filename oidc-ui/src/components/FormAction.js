@@ -61,6 +61,20 @@ export default function FormAction({
           {text}
         </button>
       )}
+      {type === buttonTypes.discontinue && (
+        <button
+          type={type}
+          value={type}
+          className={
+            className + "secondary-button discontinue-button"
+          }
+          onClick={handleClick}
+          disabled={disabled}
+          id={id}
+        >
+          {text}
+        </button>
+      )}
     </>
   );
 }
