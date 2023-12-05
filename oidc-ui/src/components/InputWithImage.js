@@ -18,7 +18,7 @@ export default function InputWithImage({
   placeholder,
   customClass,
   imgPath,
-  tooltipMsg = "vid_tooltip",
+  tooltipMsg = "vid_info",
   disabled = false,
   formError = "",
   passwordShowIcon = "images/password_show.svg",
