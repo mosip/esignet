@@ -394,7 +394,7 @@ export default function Consent({
         </div>
         <div className="mt-1">
           <FormAction
-            type={buttonTypes.cancel}
+            type={buttonTypes.discontinue}
             text={t("cancelpopup.discontinue_btn")}
             handleClick={handleDiscontinue}
             id="discontinue"
