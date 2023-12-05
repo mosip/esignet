@@ -33,6 +33,7 @@ const buttonTypes = {
   cancel: "Cancel",
   reset: "Reset",
   submit: "Submit",
+  discontinue: "Discontinue"
 };
 
 const deepLinkParamPlaceholder = {
