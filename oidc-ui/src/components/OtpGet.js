@@ -131,7 +131,7 @@ export default function OtpGet({
             isRequired={field.isRequired}
             placeholder={t(field.placeholder)}
             imgPath="images/photo_scan.png"
-            tooltipMsg="vid_tooltip"
+            tooltipMsg="vid_info"
           />
         ))}
 

@@ -155,7 +155,7 @@
     "loading_msg": "Loading. Please wait..."
   },
   "tooltips": {
-    "vid_tooltip": "Please fill in this field",
+    "vid_info": "Please fill in this field",
     "username_info": "Enter your 8-9 digit registered mobile number and ensure it does not begin with \"0\""
   },
   "errors": {

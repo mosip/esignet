@@ -233,7 +233,7 @@ export default function L1Biometrics({
               isRequired={field.isRequired}
               placeholder={t(field.placeholder)}
               imgPath="images/photo_scan.png"
-              tooltipMsg="vid_tooltip"
+              tooltipMsg="vid_info"
             />
           ))}
         </div>
