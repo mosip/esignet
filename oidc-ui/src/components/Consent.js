@@ -8,7 +8,9 @@ import { LoadingStates, LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import langConfigService from "./../services/langConfigService";
 import ModalPopup from "../common/ModalPopup";
-import { getBooleanValue } from "../services/utilService";
+import configService from "../services/configService";
+
+const config = await configService();
 
 export default function Consent({
   authService,
@@ -46,11 +48,9 @@ export default function Consent({
   const [timeLeft, setTimeLeft] = useState(null);
   const [cancelPopup, setCancelPopup] = useState(false);
 
-  const slideToggleClass = getBooleanValue(
-    "REACT_APP_NO_OUTLINE_TOGGLE"
-  )
-    ? "toggle-no-outline"
-    : "toggle-outline";
+  const slideToggleClass = config["outline_toggle"]
+    ? "toggle-outline"
+    : "toggle-no-outline";
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -407,7 +407,7 @@ export default function Consent({
   // check if background logo is needed or not,
   // create div according to the environment variable
   const backgroundLogoDiv =
-    getBooleanValue("REACT_APP_BACKGROUND_LOGO") ? (
+    config["background_logo"] ? (
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <img
           className="background-logo object-contain rtl:scale-x-[-1]"

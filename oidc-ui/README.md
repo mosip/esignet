@@ -66,8 +66,14 @@ The application runs on PORT=3000 by default.
   - REACT_APP_WALLET_LOGO_URL: URL for the logo in the wallet QRCode. This feature supports cross-origin-enabled image URLs only.
   - REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC: Buffer time for the consent screen expiry timer.
   - REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT: Limit for the QR code auto refresh.
-  - REACT_APP_BACKGROUND_LOGO: Set a logo in the main page, in ledt side of the main card
-  - REACT_APP_FOOTER: Set footer in the main page
+
+- JSON configuration variables
+  
+  - username_info_icon: Set info icon next to the username label in the password login.
+  - background_logo: Set a logo in the login and consent page, to the left side of the main card.
+  - footer: Set footer to the bottom of all the pages.
+  - remove_language_indicator_pipe: Remove the indicator pipe next to the language display in the navbar
+  - outline_toggle: Set outline toggler instead of slider toggler.
 
 - Theme based configuration
 
