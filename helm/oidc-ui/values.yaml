@@ -432,10 +432,6 @@ oidc_ui:
       DEFAULT_FEVICON: 'favicon.ico'
       DEFAULT_TITLE: 'e-Signet'
       DEFAULT_ID_PROVIDER_NAME: 'e-Signet'
-      REACT_APP_BACKGROUND_LOGO: 'true'
-      REACT_APP_FOOTER: 'false'
-      REACT_APP_REMOVE_INDICATOR_PIPE: 'false'
-      REACT_APP_NO_OUTLINE_TOGGLE: 'false'
 
 ## OIDC UI swagger should have only internal access. Hence linked to internal gateway
 ## We create a gateway for esignet specific URL(s) listed under `hosts`
