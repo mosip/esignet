@@ -107,12 +107,14 @@ function App() {
         <div dir={dir} className="h-screen">
           <NavHeader langOptions={langOptions} />
           <BrowserRouter>
-            <Routes>
-              <Route path={process.env.PUBLIC_URL + "/"} element={<EsignetDetailsPage />} />
-              <Route path={process.env.PUBLIC_URL + "/login"} element={<LoginPage />} />
-              <Route path={process.env.PUBLIC_URL + "/authorize"} element={<AuthorizePage />} />
-              <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
-            </Routes>
+            <div className="section-background">
+              <Routes>
+                <Route path={process.env.PUBLIC_URL + "/"} element={<EsignetDetailsPage />} />
+                <Route path={process.env.PUBLIC_URL + "/login"} element={<LoginPage />} />
+                <Route path={process.env.PUBLIC_URL + "/authorize"} element={<AuthorizePage />} />
+                <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
+              </Routes>
+            </div>
           </BrowserRouter>
           <Footer />
         </div>

@@ -48,7 +48,7 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
     );
   return (
     <>
-      <section className="text-gray-600 body-font section-background">
+      <section className="text-gray-600 body-font">
         <div className="container justify-center flex mx-auto px-5 sm:flex-row flex-col">
           {backgroundLogoDiv}
           <div className="lg:flex-grow md:w-1/2 flex flex-col md:items-start text-left items-center">

@@ -230,7 +230,7 @@ export default function Consent({
       let timePassed = currentTime - authTime;
       let tLeft = transactionTimeoutWithBuffer - timePassed;
       if (tLeft <= 0) {
-        onError("invalid_transaction", t("invalid_transaction"));
+        onError("transaction_timeout", t("transaction_timeout"));
         return;
       }
       setTimeLeft(tLeft);
@@ -336,6 +336,8 @@ export default function Consent({
     //REQUIRED
     params = params + "error=" + errorCode;
 
+    window.onbeforeunload = null;
+
     window.location.replace(redirect_uri + params);
   };
 
@@ -427,7 +429,7 @@ export default function Consent({
     authTime &&
     clientName &&
     claimsScopes.length > 0 && (
-      <div className="login-text pt-4 body-font section-background">
+      <div className="login-text pt-4 body-font">
         <div className="container justify-center flex mx-auto px-5 sm:flex-row flex-col">
           {cancelPopup && (
             <ModalPopup
