@@ -12,7 +12,6 @@ import { otpFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import Input from "./Input";
-import { getBooleanValue } from "../services/utilService";
 
 const fields = otpFields;
 let fieldsState = {};
