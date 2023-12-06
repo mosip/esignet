@@ -15,7 +15,6 @@ import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
-import { getBooleanValue } from "../services/utilService";
 
 const fields = passwordFields;
 let fieldsState = {};

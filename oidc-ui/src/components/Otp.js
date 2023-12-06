@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import OtpGet from "./OtpGet";
 import OtpVerify from "./OtpVerify";
-import { getBooleanValue } from "../services/utilService";
 
 const OTPStatusEnum = {
   getOtp: "GETOTP",
