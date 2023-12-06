@@ -11,7 +11,6 @@ import InputWithImage from "./InputWithImage";
 import ErrorIndicator from "../common/ErrorIndicator";
 import { useTranslation } from "react-i18next";
 import { init, propChange } from "secure-biometric-interface-integrator";
-import { getBooleanValue } from "../services/utilService";
 
 let fieldsState = {};
 

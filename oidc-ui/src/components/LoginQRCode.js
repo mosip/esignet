@@ -9,7 +9,6 @@ import {
   walletConfigKeys,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
-import { getBooleanValue } from "../services/utilService";
 
 var linkAuthTriggered = false;
 
