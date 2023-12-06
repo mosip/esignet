@@ -276,6 +276,8 @@ export default function Consent({
 
       setStatus(states.LOADING);
 
+      window.onbeforeunload = null;
+
       const authCodeResponse = await post_AuthCode(
         transactionId,
         acceptedClaims,
@@ -361,7 +363,7 @@ export default function Consent({
 
   if (consentAction === "NOCAPTURE") {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center section-background">
         <div className="max-w-md w-full shadow-lg mt-5 rounded loading-indicator px-4 py-4">
           <LoadingIndicator size="medium" message="redirecting_msg" />
         </div>
