@@ -55,7 +55,7 @@ export default function Background({
   return (
     <>
       {/* height is used by subtracting navbar height  */}
-      <section className="login-text pt-4 body-font section-background">
+      <section className="login-text pt-4 body-font">
         <div className="container justify-center flex mx-auto px-5 sm:flex-row flex-col">
           {backgroundLogoDiv}
           <div
