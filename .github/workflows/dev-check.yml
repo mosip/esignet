@@ -1,0 +1,27 @@
+name: Dependency Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      MESSAGE:
+        description: 'Triggered For Dependency Check'
+        required: false
+        default: 'dependency check'
+      SKIP_DEPENDENCIES:
+        description: 'List of dependencies to be skipped'
+        required: false
+        default: ''
+      DEPENDENCY_VERSIONS:
+        description: 'Specify versions for specific dependencies'
+        required: false
+        default: ''
+
+jobs:
+  dependency-check:
+    uses: mosip/kattu/.github/workflows/dev-check.yml@master
+    with:
+      MESSAGE: ${{ inputs.MESSAGE }}
+      SKIP_DEPENDENCIES: ${{ inputs.SKIP_DEPENDENCIES }}
+      DEPENDENCY_VERSIONS: ${{ inputs.DEPENDENCY_VERSIONS }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
