@@ -110,14 +110,14 @@
   --header-height: 55px;
   --footer-height: 47px;
   --signup-banner-background-color: #fff6f2;
-  --signup-banner-bottom-radius: 20px;
+  --signup-banner-bottom-radius: 10px;
   --signup-banner-padding-top: 20px;
   --signup-banner-padding-bottom: 20px;
   --signup-banner-margin-top: 16px;
   --signup-banner-signup-url-color: #EB6F2D;
   --signup-banner-signup-url-color-hover: #EB6F2D;
   --signup-banner-signup-url-color-focus: #EB6F2D;
-  --multipurpose-login-card-border-radius: 20px;
+  --multipurpose-login-card-border-radius: 10px;
   --multipurpose-login-card-background-color: #ffffff;
   --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
   --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
