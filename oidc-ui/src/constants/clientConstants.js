@@ -74,6 +74,7 @@ const configurationKeys = {
   otpLength: "otp.length",
   passwordRegex: "password.regex",
   usernameRegex: "username.regex",
+  usernamePrefix: "username.prefix",
   consentScreenExpireInSec: "consent.screen.timeout-in-secs",
   consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
   walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit",

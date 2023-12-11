@@ -337,6 +337,7 @@ export default function LoginQRCode({
           msg: "redirecting_msg",
         });
 
+        window.onbeforeunload = null;
         let response = linkAuthResponse.response;
         //Redirect
         let params = "?";
