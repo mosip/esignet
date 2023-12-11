@@ -44,6 +44,8 @@ const ErrorIndicator = ({
       return;
     }
 
+    window.onbeforeunload = null;
+    
     let params = "?";
     if (nonce) {
       params = params + "nonce=" + nonce + "&";

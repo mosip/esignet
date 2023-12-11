@@ -35,6 +35,7 @@ const passwordFields = [
     isRequired: true,
     placeholder: "uin_placeholder", //translation key for password namespace
     infoIcon: config["username_info_icon"],
+    prefix: ""
   },
   {
     labelText: "password_label_text",
@@ -45,6 +46,7 @@ const passwordFields = [
     autoComplete: "",
     isRequired: true,
     placeholder: "password_placeholder", //translation key for password namespace
+    prefix: ""
   },
 ];
 

@@ -250,8 +250,8 @@
 }
 
 .error-banner {
-  color: #D52929;
-  background-color: #FAEFEF;
+  color: #d52929;
+  background-color: #faefef;
   height: 40px;
 }
 
@@ -281,4 +281,64 @@
     max-width: none;
   }
 
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+[dir="ltr"] .input-box {
+  padding-left: 0.5rem;
+}
+
+[dir="rtl"] .input-box {
+  padding-right: 0.5rem;
+}
+
+.input-box .prefix {
+  letter-spacing: 0px;
+  color: #171a1c;
+  opacity: 0.6;
+  font: normal normal normal 16px/21px Roboto;
+  letter-spacing: 0px;
+}
+
+[dir="ltr"] .input-box .prefix {
+  padding-right: 10px;
+  border-right: 1px solid #707070;
+}
+[dir="rtl"] .input-box .prefix {
+  padding-left: 10px;
+  border-left: 1px solid #707070;
+}
+
+[dir="ltr"] .prefix ~ input {
+  padding-left: 10px;
+}
+
+[dir="rtl"] .prefix ~ input {
+  padding-right: 10px;
+}
+.input-box input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding-left: 0rem;
+  font: normal normal normal 16px/20px Inter;
+}
+
+[dir="ltr"] .input-box input {
+  padding-left: 10px;
+}
+
+[dir="rtl"] .input-box input {
+  padding-right: 10px;
+}
+
+.input-box:focus-within {
+  border-color: #777;
 }
