@@ -54,6 +54,13 @@ export default function Password({
       configurationKeys.usernameRegex
     ) ?? process.env.REACT_APP_USERNAME_REGEX;
 
+  const usernamePrefix = 
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.usernamePrefix
+    ) ?? "";
+
+  fields[0].prefix = usernamePrefix;
+
   const passwordRegex = new RegExp(passwordRegexValue);
   const usernameRegex = new RegExp(usernameRegexValue);
 
@@ -253,6 +260,7 @@ export default function Password({
               customClass={inputCustomClass}
               imgPath={null}
               icon={field.infoIcon}
+              prefix={field.prefix}
             />
           </div>
         ))}
