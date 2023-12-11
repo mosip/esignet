@@ -1,9 +1,6 @@
 .section-background {
   position: relative;
   background-color: var(--login-background);
-  padding-top: 42px;
-  padding-bottom: 64px;
-  min-height: 83vh;
 }
 
 .language-icon-color {
@@ -53,6 +50,8 @@
 
 .info-icon-button {
   color: var(--info-icon-color);
+  position: relative;
+  top: 2px;
 }
 
 .primary-button {
@@ -167,6 +166,8 @@
 .footer-container {
   padding-top: 11px;
   padding-bottom: 11px;
+  color: var(--footer-text-color);
+  font-size: var(--footer-text-size);
 }
 
 .signup-banner {
@@ -205,6 +206,7 @@
 .multipurpose-login-card {
   border-radius: var(--multipurpose-login-card-border-radius);
   background-color: var(--multipurpose-login-card-background-color);
+  height: max-content;
 }
 
 .section-background .top_left_bg_logo {
@@ -259,6 +261,24 @@
   opacity: 1;
 }
 
-.discontinue-button {
+.discontinue-button, .discontinue-button:hover:not(:disabled) {
   border: 2px solid var(--primary-button-border-color);
+  cursor: pointer;
+}
+
+@media screen and (max-width: 767px) {
+
+  .multipurpose-login-card {
+    border-radius: 0;
+  }
+
+  .signup-banner {
+    margin: 0.75rem;
+    border-radius: 0;
+  }
+
+  .login-text .container {
+    max-width: none;
+  }
+
 }

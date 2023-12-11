@@ -366,7 +366,7 @@ export default function Consent({
   if (consentAction === "NOCAPTURE") {
     return (
       <div className="flex items-center justify-center section-background">
-        <div className="max-w-md w-full shadow-lg mt-5 rounded loading-indicator px-4 py-4">
+        <div className="max-w-md w-full shadow mt-5 rounded loading-indicator px-4 py-4">
           <LoadingIndicator size="medium" message="redirecting_msg" />
         </div>
       </div>
@@ -408,39 +408,20 @@ export default function Consent({
     </>
   );
 
-  // check if background logo is needed or not,
-  // create div according to the environment variable
-  const backgroundLogoDiv =
-    config["background_logo"] ? (
-      <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
-        <img
-          className="background-logo object-contain rtl:scale-x-[-1]"
-          alt={t("backgroud_image_alt")}
-        />
-      </div>
-    ) : (
-      <>
-        <img className="top_left_bg_logo" alt="top left background" />
-        <img className="bottom_left_bg_logo" alt="bottom right background" />
-      </>
-    );
-
   return (
     authTime &&
     clientName &&
     claimsScopes.length > 0 && (
-      <div className="login-text pt-4 body-font">
-        <div className="container justify-center flex mx-auto px-5 sm:flex-row flex-col">
-          {cancelPopup && (
-            <ModalPopup
-              alertIcon="images/warning_message_icon.svg"
-              header={t("cancelpopup.confirm_header")}
-              body={t("cancelpopup.confirm_text")}
-              footer={footerButtons}
-            />
-          )}
-          {backgroundLogoDiv}
-          <div className="multipurpose-login-card shadow-lg w-full md:w-3/6 sm:w-1/2 sm:max-w-sm">
+      <>
+        {cancelPopup && (
+          <ModalPopup
+            alertIcon="images/warning_message_icon.svg"
+            header={t("cancelpopup.confirm_header")}
+            body={t("cancelpopup.confirm_text")}
+            footer={footerButtons}
+          />
+        )}
+        <div className="multipurpose-login-card shadow w-full md:w-3/6 md:z-10 lg:max-w-sm m-0 md:m-auto">
             <div className="bg-[#FFF9F0] rounded-t-lg top-0 left-0 right-0 p-2">
               {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
                 <div className="text-center">
@@ -478,7 +459,7 @@ export default function Consent({
                   (claimScope) =>
                     claimScope?.values?.length > 0 && (
                       <div key={claimScope.label}>
-                        <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4 gap-4">
+                        <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4">
                           <div className="flex sm:justify-start">
                             <div className="font-semibold">
                               {t(claimScope.label)}
@@ -569,9 +550,8 @@ export default function Consent({
                 )}
               </form>
             </div>
-          </div>
         </div>
-      </div>
+      </>
     )
   );
 }
