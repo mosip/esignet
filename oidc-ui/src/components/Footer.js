@@ -10,7 +10,7 @@ export default function Footer({ i18nKeyPrefix = "footer" }) {
   });
 
   return config["footer"] && (
-    <footer className="footer-container flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-1 border border-blue-gray-50 text-center">
+    <footer className="footer-container flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-1 border border-blue-gray-50 text-center text-sm text-[#898989]" id="footer">
       {t("powered_by")}
       <img className="footer-brand-logo" alt={t("logo_alt")} />
     </footer>
