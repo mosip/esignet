@@ -166,6 +166,8 @@
 .footer-container {
   padding-top: 11px;
   padding-bottom: 11px;
+  color: var(--footer-text-color);
+  font-size: var(--footer-text-size);
 }
 
 .signup-banner {
