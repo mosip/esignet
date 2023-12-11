@@ -67,4 +67,4 @@ databases:
         key: postgresql-password
     dml: 1
     repoUrl: https://github.com/mosip/esignet.git
-    branch: release-1.2.x
+    branch: v1.2.0
