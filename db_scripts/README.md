@@ -4,7 +4,7 @@ Open ID based Identity provider for large scale authentication.
 ## Overview
 This folder containers various SQL scripts to create database and tables in postgres.
 The tables are described under `<db name>/ddl/`.
-Default data that's populated in the tables is present under `<db name>/dml` folder.
+Default data that's populated in the tables is present under `<db name>/dml` folder. 
 
 ## Prerequisites
 * Make sure DB changes for IDA and PMS are up to date.
