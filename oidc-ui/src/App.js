@@ -97,9 +97,6 @@ function App() {
     //4. default lang set in env-config file as fallback language.
   };
 
-  // set the minimum height of the section between navbar and the footer
-  var sectionMinHeight  = (window.innerHeight - (document.getElementById("footer")?.offsetHeight + document.getElementById("navbar-header")?.offsetHeight)) + "px"
-
   // check if background logo is required or not,
   // create a div according to the config variable
   const backgroundLogoDiv =
@@ -132,9 +129,9 @@ function App() {
         <div dir={dir} className="h-screen">
           <NavHeader langOptions={langOptions} />
           <BrowserRouter>
-            <div className="section-background" style={{minHeight: sectionMinHeight}}>
+            <div className="section-background">
             <section className="login-text body-font pt-0 md:py-4">
-              <div className="container justify-center flex mx-auto sm:flex-row flex-col min-h-0" style={window.screen.width >= 768 ? {minHeight: sectionMinHeight} : null}>
+              <div className="container justify-center flex mx-auto sm:flex-row flex-col">
               {backgroundLogoDiv}
               <Routes>
                 <Route path={process.env.PUBLIC_URL + "/"} element={<EsignetDetailsPage />} />

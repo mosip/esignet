@@ -1,6 +1,7 @@
 .section-background {
   position: relative;
   background-color: var(--login-background);
+  min-height: calc(100vh - 104.6px) !important;
 }
 
 .language-icon-color {
@@ -266,23 +267,6 @@
   cursor: pointer;
 }
 
-@media screen and (max-width: 767px) {
-
-  .multipurpose-login-card {
-    border-radius: 0;
-  }
-
-  .signup-banner {
-    margin: 0.75rem;
-    border-radius: 0;
-  }
-
-  .login-text .container {
-    max-width: none;
-  }
-
-}
-
 .input-box {
   display: flex;
   align-items: center;
@@ -311,6 +295,7 @@
   padding-right: 10px;
   border-right: 1px solid #707070;
 }
+
 [dir="rtl"] .input-box .prefix {
   padding-left: 10px;
   border-left: 1px solid #707070;
@@ -323,6 +308,7 @@
 [dir="rtl"] .prefix ~ input {
   padding-right: 10px;
 }
+
 .input-box input {
   flex-grow: 1;
   border: none;
@@ -341,4 +327,31 @@
 
 .input-box:focus-within {
   border-color: #777;
+}
+
+
+@media screen and (max-width: 767px) {
+
+  .multipurpose-login-card {
+    border-radius: 0;
+  }
+
+  .signup-banner {
+    margin: 0.75rem;
+    border-radius: 0;
+  }
+
+  .login-text .container {
+    max-width: none;
+  }
+
+  .section-background .container{
+      min-height: auto;
+  } 
+}
+
+@media screen and (min-width: 768px) {
+  .section-background .container{
+    min-height: calc(100vh - 104.6px) !important;
+  }
 }
