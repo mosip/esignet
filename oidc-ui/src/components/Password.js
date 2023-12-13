@@ -103,7 +103,7 @@ export default function Password({
     try {
       let transactionId = openIDConnectService.getTransactionId();
 
-      let uin = loginState["Password_mosip-uin"];
+      let uin = usernamePrefix + loginState["Password_mosip-uin"];
       let challengeType = challengeTypes.pwd;
       let challenge = loginState["Password_password"];
       let challengeFormat = challengeFormats.pwd;
