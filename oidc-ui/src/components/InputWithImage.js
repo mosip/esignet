@@ -89,9 +89,9 @@ export default function InputWithImage({
             onClick={changePasswordState}
           >
             {showPassword ? (
-              <img className="w-6 h-6" src={passwordShowIcon} />
-            ) : (
               <img className="w-6 h-6" src={passwordHideIcon} />
+            ) : (
+              <img className="w-6 h-6" src={passwordShowIcon} />
             )}
           </span>
         )}
