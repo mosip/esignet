@@ -329,6 +329,9 @@
   border-color: #777;
 }
 
+.checkIcon {
+  stroke: var(--language-check-icon-color);
+}
 
 @media screen and (max-width: 767px) {
 

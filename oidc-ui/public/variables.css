@@ -64,6 +64,7 @@
   --login-card-separator-height: 20px;
   --footer-text-color: #898989;
   --footer-text-size: 14px;
+  --language-check-icon-color: #1262C9;
 }
 
 [class="orange_theme"] {
@@ -132,4 +133,5 @@
   --login-card-separator-height: 1px;
   --footer-text-color: #898989;
   --footer-text-size: 14px;
+  --language-check-icon-color: #EB6F2D;
 }
