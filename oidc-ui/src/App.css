@@ -350,7 +350,11 @@
 
   .section-background .container{
       min-height: auto;
-  } 
+  }
+
+  .react-tooltip {
+    width: 97vw !important;
+  }
 }
 
 @media screen and (min-width: 768px) {
