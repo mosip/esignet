@@ -460,7 +460,7 @@ export default function Consent({
                     claimScope?.values?.length > 0 && (
                       <div key={claimScope.label}>
                         <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4">
-                          <div className="flex sm:justify-start">
+                          <div className="flex sm:justify-start w-max">
                             <div className="font-semibold">
                               {t(claimScope.label)}
                               <button
@@ -475,7 +475,7 @@ export default function Consent({
                               >
                                 &#9432;
                               </button>
-                              <ReactTooltip anchorId={claimScope.tooltip} />
+                              <ReactTooltip anchorId={claimScope.tooltip} className="md:w-3/6 lg:max-w-sm m-0 md:m-auto"/>
                             </div>
                           </div>
                           <div className="flex justify-end mr-4 ml-4">
