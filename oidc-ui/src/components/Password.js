@@ -59,6 +59,11 @@ export default function Password({
       configurationKeys.usernamePrefix
     ) ?? "";
 
+    const usernamePostfix = 
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.usernamePostfix
+    ) ?? "";
+
   fields[0].prefix = usernamePrefix;
 
   const passwordRegex = new RegExp(passwordRegexValue);
@@ -103,7 +108,7 @@ export default function Password({
     try {
       let transactionId = openIDConnectService.getTransactionId();
 
-      let uin = usernamePrefix + loginState["Password_mosip-uin"];
+      let uin = usernamePrefix + loginState["Password_mosip-uin"] + usernamePostfix;
       let challengeType = challengeTypes.pwd;
       let challenge = loginState["Password_password"];
       let challengeFormat = challengeFormats.pwd;
