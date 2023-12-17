@@ -75,6 +75,7 @@ const configurationKeys = {
   passwordRegex: "password.regex",
   usernameRegex: "username.regex",
   usernamePrefix: "username.prefix",
+  usernamePostfix: "username.postfix",
   consentScreenExpireInSec: "consent.screen.timeout-in-secs",
   consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
   walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit",
