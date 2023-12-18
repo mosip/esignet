@@ -8,7 +8,7 @@
     "essential_claims": "الادعاءات الأساسية",
     "voluntary_claims": "المطالبات الطوعية",
     "cancel": "يلغي",
-    "allow": "السماح",
+    "allow": "يسمح",
     "continue": "يكمل",
     "resident-service": "خدمة المقيمين",
     "name": "اسم",
@@ -33,7 +33,7 @@
     "profile": "الملف الشخصي",
     "authorize_scope_tooltip": "يسمح لمزود الخدمة بالوصول إلى هذه الخدمات المحمية نيابة عنك",
     "essential_claims_tooltip": "معلومات المستخدم الإلزامية التي يطلبها مزود الخدمة",
-    "voluntary_claims_tooltip": "معلومات المستخدم الإضافية التي يمكن للمقيم اختيار مشاركتها مع مزود الخدمة",
+    "voluntary_claims_tooltip": "معلومات المستخدم الإضافية التي يمكنك اختيار مشاركتها مع مزود الخدمة",
     "logo_alt": "e-Signet",
     "Manage-Identity-Data": "السماح بالوصول لإدارة بيانات الهوية",
     "Manage-VID": "السماح بالوصول لإدارة VID",
@@ -75,7 +75,8 @@
     "uin_label_text": "اسم المستخدم",
     "password_label_text": "كلمة المرور",
     "uin_placeholder": "أدخل رقم الجوال المكون من 8-9 أرقام",
-    "password_placeholder": "أدخل كلمة المرور"
+    "password_placeholder": "أدخل كلمة المرور",
+    "forgot_password": "هل نسيت كلمة السر؟"
   },
   "LoginQRCode": {
     "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",

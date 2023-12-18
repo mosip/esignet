@@ -65,6 +65,11 @@
   --footer-text-color: #898989;
   --footer-text-size: 14px;
   --language-check-icon-color: #1262C9;
+  --forgot-password-color: #1262C9;
+  --forgot-password-font-size: small;
+  --forgot-password-width: max-content;
+  --forgot-password-margin-top: 1rem;
+  --password-google-reCaptcha-margin-top: 3rem;
 }
 
 [class="orange_theme"] {
@@ -134,4 +139,9 @@
   --footer-text-color: #898989;
   --footer-text-size: 14px;
   --language-check-icon-color: #EB6F2D;
+  --forgot-password-color: #EB6F2D;
+  --forgot-password-font-size: small;
+  --forgot-password-width: max-content;
+  --forgot-password-margin-top: 1rem;
+  --password-google-reCaptcha-margin-top: 3rem;
 }
