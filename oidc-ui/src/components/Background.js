@@ -32,6 +32,10 @@ export default function Background({
   // and padding according to that only
   const conditionalPadding = signupBanner ? "pt-4" : "py-4";
 
+  const handleSignup = () => {
+    window.onbeforeunload = null
+  }
+
   return (
     <div
       className={
@@ -67,7 +71,7 @@ export default function Background({
       {signupBanner && 
       <div className="signup-banner">
         <p className="signup-banner-text">{t("noAccount")}</p>
-        <a className="signup-banner-hyperlink" href={signupURL} target="_self">{t("signup_for_unified_login")}</a>
+        <a className="signup-banner-hyperlink" href={signupURL} target="_self" onClick={() => handleSignup()}>{t("signup_for_unified_login")}</a>
       </div>}
     </div>
   );

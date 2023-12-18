@@ -44,6 +44,20 @@ export default function Password({
   const [status, setStatus] = useState(states.LOADED);
   const [invalidState, setInvalidState] = useState(true);
 
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [forgotPasswordURL, setForgotPassowordURL] = useState("");
+
+  let forgotPasswordConfig = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.forgotPasswordConfig
+  );
+  
+  useEffect(() => {
+    if(forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
+      setForgotPassword(true);
+      setForgotPassowordURL(forgotPasswordConfig[configurationKeys.forgotPasswordURL] + "#" + authService.getAuthorizeQueryParam())
+    }
+  }, []);
+
   const passwordRegexValue =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.passwordRegex
@@ -233,6 +247,10 @@ export default function Password({
     setErrorBanner(tempBanner);
   };
 
+  const handleForgotPassword = () => {
+    window.onbeforeunload = null
+  }
+  
   return (
     <>
       <div className="grid grid-cols-8 items-center">
@@ -270,13 +288,18 @@ export default function Password({
           </div>
         ))}
 
+        {forgotPassword && 
+          <a className="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t("forgot_password")}</a>
+        }
+
         {showCaptcha && (
-          <div className="flex justify-center mt-5 mb-5">
+          <div className="block password-google-reCaptcha">
             <ReCAPTCHA
               hl={i18n.language}
               ref={_reCaptchaRef}
               onChange={handleCaptchaChange}
               sitekey={captchaSiteKey}
+              className="flex place-content-center"
             />
           </div>
         )}

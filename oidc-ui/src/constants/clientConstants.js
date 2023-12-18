@@ -83,6 +83,9 @@ const configurationKeys = {
   signupConfig: "signup.config",
   signupBanner: "signup.banner",
   signupURL: "signup.url",
+  forgotPasswordConfig: "forgot-password.config",
+  forgotPassword: "forgot-password",
+  forgotPasswordURL: "forgot-password.url",
 };
 
 const modalityIconPath = {
