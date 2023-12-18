@@ -333,6 +333,25 @@
   stroke: var(--language-check-icon-color);
 }
 
+.forgot-password-hyperlink {
+  color: var(--forgot-password-color);
+  font-size: var(--forgot-password-font-size);
+  width: var(--forgot-password-width);
+  margin-top: var(--forgot-password-margin-top) !important;
+}
+
+[dir="ltr"] .forgot-password-hyperlink {
+  float: right;
+}
+
+[dir="rtl"] .forgot-password-hyperlink {
+  float: left;
+}
+
+.password-google-reCaptcha {
+  margin-top: var(--password-google-reCaptcha-margin-top) !important;
+}
+
 @media screen and (max-width: 767px) {
 
   .multipurpose-login-card {

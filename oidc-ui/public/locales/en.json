@@ -33,7 +33,7 @@
     "profile": "Profile",
     "authorize_scope_tooltip": "Allows Service provider to access these protected services on your behalf",
     "essential_claims_tooltip": "Mandatory user information required by the Service provider",
-    "voluntary_claims_tooltip": "Additional user information that the resident can choose to share with the Service provider",
+    "voluntary_claims_tooltip": "Additional user information you can choose to share with the Service Provider",
     "logo_alt": "e-Signet",
     "Manage-Identity-Data": "Allow access to manage identity data",
     "Manage-VID": "Allow access to manage VID",
@@ -75,7 +75,8 @@
     "uin_label_text": "Username",
     "password_label_text": "Password",
     "uin_placeholder": "Enter 8-9 digit mobile number",
-    "password_placeholder": "Enter password"
+    "password_placeholder": "Enter password",
+    "forgot_password": "Forgot Password?"
   },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
