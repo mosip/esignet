@@ -536,7 +536,7 @@ export default function Consent({
                   <div className="grid gap-y-2">
                     <FormAction
                       type={buttonTypes.button}
-                      text={t("continue")}
+                      text={t("allow")}
                       handleClick={handleSubmit}
                       id="continue"
                     />
