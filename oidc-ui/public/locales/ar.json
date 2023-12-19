@@ -4,6 +4,7 @@
     "consent_request_rejected": "تم رفض طلب الموافقة",
     "consent_request_msg": "يطلب {{clientName}} الوصول إلى ما يلي:",
     "transaction_timeout_msg": "يرجى اتخاذ الإجراء المناسب في",
+    "transaction_timeout": "لقد انتهت مهلة المعاملة. حاول مرة اخرى",
     "authorize_scope": "تفويض النطاقات",
     "essential_claims": "الادعاءات الأساسية",
     "voluntary_claims": "المطالبات الطوعية",
