@@ -257,7 +257,6 @@
 }
 
 .error-banner-text {
-  font: normal normal 600 14px/17px Inter;
   letter-spacing: 0px;
   opacity: 1;
 }
@@ -350,6 +349,10 @@
 
 .password-google-reCaptcha {
   margin-top: var(--password-google-reCaptcha-margin-top) !important;
+}
+
+.errorInput {
+  border: 1px solid #D52929;
 }
 
 @media screen and (max-width: 767px) {

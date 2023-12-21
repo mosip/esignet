@@ -24,11 +24,15 @@ export default function InputWithImage({
   passwordShowIcon = "images/password_show.svg",
   passwordHideIcon = "images/password_hide.svg",
   infoIcon = "images/info_icon.svg",
-  i18nKeyPrefix = "tooltips",
+  i18nKeyPrefix1 = "tooltips",
+  i18nKeyPrefix2 = "errors",
   icon,
-  prefix
+  prefix,
+  error
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+
+  const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
+  const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
 
   const [showPassword, setShowPassword] = useState(false);
   const inputVal = useRef(value);
@@ -38,7 +42,7 @@ export default function InputWithImage({
     passwordRef.setAttribute("type", !showPassword ? "text" : "password");
     setShowPassword(!showPassword);
   };
-
+  
   return (
     <>
       <div className="flex items-center justify-between">
@@ -50,7 +54,7 @@ export default function InputWithImage({
           {labelText}
         </label>
           {icon && (
-          <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]"/>} content={t("username_info")} position="right" contentSize="text-xs"/>
+          <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]"/>} content={t1("username_info")} position="right" contentSize="text-xs"/>
           )}
         </div>
         {formError && (
@@ -62,7 +66,7 @@ export default function InputWithImage({
           </label>
         )}
       </div>
-      <div className="relative input-box">
+      <div className={`relative input-box ${error && error.length > 0 && error.find(val => val.id === id) && "errorInput"}`}>
         {imgPath &&
           <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0">
             <img className="w-6 h-6" src={imgPath} />
@@ -81,7 +85,7 @@ export default function InputWithImage({
           required={isRequired}
           className={fixedInputClass + customClass}
           placeholder={placeholder}
-          title={t(tooltipMsg)}
+          title={t1(tooltipMsg)}
         />
         {type === "password" && inputVal.current.value !== "" && (
           <span
@@ -96,6 +100,18 @@ export default function InputWithImage({
           </span>
         )}
       </div>
+      {
+        error && error.length > 0 && error.map(item => {
+          if(item.id === id) {
+            return (
+              <div className="bg-[#FAEFEF] text-[#D52929] text-sm pb-1 pt-[2px] px-2 rounded-b-md font-semibold" key={id}>
+              {t2(`${item.errorCode}`)}
+              </div>
+            )
+          }
+          else return null;
+        })
+      }
     </>
   );
 }
