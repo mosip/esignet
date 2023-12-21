@@ -161,8 +161,8 @@
     "username_info": "Enter your 8-9 digit registered mobile number and ensure it does not begin with \"0\""
   },
   "errors": {
-    "username_not_valid": "Username is not valid",
-    "password_not_valid": "Password rule is invalid",
+    "username_not_valid": "Enter valid username",
+    "password_not_valid": "Enter valid password",
     "no_response_msg": "No Response",
     "no_devices_found_msg": "Device Not Found. Please Check the Connectivity and Retry.",
     "link_code_refresh_failed": "Failed to Load",
@@ -194,7 +194,7 @@
     "invalid_assertion": "Invalid Client Assertion",
     "invalid_acr": "Invalid/Unsupported Authentication Context Class Refs",
     "invalid_token": "Invalid/Expired Access token",
-    "auth_failed": "Authentication Failed",
+    "auth_failed": "Incorrect username or password. Please try again.",
     "auth_passed": "Authentication Success",
     "acr_amr_mapping_not_found": "ACR-AMR Mapping File Not Found",
     "no_acr_registered": "No Authentication Context Class References(ACR) Registered",
@@ -362,7 +362,7 @@
     "IDA-EKA-001": "Unable to encrypt eKYC response",
     "IDA-OTA-010": "Input Identity Type does not match Identity Type of OTP Request",
     "IDA-MLC-017": "Invalid UserID",
-    "IDA-MLC-018": "User data not available",
+    "IDA-MLC-018": "Incorrect username or password. Please try again.",
     "IDA-MLC-019": "Authentication modality is Locked",
     "IDA-MLC-020": "Unable to encrypt data",
     "IDA-BIA-014": "Hash Validation Failed",
