@@ -63,7 +63,7 @@ export default function Background({
           />
         </div>
         <div
-          className="text-black lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 mb-2 login-card-separator"
+          className="text-black lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 login-card-separator"
         ></div>
         {component}
       </div>

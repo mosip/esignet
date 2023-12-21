@@ -4,22 +4,22 @@ const ErrorBanner = ({
   showBanner,
   errorCode,
   onCloseHandle,
-  customClass = "",
-  i18nKeyPrefix = "errors",
+  customClass = ""
 }) => {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+
+  const { t } = useTranslation("translation");
 
   return showBanner && (
     <div
       className={
-        "flex justify-between items-center px-5 lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 error-banner " +
+        "flex justify-between items-center px-2 sm:px-5 lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 error-banner " +
         customClass
       }
     >
-      <div className="error-banner-text">{t(errorCode)}</div>
+      <div className="error-banner-text text-sm font-semibold">{t(errorCode)}</div>
       <img
         onClick={onCloseHandle}
-        className="h-2.5 w-2.5"
+        className="h-2.5 w-2.5 hover:cursor-pointer"
         src="images/cross_icon.svg"
       />
     </div>

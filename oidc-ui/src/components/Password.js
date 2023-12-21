@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import {
   buttonTypes,
@@ -25,10 +24,16 @@ export default function Password({
   authService,
   openIDConnectService,
   backButtonDiv,
-  i18nKeyPrefix = "password",
+  i18nKeyPrefix1 = "password",
+  i18nKeyPrefix2 = "errors",
 }) {
-  const { t, i18n } = useTranslation("translation", {
-    keyPrefix: i18nKeyPrefix,
+
+  const { t: t1, i18n } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix1,
+  });
+
+  const { t: t2 } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix2,
   });
 
   const inputCustomClass =
@@ -39,8 +44,8 @@ export default function Password({
   const buildRedirectParams = authService.buildRedirectParams;
 
   const [loginState, setLoginState] = useState(fieldsState);
-  const [error, setError] = useState(null);
-  const [errorBanner, setErrorBanner] = useState([]);
+  const [errorBanner, setErrorBanner] = useState(null);
+  const [inputErrorBanner, setInputErrorBanner] = useState([]);
   const [status, setStatus] = useState(states.LOADED);
   const [invalidState, setInvalidState] = useState(true);
 
@@ -136,6 +141,7 @@ export default function Password({
       ];
 
       setStatus(states.LOADING);
+
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
         uin,
@@ -146,16 +152,15 @@ export default function Password({
       setStatus(states.LOADED);
 
       const { response, errors } = authenticateResponse;
-
+      
       if (errors != null && errors.length > 0) {
-        setError({
-          prefix: "authentication_failed_msg",
+        setErrorBanner({
           errorCode: errors[0].errorCode,
-          defaultMsg: errors[0].errorMessage,
+          show: true
         });
         return;
       } else {
-        setError(null);
+        setErrorBanner(null);
 
         let nonce = openIDConnectService.getNonce();
         let state = openIDConnectService.getState();
@@ -172,10 +177,9 @@ export default function Password({
         });
       }
     } catch (error) {
-      setError({
-        prefix: "authentication_failed_msg",
-        errorCode: error.message,
-        defaultMsg: error.message,
+      setErrorBanner({
+        errorCode: "IDA-MLC-018",
+        show: true
       });
       setStatus(states.ERROR);
     }
@@ -202,15 +206,13 @@ export default function Password({
   }, [loginState]);
 
   const onCloseHandle = () => {
-    let tempBanner = errorBanner.map((_) => _);
-    tempBanner[0].show = false;
-    setErrorBanner(tempBanner);
+    setErrorBanner(null);
   };
 
   const onBlurChange = (e) => {
     const formId = e.target.id;
     const formValue = e.target.value;
-    let bannerIndex = errorBanner.findIndex((_) => _.id === e.target.id);
+    let bannerIndex = inputErrorBanner.findIndex((_) => _.id === e.target.id);
     let currentRegex = new RegExp("");
     let errorCode = "";
     if (formId.includes("mosip-uin")) {
@@ -220,22 +222,22 @@ export default function Password({
       currentRegex = passwordRegex;
       errorCode = "password_not_valid";
     }
-    let tempBanner = errorBanner.map((_) => {
+    let tempBanner = inputErrorBanner.map((_) => {
       return { ..._, show: true };
     });
 
     // checking regex matching for username & password
-    if (currentRegex.test(formValue)) {
+    if (currentRegex.test(formValue) || formValue === "") {
       // if username or password is matched
-      // then remove error from errorBanner
+      // then remove error from inputErrorBanner
       if (bannerIndex > -1) {
         tempBanner.splice(bannerIndex, 1);
       }
     } else {
       // if username or passwors is not matched
       // with regex, then add the error
-      if (bannerIndex === -1) {
-        tempBanner.unshift({
+      if (bannerIndex === -1 && formValue !== "") {
+        tempBanner.push({
           id: e.target.id,
           errorCode,
           show: true,
@@ -243,8 +245,8 @@ export default function Password({
       }
     }
 
-    // setting the error in errorBanner
-    setErrorBanner(tempBanner);
+    // setting the error in inputErrorBanner
+    setInputErrorBanner(tempBanner);
   };
 
   const handleForgotPassword = () => {
@@ -257,10 +259,10 @@ export default function Password({
         {backButtonDiv}
       </div>
 
-      {errorBanner.length > 0 && (
+      {errorBanner !== null && (
         <ErrorBanner
-          showBanner={errorBanner[0]?.show}
-          errorCode={errorBanner[0]?.errorCode}
+          showBanner={errorBanner.show}
+          errorCode={t2(errorBanner.errorCode)}
           onCloseHandle={onCloseHandle}
         />
       )}
@@ -273,23 +275,24 @@ export default function Password({
               handleChange={handleChange}
               blurChange={onBlurChange}
               value={loginState["Password_" + field.id]}
-              labelText={t(field.labelText)}
+              labelText={t1(field.labelText)}
               labelFor={field.labelFor}
               id={"Password_" + field.id}
               name={field.name}
               type={field.type}
               isRequired={field.isRequired}
-              placeholder={t(field.placeholder)}
+              placeholder={t1(field.placeholder)}
               customClass={inputCustomClass}
               imgPath={null}
               icon={field.infoIcon}
               prefix={field.prefix}
+              error={inputErrorBanner}
             />
           </div>
         ))}
 
         {forgotPassword && 
-          <a className="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t("forgot_password")}</a>
+          <a className="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
         }
 
         {showCaptcha && (
@@ -306,11 +309,11 @@ export default function Password({
 
         <FormAction
           type={buttonTypes.submit}
-          text={t("login")}
+          text={t1("login")}
           id="verify_password"
           disabled={
             invalidState ||
-            (errorBanner && errorBanner.length > 0) ||
+            (inputErrorBanner && inputErrorBanner.length > 0) ||
             (showCaptcha && captchaToken === null)
           }
         />
@@ -319,13 +322,6 @@ export default function Password({
         <div className="mt-2">
           <LoadingIndicator size="medium" message="authenticating_msg" />
         </div>
-      )}
-      {status !== states.LOADING && error && (
-        <ErrorIndicator
-          prefix={error.prefix}
-          errorCode={error.errorCode}
-          defaultMsg={error.defaultMsg}
-        />
       )}
     </>
   );
