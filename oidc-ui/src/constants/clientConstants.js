@@ -26,7 +26,8 @@ const validAuthFactors = {
   OTP: "OTP",
   BIO: "BIO",
   PWD: "PWD",
-  WLA: "WLA"
+  WLA: "WLA",
+  KBA: "KBA"
 };
 
 const buttonTypes = {
@@ -76,7 +77,9 @@ const configurationKeys = {
   consentScreenExpireInSec: "consent.screen.timeout-in-secs",
   consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
   walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit",
-  walletConfig: "wallet.config"
+  walletConfig: "wallet.config",
+  authFactorKnowledgeFieldDetails: "auth.factor.knowledge.field-details",
+  authFactorKnowledgeIndividualIdField: "auth.factor.knowledge.individual-id-field"
 };
 
 export {
