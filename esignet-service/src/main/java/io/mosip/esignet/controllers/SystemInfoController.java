@@ -54,7 +54,8 @@ public class SystemInfoController {
         	responseWrapper.setResponse(keymanagerService.getCertificate(applicationId, referenceId));
         } catch (EsignetException ex) {
         	auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-					Action.GET_CERTIFICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(null), ex);
+					Action.GET_CERTIFICATE, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(String.join("#", applicationId, referenceId.get())), ex);
         	throw ex;
         }
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -65,11 +66,13 @@ public class SystemInfoController {
     public ResponseWrapper<UploadCertificateResponseDto> uploadSignedCertificate(
             @Valid @RequestBody RequestWrapper<UploadCertificateRequestDto> requestWrapper) {
         ResponseWrapper<UploadCertificateResponseDto> responseWrapper = new ResponseWrapper<>();
+        UploadCertificateRequestDto uploadCertificateRequestDto = requestWrapper.getRequest();
         try {
-        	responseWrapper.setResponse(keymanagerService.uploadCertificate(requestWrapper.getRequest()));
+        	responseWrapper.setResponse(keymanagerService.uploadCertificate(uploadCertificateRequestDto));
         } catch (EsignetException ex) {
         	auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-					Action.GET_CERTIFICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(null), ex);
+					Action.UPLOAD_CERTIFICATE, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(String.join("#", uploadCertificateRequestDto.getApplicationId(), uploadCertificateRequestDto.getReferenceId())), ex);
             throw ex;
         }
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
