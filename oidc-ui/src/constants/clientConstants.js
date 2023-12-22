@@ -78,8 +78,8 @@ const configurationKeys = {
   consentScreenTimeOutBufferInSec: "consent.screen.timeout-buffer-in-secs",
   walletQrCodeAutoRefreshLimit: "wallet.qr-code.auto-refresh-limit",
   walletConfig: "wallet.config",
-  authFactorKnowledgeFieldDetails: "auth.factor.knowledge.field-details",
-  authFactorKnowledgeIndividualIdField: "auth.factor.knowledge.individual-id-field"
+  authFactorKnowledgeFieldDetails: "auth.factor.kba.field-details",
+  authFactorKnowledgeIndividualIdField: "auth.factor.kba.individual-id-field"
 };
 
 export {
