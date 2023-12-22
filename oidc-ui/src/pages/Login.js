@@ -66,6 +66,14 @@ function InitiateOtp(openIDConnectService, handleBackButtonClick) {
   });
 }
 
+function InitiateForm(openIDConnectService, backButtonDiv) {
+  return React.createElement(Form, {
+    authService: new authService(openIDConnectService),
+    openIDConnectService: openIDConnectService,
+    backButtonDiv: backButtonDiv,
+  });
+}
+
 function InitiateSignInOptions(handleSignInOptionClick, openIDConnectService) {
   return React.createElement(SignInOptions, {
     openIDConnectService: openIDConnectService,
@@ -119,7 +127,7 @@ function createDynamicLoginElements(
   }
 
   if (authFactorType === validAuthFactors.KBA) {
-    return InitiateForm(oidcService, handleBackButtonClick);
+    return InitiateForm(oidcService, backButtonDiv);
   }
 
   if (authFactorType === validAuthFactors.WLA) {
