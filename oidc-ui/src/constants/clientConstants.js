@@ -91,8 +91,8 @@ const configurationKeys = {
   forgotPassword: "forgot-password",
   forgotPasswordURL: "forgot-password.url",
   bannerCloseTimer: "error.banner.close-timer",
-  authFactorKnowledgeFieldDetails: "auth.factor.knowledge.field-details",
-  authFactorKnowledgeIndividualIdField: "auth.factor.knowledge.individual-id-field"
+  authFactorKnowledgeFieldDetails: "auth.factor.kba.field-details",
+  authFactorKnowledgeIndividualIdField: "auth.factor.kba.individual-id-field"
 };
 
 const modalityIconPath = {
