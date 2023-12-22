@@ -9,25 +9,32 @@ import {
   walletConfigKeys,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
+import ErrorBanner from "../common/ErrorBanner";
+import langConfigService from "../services/langConfigService";
 
 var linkAuthTriggered = false;
+const langConfig = await langConfigService.getEnLocaleConfiguration();  
 
 export default function LoginQRCode({
   walletDetail,
   linkAuthService,
   openIDConnectService,
   backButtonDiv,
-  i18nKeyPrefix = "LoginQRCode",
+  i18nKeyPrefix1 = "LoginQRCode",
+  i18nKeyPrefix2 = "errors"
 }) {
   const post_GenerateLinkCode = linkAuthService.post_GenerateLinkCode;
   const post_LinkStatus = linkAuthService.post_LinkStatus;
   const post_AuthorizationCode = linkAuthService.post_AuthorizationCode;
 
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
+  const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
+
   const [qr, setQr] = useState("");
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [error, setError] = useState(null);
   const [qrCodeTimeOut, setQrCodeTimeout] = useState();
+  const [errorBanner, setErrorBanner] = useState(null);
 
   const linkedTransactionExpireInSec =
     openIDConnectService.getEsignetConfiguration(
@@ -84,8 +91,9 @@ export default function LoginQRCode({
       },
       (err) => {
         if (err) {
-          setError({
-            errorCode: "link_code_refresh_failed",
+          setErrorBanner({
+            errorCode: "wallet.link_code_refresh_failed",
+            show: true
           });
           return;
         }
@@ -138,14 +146,14 @@ export default function LoginQRCode({
   const fetchQRCode = async () => {
     // If successfulFetchQrCount is 3, stop QR code generation and show QR code expired with a refresh button.
     if (qrCodeRefreshCount >= walletQrCodeAutoRefreshLimit) {
-      setError({
-        errorCode: "qr_code_expired",
-        defaultMsg: "QR Code Expired",
+      setErrorBanner({
+        errorCode: "wallet.qr_code_expired",
+        show: true
       });
       return;
     }
     setQr("");
-    setError(null);
+    setErrorBanner(null);
     try {
       setStatus({
         state: states.LOADING,
@@ -156,10 +164,21 @@ export default function LoginQRCode({
       );
 
       if (errors != null && errors.length > 0) {
-        setError({
-          errorCode: errors[0].errorCode,
-          defaultMsg: errors[0].errorMessage,
-        });
+
+        let errorCodeCondition = langConfig.errors.wallet[errors[0].errorCode] !== undefined && langConfig.errors.wallet[errors[0].errorCode] !== null;
+
+        if (errorCodeCondition) {
+          setErrorBanner({
+            errorCode: `wallet.${errors[0].errorCode}`,
+            show: true
+          });
+        }
+        else {
+          setErrorBanner({
+            errorCode: `${errors[0].errorCode}`,
+            show: true
+          });
+        }
       } else {
         let qrCodeExpiryDateTime = new Date(response.expireDateTime);
         let timeLeft = (qrCodeExpiryDateTime - new Date()) / 1000; // timeleft in sec
@@ -169,10 +188,9 @@ export default function LoginQRCode({
             qrCodeBuffer should not be greater then the half of link-code-expire-in-secs.
             It reduces the chances of more then 2 active link-status polling request at a time.
            */
-          setError({
-            errorCode: "invalid_qrcode_config",
-            defaultMsg:
-              "Invalid QRCode configuration. Please report to the site admin.",
+          setErrorBanner({
+            errorCode: "wallet.invalid_qrcode_config",
+            show: true
           });
           return;
         }
@@ -200,10 +218,9 @@ export default function LoginQRCode({
         qrCodeRefreshCount++;
       }
     } catch (error) {
-      setError({
-        prefix: "link_code_refresh_failed",
-        errorCode: error.message,
-        defaultMsg: error.message,
+      setErrorBanner({
+        errorCode: "wallet.link_code_refresh_failed",
+        show: true
       });
     }
   };
@@ -228,10 +245,21 @@ export default function LoginQRCode({
 
         //return if invalid transactionId;
         if (linkStatusResponse?.errors[0] === "invalid_transaction") {
-          setError({
-            errorCode: linkStatusResponse.errors[0].errorCode,
-            defaultMsg: linkStatusResponse.errors[0].errorMessage,
+
+        let errorCodeCondition = langConfig.errors.password[linkStatusResponse.errors[0].errorCode] !== undefined && langConfig.errors.password[linkStatusResponse.errors[0].errorCode] !== null;
+
+        if (errorCodeCondition) {
+          setErrorBanner({
+            errorCode: `password.${linkStatusResponse.errors[0].errorCode}`,
+            show: true
           });
+        }
+        else {
+          setErrorBanner({
+            errorCode: `${linkStatusResponse.errors[0].errorCode}`,
+            show: true
+          });
+        }
           return;
         }
 
@@ -249,18 +277,30 @@ export default function LoginQRCode({
         linkStatusResponse?.errors != null &&
         linkStatusResponse?.length > 0
       ) {
-        setError({
-          errorCode: linkStatusResponse.errors[0].errorCode,
-          defaultMsg: linkStatusResponse.errors[0].errorMessage,
-        });
+
+        let errorCodeCondition = langConfig.errors.password[linkStatusResponse.errors[0].errorCode] !== undefined && langConfig.errors.password[linkStatusResponse.errors[0].errorCode] !== null;
+
+        if (errorCodeCondition) {
+          setErrorBanner({
+            errorCode: `password.${linkStatusResponse.errors[0].errorCode}`,
+            show: true
+          });
+        }
+        else {
+          setErrorBanner({
+            errorCode: `${linkStatusResponse.errors[0].errorCode}`,
+            show: true
+          });
+        }
       } else if (linkStatusResponse?.response) {
         let response = linkStatusResponse.response;
         if (response.linkStatus != "LINKED") {
-          setError({
-            errorCode: "failed_to_link",
+          setErrorBanner({
+            errorCode: "wallet.failed_to_link",
+            show: true
           });
         } else {
-          setError(null);
+          setErrorBanner(null);
           setQr(null);
           setStatus({
             state: states.LOADING,
@@ -271,10 +311,9 @@ export default function LoginQRCode({
         }
       }
     } catch (error) {
-      setError({
-        prefix: "link_code_refresh_failed",
-        errorCode: error.message,
-        defaultMsg: error.message,
+      setErrorBanner({
+        errorCode: "wallet.link_code_refresh_failed",
+        show: true
       });
     }
   };
@@ -300,10 +339,21 @@ export default function LoginQRCode({
 
         //return if invalid transactionId;
         if (linkAuthResponse?.errors[0] === "invalid_transaction") {
-          setError({
-            errorCode: linkAuthResponse.errors[0].errorCode,
-            defaultMsg: linkAuthResponse.errors[0].errorMessage,
-          });
+
+          let errorCodeCondition = langConfig.errors.password[linkAuthResponse.errors[0].errorCode] !== undefined && langConfig.errors.password[linkAuthResponse.errors[0].errorCode] !== null;
+
+          if (errorCodeCondition) {
+            setErrorBanner({
+              errorCode: `password.${linkAuthResponse.errors[0].errorCode}`,
+              show: true
+            });
+          }
+          else {
+            setErrorBanner({
+              errorCode: `${linkAuthResponse.errors[0].errorCode}`,
+              show: true
+            });
+          }
           return;
         }
 
@@ -317,8 +367,9 @@ export default function LoginQRCode({
 
       //No response
       if (!linkAuthResponse || !linkAuthResponse?.response) {
-        setError({
+        setErrorBanner({
           errorCode: "authorization_failed",
+          show: true
         });
         return;
       }
@@ -327,10 +378,20 @@ export default function LoginQRCode({
         linkAuthResponse?.errors != null &&
         linkAuthResponse?.errors.length > 0
       ) {
-        setError({
-          errorCode: linkAuthResponse.errors[0].errorCode,
-          defaultMsg: linkAuthResponse.errors[0].errorMessage,
-        });
+        let errorCodeCondition = langConfig.errors.password[linkAuthResponse.errors[0].errorCode] !== undefined && langConfig.errors.password[linkAuthResponse.errors[0].errorCode] !== null;
+
+        if (errorCodeCondition) {
+          setErrorBanner({
+            errorCode: `password.${linkAuthResponse.errors[0].errorCode}`,
+            show: true
+          });
+        }
+        else {
+          setErrorBanner({
+            errorCode: `${linkAuthResponse.errors[0].errorCode}`,
+            show: true
+          });
+        }
       } else {
         setStatus({
           state: states.LOADING,
@@ -354,12 +415,15 @@ export default function LoginQRCode({
         );
       }
     } catch (error) {
-      setError({
-        prefix: "link_code_status_failed",
-        errorCode: error.message,
-        defaultMsg: error.message,
+      setErrorBanner({
+        errorCode: "wallet.link_code_status_failed",
+        show: true
       });
     }
+  };
+
+  const onCloseHandle = () => {
+    setErrorBanner(null);
   };
 
   return (
@@ -367,6 +431,14 @@ export default function LoginQRCode({
       <div className="grid grid-cols-8 items-center">
         {backButtonDiv}
       </div>
+
+      {errorBanner !== null && (
+        <ErrorBanner
+          showBanner={errorBanner.show}
+          errorCode={t2(errorBanner.errorCode)}
+          onCloseHandle={onCloseHandle}
+        />
+      )}
 
       <div className="relative h-64 mt-6">
         {error && (
@@ -385,7 +457,7 @@ export default function LoginQRCode({
                   className="flex justify-center w-full text-gray-900 bg-slate-200 border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5"
                   onClick={fetchQRCode}
                 >
-                  {t("refresh")}
+                  {t1("refresh")}
                 </button>
               </div>
             </div>
@@ -415,7 +487,7 @@ export default function LoginQRCode({
       <div className="row-span-1 mt-5 mb-2">
         <div>
           <p className="text-center text-black-600 font-semibold">
-            {t("dont_have_wallet", {
+            {t1("dont_have_wallet", {
               walletName: walletDetail[walletConfigKeys.walletName],
             })}
             &nbsp;
@@ -424,7 +496,7 @@ export default function LoginQRCode({
               className="text-sky-600"
               id="download_now"
             >
-              {t("download_now")}
+              {t1("download_now")}
             </a>
           </p>
         </div>

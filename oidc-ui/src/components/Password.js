@@ -14,10 +14,13 @@ import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
+import langConfigService from "../services/langConfigService";
 
 const fields = passwordFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState["Password_" + field.id] = ""));
+
+const langConfig = await langConfigService.getEnLocaleConfiguration();  
 
 export default function Password({
   param,
@@ -154,10 +157,21 @@ export default function Password({
       const { response, errors } = authenticateResponse;
       
       if (errors != null && errors.length > 0) {
-        setErrorBanner({
-          errorCode: errors[0].errorCode,
-          show: true
-        });
+        
+        let errorCodeCondition = langConfig.errors.password[errors[0].errorCode] !== undefined && langConfig.errors.password[errors[0].errorCode] !== null;
+
+        if (errorCodeCondition) {
+          setErrorBanner({
+            errorCode: `password.${errors[0].errorCode}`,
+            show: true
+          });
+        }
+        else {
+          setErrorBanner({
+            errorCode: `${errors[0].errorCode}`,
+            show: true
+          });
+        }
         return;
       } else {
         setErrorBanner(null);
@@ -178,7 +192,7 @@ export default function Password({
       }
     } catch (error) {
       setErrorBanner({
-        errorCode: "IDA-MLC-018",
+        errorCode: "password.auth_failed",
         show: true
       });
       setStatus(states.ERROR);
