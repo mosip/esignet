@@ -80,6 +80,16 @@
     "forgot_password": "هل نسيت كلمة السر؟",
     "reset_password": "إعادة تعيين كلمة المرور"
   },
+  "Form": {
+    "sign_in_with_details": "Login with Details",
+    "login": "Login",
+    "policyNumber": "Enter Policy Number",
+    "name": "Enter Name",
+    "dob": "Enter DOB",
+    "policyNumber_placeholder": "Policy Number",
+    "name_placeholder": "Name",
+    "dob_placeholder": "DOB"
+  },
   "LoginQRCode": {
     "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",
     "dont_have_wallet": "؟{{walletName}} ليس لديك",

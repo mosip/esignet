@@ -26,6 +26,7 @@ const validAuthFactors = {
   BIO: "BIO",
   PWD: "PWD",
   WLA: "WLA",
+  KBA: "KBA"
 };
 
 const buttonTypes = {
@@ -89,7 +90,9 @@ const configurationKeys = {
   forgotPasswordConfig: "forgot-password.config",
   forgotPassword: "forgot-password",
   forgotPasswordURL: "forgot-password.url",
-  bannerCloseTimer: "error.banner.close-timer"
+  bannerCloseTimer: "error.banner.close-timer",
+  authFactorKnowledgeFieldDetails: "auth.factor.knowledge.field-details",
+  authFactorKnowledgeIndividualIdField: "auth.factor.knowledge.individual-id-field"
 };
 
 const modalityIconPath = {
@@ -98,6 +101,7 @@ const modalityIconPath = {
   WALLET: "images/wallet_icon.svg",
   BIO: "images/bio_icon.svg",
   PWD: "images/sign_in_with_otp.png",
+  KBA: "images/sign_in_with_kba.png"
 };
 
 export {
