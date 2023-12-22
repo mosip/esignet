@@ -86,7 +86,7 @@ export default function Form({
       let uin = loginState["Form_"+openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField) ?? ""];
       let challengeManipulate = {};
       fields.forEach(function(field) {
-        if(field.id !== "policyNumber"){
+        if(field.id !== openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField)){
           challengeManipulate[field.id] = loginState["Form_"+field.id]
         }
       });
