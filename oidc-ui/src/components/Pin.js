@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import {
   buttonTypes,
@@ -12,27 +11,34 @@ import { otpFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import Input from "./Input";
+import ErrorBanner from "../common/ErrorBanner";
+import langConfigService from "../services/langConfigService";
 
 const fields = otpFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState["Pin" + field.id] = ""));
+
+const langConfig = await langConfigService.getEnLocaleConfiguration();  
 
 export default function Pin({
   param,
   authService,
   openIDConnectService,
   backButtonDiv,
-  i18nKeyPrefix = "pin",
+  i18nKeyPrefix1 = "pin",
+  i18nKeyPrefix2 = "errors"
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+
+  const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
+  const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
 
   const fields = param;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
 
   const [loginState, setLoginState] = useState(fieldsState);
-  const [error, setError] = useState(null);
   const [status, setStatus] = useState(states.LOADED);
+  const [errorBanner, setErrorBanner] = useState(null);
 
   const navigate = useNavigate();
 
@@ -75,14 +81,24 @@ export default function Pin({
       const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
-        setError({
-          prefix: "authentication_failed_msg",
-          errorCode: errors[0].errorCode,
-          defaultMsg: errors[0].errorMessage,
-        });
+        
+        let errorCodeCondition = langConfig.errors.pin[errors[0].errorCode] !== undefined && langConfig.errors.pin[errors[0].errorCode] !== null;
+
+        if (errorCodeCondition) {
+          setErrorBanner({
+            errorCode: `pin.${errors[0].errorCode}`,
+            show: true
+          });
+        }
+        else {
+          setErrorBanner({
+            errorCode: `${errors[0].errorCode}`,
+            show: true
+          });
+        }
         return;
       } else {
-        setError(null);
+        setErrorBanner(null);
 
         let nonce = openIDConnectService.getNonce();
         let state = openIDConnectService.getState();
@@ -99,13 +115,16 @@ export default function Pin({
         });
       }
     } catch (error) {
-      setError({
-        prefix: "authentication_failed_msg",
-        errorCode: error.message,
-        defaultMsg: error.message,
+      setErrorBanner({
+        errorCode: "authentication_failed_msg",
+        show: true
       });
       setStatus(states.ERROR);
     }
+  };
+
+  const onCloseHandle = () => {
+    setErrorBanner(null);
   };
 
   return (
@@ -113,7 +132,13 @@ export default function Pin({
       <div className="grid grid-cols-8 items-center">
         {backButtonDiv}
       </div>
-
+      {errorBanner !== null && (
+        <ErrorBanner
+          showBanner={errorBanner.show}
+          errorCode={t2(errorBanner.errorCode)}
+          onCloseHandle={onCloseHandle}
+        />
+      )}
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <div className="-space-y-px">
           {fields.map((field) => (
@@ -127,7 +152,7 @@ export default function Pin({
               name={field.name}
               type={field.type}
               isRequired={field.isRequired}
-              placeholder={t(field.placeholder)}
+              placeholder={t1(field.placeholder)}
             />
           ))}
         </div>
@@ -144,13 +169,13 @@ export default function Pin({
               htmlFor="remember-me"
               className="mx-2 block text-sm text-cyan-900"
             >
-              {t("remember_me")}
+              {t1("remember_me")}
             </label>
           </div>
         </div>
         <FormAction
           type={buttonTypes.submit}
-          text={t("login")}
+          text={t1("login")}
           id="verify_pin"
         />
       </form>
@@ -158,13 +183,6 @@ export default function Pin({
         <div>
           <LoadingIndicator size="medium" message="authenticating_msg" />
         </div>
-      )}
-      {status !== states.LOADING && error && (
-        <ErrorIndicator
-          prefix={error.prefix}
-          errorCode={error.errorCode}
-          defaultMsg={error.defaultMsg}
-        />
       )}
     </>
   );
