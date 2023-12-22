@@ -17,6 +17,7 @@ import { Buffer } from "buffer";
 import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
+import Form from "../components/Form";
 
 function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
   return React.createElement(L1Biometrics, {
@@ -47,7 +48,16 @@ function InitiatePassword(openIDConnectService, backButtonDiv) {
   });
 }
 
-function InitiateOtp(openIDConnectService, backButtonDiv) {
+function InitiateForm(openIDConnectService, handleBackButtonClick) {
+  return React.createElement(Form, {
+    authService: new authService(openIDConnectService),
+    openIDConnectService: openIDConnectService,
+    handleBackButtonClick: handleBackButtonClick,
+  });
+}
+
+
+function InitiateOtp(openIDConnectService, handleBackButtonClick) {
   return React.createElement(Otp, {
     param: generateFieldData(validAuthFactors.OTP, openIDConnectService),
     authService: new authService(openIDConnectService),
@@ -108,6 +118,10 @@ function createDynamicLoginElements(
     return InitiatePassword(oidcService, backButtonDiv);
   }
 
+  if (authFactorType === validAuthFactors.KBA) {
+    return InitiateForm(oidcService, handleBackButtonClick);
+  }
+
   if (authFactorType === validAuthFactors.WLA) {
     return InitiateLinkedWallet(authFactor, oidcService, backButtonDiv);
   }
@@ -121,7 +135,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const [compToShow, setCompToShow] = useState(null);
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const location = useLocation();
 
   var decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();

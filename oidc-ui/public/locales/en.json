@@ -80,6 +80,16 @@
     "forgot_password": "Forgot Password?",
     "reset_password": "Reset Password"
   },
+  "Form": {
+    "sign_in_with_details": "Login with Details",
+    "login": "Login",
+    "policyNumber": "Enter Policy Number",
+    "name": "Enter Name",
+    "dob": "Enter DOB",
+    "policyNumber_placeholder": "Policy Number",
+    "name_placeholder": "Name",
+    "dob_placeholder": "DOB"
+  },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
     "dont_have_wallet": "Don't Have {{walletName}}?",
@@ -116,6 +126,7 @@
     "QRCode": "QR Code",
     "OTP": "OTP",
     "PWD": "Password",
+    "KBA": "Details",
     "preferred_mode_of_login": "Select a preferred mode of login",
     "more_ways_to_sign_in": "More ways to sign in",
     "or": "OR",
