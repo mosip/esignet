@@ -30,7 +30,7 @@ export default function Form({
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
-  const fields = [{"id":"policyNumber","type":"text","format":""},{"id":"name","type":"text","format":""},{"id":"dob","type":"date","format":"dd\/mm\/yyyy"}];
+  const fields = openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeFieldDetails) ?? [];
   fields.forEach((field) => (fieldsState["Form_" + field.id] = ""));
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
@@ -83,14 +83,13 @@ export default function Form({
   const authenticateUser = async () => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
-      let uin = loginState["Form_policyNumber"];
+      let uin = loginState["Form_"+openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField) ?? ""];
       let challengeManipulate = {};
       fields.forEach(function(field) {
         if(field.id !== "policyNumber"){
           challengeManipulate[field.id] = loginState["Form_"+field.id]
         }
       });
-      console.log("challengeManipulate>>>"+challengeManipulate);
       let challenge = btoa(JSON.stringify(challengeManipulate));
 
       let challengeList = [
