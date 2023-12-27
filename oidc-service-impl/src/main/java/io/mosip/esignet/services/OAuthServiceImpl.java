@@ -102,10 +102,8 @@ public class OAuthServiceImpl implements OAuthService {
         }
 
         TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped);
-        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
-        transaction.setAHash(accessTokenHash);
         // cache kyc with access-token as key
-        cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
+        cacheUtilService.setUserInfoTransaction(transaction.getAHash(), transaction);
         auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
                 transaction), null);
         return tokenResponse;
@@ -231,6 +229,8 @@ public class OAuthServiceImpl implements OAuthService {
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setToken_type(Constants.BEARER);
+        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
+        transaction.setAHash(accessTokenHash);
         if(isTransactionVCScoped) {
             tokenResponse.setC_nonce(cNonce);
             tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);
