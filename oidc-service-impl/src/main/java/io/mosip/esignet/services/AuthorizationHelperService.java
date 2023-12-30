@@ -316,10 +316,11 @@ public class AuthorizationHelperService {
         linkAuthCodeResponse.setCode(authCode);
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(linkAuthCodeResponse);
+        auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, oidcTransaction), null);
         return responseWrapper;
     }
 
-    protected String getKeyHash(@NotNull String value) {
+    public String getKeyHash(@NotNull String value) {
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, value);
     }
 
