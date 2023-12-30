@@ -121,7 +121,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkCodeResponse.setTransactionId(linkCodeRequest.getTransactionId());
         linkCodeResponse.setExpireDateTime(expireDateTime == null ? null :
                 expireDateTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
-        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkCode, transaction), null);
+        auditWrapper.logAudit(Action.LINK_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(
+                linkCodeRequest.getTransactionId(), transaction), null);
         return linkCodeResponse;
     }
 
@@ -179,7 +180,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         //Publish message after successfully linking the transaction
         kafkaHelperService.publish(linkedSessionTopicName, linkCodeHash);
-        auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
+        auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.SUCCESS,
+                AuditHelper.buildAuditDto(linkTransactionMetadata.getTransactionId(), transaction), null);
         return Pair.of(linkTransactionResponse, clientDetailDto);
     }
 
@@ -330,7 +332,6 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         OIDCTransaction oidcTransaction = cacheUtilService.getConsentedTransaction(linkTransactionMetadata.getLinkedTransactionId());
         if(oidcTransaction != null) {
-            auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(linkAuthCodeRequest.getLinkedCode(), oidcTransaction), null);
             deferredResult.setResult(authorizationHelperService.getLinkAuthStatusResponse(linkTransactionMetadata.getTransactionId(), oidcTransaction));
         } else {
             authorizationHelperService.addEntryInLinkAuthCodeStatusDeferredResultMap(linkTransactionMetadata.getLinkedTransactionId(), deferredResult);
