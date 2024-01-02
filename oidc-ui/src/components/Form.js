@@ -31,7 +31,7 @@ export default function Form({
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
   const fields = openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeFieldDetails) ?? [];
-  fields.forEach((field) => (fieldsState["Form_" + field.id] = ""));
+  fields.forEach((field) => (fieldsState["_form_" + field.id] = ""));
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
 
@@ -83,11 +83,11 @@ export default function Form({
   const authenticateUser = async () => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
-      let uin = loginState["Form_"+openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField) ?? ""];
+      let uin = loginState["_form_"+openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField) ?? ""];
       let challengeManipulate = {};
       fields.forEach(function(field) {
         if(field.id !== openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField)){
-          challengeManipulate[field.id] = loginState["Form_"+field.id]
+          challengeManipulate[field.id] = loginState["_form_"+field.id]
         }
       });
       let challenge = btoa(JSON.stringify(challengeManipulate));
@@ -150,11 +150,7 @@ export default function Form({
     let loadComponent = async () => {
       i18n.on("languageChanged", () => {
         if (showCaptcha) {
-          //to rerender recaptcha widget on language change
-          setShowCaptcha(false);
-          setTimeout(() => {
-            setShowCaptcha(true);
-          }, 1);
+          setShowCaptcha(true);
         }
       });
     };
@@ -205,12 +201,12 @@ export default function Form({
         {fields.map((field) => (
           <div className="-space-y-px">
             <InputWithImage
-              key={"Form_" + field.id}
+              key={"_form_" + field.id}
               handleChange={handleChange}
-              value={loginState["Form_" + field.id]}
+              value={loginState["_form_" + field.id]}
               labelText={t(field.id)}
               labelFor={field.id}
-              id={"Form_" + field.id}
+              id={"_form_" + field.id}
               type={field.type}
               isRequired={true}
               placeholder={t(field.id)}
