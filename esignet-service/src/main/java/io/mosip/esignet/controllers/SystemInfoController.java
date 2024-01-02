@@ -58,6 +58,8 @@ public class SystemInfoController {
         	throw ex;
         }
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.GET_CERTIFICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null), null);
         return responseWrapper;
     }
 
@@ -65,14 +67,17 @@ public class SystemInfoController {
     public ResponseWrapper<UploadCertificateResponseDto> uploadSignedCertificate(
             @Valid @RequestBody RequestWrapper<UploadCertificateRequestDto> requestWrapper) {
         ResponseWrapper<UploadCertificateResponseDto> responseWrapper = new ResponseWrapper<>();
+        UploadCertificateRequestDto uploadCertificateRequestDto = requestWrapper.getRequest();
         try {
-        	responseWrapper.setResponse(keymanagerService.uploadCertificate(requestWrapper.getRequest()));
+        	responseWrapper.setResponse(keymanagerService.uploadCertificate(uploadCertificateRequestDto));
         } catch (EsignetException ex) {
         	auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
-					Action.GET_CERTIFICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(null), ex);
+					Action.UPLOAD_CERTIFICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(null), ex);
             throw ex;
         }
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.UPLOAD_CERTIFICATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(null), null);
         return responseWrapper;
     }
 
