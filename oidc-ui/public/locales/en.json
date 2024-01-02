@@ -191,7 +191,6 @@
     "invalid_assertion": "Invalid Client Assertion",
     "invalid_acr": "Invalid/Unsupported Authentication Context Class Refs",
     "invalid_token": "Invalid/Expired Access token",
-    "auth_failed": "Authentication Failed",
     "auth_passed": "Authentication Success",
     "acr_amr_mapping_not_found": "ACR-AMR Mapping File Not Found",
     "no_acr_registered": "No Authentication Context Class References(ACR) Registered",
@@ -336,7 +335,6 @@
     "IDA-MLC-016": "Transaction ID parameters in the request does not match",
     "IDA-EKA-001": "Unable to encrypt eKYC response",
     "IDA-MLC-017": "Invalid UserID",
-    "IDA-MLC-018": "User data not available",
     "IDA-MLC-019": "Authentication modality is Locked",
     "IDA-MLC-020": "Unable to encrypt data",
     "IDA-DPM-001": "Device is not registered with MOSIP",
@@ -375,7 +373,9 @@
       "IDA-OTA-011": "Input Partner-ID does not match Partner-ID of OTP Request",
       "send_otp_failed": "Send OTP Failed. Invalid/Unknown IndividualId.",
       "send_otp_failed_msg": "Failed to Send OTP",
-      "invalid_otp_channel": "Invalid OTP Channel Provided."
+      "invalid_otp_channel": "Invalid OTP Channel Provided.",
+      "auth_failed": "Incorrect OTP. Please try again.",
+      "IDA-MLC-018": "Incorrect OTP. Please try again."
     },
     "biometrics": {
       "IDA-BIA-001": "Biometric data did not match",
@@ -394,16 +394,22 @@
       "IDA-BIA-015": "Signature Validation Failed",
       "IDA-BIA-016": "Unable to Perform Quality Check due to a Technical Issue",
       "IDA-BIA-017": "Unable to Perform Biometric Match due to a Technical Issue",
-      "IDA-BIA-018": "Unable to Process the Request due to a Technical Issue"
+      "IDA-BIA-018": "Unable to Process the Request due to a Technical Issue",
+      "auth_failed": "Biometric data not available. Please try again.",
+      "IDA-MLC-018": "Biometric data not available. Please try again."
     },
     "pin": {
-      "invalid_pin": "Invalid Pin"
+      "invalid_pin": "Invalid Pin",
+      "auth_failed": "Incorrect pin. Please try again.",
+      "IDA-MLC-018": "Incorrect pin. Please try again."
     },
     "wallet": {
       "failed_to_link": "Failed to Link",
       "qr_code_expired": "QR Code Expired",
       "invalid_qrcode_config": "Invalid QRCode configuration. Please report to the site admin.",
-      "link_code_refresh_failed": "Failed to Load"
+      "link_code_refresh_failed": "Failed to Load",
+      "auth_failed": "Wallet local authentication failed. Please try again.",
+      "IDA-MLC-018": "Wallet local authentication failed. Please try again."
     },
     "password": {
       "auth_failed": "Incorrect username or password. Please try again.",
