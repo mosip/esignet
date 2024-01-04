@@ -89,6 +89,7 @@ const configurationKeys = {
   forgotPasswordConfig: "forgot-password.config",
   forgotPassword: "forgot-password",
   forgotPasswordURL: "forgot-password.url",
+  bannerCloseTimer: "error.banner.close-timer"
 };
 
 const modalityIconPath = {
