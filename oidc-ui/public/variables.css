@@ -146,6 +146,7 @@
   --password-google-reCaptcha-margin-top: 3rem;
 }
 
+/* green theme is a temporary theme for qa testing */
 [class="green_theme"] {
   --login-card-box-color: black;
   --login-card-box-hover-color: #3BB143;
