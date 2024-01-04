@@ -53,7 +53,7 @@ export default function Password({
   const [invalidState, setInvalidState] = useState(true);
 
   const [forgotPassword, setForgotPassword] = useState(false);
-  const [forgotPasswordURL, setForgotPassowordURL] = useState("");
+  const [forgotPasswordURL, setForgotPasswordURL] = useState("");
 
   let forgotPasswordConfig = openIDConnectService.getEsignetConfiguration(
     configurationKeys.forgotPasswordConfig
@@ -62,7 +62,7 @@ export default function Password({
   useEffect(() => {
     if(forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
       setForgotPassword(true);
-      setForgotPassowordURL(forgotPasswordConfig[configurationKeys.forgotPasswordURL] + "#" + authService.getAuthorizeQueryParam())
+      setForgotPasswordURL(forgotPasswordConfig[configurationKeys.forgotPasswordURL] + "#" + authService.getAuthorizeQueryParam())
     }
   }, []);
 
@@ -81,12 +81,28 @@ export default function Password({
       configurationKeys.usernamePrefix
     ) ?? "";
 
-    const usernamePostfix = 
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.usernamePostfix
-    ) ?? "";
+  const usernamePostfix = 
+  openIDConnectService.getEsignetConfiguration(
+    configurationKeys.usernamePostfix
+  ) ?? "";
+
+  const usernameInputType = 
+  openIDConnectService.getEsignetConfiguration(
+    configurationKeys.usernameInputType
+  ) ?? "";
+
+  const usernameMaxLength = 
+  openIDConnectService.getEsignetConfiguration(
+    configurationKeys.usernameMaxLength
+  ) ?? "";
+
+  const passwordMaxLength = 
+  openIDConnectService.getEsignetConfiguration(
+    configurationKeys.passwordMaxLength
+  ) ?? "";
 
   fields[0].prefix = usernamePrefix;
+  fields[0].type = usernameInputType ?? "text";
 
   const passwordRegex = new RegExp(passwordRegexValue);
   const usernameRegex = new RegExp(usernameRegexValue);
@@ -94,9 +110,19 @@ export default function Password({
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setLoginState({ ...loginState, [e.target.id]: e.target.value });
-  };
 
+    const checkMaxLength = (maxLength) => {
+      if (e.target.value.length <= parseInt(maxLength)) {
+        return true
+      }
+      return null;
+    }
+
+    if ((e.target.name === "uin" && checkMaxLength(usernameMaxLength) !== null) || (e.target.name === "password" && checkMaxLength(passwordMaxLength) !== null)) {
+      setLoginState({ ...loginState, [e.target.id]: e.target.value });
+    }
+  };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     authenticateUser();
