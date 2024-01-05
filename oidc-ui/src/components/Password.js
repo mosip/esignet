@@ -81,25 +81,30 @@ export default function Password({
       configurationKeys.usernamePrefix
     ) ?? "";
 
-  const usernamePostfix = 
-  openIDConnectService.getEsignetConfiguration(
-    configurationKeys.usernamePostfix
-  ) ?? "";
+  const usernamePostfix =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.usernamePostfix
+    ) ?? "";
 
-  const usernameInputType = 
-  openIDConnectService.getEsignetConfiguration(
-    configurationKeys.usernameInputType
-  ) ?? "";
+  const usernameInputType =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.usernameInputType
+    ) ?? "";
 
-  const usernameMaxLength = 
-  openIDConnectService.getEsignetConfiguration(
-    configurationKeys.usernameMaxLength
-  ) ?? "";
+  const usernameMaxLength =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.usernameMaxLength
+    ) ?? "";
 
-  const passwordMaxLength = 
-  openIDConnectService.getEsignetConfiguration(
-    configurationKeys.passwordMaxLength
-  ) ?? "";
+  const passwordMaxLength =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.passwordMaxLength
+    ) ?? "";
+
+  const bannerCloseTimer =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.bannerCloseTimer
+    ) ?? "";
 
   fields[0].prefix = usernamePrefix;
   fields[0].type = usernameInputType ?? "text";
@@ -110,15 +115,15 @@ export default function Password({
   const navigate = useNavigate();
 
   const handleChange = (e) => {
+    onCloseHandle();
 
-    const checkMaxLength = (maxLength) => {
-      if (e.target.value.length <= parseInt(maxLength)) {
-        return true
-      }
-      return null;
-    }
+    const checkMaxLength = (maxLength) =>
+      maxLength === "" ? true : e.target.value.length <= parseInt(maxLength);
 
-    if ((e.target.name === "uin" && checkMaxLength(usernameMaxLength) !== null) || (e.target.name === "password" && checkMaxLength(passwordMaxLength) !== null)) {
+    if (
+      (e.target.name === "uin" && checkMaxLength(usernameMaxLength)) ||
+      (e.target.name === "password" && checkMaxLength(passwordMaxLength))
+    ) {
       setLoginState({ ...loginState, [e.target.id]: e.target.value });
     }
   };
@@ -304,6 +309,7 @@ export default function Password({
           showBanner={errorBanner.show}
           errorCode={t2(errorBanner.errorCode)}
           onCloseHandle={onCloseHandle}
+          bannerCloseTimer={bannerCloseTimer}
         />
       )}
 

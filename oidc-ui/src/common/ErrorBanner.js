@@ -4,10 +4,14 @@ const ErrorBanner = ({
   showBanner,
   errorCode,
   onCloseHandle,
-  customClass = ""
+  customClass = "",
+  bannerCloseTimer,
 }) => {
-
   const { t } = useTranslation("translation");
+
+  if (bannerCloseTimer) {
+    setTimeout(onCloseHandle, bannerCloseTimer * 1000);
+  }
 
   return showBanner && (
     <div
