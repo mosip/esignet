@@ -81,7 +81,8 @@ public class LinkedAuthorizationController {
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.linkTransaction(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkCode(), null), ex);
+            auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkCode(), "link-code", null), ex);
             throw ex;
         }        
         return responseWrapper;
@@ -95,7 +96,8 @@ public class LinkedAuthorizationController {
         try {
             responseWrapper.setResponse(linkedAuthorizationService.linkTransactionV2(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkCode(), null), ex);
+            auditWrapper.logAudit(Action.LINK_TRANSACTION, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkCode(), "link-code",null), ex);
             throw ex;
         }
         return responseWrapper;
@@ -124,7 +126,8 @@ public class LinkedAuthorizationController {
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.authenticateUser(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), "linkTransactionId", null), ex);
             throw ex;
         }
         return responseWrapper;
@@ -138,7 +141,8 @@ public class LinkedAuthorizationController {
         try {
             responseWrapper.setResponse(linkedAuthorizationService.authenticateUserV2(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            auditWrapper.logAudit(Action.LINK_AUTHENTICATE, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), "linkTransactionId",null), ex);
             throw ex;
         }
         return responseWrapper;
@@ -152,7 +156,8 @@ public class LinkedAuthorizationController {
         try {
         	responseWrapper.setResponse(linkedAuthorizationService.saveConsent(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), "linkTransactionId",null), ex);
             throw ex;
         }
         return responseWrapper;
@@ -166,7 +171,8 @@ public class LinkedAuthorizationController {
         try {
             responseWrapper.setResponse(linkedAuthorizationService.saveConsentV2(requestWrapper.getRequest()));
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), null), ex);
+            auditWrapper.logAudit(Action.SAVE_CONSENT, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(requestWrapper.getRequest().getLinkedTransactionId(), "linkTransactionId",null), ex);
             throw ex;
         }
         return responseWrapper;

@@ -106,7 +106,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
                 proofValidator.getKeyMaterial(credentialRequest.getProof()));
 
         auditWrapper.logAudit(Action.VC_ISSUANCE, ActionStatus.SUCCESS,
-                AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), null), null);
+                AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), "accessTokenHash", null), null);
         return getCredentialResponse(credentialRequest.getFormat(), vcResult);
     }
 
@@ -151,7 +151,7 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
         log.error("Failed to generate VC : {}", vcResult);
         auditWrapper.logAudit(Action.VC_ISSUANCE, ActionStatus.ERROR,
-                AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), null), null);
+                AuditHelper.buildAuditDto(parsedAccessToken.getAccessTokenHash(), "accessTokenHash", null), null);
         throw new EsignetException(ErrorConstants.VC_ISSUANCE_FAILED);
     }
 

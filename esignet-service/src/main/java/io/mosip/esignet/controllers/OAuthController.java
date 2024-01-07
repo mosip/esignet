@@ -60,7 +60,7 @@ public class OAuthController {
         	return oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
-                    AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()), null), ex);
+                    AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()), "codeHash", null), ex);
             throw ex;
         }               
     }
@@ -79,7 +79,7 @@ public class OAuthController {
             return oAuthService.getTokens(tokenRequest,true);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
-                    AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()), null), ex);
+                    AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()),"codeHash", null), ex);
             throw ex;
         }
     }
