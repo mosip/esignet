@@ -12,7 +12,7 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({ FIELD,TYPE_USE })
+@Target({ FIELD,TYPE_USE  })
 @Retention(RUNTIME)
 @Constraint(validatedBy = RedirectURLValidator.class)
 @Documented

@@ -67,7 +67,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
 
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.ERROR, AuditHelper.buildAuditDto(accessTokenHash,
-                    transaction), ex);
+                   "accessTokenHash", transaction), ex);
             throw ex;
         }
     }

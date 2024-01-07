@@ -31,4 +31,6 @@ public class AuditDTO {
     String linkedTransactionId;
     String nonce;
     String state;
+
+    String idType;
 }
