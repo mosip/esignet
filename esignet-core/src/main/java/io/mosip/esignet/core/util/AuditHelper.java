@@ -16,12 +16,18 @@ public class AuditHelper {
     public static AuditDTO buildAuditDto(String clientId) {
         AuditDTO auditDTO = new AuditDTO();
         auditDTO.setClientId(clientId);
+        auditDTO.setIdType("ClientId");
         return auditDTO;
     }
 
     public static AuditDTO buildAuditDto(String transactionId, OIDCTransaction transaction) {
+        return buildAuditDto(transactionId, "transaction", transaction);
+    }
+
+    public static AuditDTO buildAuditDto(String transactionId, String idType, OIDCTransaction transaction) {
         AuditDTO auditDTO = new AuditDTO();
         auditDTO.setTransactionId(transactionId);
+        auditDTO.setIdType(idType);
         if(transaction != null) {
             auditDTO.setRelyingPartyId(transaction.getRelyingPartyId());
             auditDTO.setClientId(transaction.getClientId());
