@@ -64,7 +64,7 @@ export default function Password({
       setForgotPassword(true);
       setForgotPasswordURL(forgotPasswordConfig[configurationKeys.forgotPasswordURL] + "#" + authService.getAuthorizeQueryParam())
     }
-  }, []);
+  }, [i18n.language]);
 
   const passwordRegexValue =
     openIDConnectService.getEsignetConfiguration(
