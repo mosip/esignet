@@ -12,7 +12,7 @@ export default function Background({
   authService,
   i18nKeyPrefix = "header",
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t, i18n } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
   const [signupBanner, setSignupBanner] = useState(false);
   const [signupURL, setSignupURL] = useState("");
@@ -24,9 +24,9 @@ export default function Background({
   useEffect(() => {
     if(signupConfig?.[configurationKeys.signupBanner]) {
       setSignupBanner(true);
-      setSignupURL(signupConfig[configurationKeys.signupURL] + "#" + authService.getAuthorizeQueryParam())
+      setSignupURL(signupConfig[configurationKeys.signupURL] + "#" + authService.getAuthorizeQueryParam());
     }
-  }, []);
+  }, [i18n.language]);
 
   // check signup banner is present or not,
   // and padding according to that only
