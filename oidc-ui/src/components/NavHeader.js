@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 import Select from "react-select";
 import configService from "../services/configService";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import openIDConnectService from "../services/openIDConnectService";
+import authService from "../services/authService";
+import { Buffer } from "buffer";
 
 const config = await configService();
 
@@ -11,6 +14,9 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     keyPrefix: i18nKeyPrefix,
   });
   const [selectedLang, setSelectedLang] = useState();
+  const authServices = new authService(openIDConnectService);
+  const authorizeQueryParam = "authorize_query_param";
+  const ui_locales = "ui_locales";
 
   const changeLanguageHandler = (e) => {
     i18n.changeLanguage(e.value);
@@ -69,6 +75,40 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
         return option.value === lng;
       });
       setSelectedLang(language);
+      
+    // Setting up the current i18n language in the URL on every language change.
+
+    // Decode the authorize query param
+    const decodedBase64 = Buffer.from(authServices.getAuthorizeQueryParam(), 'base64').toString();
+    
+    var urlSearchParams = new URLSearchParams(decodedBase64);
+    
+    // Convert the decoded string to JSON
+    var jsonObject = {};
+    urlSearchParams.forEach(function (value, key) {
+      jsonObject[key] = value;
+
+      // Assign the current i18n language to the ui_locales
+      if(key === ui_locales) {
+        jsonObject[key] = language.value
+      }
+    });
+    
+    // Convert the JSON back to decoded string
+    Object.entries(jsonObject).forEach(([key, value]) => {
+      urlSearchParams.set(key, value);
+    });
+
+    // Encode the string
+    var encodedString = urlSearchParams.toString();
+
+    const encodedBase64 = Buffer.from(encodedString).toString("base64");
+
+    // Remove the old authorizeQueryParam from the local storage
+    localStorage.removeItem(authorizeQueryParam)
+
+    // Insert the new authorizeQueryParam to the local storage
+    localStorage.setItem(authorizeQueryParam, encodedBase64);
     });
   }, [langOptions]);
   
