@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="84" height="84" viewBox="0 0 84 84">
+  <g id="success_message_icon" transform="translate(-15.988 -15.488)">
+    <g id="Rectangle_6846" data-name="Rectangle 6846" transform="translate(20.988 20.488)" fill="none" stroke="#c73f3f" stroke-width="1" opacity="0.5">
+      <rect width="74" height="74" rx="37" stroke="none"/>
+      <rect x="0.5" y="0.5" width="73" height="73" rx="36.5" fill="none"/>
+    </g>
+    <rect id="Rectangle_7158" data-name="Rectangle 7158" width="64" height="64" rx="32" transform="translate(25.988 25.488)" fill="#cc8d29"/>
+    <g id="Rectangle_7159" data-name="Rectangle 7159" transform="translate(15.988 15.488)" fill="none" stroke="#c73f3f" stroke-width="1" opacity="0.1">
+      <rect width="84" height="84" rx="42" stroke="none"/>
+      <rect x="0.5" y="0.5" width="83" height="83" rx="41.5" fill="none"/>
+    </g>
+    <path id="priority_high_FILL0_wght400_GRAD0_opsz48" d="M412-819.442a1.919,1.919,0,0,1-1.411-.587,1.932,1.932,0,0,1-.585-1.414,1.918,1.918,0,0,1,.588-1.411,1.93,1.93,0,0,1,1.414-.585,1.918,1.918,0,0,1,1.411.588,1.929,1.929,0,0,1,.585,1.413,1.919,1.919,0,0,1-.588,1.411A1.932,1.932,0,0,1,412-819.442Zm-2-6.853V-840h4v13.7Z" transform="translate(-354.01 887.209)" fill="#fff"/>
+  </g>
+</svg>

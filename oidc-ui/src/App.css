@@ -1,5 +1,7 @@
 .section-background {
+  position: relative;
   background-color: var(--login-background);
+  min-height: calc(100vh - 104.6px) !important;
 }
 
 .language-icon-color {
@@ -27,6 +29,7 @@
 
 .brand-logo {
   content: var(--brand-logo-url);
+  height: 40px;
 }
 
 .brand-only-logo {
@@ -48,6 +51,8 @@
 
 .info-icon-button {
   color: var(--info-icon-color);
+  position: relative;
+  top: 2px;
 }
 
 .primary-button {
@@ -58,12 +63,13 @@
 }
 
 .primary-button:disabled {
+  cursor: not-allowed;
   color: var(--primary-button-disable-color);
   background-color: var(--primary-button-disable-bg-color);
   border-color: var(--primary-button-disable-border-color);
 }
 
-.primary-button:hover {
+.primary-button:hover:not(:disabled) {
   color: var(--primary-button-hover-color);
   background-color: var(--primary-button-hover-bg-color);
   border-color: var(--primary-button-hover-border-color);
@@ -77,12 +83,13 @@
 }
 
 .secondary-button:disabled {
+  cursor: not-allowed;
   color: var(--secondary-button-disable-color);
   background-color: var(--secondary-button-disable-bg-color);
   border-color: var(--secondary-button-disable-border-color);
 }
 
-.secondary-button:hover {
+.secondary-button:hover:not(:disabled) {
   color: var(--secondary-button-hover-color);
   background-color: var(--secondary-button-hover-bg-color);
   border-color: var(--secondary-button-hover-border-color);
@@ -102,7 +109,7 @@
   background-color: var(--toggle-button-inactive-ball-color);
 }
 
-.peer:focus ~ .slide-toggle-button {
+.peer:focus ~ .toggle-outline {
   outline: 2px solid transparent;
   outline-offset: 2px;
   box-shadow: var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--toggle-button-ring-color);
@@ -110,10 +117,284 @@
 
 .peer:checked ~ .slide-toggle-button {
   border-color: var(--toggle-button-active-border-color);
-  background-color: var(--toggle-button-active-background-color);
+  background-color: var(--toggle-button-active-bg-color);
 }
 
 .peer:checked ~ .slide-toggle-button::after {
   border-color: var(--toggle-button-active-ball-border-color);
   background-color: var(--toggle-button-active-ball-color);
+}
+
+.toggle-no-outline {
+  height: 0.5rem;
+  width: 2rem;
+}
+
+.toggle-no-outline::after {
+  top: -0.25rem;
+}
+
+.toggle-outline {
+  height: 1.25rem;
+  width: 2.25rem;
+}
+
+.toggle-outline::after {
+  top: 2px;
+}
+
+[dir="ltr"] .toggle-no-outline::after {
+  left: 0px;
+}
+
+[dir="rtl"] .toggle-no-outline::after {
+  right: 0px;
+}
+
+[dir="ltr"] .toggle-outline::after {
+  left: 2px;
+}
+
+[dir="rtl"] .toggle-outline::after {
+  right: 2px;
+}
+
+.footer-brand-logo {
+  content: var(--footer-brand-logo-url);
+  height: 25px;
+}
+
+.footer-container {
+  padding-top: 11px;
+  padding-bottom: 11px;
+  color: var(--footer-text-color);
+  font-size: var(--footer-text-size);
+}
+
+.signup-banner {
+  background-color: var(--signup-banner-background-color);
+  border-radius: 0px 0px var(--signup-banner-bottom-radius)
+    var(--signup-banner-bottom-radius);
+  text-align: center;
+  padding-top: var(--signup-banner-padding-top);
+  padding-bottom: var(--signup-banner-padding-bottom);
+  margin-top: var(--signup-banner-margin-top);
+}
+
+.signup-banner-text {
+  font: normal normal normal 15px/19px Inter;
+  letter-spacing: 0px;
+}
+
+.signup-banner-hyperlink {
+  font-style: normal;
+  font-variant: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: 0px;
+  color: var(--signup-banner-signup-url-color);
+}
+
+.signup-banner-hyperlink:hover {
+  color: var(--signup-banner-signup-url-color-hover);
+}
+
+.signup-banner-hyperlink:focus {
+  color: var(--signup-banner-signup-url-color-focus);
+}
+
+.multipurpose-login-card {
+  border-radius: var(--multipurpose-login-card-border-radius);
+  background-color: var(--multipurpose-login-card-background-color);
+  height: max-content;
+}
+
+.section-background .top_left_bg_logo {
+  content: var(--top-left-bg-logo-url);
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  height: 226px;
+  width: 226px;
+}
+
+.section-background .bottom_left_bg_logo {
+  content: var(--bottom-right-bg-logo-url);
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  height: 226px;
+  width: 226px;
+}
+
+.client-logo-size {
+  height: var(--login-client-logo-image-height);
+  width: var(--login-client-logo-image-width);
+}
+
+.alternate-arrow {
+  font-size: var(--login-alternate-arrow-size);
+}
+
+.alternate-arrow::after {
+  content: var(--login-alternate-arrow);
+}
+
+.login-text {
+  color: var(--login-text-color);
+}
+
+.login-card-separator {
+  height: var(--login-card-separator-height);
+  background-image: var(--login-card-separator);
+}
+
+.error-banner {
+  color: #d52929;
+  background-color: #faefef;
+  height: 40px;
+}
+
+.error-banner-text {
+  letter-spacing: 0px;
+  opacity: 1;
+}
+
+.discontinue-button, .discontinue-button:hover:not(:disabled) {
+  border: 2px solid var(--primary-button-border-color);
+  cursor: pointer;
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+[dir="ltr"] .input-box {
+  padding-left: 0.5rem;
+}
+
+[dir="rtl"] .input-box {
+  padding-right: 0.5rem;
+}
+
+.input-box .prefix {
+  letter-spacing: 0px;
+  color: #171a1c;
+  opacity: 0.6;
+  font: normal normal normal 16px/21px Roboto;
+  letter-spacing: 0px;
+}
+
+[dir="ltr"] .input-box .prefix {
+  padding-right: 10px;
+  border-right: 1px solid #707070;
+}
+
+[dir="rtl"] .input-box .prefix {
+  padding-left: 10px;
+  border-left: 1px solid #707070;
+}
+
+[dir="ltr"] .prefix ~ input {
+  padding-left: 10px;
+}
+
+[dir="rtl"] .prefix ~ input {
+  padding-right: 10px;
+}
+
+.input-box input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding-left: 0rem;
+  font: normal normal normal 16px/20px Inter;
+}
+
+[dir="ltr"] .input-box input {
+  padding-left: 10px;
+}
+
+[dir="rtl"] .input-box input {
+  padding-right: 10px;
+}
+
+.input-box:focus-within {
+  border-color: #777;
+}
+
+.checkIcon {
+  stroke: var(--language-check-icon-color);
+}
+
+.forgot-password-hyperlink {
+  color: var(--forgot-password-color);
+  font-size: var(--forgot-password-font-size);
+  width: var(--forgot-password-width);
+  margin-top: var(--forgot-password-margin-top) !important;
+}
+
+[dir="ltr"] .forgot-password-hyperlink {
+  float: right;
+}
+
+[dir="rtl"] .forgot-password-hyperlink {
+  float: left;
+}
+
+.password-google-reCaptcha {
+  margin-top: var(--password-google-reCaptcha-margin-top) !important;
+}
+
+.errorInput {
+  border: 1px solid #D52929;
+}
+
+/* Remove the spinner for the input type number */
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+@media screen and (max-width: 767px) {
+
+  .multipurpose-login-card {
+    border-radius: 0;
+  }
+
+  .signup-banner {
+    margin: 0.75rem;
+    border-radius: 0;
+  }
+
+  .login-text .container {
+    max-width: none;
+  }
+
+  .section-background .container{
+      min-height: auto;
+  }
+
+  .react-tooltip {
+    width: 97vw !important;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .section-background .container{
+    min-height: calc(100vh - 104.6px) !important;
+  }
 }

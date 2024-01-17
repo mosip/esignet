@@ -9,9 +9,11 @@ const baseUrl =
 
 const sendOtpEndPoint = "/authorization/send-otp";
 const authenticateEndPoint = "/authorization/v2/authenticate";
+const authenticateEndPointV3 = "/authorization/v3/authenticate";
 const oauthDetailsEndPoint = "/authorization/v2/oauth-details";
 const authCodeEndPoint = "/authorization/auth-code";
 const csrfEndPoint = "/csrf/token";
+const authorizeQueryParam = "authorize_query_param";
 
 const { getCookie } = { ...localStorageService };
 
@@ -239,6 +241,62 @@ class authService {
     params = params + "#" + responseB64;
     return params;
   };
+
+  /**
+   * Set Authroize url's query parameter in local storage in encoded form
+   * @param {string} queryParam
+   */
+  storeQueryParam = (queryParam) => {
+    const encodedBase64 = Buffer.from(queryParam).toString("base64");
+    localStorage.setItem(authorizeQueryParam, encodedBase64);
+  };
+
+  /**
+   * Get encoded authorize's query param, which is stored in
+   * localstorage with "authorize_query_param" key
+   * @returns {string} encodedAuthorizeQueryParam
+   */
+  getAuthorizeQueryParam = () => {
+    return localStorage.getItem(authorizeQueryParam) ?? "";
+  };
+
+  /**
+   * post authenticate user for password with captcha token
+   * @param {string} transactionId same as Esignet transactionId
+   * @param {String} individualId UIN/VIN of the individual
+   * @param {List<AuthChallenge>} challengeList challenge list based on the auth type(ie. BIO, PIN, INJI)
+   * @param {string} captchaToken captcha token detail
+   * @returns /authenticate API response
+   */
+  post_PasswordAuthenticate = async (
+    transactionId,
+    individualId,
+    challengeList,
+    captchaToken
+  ) => {
+    let request = {
+      requestTime: new Date().toISOString(),
+      request: {
+        transactionId,
+        individualId,
+        challengeList,
+        captchaToken
+      },
+    };
+
+    let endpoint = baseUrl + authenticateEndPointV3;
+
+    let response = await axios.post(endpoint, request, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+      },
+    });
+    return response.data;
+  }
 }
 
 export default authService;

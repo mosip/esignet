@@ -67,6 +67,18 @@ The application runs on PORT=3000 by default.
   - REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC: Buffer time for the consent screen expiry timer.
   - REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT: Limit for the QR code auto refresh.
 
+- JSON configuration variables
+  
+  - username_info_icon: Set info icon next to the username label in the password login.
+  - background_logo: Set a logo in the login and consent page, to the left side of the main card.
+  - footer: Set footer to the bottom of all the pages.
+  - remove_language_indicator_pipe: Remove the indicator pipe next to the language display in the navbar
+  - outline_toggle: Set outline toggler instead of slider toggler.
+
+- Theme based configuration
+
+  For theming your oidc-ui you have to change variable in `variables.css` which can be find inside `public` folder. According to your need you change the css variable, which will reflect in your oidc-ui. It contains color, images path and number in px (for height, width etc.).
+
 - Build and run Docker for a service:
 
   ```

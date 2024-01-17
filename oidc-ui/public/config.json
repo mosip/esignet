@@ -1,0 +1,8 @@
+{
+    "username_info_icon": true,
+    "background_logo": false,
+    "footer": true,
+    "remove_language_indicator_pipe": true,
+    "outline_toggle": false,
+    "outline_dropdown": false
+}

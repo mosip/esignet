@@ -1,22 +1,51 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Select from "react-select";
+import configService from "../services/configService";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import openIDConnectService from "../services/openIDConnectService";
+import authService from "../services/authService";
+import { Buffer } from "buffer";
+
+const config = await configService();
 
 export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   const { t, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,
   });
   const [selectedLang, setSelectedLang] = useState();
+  const authServices = new authService(openIDConnectService);
+  const authorizeQueryParam = "authorize_query_param";
+  const ui_locales = "ui_locales";
 
   const changeLanguageHandler = (e) => {
     i18n.changeLanguage(e.value);
   };
 
   const customStyles = {
-    control: (base) => ({
-      ...base,
-      border: 0,
-    }),
+      control: (base) => ({
+        ...base,
+        border: 0,
+      }),
+      ...(config["remove_language_indicator_pipe"] && {
+        valueContainer: (base) => ({
+          ...base,
+          padding: 0,
+        }),
+        indicatorSeparator: (base) => ({
+          ...base,
+          display: "none",
+        }),
+        dropdownIndicator: (base) => ({
+          ...base,
+          'padding-left': 0,
+          color: '#140701',
+        }),
+        menu: (base) => ({
+          ...base,
+          'min-width': '100px'
+        })
+      })
   };
 
   useEffect(() => {
@@ -46,14 +75,51 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
         return option.value === lng;
       });
       setSelectedLang(language);
+      
+    // Setting up the current i18n language in the URL on every language change.
+
+    // Decode the authorize query param
+    const decodedBase64 = Buffer.from(authServices.getAuthorizeQueryParam(), 'base64').toString();
+    
+    var urlSearchParams = new URLSearchParams(decodedBase64);
+    
+    // Convert the decoded string to JSON
+    var jsonObject = {};
+    urlSearchParams.forEach(function (value, key) {
+      jsonObject[key] = value;
+
+      // Assign the current i18n language to the ui_locales
+      if(key === ui_locales) {
+        jsonObject[key] = language.value
+      }
+    });
+    
+    // Convert the JSON back to decoded string
+    Object.entries(jsonObject).forEach(([key, value]) => {
+      urlSearchParams.set(key, value);
+    });
+
+    // Encode the string
+    var encodedString = urlSearchParams.toString();
+
+    const encodedBase64 = Buffer.from(encodedString).toString("base64");
+
+    // Remove the old authorizeQueryParam from the local storage
+    localStorage.removeItem(authorizeQueryParam)
+
+    // Insert the new authorizeQueryParam to the local storage
+    localStorage.setItem(authorizeQueryParam, encodedBase64);
     });
   }, [langOptions]);
+  
+  var dropdownItemClass =
+  "group text-[14px] leading-none flex items-center relative select-none outline-none data-[disabled]:pointer-events-none hover:font-bold cursor-pointer py-2 first:border-b-[1px]";
 
   return (
-    <nav className="bg-white border-gray-500 shadow px-2 sm:px-4 py-2" id="navbar-header">
+    <nav className="bg-white border-gray-500 shadow md:px-[4rem] py-2 px-[0.5rem]" id="navbar-header">
       <div className="flex justify-between">
         <div className="ltr:sm:ml-8 rtl:sm:mr-8 ltr:ml-1 rtl:mr-1">
-          <img className="brand-logo" />
+          <img className="brand-logo" alt="brand_logo"/>
         </div>
         <div className="flex rtl:sm:ml-8 ltr:sm:mr-8 rtl:ml-1 ltr:mr-1">
           <div className="mx-2 rtl:scale-x-[-1]">
@@ -94,6 +160,8 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
               </g>
             </svg>
           </div>
+        {
+          config["outline_dropdown"] ?
           <Select
             styles={customStyles}
             isSearchable={false}
@@ -103,6 +171,51 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             onChange={changeLanguageHandler}
             id="language_selection"
           />
+          :
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <span
+                className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer text-[14px]"
+                aria-label="Customise options"
+              >
+                {
+                  selectedLang?.label
+                }
+                <img src="images/chevron_down.svg" alt="chevron down" className="mx-1 relative top-[1px]"/>
+              </span>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                className="min-w-[220px] bg-white rounded-md shadow-md will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade px-3 py-2 border border-[#BCBCBC] outline-0 relative top-[-0.5rem]"
+                sideOffset={5}
+              >
+                {langOptions.map((key) => (
+                  <DropdownMenu.Item
+                    key={key.value}
+                    className={
+                      i18n.language === key.value
+                        ? `font-bold ${dropdownItemClass}`
+                        : dropdownItemClass
+                    }
+                    onSelect={() => changeLanguageHandler (key)}
+                  >
+                    {key.label}
+                    <div className="ml-auto">
+                      {i18n.language === key.value && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        className="lucide lucide-check relative top-[1px] checkIcon">
+                        <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      )}
+                    </div>
+                  </DropdownMenu.Item>
+                ))}
+                <DropdownMenu.Arrow stroke="#BCBCBC" className="fill-[#fff]" height={7}/>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+        }
         </div>
       </div>
     </nav>

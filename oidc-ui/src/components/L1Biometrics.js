@@ -8,21 +8,29 @@ import {
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import InputWithImage from "./InputWithImage";
-import ErrorIndicator from "../common/ErrorIndicator";
 import { useTranslation } from "react-i18next";
 import { init, propChange } from "secure-biometric-interface-integrator";
+import ErrorBanner from "../common/ErrorBanner";
+import langConfigService from "../services/langConfigService";
 
 let fieldsState = {};
+const langConfig = await langConfigService.getEnLocaleConfiguration();  
 
 export default function L1Biometrics({
   param,
   authService,
   openIDConnectService,
-  handleBackButtonClick,
-  i18nKeyPrefix = "l1Biometrics",
+  backButtonDiv,
+  i18nKeyPrefix1 = "l1Biometrics",
+  i18nKeyPrefix2 = "errors"
 }) {
-  const { i18n, t } = useTranslation("translation", {
-    keyPrefix: i18nKeyPrefix,
+
+  const { t: t1, i18n } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix1,
+  });
+
+  const { t: t2 } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix2,
   });
 
   const firstRender = useRef(true);
@@ -39,8 +47,7 @@ export default function L1Biometrics({
     msg: "",
   });
 
-  const [error, setError] = useState(null);
-
+  const [errorBanner, setErrorBanner] = useState(null);
   const navigate = useNavigate();
 
   const authTxnIdLengthValue =
@@ -58,7 +65,7 @@ export default function L1Biometrics({
    * which have capturing & authenticate as well
    */
   const authenticateBiometricResponse = async (biometricResponse) => {
-    setError(null);
+    setErrorBanner(null);
     setStatus({ state: states.LOADED, msg: "" });
     const { errorCode } = validateBiometricResponse(biometricResponse);
 
@@ -71,10 +78,9 @@ export default function L1Biometrics({
           openIDConnectService.encodeBase64(biometricResponse["biometrics"])
         );
       } catch (error) {
-        setError({
-          prefix: "authentication_failed_msg",
-          errorCode: error.message,
-          defaultMsg: error.message,
+        setErrorBanner({
+          errorCode: "authentication_failed_msg",
+          show: true
         });
       }
     }
@@ -148,12 +154,23 @@ export default function L1Biometrics({
     const { response, errors } = authenticateResponse;
 
     if (errors != null && errors.length > 0) {
-      setError({
-        prefix: "authentication_failed_msg",
-        errorCode: errors[0].errorCode,
-        defaultMsg: errors[0].errorMessage,
-      });
+
+      let errorCodeCondition = langConfig.errors.biometrics[errors[0].errorCode] !== undefined && langConfig.errors.biometrics[errors[0].errorCode] !== null;
+
+      if (errorCodeCondition) {
+        setErrorBanner({
+          errorCode: `biometrics.${errors[0].errorCode}`,
+          show: true
+        });
+      }
+      else {
+        setErrorBanner({
+          errorCode: `${errors[0].errorCode}`,
+          show: true
+        });
+      }
     } else {
+      setErrorBanner(null);
       let nonce = openIDConnectService.getNonce();
       let state = openIDConnectService.getState();
 
@@ -211,27 +228,22 @@ export default function L1Biometrics({
     });
   }, [loginState]);
 
+  const onCloseHandle = () => {
+    setErrorBanner(null);
+  };
+
   return (
     <>
       <div className="grid grid-cols-8 items-center">
-        <div className="h-6 items-center text-center flex items-start">
-          <button
-            onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
-          >
-            &#8592;
-          </button>
-        </div>
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_biometric")}
-          >
-            {t("sign_in_with_biometric")}
-          </h1>
-        </div>
+        {backButtonDiv}
       </div>
-
+      {errorBanner !== null && (
+        <ErrorBanner
+          showBanner={errorBanner.show}
+          errorCode={t2(errorBanner.errorCode)}
+          onCloseHandle={onCloseHandle}
+        />
+      )}
       <form className="relative mt-8 space-y-5">
         <div className="-space-y-px">
           {inputFields.map((field) => (
@@ -239,19 +251,19 @@ export default function L1Biometrics({
               key={"sbi_" + field.id}
               handleChange={handleInputChange}
               value={loginState["sbi_" + field.id]}
-              labelText={t(field.labelText)}
+              labelText={t1(field.labelText)}
               labelFor={field.labelFor}
               id={"sbi_" + field.id}
               name={field.name}
               type={field.type}
               isRequired={field.isRequired}
-              placeholder={t(field.placeholder)}
+              placeholder={t1(field.placeholder)}
               imgPath="images/photo_scan.png"
-              tooltipMsg="vid_tooltip"
+              tooltipMsg="vid_info"
             />
           ))}
         </div>
-        {status.state === states.LOADING && error === null && (
+        {status.state === states.LOADING && errorBanner === null && (
           <div>
             <LoadingIndicator size="medium" message={status.msg} />
           </div>
@@ -259,16 +271,7 @@ export default function L1Biometrics({
 
         <div id="secure-biometric-interface-integration"></div>
 
-        {error && (
-          <div className="w-full">
-            <ErrorIndicator
-              prefix={error.prefix}
-              errorCode={error.errorCode}
-              defaultMsg={error.defaultMsg}
-            />
-          </div>
-        )}
-        {status.state === states.AUTHENTICATING && error === null && (
+        {status.state === states.AUTHENTICATING && errorBanner === null && (
           <div className="absolute bottom-0 left-0 bg-white bg-opacity-70 h-full w-full flex justify-center font-semibold">
             <div className="flex items-center">
               <LoadingIndicator
