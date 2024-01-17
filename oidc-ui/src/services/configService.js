@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const configEndpoint = "/config.json";
+import { CONFIG } from "../constants/routes";
 
 const configService = async () => {
-  const response = await axios.get(configEndpoint);
+  const response = await axios.get(CONFIG);
   return response.data;
 };
 

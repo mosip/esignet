@@ -77,7 +77,8 @@
     "password_label_text": "Password",
     "uin_placeholder": "Enter 8-9 digit mobile number",
     "password_placeholder": "Enter password",
-    "forgot_password": "Forgot Password?"
+    "forgot_password": "Forgot Password?",
+    "reset_password": "Reset Password"
   },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
@@ -119,7 +120,8 @@
     "more_ways_to_sign_in": "More ways to sign in",
     "or": "OR",
     "sign_in_with": "Verify using {{idProviderName}}",
-    "verify_using_national_id":"Verify using other National IDs"
+    "verify_using_national_id":"Verify using other National IDs",
+    "register": "Register"
   },
   "esignetDetails": {
     "esignet_details_heading": "wellknown APIs",
@@ -161,6 +163,10 @@
     "username_info": "Enter your 8-9 digit registered mobile number and ensure it does not begin with \"0\""
   },
   "errors": {
+    "navigate_option": "Please try navigating using the options below.",
+    "page_not_exist": "Oops! The page you are looking for does not exist.",
+    "something_went_wrong": "Something went wrong!",
+    "experts_working": "Our experts are working hard to make things working again.",
     "username_not_valid": "Enter valid username",
     "password_not_valid": "Enter valid password",
     "no_response_msg": "No Response",
