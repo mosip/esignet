@@ -402,7 +402,7 @@ input[type="number"] {
 
 .error-page-header {
   color: #2c2c2c;
-  font-size: 24px;
+  font: normal normal bold 24px/29px Inter;
   text-align: center;
   letter-spacing: 0px;
   padding-top: 36px;
@@ -410,7 +410,7 @@ input[type="number"] {
 
 .error-page-detail {
   color: #7b7b7b;
-  font-size: 14px;
+  font: normal normal normal 14px/20px Inter;
   text-align: center;
   letter-spacing: 0px;
   padding-top: 10px;
