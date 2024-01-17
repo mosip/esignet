@@ -11,7 +11,7 @@ export default function Input({
   id,
   name,
   type,
-  tooltipMsg = "vid_tooltip",
+  tooltipMsg = "vid_info",
   isRequired = false,
   placeholder,
   customClass,

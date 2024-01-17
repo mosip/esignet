@@ -23,41 +23,41 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 
-function InitiateL1Biometrics(openIDConnectService, handleBackButtonClick) {
+function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
   return React.createElement(L1Biometrics, {
     param: bioLoginFields,
     authService: new authService(openIDConnectService),
     localStorageService: localStorageService,
     openIDConnectService: openIDConnectService,
     sbiService: new sbiService(openIDConnectService),
-    handleBackButtonClick: handleBackButtonClick,
+    backButtonDiv: backButtonDiv,
   });
 }
 
-function InitiatePin(openIDConnectService, handleBackButtonClick) {
+function InitiatePin(openIDConnectService, backButtonDiv) {
   return React.createElement(Pin, {
     param: pinFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleBackButtonClick: handleBackButtonClick,
+    backButtonDiv: backButtonDiv,
   });
 }
 
-function InitiatePassword(openIDConnectService, handleBackButtonClick) {
+function InitiatePassword(openIDConnectService, backButtonDiv) {
   return React.createElement(Password, {
     param: passwordFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleBackButtonClick: handleBackButtonClick,
+    backButtonDiv: backButtonDiv,
   });
 }
 
-function InitiateOtp(openIDConnectService, handleBackButtonClick) {
+function InitiateOtp(openIDConnectService, backButtonDiv) {
   return React.createElement(Otp, {
     param: otpFields,
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
-    handleBackButtonClick: handleBackButtonClick,
+    backButtonDiv: backButtonDiv,
   });
 }
 
@@ -71,13 +71,13 @@ function InitiateSignInOptions(handleSignInOptionClick, openIDConnectService) {
 function InitiateLinkedWallet(
   authFactor,
   openIDConnectService,
-  handleBackButtonClick
+  backButtonDiv
 ) {
   return React.createElement(LoginQRCode, {
     walletDetail: authFactor,
     openIDConnectService: openIDConnectService,
     linkAuthService: new linkAuthService(openIDConnectService),
-    handleBackButtonClick: handleBackButtonClick,
+    backButtonDiv: backButtonDiv,
   });
 }
 
@@ -88,7 +88,7 @@ function InitiateInvalidAuthFactor(errorMsg) {
 function createDynamicLoginElements(
   authFactor,
   oidcService,
-  handleBackButtonClick
+  backButtonDiv
 ) {
   const authFactorType = authFactor.type;
   if (typeof authFactorType === "undefined") {
@@ -98,27 +98,23 @@ function createDynamicLoginElements(
   }
 
   if (authFactorType === validAuthFactors.OTP) {
-    return InitiateOtp(oidcService, handleBackButtonClick);
+    return InitiateOtp(oidcService, backButtonDiv);
   }
 
   if (authFactorType === validAuthFactors.PIN) {
-    return InitiatePin(oidcService, handleBackButtonClick);
+    return InitiatePin(oidcService, backButtonDiv);
   }
 
   if (authFactorType === validAuthFactors.BIO) {
-    return InitiateL1Biometrics(oidcService, handleBackButtonClick);
+    return InitiateL1Biometrics(oidcService, backButtonDiv);
   }
 
   if (authFactorType === validAuthFactors.PWD) {
-    return InitiatePassword(oidcService, handleBackButtonClick);
+    return InitiatePassword(oidcService, backButtonDiv);
   }
 
   if (authFactorType === validAuthFactors.WLA) {
-    return InitiateLinkedWallet(
-      authFactor,
-      oidcService,
-      handleBackButtonClick
-    );
+    return InitiateLinkedWallet(authFactor, oidcService, backButtonDiv);
   }
 
   // default element
@@ -165,13 +161,28 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       createDynamicLoginElements(
         authFactor,
         oidcService,
-        handleBackButtonClick
+        backButtonDiv(oidcService.getAuthFactorList().length > 1 ? handleBackButtonClick : null)
       )
     );
   };
 
   const handleBackButtonClick = () => {
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
+  };
+
+  const backButtonDiv = (handleBackButtonClick) => {
+    return (
+      handleBackButtonClick && (
+        <div className="h-6 items-center text-center flex items-start">
+          <button
+            onClick={() => handleBackButtonClick()}
+            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+          >
+            &#8592;
+          </button>
+        </div>
+      )
+    );
   };
 
   const loadComponent = () => {
@@ -188,9 +199,12 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
         heading={t("login_heading", {
           idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
         })}
+        subheading={t("login_subheading")}
         clientLogoPath={clientLogoURL}
         clientName={clientName}
         component={compToShow}
+        oidcService={oidcService}
+        authService={new authService(null)}
       />
     </>
   );
