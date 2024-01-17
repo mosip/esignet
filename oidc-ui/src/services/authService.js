@@ -1,18 +1,16 @@
-import axios from "axios";
 import localStorageService from "./local-storageService";
 import { Buffer } from "buffer";
+import { ApiService } from "./api.service";
 
-const baseUrl =
-  process.env.NODE_ENV === "development"
-    ? process.env.REACT_APP_ESIGNET_API_URL
-    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
+import {
+  SEND_OTP,
+  AUTHENTICATE,
+  AUTHENTICATE_V3,
+  OAUTH_DETAIL,
+  AUTHCODE,
+  CSRF,
+} from "./../constants/routes";
 
-const sendOtpEndPoint = "/authorization/send-otp";
-const authenticateEndPoint = "/authorization/v2/authenticate";
-const authenticateEndPointV3 = "/authorization/v3/authenticate";
-const oauthDetailsEndPoint = "/authorization/v2/oauth-details";
-const authCodeEndPoint = "/authorization/auth-code";
-const csrfEndPoint = "/csrf/token";
 const authorizeQueryParam = "authorize_query_param";
 
 const { getCookie } = { ...localStorageService };
@@ -43,9 +41,7 @@ class authService {
       },
     };
 
-    let endpoint = baseUrl + authenticateEndPoint;
-
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(AUTHENTICATE, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
@@ -114,9 +110,7 @@ class authService {
       },
     };
 
-    var endpoint = baseUrl + oauthDetailsEndPoint;
-
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(OAUTH_DETAIL, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
@@ -146,8 +140,7 @@ class authService {
       },
     };
 
-    let endpoint = baseUrl + authCodeEndPoint;
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(AUTHCODE, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
@@ -182,9 +175,7 @@ class authService {
       },
     };
 
-    let endpoint = baseUrl + sendOtpEndPoint;
-
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(SEND_OTP, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
@@ -202,9 +193,7 @@ class authService {
    * @returns csrf token.
    */
   get_CsrfToken = async () => {
-    let endpoint = baseUrl + csrfEndPoint;
-
-    let response = await axios.get(endpoint, {
+    let response = await ApiService.get(CSRF, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -280,13 +269,11 @@ class authService {
         transactionId,
         individualId,
         challengeList,
-        captchaToken
+        captchaToken,
       },
     };
 
-    let endpoint = baseUrl + authenticateEndPointV3;
-
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(AUTHENTICATE_V3, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
@@ -296,7 +283,7 @@ class authService {
       },
     });
     return response.data;
-  }
+  };
 }
 
 export default authService;

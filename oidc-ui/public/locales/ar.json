@@ -77,7 +77,8 @@
     "password_label_text": "كلمة المرور",
     "uin_placeholder": "أدخل رقم الجوال المكون من 8-9 أرقام",
     "password_placeholder": "أدخل كلمة المرور",
-    "forgot_password": "هل نسيت كلمة السر؟"
+    "forgot_password": "هل نسيت كلمة السر؟",
+    "reset_password": "إعادة تعيين كلمة المرور"
   },
   "LoginQRCode": {
     "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",
@@ -119,7 +120,8 @@
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "or": "أو",
     "sign_in_with" : "التحقق باستخدام {{idProviderName}}",
-    "verify_using_national_id":"التحقق باستخدام الهويات الوطنية الأخرى"
+    "verify_using_national_id":"التحقق باستخدام الهويات الوطنية الأخرى",
+    "register": "يسجل"
   },
   "esignetDetails": {
     "esignet_details_heading": "واجهات برمجة التطبيقات",
@@ -161,6 +163,10 @@
     "username_info": "أدخل رقم هاتفك المحمول المسجل والمكون من 8 إلى 9 أرقام وتأكد من أنه لا يبدأ بـ \"0\""
   },
   "errors": {
+    "navigate_option": "يرجى محاولة التنقل باستخدام الخيارات أدناه.",
+    "page_not_exist": "أُووبس! الصفحة التي تبحث عنها غير موجودة.",
+    "something_went_wrong": "هناك خطأ ما!",
+    "experts_working": "يعمل خبراؤنا بجد لجعل الأمور تعمل مرة أخرى",
     "username_not_valid": "أدخل اسم مستخدم صالحًا",
     "password_not_valid": "أدخل كلمة مرور صالحة",
     "no_response_msg": "لا يوجد رد",

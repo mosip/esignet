@@ -1,14 +1,10 @@
-import axios from "axios";
 import localStorageService from "./local-storageService";
-
-const baseUrl =
-  process.env.NODE_ENV === "development"
-    ? process.env.REACT_APP_ESIGNET_API_URL
-    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
-
-const linkCodeGenerateEndPoint = "/linked-authorization/link-code";
-const linkStatusEndPoint = "/linked-authorization/link-status";
-const linkAuthorizationCodeEndPoint = "/linked-authorization/link-auth-code";
+import { ApiService } from "./api.service";
+import {
+  LINK_AUTHORIZATION_CODE,
+  LINK_CODE_GENERATE,
+  LINK_STATUS,
+} from "../constants/routes";
 
 const { getCookie } = { ...localStorageService };
 
@@ -30,13 +26,13 @@ class linkAuthService {
       },
     };
 
-    let endpoint = baseUrl + linkCodeGenerateEndPoint;
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(LINK_CODE_GENERATE, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId()
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -57,13 +53,13 @@ class linkAuthService {
       },
     };
 
-    let endpoint = baseUrl + linkStatusEndPoint;
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(LINK_STATUS, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId()
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -84,13 +80,13 @@ class linkAuthService {
       },
     };
 
-    let endpoint = baseUrl + linkAuthorizationCodeEndPoint;
-    let response = await axios.post(endpoint, request, {
+    let response = await ApiService.post(LINK_AUTHORIZATION_CODE, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash": await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId()
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
