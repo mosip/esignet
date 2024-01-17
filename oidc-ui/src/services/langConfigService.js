@@ -1,21 +1,17 @@
 import axios from "axios";
-
-const defaultConfigEndpoint = "/locales/default.json";
-const engConfigEndpoint = "/locales/en.json";
+import { DEFAULT_CONFIG, ENG_CONFIG } from "../constants/routes";
 
 /**
  * fetchs and return the locale configuration stored in public folder
  * @returns json object
  */
 const getLocaleConfiguration = async () => {
-  const endpoint = process.env.PUBLIC_URL + defaultConfigEndpoint;
-
-  const response = await axios.get(endpoint);
+  const response = await axios.get(DEFAULT_CONFIG);
   return response.data;
 };
 
 const getEnLocaleConfiguration = async () => {
-  const response = await axios.get(engConfigEndpoint);
+  const response = await axios.get(ENG_CONFIG);
   return response.data;
 };
 
