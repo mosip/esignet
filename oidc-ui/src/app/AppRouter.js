@@ -76,6 +76,7 @@ export const AppRouter = () => {
     { route: CONSENT, component: <ConsentPage /> },
     { route: SOMETHING_WENT_WRONG, component: <SomethingWrongPage /> },
     { route: PAGE_NOT_FOUND, component: <PageNotFoundPage /> },
+    { route: "*", component: <PageNotFoundPage />}
   ];
 
   return (
@@ -93,7 +94,7 @@ export const AppRouter = () => {
                   element={route.component}
                 />
               ))}
-              <Route component={PageNotFoundPage} />
+              {/* <Route component={PageNotFoundPage} /> */}
             </Routes>
           </div>
         </section>
