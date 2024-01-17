@@ -183,7 +183,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     );
   };
 
-  const handleBackButtonClick = () => {
+  function handleBackButtonClick(){
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
   };
 
@@ -214,12 +214,9 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
         heading={t("login_heading", {
           idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
         })}
-        subheading={t("login_subheading")}
         clientLogoPath={clientLogoURL}
         clientName={clientName}
         component={compToShow}
-        oidcService={oidcService}
-        authService={new authService(null)}
       />
     </>
   );
