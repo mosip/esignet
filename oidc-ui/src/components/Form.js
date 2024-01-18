@@ -209,7 +209,7 @@ export default function Form({
               id={"_form_" + field.id}
               type={field.type}
               isRequired={true}
-              placeholder={t(field.id)}
+              placeholder={t(field.id + "_placeholder" )}
               customClass={inputCustomClass}
               imgPath={null}
               icon={field.infoIcon}
