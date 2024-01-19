@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { SOMETHING_WENT_WRONG, PAGE_NOT_FOUND } from "../constants/routes";
+import { SOMETHING_WENT_WRONG } from "../constants/routes";
 
 const API_BASE_URL =
   process.env.NODE_ENV === "development"
@@ -15,6 +15,12 @@ export class HttpError extends Error {
   }
 }
 
+const allErrorStatusCodes = [
+  400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414,
+  415, 416, 417, 418, 421, 422, 423, 424, 425, 426, 428, 429, 431, 451, 500,
+  501, 502, 503, 504, 505, 506, 507, 508, 510, 511,
+];
+
 // Create own axios instance with defaults.
 export const ApiService = axios.create({
   withCredentials: true,
@@ -26,15 +32,12 @@ export const setupResponseInterceptor = (navigate) => {
     (response) => response,
     (error) => {
       const state = { code: error.response.status };
+      console.log(typeof error.response.status);
       if (
         error.response?.status &&
-        [400, 403, 404, 405, 415, 500, 502, 503, 504].includes(state.code)
+        allErrorStatusCodes.includes(state.code)
       ) {
-        if ([400, 403, 404, 405].includes(state.code)) {
-          navigate(PAGE_NOT_FOUND, { state });
-        } else if ([500, 502, 503, 504].includes(state.code)) {
           navigate(SOMETHING_WENT_WRONG, { state });
-        }
       } else {
         return Promise.reject(error);
       }
