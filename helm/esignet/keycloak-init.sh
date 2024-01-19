@@ -30,7 +30,6 @@ kubectl -n $NS delete secret  --ignore-not-found=true keycloak-client-secrets
 helm -n $NS delete esignet-keycloak-init
 helm -n $NS install esignet-keycloak-init mosip/keycloak-init \
 -f keycloak-init-values.yaml \
---set frontend=https://$IAMHOST_URL/auth \
 --set clientSecrets[0].name="$PMS_CLIENT_SECRET_KEY" \
 --set clientSecrets[0].secret="$PMS_CLIENT_SECRET_VALUE" \
 --set clientSecrets[1].name="$MPARTNER_DEFAULT_AUTH_SECRET_KEY" \
