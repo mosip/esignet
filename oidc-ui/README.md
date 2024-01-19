@@ -20,6 +20,7 @@ Esignet UI contains the following pages:
   - Sign in with Biometrics
   - Sign in with OTP
   - Sign in with PIN(MOCK)
+  - Sign in with Password
 
   Each component allows the user to authenticate in a different way. Each component is mapped to an auth-factor constant.
   For example
@@ -27,8 +28,11 @@ Esignet UI contains the following pages:
   - BIO: Sign in with Biometrics
   - OTP: Sign in with OTP
   - PIN: Sign in with PIN
+  - PWD: Sign in with Password
 
-  Loading of the component in this page depends on the auth-factors returned from the oauth-details endpoint (auth-factors are derived based on the acr_values parameter in authorize request).
+  The initialization of the component on this page is contingent upon the authentication factors received from the oauth-details endpoint. These authentication factors are determined based on the acr_values parameter specified in the authorize request.
+
+  The password-based authentication system incorporates a functionality allowing users to initiate a password recovery process through a designated `Forgot Password` hyperlink.
 
 - /consent: is a page that prompts the user to provide consent to share one's details from the MOSIP to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
 
@@ -69,15 +73,15 @@ The application runs on PORT=3000 by default.
 
 - JSON configuration variables
   
-  - username_info_icon: Set info icon next to the username label in the password login.
-  - background_logo: Set a logo in the login and consent page, to the left side of the main card.
-  - footer: Set footer to the bottom of all the pages.
-  - remove_language_indicator_pipe: Remove the indicator pipe next to the language display in the navbar
-  - outline_toggle: Set outline toggler instead of slider toggler.
+  - username_info_icon: Place the information icon adjacent to the username label within the password login interface.
+  - background_logo: Place the logo on the left side of the main card on the login and consent pages.
+  - footer: Place the footer at the bottom of each page.
+  - remove_language_indicator_pipe: Eliminate the indicator pipe adjacent to the language display within the navigation bar.
+  - outline_toggle: Substitute the outline toggler in lieu of the slider toggler.
 
 - Theme based configuration
 
-  For theming your oidc-ui you have to change variable in `variables.css` which can be find inside `public` folder. According to your need you change the css variable, which will reflect in your oidc-ui. It contains color, images path and number in px (for height, width etc.).
+  To customize the theme of your OIDC-UI, you need to modify the variables within the `variables.css` file located in the `public` folder. Adjust the CSS variables based on your requirements, and these changes will be reflected in your OIDC user interface. The variables encompass attributes such as color, image paths, and numerical values in pixels (e.g., for height, width, etc.).
 
 - Build and run Docker for a service:
 
