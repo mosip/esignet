@@ -1,19 +1,15 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LoginPage from "./pages/Login";
-import AuthorizePage from "./pages/Authorize";
-import ConsentPage from "./pages/Consent";
+import { BrowserRouter } from "react-router-dom";
 import NavHeader from "./components/NavHeader";
 import langConfigService from "./services/langConfigService";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import EsignetDetailsPage from "./pages/EsignetDetails";
 import LoadingIndicator from "./common/LoadingIndicator";
 import { LoadingStates as states } from "./constants/states";
 import Footer from "./components/Footer";
-import configService from "./services/configService";
-
-const config = await configService();
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HttpError } from "./services/api.service";
+import { AppRouter } from "./app/AppRouter";
 
 function App() {
   const { i18n } = useTranslation();
@@ -21,7 +17,24 @@ function App() {
   const [dir, setDir] = useState("");
   const [statusLoading, setStatusLoading] = useState(states.LOADING);
 
-  const { t } = useTranslation();
+  // Create a client
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000, // set to one minutes
+        retry: (failureCount, error) => {
+          // Do not retry on 4xx error codes
+          if (
+            error instanceof HttpError &&
+            String(error.code).startsWith("4")
+          ) {
+            return false;
+          }
+          return failureCount !== 3;
+        },
+      },
+    },
+  });
 
   //Loading rtlLangs
   useEffect(() => {
@@ -54,9 +67,9 @@ function App() {
       console.error("Failed to load rtl languages!");
     }
 
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
       return true;
-    }
+    };
   }, []);
 
   const changeLanguage = (loadLang) => {
@@ -87,7 +100,6 @@ function App() {
       }
     }
 
-
     //2. Check for cookie
     //Language detector will store and use cookie "i18nextLng"
 
@@ -96,23 +108,6 @@ function App() {
 
     //4. default lang set in env-config file as fallback language.
   };
-
-  // check if background logo is required or not,
-  // create a div according to the config variable
-  const backgroundLogoDiv =
-    config["background_logo"] ? (
-      <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
-        <img
-          className="background-logo object-contain rtl:scale-x-[-1]"
-          alt={t("header.backgroud_image_alt")}
-        />
-      </div>
-    ) : (
-      <>
-        <img className="top_left_bg_logo hidden md:block" alt="top left background" />
-        <img className="bottom_left_bg_logo hidden md:block" alt="bottom right background" />
-      </>
-    );
 
   let el;
 
@@ -128,21 +123,11 @@ function App() {
       el = (
         <div dir={dir} className="h-screen">
           <NavHeader langOptions={langOptions} />
-          <BrowserRouter>
-            <div className="section-background">
-            <section className="login-text body-font pt-0 md:py-4">
-              <div className="container justify-center flex mx-auto sm:flex-row flex-col">
-              {backgroundLogoDiv}
-              <Routes>
-                <Route path={process.env.PUBLIC_URL + "/"} element={<EsignetDetailsPage />} />
-                <Route path={process.env.PUBLIC_URL + "/login"} element={<LoginPage />} />
-                <Route path={process.env.PUBLIC_URL + "/authorize"} element={<AuthorizePage />} />
-                <Route path={process.env.PUBLIC_URL + "/consent"} element={<ConsentPage />} />
-              </Routes>
-              </div>
-            </section>
-            </div>
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+              <AppRouter />
+            </BrowserRouter>
+          </QueryClientProvider>
           <Footer />
         </div>
       );
