@@ -36,4 +36,8 @@ public enum Action {
     Action(String module) {
         this.module = module;
     }
+
+    public String getModule() {
+        return this.module;
+    }
 }
