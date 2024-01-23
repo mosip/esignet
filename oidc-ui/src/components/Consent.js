@@ -7,6 +7,10 @@ import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import { LoadingStates, LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import langConfigService from "./../services/langConfigService";
+import ModalPopup from "../common/ModalPopup";
+import configService from "../services/configService";
+
+const config = await configService();
 
 export default function Consent({
   authService,
@@ -14,7 +18,6 @@ export default function Consent({
   authTime,
   openIDConnectService,
   i18nKeyPrefix = "consent",
-  backgroundImgPath
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -31,7 +34,8 @@ export default function Consent({
       configurationKeys.consentScreenTimeOutBufferInSec
     ) ?? process.env.REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC;
 
-  const transactionTimeoutWithBuffer = authenticationExpireInSec - timeoutBuffer;
+  const transactionTimeoutWithBuffer =
+    authenticationExpireInSec - timeoutBuffer;
 
   const firstRender = useRef(true);
   const [status, setStatus] = useState(states.LOADED);
@@ -42,6 +46,11 @@ export default function Consent({
   const [claimsScopes, setClaimsScopes] = useState([]);
   const [langMap, setLangMap] = useState("");
   const [timeLeft, setTimeLeft] = useState(null);
+  const [cancelPopup, setCancelPopup] = useState(false);
+
+  const slideToggleClass = config["outline_toggle"]
+    ? "toggle-outline"
+    : "toggle-no-outline";
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -146,8 +155,6 @@ export default function Consent({
   };
 
   i18next.on("languageChanged", () => {
-    console.log("language changed");
-    console.log(i18next.language);
     setClientMultiLang();
   });
 
@@ -223,7 +230,7 @@ export default function Consent({
       let timePassed = currentTime - authTime;
       let tLeft = transactionTimeoutWithBuffer - timePassed;
       if (tLeft <= 0) {
-        onError("invalid_transaction", t("invalid_transaction"));
+        onError("transaction_timeout", t("transaction_timeout"));
         return;
       }
       setTimeLeft(tLeft);
@@ -244,7 +251,9 @@ export default function Consent({
   }, []);
 
   function formatTime(time) {
-    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
+    const minutes = Math.floor(time / 60)
+      .toString()
+      .padStart(2, "0");
     const seconds = (time % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
   }
@@ -254,9 +263,10 @@ export default function Consent({
     submitConsent(claims, scope);
   };
 
+  // open the modalpopup
   const handleCancel = (e) => {
+    setCancelPopup(true);
     e.preventDefault();
-    onError("consent_request_rejected", t("consent_request_rejected"));
   };
 
   //Handle Login API Integration here
@@ -265,6 +275,8 @@ export default function Consent({
       let transactionId = openIDConnectService.getTransactionId();
 
       setStatus(states.LOADING);
+
+      window.onbeforeunload = null;
 
       const authCodeResponse = await post_AuthCode(
         transactionId,
@@ -324,8 +336,14 @@ export default function Consent({
     //REQUIRED
     params = params + "error=" + errorCode;
 
+    window.onbeforeunload = null;
+
     window.location.replace(redirect_uri + params);
   };
+
+  if (authTime === null) {
+    onError("invalid_transaction", t("invalid_transaction"));
+  }
 
   const sliderButtonDiv = (item, handleOnchange) => (
     <div>
@@ -340,146 +358,200 @@ export default function Consent({
           className="sr-only peer"
           onChange={handleOnchange}
         />
-        <div
-          className="w-9 h-5 border border-neutral-400 bg-white peer-focus:outline-none 
-            peer-focus:ring-4 peer-focus:ring-sky-600 rounded-full peer after:content-['']
-            after:absolute after:top-[2px] after:bg-neutral-400 after:border after:border-neutral-400
-            peer-checked:after:border-sky-500 after:rounded-full after:h-4 after:w-4 after:transition-all
-            peer-checked:after:bg-sky-500 peer-checked:after:bg-sky-500 peer-checked:border-sky-500
-            ltr:peer-checked:after:translate-x-full ltr:after:left-[2px]
-            rtl:peer-checked:after:-translate-x-full rtl:after:right-[2px]"
-        ></div>
+        <div className={"peer ltr:peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full border after:border after:h-4 after:w-4 rounded-full after:rounded-full after:transition-all after:content-[''] after:absolute slide-toggle-button "+slideToggleClass}></div>
       </label>
     </div>
   );
 
   if (consentAction === "NOCAPTURE") {
     return (
-      <div className="flex items-center justify-center">
-        <div className="max-w-md w-full shadow-lg mt-5 rounded bg-[#F8F8F8] px-4 py-4">
+      <div className="flex items-center justify-center section-background">
+        <div className="max-w-md w-full shadow mt-5 rounded loading-indicator px-4 py-4">
           <LoadingIndicator size="medium" message="redirecting_msg" />
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="container flex mx-auto sm:flex-row flex-col">
-      <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
-        <div>
-          <img
-            className="object-contain rtl:scale-x-[-1]"
-            alt={t("backgroud_image_alt")}
-            src={backgroundImgPath}
+  // close the modalpopup
+  const handleStay = () => {
+    setCancelPopup(false);
+  };
+
+  // close the modalpopup and redirect to Relying Party landing page
+  const handleDiscontinue = () => {
+    setCancelPopup(false);
+    onError("consent_request_rejected", t("consent_request_rejected"));
+  };
+
+  // buttons for the modalpopup footer
+  var footerButtons = (
+    <>
+      <div className="mx-5 w-full">
+        <div className="mb-1">
+          <FormAction
+            type={buttonTypes.button}
+            text={t("cancelpopup.stay_btn")}
+            handleClick={handleStay}
+            id="stay"
+          />
+        </div>
+        <div className="mt-1">
+          <FormAction
+            type={buttonTypes.discontinue}
+            text={t("cancelpopup.discontinue_btn")}
+            handleClick={handleDiscontinue}
+            id="discontinue"
           />
         </div>
       </div>
-      <div className="sm:max-w-sm w-full shadow-lg sm:mt-5 rounded-lg bg-white p-4 relative">
-        <div className="bg-[#FFF9F0] rounded-t-lg absolute top-0 left-0 right-0 p-2">
-          {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
-            <div className="text-center">
-              <p className="text-[#4E4E4E] font-semibold">{t("transaction_timeout_msg")}</p>
-              <p className="font-bold text-[#DE7A24]">{formatTime(timeLeft)} </p>
-            </div>
-          )}
-        </div>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="flex justify-center mt-12">
-            <b>
-              {t("consent_request_msg", {
-                clientName: clientName,
-              })}
-            </b>
-          </div>
-          {claimsScopes?.map(
-            (claimScope) =>
-              claimScope?.values?.length > 0 && (
-                <div key={claimScope.label}>
-                  <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4 gap-4">
-                    <div className="flex sm:justify-start">
-                      <div className="font-semibold">
-                        {t(claimScope.label)}
-                        <button
-                          id={claimScope.tooltip}
-                          className="ml-1 text-sky-600 text-xl"
-                          data-tooltip-content={t(claimScope.tooltip)}
-                          data-tooltip-place="top"
-                          onClick={(e) => {
-                            e.preventDefault();
-                          }}
-                          role="tooltip"
-                        >
-                          &#9432;
-                        </button>
-                        <ReactTooltip anchorId={claimScope.tooltip} />
-                      </div>
-                    </div>
-                    <div className="flex justify-end mr-4 ml-4">
-                      {!claimScope?.required &&
-                        claimScope.values.length > 1 &&
-                        sliderButtonDiv(claimScope.label, (e) =>
-                          selectUnselectAllScopeClaim(e, claimScope, true)
-                        )}
-                    </div>
-                  </div>
+    </>
+  );
 
-                  <div className="divide-y">
-                    {claimScope?.values?.map((item) => (
-                      <ul className="list-disc marker:text-[#B9B9B9] ml-4 mr-4">
-                        <li key={item}>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="flex justify-start relative items-center mb-1 mt-1">
-                              <label className="text-sm text-black-900">
-                                {t(item)}
-                              </label>
-                            </div>
-                            <div className="flex justify-end">
-                              {claimScope?.required && (
-                                <label
-                                  labelfor={item}
-                                  className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
-                                >
-                                  {t("required")}
-                                </label>
-                              )}
-                              {!claimScope?.required &&
-                                sliderButtonDiv(item, (e) =>
-                                  selectUnselectAllScopeClaim(e, claimScope)
-                                )}
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                    ))}
-                  </div>
+  return (
+    authTime &&
+    clientName &&
+    claimsScopes.length > 0 && (
+      <>
+        {cancelPopup && (
+          <ModalPopup
+            alertIcon="images/warning_message_icon.svg"
+            header={t("cancelpopup.confirm_header")}
+            body={t("cancelpopup.confirm_text")}
+            footer={footerButtons}
+          />
+        )}
+        <div className="multipurpose-login-card shadow w-full md:w-3/6 md:z-10 lg:max-w-sm m-0 md:m-auto">
+            <div className="bg-[#FFF9F0] rounded-t-lg top-0 left-0 right-0 p-2">
+              {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
+                <div className="text-center">
+                  <p className="text-[#4E4E4E] font-semibold">
+                    {t("transaction_timeout_msg")}
+                  </p>
+                  <p className="font-bold text-[#DE7A24]">
+                    {formatTime(timeLeft)}{" "}
+                  </p>
                 </div>
-              )
-          )}
-          {
-            <div>
-              {status === LoadingStates.LOADING && (
-                <LoadingIndicator size="medium" message="redirecting_msg" />
               )}
             </div>
-          }
-          {status !== LoadingStates.LOADING && (
-            <div className="grid">
-              <FormAction
-                type={buttonTypes.button}
-                text={t("continue")}
-                handleClick={handleSubmit}
-                id="continue"
-              />
-              <FormAction
-                type={buttonTypes.cancel}
-                text={t("cancel")}
-                handleClick={handleCancel}
-                id="cancel"
-              />
+            <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3 pb-4">
+              <div className="w-full flex mt-9 justify-center items-center">
+                <img
+                  className="object-contain client-logo-size"
+                  src={clientLogoPath}
+                  alt={clientName}
+                />
+                <span className="flex mx-5 alternate-arrow"></span>
+                <img
+                  className="object-contain brand-only-logo client-logo-size"
+                  alt={t("logo_alt")}
+                />
+              </div>
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="flex justify-center mt-[30px]">
+                  <b>
+                    {t("consent_request_msg", {
+                      clientName: clientName,
+                    })}
+                  </b>
+                </div>
+                {claimsScopes?.map(
+                  (claimScope) =>
+                    claimScope?.values?.length > 0 && (
+                      <div key={claimScope.label}>
+                        <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4">
+                          <div className="flex sm:justify-start w-max">
+                            <div className="font-semibold">
+                              {t(claimScope.label)}
+                              <button
+                                id={claimScope.tooltip}
+                                className="ml-1 text-sky-600 text-xl info-icon-button"
+                                data-tooltip-content={t(claimScope.tooltip)}
+                                data-tooltip-place="top"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                }}
+                                role="tooltip"
+                              >
+                                &#9432;
+                              </button>
+                              <ReactTooltip anchorId={claimScope.tooltip} className="md:w-3/6 lg:max-w-sm m-0 md:m-auto"/>
+                            </div>
+                          </div>
+                          <div className="flex justify-end mr-4 ml-4">
+                            {!claimScope?.required &&
+                              claimScope.values.length > 1 &&
+                              sliderButtonDiv(claimScope.label, (e) =>
+                                selectUnselectAllScopeClaim(e, claimScope, true)
+                              )}
+                          </div>
+                        </div>
+
+                        <div className="divide-y">
+                          {claimScope?.values?.map((item) => (
+                            <ul className="list-disc marker:text-[#B9B9B9] ml-4 mr-4">
+                              <li key={item}>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="flex justify-start relative items-center mb-1 mt-1">
+                                    <label className="text-sm text-black-900">
+                                      {t(item)}
+                                    </label>
+                                  </div>
+                                  <div className="flex justify-end">
+                                    {claimScope?.required && (
+                                      <label
+                                        labelfor={item}
+                                        className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
+                                      >
+                                        {t("required")}
+                                      </label>
+                                    )}
+                                    {!claimScope?.required &&
+                                      sliderButtonDiv(item, (e) =>
+                                        selectUnselectAllScopeClaim(
+                                          e,
+                                          claimScope
+                                        )
+                                      )}
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                )}
+                {
+                  <div>
+                    {status === LoadingStates.LOADING && (
+                      <LoadingIndicator
+                        size="medium"
+                        message="redirecting_msg"
+                      />
+                    )}
+                  </div>
+                }
+                {status !== LoadingStates.LOADING && (
+                  <div className="grid gap-y-2">
+                    <FormAction
+                      type={buttonTypes.button}
+                      text={t("allow")}
+                      handleClick={handleSubmit}
+                      id="continue"
+                    />
+                    <FormAction
+                      type={buttonTypes.cancel}
+                      text={t("cancel")}
+                      handleClick={handleCancel}
+                      id="cancel"
+                    />
+                  </div>
+                )}
+              </form>
             </div>
-          )}
-        </form>
-      </div>
-    </div>
+        </div>
+      </>
+    )
   );
 }

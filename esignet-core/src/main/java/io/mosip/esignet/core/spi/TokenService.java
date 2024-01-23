@@ -107,7 +107,7 @@ public interface TokenService {
      * exp : Expiration time on or after which the ID Token MUST NOT be accepted for processing.
      * iat : OPTIONAL. Time at which the JWT was issued.
      */
-     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws EsignetException;
+     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException;
 
     /**
      * Verifies access token signature and also the claims with expected values

@@ -5,7 +5,7 @@ export default function FormAction({
   type = "Button", //valid values: Button, Submit and Reset
   text,
   disabled = false,
-  id
+  id,
 }) {
   const className =
     "flex justify-center w-full font-medium rounded-lg text-sm px-5 py-2 text-center border border-2 ";
@@ -16,12 +16,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={
-            className +
-            (disabled
-              ? "text-slate-400 bg-white"
-              : "text-white bg-gradient-to-t from-cyan-500 to-blue-500 hover:bg-gradient-to-b")
-          }
+          className={className + " primary-button"}
           onClick={handleClick}
           disabled={disabled}
           id={id}
@@ -33,12 +28,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={
-            className +
-            (disabled
-              ? "text-slate-400 bg-white"
-              : "text-white bg-gradient-to-t from-cyan-500 to-blue-500 hover:bg-gradient-to-b")
-          }
+          className={className + " primary-button"}
           onSubmit={handleClick}
           disabled={disabled}
           id={id}
@@ -50,12 +40,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={
-            className +
-            (disabled
-              ? "text-slate-400 bg-white"
-              : "text-white bg-gradient-to-t from-cyan-500 to-blue-500 hover:bg-gradient-to-b")
-          }
+          className={className + " primary-button"}
           onClick={handleClick}
           disabled={disabled}
         >
@@ -67,10 +52,21 @@ export default function FormAction({
           type={type}
           value={type}
           className={
-            className +
-            (disabled
-              ? "text-slate-400 bg-white"
-              : "text-gray-900 bg-white hover:bg-gray-100")
+            className + " secondary-button"
+          }
+          onClick={handleClick}
+          disabled={disabled}
+          id={id}
+        >
+          {text}
+        </button>
+      )}
+      {type === buttonTypes.discontinue && (
+        <button
+          type={type}
+          value={type}
+          className={
+            className + "secondary-button discontinue-button"
           }
           onClick={handleClick}
           disabled={disabled}

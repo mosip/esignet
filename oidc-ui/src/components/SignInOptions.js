@@ -16,13 +16,6 @@ export default function SignInOptions({
   const [singinOptions, setSinginOptions] = useState(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
-  const boxStyle = {
-    background: "#FFFFFF 0% 0% no-repeat padding-box",
-    border: "1px solid #BCC0C7",
-    borderRadius: "6px",
-    opacity: 1,
-  };
-
   useEffect(() => {
     setStatus({ state: states.LOADING, msg: "loading_msg" });
 
@@ -35,6 +28,10 @@ export default function SignInOptions({
       ) ?? process.env.REACT_APP_WALLET_CONFIG;
 
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
+
+    if (loginOptions.length === 1) {
+      handleSignInOptionClick(loginOptions[0].value);
+    }
 
     setSinginOptions(loginOptions);
     setShowMoreOptions(loginOptions.length > 4 && loginOptions.length !== 5);
@@ -60,8 +57,7 @@ export default function SignInOptions({
             .map((option, idx) => (
               <div
                 key={idx}
-                className="w-full flex py-2 px-1 my-1 cursor-pointer"
-                style={boxStyle}
+                className="w-full flex py-2 px-1 my-1 cursor-pointer login-list-box-style"
                 id={option.id}
                 onClick={(e) => handleSignInOptionClick(option.value)}
               >

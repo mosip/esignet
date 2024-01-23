@@ -27,7 +27,7 @@ const LoadingIndicator = ({
     <>
       <div
         role="status"
-        className="flex justify-center items-center"
+        className="flex justify-center items-center loading-indicator"
       >
         <svg
           style={dynamicSize[size]}
@@ -47,15 +47,14 @@ const LoadingIndicator = ({
           />
         </svg>
         <span className="sr-only">Loading...</span>
-        {t(message, msgParam)}
+        {message && t(message, msgParam)}
       </div>
     </>
   );
 };
 
 LoadingIndicator.defaultProps = {
-  size: "medium",
-  message: "Loading",
+  size: "medium"
 };
 
 export default LoadingIndicator;
