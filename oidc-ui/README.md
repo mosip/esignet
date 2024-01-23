@@ -81,7 +81,7 @@ The application runs on PORT=3000 by default.
 
 - Theme based configuration
 
-  To customize the theme of your OIDC-UI, you need to modify the variables within the `variables.css` file located in the `public` folder. Adjust the CSS variables based on your requirements, and these changes will be reflected in your OIDC user interface. The variables encompass attributes such as color, image paths, and numerical values in pixels (e.g., for height, width, etc.).
+  To customize the theme of OIDC-UI, modify the variables within the `variables.css` file located in the `public` folder. Adjust the CSS variables based on the requirements, and these changes will be reflected in OIDC user interface. The variables encompass attributes such as color, image paths, and numerical values in pixels (e.g., for height, width, etc.).
 
 - Build and run Docker for a service:
 
