@@ -87,7 +87,7 @@ export default function InputWithImage({
           placeholder={placeholder}
           title={t1(tooltipMsg)}
         />
-        {type === "password" && inputVal.current.value !== "" && (
+        {type === "password" && (
           <span
             className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 cursor-pointer"
             onClick={changePasswordState}
