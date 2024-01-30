@@ -97,7 +97,7 @@ public class VCIssuanceServiceTest {
             }
         });
 
-        Map<String, Object> issuerMetadata = new HashMap<>();
+        Map<String, Object> issuerMetadata = new LinkedHashMap<>();
         issuerMetadata.put("credential_issuer", "https://localhost:9090");
         issuerMetadata.put("credential_endpoint", "https://localhost:9090/v1/esignet/vci/credential");
         Map<String, Object> supportedCredential = new LinkedHashMap<>();
@@ -108,6 +108,14 @@ public class VCIssuanceServiceTest {
         supportedCredential.put("credential_definition", null);
         issuerMetadata.put("credentials_supported", Arrays.asList(supportedCredential));
         ReflectionTestUtils.setField(vcIssuanceService, "issuerMetadata", issuerMetadata);
+
+        Map<String, Object> scopeCredentialMapping = new LinkedHashMap<>();
+        Map<String, Object> credetialMetadata = new HashMap<>();
+        credetialMetadata.put("id", "SampleVerifiableCredential");
+        credetialMetadata.put("format", "ldp_vc");
+        credetialMetadata.put("proof_types_supported", Arrays.asList("jwt"));
+        scopeCredentialMapping.put("sample_vc_ldp", credetialMetadata);
+        ReflectionTestUtils.setField(vcIssuanceService, "scopeCredentialMapping", scopeCredentialMapping);
     }
 
 
@@ -123,7 +131,7 @@ public class VCIssuanceServiceTest {
         CredentialRequest credentialRequest = new CredentialRequest();
         credentialRequest.setFormat("ldp_vc");
         CredentialDefinition credentialDefinition = new CredentialDefinition();
-        credentialDefinition.setType(Arrays.asList("VerifiableCredential", "SampleVerifiableCredential_ldp"));
+        credentialDefinition.setType(Arrays.asList("VerifiableCredential", "SampleVerifiableCredential"));
         credentialDefinition.setContext(Arrays.asList(""));
         credentialRequest.setCredential_definition(credentialDefinition);
         CredentialProof credentialProof = new CredentialProof();

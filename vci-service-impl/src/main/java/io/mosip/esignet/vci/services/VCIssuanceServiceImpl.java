@@ -46,10 +46,13 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     private static final String TYPE_VERIFIABLE_CREDENTIAL = "VerifiableCredential";
 
     @Value("#{${mosip.esignet.vci.key-values}}")
-    private Map<String, Object> issuerMetadata;
+    private LinkedHashMap<String, LinkedHashMap<String, Object>> issuerMetadata;
 
     @Value("${mosip.esignet.cnonce-expire-seconds:300}")
     private int cNonceExpireSeconds;
+
+    @Value("#{${mosip.esignet.credential.scope-credential-mapping}}")
+    private LinkedHashMap<String, Object> scopeCredentialMapping;
 
     @Autowired
     private ParsedAccessToken parsedAccessToken;
@@ -71,8 +74,6 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     @Autowired
     private AuditPlugin auditWrapper;
-
-    private List<LinkedHashMap<String, Object>> supportedCredentials;
 
 
     @Override
@@ -111,8 +112,10 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     }
 
     @Override
-    public Map<String, Object> getCredentialIssuerMetadata() {
-        return issuerMetadata;
+    public Map<String, Object> getCredentialIssuerMetadata(String version) {
+       if(issuerMetadata.containsKey(version))
+           return issuerMetadata.get(version);
+       return issuerMetadata.get("latest");
     }
 
     private VCResult<?> getVerifiableCredential(CredentialRequest credentialRequest, CredentialMetadata credentialMetadata,
@@ -174,13 +177,10 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     }
 
     private Optional<CredentialMetadata>  getScopeCredentialMapping(String scope) {
-        if(supportedCredentials == null) {
-            supportedCredentials = (List<LinkedHashMap<String, Object>>) issuerMetadata.get("credentials_supported");
-        }
-        Optional<LinkedHashMap<String, Object>> result = supportedCredentials.stream()
-                .filter(cm -> cm.get("scope").equals(scope)).findFirst();
-        if(result.isPresent()){
-            CredentialMetadata credentialMetadata = objectMapper.convertValue(result.get(), CredentialMetadata.class);
+        if(scopeCredentialMapping.containsKey(scope)) {
+            CredentialMetadata credentialMetadata = objectMapper.convertValue(scopeCredentialMapping.get(scope),
+                    CredentialMetadata.class);
+            credentialMetadata.setScope(scope);
             return Optional.of(credentialMetadata);
         }
         return Optional.empty();
