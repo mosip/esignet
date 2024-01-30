@@ -5,9 +5,9 @@
   --login-background: #FCFCFF;
   --language-icon-color: #FFFFFF;
   --language-icon-bg-color:  #1262C9;
-  --brand-only-logo-url: url("logo.png");
+  --brand-only-logo-url: url("/logo.png");
   --brand-logo-url: url("");
-  --background-logo-url: url("images/illustration_one.png");
+  --background-logo-url: url("/images/illustration_one.png");
   --primary-button-color: #FFFFFF;
   --primary-button-bg-color: #0953FA;
   --primary-button-border-color: #0953FA;

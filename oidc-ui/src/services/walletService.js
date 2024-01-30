@@ -9,6 +9,7 @@ const modalityIconPath = {
   WALLET: "images/wallet_icon.svg",
   BIO: "images/bio_icon.svg",
   PWD: "images/sign_in_with_otp.png",
+  KBA: "images/sign_in_with_kba.png",
 };
 
 const wlaToAuthfactor = (wla) => {
