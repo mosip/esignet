@@ -179,6 +179,7 @@
     "authentication_failed_msg": "Authentication Failed",
     "send_otp_failed_msg": "Failed to Send OTP",
     "parsing_error_msg": "Unable to Parse",
+    "unauthorized_access": "Unauthorized Access",
     "Network Error": "Network Error",
     "invalid_request": "Invalid Request",
     "invalid_client_id": "Invalid Client Identifier",
