@@ -60,7 +60,6 @@ public class AuthenticationContextClassRefUtil {
     private Map<String, List<AuthenticationFactor>> getAllAMRs()  throws EsignetException {
         try {
             ObjectNode objectNode = objectMapper.readValue(getMappingJson(), new TypeReference<ObjectNode>(){});
-            log.info("Acr ObjectNode {}",objectNode);
             return objectMapper.convertValue(objectNode.get(AMR_KEY),
                     new TypeReference<Map<String, List<AuthenticationFactor>>>(){});
         } catch (IOException e) {
