@@ -179,6 +179,7 @@
     "authentication_failed_msg": "المصادقة فشلت",
     "send_otp_failed_msg": "فشل إرسال OTP",
     "parsing_error_msg": "غير قادر على تحليل",
+    "unauthorized_access": "دخول غير مرخص",
     "Network Error": "خطأ في الشبكة",
     "invalid_request": "طلب غير صالح",
     "invalid_client_id": "معرف العميل غير صالح",
