@@ -90,9 +90,6 @@ public class AuthenticationContextClassRefUtil {
         Map<String, List<AuthenticationFactor>> amr_mappings = getAllAMRs();
         Map<String, List<String>> acr_amr_mappings = getAllACR_AMR_Mapping();
 
-        log.info("amr_mappings values {}",amr_mappings);
-        log.info("acr_amr_mappings values {}",acr_amr_mappings);
-        log.info("authContextReff values {}",authContextClassRefs);
         List<List<AuthenticationFactor>> result = new ArrayList<>();
         for(String acr : authContextClassRefs) {
             List<String> authFactorNames = acr_amr_mappings.getOrDefault(acr, Collections.emptyList());
