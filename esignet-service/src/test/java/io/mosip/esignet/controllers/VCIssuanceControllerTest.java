@@ -58,7 +58,7 @@ public class VCIssuanceControllerTest {
         issuerMetadata.put("credential_endpoint", "https://localhost:9090/v1/esignet/vci/credential");
         issuerMetadata.put("credentials_supported", Arrays.asList());
 
-        Mockito.when(vcIssuanceService.getCredentialIssuerMetadata()).thenReturn(issuerMetadata);
+        Mockito.when(vcIssuanceService.getCredentialIssuerMetadata(Mockito.anyString())).thenReturn(issuerMetadata);
 
         mockMvc.perform(get("/vci/.well-known/openid-credential-issuer"))
                 .andExpect(status().isOk())
@@ -66,6 +66,27 @@ public class VCIssuanceControllerTest {
                 .andExpect(jsonPath("$.credential_issuer").exists())
                 .andExpect(jsonPath("$.credentials_supported").exists())
                 .andExpect(header().string("Content-Type", "application/json"));
+
+        Mockito.verify(vcIssuanceService).getCredentialIssuerMetadata("latest");
+    }
+
+    @Test
+    public void test_getIssuerMetadataWithQueryParam_thenPass() throws Exception {
+        Map<String, Object> issuerMetadata = new HashMap<>();
+        issuerMetadata.put("credential_issuer", "https://localhost:9090");
+        issuerMetadata.put("credential_endpoint", "https://localhost:9090/v1/esignet/vci/credential");
+        issuerMetadata.put("credentials_supported", Arrays.asList());
+
+        Mockito.when(vcIssuanceService.getCredentialIssuerMetadata(Mockito.anyString())).thenReturn(issuerMetadata);
+
+        mockMvc.perform(get("/vci/.well-known/openid-credential-issuer?version=v11"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.credential_issuer").exists())
+                .andExpect(jsonPath("$.credential_issuer").exists())
+                .andExpect(jsonPath("$.credentials_supported").exists())
+                .andExpect(header().string("Content-Type", "application/json"));
+
+        Mockito.verify(vcIssuanceService).getCredentialIssuerMetadata("v11");
     }
 
     @Test
