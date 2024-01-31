@@ -30,6 +30,7 @@ function installing_oidc-ui() {
   --set oidc_ui.configmaps.oidc-ui.REACT_APP_SBI_DOMAIN_URI="http://esignet.$NS" \
   --set oidc_ui.configmaps.oidc-ui.OIDC_UI_PUBLIC_URL=''\
   --set istio.hosts\[0\]=$ESIGNET_HOST \
+  -f values.yaml \
   --version $CHART_VERSION
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
