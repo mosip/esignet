@@ -26,6 +26,7 @@ function installing_oidc-ui() {
 
   echo Installing OIDC UI
   helm -n $NS install oidc-ui mosip/oidc-ui \
+  -f values.yaml
   --set istio.hosts\[0\]=$ESIGNET_HOST \
   --version $CHART_VERSION
 
