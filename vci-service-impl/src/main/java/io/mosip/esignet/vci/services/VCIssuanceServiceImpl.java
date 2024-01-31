@@ -51,9 +51,6 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     @Value("${mosip.esignet.cnonce-expire-seconds:300}")
     private int cNonceExpireSeconds;
 
-    @Value("#{${mosip.esignet.credential.scope-credential-mapping}}")
-    private LinkedHashMap<String, Object> scopeCredentialMapping;
-
     @Autowired
     private ParsedAccessToken parsedAccessToken;
 
@@ -74,6 +71,8 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     @Autowired
     private AuditPlugin auditWrapper;
+
+    private LinkedHashMap<String, Object> supportedCredentials;
 
 
     @Override
@@ -177,10 +176,24 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
     }
 
     private Optional<CredentialMetadata>  getScopeCredentialMapping(String scope) {
-        if(scopeCredentialMapping.containsKey(scope)) {
-            CredentialMetadata credentialMetadata = objectMapper.convertValue(scopeCredentialMapping.get(scope),
-                    CredentialMetadata.class);
-            credentialMetadata.setScope(scope);
+        LinkedHashMap<String, Object> vciMetadata = issuerMetadata.get("latest");
+        if(supportedCredentials == null) {
+            supportedCredentials = (LinkedHashMap<String, Object>) vciMetadata.get("credentials_supported");
+        }
+
+        Optional<Map.Entry<String, Object>> result = supportedCredentials.entrySet().stream()
+                .filter(cm -> ((LinkedHashMap<String, Object>)cm.getValue()).get("scope").equals(scope)).findFirst();
+
+        if(result.isPresent()) {
+            LinkedHashMap<String, Object> metadata = (LinkedHashMap<String, Object>)result.get().getValue();
+            CredentialMetadata credentialMetadata = new CredentialMetadata();
+            credentialMetadata.setFormat((String) metadata.get("format"));
+            credentialMetadata.setProof_types_supported((List<String>) metadata.get("proof_types_supported"));
+            credentialMetadata.setScope((String) metadata.get("scope"));
+            credentialMetadata.setId(result.get().getKey());
+
+            LinkedHashMap<String, Object> credentialDefinition = (LinkedHashMap<String, Object>) metadata.get("credential_definition");
+            credentialMetadata.setTypes((List<String>) credentialDefinition.get("type"));
             return Optional.of(credentialMetadata);
         }
         return Optional.empty();
@@ -188,9 +201,8 @@ public class VCIssuanceServiceImpl implements VCIssuanceService {
 
     private void validateLdpVcFormatRequest(CredentialRequest credentialRequest,
                                                CredentialMetadata credentialMetadata) {
-        if(!(credentialRequest.getCredential_definition().getType().contains(TYPE_VERIFIABLE_CREDENTIAL) &&
-        credentialRequest.getCredential_definition().getType().contains(credentialMetadata.getId())))
-            throw new InvalidRequestException(ErrorConstants.UNSUPPORTED_VC_TYPE);
+        if(!credentialRequest.getCredential_definition().getType().containsAll(credentialMetadata.getTypes()))
+             throw new InvalidRequestException(ErrorConstants.UNSUPPORTED_VC_TYPE);
 
         //TODO need to validate Credential_definition as JsonLD document, if invalid throw exception
     }
