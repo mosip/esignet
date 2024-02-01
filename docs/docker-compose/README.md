@@ -1,7 +1,11 @@
+## Overview
 
-This is the docker-compose setup to run esignet UI and esignet-service with mock identity system.
+This is the docker-compose setup to run esignet UI and esignet-service with mock identity system. This is not for production use.
+
+## What is in the docker-compose setup folder?
 
 1. "app" folder holds the Dockerfile required to build custom artifactory-server. This artifactory server will host all the files under app/static folder.
+All the i18n bundles, dummy softhsm conf, signin-with-esignet button plugin files are served from this server. 
 2. "config" folder holds the esignet and mock-identity system properties file.
 3. "docker-compose.yml" file with esignet and mock-identity-system setup with other required services
 4. "init.sql" comprises DDL and DMLs required by esignet and mock-identity-system.
@@ -19,7 +23,7 @@ should be placed in this folder and respective plugin configuration should be up
 2. Download the postman script from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_collection.json)
 and its environment from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_environment.json)
 
-3. Import the download collection and environment into postman.
+3. Import the downloaded collection and environment into postman.
 
 4. To Create a Mock identity, run the below request from the postman collection "Mock-Identity-System" folder
    * Create Mock Identity
@@ -48,6 +52,7 @@ and its environment from [here](https://github.com/mosip/esignet/blob/master/doc
 
 
 ## How to Access esignet UI?
+
 To invoke the authorize endpoint of esignet UI to start OIDC/VCI flow, use the below URL:
 
 http://localhost:3000/authorize?nonce=ere973eieljznge2311&state=eree2311&client_id=health-service-client&redirect_uri=https://healthservices.com/callback&scope=openid&response_type=code&acr_values=mosip:idp:acr:generated-code&claims=%7B%22userinfo%22:%7B%22name%22:%7B%22essential%22:false%7D,%22phone_number%22:%7B%22essential%22:true%7D%7D,%22id_token%22:%7B%7D%7D&claims_locales=en&display=page&state=consent&ui_locales=en-IN
