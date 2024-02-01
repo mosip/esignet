@@ -27,6 +27,7 @@ function installing_oidc-ui() {
   echo Installing OIDC UI
   helm -n $NS install oidc-ui mosip/oidc-ui \
   --set istio.hosts\[0\]=$ESIGNET_HOST \
+  -f values.yaml \
   --version $CHART_VERSION
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
