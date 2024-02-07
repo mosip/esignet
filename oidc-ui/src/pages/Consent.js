@@ -25,7 +25,7 @@ export default function ConsentPage() {
     return (
       <DefaultError
         backgroundImgPath="images/illustration_one.png"
-        errorCode={"parsing_error_msg"}
+        errorCode={"unauthorized_access"}
       />
     );
   }

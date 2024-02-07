@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
+import io.mosip.esignet.services.AuthorizationHelperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
@@ -43,6 +44,9 @@ public class OAuthController {
     @Autowired
     private AuditPlugin auditWrapper;
 
+    @Autowired
+    private AuthorizationHelperService authorizationHelperService;
+
     @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public TokenResponse getToken(@RequestParam MultiValueMap<String,String> paramMap)
@@ -55,7 +59,8 @@ public class OAuthController {
         try {
         	return oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
+            auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()), "codeHash", null), ex);
             throw ex;
         }               
     }
@@ -73,7 +78,8 @@ public class OAuthController {
         try {
             return oAuthService.getTokens(tokenRequest,true);
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR, AuditHelper.buildAuditDto(paramMap.getFirst("client_id")), ex);
+            auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()),"codeHash", null), ex);
             throw ex;
         }
     }

@@ -1,16 +1,8 @@
 import {
   validAuthFactors,
   walletConfigKeys,
+  modalityIconPath
 } from "../constants/clientConstants";
-
-const modalityIconPath = {
-  PIN: "images/otp_icon.svg",
-  OTP: "images/otp_icon.svg",
-  WALLET: "images/wallet_icon.svg",
-  BIO: "images/bio_icon.svg",
-  PWD: "images/sign_in_with_otp.png",
-  KBA: "images/sign_in_with_kba.png",
-};
 
 const wlaToAuthfactor = (wla) => {
   return {

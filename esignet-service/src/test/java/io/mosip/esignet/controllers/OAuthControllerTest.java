@@ -13,6 +13,7 @@ import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
+import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Test;
@@ -56,6 +57,9 @@ public class OAuthControllerTest {
 
     @MockBean
     VCICacheService vciCacheService;
+
+    @MockBean
+    AuthorizationHelperService authorizationHelperService;
 
     @Test
     public void getAllJwks_thenPass() throws Exception {

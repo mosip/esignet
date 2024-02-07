@@ -12,6 +12,7 @@ export default function Authorize({
   const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails = authService.post_OauthDetails;
   const buildRedirectParams = authService.buildRedirectParams;
+  const storeQueryParam = authService.storeQueryParam;
 
   const [status, setStatus] = useState(states.LOADING);
   const [oAuthDetailResponse, setOAuthDetailResponse] = useState(null);
@@ -23,6 +24,8 @@ export default function Authorize({
   useEffect(() => {
     const callAuthorize = async () => {
       try {
+        storeQueryParam(searchParams.toString());
+
         let nonce = searchParams.get("nonce");
         let state = searchParams.get("state");
 
