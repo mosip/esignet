@@ -90,6 +90,16 @@
     "name_placeholder": "Name",
     "dob_placeholder": "DOB"
   },
+  "Form": {
+    "sign_in_with_details": "Login with Details",
+    "login": "Login",
+    "policyNumber": "Enter Policy Number",
+    "fullName": "Enter Full Name",
+    "dob": "Enter DOB",
+    "policyNumber_placeholder": "Policy Number",
+    "name_placeholder": "Name",
+    "dob_placeholder": "DOB"
+  },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
     "dont_have_wallet": "Don't Have {{walletName}}?",
