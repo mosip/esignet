@@ -20,7 +20,7 @@ let fieldsState = {};
 export default function Form({
   authService,
   openIDConnectService,
-  handleBackButtonClick,
+  backButtonDiv,
   i18nKeyPrefix = "Form",
 }) {
   const { t, i18n } = useTranslation("translation", {
@@ -171,22 +171,7 @@ export default function Form({
   return (
     <>
       <div className="grid grid-cols-8 items-center">
-        <div className="h-6 items-center text-center flex items-start">
-          <button
-            onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
-          >
-            &#8592;
-          </button>
-        </div>
-        <div className="h-6 flex justify-center col-start-2 col-span-6 h-fit">
-          <h1
-            className="text-center text-sky-600 font-semibold line-clamp-2"
-            title={t("sign_in_with_details")}
-          >
-            {t("sign_in_with_details")}
-          </h1>
-        </div>
+      {(backButtonDiv)}
       </div>
 
       {errorBanner.length > 0 && (
