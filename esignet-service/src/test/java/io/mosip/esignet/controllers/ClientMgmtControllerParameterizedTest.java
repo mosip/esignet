@@ -80,6 +80,7 @@ public class ClientMgmtControllerParameterizedTest {
 
     private static Map<String, Object> jwk = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
 
+  //  private static Map<String, Object> jwk2 = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
     private ClientDetailCreateRequestV2 clientDetailCreateRequestV2;
     private ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2;
     private String clientIdQueryParam;
@@ -114,6 +115,11 @@ public class ClientMgmtControllerParameterizedTest {
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                     Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                     Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null,  ErrorConstants.INVALID_CLIENT_NAME },
+            { "With Invalid Language_code", new ClientDetailCreateRequestV2("client-id", "clientname", jwk,
+                    "rp-id", Arrays.asList("given_name"),
+                    Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                    Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                    Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("abc", "clientname");}}), null, null,  ErrorConstants.INVALID_CLIENT_NAME_MAP_KEY },
             { "With Invalid public key", new ClientDetailCreateRequestV2("client-id", "Test client", new HashMap<>(),
                     "rp-id", Arrays.asList("given_name"),
                     Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
