@@ -80,7 +80,6 @@ public class ClientMgmtControllerParameterizedTest {
 
     private static Map<String, Object> jwk = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
 
-  //  private static Map<String, Object> jwk2 = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
     private ClientDetailCreateRequestV2 clientDetailCreateRequestV2;
     private ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2;
     private String clientIdQueryParam;
