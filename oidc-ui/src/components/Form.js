@@ -26,7 +26,7 @@ export default function Form({
   const { t, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,
   });
-
+  
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
@@ -41,7 +41,7 @@ export default function Form({
   const [status, setStatus] = useState(states.LOADED);
   const [invalidState, setInvalidState] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => {  
   }, []);
 
 
@@ -101,6 +101,7 @@ export default function Form({
       ];
 
       setStatus(states.LOADING);
+
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
         uin,
@@ -113,9 +114,15 @@ export default function Form({
       const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
-        setError({
-          errorCode: `form.${errors[0].errorCode}`
-        });
+        if(errors[0].errorCode === "auth_failed"){
+          setError({
+            defaultMsg: t(`${errors[0].errorCode}`)
+          });
+        }else{
+          setError({
+            errorCode: `${errors[0].errorCode}`
+          });
+        }        
         return;
       } else {
         setError(null);
