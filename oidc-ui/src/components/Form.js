@@ -114,9 +114,7 @@ export default function Form({
 
       if (errors != null && errors.length > 0) {
         setError({
-          prefix: "authentication_failed_msg",
-          errorCode: errors[0].errorCode,
-          defaultMsg: errors[0].errorMessage,
+          errorCode: `form.${errors[0].errorCode}`
         });
         return;
       } else {
