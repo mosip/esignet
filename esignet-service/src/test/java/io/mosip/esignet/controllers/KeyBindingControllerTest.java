@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
 import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
@@ -73,6 +74,9 @@ public class KeyBindingControllerTest {
 
 	@MockBean
 	VCICacheService vciCacheService;
+
+	@MockBean
+	AuditPlugin auditPlugin;
 
 	@Test
 	public void sendBindingOtp_withValidRequest_thenPass() throws Exception {

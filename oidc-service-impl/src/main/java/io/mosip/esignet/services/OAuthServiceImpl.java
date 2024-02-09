@@ -78,9 +78,12 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("#{${mosip.esignet.oauth.key-values}}")
     private Map<String, Object> oauthServerDiscoveryMap;
 
+    @Value("${mosip.esignet.discovery.issuer-id}")
+    private String discoveryIssuerId;
+
 
     @Override
-    public TokenResponse getTokens(TokenRequest tokenRequest) throws EsignetException {
+    public TokenResponse getTokens(TokenRequest tokenRequest,boolean isV2) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
 
@@ -89,7 +92,7 @@ public class OAuthServiceImpl implements OAuthService {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
-        authenticateClient(tokenRequest, clientDetailDto);
+        authenticateClient(tokenRequest, clientDetailDto,isV2);
 
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
         if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
@@ -99,10 +102,8 @@ public class OAuthServiceImpl implements OAuthService {
         }
 
         TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped);
-        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
-        transaction.setAHash(accessTokenHash);
         // cache kyc with access-token as key
-        cacheUtilService.setUserInfoTransaction(accessTokenHash, transaction);
+        cacheUtilService.setUserInfoTransaction(transaction.getAHash(), transaction);
         auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
                 transaction), null);
         return tokenResponse;
@@ -202,23 +203,24 @@ public class OAuthServiceImpl implements OAuthService {
             throw new EsignetException(ErrorConstants.PKCE_FAILED);
     }
 
-    private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail) throws EsignetException {
+    private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail,boolean isV2) throws EsignetException {
         switch (tokenRequest.getClient_assertion_type()) {
             case JWT_BEARER_TYPE:
-                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion());
+                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion(),
+                        isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") :discoveryIssuerId+"/oauth/token");
                 break;
             default:
                 throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);
         }
     }
 
-    private void validateJwtClientAssertion(String ClientId, String jwk, String clientAssertion) throws EsignetException {
+    private void validateJwtClientAssertion(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException {
         if(clientAssertion == null || clientAssertion.isBlank())
             throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
 
         //verify signature
         //on valid signature, verify each claims on JWT payload
-        tokenService.verifyClientAssertionToken(ClientId, jwk, clientAssertion);
+        tokenService.verifyClientAssertionToken(clientId, jwk, clientAssertion,audience);
     }
 
     private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped) {
@@ -227,6 +229,8 @@ public class OAuthServiceImpl implements OAuthService {
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         tokenResponse.setToken_type(Constants.BEARER);
+        String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
+        transaction.setAHash(accessTokenHash);
         if(isTransactionVCScoped) {
             tokenResponse.setC_nonce(cNonce);
             tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);

@@ -71,9 +71,6 @@ public class TokenServiceImpl implements TokenService {
     @Value("#{${mosip.esignet.openid.scope.claims}}")
     private Map<String, List<String>> claims;
 
-    @Value("#{${mosip.esignet.discovery.key-values}}")
-    private Map<String, Object> discoveryMap;
-
     @Value("${mosip.esignet.cnonce-expire-seconds:60}")
     private int cNonceExpireSeconds;
 
@@ -140,7 +137,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws EsignetException {
+    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException {
         if(clientAssertion == null)
             throw new EsignetException(ErrorConstants.INVALID_ASSERTION);
 
@@ -149,7 +146,7 @@ public class TokenServiceImpl implements TokenService {
             JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
                     new ImmutableJWKSet(new JWKSet(RSAKey.parse(jwk))));
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                    .audience(Collections.singletonList((String)discoveryMap.get("token_endpoint")))
+                    .audience(Collections.singletonList(audience))
                     .issuer(clientId)
                     .subject(clientId)
                     .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);

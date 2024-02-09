@@ -46,11 +46,21 @@ public interface AuthorizationService {
     AuthResponse authenticateUser(AuthRequest authRequest) throws EsignetException;
 
     /**
-     * Authentication request for the required auth-factors
+     * Authentication request for the required auth-factors,
+     * Handles check on consent registry to decide whether user can proceed with stored consent or re-consent required.
      * @param authRequest
      * @return
      */
     AuthResponseV2 authenticateUserV2(AuthRequest authRequest) throws EsignetException;
+
+    /**
+     * Authentication request for the required auth-factors,
+     * Handles check on consent registry to decide whether user can proceed with stored consent or re-consent required.
+     * Adds captcha token check only for configured auth-factors.
+     * @param authRequest
+     * @return
+     */
+    AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest) throws EsignetException;
 
     /**
      * Accepted claims are verified and KYC exchange is performed

@@ -5,9 +5,13 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.Action;
+import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.KeyBindingService;
+import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,9 @@ public class KeyBindingController {
 
     @Autowired
     private KeyBindingService keyBindingService;
+
+    @Autowired
+    private AuditPlugin auditPlugin;
     
     @PostMapping(value = "binding-otp", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -31,8 +38,16 @@ public class KeyBindingController {
                                                        @RequestHeader Map<String, String> headers)
             throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        responseWrapper.setResponse(keyBindingService.sendBindingOtp(requestWrapper.getRequest(), headers));
+        try {
+            responseWrapper.setResponse(keyBindingService.sendBindingOtp(requestWrapper.getRequest(), headers));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+            auditPlugin.logAudit(Action.SEND_BINDING_OTP, ActionStatus.SUCCESS,
+                    AuditHelper.buildAuditDto("individualId", null), null);
+        } catch (EsignetException ex) {
+            auditPlugin.logAudit(Action.SEND_BINDING_OTP, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto("individualId", null), ex);
+            throw ex;
+        }
         return responseWrapper;
     }
     
@@ -41,9 +56,16 @@ public class KeyBindingController {
     public ResponseWrapper<WalletBindingResponse> bindWallet(@Valid @RequestBody RequestWrapper<WalletBindingRequest> requestWrapper,
                                                              @RequestHeader Map<String, String> headers) throws EsignetException {
         ResponseWrapper response = new ResponseWrapper<WalletBindingResponse>();
-        response.setResponse(keyBindingService.bindWallet(requestWrapper.getRequest(), headers));
-        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        try {
+            response.setResponse(keyBindingService.bindWallet(requestWrapper.getRequest(), headers));
+            auditPlugin.logAudit(Action.KEY_BINDING, ActionStatus.SUCCESS,
+                    AuditHelper.buildAuditDto("individualId", null), null);
+            response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditPlugin.logAudit(Action.KEY_BINDING, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto("individualId", null), ex);
+            throw ex;
+        }
         return response;
-
     }
 }

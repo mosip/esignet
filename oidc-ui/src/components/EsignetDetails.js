@@ -12,8 +12,13 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
     setStatus({ state: states.LOADING, msg: t("loading_msg") });
 
     // if the environment is not passed then this will assigned as empty list
-    let detailList = window._env_.DEFAULT_WELLKNOWN ?? [];
-
+    let detailList = [];
+    try {
+      detailList = JSON.parse(decodeURIComponent(window._env_.DEFAULT_WELLKNOWN));
+    } catch (error) {
+      console.error("Default Wellknown Endpoint is not a valid JSON");
+    }
+    
     setDetails(detailList);
     setStatus({ state: states.LOADED, msg: "" });
   }, []);

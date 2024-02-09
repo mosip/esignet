@@ -14,5 +14,5 @@ public interface VCIssuanceService {
      */
     <T> CredentialResponse<T> getCredential(CredentialRequest credentialRequest);
 
-    Map<String, Object> getCredentialIssuerMetadata();
+    Map<String, Object> getCredentialIssuerMetadata(String version);
 }
