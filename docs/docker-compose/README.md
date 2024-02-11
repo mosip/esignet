@@ -16,23 +16,25 @@ should be placed in this folder and respective plugin configuration should be up
 
 ## How to run this setup?
 
-1. Start the docker-compose file
+1. Create folder loader_path, download and save eSignet mock plugin from [here](https://oss.sonatype.org/service/local/repositories/snapshots/content/io/mosip/esignet/mock/mock-esignet-integration-impl/0.9.2-SNAPSHOT/mock-esignet-integration-impl-0.9.2-20240206.133850-55.jar) into loader_path folder.
+ 
+2. Start the docker-compose file
 
 > docker-compose up
 
-2. Download the postman script from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_collection.json)
+3. Download the postman script from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_collection.json)
 and its environment from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_environment.json)
 
-3. Import the downloaded collection and environment into postman.
+4. Import the downloaded collection and environment into postman.
 
-4. To Create a Mock identity, run the below request from the postman collection "Mock-Identity-System" folder
+5. To Create a Mock identity, run the below request from the postman collection "Mock-Identity-System" folder
    * Create Mock Identity
 
-5. To create an OIDC/OAuth client, run the below request from the postman collection "OIDC Client mgmt" folder
+6. To create an OIDC/OAuth client, run the below request from the postman collection "OIDC Client mgmt" folder
    * Get CSRF token
    * Create OIDC Client
 
-6. To run the OIDC flow with mock identity run the below request(same order) from the postman collection "AuthCode flow with OTP login" folder.
+7. To run the OIDC flow with mock identity run the below request(same order) from the postman collection "AuthCode flow with OTP login" folder.
    * Get CSRF token
    * Authorize / OAuthdetails request
    * Send OTP
@@ -41,7 +43,7 @@ and its environment from [here](https://github.com/mosip/esignet/blob/master/doc
    * Get Tokens
    * Get userInfo
 
-7. To run the Verifiable Credential Issuance flow with mock identity run the below request(same order) from the postman collection "VCI" folder.
+8. To run the Verifiable Credential Issuance flow with mock identity run the below request(same order) from the postman collection "VCI" folder.
    * Get CSRF token
    * Authorize / OAuthdetails request
    * Send OTP
