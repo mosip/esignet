@@ -39,7 +39,7 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
-      
+
   kafka:
     image: wurstmeister/kafka
     container_name: kafka
@@ -54,9 +54,9 @@ services:
       KAFKA_CREATE_TOPICS: "esignet-linked:1:1,esignet-consented:1:1"
 
   esignet:
-    image: 'mosipid/esignet:1.2.0'
+    image: 'mosipdev/esignet:develop'
     user: root
-    ports: 
+    ports:
       - 8088:8088
     environment:
       - artifactory_url_env=http://artifactory-server:8080/
@@ -73,9 +73,9 @@ services:
       - ./loader_path/:/home/mosip/additional_jars/
 
   esignet-ui:
-    image: 'mosipid/oidc-ui:1.2.0'
+    image: 'mosipdev/oidc-ui:develop'
     user: root
-    ports: 
+    ports:
       - 3000:3000
     depends_on:
       - esignet
