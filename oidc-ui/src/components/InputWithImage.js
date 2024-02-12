@@ -43,6 +43,49 @@ export default function InputWithImage({
     setShowPassword(!showPassword);
   };
   
+  const handleKeyDown = (e) => {
+
+    var keyCode = e.keyCode || e.which;
+    
+    // Allow some special keys like Backspace, Tab, Home, End, Left Arrow, Right Arrow, Delete.
+    const allowedKeyCodes = [8, 9, 35, 36, 37, 39, 46];
+
+    if (!allowedKeyCodes.includes(keyCode)) {
+
+      if (type === "number") {
+
+        // Check if the pressed key is a number
+        if (keyCode < 48 || keyCode > 57) {
+          // Prevent the default action (typing the letter or specified character)
+          e.preventDefault();
+        }
+      }
+  
+      else if (type === "letter") {
+
+        // Check if the pressed key is a letter (a-zA-Z)
+        if (!((keyCode >= 65 && keyCode <= 90) ||     // Uppercase letters A-Z
+        (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z
+
+          // Prevent input of other characters
+          e.preventDefault();
+        }
+      }
+  
+      else if (type === "alpha-numeric") {
+
+        // Check if the pressed key is a number (0-9) or a letter (a-zA-Z)
+        if (!((keyCode >= 48 && keyCode <= 57) ||     // Numbers 0-9
+        (keyCode >= 65 && keyCode <= 90) ||           // Uppercase letters A-Z
+        (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z  
+                 
+          // Prevent input of other characters
+          e.preventDefault();
+        }
+      }
+    }
+  }
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -78,6 +121,7 @@ export default function InputWithImage({
           disabled={disabled}
           onChange={handleChange}
           onBlur={blurChange}
+          onKeyDown={handleKeyDown}
           value={value}
           type={type}
           id={id}
