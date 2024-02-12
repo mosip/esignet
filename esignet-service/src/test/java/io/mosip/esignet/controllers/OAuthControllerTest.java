@@ -13,6 +13,7 @@ import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
+import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Test;
@@ -57,6 +58,9 @@ public class OAuthControllerTest {
     @MockBean
     VCICacheService vciCacheService;
 
+    @MockBean
+    AuthorizationHelperService authorizationHelperService;
+
     @Test
     public void getAllJwks_thenPass() throws Exception {
         Map<String, Object> sampleResult = new HashMap<>();
@@ -84,7 +88,7 @@ public class OAuthControllerTest {
     @Test
     public void getToken_withValidInput_thenPass() throws Exception {
         TokenResponse tokenResponse = new TokenResponse();
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenReturn(tokenResponse);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenReturn(tokenResponse);
 
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -110,7 +114,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withInvalidInput_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(InvalidRequestException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(InvalidRequestException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest());
@@ -122,7 +126,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withRuntimeFailure_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(EsignetException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(EsignetException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .param("code", "code")
@@ -143,7 +147,7 @@ public class OAuthControllerTest {
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
 
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class))).thenThrow(NullPointerException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .param("code", "code")
