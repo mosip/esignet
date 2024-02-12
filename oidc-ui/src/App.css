@@ -1,3 +1,9 @@
+.navbar-header {
+  position: var(--navbar-position);
+  z-index: var(--navbar-zIndex);
+  box-shadow: var(--navbar-box-shadow);
+}
+
 .section-background {
   position: relative;
   background-color: var(--login-background);

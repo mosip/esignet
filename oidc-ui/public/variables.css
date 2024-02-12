@@ -70,6 +70,9 @@
   --forgot-password-width: max-content;
   --forgot-password-margin-top: 1rem;
   --password-google-reCaptcha-margin-top: 3rem;
+  --navbar-position: relative;
+  --navbar-zIndex: 1;
+  --navbar-box-shadow: 0px 2px 5px #0000001A;
 }
 
 [class="orange_theme"] {
@@ -144,4 +147,7 @@
   --forgot-password-width: max-content;
   --forgot-password-margin-top: 1rem;
   --password-google-reCaptcha-margin-top: 3rem;
+  --navbar-position: relative;
+  --navbar-zIndex: 1;
+  --navbar-box-shadow: 0px 2px 5px #0000001A;
 }
