@@ -14,6 +14,7 @@ chmod 775 $i18n_path/*
 
 cd $i18n_path
 unzip -o esignet-i18n-bundle.zip
+rm esignet-i18n-bundle.zip
 
 #theme bundle
 echo "Downloading theme bundle files"
@@ -24,6 +25,7 @@ chmod 775 $theme_path/*
 
 cd $theme_path
 unzip -o esignet-theme.zip
+rm esignet-theme.zip
 
 #sign-in-button-plugin
 echo "Downloading plugins"
@@ -33,6 +35,7 @@ wget --no-check-certificate --no-cache --no-cookies $SIGN_IN_WITH_ESIGNET_PLUGIN
 echo "unzip plugins.."
 cd $plugins_path/temp
 unzip -o sign-in-button-plugin.zip
+rm sign-in-button-plugin.zip
 
 #move the required js file
 mv $plugins_path/temp/sign-in-with-esignet/$plugins_format/index.js $plugins_path/sign-in-button-plugin.js
