@@ -283,7 +283,7 @@ public class AuthCodeFlowTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
         authChallenge.setChallenge("34789");
-        authChallenge.setFormat("number");
+        authChallenge.setFormat("numeric");
         kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
         kycAuthDto.setTransactionId(transactionId);
 

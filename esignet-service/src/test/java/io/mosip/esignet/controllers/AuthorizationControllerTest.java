@@ -733,7 +733,7 @@ public class AuthorizationControllerTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setChallenge("12345");
         authChallenge.setAuthFactorType("OTP");
-        authChallenge.setFormat("numeric");
+        authChallenge.setFormat("alpha-numeric");
 
         List<AuthChallenge> authChallengeList = new ArrayList<>();
         authChallengeList.add(authChallenge);
@@ -786,7 +786,36 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void authenticateEndUser_withInvalidTransectionId_returnErrorResponse() throws Exception {
+    public void authenticateEndUser_withInvalidFormat_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setFormat("jwt");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0]: invalid_challenge_format"));
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidTransactionId_returnErrorResponse() throws Exception {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setIndividualId("1234567890");
 

@@ -295,7 +295,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -319,7 +319,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -342,7 +342,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("  ");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -364,7 +364,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("txn-id");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -412,7 +412,7 @@ public class LinkedAuthorizationControllerTest {
 
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE, INVALID_CHALLENGE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 4);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
@@ -662,7 +662,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -686,7 +686,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("link-transaction-id");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -709,7 +709,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("  ");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -731,7 +731,7 @@ public class LinkedAuthorizationControllerTest {
         LinkedKycAuthRequest linkedKycAuthRequest = new LinkedKycAuthRequest();
         linkedKycAuthRequest.setLinkedTransactionId("txn-id");
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setFormat("format");
+        authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setChallenge("challenge");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
@@ -779,7 +779,7 @@ public class LinkedAuthorizationControllerTest {
 
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE, INVALID_CHALLENGE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 4);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
