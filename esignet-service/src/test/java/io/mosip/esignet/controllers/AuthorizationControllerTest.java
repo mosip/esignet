@@ -810,8 +810,8 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT))
-                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0]: invalid_challenge_format"));
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0]: invalid_challenge_format_for_auth_factor_type"));
     }
 
     @Test

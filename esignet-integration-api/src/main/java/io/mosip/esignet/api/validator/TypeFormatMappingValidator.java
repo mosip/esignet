@@ -6,36 +6,25 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.List;
 import java.util.Map;
 
-
 @Component
-public class FormatValidator implements ConstraintValidator<Format, AuthChallenge> {
+public class TypeFormatMappingValidator implements ConstraintValidator<TypeFormatMapping, AuthChallenge> {
+
     @Value("#{${mosip.esignet.supported-formats}}")
     private Map<String, Object> supportedFormats;
 
     @Override
-    public void initialize(Format constraintAnnotation) {
+    public void initialize(TypeFormatMapping constraintAnnotation) {
     }
 
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
         Object supportedFormatType = supportedFormats.get(authChallenge.getAuthFactorType());
-        if(supportedFormatType instanceof List) {
-            List<String> supportedFormatsList = (List<String>) supportedFormatType;
-            if (!supportedFormatsList.contains(authChallenge.getFormat())) {
-                return false;
-            }
-        } else if (supportedFormatType instanceof String) {
+        if (supportedFormatType != null ) {
             String supportedFormat = (String) supportedFormatType;
-            if (!supportedFormat.equals(authChallenge.getFormat())) {
-                return false;
-            }
-        } else {
-            return false;
+            return supportedFormat.equals(authChallenge.getFormat());
         }
-        return true;
+        return false;
     }
-
 }

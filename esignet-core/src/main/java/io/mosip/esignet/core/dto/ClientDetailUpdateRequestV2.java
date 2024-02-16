@@ -19,7 +19,7 @@ import java.util.Map;
 public class ClientDetailUpdateRequestV2 extends ClientDetailUpdateRequest {
 
     @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME)
-    private Map<@Size(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_KEY, min = 3, max = 3) @ClientNameLang String,
+    private Map<@ClientNameLang String,
             @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientNameLangMap;
 
     public ClientDetailUpdateRequestV2(String logUri, List<String> redirectUris, List<String> userClaims, List<String> authContextRefs, String status, List<String> grantTypes, String clientName, List<String> clientAuthMethods, Map<String,String> clientNameLangMap){

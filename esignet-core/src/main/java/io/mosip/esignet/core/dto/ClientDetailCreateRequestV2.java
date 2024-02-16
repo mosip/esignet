@@ -23,7 +23,7 @@ import java.util.Map;
 public class ClientDetailCreateRequestV2 extends ClientDetailCreateRequest {
 
     @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME)
-    private Map<@Size(message= ErrorConstants.INVALID_CLIENT_NAME_MAP_KEY, min=3, max=3) @ClientNameLang String,
+    private Map<@ClientNameLang String,
             @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientNameLangMap;
             
     public ClientDetailCreateRequestV2(String clientId, String clientName, Map<String, Object> publicKey, String relyingPartyId,

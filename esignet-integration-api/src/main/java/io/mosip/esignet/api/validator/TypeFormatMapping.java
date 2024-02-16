@@ -14,10 +14,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = FormatValidator.class)
+@Constraint(validatedBy = TypeFormatMappingValidator.class)
 @Documented
-public @interface Format {
-    String message() default ErrorConstants.INVALID_CHALLENGE_FORMAT;
+public @interface TypeFormatMapping {
+    String message() default ErrorConstants.INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE;
 
     Class<?>[] groups() default {};
 

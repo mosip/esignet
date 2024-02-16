@@ -1,16 +1,6 @@
 package io.mosip.esignet.controllers;
 
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_AUTH_FACTOR_TYPE;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CHALLENGE;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CHALLENGE_FORMAT;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_IDENTIFIER;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_LINK_CODE;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_OTP_CHANNEL;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_TRANSACTION_ID;
-import static io.mosip.esignet.core.constants.ErrorConstants.RESPONSE_TIMEOUT;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_ACCEPTED_CLAIM;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_PERMITTED_SCOPE;
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_SIGNATURE_FORMAT;
+import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -410,12 +400,13 @@ public class LinkedAuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE, INVALID_CHALLENGE_FORMAT);
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE,INVALID_CHALLENGE);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
         Assert.assertTrue(responseWrapper.getErrors().size() == 4);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
     }
 
     @Test
@@ -777,12 +768,13 @@ public class LinkedAuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE, INVALID_CHALLENGE_FORMAT);
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE,INVALID_CHALLENGE);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
         Assert.assertTrue(responseWrapper.getErrors().size() == 4);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
     }
 
     @Test
