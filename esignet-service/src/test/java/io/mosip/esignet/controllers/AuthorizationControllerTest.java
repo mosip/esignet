@@ -815,6 +815,64 @@ public class AuthorizationControllerTest {
     }
 
     @Test
+    public void authenticateEndUser_withBlankFormat_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setFormat("");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0].format: invalid_challenge_format"));
+    }
+
+    @Test
+    public void authenticateEndUser_withNullFormat_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setFormat(null);
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0]: invalid_challenge_format_for_auth_factor_type"));
+    }
+
+    @Test
     public void authenticateEndUser_withInvalidTransactionId_returnErrorResponse() throws Exception {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setIndividualId("1234567890");
@@ -886,7 +944,7 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void getAuthorizationCode_withInValidAcceptedClaim_thenErrorResposne() throws Exception {
+    public void getAuthorizationCode_withInValidAcceptedClaim_thenErrorResponse() throws Exception {
         AuthCodeRequest authCodeRequest = new AuthCodeRequest();
         authCodeRequest.setTransactionId("1234567890");
         authCodeRequest.setAcceptedClaims(Arrays.asList("name",""));
