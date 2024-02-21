@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
@@ -18,6 +19,7 @@ import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import io.mosip.esignet.vci.services.VCICacheService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -37,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
+import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -815,6 +819,72 @@ public class AuthorizationControllerTest {
     }
 
     @Test
+    public void authenticateEndUser_withNullAuthFactorType_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType(null);
+        authChallenge.setFormat("jwt");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        MvcResult mvcResult=mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+
+        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE);
+        ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+    }
+
+    @Test
+    public void authenticateEndUser_withNullAuthChallenge_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType(null);
+        authChallenge.setFormat(null);
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        MvcResult mvcResult=mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+
+        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE,INVALID_CHALLENGE_FORMAT);
+        ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+    }
+
+    @Test
     public void authenticateEndUser_withBlankFormat_returnErrorResponse() throws Exception {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setIndividualId("1234567890");
@@ -834,13 +904,16 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
         wrapper.setRequest(authRequest);
         when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
-        mockMvc.perform(post("/authorization/v2/authenticate")
+        MvcResult mvcResult=mockMvc.perform(post("/authorization/v2/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT))
-                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0].format: invalid_challenge_format"));
+                .andExpect(status().isOk()).andReturn();
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE);
+        ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+
     }
 
     @Test
@@ -863,13 +936,15 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
         wrapper.setRequest(authRequest);
         when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
-        mockMvc.perform(post("/authorization/v2/authenticate")
+        MvcResult mvcResult=mockMvc.perform(post("/authorization/v2/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE))
-                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0]: invalid_challenge_format_for_auth_factor_type"));
+                .andExpect(status().isOk()).andReturn();
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE);
+        ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
     }
 
     @Test
