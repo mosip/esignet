@@ -16,20 +16,19 @@ e-Signet repository contains following:
 8. vci-service-impl - Credential issuance service implementation classes.
 9. db_scripts - Contains all the db scripts required to setup or upgrade the DB for esignet module.
 
-
 ## Databases
 Refer to [SQL scripts](db_scripts).
 
-## Build & run (for developers)
+## Build (for developers)
 The project requires JDK 11.
-1. Build and install:
+1. Build:
     ```
     $ mvn clean install -Dgpg.skip=true
     ```
-1. Build Docker for a service:
-    ```
-    $ docker build -f Dockerfile
-    ```
+
+## Run eSignet (for developers)
+To simplify running eSignet in local for developers we have added [Docker Compose Setup](docker-compose/README.md). 
+This docker-compose includes eSignet service and UI along with mock-identity-system to test the local deployment. 
 
 ## Installing in k8s cluster using helm
 ### Pre-requisites
@@ -83,12 +82,14 @@ The project requires JDK 11.
   ./restart-all.sh
   ```
 
-## Onboard esignet
-* Run onboarder's [install.sh](partner-onboarder) script to exchange jwk certificates.
+### Onboard esignet - Required only when eSignet is integrated with MOSIP IDA
+* Run onboarder's [install.sh](partner-onboarder) script to onboard esignet as MISP.
   
-
 ## APIs
 API documentation is available [here](https://mosip.stoplight.io/docs/identity-provider/branches/main/6f1syzijynu40-identity-provider).
+
+## Documentation
+eSignet documentation is available [here](https://docs.esignet.io/).
 
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
