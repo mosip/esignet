@@ -292,6 +292,7 @@
     "proof_invalid_nonce": "قيمة غير صالحة في مطالبة PHAILLOLL NONCE.",
     "invalid_state_response": "حالة غير صالحة",
     "authCode_missing": "رمز المصادقة مفقود",
+    "failed_to_validate_captcha": "فشل التحقق من صحة كلمة التحقق",
     "0": "النجاح",
     "100": "الجهاز غير مسجل",
     "101": "غير قادر على الكشف عن كائن القياسات الحيوية",

@@ -197,6 +197,30 @@ export default function Password({
             show: true
           });
         }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          let state = openIDConnectService.getState();
+          let redirect_uri = openIDConnectService.getRedirectUri();
+
+          if (!redirect_uri) {
+            return;
+          }
+
+          let params = "?";
+
+          if (errors[0].errorCode) {
+            params = params + "error_description=" + errors[0].errorCode + "&";
+          }
+
+          //REQUIRED
+          params = params + "state=" + state + "&";
+
+          //REQUIRED
+          params = params + "error=" + errors[0].errorCode;
+
+          window.onbeforeunload = null;
+
+          window.location.replace(redirect_uri + params);
+        }
         else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
