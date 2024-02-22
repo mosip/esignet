@@ -1,9 +1,9 @@
 openapi: 3.1.0
 x-stoplight:
-  id: 2c0p77qzs8cwq
+  id: jlmszj6dlxigw
 info:
   title: e-Signet
-  version: '1.2.0'
+  version: '1.0'
   contact:
     name: MOSIP Team
     email: info@mosip.io
@@ -30,8 +30,8 @@ info:
     PSUT - Partner(Relying Party) Specific User Token</br>
     VC - Verifiable Credential</br>
     VCI - Verifiable Credential Issuance      
-  
-
+        
+       
   license:
     name: MPL-2.0
     url: 'https://www.mozilla.org/en-US/MPL/2.0/'
@@ -214,7 +214,7 @@ paths:
                         description: Client id as provided in the request.
                       status:
                         x-stoplight:
-                          id: 0c9663wceaxdz
+                          id: gzm5vitxsi7n0
                         enum:
                           - ACTIVE
                           - INACTIVE
@@ -256,7 +256,7 @@ paths:
       security:
         - Authorization-add_oidc_client: []
       x-stoplight:
-        id: s6blkzlwa8f1x
+        id: 3xo3hxsuoh8q5
       deprecated: true
     parameters: []
   /client-mgmt/oauth-client:
@@ -397,6 +397,7 @@ paths:
                     logoUri: 'https://fastlane.com/fastlane-esim.png'
                     redirectUris:
                       - 'https://fastlane.com/homepage'
+                      - 'io.mosip.residentapp://oauth'
                     publicKey:
                       kty: RSA
                       e: AQAB
@@ -422,7 +423,7 @@ paths:
 
         Each relying party can associate with one or more client ids.
 
-        On create, client status will be by default set to "**active**".
+        On create, client status will be by default set to "**ACTIVE**".
       x-internal: false
       responses:
         '200':
@@ -443,7 +444,7 @@ paths:
                         description: Client id as provided in the request.
                       status:
                         x-stoplight:
-                          id: 9iseixjanmh02
+                          id: r18fpmysnbbw1
                         enum:
                           - ACTIVE
                           - INACTIVE
@@ -488,7 +489,7 @@ paths:
       security:
         - Authorization-add_oidc_client: []
       x-stoplight:
-        id: 7uu3h6i9idiic
+        id: w38qt9u1606us
     parameters: []
   '/client-mgmt/oidc-client/{client_id}':
     parameters:
@@ -521,7 +522,7 @@ paths:
                         description: OIDC client identifier.
                       status:
                         x-stoplight:
-                          id: mg42gkw74lymy
+                          id: qcrl8hlg54388
                         enum:
                           - ACTIVE
                           - INACTIVE
@@ -687,7 +688,7 @@ paths:
       security:
         - Authorization-update_oidc_client: []
       x-stoplight:
-        id: tb7ue7javd2f1
+        id: mlg7hqgbfgbrg
       deprecated: true
   '/client-mgmt/oauth-client/{client_id}':
     put:
@@ -712,7 +713,7 @@ paths:
                         description: Client identifier.
                       status:
                         x-stoplight:
-                          id: 4dbx7y3pexzlf
+                          id: s6wp27e74gda5
                         enum:
                           - ACTIVE
                           - INACTIVE
@@ -891,7 +892,7 @@ paths:
       security:
         - Authorization-update_oidc_client: []
       x-stoplight:
-        id: 06urgrccsldii
+        id: avezrvcomsuik
     parameters:
       - schema:
           type: string
@@ -994,6 +995,13 @@ paths:
           description: 'End user''s preferred languages and scripts for the user interface, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. For instance, the value "fr-CA fr en" represents a preference for French as spoken in Canada, then French (without a region designation), followed by English (without a region designation). An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.'
         - schema:
             type: string
+            enum:
+              - 'mosip:idp:acr:password'
+              - 'mosip:idp:acr:static-code'
+              - 'mosip:idp:acr:generated-code'
+              - 'mosip:idp:acr:linked-wallet'
+              - 'mosip:idp:acr:biometrics'
+              - 'mosip:idp:acr:knowledge'
           in: query
           name: acr_values
           description: 'Requested Authentication Context Class Reference values. Space-separated string that specifies the acr values that the Authorization Server is being requested to use for processing this Authentication Request, with the values appearing in order of preference. The Authentication Context Class satisfied by the authentication performed is returned as the acr Claim Value, as specified in Section 2. The acr Claim is requested as a Voluntary Claim by this parameter.'
@@ -1026,7 +1034,7 @@ paths:
       tags:
         - OIDC
       x-stoplight:
-        id: w26ni0qt5mduu
+        id: ben9rp8un3yp7
     parameters: []
   /authorization/oauth-details:
     post:
@@ -1052,7 +1060,7 @@ paths:
                         description: |-
                           Auth factors defines the authentication screens displayed in IDP frontend.
                           More than one authFactor may be resolved or combination of auth factors.
-                          Precedence of authFactors is based on its order
+                          Precedence of authFactors is based on its order  
                         type: array
                         items:
                           type: array
@@ -1243,7 +1251,7 @@ paths:
       tags:
         - UI
       x-stoplight:
-        id: c1911yceexshx
+        id: mlic9ug1q339a
       deprecated: true
     parameters: []
   /authorization/v2/oauth-details:
@@ -1270,7 +1278,7 @@ paths:
                         description: |-
                           Auth factors defines the authentication screens displayed in IDP frontend.
                           More than one authFactor may be resolved or combination of auth factors.
-                          Precedence of authFactors is based on its order
+                          Precedence of authFactors is based on its order  
                         type: array
                         items:
                           type: array
@@ -1306,11 +1314,11 @@ paths:
                         type:
                           - array
                         x-stoplight:
-                          id: kq80bz2ts91vz
+                          id: 3suodxtkh8v9i
                         description: List of valid credential scopes requested
                         items:
                           x-stoplight:
-                            id: ulpnul1d1uude
+                            id: ym8vv6wuabqza
                           type: string
                     required:
                       - transactionId
@@ -1427,10 +1435,11 @@ paths:
                       type: string
                       description: 'Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for re-authentication and consent.'
                     acrValues:
-                      type: string
                       description: |-
                         Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
                         if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                      type:
+                        - string
                     claims:
                       $ref: '#/components/schemas/Claim'
                     maxAge:
@@ -1445,11 +1454,11 @@ paths:
                     codeChallenge:
                       type: string
                       x-stoplight:
-                        id: g7ivgv145ptme
+                        id: te04xe5gbihic
                       description: 'A challenge derived from the code verifier, to be verified against later.'
                     codeChallengeMethod:
                       x-stoplight:
-                        id: ux20l8om4zxgq
+                        id: lr9kixs0gnn10
                       description: A method that was used to derive code challenge.
                       enum:
                         - S256
@@ -1494,7 +1503,7 @@ paths:
       tags:
         - UI
       x-stoplight:
-        id: 3s6yumwe9nw1x
+        id: c0nl3p4e6q2g0
     parameters: []
   /authorization/send-otp:
     post:
@@ -1632,7 +1641,7 @@ paths:
       tags:
         - UI
       x-stoplight:
-        id: fcqk6ou9l595u
+        id: scnaq3uhnffsc
     parameters: []
   /linked-authorization/send-otp:
     post:
@@ -1746,7 +1755,7 @@ paths:
       tags:
         - UI
       x-stoplight:
-        id: vra4t7y3yvqeg
+        id: 0rzzq9uyciklh
     parameters: []
   /authorization/authenticate:
     post:
@@ -1869,7 +1878,7 @@ paths:
         - UI
         - WALLET
       x-stoplight:
-        id: 3439343ywm7yy
+        id: aovkg7fruysqy
       deprecated: true
     parameters: []
   /authorization/v2/authenticate:
@@ -1895,7 +1904,7 @@ paths:
                       consentAction:
                         type: string
                         x-stoplight:
-                          id: gq30p6w6eprol
+                          id: d2z5vk8sj9krn
                         enum:
                           - CAPTURE
                           - NOCAPTURE
@@ -2005,7 +2014,161 @@ paths:
         - UI
         - WALLET
       x-stoplight:
-        id: l56iayzlok59y
+        id: fyrtfdg35t4zs
+    parameters: []
+  /authorization/v3/authenticate:
+    post:
+      summary: Authentication Endpoint V3
+      operationId: post-authenticate-v2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                  response:
+                    type: object
+                    properties:
+                      transactionId:
+                        type: string
+                        description: This is the same transactionId sent in the oauth-details response.
+                      consentAction:
+                        type: string
+                        enum:
+                          - CAPTURE
+                          - NOCAPTURE
+                        description: |
+                          This field indicates the need to capture user consent or not
+                  errors:
+                    type: array
+                    description: List of Errors in case of request validation / processing failure in Idp server.
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_transaction
+                            - invalid_identifier
+                            - invalid_no_of_challenges
+                            - auth_failed
+                            - unknown_error
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      consentAction: CAPTURE
+                    errors: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestTime:
+                  type: string
+                  pattern: 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
+                request:
+                  type: object
+                  required:
+                    - transactionId
+                    - individualId
+                    - challengeList
+                  properties:
+                    transactionId:
+                      type: string
+                      description: This is the same transactionId sent in the oauth-details response.
+                    individualId:
+                      type: string
+                      description: ' User identifier (UIN/VID).'
+                    challengeList:
+                      type: array
+                      description: Authentication Challenge.
+                      items:
+                        $ref: '#/components/schemas/AuthChallenge'
+                    captchaToken:
+                      type: string
+                      x-stoplight:
+                        id: ysnimmcgkmvkt
+                      description: |-
+                        Below property is used to validate captcha.
+                        mosip.esignet.captcha.required.auth-factors={'PWD'}
+
+                        Only when configured auth-factors are part of the authenticate request v3 endpoint will validate the input captcha token.
+              required:
+                - requestTime
+                - request
+            examples:
+              Example 1:
+                value:
+                  value:
+                    requestTime: '2023-09-22T08:01:10.000Z'
+                    request:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      individualId: '464737289558'
+                      challengeList:
+                        - authFactorType: OTP
+                          challenge: '111111'
+                          format: alpha-numeric
+              KBA auth factor example:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                    individualId: 238/934-9045/236789
+                    challengeList:
+                      - authFactorType: KBA
+                        challenge: eyJuYW1lIjogIlRvbSBLaXJrbWFuIiwgImRvYiI6ICIyNi8wMS8xOTgwIn0
+                        format: base64url-encoded-json
+                    captchaToken: string
+        description: ''
+      description: |-
+        Once end user provides the user identifier (UIN/VID) and all the required auth challenge to the UI application, this endpoint will be invoked.
+
+        Supported auth-challenge depends on the integrated authentication server.
+
+        1. Validates transactionId/linkTransactionId.
+        2. Validated the provided captcha token - if the provided auth-factor is configured to be with captcha.
+        3. Validates null / empty individualId.
+        4. Invokes kyc-auth call to integrated authentication server (IDA).
+        5. It validates stored userconsent against the requested claims and scopes
+        6. Relays error from integrated authentication server to UI on failure.
+
+        On Authentication Success: transaction Id and consentAction is returned in the below response without any errors.
+
+        On Authentication Failure: Error list will be set with the errors returned from the integrated authentication server.
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: oauth-details-hash
+          description: Base64 encoded SHA-256 hash of the oauth-details endpoint response.
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: oauth-details-key
+          description: Transaction ID
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: X-XSRF-TOKEN
+          description: CSRF token as set in cookie key 'XSRF-TOKEN'
+          required: true
+      tags:
+        - UI
+        - WALLET
+      x-stoplight:
+        id: zlamzlneobajj
     parameters: []
   /authorization/auth-code:
     post:
@@ -2131,7 +2294,7 @@ paths:
         - UI
         - WALLET
       x-stoplight:
-        id: 4stk2twvoqwdc
+        id: 3yoa53xhvj6p5
     parameters: []
   /linked-authorization/link-code:
     post:
@@ -2192,7 +2355,7 @@ paths:
         4. On open of wallet-app, wallet-app invokes /link-transaction endpoint.
         5. In the JS application, once machine-readable-code is rendered, at the same time /link-status endpoint is invoked as a polling request.
 
-        **Configuration to decide the expire date time of linkCode**: mosip.idp.link-code-expire-in-secs
+        **Configuration to decide the expire date time of linkCode**: mosip.idp.link-code-expire-in-secs 
       requestBody:
         content:
           application/json:
@@ -2238,7 +2401,7 @@ paths:
           description: CSRF token as set in cookie key 'XSRF-TOKEN'
           required: true
       x-stoplight:
-        id: 8irf309ml887f
+        id: 234woiouwxkbq
     parameters: []
   /linked-authorization/link-transaction:
     post:
@@ -2367,7 +2530,7 @@ paths:
       tags:
         - WALLET
       x-stoplight:
-        id: 0gfjcs85275fx
+        id: no3ao3751wqs2
       deprecated: true
     parameters: []
   /linked-authorization/v2/link-transaction:
@@ -2425,11 +2588,11 @@ paths:
                       credentialScopes:
                         type: array
                         x-stoplight:
-                          id: 1dzi53p29zeff
+                          id: xya1kvngqw9q7
                         description: List of valid credential scopes requested
                         items:
                           x-stoplight:
-                            id: n6gep91far7u9
+                            id: 1frcosrttq42o
                           type: string
                   errors:
                     type: array
@@ -2511,7 +2674,7 @@ paths:
       tags:
         - WALLET
       x-stoplight:
-        id: 74cfd9dplq9nc
+        id: rvx3ggsszn8p4
     parameters: []
   /linked-authorization/link-status:
     post:
@@ -2625,7 +2788,7 @@ paths:
           description: CSRF token as set in cookie key 'XSRF-TOKEN'
           required: true
       x-stoplight:
-        id: yb6qd1ej9m5mb
+        id: 684qaii3rchah
     parameters: []
   /linked-authorization/authenticate:
     post:
@@ -2730,7 +2893,7 @@ paths:
       tags:
         - WALLET
       x-stoplight:
-        id: 73z5rks8w6jwy
+        id: rh2iyprqa96vw
       deprecated: true
     parameters: []
   /linked-authorization/v2/authenticate:
@@ -2756,7 +2919,7 @@ paths:
                       consentAction:
                         type: string
                         x-stoplight:
-                          id: n2zh4pnppn8kt
+                          id: u5ezakjta8wib
                         enum:
                           - CAPTURE
                           - NOCAPTURE
@@ -2847,7 +3010,7 @@ paths:
       tags:
         - WALLET
       x-stoplight:
-        id: fsyyl0lt2tua9
+        id: 47a8vnt4vc890
     parameters: []
   /linked-authorization/consent:
     post:
@@ -2942,7 +3105,7 @@ paths:
       tags:
         - WALLET
       x-stoplight:
-        id: ogv0thl4lyntt
+        id: szyzomgtzasqd
       deprecated: true
     parameters: []
   /linked-authorization/v2/consent:
@@ -2985,7 +3148,7 @@ paths:
                     signature:
                       type: string
                       x-stoplight:
-                        id: hw1q1wqlgf98v
+                        id: k09ojdltwx521
                       description: Signature of permittedscopes and acceptedclaims from inji
               required:
                 - requestTime
@@ -3044,7 +3207,7 @@ paths:
       tags:
         - WALLET
       x-stoplight:
-        id: j7cpnr17pe6vc
+        id: hb788jg772xz3
     parameters: []
   /linked-authorization/link-auth-code:
     post:
@@ -3165,7 +3328,7 @@ paths:
           description: CSRF token as set in cookie key 'XSRF-TOKEN'
           required: true
       x-stoplight:
-        id: zwacxkndijlsf
+        id: kiu169q7kl11r
     parameters: []
   /oauth/token:
     post:
@@ -3320,7 +3483,7 @@ paths:
       tags:
         - OIDC
       x-stoplight:
-        id: kebqcxwgyef6f
+        id: 0i7k91lb6sncq
     parameters: []
   /oauth/v2/token:
     post:
@@ -3367,12 +3530,12 @@ paths:
                   c_nonce:
                     type: string
                     x-stoplight:
-                      id: gu9s4qk67jx6i
+                      id: ds94enhwrvdfs
                     description: JSON string containing a nonce to be used to create a proof of possession of key material when requesting a Credential.
                   c_nonce_expires_in:
                     type: number
                     x-stoplight:
-                      id: hifmiel13v5c7
+                      id: ctpnqgk9peag7
                     description: JSON integer denoting the lifetime in seconds of the c_nonce.
                 required:
                   - access_token
@@ -3474,7 +3637,7 @@ paths:
                 code_verifier:
                   type: string
                   x-stoplight:
-                    id: ai156rqddkl3u
+                    id: faempi0j7ve21
                   description: |-
                     A cryptographically random string that is used to correlate the
                           authorization request to the token request.
@@ -3498,7 +3661,7 @@ paths:
       tags:
         - OIDC
       x-stoplight:
-        id: pbq47j4afl6k8
+        id: 5qnq8t148za72
       parameters: []
     parameters: []
   /oidc/userinfo:
@@ -3570,7 +3733,7 @@ paths:
       security:
         - Authorization-access_token: []
       x-stoplight:
-        id: wlrh8n3nkcsrq
+        id: 5ctxljyixzfim
     parameters: []
   /vci/credential:
     parameters: []
@@ -3588,14 +3751,14 @@ paths:
                   format:
                     type: string
                     x-stoplight:
-                      id: l24rxq86ow6y3
+                      id: g2qias2boxsh5
                     description: JSON string denoting the format of the issued Credential.
                   credential:
                     type:
                       - object
                       - string
                     x-stoplight:
-                      id: kd3w8s53woq5c
+                      id: 0qqjkwayars8x
                     description: 'Contains issued Credential. MUST be present when acceptance_token is not returned. MAY be a JSON string or a JSON object, depending on the Credential format.'
                 required:
                   - format
@@ -3634,7 +3797,7 @@ paths:
                 properties:
                   error:
                     x-stoplight:
-                      id: jc2m14qtfvxhe
+                      id: oii1eil2mcbtq
                     enum:
                       - invalid_vc_format
                       - invalid_proof
@@ -3646,19 +3809,20 @@ paths:
                       - unsupported_credential_format
                       - unsupported_credential_type
                       - proof_invalid_nonce
+                      - not_implemented
                   error_description:
                     type: string
                     x-stoplight:
-                      id: wp66ehahr6w31
+                      id: q2aq7t0g3zc6i
                   c_nonce:
                     type: string
                     x-stoplight:
-                      id: i5tln0gl7w7ul
+                      id: eppix9nc7q4tz
                     description: This will have the value only when the error is "proof_invalid_nonce".
                   c_nonce_expires_in:
                     type: integer
                     x-stoplight:
-                      id: 8rdu3yxwc0vi2
+                      id: j11s6de29ynqq
                     description: This will have the value only when the error is "proof_invalid_nonce".
                 required:
                   - error
@@ -3671,17 +3835,17 @@ paths:
                 properties:
                   error:
                     x-stoplight:
-                      id: kclhgnffzwrm1
+                      id: s3mvc6737p718
                     enum:
                       - invalid_token
                   error_description:
                     type: string
                     x-stoplight:
-                      id: fq307i4xime1j
+                      id: djn6r672tqtt4
                 required:
                   - error
       x-stoplight:
-        id: kvnv6yteyqtw0
+        id: 4aj00zlik3vdo
       description: 'Once the access token is received via the token endpoint, Wallet should invoke this endpoint to get the verifiable credential.'
       security:
         - Authorization-access_token: []
@@ -3693,7 +3857,7 @@ paths:
               properties:
                 format:
                   x-stoplight:
-                    id: 70by6bj25olxa
+                    id: dk7ndkat9e8oo
                   description: Format of the Credential to be issued.
                   enum:
                     - ldp_vc
@@ -3702,12 +3866,12 @@ paths:
                 proof:
                   $ref: '#/components/schemas/CredentialProof'
                   x-stoplight:
-                    id: 8kvzny01u2qle
+                    id: lriwnljt6w93m
                   description: JSON object containing proof of possession of the key material the issued Credential shall be bound to.
                 credential_definition:
                   $ref: '#/components/schemas/CredentialDefinition'
                   x-stoplight:
-                    id: ec6fs1b3ydny6
+                    id: 0rtpphs7eimhi
                   description: |-
                     JSON object containing (and isolating) the detailed description of the credential type.
                          * This object MUST be processed using full JSON-LD processing.
@@ -3830,7 +3994,7 @@ paths:
       tags:
         - binding-service
       x-stoplight:
-        id: jcg0sh70akbht
+        id: mk9xsyt7rvnez
     parameters: []
   /binding/wallet-binding:
     post:
@@ -3963,7 +4127,7 @@ paths:
       tags:
         - binding-service
       x-stoplight:
-        id: 5l58izm82kpcc
+        id: j4rvet323vah4
     parameters: []
   /.well-known/jwks.json:
     get:
@@ -4005,19 +4169,19 @@ paths:
                         x5t#S256:
                           type: string
                           x-stoplight:
-                            id: 52n5251u1kfap
+                            id: egnu4q1pwuegq
                           description: SHA-256 thumbprint of the certificate.
                         x5c:
                           type: array
                           description: Certificate to validate the Oauth server trust.
                           items:
                             x-stoplight:
-                              id: l0l1kpf2b9jcn
+                              id: mh9ram1f4pu91
                             type: string
                         exp:
                           type: string
                           x-stoplight:
-                            id: q4o4nzqtvb09p
+                            id: ildlqrbtesb9u
                           description: Expire datetime of the key. Given in ISO format.
                           format: date-time
                           example: '2026-02-05T13:43:07.979Z'
@@ -4055,7 +4219,7 @@ paths:
       operationId: get-certs
       description: Endpoint to fetch all the public keys of the e-Signet server. Returns public key set in the JWKS format.
       x-stoplight:
-        id: 6nmwt8lpyegxb
+        id: 5k5zlor9tom1b
     parameters: []
   /.well-known/openid-configuration:
     get:
@@ -4234,7 +4398,7 @@ paths:
 
         **Reference**: https://openid.net/specs/openid-connect-discovery-1_0.html
       x-stoplight:
-        id: fu84pt55lt5b1
+        id: 7ywlqdfr9i793
     parameters: []
   /.well-known/openid-credential-issuer:
     get:
@@ -4252,51 +4416,51 @@ paths:
                   credential_issuer:
                     type: string
                     x-stoplight:
-                      id: 3d35d9ucnuae8
+                      id: 2ahbxuhcofqbv
                     description: 'The Credential Issuer''s identifier,'
                   credential_endpoint:
                     type: string
                     x-stoplight:
-                      id: 4r7e4lex02cfm
+                      id: u62k7imoknbnd
                     description: URL of the Credential Issuer's Credential Endpoint
                   credentials_supported:
                     type: array
                     x-stoplight:
-                      id: 5vokqtcbeot3f
+                      id: 7ociz0ya5uvx1
                     description: ' JSON array containing a list of JSON objects, each of them representing metadata about a separate credential type that the Credential Issuer can issue. '
                     items:
                       x-stoplight:
-                        id: 7y3ehgislm4bm
+                        id: x7aqo1qt45qtd
                       type: object
                       properties:
                         format:
                           type: string
                           x-stoplight:
-                            id: 61byed7r6dgc6
+                            id: ic5le3i8uhn6a
                         scope:
                           type: string
                           x-stoplight:
-                            id: 2mpjh4hux3wpk
+                            id: nr2xcq2y8wjo0
                         cryptographic_binding_methods_supported:
                           type: string
                           x-stoplight:
-                            id: zrtfp8aq0szqa
+                            id: pc41zevq88tyl
                         proof_types_supported:
                           type: string
                           x-stoplight:
-                            id: t038q7eyq2bmy
+                            id: ikxe39snjo7zh
                         display:
                           type: string
                           x-stoplight:
-                            id: lrpdh42d3b77z
+                            id: w0tspqnmmffhc
                   display:
                     type: array
                     description: ' An array of objects, where each object contains display properties of a Credential Issuer for a certain language'
                     x-stoplight:
-                      id: haamvwc0g4ysb
+                      id: yxfwr4aeghlus
                     items:
                       x-stoplight:
-                        id: k8i83xjujdxqd
+                        id: 56n3123yyzhhv
                       type: object
                 required:
                   - credential_issuer
@@ -4347,7 +4511,7 @@ paths:
 
         **Reference**: https://openid.bitbucket.io/connect/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata
       x-stoplight:
-        id: xbr6pnm6w4n00
+        id: w7ah3yr84pjib
     parameters: []
   /oauth/introspect:
     get:
@@ -4402,14 +4566,14 @@ paths:
       security:
         - Authorization-Bearer: []
       x-stoplight:
-        id: fhgt459mt6d40
+        id: vtpigimmhrew8
     parameters: []
 components:
   schemas:
     Claim:
       title: Claim
       x-stoplight:
-        id: 7s918r52m5f13
+        id: el1uykxhev641
       type: object
       description: |
         The userinfo and id_token members of the claims request both are JSON object. if null, Indicates that this Claim is being requested as Voluntary Claim.
@@ -4453,7 +4617,7 @@ components:
     ClaimDetail:
       title: ClaimDetail
       x-stoplight:
-        id: xacytafcm9phj
+        id: d86fgu5cy6pzs
       type: object
       properties:
         essential:
@@ -4474,7 +4638,7 @@ components:
     AuthChallenge:
       title: AuthChallenge
       x-stoplight:
-        id: 7v6uegx5osik3
+        id: ickgfkqcgjait
       type: object
       description: Model to take any type of challenge from the end user as part of authenticate request.
       properties:
@@ -4486,6 +4650,8 @@ components:
             - BIO
             - PIN
             - WLA
+            - PWD
+            - KBA
         challenge:
           type: string
           description: Actual challenge as string.
@@ -4497,6 +4663,7 @@ components:
             - jwt
             - encoded-json
             - number
+            - base64url-encoded-json
       required:
         - authFactorType
         - challenge
@@ -4504,7 +4671,7 @@ components:
     AuthFactor:
       title: AuthFactor
       x-stoplight:
-        id: 8qic27ggy4xms
+        id: ogtdjq5l692h1
       type: object
       properties:
         type:
@@ -4515,6 +4682,7 @@ components:
             - OTP
             - L1-bio-device
             - Wallet
+            - KBA
         count:
           type: integer
           description: 'Applicable for biometric based authentication, number of bio segments to be captured for authentication.'
@@ -4528,32 +4696,32 @@ components:
     CredentialProof:
       title: CredentialProof
       x-stoplight:
-        id: 92wc5hed8mu2f
+        id: btlttppi7oxcn
       type: object
       description: JSON object containing proof of possession of the key material the issued Credential shall be bound to.
       properties:
         proof_type:
           x-stoplight:
-            id: 1sq74k9fddpfh
+            id: zm9pzj77ra8dc
           enum:
             - jwt
           description: The proof object MUST contain a proof_type claim of type JSON string denoting the concrete proof type.
         jwt:
           type: string
           x-stoplight:
-            id: oxn6drb062v1x
+            id: pcp82bxdeh6jg
           description: 'When proof_type is jwt, a proof object MUST include a jwt claim'
         cwt:
           type: string
           x-stoplight:
-            id: ojvy3y52tkrq1
+            id: upkuj6g9nn7tj
           description: 'When proof_type is cwt, a proof object MUST include a cwt claim'
       required:
         - proof_type
     CredentialDefinition:
       title: CredentialDefinition
       x-stoplight:
-        id: fhf762tubbftk
+        id: dnbtdc5zdwue2
       type: object
       description: |-
         JSON object containing (and isolating) the detailed description of the credential type.
@@ -4566,23 +4734,23 @@ components:
         '@context':
           type: array
           x-stoplight:
-            id: fc9jzhw7rlv5o
+            id: xixp7krl0q7h0
           items:
             x-stoplight:
-              id: w3tg3q1pz6qg3
+              id: sxvfvi22buy25
             type: string
         type:
           type: array
           x-stoplight:
-            id: l76hj9xpko2lt
+            id: 42c8zcywxnho2
           items:
             x-stoplight:
-              id: s6ydv9pqtc688
+              id: 2e4eo0yv7udif
             type: string
         credentialSubject:
           type: object
           x-stoplight:
-            id: vnxq2dn1r48dm
+            id: niquv1olmb453
       required:
         - type
   securitySchemes:
