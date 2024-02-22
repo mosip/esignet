@@ -23,17 +23,17 @@ and copy the downloaded jar under loader_path directory.
 
 > docker-compose up
 
-3. Download the postman script from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_collection.json)
-and its environment from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_environment.json)
+3. Download the postman script from [here](../docs/postman-collections/esignet-with-mock-IDA.postman_collection.json)
+and its environment from [here](../docs/postman-collections/esignet-with-mock-IDA.postman_environment.json)
 
 4. Import the downloaded collection and environment into postman.
 
-5. To Create a Mock identity, run the below request from the postman collection "Mock-Identity-System" folder
-   * Create Mock Identity
-
-6. To create an OIDC/OAuth client, run the below request from the postman collection "OIDC Client mgmt" folder
+5. To create an OIDC/OAuth client, run the below request from the postman collection "OIDC Client mgmt" folder
    * Get CSRF token
    * Create OIDC Client
+
+6. To Create a Mock identity, run the below request from the postman collection "Mock-Identity-System" folder
+   * Create Mock Identity
 
 7. To run the OIDC flow with mock identity run the below request(same order) from the postman collection "AuthCode flow with OTP login" folder.
    * Get CSRF token
@@ -48,9 +48,9 @@ and its environment from [here](https://github.com/mosip/esignet/blob/master/doc
    * Get CSRF token
    * Authorize / OAuthdetails request
    * Send OTP
-   * Authenticate User V2
+   * Authenticate User
    * Authorization Code
-   * Get Tokens V2
+   * Get Tokens
    * Get Credential
 
 
