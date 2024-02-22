@@ -310,7 +310,6 @@ export default function Consent({
 
   //errorCode is REQUIRED, errorDescription is OPTIONAL
   const onError = async (errorCode, errorDescription) => {
-    let nonce = openIDConnectService.getNonce();
     let state = openIDConnectService.getState();
     let redirect_uri = openIDConnectService.getRedirectUri();
 

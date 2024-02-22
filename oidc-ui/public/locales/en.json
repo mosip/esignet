@@ -292,6 +292,7 @@
     "proof_invalid_nonce": "Invalid value in proof payload nonce claim.",
     "invalid_state_response": "Invalid state",
     "authCode_missing": "AuthCode Missing",
+    "failed_to_validate_captcha": "Failed to validate captcha",
     "0": "Success",
     "100": "Device Not Registered",
     "101": "Unable to Detect a Biometrics",
