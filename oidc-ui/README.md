@@ -11,10 +11,10 @@ Esignet UI contains the following pages:
 2. Login
 3. Consent
 
-- /authorize:
+- `/authorize`:
   This is a redirect URI that needs to be called from the relying party portal. This is the endpoint that handles the oidc authorization. For API details, refer to this [document](https://mosip.stoplight.io/docs/identity-provider/85f761d237115-authorization-endpoint).
 
-- /login:
+- `/login`:
   It is a page that can be loaded with any one of the following components.
 
   - Sign in with Biometrics
@@ -34,7 +34,7 @@ Esignet UI contains the following pages:
 
   The password-based authentication system incorporates a functionality allowing users to initiate a password recovery process through a designated `Forgot Password` hyperlink.
 
-- /consent: is a page that prompts the user to provide consent to share one's details from the MOSIP to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
+- `/consent`: is a page that prompts the user to provide consent to share one's details from the MOSIP to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
 
 ## Build & run (for developers)
 
@@ -71,17 +71,26 @@ The application runs on PORT=3000 by default.
   - REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC: Buffer time for the consent screen expiry timer.
   - REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT: Limit for the QR code auto refresh.
 
-- JSON configuration variables
+- JSON configuration variables (`theme/config.json`)
   
-  - username_info_icon: Place the information icon adjacent to the username label within the password login interface.
-  - background_logo: Place the logo on the left side of the main card on the login and consent pages.
-  - footer: Place the footer at the bottom of each page.
-  - remove_language_indicator_pipe: Eliminate the indicator pipe adjacent to the language display within the navigation bar.
-  - outline_toggle: Substitute the outline toggler in lieu of the slider toggler.
+  - **username_info_icon**: Place the information icon adjacent to the username label within the password login interface.
+  - **background_logo**: Place the logo on the left side of the main card on the login and consent pages.
+  - **footer**: Place the footer at the bottom of each page.
+  - **remove_language_indicator_pipe**: Eliminate the indicator pipe adjacent to the language display within the navigation bar.
+  - **outline_toggle**: Substitute the outline toggler in lieu of the slider toggler.
 
 - Theme based configuration
 
-  To customize the theme of OIDC-UI, modify the variables within the `variables.css` file located in the `public` folder. Adjust the CSS variables based on the requirements, and these changes will be reflected in OIDC user interface. The variables encompass attributes such as color, image paths, and numerical values in pixels (e.g., for height, width, etc.).
+    To customize the theme of OIDC-UI, modify the variables within the `variables.css` file located in the `public/theme` folder. Adjust the CSS variables based on the requirements, and these changes will be reflected in OIDC user interface. The variables encompass attributes such as color, image paths, and numerical values in pixels (e.g., for height, width, etc.).
+
+- Environment configuration properties (`public/env-config.js`)
+  - **DEFAULT_LANG**: default language for the platform
+  - **DEFAULT_WELLKNOWN**: wellknown endpoints for the platform
+  - **DEFAULT_THEME**: theme for the platform, if nothing is given it will take a root theme from `public/theme/variable.css`
+  - **DEFAULT_FEVICON**: favicon icon for the platform in the browser tab,
+  - **DEFAULT_TITLE**: title of the platform in the browser tab,
+  - **DEFAULT_ID_PROVIDER_NAME**: name to be shown in the platform for the provider name
+
 
 - Build and run Docker for a service:
 
