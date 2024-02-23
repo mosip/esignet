@@ -34,7 +34,7 @@ Esignet UI contains the following pages:
 
   The password-based authentication system incorporates a functionality allowing users to initiate a password recovery process through a designated `Forgot Password` hyperlink.
 
-- `/consent`: is a page that prompts the user to provide consent to share one's details from the MOSIP to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
+- `/consent`: is a page that prompts the user to provide consent to share one's details from the Integrated Identity Server to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
 
 ## Build & run (for developers)
 
