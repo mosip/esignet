@@ -7,7 +7,7 @@ export const AUTHCODE = "/authorization/auth-code";
 export const CSRF = "/csrf/token";
 
 // Config endpoint
-export const CONFIG = "/theme/config.json";
+export const CONFIG = "/config.json";
 
 // Language endpoint
 export const DEFAULT_CONFIG = "/locales/default.json";

@@ -295,6 +295,9 @@ export default function Consent({
       }
 
       let params = "?";
+      if (response.nonce) {
+        params = params + "nonce=" + response.nonce + "&";
+      }
 
       if (response.state) {
         params = params + "state=" + response.state + "&";
@@ -319,6 +322,9 @@ export default function Consent({
     }
 
     let params = "?";
+    if (nonce) {
+      params = params + "nonce=" + nonce + "&";
+    }
 
     if (errorDescription) {
       params = params + "error_description=" + errorDescription + "&";

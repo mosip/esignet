@@ -43,9 +43,8 @@ public class VCIssuanceController {
      * @return
      */
     @GetMapping(value = "/.well-known/openid-credential-issuer",produces = "application/json")
-    public Map<String, Object> getMetadata(
-            @RequestParam(name = "version", required = false, defaultValue = "latest") String version) {
-        return vcIssuanceService.getCredentialIssuerMetadata(version);
+    public Map<String, Object> getMetadata() {
+        return vcIssuanceService.getCredentialIssuerMetadata();
     }
 
 

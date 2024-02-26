@@ -3,10 +3,8 @@ package io.mosip.esignet.core.dto.vci;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-public class VCIssuanceTransaction implements Serializable {
+public class VCIssuanceTransaction {
 
     private String cNonce;
     private long cNonceIssuedEpoch;

@@ -16,7 +16,6 @@ public class AuditHelper {
     public static AuditDTO buildAuditDto(String clientId) {
         AuditDTO auditDTO = new AuditDTO();
         auditDTO.setClientId(clientId);
-        auditDTO.setTransactionId(clientId);
         auditDTO.setIdType("ClientId");
         return auditDTO;
     }
