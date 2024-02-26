@@ -13,6 +13,5 @@ public class CredentialMetadata {
     private String format;
     private String scope;
     private List<String> proof_types_supported;
-    private List<String> types;
 
 }
