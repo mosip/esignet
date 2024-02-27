@@ -308,9 +308,9 @@ export default function OtpVerify({
           />
         </div>
 
-        <div className="text-center break-all">
+        <div className="h-16 flex items-center justify-center">
           {status.state !== states.LOADING && !errorBanner && (
-            <span className="w-full flex justify-center text-sm text-gray-500">
+            <span className="w-full flex justify-center text-sm text-gray-500 line-clamp-3">
               {otpSentEmail && otpSentMobile
                 ? t1("otp_sent_msg", {
                   otpChannels: t1("mobile_email_placeholder", {
