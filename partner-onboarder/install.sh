@@ -87,7 +87,7 @@ function installing_onboarder() {
     kubectl -n config-server get deploy -o name | xargs -n1 -t kubectl -n config-server rollout status
     kubectl rollout restart deployment -n esignet esignet
     kubectl rollout restart deployment -n resident resident
-    echo E-signet MISP License Key and Resident OIDC Client ID updated successfully.
+    echo eSignet MISP License Key and Resident OIDC Client ID updated successfully.
 
     echo Reports are moved to S3 under onboarder bucket
 
