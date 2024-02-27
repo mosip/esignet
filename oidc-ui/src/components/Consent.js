@@ -28,7 +28,7 @@ export default function Consent({
       configurationKeys.consentScreenExpireInSec
     ) ?? process.env.REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC;
 
-  // The transaction timer will be derived from the configuration file of e-Signet so buffer of -5 sec is added in the timer.
+  // The transaction timer will be derived from the configuration file of eSignet so buffer of -5 sec is added in the timer.
   const timeoutBuffer =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.consentScreenTimeOutBufferInSec

@@ -36,7 +36,7 @@
     "authorize_scope_tooltip": "អនុញ្ញាតឱ្យអ្នកផ្តល់សេវាចូលប្រើសេវាកម្មការពារទាំងនេះជំនួសអ្នក។",
     "essential_claims_tooltip": "ព័ត៌មានចាំបាច់សម្រាប់អ្នកប្រើប្រាស់ដែលតម្រូវដោយអ្នកផ្តល់សេវាកម្ម",
     "voluntary_claims_tooltip": "ព័ត៌មានបន្ថែមរបស់អ្នកប្រើប្រាស់ដែលអ្នករស់នៅអាចជ្រើសរើសដើម្បីចែករំលែកជាមួយអ្នកផ្តល់សេវាកម្ម",
-    "logo_alt": "e-Signet",
+    "logo_alt": "eSignet",
     "Manage-Identity-Data": "អនុញ្ញាតឱ្យចូលប្រើដើម្បីគ្រប់គ្រងទិន្នន័យអត្តសញ្ញាណ",
     "Manage-VID": "អនុញ្ញាតឱ្យចូលប្រើដើម្បីគ្រប់គ្រង លេខទូរសព្ទ",
     "Manage-Authentication": "អនុញ្ញាតឱ្យដំណើរការដើម្បីគ្រប់គ្រងការបញ្ជាក់អត្តសញ្ញាណ",
@@ -140,14 +140,14 @@
     "wellknown_api": ".API ល្បី"
   },
   "header": {
-    "login_heading": "ចូលដោយប្រើ e-Signet",
+    "login_heading": "ចូលដោយប្រើ eSignet",
     "login_subheading": "សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងពាក្យសម្ងាត់ដែលបានចុះឈ្មោះរបស់អ្នក។",
     "login_linkName": "ចុះឈ្មោះជាមុន",
     "more_ways_to_sign_in": "វិធីច្រើនទៀតដើម្បីចូល",
     "invalid_auth_factor": "កត្តាផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត...",
     "download_now": "ទាញយកឥឡូវនេះ",
-    "logo_alt": "e-Signet",
-    "backgroud_image_alt": "ចូលដោយប្រើ e-Signet",
+    "logo_alt": "eSignet",
+    "backgroud_image_alt": "ចូលដោយប្រើ eSignet",
     "language": "ភាសា",
     "noAccount": "មិនមានគណនីមែនទេ?",
     "signup_for_unified_login": "ចុះឈ្មោះជាមួយប្រព័ន្ធចូលតែមួយ"
