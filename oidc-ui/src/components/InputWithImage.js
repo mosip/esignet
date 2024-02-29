@@ -28,13 +28,17 @@ export default function InputWithImage({
   i18nKeyPrefix2 = "errors",
   icon,
   prefix,
-  error
+  errorCode,
+  maxLength = "",
+  regex = "",
 }) {
 
   const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
   const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [errorBanner, setErrorBanner] = useState([]);
+
   const inputVal = useRef(value);
 
   const changePasswordState = () => {
@@ -42,15 +46,24 @@ export default function InputWithImage({
     passwordRef.setAttribute("type", !showPassword ? "text" : "password");
     setShowPassword(!showPassword);
   };
-  
+
   const handleKeyDown = (e) => {
 
     var keyCode = e.keyCode || e.which;
-    
+
+    const checkMaxLength = (maxLength) =>
+      maxLength === "" ? true : e.target.value.length < parseInt(maxLength);
+
     // Allow some special keys like Backspace, Tab, Home, End, Left Arrow, Right Arrow, Delete.
     const allowedKeyCodes = [8, 9, 35, 36, 37, 39, 46];
 
     if (!allowedKeyCodes.includes(keyCode)) {
+
+      // checking max length for the input
+      // if greater than the maxlength then prevent the default action
+      if (!checkMaxLength(maxLength)) {
+        e.preventDefault();
+      }
 
       if (type === "number") {
 
@@ -60,25 +73,25 @@ export default function InputWithImage({
           e.preventDefault();
         }
       }
-  
+
       else if (type === "letter") {
 
         // Check if the pressed key is a letter (a-zA-Z)
         if (!((keyCode >= 65 && keyCode <= 90) ||     // Uppercase letters A-Z
-        (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z
+          (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z
 
           // Prevent input of other characters
           e.preventDefault();
         }
       }
-  
+
       else if (type === "alpha-numeric") {
 
         // Check if the pressed key is a number (0-9) or a letter (a-zA-Z)
         if (!((keyCode >= 48 && keyCode <= 57) ||     // Numbers 0-9
-        (keyCode >= 65 && keyCode <= 90) ||           // Uppercase letters A-Z
-        (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z  
-                 
+          (keyCode >= 65 && keyCode <= 90) ||           // Uppercase letters A-Z
+          (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z  
+
           // Prevent input of other characters
           e.preventDefault();
         }
@@ -86,18 +99,49 @@ export default function InputWithImage({
     }
   }
 
+  const onBlurChange = (e) => {
+    const val = e.target.value;
+    const id = e.target.id;
+    const currentRegex = new RegExp(regex);
+    let bannerIndex = errorBanner.findIndex((_) => _.id === id);
+    let tempBanner = errorBanner.map((_) => {
+      return { ..._, show: true };
+    });
+    // checking regex matching for username & password
+    if (currentRegex.test(val) || val === "") {
+      // if username or password is matched
+      // then remove error from errorBanner
+      if (bannerIndex > -1) {
+        tempBanner.splice(bannerIndex, 1);
+      }
+    } else {
+      // if username or password is not matched
+      // with regex, then add the error
+      if (bannerIndex === -1 && val !== "") {
+        tempBanner.push({
+          id,
+          errorCode,
+          show: true,
+        });
+      }
+    }
+    // setting the error in errorBanner
+    setErrorBanner(tempBanner);
+    blurChange(e, tempBanner)
+  }
+
   return (
     <>
       <div className="flex items-center justify-between">
         <div className="flex justify-start">
-        <label
-          htmlFor={labelFor}
-          className="block mb-2 text-xs font-medium text-gray-900 text-opacity-70"
-        >
-          {labelText}
-        </label>
+          <label
+            htmlFor={labelFor}
+            className="block mb-2 text-xs font-medium text-gray-900 text-opacity-70"
+          >
+            {labelText}
+          </label>
           {icon && (
-          <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]"/>} content={t1("username_info")} position="right" contentSize="text-xs"/>
+            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]" />} content={t1("username_info")} position="right" contentSize="text-xs" />
           )}
         </div>
         {formError && (
@@ -109,9 +153,9 @@ export default function InputWithImage({
           </label>
         )}
       </div>
-      <div className={`relative input-box ${error && error.length > 0 && error.find(val => val.id === id) && "errorInput"}`}>
+      <div className={`relative input-box ${errorBanner && errorBanner.length > 0 && errorBanner.find(val => val.id === id) && "errorInput"}`}>
         {imgPath &&
-          <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0">
+          <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0 z-[11]">
             <img className="w-6 h-6" src={imgPath} />
           </div>
         }
@@ -120,7 +164,7 @@ export default function InputWithImage({
           ref={inputVal}
           disabled={disabled}
           onChange={handleChange}
-          onBlur={blurChange}
+          onBlur={onBlurChange}
           onKeyDown={handleKeyDown}
           value={value}
           type={type}
@@ -132,8 +176,8 @@ export default function InputWithImage({
           title={t1(tooltipMsg)}
         />
         {id.includes("password") && (
-          <span 
-            type="button" 
+          <span
+            type="button"
             className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 hover:cursor-pointer z-50"
             onClick={changePasswordState}
           >
@@ -146,11 +190,11 @@ export default function InputWithImage({
         )}
       </div>
       {
-        error && error.length > 0 && error.map(item => {
-          if(item.id === id) {
+        errorBanner && errorBanner.length > 0 && errorBanner.map(item => {
+          if (item.id === id) {
             return (
               <div className="bg-[#FAEFEF] text-[#D52929] text-sm pb-1 pt-[2px] px-2 rounded-b-md font-semibold" key={id}>
-              {t2(`${item.errorCode}`)}
+                {t2(`${item.errorCode}`)}
               </div>
             )
           }

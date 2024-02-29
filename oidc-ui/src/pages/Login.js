@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Otp from "../components/Otp";
 import Pin from "../components/Pin";
-import {
-  otpFields,
-  pinFields,
-  bioLoginFields,
-  passwordFields,
-} from "../constants/formFields";
+import { generateFieldData } from "../constants/formFields";
 import L1Biometrics from "../components/L1Biometrics";
 import { useTranslation } from "react-i18next";
 import authService from "../services/authService";
@@ -25,7 +20,7 @@ import Password from "../components/Password";
 
 function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
   return React.createElement(L1Biometrics, {
-    param: bioLoginFields,
+    param: generateFieldData(validAuthFactors.BIO, openIDConnectService),
     authService: new authService(openIDConnectService),
     localStorageService: localStorageService,
     openIDConnectService: openIDConnectService,
@@ -36,7 +31,7 @@ function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
 
 function InitiatePin(openIDConnectService, backButtonDiv) {
   return React.createElement(Pin, {
-    param: pinFields,
+    param: generateFieldData(validAuthFactors.PIN, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
@@ -45,7 +40,7 @@ function InitiatePin(openIDConnectService, backButtonDiv) {
 
 function InitiatePassword(openIDConnectService, backButtonDiv) {
   return React.createElement(Password, {
-    param: passwordFields,
+    param: generateFieldData(validAuthFactors.PWD, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
@@ -54,7 +49,7 @@ function InitiatePassword(openIDConnectService, backButtonDiv) {
 
 function InitiateOtp(openIDConnectService, backButtonDiv) {
   return React.createElement(Otp, {
-    param: otpFields,
+    param: generateFieldData(validAuthFactors.OTP, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
