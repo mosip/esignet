@@ -9,7 +9,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();  
+const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function OtpGet({
   param,
@@ -27,10 +27,13 @@ export default function OtpGet({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+  
+  const inputCustomClass =
+    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
   const fields = param;
   let fieldsState = {};
-  fields.forEach((field) => (fieldsState["Otp" + field.id] = ""));
+  fields.forEach((field) => (fieldsState["Otp_" + field.id] = ""));
 
   const post_SendOtp = authService.post_SendOtp;
 
@@ -57,10 +60,11 @@ export default function OtpGet({
   const [loginState, setLoginState] = useState(fieldsState);
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [errorBanner, setErrorBanner] = useState(null);
+  const [inputError, setInputError] = useState(null);
 
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
-  
+
   useEffect(() => {
     let loadComponent = async () => {
       i18n.on("languageChanged", function (lng) {
@@ -89,7 +93,7 @@ export default function OtpGet({
     try {
 
       let transactionId = openIDConnectService.getTransactionId();
-      let vid = loginState["Otp_mosip-vid"];
+      let vid = fields[0].prefix + loginState["Otp_mosip-vid"] + fields[0].postfix;
 
       let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
 
@@ -105,7 +109,7 @@ export default function OtpGet({
       const { response, errors } = sendOtpResponse;
 
       if (errors != null && errors.length > 0) {
-        
+
         let errorCodeCondition = langConfig.errors.otp[errors[0].errorCode] !== undefined && langConfig.errors.otp[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
@@ -122,7 +126,7 @@ export default function OtpGet({
         }
         return;
       } else {
-        onOtpSent(vid, response);
+        onOtpSent(loginState["Otp_mosip-vid"], response);
         setErrorBanner(null);
       }
     } catch (error) {
@@ -137,6 +141,10 @@ export default function OtpGet({
   const onCloseHandle = () => {
     setErrorBanner(null);
   };
+
+  const onBlurChange = (e, errors) => {
+    setInputError(errors.length === 0 ? null : errors);
+  }
 
   return (
     <>
@@ -153,6 +161,7 @@ export default function OtpGet({
           <InputWithImage
             key={"Otp_" + field.id}
             handleChange={handleChange}
+            blurChange={onBlurChange}
             value={loginState["Otp_" + field.id]}
             labelText={t1(field.labelText)}
             labelFor={field.labelFor}
@@ -161,8 +170,13 @@ export default function OtpGet({
             type={field.type}
             isRequired={field.isRequired}
             placeholder={t1(field.placeholder)}
+            customClass={inputCustomClass}
             imgPath="images/photo_scan.png"
             tooltipMsg="vid_info"
+            prefix={field.prefix}
+            errorCode={field.errorCode}
+            maxLength={field.maxLength}
+            regex={field.regex}
           />
         ))}
 
@@ -183,7 +197,7 @@ export default function OtpGet({
             text={t1("get_otp")}
             handleClick={sendOTP}
             id="get_otp"
-            disabled={!loginState["Otp_mosip-vid"]?.trim() || (showCaptcha && captchaToken === null)}
+            disabled={!loginState["Otp_mosip-vid"]?.trim() || inputError || (showCaptcha && captchaToken === null)}
           />
         </div>
 

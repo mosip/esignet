@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
@@ -7,18 +7,18 @@ import {
   challengeFormats,
   challengeTypes,
 } from "../constants/clientConstants";
-import { otpFields } from "../constants/formFields";
+import { pinFields } from "../constants/formFields";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
-import Input from "./Input";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import InputWithImage from "./InputWithImage";
 
-const fields = otpFields;
+const fields = pinFields;
 let fieldsState = {};
-fields.forEach((field) => (fieldsState["Pin" + field.id] = ""));
+fields.forEach((field) => (fieldsState["Pin_" + field.id] = ""));
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();  
+const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function Pin({
   param,
@@ -32,6 +32,9 @@ export default function Pin({
   const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
   const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
 
+  const inputCustomClass =
+    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
+
   const fields = param;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
@@ -39,11 +42,27 @@ export default function Pin({
   const [loginState, setLoginState] = useState(fieldsState);
   const [status, setStatus] = useState(states.LOADED);
   const [errorBanner, setErrorBanner] = useState(null);
+  const [inputError, setInputError] = useState([]);
+  const [invalidState, setInvalidState] = useState(true);
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setLoginState({ ...loginState, [e.target.id]: e.target.value });
+  };
+
+  const onBlurChange = (e, errors) => {
+    let id = e.target.id;
+    let tempError = inputError.map(_ => _);
+    if (errors.length > 0) {
+      tempError.push(id)
+    } else {
+      let errorIndex = tempError.findIndex(_ => _ === id);
+      if (errorIndex !== -1) {
+        tempError.splice(errorIndex, 1);
+      }
+    }
+    setInputError(tempError);
   };
 
   const handleSubmit = (e) => {
@@ -56,7 +75,7 @@ export default function Pin({
     try {
       let transactionId = openIDConnectService.getTransactionId();
 
-      let uin = loginState["Pin_mosip-uin"];
+      let uin = fields[0].prefix + loginState["Pin_mosip-uin"] + fields[0].postfix;
       let challengeType = challengeTypes.pin;
       let challenge = loginState["Pin_pin"];
       let challengeFormat = challengeFormats.pin;
@@ -81,7 +100,7 @@ export default function Pin({
       const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
-        
+
         let errorCodeCondition = langConfig.errors.pin[errors[0].errorCode] !== undefined && langConfig.errors.pin[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
@@ -127,6 +146,12 @@ export default function Pin({
     setErrorBanner(null);
   };
 
+  useEffect(() => {
+    console.log({loginState});
+    setInvalidState(!Object.values(loginState).every((value) => value?.trim()));
+  }, [loginState]);
+
+
   return (
     <>
       <div className="grid grid-cols-8 items-center">
@@ -142,17 +167,25 @@ export default function Pin({
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <div className="-space-y-px">
           {fields.map((field) => (
-            <Input
+            <InputWithImage
               key={"Pin_" + field.id}
               handleChange={handleChange}
+              blurChange={onBlurChange}
               value={loginState["Pin_" + field.id]}
-              labelText={field.labelText}
+              labelText={t1(field.labelText)}
               labelFor={field.labelFor}
               id={"Pin_" + field.id}
               name={field.name}
               type={field.type}
               isRequired={field.isRequired}
               placeholder={t1(field.placeholder)}
+              customClass={inputCustomClass}
+              imgPath={null}
+              icon={field.infoIcon}
+              prefix={field.prefix}
+              errorCode={field.errorCode}
+              maxLength={field.maxLength}
+              regex={field.regex}
             />
           ))}
         </div>
@@ -177,6 +210,10 @@ export default function Pin({
           type={buttonTypes.submit}
           text={t1("login")}
           id="verify_pin"
+          disabled={
+            invalidState ||
+            (inputError && inputError.length > 0)
+          }
         />
       </form>
       {status === states.LOADING && (

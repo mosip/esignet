@@ -33,6 +33,9 @@ export default function L1Biometrics({
     keyPrefix: i18nKeyPrefix2,
   });
 
+  const inputCustomClass =
+    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
+
   const firstRender = useRef(true);
   const transactionId = openIDConnectService.getTransactionId();
 
@@ -48,6 +51,7 @@ export default function L1Biometrics({
   });
 
   const [errorBanner, setErrorBanner] = useState(null);
+  const [inputError, setInputError] = useState(null);
   const navigate = useNavigate();
 
   const authTxnIdLengthValue =
@@ -69,7 +73,7 @@ export default function L1Biometrics({
     setStatus({ state: states.LOADED, msg: "" });
     const { errorCode } = validateBiometricResponse(biometricResponse);
 
-    const vid = loginState["sbi_mosip-vid"];
+    const vid = inputFields[0].prefix + loginState["sbi_mosip-vid"] + inputFields[0].postfix;
     if (errorCode === null) {
       try {
         await Authenticate(
@@ -87,7 +91,6 @@ export default function L1Biometrics({
   };
 
   const getSBIAuthTransactionId = (oidcTransactionId) => {
-    oidcTransactionId = oidcTransactionId.replace(/-/gi, "");
     oidcTransactionId = oidcTransactionId.replace(/_/gi, "");
 
     let transactionId = "";
@@ -223,14 +226,18 @@ export default function L1Biometrics({
       return;
     }
     propChange({
-      disable: !loginState["sbi_mosip-vid"].length,
+      disable: !loginState["sbi_mosip-vid"].length || inputError,
       onCapture: (e) => authenticateBiometricResponse(e),
     });
-  }, [loginState]);
+  }, [loginState, inputError]);
 
   const onCloseHandle = () => {
     setErrorBanner(null);
   };
+
+  const onBlurChange = (e, errors) => {
+    setInputError(errors.length === 0 ? null : errors);
+  }
 
   return (
     <>
@@ -250,6 +257,7 @@ export default function L1Biometrics({
             <InputWithImage
               key={"sbi_" + field.id}
               handleChange={handleInputChange}
+              blurChange={onBlurChange}
               value={loginState["sbi_" + field.id]}
               labelText={t1(field.labelText)}
               labelFor={field.labelFor}
@@ -258,8 +266,13 @@ export default function L1Biometrics({
               type={field.type}
               isRequired={field.isRequired}
               placeholder={t1(field.placeholder)}
+              customClass={inputCustomClass}
               imgPath="images/photo_scan.png"
               tooltipMsg="vid_info"
+              prefix={field.prefix}
+              errorCode={field.errorCode}
+              maxLength={field.maxLength}
+              regex={field.regex}
             />
           ))}
         </div>
