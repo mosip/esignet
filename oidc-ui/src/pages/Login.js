@@ -48,15 +48,6 @@ function InitiatePassword(openIDConnectService, backButtonDiv) {
   });
 }
 
-function InitiateForm(openIDConnectService, handleBackButtonClick) {
-  return React.createElement(Form, {
-    authService: new authService(openIDConnectService),
-    openIDConnectService: openIDConnectService,
-    handleBackButtonClick: handleBackButtonClick,
-  });
-}
-
-
 function InitiateOtp(openIDConnectService, handleBackButtonClick) {
   return React.createElement(Otp, {
     param: generateFieldData(validAuthFactors.OTP, openIDConnectService),
