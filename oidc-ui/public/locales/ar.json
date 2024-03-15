@@ -80,6 +80,17 @@
     "forgot_password": "هل نسيت كلمة السر؟",
     "reset_password": "إعادة تعيين كلمة المرور"
   },
+  "Form": {
+    "sign_in_with_details": "تسجيل الدخول بالتفاصيل",
+    "login": "تسجيل الدخول",
+    "policyNumber": "ادخل رقم الوثيقة",
+    "name": "ادخل الاسم",
+    "dob": "ادخل تاريخ الميلاد",
+    "policyNumber_placeholder": "رقم الوثيقة",
+    "name_placeholder": "الاسم",
+    "dob_placeholder": "تاريخ الميلاد",
+    "auth_failed": "فشل تسجيل الدخول، يرجى ادخال بيانات الاعتماد الصحيحة"
+  },
   "LoginQRCode": {
     "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",
     "dont_have_wallet": "؟{{walletName}} ليس لديك",
