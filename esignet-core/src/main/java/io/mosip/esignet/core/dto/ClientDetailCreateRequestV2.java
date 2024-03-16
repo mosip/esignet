@@ -6,6 +6,7 @@
 package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.validator.ClientNameLang;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class ClientDetailCreateRequestV2 extends ClientDetailCreateRequest {
 
     @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME)
-    private Map<@Size(message= ErrorConstants.INVALID_CLIENT_NAME_MAP_KEY, min=3, max=3) String,
+    private Map<@ClientNameLang String,
             @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientNameLangMap;
             
     public ClientDetailCreateRequestV2(String clientId, String clientName, Map<String, Object> publicKey, String relyingPartyId,
