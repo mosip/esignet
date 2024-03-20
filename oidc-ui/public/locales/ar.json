@@ -150,7 +150,16 @@
     "backgroud_image_alt": "قم بتسجيل الدخول باستخدام eSignet",
     "language": "لغة",
     "noAccount": "ليس لديك حساب؟",
-    "signup_for_unified_login": "قم بالتسجيل باستخدام تسجيل الدخول الموحد"
+    "signup_for_unified_login": "قم بالتسجيل باستخدام تسجيل الدخول الموحد",
+    "subheader_text": {
+      "all_login_options": "الرجاء اختيار خيار تسجيل الدخول",
+      "otp_login": "الرجاء إدخال VID الخاص بك",
+      "biometrics_login": "يرجى إدخال VID الخاص بك والتحقق باستخدام الجهاز البيومتري",
+      "pin_login": "الرجاء إدخال UIN/VID وPIN",
+      "password_login": "الرجاء إدخال اسم المستخدم وكلمة المرور المسجلين لديك",
+      "kba_login": "يرجى ملء التفاصيل أدناه",
+      "wallet_login": "يرجى مسح رمز الاستجابة السريعة أدناه لتسجيل الدخول"
+    }
   },
   "footer": {
     "powered_by": "مشغل بواسطة",
