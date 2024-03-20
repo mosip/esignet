@@ -280,7 +280,7 @@ export default function Password({
               imgPath={null}
               icon={field.infoIcon}
               prefix={field.prefix}
-              errorCode={field.erroCode}
+              errorCode={field.errorCode}
               maxLength={field.maxLength}
               regex={field.regex}
             />
