@@ -151,7 +151,16 @@
     "backgroud_image_alt": "Sign in with eSignet",
     "language": "Language",
     "noAccount": "Don't have an account?",
-    "signup_for_unified_login": "Sign Up with Unified Login"
+    "signup_for_unified_login": "Sign Up with Unified Login",
+    "subheader_text": {
+      "all_login_options": "Please choose the login option",
+      "otp_login": "Please enter your VID",
+      "biometrics_login": "Please enter your VID & verify using the Biometric device",
+      "pin_login": "Please enter your UIN/VID and PIN",
+      "password_login": "Please enter your registered username and password",
+      "kba_login": "Please fill the below details",
+      "wallet_login": "Please scan the below QR code to login"
+    }
   },
   "footer": {
     "powered_by": "Powered by",

@@ -100,7 +100,7 @@ function createDynamicLoginElements(
       "The component " + { authFactorType } + " has not been created yet."
     );
   }
-
+  
   if (authFactorType === validAuthFactors.OTP) {
     return InitiateOtp(oidcService, backButtonDiv);
   }
@@ -120,7 +120,7 @@ function createDynamicLoginElements(
   if (authFactorType === validAuthFactors.KBA) {
     return InitiateForm(oidcService, backButtonDiv);
   }
-
+  
   if (authFactorType === validAuthFactors.WLA) {
     return InitiateLinkedWallet(authFactor, oidcService, backButtonDiv);
   }
@@ -130,10 +130,12 @@ function createDynamicLoginElements(
 }
 
 export default function LoginPage({ i18nKeyPrefix = "header" }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t, i18n } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
   const [compToShow, setCompToShow] = useState(null);
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
+  const [subHeaderText, setSubHeaderText] = useState(null);
+  const [authFactorType, setAuthFactorType] = useState(null);
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
@@ -147,6 +149,35 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     }
     loadComponent();
   }, []);
+  
+  useEffect(() => {
+    if (authFactorType === null) {
+      setSubHeaderText(t("subheader_text.all_login_options"));
+    } else {
+      setSubHeader();
+    }
+  }, [authFactorType, i18n.language]);
+
+  const setSubHeader = () => {
+    if (authFactorType === "OTP") {
+      setSubHeaderText(t("subheader_text.otp_login"));
+    }
+    else if (authFactorType === "BIO") {
+      setSubHeaderText(t("subheader_text.biometrics_login"));
+    }
+    else if (authFactorType === "PIN") {
+      setSubHeaderText(t("subheader_text.pin_login"));
+    }
+    else if (authFactorType === "PWD") {
+      setSubHeaderText(t("subheader_text.password_login"));
+    }
+    else if (authFactorType === "KBA") {
+      setSubHeaderText(t("subheader_text.kba_login"));
+    }
+    else if(authFactorType === "WLA") {
+      setSubHeaderText(t("subheader_text.wallet_login"));
+    }
+  }
 
   let parsedOauth = null;
 
@@ -164,6 +195,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
   const handleSignInOptionClick = (authFactor) => {
+    setAuthFactorType(authFactor.type)
     //TODO handle multifactor auth
     setCompToShow(
       createDynamicLoginElements(
@@ -173,8 +205,9 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       )
     );
   };
-
+  
   const handleBackButtonClick = () => {
+    setAuthFactorType(null)
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
   };
 
@@ -205,7 +238,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
         heading={t("login_heading", {
           idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
         })}
-        subheading={t("login_subheading")}
+        subheading={subHeaderText}
         clientLogoPath={clientLogoURL}
         clientName={clientName}
         component={compToShow}
