@@ -177,6 +177,7 @@ export default function InputWithImage({
         />
         {id.includes("password") && (
           <span
+            id="password-eye"
             type="button"
             className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 hover:cursor-pointer z-50"
             onClick={changePasswordState}

@@ -178,7 +178,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             <DropdownMenu.Trigger asChild>
               <span
                 className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer text-[14px]"
-                aria-label="Customise options"
+                aria-label="Customise options" id="language_selection"
               >
                 {
                   selectedLang?.label
@@ -193,6 +193,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
               >
                 {langOptions.map((key, idx) => (
                   <DropdownMenu.Item
+                    id={key.value+idx}
                     key={key.value}
                     className={
                       i18n.language === key.value

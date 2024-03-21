@@ -466,7 +466,7 @@ export default function LoginQRCode({
         {qr && (
           <div className="w-full flex justify-center">
             <div className="border border-4 qrcode-border rounded-3xl p-2">
-              <img src={qr} style={{ height: "186px", width: "186px" }} />
+              <img id="wallet-qr-code" src={qr} style={{ height: "186px", width: "186px" }} />
             </div>
           </div>
         )}

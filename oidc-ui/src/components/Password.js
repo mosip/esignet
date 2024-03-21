@@ -288,7 +288,7 @@ export default function Password({
         ))}
 
         {forgotPassword && 
-          <a className="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
+          <a className="forgot-password-hyperlink" id="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
         }
 
         {showCaptcha && (
