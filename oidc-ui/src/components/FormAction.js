@@ -43,6 +43,7 @@ export default function FormAction({
           className={className + " primary-button"}
           onClick={handleClick}
           disabled={disabled}
+          id={id}
         >
           {text}
         </button>
