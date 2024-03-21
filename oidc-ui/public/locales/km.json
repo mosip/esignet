@@ -150,7 +150,16 @@
     "backgroud_image_alt": "ចូលដោយប្រើ eSignet",
     "language": "ភាសា",
     "noAccount": "មិនមានគណនីមែនទេ?",
-    "signup_for_unified_login": "ចុះឈ្មោះជាមួយប្រព័ន្ធចូលតែមួយ"
+    "signup_for_unified_login": "ចុះឈ្មោះជាមួយប្រព័ន្ធចូលតែមួយ",
+    "subheader_text": {
+      "all_login_options": "សូមជ្រើសរើសជម្រើសចូល",
+      "otp_login": "សូមបញ្ចូល VID របស់អ្នក។",
+      "biometrics_login": "សូមបញ្ចូល VID របស់អ្នក ហើយផ្ទៀងផ្ទាត់ដោយប្រើឧបករណ៍ជីវមាត្រ",
+      "pin_login": "សូមបញ្ចូល UIN/VID និង PIN របស់អ្នក។",
+      "password_login": "សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងពាក្យសម្ងាត់ដែលបានចុះឈ្មោះរបស់អ្នក។",
+      "kba_login": "សូមបំពេញព័ត៌មានលម្អិតខាងក្រោម",
+      "wallet_login": "សូមស្កេនលេខកូដ QR ខាងក្រោមដើម្បីចូល"
+    }
   },
   "footer": {
     "powered_by": "ដំណើរការដោយ",
