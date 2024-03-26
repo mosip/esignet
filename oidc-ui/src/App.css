@@ -1,3 +1,9 @@
+.navbar-header {
+  position: var(--navbar-position);
+  z-index: var(--navbar-zIndex);
+  box-shadow: var(--navbar-box-shadow);
+}
+
 .section-background {
   position: relative;
   background-color: var(--login-background);
@@ -276,14 +282,6 @@
   overflow: hidden;
 }
 
-[dir="ltr"] .input-box {
-  padding-left: 0.5rem;
-}
-
-[dir="rtl"] .input-box {
-  padding-right: 0.5rem;
-}
-
 .input-box .prefix {
   letter-spacing: 0px;
   color: #171a1c;
@@ -294,11 +292,13 @@
 
 [dir="ltr"] .input-box .prefix {
   padding-right: 10px;
+  padding-left: 8px;
   border-right: 1px solid #707070;
 }
 
 [dir="rtl"] .input-box .prefix {
   padding-left: 10px;
+  padding-right: 8px;
   border-left: 1px solid #707070;
 }
 
@@ -369,6 +369,10 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 1 !important;
 }
 
 @media screen and (max-width: 767px) {

@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -134,8 +135,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
-        } catch (ConstraintViolationException cve) {
-            log.error("Failed to create client details", cve);
+        } catch (DataIntegrityViolationException | ConstraintViolationException ex) {
+            log.error("Failed to create client details", ex);
             throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
 

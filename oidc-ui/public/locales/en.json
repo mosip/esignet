@@ -35,7 +35,7 @@
     "authorize_scope_tooltip": "Allows Service provider to access these protected services on your behalf",
     "essential_claims_tooltip": "Mandatory user information required by the Service provider",
     "voluntary_claims_tooltip": "Additional user information you can choose to share with the Service Provider",
-    "logo_alt": "e-Signet",
+    "logo_alt": "eSignet",
     "Manage-Identity-Data": "Allow access to manage identity data",
     "Manage-VID": "Allow access to manage VID",
     "Manage-Authentication": "Allow access to manage Authentication",
@@ -80,6 +80,17 @@
     "forgot_password": "Forgot Password?",
     "reset_password": "Reset Password"
   },
+  "Form": {
+    "sign_in_with_details": "Login with Details",
+    "login": "Login",
+    "policyNumber": "Enter Policy Number",
+    "fullName": "Enter Full Name",
+    "dob": "Enter DOB",
+    "policyNumber_placeholder": "Policy Number",
+    "name_placeholder": "Name",
+    "dob_placeholder": "DOB",
+    "auth_failed": "Login failed, please enter correct credentials"
+  },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
     "dont_have_wallet": "Don't Have {{walletName}}?",
@@ -116,6 +127,7 @@
     "QRCode": "QR Code",
     "OTP": "OTP",
     "PWD": "Password",
+    "KBA": "Details",
     "preferred_mode_of_login": "Select a preferred mode of login",
     "more_ways_to_sign_in": "More ways to sign in",
     "or": "OR",
@@ -135,11 +147,20 @@
     "more_ways_to_sign_in": "More Ways to Login",
     "invalid_auth_factor": "Invalid Auth Factors. Please Try Again...",
     "download_now": "Download Now",
-    "logo_alt": "e-Signet",
-    "backgroud_image_alt": "Sign in with e-Signet",
+    "logo_alt": "eSignet",
+    "backgroud_image_alt": "Sign in with eSignet",
     "language": "Language",
     "noAccount": "Don't have an account?",
-    "signup_for_unified_login": "Sign Up with Unified Login"
+    "signup_for_unified_login": "Sign Up with Unified Login",
+    "subheader_text": {
+      "all_login_options": "Please choose the login option",
+      "otp_login": "Please enter your VID",
+      "biometrics_login": "Please enter your VID & verify using the Biometric device",
+      "pin_login": "Please enter your UIN/VID and PIN",
+      "password_login": "Please enter your registered username and password",
+      "kba_login": "Please fill the below details",
+      "wallet_login": "Please scan the below QR code to login"
+    }
   },
   "footer": {
     "powered_by": "Powered by",
@@ -292,6 +313,7 @@
     "proof_invalid_nonce": "Invalid value in proof payload nonce claim.",
     "invalid_state_response": "Invalid state",
     "authCode_missing": "AuthCode Missing",
+    "failed_to_validate_captcha": "Failed to validate captcha",
     "0": "Success",
     "100": "Device Not Registered",
     "101": "Unable to Detect a Biometrics",

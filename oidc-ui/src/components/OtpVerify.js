@@ -15,7 +15,7 @@ import PinInput from "react-pin-input";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();  
+const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function OtpVerify({
   param,
@@ -29,6 +29,9 @@ export default function OtpVerify({
 
   const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
   const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
+
+  const inputCustomClass =
+    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none text-gray-400";
 
   const fields = param;
   let fieldsState = {};
@@ -86,11 +89,13 @@ export default function OtpVerify({
 
       let transactionId = openIDConnectService.getTransactionId();
       let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
+      
+      let idvid = fields[0].prefix + vid + fields[0].postfix;
 
       setStatus({ state: states.LOADING, msg: "sending_otp_msg" });
       const sendOtpResponse = await post_SendOtp(
         transactionId,
-        vid,
+        idvid,
         otpChannels
       );
       setStatus({ state: states.LOADED, msg: "" });
@@ -191,10 +196,12 @@ export default function OtpVerify({
         },
       ];
 
+      let idvid = fields[0].prefix + vid + fields[0].postfix;
+
       setStatus({ state: states.LOADING, msg: "authenticating_msg" });
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
-        vid,
+        idvid,
         challengeList
       );
       setStatus({ state: states.LOADED, msg: "" });
@@ -237,7 +244,7 @@ export default function OtpVerify({
       setStatus({ state: states.ERROR, msg: "" });
     }
   };
-  
+
   let styles = {
     width: "40px",
     height: "40px",
@@ -250,7 +257,7 @@ export default function OtpVerify({
   if(window.screen.availWidth <= 375) {
     styles = {...styles, width: "2em"}
   }
-  
+
   const onCloseHandle = () => {
     setErrorBanner(null);
   };
@@ -279,10 +286,13 @@ export default function OtpVerify({
               type={field.type}
               isRequired={field.isRequired}
               placeholder={t1(field.placeholder)}
+              customClass={inputCustomClass}
               imgPath="images/photo_scan.png"
               disabled={true}
-              customClass="text-gray-400"
               tooltipMsg="vid_info"
+              prefix={field.prefix}
+              maxLength={field.maxLength}
+              regex={field.regex}
             />
           ))}
         </div>
@@ -308,9 +318,9 @@ export default function OtpVerify({
           />
         </div>
 
-        <div className="h-16 flex items-center justify-center">
+        <div className="text-center break-all">
           {status.state !== states.LOADING && !errorBanner && (
-            <span className="w-full flex justify-center text-sm text-gray-500 line-clamp-3">
+            <span className="w-full flex justify-center text-sm text-gray-500">
               {otpSentEmail && otpSentMobile
                 ? t1("otp_sent_msg", {
                   otpChannels: t1("mobile_email_placeholder", {

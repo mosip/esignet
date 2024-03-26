@@ -84,4 +84,5 @@ public class ErrorConstants {
     public static final String PROOF_HEADER_INVALID_ALG = "proof_header_invalid_alg";
     public static final String PROOF_HEADER_INVALID_KEY = "proof_header_invalid_key";
     public static final String PROOF_HEADER_AMBIGUOUS_KEY = "proof_header_ambiguous_key";
+    public static final String INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE = "invalid_challenge_format_for_auth_factor_type";
 }

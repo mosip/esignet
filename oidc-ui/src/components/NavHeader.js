@@ -113,10 +113,12 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   }, [langOptions]);
   
   var dropdownItemClass =
-  "group text-[14px] leading-none flex items-center relative select-none outline-none data-[disabled]:pointer-events-none hover:font-bold cursor-pointer py-2 first:border-b-[1px]";
+  "group text-[14px] leading-none flex items-center relative select-none outline-none data-[disabled]:pointer-events-none hover:font-bold cursor-pointer py-2";
 
+  var borderBottomClass = "border-b-[1px]";
+  
   return (
-    <nav className="bg-white border-gray-500 shadow md:px-[4rem] py-2 px-[0.5rem]" id="navbar-header">
+    <nav className="bg-white border-gray-500 md:px-[4rem] py-2 px-[0.5rem] navbar-header" id="navbar-header">
       <div className="flex justify-between">
         <div className="ltr:sm:ml-8 rtl:sm:mr-8 ltr:ml-1 rtl:mr-1">
           <img className="brand-logo" alt="brand_logo"/>
@@ -176,7 +178,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             <DropdownMenu.Trigger asChild>
               <span
                 className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer text-[14px]"
-                aria-label="Customise options"
+                aria-label="Customise options" id="language_selection"
               >
                 {
                   selectedLang?.label
@@ -189,13 +191,18 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
                 className="min-w-[220px] bg-white rounded-md shadow-md will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade px-3 py-2 border border-[#BCBCBC] outline-0 relative top-[-0.5rem]"
                 sideOffset={5}
               >
-                {langOptions.map((key) => (
+                {langOptions.map((key, idx) => (
                   <DropdownMenu.Item
+                    id={key.value+idx}
                     key={key.value}
                     className={
                       i18n.language === key.value
-                        ? `font-bold ${dropdownItemClass}`
-                        : dropdownItemClass
+                        ? langOptions.length - 1 !== idx 
+                          ? `font-bold ${dropdownItemClass} ${borderBottomClass}` 
+                            : `font-bold ${dropdownItemClass}` 
+                        : langOptions.length - 1 !== idx 
+                          ? `${dropdownItemClass} ${borderBottomClass}` 
+                            : `${dropdownItemClass}`
                     }
                     onSelect={() => changeLanguageHandler (key)}
                   >

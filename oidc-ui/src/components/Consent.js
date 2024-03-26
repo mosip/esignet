@@ -28,7 +28,7 @@ export default function Consent({
       configurationKeys.consentScreenExpireInSec
     ) ?? process.env.REACT_APP_CONSENT_SCREEN_EXPIRE_IN_SEC;
 
-  // The transaction timer will be derived from the configuration file of e-Signet so buffer of -5 sec is added in the timer.
+  // The transaction timer will be derived from the configuration file of eSignet so buffer of -5 sec is added in the timer.
   const timeoutBuffer =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.consentScreenTimeOutBufferInSec
@@ -295,9 +295,6 @@ export default function Consent({
       }
 
       let params = "?";
-      if (response.nonce) {
-        params = params + "nonce=" + response.nonce + "&";
-      }
 
       if (response.state) {
         params = params + "state=" + response.state + "&";
@@ -313,7 +310,6 @@ export default function Consent({
 
   //errorCode is REQUIRED, errorDescription is OPTIONAL
   const onError = async (errorCode, errorDescription) => {
-    let nonce = openIDConnectService.getNonce();
     let state = openIDConnectService.getState();
     let redirect_uri = openIDConnectService.getRedirectUri();
 
@@ -322,9 +318,6 @@ export default function Consent({
     }
 
     let params = "?";
-    if (nonce) {
-      params = params + "nonce=" + nonce + "&";
-    }
 
     if (errorDescription) {
       params = params + "error_description=" + errorDescription + "&";

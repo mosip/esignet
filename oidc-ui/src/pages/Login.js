@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Otp from "../components/Otp";
 import Pin from "../components/Pin";
-import {
-  otpFields,
-  pinFields,
-  bioLoginFields,
-  passwordFields,
-} from "../constants/formFields";
+import { generateFieldData } from "../constants/formFields";
 import L1Biometrics from "../components/L1Biometrics";
 import { useTranslation } from "react-i18next";
 import authService from "../services/authService";
@@ -22,10 +17,11 @@ import { Buffer } from "buffer";
 import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
+import Form from "../components/Form";
 
 function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
   return React.createElement(L1Biometrics, {
-    param: bioLoginFields,
+    param: generateFieldData(validAuthFactors.BIO, openIDConnectService),
     authService: new authService(openIDConnectService),
     localStorageService: localStorageService,
     openIDConnectService: openIDConnectService,
@@ -36,7 +32,7 @@ function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
 
 function InitiatePin(openIDConnectService, backButtonDiv) {
   return React.createElement(Pin, {
-    param: pinFields,
+    param: generateFieldData(validAuthFactors.PIN, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
@@ -45,7 +41,7 @@ function InitiatePin(openIDConnectService, backButtonDiv) {
 
 function InitiatePassword(openIDConnectService, backButtonDiv) {
   return React.createElement(Password, {
-    param: passwordFields,
+    param: generateFieldData(validAuthFactors.PWD, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
@@ -54,7 +50,15 @@ function InitiatePassword(openIDConnectService, backButtonDiv) {
 
 function InitiateOtp(openIDConnectService, backButtonDiv) {
   return React.createElement(Otp, {
-    param: otpFields,
+    param: generateFieldData(validAuthFactors.OTP, openIDConnectService),
+    authService: new authService(openIDConnectService),
+    openIDConnectService: openIDConnectService,
+    backButtonDiv: backButtonDiv,
+  });
+}
+
+function InitiateForm(openIDConnectService, backButtonDiv) {
+  return React.createElement(Form, {
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
@@ -96,7 +100,7 @@ function createDynamicLoginElements(
       "The component " + { authFactorType } + " has not been created yet."
     );
   }
-
+  
   if (authFactorType === validAuthFactors.OTP) {
     return InitiateOtp(oidcService, backButtonDiv);
   }
@@ -113,6 +117,10 @@ function createDynamicLoginElements(
     return InitiatePassword(oidcService, backButtonDiv);
   }
 
+  if (authFactorType === validAuthFactors.KBA) {
+    return InitiateForm(oidcService, backButtonDiv);
+  }
+  
   if (authFactorType === validAuthFactors.WLA) {
     return InitiateLinkedWallet(authFactor, oidcService, backButtonDiv);
   }
@@ -122,11 +130,13 @@ function createDynamicLoginElements(
 }
 
 export default function LoginPage({ i18nKeyPrefix = "header" }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t, i18n } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
   const [compToShow, setCompToShow] = useState(null);
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [subHeaderText, setSubHeaderText] = useState(null);
+  const [authFactorType, setAuthFactorType] = useState(null);
+  const [searchParams] = useSearchParams();
   const location = useLocation();
 
   var decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
@@ -139,6 +149,35 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     }
     loadComponent();
   }, []);
+  
+  useEffect(() => {
+    if (authFactorType === null) {
+      setSubHeaderText(t("subheader_text.all_login_options"));
+    } else {
+      setSubHeader();
+    }
+  }, [authFactorType, i18n.language]);
+
+  const setSubHeader = () => {
+    if (authFactorType === "OTP") {
+      setSubHeaderText(t("subheader_text.otp_login"));
+    }
+    else if (authFactorType === "BIO") {
+      setSubHeaderText(t("subheader_text.biometrics_login"));
+    }
+    else if (authFactorType === "PIN") {
+      setSubHeaderText(t("subheader_text.pin_login"));
+    }
+    else if (authFactorType === "PWD") {
+      setSubHeaderText(t("subheader_text.password_login"));
+    }
+    else if (authFactorType === "KBA") {
+      setSubHeaderText(t("subheader_text.kba_login"));
+    }
+    else if(authFactorType === "WLA") {
+      setSubHeaderText(t("subheader_text.wallet_login"));
+    }
+  }
 
   let parsedOauth = null;
 
@@ -156,6 +195,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
   const handleSignInOptionClick = (authFactor) => {
+    setAuthFactorType(authFactor.type)
     //TODO handle multifactor auth
     setCompToShow(
       createDynamicLoginElements(
@@ -165,8 +205,9 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       )
     );
   };
-
+  
   const handleBackButtonClick = () => {
+    setAuthFactorType(null)
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
   };
 
@@ -175,6 +216,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       handleBackButtonClick && (
         <div className="h-6 items-center text-center flex items-start">
           <button
+            id="back-button"
             onClick={() => handleBackButtonClick()}
             className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
           >
@@ -189,17 +231,15 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     let oAuthDetailResponse = oidcService.getOAuthDetails();
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientName(oAuthDetailResponse?.clientName);
-
     handleBackButtonClick();
   };
-
   return (
     <>
       <Background
         heading={t("login_heading", {
           idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
         })}
-        subheading={t("login_subheading")}
+        subheading={subHeaderText}
         clientLogoPath={clientLogoURL}
         clientName={clientName}
         component={compToShow}

@@ -71,7 +71,7 @@ export default function Background({
       {signupBanner && 
       <div className="signup-banner">
         <p className="signup-banner-text">{t("noAccount")}</p>
-        <a className="signup-banner-hyperlink" href={signupURL} target="_self" onClick={() => handleSignup()}>{t("signup_for_unified_login")}</a>
+        <a className="signup-banner-hyperlink" id="signup-url-button" href={signupURL} target="_self" onClick={() => handleSignup()}>{t("signup_for_unified_login")}</a>
       </div>}
     </div>
   );

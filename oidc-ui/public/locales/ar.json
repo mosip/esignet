@@ -35,7 +35,7 @@
     "authorize_scope_tooltip": "يسمح لمزود الخدمة بالوصول إلى هذه الخدمات المحمية نيابة عنك",
     "essential_claims_tooltip": "معلومات المستخدم الإلزامية التي يطلبها مزود الخدمة",
     "voluntary_claims_tooltip": "معلومات المستخدم الإضافية التي يمكنك اختيار مشاركتها مع مزود الخدمة",
-    "logo_alt": "e-Signet",
+    "logo_alt": "eSignet",
     "Manage-Identity-Data": "السماح بالوصول لإدارة بيانات الهوية",
     "Manage-VID": "السماح بالوصول لإدارة VID",
     "Manage-Authentication": "السماح بالوصول لإدارة المصادقة",
@@ -79,6 +79,17 @@
     "password_placeholder": "أدخل كلمة المرور",
     "forgot_password": "هل نسيت كلمة السر؟",
     "reset_password": "إعادة تعيين كلمة المرور"
+  },
+  "Form": {
+    "sign_in_with_details": "تسجيل الدخول بالتفاصيل",
+    "login": "تسجيل الدخول",
+    "policyNumber": "ادخل رقم الوثيقة",
+    "name": "ادخل الاسم",
+    "dob": "ادخل تاريخ الميلاد",
+    "policyNumber_placeholder": "رقم الوثيقة",
+    "name_placeholder": "الاسم",
+    "dob_placeholder": "تاريخ الميلاد",
+    "auth_failed": "فشل تسجيل الدخول، يرجى ادخال بيانات الاعتماد الصحيحة"
   },
   "LoginQRCode": {
     "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",
@@ -135,11 +146,20 @@
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "invalid_auth_factor": "عوامل المصادقة غير صالحة. حاول مرة اخرى...",
     "download_now": "التحميل الان",
-    "logo_alt": "e-Signet",
-    "backgroud_image_alt": "قم بتسجيل الدخول باستخدام e-Signet",
+    "logo_alt": "eSignet",
+    "backgroud_image_alt": "قم بتسجيل الدخول باستخدام eSignet",
     "language": "لغة",
     "noAccount": "ليس لديك حساب؟",
-    "signup_for_unified_login": "قم بالتسجيل باستخدام تسجيل الدخول الموحد"
+    "signup_for_unified_login": "قم بالتسجيل باستخدام تسجيل الدخول الموحد",
+    "subheader_text": {
+      "all_login_options": "الرجاء اختيار خيار تسجيل الدخول",
+      "otp_login": "الرجاء إدخال VID الخاص بك",
+      "biometrics_login": "يرجى إدخال VID الخاص بك والتحقق باستخدام الجهاز البيومتري",
+      "pin_login": "الرجاء إدخال UIN/VID وPIN",
+      "password_login": "الرجاء إدخال اسم المستخدم وكلمة المرور المسجلين لديك",
+      "kba_login": "يرجى ملء التفاصيل أدناه",
+      "wallet_login": "يرجى مسح رمز الاستجابة السريعة أدناه لتسجيل الدخول"
+    }
   },
   "footer": {
     "powered_by": "مشغل بواسطة",
@@ -292,6 +312,7 @@
     "proof_invalid_nonce": "قيمة غير صالحة في مطالبة PHAILLOLL NONCE.",
     "invalid_state_response": "حالة غير صالحة",
     "authCode_missing": "رمز المصادقة مفقود",
+    "failed_to_validate_captcha": "فشل التحقق من صحة كلمة التحقق",
     "0": "النجاح",
     "100": "الجهاز غير مسجل",
     "101": "غير قادر على الكشف عن كائن القياسات الحيوية",

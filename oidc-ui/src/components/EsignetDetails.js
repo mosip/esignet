@@ -54,6 +54,7 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
                       {!detail.icon && detail.name}
                     </div>
                     <div
+                      id={`detail-${detail.name.replaceAll(" ","-")}`}
                       className="col-span-2 flex justify-start cursor-pointer"
                       onClick={() => openWellKnownEndpoint(detail.value)}
                     >

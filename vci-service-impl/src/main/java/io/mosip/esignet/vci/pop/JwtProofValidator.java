@@ -152,17 +152,20 @@ public class JwtProofValidator implements ProofValidator {
      * @param keyId
      * @return
      */
-    private JWK resolveDID(String keyId) {
-        if(keyId.startsWith(DID_JWK_PREFIX)) {
+    private JWK resolveDID(String did) {
+        if(did.startsWith(DID_JWK_PREFIX)) {
             try {
-                byte[] jwkBytes = Base64.getUrlDecoder().decode(keyId.substring(DID_JWK_PREFIX.length()));
+                //Ignoring fragment part as did:jwk only contains single key, the DID URL fragment identifier is always
+                //a fixed #0 value. If the JWK contains a kid value it is not used as the reference, #0 is the only valid value.
+                did = did.split("#")[0];
+                byte[] jwkBytes = Base64.getUrlDecoder().decode(did.substring(DID_JWK_PREFIX.length()));
                 org.json.JSONObject jsonKey = new org.json.JSONObject(new String(jwkBytes));
-                jsonKey.put("kid", keyId);
+                jsonKey.put("kid", did);
                 return JWK.parse(jsonKey.toString());
             } catch (IllegalArgumentException e) {
-                log.error("Invalid base64 encoded ID : {}", keyId, e);
+                log.error("Invalid base64 encoded ID : {}", did, e);
             } catch (ParseException | JSONException e) {
-                log.error("Invalid jwk : {}", keyId, e);
+                log.error("Invalid jwk : {}", did, e);
             }
         }
         throw new InvalidRequestException(ErrorConstants.PROOF_HEADER_INVALID_KEY);

@@ -66,66 +66,16 @@ export default function Password({
     }
   }, [i18n.language]);
 
-  const passwordRegexValue =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.passwordRegex
-    ) ?? process.env.REACT_APP_PASSWORD_REGEX;
-
-  const usernameRegexValue =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.usernameRegex
-    ) ?? process.env.REACT_APP_USERNAME_REGEX;
-
-  const usernamePrefix = 
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.usernamePrefix
-    ) ?? "";
-
-  const usernamePostfix =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.usernamePostfix
-    ) ?? "";
-
-  const usernameInputType =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.usernameInputType
-    ) ?? "";
-
-  const usernameMaxLength =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.usernameMaxLength
-    ) ?? "";
-
-  const passwordMaxLength =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.passwordMaxLength
-    ) ?? "";
-
   const bannerCloseTimer =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.bannerCloseTimer
     ) ?? "";
 
-  fields[0].prefix = usernamePrefix;
-  fields[0].type = usernameInputType ?? "text";
-
-  const passwordRegex = new RegExp(passwordRegexValue);
-  const usernameRegex = new RegExp(usernameRegexValue);
-
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     onCloseHandle();
-
-    const checkMaxLength = (maxLength) =>
-      maxLength === "" ? true : e.target.value.length <= parseInt(maxLength);
-
-    if (
-      (e.target.name === "uin" && checkMaxLength(usernameMaxLength)) ||
-      (e.target.name === "password" && checkMaxLength(passwordMaxLength))
-    ) {
-      setLoginState({ ...loginState, [e.target.id]: e.target.value });
-    }
+    setLoginState({ ...loginState, [e.target.id]: e.target.value });
   };
   
   const handleSubmit = (e) => {
@@ -161,7 +111,7 @@ export default function Password({
     try {
       let transactionId = openIDConnectService.getTransactionId();
 
-      let uin = usernamePrefix + loginState["Password_mosip-uin"] + usernamePostfix;
+      let uin = fields[0].prefix + loginState["Password_mosip-uin"] + fields[0].postfix;
       let challengeType = challengeTypes.pwd;
       let challenge = loginState["Password_password"];
       let challengeFormat = challengeFormats.pwd;
@@ -196,6 +146,30 @@ export default function Password({
             errorCode: `password.${errors[0].errorCode}`,
             show: true
           });
+        }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          let state = openIDConnectService.getState();
+          let redirect_uri = openIDConnectService.getRedirectUri();
+
+          if (!redirect_uri) {
+            return;
+          }
+
+          let params = "?";
+
+          if (errors[0].errorCode) {
+            params = params + "error_description=" + errors[0].errorCode + "&";
+          }
+
+          //REQUIRED
+          params = params + "state=" + state + "&";
+
+          //REQUIRED
+          params = params + "error=" + errors[0].errorCode;
+
+          window.onbeforeunload = null;
+
+          window.location.replace(redirect_uri + params);
         }
         else {
           setErrorBanner({
@@ -254,50 +228,24 @@ export default function Password({
     setErrorBanner(null);
   };
 
-  const onBlurChange = (e) => {
-    const formId = e.target.id;
-    const formValue = e.target.value;
-    let bannerIndex = inputErrorBanner.findIndex((_) => _.id === e.target.id);
-    let currentRegex = new RegExp("");
-    let errorCode = "";
-    if (formId.includes("mosip-uin")) {
-      currentRegex = usernameRegex;
-      errorCode = "username_not_valid";
-    } else if (formId.includes("password")) {
-      currentRegex = passwordRegex;
-      errorCode = "password_not_valid";
-    }
-    let tempBanner = inputErrorBanner.map((_) => {
-      return { ..._, show: true };
-    });
-
-    // checking regex matching for username & password
-    if (currentRegex.test(formValue) || formValue === "") {
-      // if username or password is matched
-      // then remove error from inputErrorBanner
-      if (bannerIndex > -1) {
-        tempBanner.splice(bannerIndex, 1);
-      }
+  const onBlurChange = (e, errors) => {
+    let id = e.target.id;
+    let tempError = inputErrorBanner.map(_ => _);
+    if (errors.length > 0) {
+      tempError.push(id)
     } else {
-      // if username or passwors is not matched
-      // with regex, then add the error
-      if (bannerIndex === -1 && formValue !== "") {
-        tempBanner.push({
-          id: e.target.id,
-          errorCode,
-          show: true,
-        });
+      let errorIndex = tempError.findIndex(_ => _ === id);
+      if (errorIndex !== -1) {
+        tempError.splice(errorIndex, 1);
       }
     }
-
-    // setting the error in inputErrorBanner
-    setInputErrorBanner(tempBanner);
+    setInputErrorBanner(tempError);
   };
 
   const handleForgotPassword = () => {
     window.onbeforeunload = null
   }
-  
+
   return (
     <>
       <div className="grid grid-cols-8 items-center">
@@ -332,13 +280,15 @@ export default function Password({
               imgPath={null}
               icon={field.infoIcon}
               prefix={field.prefix}
-              error={inputErrorBanner}
+              errorCode={field.errorCode}
+              maxLength={field.maxLength}
+              regex={field.regex}
             />
           </div>
         ))}
 
         {forgotPassword && 
-          <a className="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
+          <a className="forgot-password-hyperlink" id="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
         }
 
         {showCaptcha && (
