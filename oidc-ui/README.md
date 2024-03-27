@@ -29,10 +29,13 @@ Esignet UI contains the following pages:
   - OTP: Sign in with OTP
   - PIN: Sign in with PIN
   - PWD: Sign in with Password
+  - KBA: Sign in with Knowledge Based Authentication
 
   The initialization of the component on this page is contingent upon the authentication factors received from the oauth-details endpoint. These authentication factors are determined based on the acr_values parameter specified in the authorize request.
 
   The password-based authentication system incorporates a functionality allowing users to initiate a password recovery process through a designated `Forgot Password` hyperlink.
+
+  **Note:** The labels for the KBA form is fetched from i18 bundle of OIDC-UI.
 
 - `/consent`: is a page that prompts the user to provide consent to share one's details from the Integrated Identity Server to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
 
