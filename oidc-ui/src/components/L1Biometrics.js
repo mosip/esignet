@@ -205,7 +205,7 @@ export default function L1Biometrics({
         env: getEsignetConfiguration("sbiEnv"),
         captureTimeout: getEsignetConfiguration("sbiCAPTURETimeoutInSeconds"),
         irisBioSubtypes: getEsignetConfiguration("sbiIrisBioSubtypes"),
-        fingerBioSubtypes: getEsignetConfiguration(".sbiFingerBioSubtypes"),
+        fingerBioSubtypes: getEsignetConfiguration("sbiFingerBioSubtypes"),
         faceCaptureCount: getEsignetConfiguration("sbiFaceCaptureCount"),
         faceCaptureScore: getEsignetConfiguration("sbiFaceCaptureScore"),
         fingerCaptureCount: getEsignetConfiguration("sbiFingerCaptureCount"),
