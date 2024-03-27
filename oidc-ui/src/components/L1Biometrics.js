@@ -91,7 +91,7 @@ export default function L1Biometrics({
   };
 
   const getSBIAuthTransactionId = (oidcTransactionId) => {
-    oidcTransactionId = oidcTransactionId.replace(/_/gi, "");
+    oidcTransactionId = oidcTransactionId.replace(/-|_/gi, "");
 
     let transactionId = "";
     let pointer = oidcTransactionId.length;
