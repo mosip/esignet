@@ -88,8 +88,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.credential.mandate-pkce:true}")
     private boolean mandatePKCEForVC;
 
-    @Value("#{${mosip.esignet.captcha.required}}")
-    private List<String> authFactorsRequireCaptchaValidation;
+    @Value("#{${mosip.esignet.captcha.required}.split(',')}")
+    private List<String> captchaRequired;
 
 
     @Override
@@ -173,9 +173,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest) throws EsignetException {
-        if(!CollectionUtils.isEmpty(authFactorsRequireCaptchaValidation) &&
+        if(!CollectionUtils.isEmpty(captchaRequired) &&
                 authRequest.getChallengeList().stream().anyMatch(authChallenge ->
-                        authFactorsRequireCaptchaValidation.contains(authChallenge.getAuthFactorType()))) {
+                        captchaRequired.contains(authChallenge.getAuthFactorType()))) {
             authorizationHelperService.validateCaptchaToken(authRequest.getCaptchaToken());
         }
         return authenticateUserV2(authRequest);
