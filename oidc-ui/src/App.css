@@ -372,7 +372,7 @@ input[type="number"] {
 }
 
 [data-radix-popper-content-wrapper] {
-  z-index: 1 !important;
+  z-index: 50 !important;
 }
 
 @media screen and (max-width: 767px) {
