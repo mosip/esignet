@@ -190,6 +190,10 @@ export default function L1Biometrics({
     }
   };
 
+  const getEsignetConfiguration = (key) => {
+    return openIDConnectService.getEsignetConfiguration(configurationKeys[key]);
+  }
+
   useEffect(() => {
     let mosipProp = {
       container: document.getElementById(
@@ -198,19 +202,19 @@ export default function L1Biometrics({
       buttonLabel: "scan_and_verify",
       transactionId: getSBIAuthTransactionId(transactionId),
       sbiEnv: {
-        env: "Staging",
-        captureTimeout: 30,
-        irisBioSubtypes: "UNKNOWN",
-        fingerBioSubtypes: "UNKNOWN",
-        faceCaptureCount: 1,
-        faceCaptureScore: 70,
-        fingerCaptureCount: 1,
-        fingerCaptureScore: 70,
-        irisCaptureCount: 1,
-        irisCaptureScore: 70,
-        portRange: "4501-4512",
-        discTimeout: 15,
-        dinfoTimeout: 30,
+        env: getEsignetConfiguration("sbiEnv"),
+        captureTimeout: getEsignetConfiguration("sbiCAPTURETimeoutInSeconds"),
+        irisBioSubtypes: getEsignetConfiguration("sbiIrisBioSubtypes"),
+        fingerBioSubtypes: getEsignetConfiguration("sbiFingerBioSubtypes"),
+        faceCaptureCount: getEsignetConfiguration("sbiFaceCaptureCount"),
+        faceCaptureScore: getEsignetConfiguration("sbiFaceCaptureScore"),
+        fingerCaptureCount: getEsignetConfiguration("sbiFingerCaptureCount"),
+        fingerCaptureScore: getEsignetConfiguration("sbiFingerCaptureScore"),
+        irisCaptureCount: getEsignetConfiguration("sbiIrisCaptureCount"),
+        irisCaptureScore: getEsignetConfiguration("sbiIrisCaptureScore"),
+        portRange: getEsignetConfiguration("sbiPortRange"),
+        discTimeout: getEsignetConfiguration("sbiDISCTimeoutInSeconds"),
+        dinfoTimeout: getEsignetConfiguration("sbiDINFOTimeoutInSeconds"),
         domainUri: `${window.origin}`,
       },
       langCode: i18n.language,
