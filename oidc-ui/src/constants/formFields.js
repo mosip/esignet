@@ -1,7 +1,7 @@
 import configService from "../services/configService";
 import { validAuthFactors, configurationKeys } from "./clientConstants";
 
-const config = await configService()
+const config = await configService();
 
 const pinFields = [
   {
@@ -13,6 +13,7 @@ const pinFields = [
     autoComplete: "uin",
     isRequired: true,
     placeholder: "uin_placeholder", //translation key for pin namespace
+    infoIcon: config["pin_info_icon"],
     errorCode: "IDA-MLC-002",
     prefix: "",
     postfix: "",
@@ -75,6 +76,7 @@ const otpFields = [
     autoComplete: "vid",
     isRequired: true,
     placeholder: "vid_placeholder",
+    infoIcon: config["otp_info_icon"],
     errorCode: "IDA-MLC-004",
     prefix: "",
     postfix: "",
@@ -94,6 +96,7 @@ const bioLoginFields = {
       autoComplete: "vid",
       isRequired: true,
       placeholder: "vid_placeholder", //translation key for l1biometric namespace
+      infoIcon: config["biometrics_info_icon"],
       errorCode: "IDA-MLC-004",
       prefix: "",
       postfix: "",
