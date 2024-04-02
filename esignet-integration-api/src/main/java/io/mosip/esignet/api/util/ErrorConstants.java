@@ -15,8 +15,9 @@ public class ErrorConstants {
     public static final String INVALID_AUTH_FACTOR_TYPE="invalid_auth_factor_type";
     public static final String INVALID_CHALLENGE="invalid_challenge";
     public static final String INVALID_CHALLENGE_FORMAT = "invalid_challenge_format";
-    public static final String INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE = "invalid_challenge_format_for_auth_factor_type";
+    public static final String INVALID_AUTH_FACTOR_TYPE_FORMAT = "invalid_auth_factor_type_format";
     public static final String BINDING_AUTH_FAILED = "binding_auth_failed";
     public static final String VCI_EXCHANGE_FAILED = "vci_exchange_failed";
     public static final String NOT_IMPLEMENTED = "not_implemented";
+    public static final String INVALID_CHALLENGE_LENGTH = "invalid_challenge_length";
 }

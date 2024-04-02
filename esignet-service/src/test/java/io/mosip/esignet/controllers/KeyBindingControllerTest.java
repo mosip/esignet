@@ -39,6 +39,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_FORMAT;
+import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static org.mockito.Mockito.when;
@@ -168,6 +170,11 @@ public class KeyBindingControllerTest {
 	public void bindWallet_withBlankIndividualId_thenFail() throws Exception {
 		WalletBindingRequest walletBindingRequest = getWalletBindingRequest();
 		walletBindingRequest.setIndividualId("");
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("OTP");
+		authChallenge.setFormat("alpha-numeric");
+		authChallenge.setChallenge("111111");
+		walletBindingRequest.setChallengeList(Arrays.asList(authChallenge));
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
 		wrapper.setRequest(walletBindingRequest);
@@ -237,6 +244,11 @@ public class KeyBindingControllerTest {
 	@Test
 	public void bindWallet_withEmptyFormat_thenFail() throws Exception {
 		WalletBindingRequest walletBindingRequest = getWalletBindingRequest();
+		AuthChallenge authChallenge = new AuthChallenge();
+		authChallenge.setAuthFactorType("OTP");
+		authChallenge.setFormat("alpha-numeric");
+		authChallenge.setChallenge("111111");
+		walletBindingRequest.setChallengeList(Arrays.asList(authChallenge));
 		walletBindingRequest.setFormat("");
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
@@ -263,13 +275,15 @@ public class KeyBindingControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.errors").isNotEmpty()).andReturn();
 
-		List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE,INVALID_CHALLENGE);
+		List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,
+				INVALID_CHALLENGE, INVALID_CHALLENGE_LENGTH);
 		ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-		Assert.assertTrue(responseWrapper.getErrors().size() == 4);
+		Assert.assertTrue(responseWrapper.getErrors().size() == 5);
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
 		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
+		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(4)).getErrorCode()));
 	}
 
 	/*@Test
@@ -361,7 +375,7 @@ public class KeyBindingControllerTest {
 		walletBindingRequest.setFormat("jwt");
 		AuthChallenge authChallenge = new AuthChallenge();
 		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("12345");
+		authChallenge.setChallenge("123456");
 		authChallenge.setFormat("alpha-numeric");
 		List<AuthChallenge> authChallengeList = new ArrayList();
 		authChallengeList.add(authChallenge);
