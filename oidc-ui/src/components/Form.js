@@ -122,7 +122,8 @@ export default function Form({
           setError({
             errorCode: `${errors[0].errorCode}`
           });
-        }        
+        }
+        _reCaptchaRef.current.reset();        
         return;
       } else {
         setError(null);
@@ -148,6 +149,7 @@ export default function Form({
         defaultMsg: error.message,
       });
       setStatus(states.ERROR);
+      _reCaptchaRef.current.reset();        
     }
   };
 
