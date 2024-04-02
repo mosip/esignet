@@ -124,6 +124,7 @@ export default function OtpGet({
             show: true
           });
         }
+        _reCaptchaRef.current.reset();
         return;
       } else {
         onOtpSent(loginState["Otp_mosip-vid"], response);
@@ -135,6 +136,7 @@ export default function OtpGet({
         show: true
       });
       setStatus({ state: states.ERROR, msg: "" });
+      _reCaptchaRef.current.reset();
     }
   };
 

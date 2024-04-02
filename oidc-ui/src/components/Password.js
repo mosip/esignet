@@ -177,6 +177,7 @@ export default function Password({
             show: true
           });
         }
+        _reCaptchaRef.current.reset();
         return;
       } else {
         setErrorBanner(null);
@@ -201,6 +202,7 @@ export default function Password({
         show: true
       });
       setStatus(states.ERROR);
+      _reCaptchaRef.current.reset();
     }
   };
 
