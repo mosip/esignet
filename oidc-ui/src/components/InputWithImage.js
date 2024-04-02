@@ -141,7 +141,7 @@ export default function InputWithImage({
             {labelText}
           </label>
           {icon && (
-            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]" />} content={t1("username_info")} position="right" contentSize="text-xs" />
+            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px] relative bottom-[1px]" />} content={id.includes("Otp") ? t1("otp_info") : id.includes("sbi") ? t1("bio_info") : id.includes("Pin") ? t1("pin_info") : t1("username_info")} position="right" contentSize="text-xs" />
           )}
         </div>
         {formError && (

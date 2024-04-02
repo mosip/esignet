@@ -158,7 +158,7 @@ export default function OtpGet({
         />
       )}
 
-      <div className="mt-12">
+      <div className="mt-6">
         {fields.map((field) => (
           <InputWithImage
             key={"Otp_" + field.id}
@@ -179,6 +179,7 @@ export default function OtpGet({
             errorCode={field.errorCode}
             maxLength={field.maxLength}
             regex={field.regex}
+            icon={field.infoIcon}
           />
         ))}
 

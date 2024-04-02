@@ -255,7 +255,7 @@ export default function L1Biometrics({
           onCloseHandle={onCloseHandle}
         />
       )}
-      <form className="relative mt-8 space-y-5">
+      <form className="relative mt-6 space-y-5">
         <div className="-space-y-px">
           {inputFields.map((field) => (
             <InputWithImage
@@ -277,6 +277,7 @@ export default function L1Biometrics({
               errorCode={field.errorCode}
               maxLength={field.maxLength}
               regex={field.regex}
+              icon={field.infoIcon}
             />
           ))}
         </div>

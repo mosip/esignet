@@ -164,9 +164,9 @@ export default function Pin({
           onCloseHandle={onCloseHandle}
         />
       )}
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-        <div className="-space-y-px">
+      <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
           {fields.map((field) => (
+          <div className="-space-y-px">
             <InputWithImage
               key={"Pin_" + field.id}
               handleChange={handleChange}
@@ -187,8 +187,8 @@ export default function Pin({
               maxLength={field.maxLength}
               regex={field.regex}
             />
+          </div>
           ))}
-        </div>
 
         <div className="flex items-center justify-between ">
           <div className="flex items-center">

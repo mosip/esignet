@@ -272,7 +272,7 @@ export default function OtpVerify({
         />
       )}
 
-      <form className="mt-2 space-y-2" onSubmit={handleSubmit}>
+      <form className="mt-6 space-y-2" onSubmit={handleSubmit}>
         <div className={"space-y-px"}>
           {fields.map((field) => (
             <InputWithImage
