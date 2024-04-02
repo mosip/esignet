@@ -402,7 +402,7 @@ public class AuthorizationAPIFlowTest {
         kycAuthDto.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
-        authChallenge.setChallenge("1234453");
+        authChallenge.setChallenge("1234");
         authChallenge.setFormat("number");
         kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
         kycAuthDto.setTransactionId(transactionId);
