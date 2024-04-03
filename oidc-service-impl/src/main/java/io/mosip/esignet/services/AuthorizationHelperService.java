@@ -91,7 +91,7 @@ public class AuthorizationHelperService {
     @Value("${mosip.esignet.cache.store.individual-id}")
     private boolean storeIndividualId;
 
-    @Value("#{${mosip.esignet.captcha.required}.split(',')}")
+    @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
     private List<String> captchaRequired;
 
     @Value("#{${mosip.esignet.supported.credential.scopes}}")
