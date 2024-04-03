@@ -16,23 +16,24 @@ should be placed in this folder and respective plugin configuration should be up
 
 ## How to run this setup?
 
-1. Create folder loader_path, download and save eSignet mock plugin from [here](https://oss.sonatype.org/service/local/repositories/snapshots/content/io/mosip/esignet/mock/mock-esignet-integration-impl/0.9.2-SNAPSHOT/mock-esignet-integration-impl-0.9.2-20240206.133850-55.jar) into loader_path folder.
- 
+1. Create loader_path folder in the same directory and Download the eisgnet mock plugin from [here](https://repo1.maven.org/maven2/io/mosip/esignet/mock/mock-esignet-integration-impl/0.9.2/mock-esignet-integration-impl-0.9.2.jar) 
+and copy the downloaded jar under loader_path directory.
+
 2. Start the docker-compose file
 
 > docker-compose up
 
-3. Download the postman script from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_collection.json)
-and its environment from [here](https://github.com/mosip/esignet/blob/master/docs/postman-collections/esignet-OIDC-flow-with-mock.postman_environment.json)
+3. Download the postman script from [here](../docs/postman-collections/esignet-with-mock-IDA.postman_collection.json)
+and its environment from [here](../docs/postman-collections/esignet-with-mock-IDA.postman_environment.json)
 
 4. Import the downloaded collection and environment into postman.
 
-5. To Create a Mock identity, run the below request from the postman collection "Mock-Identity-System" folder
-   * Create Mock Identity
-
-6. To create an OIDC/OAuth client, run the below request from the postman collection "OIDC Client mgmt" folder
+5. To create an OIDC/OAuth client, run the below request from the postman collection "OIDC Client mgmt" folder
    * Get CSRF token
    * Create OIDC Client
+
+6. To Create a Mock identity, run the below request from the postman collection "Mock-Identity-System" folder
+   * Create Mock Identity
 
 7. To run the OIDC flow with mock identity run the below request(same order) from the postman collection "AuthCode flow with OTP login" folder.
    * Get CSRF token
@@ -47,9 +48,9 @@ and its environment from [here](https://github.com/mosip/esignet/blob/master/doc
    * Get CSRF token
    * Authorize / OAuthdetails request
    * Send OTP
-   * Authenticate User V2
+   * Authenticate User
    * Authorization Code
-   * Get Tokens V2
+   * Get Tokens
    * Get Credential
 
 
