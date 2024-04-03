@@ -14,6 +14,7 @@ import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
+import redirectOnError from "../helpers/redirectOnError";
 
 let fieldsState = {};
 
@@ -118,7 +119,11 @@ export default function Form({
           setError({
             defaultMsg: t(`${errors[0].errorCode}`)
           });
-        }else{
+        }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t(`${errors[0].errorCode}`));
+        }
+        else{
           setError({
             errorCode: `${errors[0].errorCode}`
           });
