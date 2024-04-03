@@ -13,6 +13,7 @@ import FormAction from "./FormAction";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
 import InputWithImage from "./InputWithImage";
+import redirectOnError from "../helpers/redirectOnError";
 
 const fields = pinFields;
 let fieldsState = {};
@@ -109,6 +110,9 @@ export default function Pin({
             show: true
           });
         }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        }
         else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
@@ -147,7 +151,6 @@ export default function Pin({
   };
 
   useEffect(() => {
-    console.log({loginState});
     setInvalidState(!Object.values(loginState).every((value) => value?.trim()));
   }, [loginState]);
 

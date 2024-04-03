@@ -15,6 +15,7 @@ import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import redirectOnError from "../helpers/redirectOnError";
 
 const fields = passwordFields;
 let fieldsState = {};
@@ -148,28 +149,7 @@ export default function Password({
           });
         }
         else if (errors[0].errorCode === "invalid_transaction") {
-          let state = openIDConnectService.getState();
-          let redirect_uri = openIDConnectService.getRedirectUri();
-
-          if (!redirect_uri) {
-            return;
-          }
-
-          let params = "?";
-
-          if (errors[0].errorCode) {
-            params = params + "error_description=" + errors[0].errorCode + "&";
-          }
-
-          //REQUIRED
-          params = params + "state=" + state + "&";
-
-          //REQUIRED
-          params = params + "error=" + errors[0].errorCode;
-
-          window.onbeforeunload = null;
-
-          window.location.replace(redirect_uri + params);
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         }
         else {
           setErrorBanner({

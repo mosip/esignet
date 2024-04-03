@@ -14,6 +14,7 @@ import InputWithImage from "./InputWithImage";
 import PinInput from "react-pin-input";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import redirectOnError from "../helpers/redirectOnError";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -111,6 +112,9 @@ export default function OtpVerify({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true
           });
+        }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         }
         else {
           setErrorBanner({
@@ -217,6 +221,9 @@ export default function OtpVerify({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true
           });
+        }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         }
         else {
           setErrorBanner({
