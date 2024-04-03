@@ -83,8 +83,36 @@ function installing_esignet() {
     ENABLE_INSECURE='--set enable_insecure=true';
   fi
 
+  default_keystore_type=PKCS11
+  read -p "Provide the type of keystore for Esignet (PKCS11/PKCS12) : [ default : PKCS11 ] : " keystore_type
+  keystore_type=${keystore_type:-$default_keystore_type}
+
+  ESIGNET_HELM_ARGS=''
+  if [[ $keystore_type == 'PKCS12' ]]; then
+
+    default_volume_size=100M
+    read -p "Provide the volume size for PKCS12 volume [ default : 100M ]" volume_size
+    volume_size=${volume_size:-$default_volume_size}
+
+    default_volume_mount_path='/home/mosip/config/'
+    read -p "Provide the volume size for PKCS12 volume [ default : '/home/mosip/config/' ] : " volume_mount_path
+    volume_mount_path=${volume_mount_path:-$default_volume_mount_path}
+
+    PVC_CLAIM_NAME='esignet-pkcs12-keys.p12'
+    ESIGNET_HELM_ARGS="--set persistence.enabled=true  \
+                   --set volumePermissions.enabled=true \
+                   --set persistence.mountDir=\"$volume_mount_path\" \
+                   --set springConfigNameEnv='esignet' \
+                   --set activeProfileEnv=default     \
+                   --set persistence.existingClaim=\"$PVC_CLAIM_NAME\"  \
+                   --set \"extraEnvVarsCM={'global','config-server-share','artifactory-share'}\" \
+                  "
+  fi
+  echo "ESIGNET HELM ARGS $ESIGNET_HELM_ARGS"
+
+
   echo Installing esignet
-  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE
+  helm -n $NS install esignet mosip/esignet $ESIGNET_HELM_ARGS --version $CHART_VERSION $ENABLE_INSECURE
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
