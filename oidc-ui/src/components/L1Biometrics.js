@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { init, propChange } from "secure-biometric-interface-integrator";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import redirectOnError from "../helpers/redirectOnError";
 
 let fieldsState = {};
 const langConfig = await langConfigService.getEnLocaleConfiguration();  
@@ -165,6 +166,9 @@ export default function L1Biometrics({
           errorCode: `biometrics.${errors[0].errorCode}`,
           show: true
         });
+      }
+      else if (errors[0].errorCode === "invalid_transaction") {
+        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
       }
       else {
         setErrorBanner({

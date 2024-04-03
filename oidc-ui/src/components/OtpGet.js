@@ -8,6 +8,7 @@ import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import redirectOnError from "../helpers/redirectOnError";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -117,6 +118,9 @@ export default function OtpGet({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true
           });
+        }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         }
         else {
           setErrorBanner({

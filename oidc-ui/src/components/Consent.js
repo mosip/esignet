@@ -9,6 +9,7 @@ import FormAction from "./FormAction";
 import langConfigService from "./../services/langConfigService";
 import ModalPopup from "../common/ModalPopup";
 import configService from "../services/configService";
+import redirectOnError from "../helpers/redirectOnError";
 
 const config = await configService();
 
@@ -230,7 +231,7 @@ export default function Consent({
       let timePassed = currentTime - authTime;
       let tLeft = transactionTimeoutWithBuffer - timePassed;
       if (tLeft <= 0) {
-        onError("transaction_timeout", t("transaction_timeout"));
+        redirectOnError("transaction_timeout", t("transaction_timeout"));
         return;
       }
       setTimeLeft(tLeft);
@@ -287,7 +288,7 @@ export default function Consent({
       const { response, errors } = authCodeResponse;
 
       if (errors != null && errors.length > 0) {
-        onError(
+        redirectOnError(
           errors[0].errorCode,
           i18next.t("errors." + errors[0].errorCode)
         );
@@ -304,38 +305,12 @@ export default function Consent({
         response.redirectUri + params + "code=" + response.code
       );
     } catch (error) {
-      onError("authorization_failed_msg", error.message);
+      redirectOnError("authorization_failed_msg", error.message);
     }
-  };
-
-  //errorCode is REQUIRED, errorDescription is OPTIONAL
-  const onError = async (errorCode, errorDescription) => {
-    let state = openIDConnectService.getState();
-    let redirect_uri = openIDConnectService.getRedirectUri();
-
-    if (!redirect_uri) {
-      return;
-    }
-
-    let params = "?";
-
-    if (errorDescription) {
-      params = params + "error_description=" + errorDescription + "&";
-    }
-
-    //REQUIRED
-    params = params + "state=" + state + "&";
-
-    //REQUIRED
-    params = params + "error=" + errorCode;
-
-    window.onbeforeunload = null;
-
-    window.location.replace(redirect_uri + params);
   };
 
   if (authTime === null) {
-    onError("invalid_transaction", t("invalid_transaction"));
+    redirectOnError("invalid_transaction", t("invalid_transaction"));
   }
 
   const sliderButtonDiv = (item, handleOnchange) => (
@@ -374,7 +349,7 @@ export default function Consent({
   // close the modalpopup and redirect to Relying Party landing page
   const handleDiscontinue = () => {
     setCancelPopup(false);
-    onError("consent_request_rejected", t("consent_request_rejected"));
+    redirectOnError("consent_request_rejected", t("consent_request_rejected"));
   };
 
   // buttons for the modalpopup footer
