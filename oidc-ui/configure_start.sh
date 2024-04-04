@@ -27,6 +27,17 @@ cd $theme_path
 unzip -o esignet-theme.zip
 rm esignet-theme.zip
 
+#image bundle
+echo "Downloading image bundle files"
+wget --no-check-certificate --no-cache --no-cookies $artifactory_url_env/artifactory/libs-release-local/image/esignet-image.zip -O $image_path/esignet-image.zip
+
+echo "unzip image bundle files.."
+chmod 775 $image_path/*
+
+cd $image_path
+unzip -o esignet-image.zip
+rm esignet-image.zip
+
 #sign-in-button-plugin
 echo "Downloading plugins"
 
