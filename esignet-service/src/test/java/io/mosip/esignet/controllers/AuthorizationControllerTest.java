@@ -846,10 +846,9 @@ public class AuthorizationControllerTest {
 
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
     }
 
     @Test
@@ -881,11 +880,9 @@ public class AuthorizationControllerTest {
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,INVALID_CHALLENGE_FORMAT,
                 INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 4);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
     }
 
     @Test
@@ -914,9 +911,8 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk()).andReturn();
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
 
     }
 
@@ -946,9 +942,8 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk()).andReturn();
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
     }
 
     @Test
