@@ -10,7 +10,7 @@ info:
     <li> OIDC - All OIDC compliant endpoints for performing the Open ID Connect flows</li>
     <li> UI - All endpoints used by the UI application </li>
     <li> Wallet - All endpoints used by the Wallet application </li>
-    <li> binding-service - All endpoints used by the UI application </li>
+    <li> Wallet Backend - All endpoints used by the wallet backend service </li>
     <li> VCI Service - All endpoints used by VC Issuance flow</li>
     </ul>
 
@@ -25,8 +25,8 @@ info:
     PSUT - Partner(Relying Party) Specific User Token</br>
     VC - Verifiable Credential</br>
     VCI - Verifiable Credential Issuance      
-        
-       
+  
+
   contact:
     name: MOSIP Team
     email: info@mosip.io
@@ -113,6 +113,7 @@ paths:
                           - 'mosip:idp:acr:generated-code'
                           - 'mosip:idp:acr:linked-wallet'
                           - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:knowledge'
                     publicKey:
                       type: object
                       description: |-
@@ -1156,7 +1157,7 @@ paths:
                         description: |-
                           Auth factors defines the authentication screens displayed in IDP frontend.
                           More than one authFactor may be resolved or combination of auth factors.
-                          Precedence of authFactors is based on its order  
+                          Precedence of authFactors is based on its order
                         items:
                           type: array
                           items:
@@ -1382,7 +1383,7 @@ paths:
                         description: |-
                           Auth factors defines the authentication screens displayed in IDP frontend.
                           More than one authFactor may be resolved or combination of auth factors.
-                          Precedence of authFactors is based on its order  
+                          Precedence of authFactors is based on its order
                         items:
                           type: array
                           items:
@@ -2268,7 +2269,7 @@ paths:
         4. On open of wallet-app, wallet-app invokes /link-transaction endpoint.
         5. In the JS application, once machine-readable-code is rendered, at the same time /link-status endpoint is invoked as a polling request.
 
-        **Configuration to decide the expire date time of linkCode**: mosip.idp.link-code-expire-in-secs 
+        **Configuration to decide the expire date time of linkCode**: mosip.idp.link-code-expire-in-secs
       operationId: get-authorization-generate-link-code
       parameters:
         - name: oauth-details-hash
@@ -3779,7 +3780,7 @@ paths:
   /binding/binding-otp:
     post:
       tags:
-        - binding-service
+        - WALLET BACKEND
       summary: Send Binding OTP Endpoint
       description: Send wallet binding OTP endpoint is invoked by Mimoto server.
       operationId: post-binding-otp
@@ -3878,7 +3879,7 @@ paths:
   /binding/wallet-binding:
     post:
       tags:
-        - binding-service
+        - WALLET BACKEND
       summary: Wallet Binding Endpoint
       description: |-
         Wallet binding endpoint is invoked by Mimoto server.
@@ -4106,6 +4107,15 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - issuer
+                  - authorization_endpoint
+                  - token_endpoint
+                  - userinfo_endpoint
+                  - jwks_uri
+                  - registration_endpoint
+                  - scopes_supported
+                  - response_types_supported
                 properties:
                   issuer:
                     type: string
@@ -4127,38 +4137,40 @@ paths:
                     description: URL of Client Registration Endpoint.
                   scopes_supported:
                     type: array
-                    const: email
                     description: 'JSON array containing a list of the OAuth 2.0 [RFC6749] scope values that this server supports.'
+                    items: {}
                   response_types_supported:
                     type: array
-                    const: code
                     description: JSON array containing a list of the OAuth 2.0 response_type values that this OP supports.
+                    items: {}
                   acr_values_supported:
                     type: array
                     description: JSON array containing a list of the Authentication Context Class References that IDP supports.
+                    items: {}
                   userinfo_signing_alg_values_supported:
                     type: array
                     description: 'JSON array containing a list of the JWS [JWS] signing algorithms.'
+                    items: {}
                   userinfo_encryption_alg_values_supported:
                     type: array
                     description: 'JSON array containing a list of the JWE [JWE] encryption algorithms.'
+                    items: {}
                   userinfo_encryption_enc_values_supported:
                     type: array
                     description: 'JSON array containing a list of the JWE encryption algorithms (enc values) [JWA] supported by the UserInfo Endpoint to encode the Claims in a JWT.'
+                    items: {}
                   token_endpoint_auth_methods_supported:
                     type: array
-                    const: private_key_jwt
                     description: JSON array containing a list of Client Authentication methods supported by this Token Endpoint.
+                    items: {}
                   display_values_supported:
                     type: array
                     description: JSON array containing a list of the display parameter values that the OpenID Provider supports.
+                    items: {}
                   claim_types_supported:
                     type: array
-                    enum:
-                      - normal
-                      - aggregated
-                      - distributed
                     description: JSON array containing a list of the Claim Types that the OpenID Provider supports.
+                    items: {}
                   claims_supported:
                     type: array
                     description: JSON array containing a list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for.
@@ -4187,15 +4199,6 @@ paths:
                     type: array
                     items:
                       const: RS256
-                required:
-                  - issuer
-                  - authorization_endpoint
-                  - token_endpoint
-                  - userinfo_endpoint
-                  - jwks_uri
-                  - registration_endpoint
-                  - scopes_supported
-                  - response_types_supported
               examples:
                 Example 1:
                   value:
@@ -4398,6 +4401,12 @@ tags:
     description: API's that are supposed to be compliant to OIDC.
   - name: UI
     description: UI related API.
+  - name: VCI
+    description: VC issuance related API's
+  - name: WALLET
+    description: API's to be invoked from the wallet app.
+  - name: WALLET BACKEND
+    description: API's to be invoked from Wallet backend service.
 components:
   securitySchemes:
     Authorization-Bearer:
