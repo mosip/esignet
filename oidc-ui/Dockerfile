@@ -69,6 +69,8 @@ ENV i18n_path=${work_dir}/locales
 
 ENV theme_path=${work_dir}/theme
 
+ENV image_path=${work_dir}/images
+
 ENV plugins_path=${nginx_dir}/html/plugins
 
 ENV plugins_format=iife
@@ -79,8 +81,8 @@ WORKDIR /home/${container_user}
 # install packages and create user
 RUN groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
-    && mkdir -p /var/run/nginx /var/tmp/nginx ${i18n_path} ${theme_path} ${plugins_path}  ${plugins_path}/temp \
-    && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${i18n_path} ${theme_path} ${plugins_path} ${plugins_path}/temp
+    && mkdir -p /var/run/nginx /var/tmp/nginx ${i18n_path} ${theme_path} ${image_path} ${plugins_path} ${plugins_path}/temp \
+    && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${i18n_path} ${theme_path} ${image_path} ${plugins_path} ${plugins_path}/temp
 
 ADD configure_start.sh configure_start.sh
 
