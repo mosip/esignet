@@ -51,7 +51,7 @@ export default function OtpGet({
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("otp") !== -1
+    captchaEnableComponentsList.indexOf("send-otp") !== -1
   );
 
   const captchaSiteKey =
