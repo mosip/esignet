@@ -1,6 +1,4 @@
 openapi: 3.1.0
-x-stoplight:
-  id: brrez13r7qzhu
 info:
   version: '1.0'
   title: e-Signet
@@ -27,6 +25,8 @@ info:
     PSUT - Partner(Relying Party) Specific User Token</br>
     VC - Verifiable Credential</br>
     VCI - Verifiable Credential Issuance      
+  
+
   contact:
     name: MOSIP Team
     email: info@mosip.io
@@ -113,7 +113,6 @@ paths:
                           - 'mosip:idp:acr:generated-code'
                           - 'mosip:idp:acr:linked-wallet'
                           - 'mosip:idp:acr:biometrics'
-                          - 'mosip:idp:acr:knowledge'
                     publicKey:
                       type: object
                       description: |-
@@ -254,8 +253,6 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
-      x-stoplight:
-        id: e1d4eu0x68j1p
   /client-mgmt/oauth-client:
     post:
       tags:
@@ -484,8 +481,6 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
-      x-stoplight:
-        id: 4qas6grdwg52i
   '/client-mgmt/oidc-client/{client_id}':
     put:
       tags:
@@ -683,8 +678,6 @@ paths:
         - Authorization-update_oidc_client: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 2lomzfcpvkti7
   '/client-mgmt/oauth-client/{client_id}':
     put:
       tags:
@@ -893,8 +886,6 @@ paths:
         - Authorization-update_oidc_client: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 0syn4o80iequr
   /authorize:
     get:
       tags:
@@ -1028,8 +1019,6 @@ paths:
             Loads JS application, and validates the provided query parameters using oauth-details endpoint.
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: ntvz9gsgrcrs0
   /authorization/oauth-details:
     post:
       tags:
@@ -1248,8 +1237,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: rt6d6bz7i81fg
   /authorization/v2/oauth-details:
     post:
       tags:
@@ -1489,8 +1476,6 @@ paths:
                       errors: null
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: stphc8pf72gcj
   /authorization/send-otp:
     post:
       tags:
@@ -1628,8 +1613,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: ddwp0qjcl3qqm
   /linked-authorization/send-otp:
     post:
       tags:
@@ -1742,8 +1725,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: sw4pr6esnw5b1
   /authorization/authenticate:
     post:
       tags:
@@ -1855,11 +1836,6 @@ paths:
                             - invalid_no_of_challenges
                             - auth_failed
                             - unknown_error
-                            - invalid_auth_factor_type_format
-                            - invalid_auth_factor_type
-                            - invalid_challenge
-                            - invalid_challenge_length
-                            - invalid_challenge_format
                         errorMessage:
                           type: string
               examples:
@@ -1872,8 +1848,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: ezsllgwqoyybl
   /authorization/v2/authenticate:
     post:
       tags:
@@ -1993,11 +1967,6 @@ paths:
                             - invalid_no_of_challenges
                             - auth_failed
                             - unknown_error
-                            - invalid_auth_factor_type_format
-                            - invalid_auth_factor_type
-                            - invalid_challenge
-                            - invalid_challenge_length
-                            - invalid_challenge_format
                         errorMessage:
                           type: string
               examples:
@@ -2010,8 +1979,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: fg9n5i9qqnpew
   /authorization/v3/authenticate:
     post:
       tags:
@@ -2150,11 +2117,6 @@ paths:
                             - invalid_no_of_challenges
                             - auth_failed
                             - unknown_error
-                            - invalid_auth_factor_type_format
-                            - invalid_auth_factor_type
-                            - invalid_challenge
-                            - invalid_challenge_length
-                            - invalid_challenge_format
                         errorMessage:
                           type: string
               examples:
@@ -2167,8 +2129,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 3fzhp6a5kiyuj
   /authorization/auth-code:
     post:
       tags:
@@ -2294,8 +2254,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: nq394tdttz64r
   /linked-authorization/link-code:
     post:
       tags:
@@ -2402,8 +2360,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: zfy86qve5nb8j
   /linked-authorization/link-transaction:
     post:
       tags:
@@ -2533,8 +2489,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: loz6cuzhjk6kf
   /linked-authorization/v2/link-transaction:
     post:
       tags:
@@ -2673,8 +2627,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: hkhmrwg8vszvo
   /linked-authorization/link-status:
     post:
       tags:
@@ -2786,8 +2738,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: c94ue4yd3zoht
   /linked-authorization/authenticate:
     post:
       tags:
@@ -2880,11 +2830,6 @@ paths:
                             - invalid_no_of_challenges
                             - auth_failed
                             - unknown_error
-                            - invalid_auth_factor_type_format
-                            - invalid_auth_factor_type
-                            - invalid_challenge
-                            - invalid_challenge_length
-                            - invalid_challenge_format
                         errorMessage:
                           type: string
               examples:
@@ -2897,8 +2842,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: p2rv0q4ljfahv
   /linked-authorization/v2/authenticate:
     post:
       tags:
@@ -2999,11 +2942,6 @@ paths:
                             - invalid_no_of_challenges
                             - auth_failed
                             - unknown_error
-                            - invalid_auth_factor_type_format
-                            - invalid_auth_factor_type
-                            - invalid_challenge
-                            - invalid_challenge_length
-                            - invalid_challenge_format
                         errorMessage:
                           type: string
               examples:
@@ -3016,8 +2954,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: oslqpp3amg74i
   /linked-authorization/consent:
     post:
       tags:
@@ -3112,8 +3048,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: tz53kdjtajys3
   /linked-authorization/v2/consent:
     post:
       tags:
@@ -3211,8 +3145,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: wrt1asaxfysfy
   /linked-authorization/link-auth-code:
     post:
       tags:
@@ -3332,8 +3264,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: wygk6uuclzisk
   /oauth/token:
     post:
       tags:
@@ -3478,8 +3408,6 @@ paths:
                   - error
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: a6ietxsl503wc
   /oauth/v2/token:
     post:
       tags:
@@ -3641,8 +3569,6 @@ paths:
                   - error
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: s7ovkxzf27ndv
   /oidc/userinfo:
     get:
       tags:
@@ -3712,8 +3638,6 @@ paths:
         - Authorization-access_token: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 6ro1i3ag7h424
   /vci/credential:
     post:
       tags:
@@ -3852,8 +3776,6 @@ paths:
         - Authorization-access_token: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: uzj55r4abstbh
   /binding/binding-otp:
     post:
       tags:
@@ -3953,8 +3875,6 @@ paths:
         - Authorization-send_binding_otp: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: xnl3gyq4v4bh4
   /binding/wallet-binding:
     post:
       tags:
@@ -4065,15 +3985,11 @@ paths:
                         errorCode:
                           type: string
                           enum:
+                            - unsupported_challenge_format
                             - key_binding_failed
                             - invalid_public_key
                             - invalid_auth_challenge
                             - duplicate_public_key
-                            - invalid_auth_factor_type_format
-                            - invalid_auth_factor_type
-                            - invalid_challenge
-                            - invalid_challenge_length
-                            - invalid_challenge_format
                         errorMessage:
                           type: string
                 required:
@@ -4091,8 +4007,6 @@ paths:
         - Authorization-wallet_binding: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: nnoxi9ubatper
   /.well-known/jwks.json:
     get:
       tags:
@@ -4175,8 +4089,6 @@ paths:
                         'n': sY50VCweYJ6XGrxl0kbQNsZTt1XwwmG4KLwph05CleDN3apRZjtXfU5WXJMWz5hYcNHkpGR_DulQAj6OzAxYLfaqfZH4Gw7MyzXq1nwLexUimRR5nxeEgEi6BWRcym4huShnsIFybbN61FVF00ZALlV2Lm9mfKOxC_tQuIMCRa06Jtp4OOmuPSUfFoN9-ZY-6RwEGnI5oBUvKT3yFRuAPAfEF-efZ52OQOVi3TtVVT4RZCiiUTUxC-fySAM36RKJx5wnwgGkkGzyL0wkOivb4-ALreUCBvq-vb9tfKzCUXxXhQZAdKsaAUDEgxzo-Wi5qDCGLA4tfIAyI0lr_w3lxw
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: kdk405b8t3z8c
   /.well-known/openid-configuration:
     get:
       tags:
@@ -4339,8 +4251,6 @@ paths:
                     request_parameter_supported: false
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: lmo16h00dfu9w
   /.well-known/openid-credential-issuer:
     get:
       tags:
@@ -4429,8 +4339,6 @@ paths:
                         locale: en
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: zz4ldgn033v4v
   /oauth/introspect:
     get:
       tags:
@@ -4485,8 +4393,6 @@ paths:
         - Authorization-Bearer: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: jjlsk4bwyn9s8
 tags:
   - name: Management
     description: Management level API's used for internal use.
@@ -4568,8 +4474,6 @@ components:
           type: array
           items:
             type: string
-      x-stoplight:
-        id: hgny5fmmpiwsg
     ClaimDetail:
       type: object
       title: ClaimDetail
@@ -4589,8 +4493,6 @@ components:
           description: 'Requests that the Claim be returned with one of a set of values, with the values appearing in order of preference.'
           items:
             type: string
-      x-stoplight:
-        id: b1gdl2i51ubba
     AuthFactor:
       type: object
       title: AuthFactor
@@ -4614,8 +4516,6 @@ components:
             type: string
       required:
         - type
-      x-stoplight:
-        id: rn56y4vja1x6o
     AuthChallenge:
       type: object
       title: AuthChallenge
@@ -4647,8 +4547,6 @@ components:
         - authFactorType
         - challenge
         - format
-      x-stoplight:
-        id: 7jq6fwka3vzhb
     CredentialProof:
       type: object
       title: CredentialProof
@@ -4665,8 +4563,6 @@ components:
           description: 'When proof_type is cwt, a proof object MUST include a cwt claim'
       required:
         - proof_type
-      x-stoplight:
-        id: s4cu9uw18jk3l
     CredentialDefinition:
       type: object
       title: CredentialDefinition
@@ -4690,5 +4586,3 @@ components:
           type: object
       required:
         - type
-      x-stoplight:
-        id: ezs7iae5jlgln
