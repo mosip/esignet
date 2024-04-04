@@ -71,7 +71,7 @@ public class AuthorizationHelperServiceTest {
 
     @Test
     public void validateCaptchaToken_withNoValidator_thenFail() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", true);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
         ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", null);
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
@@ -83,7 +83,7 @@ public class AuthorizationHelperServiceTest {
 
     @Test
     public void validateCaptchaToken_withInvalidToken_thenFail() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", true);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
         ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
         Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
@@ -96,7 +96,7 @@ public class AuthorizationHelperServiceTest {
 
     @Test
     public void validateCaptchaToken_withValidToken_thenPass() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", true);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
         ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
         Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(true);
         authorizationHelperService.validateCaptchaToken("captcha-token");
