@@ -79,17 +79,25 @@ The application runs on PORT=3000 by default.
   - REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC: Buffer time for the consent screen expiry timer.
   - REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT: Limit for the QR code auto refresh.
 
-- JSON configuration variables
-  
-  - username_info_icon: Place the information icon adjacent to the username label within the password login interface.
-  - background_logo: Place the logo on the left side of the main card on the login and consent pages.
-  - footer: Place the footer at the bottom of each page.
-  - remove_language_indicator_pipe: Eliminate the indicator pipe adjacent to the language display within the navigation bar.
-  - outline_toggle: Substitute the outline toggler in lieu of the slider toggler.
+JSON configuration variables (`theme/config.json`)
+
+- **username_info_icon**: Place the information icon adjacent to the username label within the password login interface.
+- **background_logo**: Place the logo on the left side of the main card on the login and consent pages.
+- **footer**: Place the footer at the bottom of each page.
+- **remove_language_indicator_pipe**: Eliminate the indicator pipe adjacent to the language display within the navigation bar.
+- **outline_toggle**: Substitute the outline toggler in lieu of the slider toggler.
 
 - Theme based configuration
 
-  To customize the theme of OIDC-UI, modify the variables within the `variables.css` file located in the `public` folder. Adjust the CSS variables based on the requirements, and these changes will be reflected in OIDC user interface. The variables encompass attributes such as color, image paths, and numerical values in pixels (e.g., for height, width, etc.).
+  To customize the theme of OIDC-UI, modify the variables within the `variables.css` file located in the `public/theme` folder. Adjust the CSS variables based on the requirements, and these changes will be reflected in OIDC user interface. The variables encompass attributes such as color, image paths, and numerical values in pixels (e.g., for height, width, etc.).
+
+- Environment configuration properties (`public/env-config.js`)
+  - **DEFAULT_LANG**: default language for the platform
+  - **DEFAULT_WELLKNOWN**: wellknown endpoints for the platform
+  - **DEFAULT_THEME**: theme for the platform, if nothing is given it will take a root theme from `public/theme/variable.css`
+  - **DEFAULT_FEVICON**: favicon icon for the platform in the browser tab,
+  - **DEFAULT_TITLE**: title of the platform in the browser tab,
+  - **DEFAULT_ID_PROVIDER_NAME**: name to be shown in the platform for the provider name
 
 - Build and run Docker for a service:
 
