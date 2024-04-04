@@ -7,18 +7,18 @@ This folder contains Postman collection with requests for creating and updating 
 
 One can [import](https://learning.postman.com/docs/getting-started/importing-and-exporting/importing-and-exporting-overview/ "Postman Docs") the following collections and the corresponding environment files in postman
 
-Mock Ida flow:
+To test eSignet with Mock IDA:
 
-* [Esignet Collection](./esignet-OIDC-flow-with-mock.postman_collection.json "Postman Collection")
-* [Esignet Environment](./esignet-OIDC-flow-with-mock.postman_environment.json "Environment")
+* [Esignet Collection](./esignet-with-mock-IDA.postman_collection.json "Postman Collection")
+* [Esignet Environment](./esignet-with-mock-IDA.postman_environment.json "Environment")
 
-Real Ida Flow
+To test eSignet integrated with MOSIP IDA:
 
-* [Esignet Collection](./esignet-OIDC-flow-with-real-ida.postman_collection.json "Postman Collection")
-* [Esignet Environment](./esignet-OIDC-flow-with-real-ida.postman_environment.json "Environment")
+* [Esignet Collection](./esignet-with-MOSIP-IDA.postman_collection.json "Postman Collection")
+* [Esignet Environment](./esignet-with-MOSIP-IDA.postman_environment.json "Environment")
 
 
-## Prerequisites for Real Ida Flow
+## Prerequisites for testing with MOSIP IDA Flow
 For the client creation in the above flow the user is expected to have the following details handy
 
 * relayingPartyId
