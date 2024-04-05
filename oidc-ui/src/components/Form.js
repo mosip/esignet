@@ -80,6 +80,15 @@ export default function Form({
     setCaptchaToken(value);
   };
 
+  /**
+   * Reset the captcha widget
+   * & its token value
+   */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  }
+
   //Handle Login API Integration here
   const authenticateUser = async () => {
     try {
@@ -128,7 +137,7 @@ export default function Form({
             errorCode: `${errors[0].errorCode}`
           });
         }
-        _reCaptchaRef.current.reset();        
+        resetCaptcha();        
         return;
       } else {
         setError(null);
@@ -154,7 +163,7 @@ export default function Form({
         defaultMsg: error.message,
       });
       setStatus(states.ERROR);
-      _reCaptchaRef.current.reset();        
+      resetCaptcha();      
     }
   };
 
