@@ -36,9 +36,11 @@ Esignet UI contains the following pages:
 
   The password-based authentication system incorporates a functionality allowing users to initiate a password recovery process through a designated `Forgot Password` hyperlink.
 
-  For knowledge based authentication, the form schema is defined in the property : 'auth.factor.kba.field-details'.
+  For knowledge based authentication, the form schema is defined in the property : `auth.factor.kba.field-details`. And the field Id to be used as the unique username among them should be set in `auth.factor.kba.individual-id-field`
 
-  Example: auth.factor.kba.field-details={{"id":"policyNumber", "type":"text", "format":""},{"id":"fullName", "type":"text", "format":""},{"id":"dob", "type":"date", "format":"dd/mm/yyyy"}}
+  Example: If its a policy Id based form, then 
+    - auth.factor.kba.field-details={{"id":"policyNumber", "type":"text", "format":""},{"id":"fullName", "type":"text", "format":""},{"id":"dob", "type":"date", "format":"dd/mm/yyyy"}}
+    - auth.factor.kba.individual-id-field=policyNumber
 
   Note: The labels for the KBA form is fetched from i18 bundle of OIDC-UI.
 
