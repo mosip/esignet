@@ -51,8 +51,8 @@ service:
 
 image:
   registry: docker.io
-  repository: mosipqa/oidc-ui
-  tag: 1.0.0
+  repository: mosipid/oidc-ui
+  tag: 1.4.0
 
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
