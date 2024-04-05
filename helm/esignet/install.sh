@@ -7,13 +7,13 @@ if [ $# -ge 1 ] ; then
 fi
 
 SOFTHSM_NS=softhsm
-SOFTHSM_CHART_VERSION=12.0.2
+SOFTHSM_CHART_VERSION=12.0.1
 
 echo Create $SOFTHSM_NS namespace
 kubectl create ns $SOFTHSM_NS
 
 NS=esignet
-CHART_VERSION=1.0.1
+CHART_VERSION=1.4.0
 
 ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
 
