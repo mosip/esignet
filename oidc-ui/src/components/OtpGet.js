@@ -88,6 +88,15 @@ export default function OtpGet({
   const handleChange = (e) => {
     setLoginState({ ...loginState, [e.target.id]: e.target.value });
   };
+  
+  /**
+   * Reset the captcha widget
+   * & its token value
+   */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  }
 
   const sendOTP = async () => {
     try {
@@ -124,7 +133,7 @@ export default function OtpGet({
             show: true
           });
         }
-        _reCaptchaRef.current.reset();
+        resetCaptcha();
         return;
       } else {
         onOtpSent(loginState["Otp_mosip-vid"], response);
@@ -136,7 +145,7 @@ export default function OtpGet({
         show: true
       });
       setStatus({ state: states.ERROR, msg: "" });
-      _reCaptchaRef.current.reset();
+      resetCaptcha();
     }
   };
 
