@@ -1,0 +1,6 @@
+{
+    "category":"masterData",
+    "files":[ "masterdata/BulkUpload/FilesToUpload/user_detail.csv"  ],
+    "operation":"update",
+    "tableName":"user_detail"
+}

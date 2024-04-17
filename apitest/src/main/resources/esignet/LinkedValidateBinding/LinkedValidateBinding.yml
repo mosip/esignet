@@ -1,0 +1,304 @@
+LinkedValidateBinding:
+   ESignet_LinkedValidateBinding_Otp_all_Valid_Smoke:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Invalid_requestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "2022-11-08T06:35:53",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Past_Val_requestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "2023-01-16T00:17:54.649Z",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Future_Val_requestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "2024-01-16T00:17:54.649Z",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Empty_Val_requestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Missing_Val_requestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$REMOVE$",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Space_Val_requestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": " ",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Null_Val_requestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "null",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Invalid_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "$ef4!",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Invalid_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "$ef4!",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Missing_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "$REMOVE$",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Empty_Val_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Null_Val_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "null",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Space_Val_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": " ",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Invalid_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "",
+    	"individualId": "$rf67!"
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Missing_Val_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "",
+    	"individualId": "$REMOVE$"
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Space_Val_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "",
+    	"individualId": " "
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Null_Val_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "",
+    	"individualId": "null"
+      
+}'
+      output: '{
+         
+}'
+
+   ESignet_LinkedValidateBinding_Empty_Val_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/validate-binding
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedValidateBinding/LinkedValidateBinding
+      outputTemplate: esignet/LinkedValidateBinding/LinkedValidateBindingResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+    	"TransactionId": "",
+    	"individualId": ""
+      
+}'
+      output: '{
+         
+}'

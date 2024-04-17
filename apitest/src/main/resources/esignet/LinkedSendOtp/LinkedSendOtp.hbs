@@ -1,0 +1,13 @@
+{
+  "requestTime": "{{requestTime}}",
+  "request": {
+    "transactionId": "{{transactionId}}",
+    "individualId": "{{individualId}}",
+    "otpChannels": [
+	      {{#each otpChannels}}
+	            "{{channel}}"
+	          {{#unless @last}},{{/unless}}
+	      	{{/each}}
+    ]
+  }
+ }

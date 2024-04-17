@@ -1,0 +1,120 @@
+GenerateTokenSunBirdRCNegTC:
+   ESignet_GenerateTokenSunBirdRCNegTC_Invalid_Code_Verifier_Neg:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTC
+      outputTemplate: esignet/error2
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_SunBirdRCNegTC_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV2SunBirdRC_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": "sdfgsfdhsfdhgfshfgsdgs"
+}'
+      output: '{
+           "error": "pkce_failed"
+}'
+
+   ESignet_GenerateTokenSunBirdRCNegTC_Missing_Code_Verifier_Neg:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTC
+      outputTemplate: esignet/error2
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_SunBirdRCNegTC_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV2SunBirdRC_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": "$REMOVE$"
+}'
+      output: '{
+           "error": "invalid_pkce_code_verifier"
+}'
+
+   ESignet_GenerateTokenSunBirdRCNegTC_Empty_Code_Verifier_Neg:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTC
+      outputTemplate: esignet/error2
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_SunBirdRCNegTC_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV2SunBirdRC_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": ""
+}'
+      output: '{
+           "error": "invalid_pkce_code_verifier"
+}'
+
+   ESignet_GenerateTokenSunBirdRCNegTC_SpaceVal_Code_Verifier_Neg:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTC
+      outputTemplate: esignet/error2
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_SunBirdRCNegTC_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV2SunBirdRC_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": " "
+}'
+      output: '{
+           "error": "pkce_failed"
+}'
+
+   ESignet_GenerateTokenSunBirdRCNegTC_Null_Code_Verifier_Neg:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTC
+      outputTemplate: esignet/error2
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_SunBirdRCNegTC_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV2SunBirdRC_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": "null"
+}'
+      output: '{
+           "error": "pkce_failed"
+}'
+
+   ESignet_GenerateTokenSunBirdRCNegTC_Valid_Smoke_sid:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTCResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_SunBirdRCNegTC_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV2SunBirdRC_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": "$CODEVERIFIER$"
+}'
+      output: '{
+   		"token_type": "Bearer"
+}'

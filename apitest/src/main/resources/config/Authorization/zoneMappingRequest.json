@@ -1,0 +1,12 @@
+{
+  "id": "string",
+  "metadata": {},
+  "request": {
+    "zoneCode": "CSB",
+    "userId": "110123",
+    "isActive": true,
+    "langCode": "eng"
+  },
+  "requesttime": "2022-05-09T09:52:11.969Z",
+  "version": "string"
+}

@@ -1,0 +1,469 @@
+CreateOIDCClient:
+   Esignet_CreateOIDCClient_all_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+        "status": "ACTIVE"
+}'
+
+   Esignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_NonAuth_All_Valid_Smoke_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+        "status": "ACTIVE"
+}'
+
+   Esignet_CreateOIDCClient_Misp_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_Auth_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY3$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+        "status": "ACTIVE"
+}'
+
+   Esignet_CreateOIDCClient_Auth_False_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_Auth_False_Valid_Smoke_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+        "status": "ACTIVE"
+}'
+
+   Esignet_CreateOIDCClient_Auth_S2_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_Auth_S2_Valid_Smoke_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_Auth_S2_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+	  "errors": [
+	    {
+	      "errorCode": "PMS_PRT_061",
+	      "message": "Partner policy mapping not exists."
+	    }
+	  ]
+}'
+
+   Esignet_CreateOIDCClient_InValid_logoUri_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "djxjdjjdjdpng.cndi",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "PMS_COR_001",
+      "message": "Invalid request parameter - must be a valid URL :request.logoUri"
+    }
+  ]
+}'
+   Esignet_CreateOIDCClient_InValid_Partner_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "sjsjjsjsjsjsjjs",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+     {
+            "errorCode": "PMS_PRT_058",
+            "message": "Partner policy mapping not exists."
+        }
+  ]
+}'
+
+   Esignet_CreateOIDCClient_with_null_oidc_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+     {
+            "errorCode": "PMS_COR_001",
+            "message": "Invalid request parameter - must not be blank :request.name"
+        }
+  ]
+}'
+
+   Esignet_CreateOIDCClient_with_null_policy_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+      {
+            "errorCode": "PMS_COR_001",
+            "message": "Invalid request parameter - must not be blank :request.policyId"
+        }
+  ]
+}'
+
+   Esignet_CreateOIDCClient_with_invalid_policy_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "ahajajaj123",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+       {
+            "errorCode": "PMS_PRT_073",
+            "message": "Policy not exists."
+        }
+  ]
+}'
+
+   Esignet_CreateOIDCClient_inValid_authPartnerId_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "263636gdgdg",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+            "errorCode": "PMS_PRT_058",
+            "message": "Partner policy mapping not exists."
+        }
+  ]
+}'
+
+   Esignet_CreateOIDCClient_blank_authPartnerId_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "263636gdgdg",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+            "errorCode": "PMS_PRT_058",
+            "message": "Partner policy mapping not exists."
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_with_maxm_char_logouri_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "dgdnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnndddddddhhhhhhhhhhhhhhhhhhhhhhhhhhhhhheeeeeehhhhhhhhhhyyyyy",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+            "errorCode": "PMS_COR_001",
+            "message": "Invalid request parameter - must be a valid URL :request.logoUri"
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_without_redirecturi_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+            "errorCode": "invalid_redirect_uri"
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_with_invalid_clientAuthMethods_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "????%%%$$$"
+}'
+      output: '{
+        "errors": [
+    {
+            "errorCode": "invalid_client_auth"
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_with_empty_grantTypes_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+     {
+            "errorCode": "invalid_grant_type"
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_with_null_grantTypes_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "null",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+     {
+            "errorCode": "invalid_grant_type"
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_with_invalid_grantTypes_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "ahshdbdbchhd",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+     {
+            "errorCode": "invalid_grant_type"
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_same_publickey_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+     {
+            "errorCode": "PMS_IDP_001",
+            "message": "Client public key already exists."
+        }
+  ]
+}'
+   Esignet_CreateOIDCClient_max_authPartnerId_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY2$",
+        "authPartnerId": "17777777777777777777777777hhhhhhhhhhhhhhhh7222222222222222222222hdddddd",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "PMS_PRT_058",
+      "message": "$IGNORE$"
+    }
+  ]
+}'

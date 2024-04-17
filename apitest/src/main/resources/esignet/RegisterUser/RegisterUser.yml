@@ -1,0 +1,20 @@
+RegisterUser:
+   ESignet_RegisterUser_SName_Valid_smoke_Pos:
+      endPoint: /v1/signup/registration/register
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/RegisterUser/RegisterUser
+      outputTemplate: esignet/RegisterUser/RegisterUserResult
+      input: '{
+    "verifiedTransactionID": "$ID:VerifyChallenge_STransId_smoke_Pos_VTransactionID$",
+    "username": "$ID:GenerateChallenge_STransId_Valid_smoke_Pos_PHONE$",
+    "password": "$PASSWORDTOREGISTERUSER$",
+    "consent": "AGREE",
+    "fullName": "$FULLNAMETOREGISTERUSER$",
+    "requestTime": "$TIMESTAMP$",
+    "phone": "$ID:GenerateChallenge_STransId_Valid_smoke_Pos_PHONE$",
+    "preferredLang": "khm"
+}'
+      output: '{
+  "status":"PENDING"
+}'

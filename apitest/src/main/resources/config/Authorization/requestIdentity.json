@@ -1,0 +1,12 @@
+{
+	"identity": {
+            "addressLine3": [
+                {
+                    "language": "languageValue",
+                    "value": "valueOfAttribute"
+                }
+            ],
+		"IDSchemaVersion": "IDSchemaVersion",
+		"UIN": "$ID:AddIdentity_Positive_PRE_smoke_UIN$"
+	}
+}

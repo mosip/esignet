@@ -1,0 +1,48 @@
+GetOidcUserInfo:
+   ESignet_GetOidcUserInfo_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfo
+      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_uin_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"
+
+   ESignet_GetOidcUserInfo_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfo
+      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_Vid_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"
+
+   ESignet_GetOidcUserInfo_uin_IdpAccessToken_StatusCode_Invalid_Token_Neg:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfo
+      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "eyJraWQiOiJLeVRFWVJobkQwT0F2em1RTnZsQU85STBxMjBxcjhab3p3UHI5bEhCY0NnIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJQVlJtZkRwZ1pKcXZMTWZZcTZwcUItTDNZQTZXR3dYZmxiTlJpVWF6THJjIiwiYXVkIjoibW9zaXA5MTE2NjkxMTMzMDI3MDQiLCJzY29wZSI6IiIsImlzcyI6Imh0dHBzOlwvXC9hcGkucWEtMTIxLm1vc2lwLm5ldFwvdjFcL2lkcCIsImV4cCI6MTY2OTExNDE3NCwiaWF0IjoxNjY5MTEzNTc0fQ.e-cJLhWtYyg8g-T1OrEYSTgH9QX8AzaqtwEjIZsv-63hCySkTcT7n61iHd5njr7eIVuOi7K4JSBKhHhQhThlBaWrdkyihQuTyefFOTAH9UUEow8_T1MSIDun3G6-ae61mfAUZG3IvR1X2AxsFm8oor4rCZd8QLE_-yS1z8LPAg8VzRNj0th1NV_A3jsjeCySzst-saAwzAnBGPm5GncoEuo3Ftxmy2UcVO0l3ncwzebC19DDarCHRx5eNCDK6Z7oRxvPBgUKNXOwnfDO2gbjUG3fq9xCWS3ZPf-G-iMX9PRWsl2Bp7K4Ej6b_Y0nLdOHdJuwH-kKKiZMSIAMkSg4ww"
+}'
+      output: "401"
+      
+   ESignet_GetOidcUserInfo_Vid_IdpAccessToken_StatusCode_Invalid_Token_Neg:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfo
+      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "eyJraWQiOiJLeVRFWVJobkQwT0F2em1RTnZsQU85STBxMjBxcjhab3p3UHI5bEhCY0NnIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJQVlJtZkRwZ1pKcXZMTWZZcTZwcUItTDNZQTZXR3dYZmxiTlJpVWF6THJjIiwiYXVkIjoibW9zaXA5MTE2NjkxMTMzMDI3MDQiLCJzY29wZSI6IiIsImlzcyI6Imh0dHBzOlwvXC9hcGkucWEtMTIxLm1vc2lwLm5ldFwvdjFcL2lkcCIsImV4cCI6MTY2OTExNDE3NCwiaWF0IjoxNjY5MTEzNTc0fQ.e-cJLhWtYyg8g-T1OrEYSTgH9QX8AzaqtwEjIZsv-63hCySkTcT7n61iHd5njr7eIVuOi7K4JSBKhHhQhThlBaWrdkyihQuTyefFOTAH9UUEow8_T1MSIDun3G6-ae61mfAUZG3IvR1X2AxsFm8oor4rCZd8QLE_-yS1z8LPAg8VzRNj0th1NV_A3jsjeCySzst-saAwzAnBGPm5GncoEuo3Ftxmy2UcVO0l3ncwzebC19DDarCHRx5eNCDK6Z7oRxvPBgUKNXOwnfDO2gbjUG3fq9xCWS3ZPf-G-iMX9PRWsl2Bp7K4Ej6b_Y0nLdOHdJuwH-kKKiZMSIAMkSg4ww"
+}'
+      output: "401"

@@ -1,0 +1,45 @@
+GenerateMispLK:
+   Esignet_GenerateMispLK_All_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/misps
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/GenerateMispLK/GenerateMispLK
+      outputTemplate: esignet/PmsIntegration/GenerateMispLK/GenerateMispLKResult
+      input: '{
+    "providerId": "$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+      
+}'
+
+   Esignet_GenerateMispLK_Misp_False_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/misps
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/GenerateMispLK/GenerateMispLK
+      outputTemplate: esignet/PmsIntegration/GenerateMispLK/GenerateMispLKResult
+      input: '{
+    "providerId": "$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+      
+}'
+
+   Esignet_GenerateMispLK_Misp_S2_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/misps
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/GenerateMispLK/GenerateMispLK
+      outputTemplate: esignet/PmsIntegration/GenerateMispLK/GenerateMispLKResult
+      input: '{
+    "providerId": "$ID:PartnerSelfRegistration_Misp_S2_Valid_Smoke_sid_partnerId$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+      
+}'

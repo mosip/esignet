@@ -1,0 +1,255 @@
+CreateVID:
+  ESignetIdR_Generate_Perpetual_VID_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Vid_Generation_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Temporary_VID_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Temporary",
+    "UIN": "$ID:AddIdentity_Vid_Generation_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Onetimeuse_VID_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "onetimeuse",
+    "UIN": "$ID:AddIdentity_Vid_Generation_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual2_VID_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Vid_2_Generation_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Temporary2_VID_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Temporary",
+    "UIN": "$ID:AddIdentity_Vid_2_Generation_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Onetimeuse2_VID_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "onetimeuse",
+    "UIN": "$ID:AddIdentity_Vid_2_Generation_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual_VID_Kyc_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_KycAuth_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual_VID_LinkedSce_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Temporary_VID_Invalid_Scen_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Temporary",
+    "UIN": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Onetimeuse_VID_Invalid_Scen_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "onetimeuse",
+    "UIN": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual_VID_Consent_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Consent_Vid_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual_VID_Linked_Consent_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Linked_Consent_Vid_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual_VID_VCI_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Valid_Params_VCI_uin_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'
+
+  ESignetIdR_Generate_Perpetual_VID_VCI_Invalid_Scen_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateVID/createVid
+      outputTemplate: esignet/CreateVID/createVidResult
+      input: '{
+    "vidType": "Perpetual",
+    "UIN": "$ID:AddIdentity_Valid_Params_VCI_Vid_Inv_Scen_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'

@@ -1,0 +1,96 @@
+RequestAPIKeyForAuthPartner:
+   Esignet_SubmitPartnerApiKeyRequest_Rejection_All_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$/policy/map
+      role: partner
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
+      outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
+      input: '{
+        "policyName": "$ID:DefinePolicy_All_Valid_Smoke_sid_name$",
+        "useCaseDescription": "Need to submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+        "mappingkey": "$IGNORE$",
+        "message": "Policy mapping request submitted successfully."
+}'
+
+   Esignet_SubmitPartnerApiKeyRequest_Rejection_Misp_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$/policy/map
+      role: partner
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
+      outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
+      input: '{
+        "policyName": "$ID:DefinePolicy_Misp_Valid_Smoke_sid_name$",
+        "useCaseDescription": "Need submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+        "mappingkey": "$IGNORE$",
+        "message": "Policy mapping request submitted successfully."
+}'
+
+   Esignet_SubmitPartnerApiKeyRequest_Kyc_Rejection_All_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$/policy/map
+      role: partner
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
+      outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
+      input: '{
+        "policyName": "$ID:DefinePolicy_Auth_Valid_Smoke_sid_name$",
+        "useCaseDescription": "Need to submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+        "mappingkey": "$IGNORE$",
+        "message": "Policy mapping request submitted successfully."
+}'
+
+   Esignet_SubmitPartnerApiKeyRequest_Rejection_NonAuth_All_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid_partnerId$/policy/map
+      role: partner
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
+      outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
+      input: '{
+        "policyName": "$ID:DefinePolicy_NonAuth_All_Valid_Smoke_sid_name$",
+        "useCaseDescription": "Need to submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+        "mappingkey": "$IGNORE$",
+        "message": "Policy mapping request submitted successfully."
+}'
+
+   Esignet_SubmitPartnerApiKeyRequest_Rejection_Misp_False_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$/policy/map
+      role: partner
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
+      outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
+      input: '{
+        "policyName": "$ID:DefinePolicy_Misp_False_Valid_Smoke_sid_name$",
+        "useCaseDescription": "Need submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+        "mappingkey": "$IGNORE$",
+        "message": "Policy mapping request submitted successfully."
+}'
+
+   Esignet_SubmitPartnerApiKeyRequest_Rejection_Auth_False_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$/policy/map
+      role: partner
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
+      outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
+      input: '{
+        "policyName": "$ID:DefinePolicy_Auth_False_Valid_Smoke_sid_name$",
+        "useCaseDescription": "Need submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+        "mappingkey": "$IGNORE$",
+        "message": "Policy mapping request submitted successfully."
+}'

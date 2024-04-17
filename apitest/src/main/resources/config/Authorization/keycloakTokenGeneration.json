@@ -1,0 +1,6 @@
+{
+"grant_type" : "password",
+"client_id": "admin-cli",
+"username": "keycloakusername",
+"password":	"keycloakpassword"
+}
