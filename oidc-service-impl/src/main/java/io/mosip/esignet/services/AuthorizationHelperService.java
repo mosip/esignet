@@ -98,9 +98,13 @@ public class AuthorizationHelperService {
     private List<String> credentialScopes;
 
     protected void validateSendOtpCaptchaToken(String captchaToken) {
-        if(captchaRequired.contains("send-otp")) {
+        if(!captchaRequired.contains("send-otp")) {
             log.warn("captcha validation is disabled for send-otp request!");
             return;
+        }
+        if(!StringUtils.hasText(captchaToken)) {
+        	log.error("Captcha token is Null or Empty");
+        	throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
         }
         validateCaptchaToken(captchaToken);
     }
