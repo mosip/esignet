@@ -1,0 +1,30 @@
+GenerateApiKey:
+   ESignet_GenerateApiKey_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$/generate/apikey
+      role: esignetpartner
+      checkErrorsOnlyInResponse: true
+      restMethod: patch
+      inputTemplate: esignet/GenerateApiKey/GenerateApiKey
+      outputTemplate: esignet/GenerateApiKey/GenerateApiKeyResult
+      input: '{
+        "requesttime": "$TIMESTAMP$",
+        "policyName": "$ID:DefinePolicy_All_Valid_Smoke_sid_name$",
+        "label": "ABCD"
+    }'
+      output: '{
+}'
+
+   ESignet_GenerateApiKeyKyc_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$/generate/apikey
+      role: esignetpartnerkyc
+      checkErrorsOnlyInResponse: true
+      restMethod: patch
+      inputTemplate: esignet/GenerateApiKey/GenerateApiKey
+      outputTemplate: esignet/GenerateApiKey/GenerateApiKeyResult
+      input: '{
+        "requesttime": "$TIMESTAMP$",
+        "policyName": "$ID:DefinePolicy_Auth_Valid_Smoke_sid_name$",
+        "label": "ABCD"
+    }'
+      output: '{
+}'

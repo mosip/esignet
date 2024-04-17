@@ -1,0 +1,18 @@
+VerifyChallenge:
+   ESignet_VerifyChallenge_STransId_smoke_Pos:
+      endPoint: /v1/signup/registration/verify-challenge
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/VerifyChallenge/VerifyChallenge
+      outputTemplate: esignet/VerifyChallenge/VerifyChallengeResult
+      input: '{
+         "headerTransactionID": "$ID:GenerateChallenge_STransId_Valid_smoke_Pos_TransactionID$",
+         "identifier": "$ID:GenerateChallenge_STransId_Valid_smoke_Pos_PHONE$",
+         "challenge": "111111",
+         "format": "alpha-numeric",
+         "type": "OTP",
+         "requestTime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"SUCCESS"
+}'

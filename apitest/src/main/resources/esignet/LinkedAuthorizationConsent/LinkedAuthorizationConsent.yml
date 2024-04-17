@@ -1,0 +1,378 @@
+LinkedAuthorizationConsent:
+   ESignet_LinkedAuthorizationConsent_Consent_uin_SameClaim_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_SameClaim_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURESAMECLAIM$"
+}'
+      output: '{
+
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_Vid_SameClaim_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_Vid_SameClaim_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREVIDSAMECLAIM$"
+}'
+      output: '{
+
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_uin_User2_Neg:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_User2_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_Vid_User2_Neg:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_Vid_User2_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREVIDUSER2$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+    
+}'
+
+   ESignet_LinkedAuthorizationConsent_Vid_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Vid_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+    
+}'
+
+   ESignet_LinkedAuthorizationConsent_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2022-11-08T06:35:53",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Past_Val_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2023-01-16T00:17:54.649Z",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Future_Val_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2024-01-16T00:17:54.649Z",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Space_Val_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": " ",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Empty_Val_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Invalid_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "!$j6"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Missing_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$REMOVE$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Empty_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": ""
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Space_Val_TransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": " "
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Invalid_AcceptedClaims_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "$E23Teda"}]
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Null_AcceptedClaims_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "null"}]
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Invalid_permittedAuthorizeScopes_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+      	"permittedAuthorizeScopes": [{scope: "$absc34"}],
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Null_permittedAuthorizeScopes_Neg:
+      endPoint: /v1/esignet/linked-authorization/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+      	"permittedAuthorizeScopes": [{scope: "null"}],
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'

@@ -1,0 +1,12 @@
+SignUpSettings:
+   ESignet_SignUpSettings_Valid_smoke_Pos:
+      endPoint: /v1/signup/settings
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignUpSettings/SignUpSettings
+      outputTemplate: esignet/SignUpSettings/SignUpSettingsResult
+      input: '{
+}'
+      output: '{
+}'

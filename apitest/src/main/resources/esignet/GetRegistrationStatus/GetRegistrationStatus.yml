@@ -1,0 +1,13 @@
+GetRegistrationStatus:
+   ESignet_GetRegistrationStatus_Valid_smoke_Pos:
+      endPoint: /v1/signup/registration/status
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
+      outputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatusResult
+      input: '{
+  "verifiedTransactionID": "$ID:VerifyChallenge_STransId_smoke_Pos_VTransactionID$"
+}'
+      output: '{
+  "status":"PENDING"
+}'

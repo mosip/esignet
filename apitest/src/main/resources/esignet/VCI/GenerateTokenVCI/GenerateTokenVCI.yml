@@ -1,0 +1,40 @@
+GenerateTokenVCI:
+   ESignet_GenerateTokenVCI_uin_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/VCI/GenerateTokenVCI/GenerateTokenVCI
+      outputTemplate: esignet/VCI/GenerateTokenVCI/GenerateTokenVCIResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_VCI_uin_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": "$CODEVERIFIER$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'
+
+   ESignet_GenerateTokenVCI_uin_1stLang_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/VCI/GenerateTokenVCI/GenerateTokenVCI
+      outputTemplate: esignet/VCI/GenerateTokenVCI/GenerateTokenVCIResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_VCI_uin_All_1stLang_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": "$CODEVERIFIER$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'

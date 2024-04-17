@@ -1,0 +1,7 @@
+{
+	"sub" : "mosip-resident-idp-client",
+	"iss" : "mosip-resident-idp-client",
+	"aud" : "https://api.dev.mosip.net/v1/idp",
+	"exp" : "1667833124",
+	"iat" : "1665154724"
+}

@@ -1,0 +1,468 @@
+KycDemoAuth:
+   Esignet_KycDemoAuth_uin_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": true
+}'
+
+   Esignet_KycDemoAuth_vid_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": true
+}'
+
+   Esignet_KycDemoAuth_uin_Phone_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "9876543210",
+        "key": "phone",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": true
+}'
+
+   Esignet_KycDemoAuth_vid_Phone_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "9876543210",
+        "key": "phone",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": true
+}'
+
+   Esignet_KycDemoAuth_uin_Phone_Invalid_Data_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "9965656565",
+        "key": "phone",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Phone_Invalid_Data_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "9965656565",
+        "key": "phone",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Invalid_Data_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1953/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Invalid_Data_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1953/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_False_Invalid_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_Misp_False_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Auth_False_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_Vid_False_Invalid_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_Misp_False_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Auth_False_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Phone_False_Invalid_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "9876543210",
+        "key": "phone",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_Misp_False_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Auth_False_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_Vid_Phone_False_Invalid_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "9876543210",
+        "key": "phone",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_Misp_False_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Auth_False_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Invalid_MispLk_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/jkjnlsd​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Invalid_MispLk_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/jkjnlsd​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Invalid_PartnerId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/sdmbsdk​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Invalid_PartnerId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/sdmbsdk​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Invalid_ClientId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/dfndfbdfbn"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Invalid_ClientId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/dfndfbdfbn"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Null_MispLk_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/null​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Null_MispLk_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/null​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Null_PartnerId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/null​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Null_PartnerId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/null​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Null_ClientId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/null"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Null_ClientId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/null"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_uin_Invalid_PartnerName_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=jsdfdmf&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycDemoAuth_vid_Invalid_PartnerName_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=jsdfdmf&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=demo&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycDemoAuth/KycDemoAuth
+      outputTemplate: esignet/KycDemoAuth/KycDemoAuthResult
+      input: '{
+        "timestamp": "$TIMESTAMP$",
+        "transactionId": "$TRANSACTIONID$",
+      	"value": "1970/07/08",
+        "key": "dob",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'

@@ -1,0 +1,40 @@
+LinkedAuthenticationWlaNoBinding:
+   ESignet_LinkedAuthenticationWlaNoBinding_Consent_SameClaim_uin_SCert_all_Valid_Smoke:
+      endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWlaNoBinding/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_Consent_uin_SameClaim_NoBinding_all_Valid_Smoke_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_Linked_Consent_smoke_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENCONSENT$",
+        "format": "jwt"
+}'
+      output: '{
+         "consentAction": "NOCAPTURE"
+}'
+
+   ESignet_LinkedAuthenticationWlaNoBinding_Consent_SameClaim_Vid_SCert_all_Valid_Smoke:
+      endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWlaNoBinding/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_Consent_Vid_SameClaim_NoBinding_all_Valid_Smoke_sid_linkTransactionId$",
+      "individualId": "$ID:Generate_Perpetual_VID_Linked_Consent_Valid_Smoke_sid_vid$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENCONSENTVID$",
+        "format": "jwt"
+}'
+      output: '{
+         "consentAction": "NOCAPTURE"
+}'
