@@ -1,0 +1,23 @@
+AuthorizationEndpoint:
+   ESignet_AuthorizationEndpoint_StatusCode_all_Valid_Smoke:
+      endPoint: /authorize
+      role: resident
+      restMethod: get
+      inputTemplate: esignet/AuthorizationEndpoint/AuthorizationEndpoint
+      outputTemplate: esignet/AuthorizationEndpoint/AuthorizationEndpointsResult
+      input: '{
+      	"client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		"redirect_uri": "https://health-services.com/userprofile",
+		"response_type": "code",
+		"scope": "openid profile",
+		"acr_values": "$REMOVE$",
+		"claims": "$REMOVE$",
+		"claims_locales": "$REMOVE$",
+		"display": "$REMOVE$",
+		"max_age": "$REMOVE$",
+		"nonce": "$REMOVE$",
+		"prompt": "$REMOVE$",
+		"state": "$REMOVE$",
+		"ui_locales": "$REMOVE$"
+}'
+      output: "200"

@@ -1,0 +1,587 @@
+KycBioAuth:
+   Esignet_KycBioAuth_uin_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResultKycStatus
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "kycStatus": true
+}'
+
+   Esignet_KycBioAuth_Vid_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResult
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": "$IGNORE$",
+        "kycStatus": true
+}'
+
+   Esignet_KycBioAuth_uin_Invalid_Biovalue_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/error
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "sgshshsh",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "IDA-BIA-001"
+    }
+  ]
+}'
+
+   Esignet_KycBioAuth_Vid_Invalid_Biovalue_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/error
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "sgshshsh",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "IDA-BIA-001"
+    }
+  ]
+}'
+
+   Esignet_KycBioAuth_uin_RingFinger_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResultKycStatus
+      input: '{
+          "bioSubType": "Left RingFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTRINGFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Finger",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "kycStatus": true
+}'
+
+   Esignet_KycBioAuth_Vid_RingFinger_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResultKycStatus
+      input: '{
+          "bioSubType": "Left RingFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTRINGFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Finger",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "kycStatus": true
+}'
+
+   Esignet_KycBioAuth_uin_RingFinger_Invalid_Biovalue_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/error
+      input: '{
+          "bioSubType": "Left RingFinger",
+          "bioType": "Finger",
+          "bioValue": "sgshshsh",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Finger",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "IDA-BIA-001"
+    }
+  ]
+}'
+
+   Esignet_KycBioAuth_Vid_RingFinger_Invalid_Biovalue_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/error
+      input: '{
+          "bioSubType": "Left RingFinger",
+          "bioType": "Finger",
+          "bioValue": "sgshshsh",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Finger",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "IDA-BIA-001"
+    }
+  ]
+}'
+
+   Esignet_KycBioAuth_uin_LeftIris_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResultKycStatus
+      input: '{
+          "bioSubType": "Left",
+          "bioType": "Iris",
+          "bioValue": "$LEFTIRIS$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Iris",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "kycStatus": true
+}'
+
+   Esignet_KycBioAuth_Vid_LeftIris_all_Valid_Smoke:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResultKycStatus
+      input: '{
+          "bioSubType": "Left",
+          "bioType": "Iris",
+          "bioValue": "$LEFTIRIS$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Iris",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "kycStatus": true
+}'
+
+   Esignet_KycBioAuth_uin_LeftIris_Invalid_Biovalue_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/error
+      input: '{
+          "bioSubType": "Left",
+          "bioType": "Iris",
+          "bioValue": "sgshshsh",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Iris",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "IDA-BIA-001"
+    }
+  ]
+}'
+
+   Esignet_KycBioAuth_Vid_LeftIris_Invalid_Biovalue_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/error
+      input: '{
+          "bioSubType": "Left",
+          "bioType": "Iris",
+          "bioValue": "sgshshsh",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Iris",
+        "transactionId": "$TRANSACTIONID$",
+        "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "IDA-BIA-001"
+    }
+  ]
+}'
+
+   Esignet_KycBioAuth_uin_null_MispLk_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResult
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/null​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycBioAuth_Vid_null_MispLk_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResult
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/null​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycBioAuth_uin_Null_PartnerId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResult
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/null​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycBioAuth_Vid_Null_PartnerId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResult
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/null​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+         "authStatus": false
+}'
+
+   Esignet_KycBioAuth_uin_Null_ClientId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResult
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	  "kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/null"
+}'
+      output: '{
+        "authStatus": false
+}'
+
+   Esignet_KycBioAuth_Vid_Null_ClientId_Neg:
+      endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/KycBioAuth/KycBioAuth
+      outputTemplate: esignet/KycBioAuth/KycBioAuthResult
+      input: '{
+          "bioSubType": "",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Single",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+      	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/null"
+}'
+      output: '{
+        "authStatus": false
+}'

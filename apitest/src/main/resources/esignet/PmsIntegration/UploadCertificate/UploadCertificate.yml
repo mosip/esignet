@@ -1,0 +1,232 @@
+uploadCACert:
+   Esignet_UploadCACertificate_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$CACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$INTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+
+   Esignet_UploadCACertificate_Misp_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPCACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_Misp_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPINTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+
+   Esignet_UploadCACertificate_Kyc_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$CACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_Kyc_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$INTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+
+   Esignet_UploadCACertificate_NonAuth_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$CACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_NonAuth_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$INTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+
+   Esignet_UploadCACertificate_Misp_False_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPCACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_Misp_False_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPINTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+
+   Esignet_UploadCACertificate_Auth_False_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPCACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_Auth_False_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPINTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+
+   Esignet_UploadCACertificate_Misp_S2_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Misp_S2_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPCACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_Misp_S2_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Misp_S2_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPINTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+
+   Esignet_UploadCACertificate_Auth_S2_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Auth_S2_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPCACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   Esignet_UploadCInterCertificate_Auth_S2_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_Auth_S2_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$MISPINTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'

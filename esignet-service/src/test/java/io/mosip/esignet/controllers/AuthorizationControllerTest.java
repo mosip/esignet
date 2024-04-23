@@ -39,6 +39,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_FORMAT;
+import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static org.mockito.Mockito.when;
@@ -735,7 +737,7 @@ public class AuthorizationControllerTest {
         authRequest.setTransactionId("quewertyId");
 
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setChallenge("12345");
+        authChallenge.setChallenge("123456");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setFormat("alpha-numeric");
 
@@ -764,7 +766,7 @@ public class AuthorizationControllerTest {
         authRequest.setTransactionId("1234567890");
 
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setChallenge("1234567890");
+        authChallenge.setChallenge("123456");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setFormat("alpha-numeric");
 
@@ -796,7 +798,7 @@ public class AuthorizationControllerTest {
         authRequest.setTransactionId("1234567890");
 
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setChallenge("1234567890");
+        authChallenge.setChallenge("123456");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setFormat("jwt");
 
@@ -814,8 +816,7 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE))
-                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList[0]: invalid_challenge_format_for_auth_factor_type"));
+                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_AUTH_FACTOR_TYPE_FORMAT));
     }
 
     @Test
@@ -843,11 +844,12 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE);
+        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
     }
 
     @Test
@@ -876,12 +878,14 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE,INVALID_CHALLENGE_FORMAT);
+        List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,INVALID_CHALLENGE_FORMAT,
+                INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 4);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
     }
 
     @Test
@@ -891,7 +895,7 @@ public class AuthorizationControllerTest {
         authRequest.setTransactionId("1234567890");
 
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setChallenge("1234567890");
+        authChallenge.setChallenge("123456");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setFormat("");
 
@@ -908,7 +912,7 @@ public class AuthorizationControllerTest {
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
-        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE);
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
         Assert.assertTrue(responseWrapper.getErrors().size() == 2);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
@@ -923,7 +927,7 @@ public class AuthorizationControllerTest {
         authRequest.setTransactionId("1234567890");
 
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setChallenge("1234567890");
+        authChallenge.setChallenge("123456");
         authChallenge.setAuthFactorType("OTP");
         authChallenge.setFormat(null);
 
@@ -940,7 +944,7 @@ public class AuthorizationControllerTest {
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
-        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE);
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
         Assert.assertTrue(responseWrapper.getErrors().size() == 2);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));

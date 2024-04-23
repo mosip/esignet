@@ -1,0 +1,990 @@
+LinkedAuthenticationOtp:
+   ESignet_LinkedAuthentication_Otp_all_Valid_Smoke:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/LinkedAuthentication/LinkedAuthenticationResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2022-11-08T06:35:53",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_RequestTime_PastValue_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2023-01-16T00:17:54.649Z",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_RequestTime_FutureValue_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2024-01-16T00:17:54.649Z",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Missing_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$REMOVE$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Space_Val_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": " ",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Empty_RequestTime_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Invalid_linkTransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$N56!&",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Missing_linkTransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$REMOVE$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Empty_linkTransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Space_val_linkTransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: iesignetdp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": " ",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Null_linkTransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "null",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Expired_linkTransactionId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "4eKDB4GPk6fP8XXEDY7rktwtQF6WiwrOCehT2CwyVT0",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Invalid_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$H%t!",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Missing_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$REMOVE$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Empty_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Space_Val_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": " ",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}' 
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Null_individualId_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "null",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}' 
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Invalid_authFactorType_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "!2r",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Empty_authFactorType_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Space_authFactorType_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": " ",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Missing_authFactorType_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "$REMOVE$",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_null_authFactorType_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "null",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Invalid_challenge_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "234567",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Empty_challenge_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Space_val_challenge_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": " ",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Missing_challenge_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$REMOVE$",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Null_challenge_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "null",
+         "format": "alpha-numeric",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Invalid_Format_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_withValidParameters_smoke_Pos_EMAIL$",
+         "format": "!$ra5",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Empty_Format_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_withValidParameters_smoke_Pos_EMAIL$",
+         "format": "",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Space_Val_Format_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_withValidParameters_smoke_Pos_EMAIL$",
+         "format": " ",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Missing_Format_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "$REMOVE$",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'
+
+   ESignet_LinkedAuthentication_Otp_Null_Format_Neg:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+    	"linkTransactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+    	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Linked_Sce_smoke_Pos_EMAIL$",
+         "format": "null",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:LinkTransaction_all_Valid_Smoke_sid_linkTransactionId$",
+	"individualId": "$ID:AddIdentity_Linked_Sce_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/LinkedSendOtp/LinkedSendOtp",
+    "sendOtpEndPoint": "/v1/esignet/LinkedSendOtp/LinkedSendOtp"
+    }
+}'
+      output: '{
+         "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
+        "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
+    }
+}'

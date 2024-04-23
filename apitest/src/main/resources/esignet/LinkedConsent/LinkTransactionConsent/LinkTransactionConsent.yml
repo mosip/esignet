@@ -1,0 +1,48 @@
+LinkTransactionConsent:
+   ESignet_LinkTransaction_Consent_uin_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_all_Valid_Smoke_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_Vid_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_Vid_all_Valid_Smoke_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_uin_EmptyClaim_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_EmptyClaim_all_Valid_Smoke_sid_linkCode$"
+}'
+      output: '{
+        
+}'

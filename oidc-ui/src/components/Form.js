@@ -14,6 +14,7 @@ import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
+import redirectOnError from "../helpers/redirectOnError";
 
 let fieldsState = {};
 
@@ -79,6 +80,15 @@ export default function Form({
     setCaptchaToken(value);
   };
 
+  /**
+   * Reset the captcha widget
+   * & its token value
+   */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  }
+
   //Handle Login API Integration here
   const authenticateUser = async () => {
     try {
@@ -118,11 +128,16 @@ export default function Form({
           setError({
             defaultMsg: t(`${errors[0].errorCode}`)
           });
-        }else{
+        }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t(`${errors[0].errorCode}`));
+        }
+        else{
           setError({
             errorCode: `${errors[0].errorCode}`
           });
-        }        
+        }
+        resetCaptcha();        
         return;
       } else {
         setError(null);
@@ -148,6 +163,7 @@ export default function Form({
         defaultMsg: error.message,
       });
       setStatus(states.ERROR);
+      resetCaptcha();      
     }
   };
 

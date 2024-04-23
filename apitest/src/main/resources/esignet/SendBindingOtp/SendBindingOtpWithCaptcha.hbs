@@ -1,0 +1,13 @@
+{
+  "requestTime": "{{requestTime}}",
+  "request": {
+    "individualId": "{{individualId}}",
+    "otpChannels": [
+	      {{#each otpChannels}}
+	            "{{channel}}"
+	          {{#unless @last}},{{/unless}}
+	      	{{/each}}
+    ],
+    "captchaToken": "{{captchaToken}}"
+  }
+ }

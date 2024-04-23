@@ -1,5 +1,7 @@
 package io.mosip.esignet.controllers;
 
+import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_FORMAT;
+import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -287,7 +289,7 @@ public class LinkedAuthorizationControllerTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
-        authChallenge.setChallenge("challenge");
+        authChallenge.setChallenge("111111");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         linkedKycAuthRequest.setIndividualId("individualId");
         requestWrapper.setRequest(linkedKycAuthRequest);
@@ -334,7 +336,7 @@ public class LinkedAuthorizationControllerTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
-        authChallenge.setChallenge("challenge");
+        authChallenge.setChallenge("111111");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         linkedKycAuthRequest.setIndividualId("individualId");
         requestWrapper.setRequest(linkedKycAuthRequest);
@@ -356,7 +358,7 @@ public class LinkedAuthorizationControllerTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
-        authChallenge.setChallenge("challenge");
+        authChallenge.setChallenge("111111");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         linkedKycAuthRequest.setIndividualId("");
         requestWrapper.setRequest(linkedKycAuthRequest);
@@ -400,13 +402,15 @@ public class LinkedAuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE,INVALID_CHALLENGE);
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,
+                INVALID_CHALLENGE, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 4);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 5);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(4)).getErrorCode()));
     }
 
     @Test
@@ -655,7 +659,7 @@ public class LinkedAuthorizationControllerTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
-        authChallenge.setChallenge("challenge");
+        authChallenge.setChallenge("111111");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         linkedKycAuthRequest.setIndividualId("individualId");
         requestWrapper.setRequest(linkedKycAuthRequest);
@@ -702,7 +706,7 @@ public class LinkedAuthorizationControllerTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
-        authChallenge.setChallenge("challenge");
+        authChallenge.setChallenge("111111");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         linkedKycAuthRequest.setIndividualId("individualId");
         requestWrapper.setRequest(linkedKycAuthRequest);
@@ -724,7 +728,7 @@ public class LinkedAuthorizationControllerTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setFormat("alpha-numeric");
         authChallenge.setAuthFactorType("OTP");
-        authChallenge.setChallenge("challenge");
+        authChallenge.setChallenge("111111");
         linkedKycAuthRequest.setChallengeList(Arrays.asList(authChallenge));
         linkedKycAuthRequest.setIndividualId("");
         requestWrapper.setRequest(linkedKycAuthRequest);
@@ -768,13 +772,15 @@ public class LinkedAuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_CHALLENGE_FORMAT_FOR_AUTH_FACTOR_TYPE,INVALID_CHALLENGE);
+        List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,
+                INVALID_CHALLENGE, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 4);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 5);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(4)).getErrorCode()));
     }
 
     @Test

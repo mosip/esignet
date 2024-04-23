@@ -11,6 +11,7 @@ import {
 import { LoadingStates as states } from "../constants/states";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import redirectOnError from "../helpers/redirectOnError";
 
 var linkAuthTriggered = false;
 const langConfig = await langConfigService.getEnLocaleConfiguration();  
@@ -173,6 +174,9 @@ export default function LoginQRCode({
             show: true
           });
         }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        }
         else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
@@ -286,6 +290,9 @@ export default function LoginQRCode({
             show: true
           });
         }
+        else if (linkStatusResponse.errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(linkStatusResponse.errors[0].errorCode, t2(`${linkStatusResponse.errors[0].errorCode}`));
+        }
         else {
           setErrorBanner({
             errorCode: `${linkStatusResponse.errors[0].errorCode}`,
@@ -385,6 +392,9 @@ export default function LoginQRCode({
             errorCode: `password.${linkAuthResponse.errors[0].errorCode}`,
             show: true
           });
+        }
+        else if (linkAuthResponse.errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(linkAuthResponse.errors[0].errorCode, t2(`${linkAuthResponse.errors[0].errorCode}`));
         }
         else {
           setErrorBanner({

@@ -1,0 +1,163 @@
+AuthorizationCodeSunBirdRCNegTC:
+   ESignet_AuthorizationCode_SunBirdRCNegTC_Diff_Scope_Pos:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTCRCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen1_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen1_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: "openid profile"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_Diff_Scope2_Pos:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTCRCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen2_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen2_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: "openid profile"}, {scope: "sunbird_rc_insurance_vc_ldp"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_Comma_Separated_Scope_Pos:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTCRCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen3_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen3_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: "sunbird_rc_insurance_vc_ldp,openid profile"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_Missing_Scope_Pos:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTCRCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen4_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen4_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: "$REMOVE$"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_Empty_Scope_Neg:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen5_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen5_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: ""}]
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_permitted_scope"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_SpaceVal_Scope_Neg:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen6_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen6_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: " "}]
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "invalid_permitted_scope"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_Invalid_Scope_Pos:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTCRCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen7_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen7_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: "sgsdfhg"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_Null_Scope_Pos:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTCRCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen8_AuthCode_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen8_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: "null"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_SunBirdRCNegTC_All_Valid_Smoke_sid:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC
+      outputTemplate: esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTCRCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"permittedAuthorizeScopes": [{scope: "sunbird_rc_insurance_vc_ldp"}]
+}'
+      output: '{
+}'
