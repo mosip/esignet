@@ -18,27 +18,30 @@ import java.util.Map;
 public class AuthChallengeFactorFormatValidator implements ConstraintValidator<AuthChallengeFactorFormat, AuthChallenge> {
 
     private final String FORMAT_KEY_PREFIX = "mosip.esignet.auth-challenge.%s.format";
-
+    private final String MIN_LENGTH_KEY_PREFIX = "mosip.esignet.auth-challenge.%s.min-length";
+    private final String MAX_LENGTH_KEY_PREFIX = "mosip.esignet.auth-challenge.%s.max-length";
+    
     @Autowired
     private Environment environment;
 
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
-        if(StringUtils.hasText(authChallenge.getAuthFactorType()) && StringUtils.hasText(authChallenge.getFormat())) {
-            String format = environment.getProperty(String.format(FORMAT_KEY_PREFIX, authChallenge.getAuthFactorType()),
-                    String.class);
-            if(!StringUtils.hasText(format)) {
-            	context.disableDefaultConstraintViolation();
-    			context.buildConstraintViolationWithTemplate(ErrorConstants.INVALID_AUTH_FACTOR_TYPE).addConstraintViolation();
-    			return false;
-            }
-            return authChallenge.getFormat().equals(format);
-        }
-        else {
-    		String errorMsg = !StringUtils.hasText(authChallenge.getAuthFactorType())? ErrorConstants.INVALID_AUTH_FACTOR_TYPE:ErrorConstants.INVALID_CHALLENGE_FORMAT;
-    		context.disableDefaultConstraintViolation();
-			context.buildConstraintViolationWithTemplate(errorMsg).addConstraintViolation();
+    	String authFactor = authChallenge.getAuthFactorType();
+        String format = environment.getProperty(String.format(FORMAT_KEY_PREFIX, authFactor),
+                String.class);
+        if( !StringUtils.hasText(authFactor) || !StringUtils.hasText(format)) {
+        	context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(ErrorConstants.INVALID_AUTH_FACTOR_TYPE).addConstraintViolation();
 			return false;
         }
+        if( !StringUtils.hasText(authChallenge.getFormat()) || !authChallenge.getFormat().equals(format) ) {
+        	context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(ErrorConstants.INVALID_CHALLENGE_FORMAT).addConstraintViolation();
+        	return false;
+        }
+        int min = environment.getProperty(String.format(MIN_LENGTH_KEY_PREFIX, authFactor), Integer.TYPE, 50);
+        int max = environment.getProperty(String.format(MAX_LENGTH_KEY_PREFIX, authFactor), Integer.TYPE, 50);
+        int length = authChallenge.getChallenge().length();
+        return length>=min && length<=max;
     }
 }
