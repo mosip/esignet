@@ -102,11 +102,11 @@ function installing_esignet() {
     ESIGNET_HELM_ARGS="--set persistence.enabled=true  \
                    --set volumePermissions.enabled=true \
                    --set persistence.mountDir=\"$volume_mount_path\" \
-                   --set persistence.size=\"$volume_size\" \
+                   --set persistence.size=$volume_size \
                    --set springConfigNameEnv='esignet' \
                    --set activeProfileEnv=default     \
                    --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"  \
-                   --set \"extraEnvVarsCM={'global','config-server-share','artifactory-share'}\" \
+                   --set extraEnvVarsCM={'global','config-server-share','artifactory-share'} \
                   "
   fi
   echo "ESIGNET HELM ARGS $ESIGNET_HELM_ARGS"
