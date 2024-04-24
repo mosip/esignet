@@ -42,7 +42,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
         int min = environment.getProperty(String.format(MIN_LENGTH_KEY_PREFIX, authFactor), Integer.TYPE, 50);
         int max = environment.getProperty(String.format(MAX_LENGTH_KEY_PREFIX, authFactor), Integer.TYPE, 50);
         String challenge = authChallenge.getChallenge();
-        int length = !StringUtils.hasText(challenge)? challenge.length():0 ;
+        int length = StringUtils.hasText(challenge)? challenge.length():0 ;
         return length>=min && length<=max;
     }
 }
