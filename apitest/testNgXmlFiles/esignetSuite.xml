@@ -5,11 +5,8 @@
 	<!-- Passing Group as parmeter unsing "testType" Possible Groups are: smoke 
 		regression smokeAndRegression -->
 	<listeners>
-		<listener class-name="io.mosip.testrig.apirig.report.CustomTestNGReporter" />
-		<listener
-			class-name="io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestsListener" />
-		<listener class-name="io.mosip.testrig.apirig.authentication.e2e.E2EReport" />
-		<listener class-name="io.mosip.testrig.apirig.customReport.EmailableReport" />
+		<listener class-name="io.mosip.testrig.apirig.utils.AuthenticationTestsListener" />
+		<listener class-name="io.mosip.testrig.apirig.report.EmailableReport" />
 	</listeners>
 		
 <!--	<test name ="SignUpSettings">
