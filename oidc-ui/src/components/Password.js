@@ -107,6 +107,15 @@ export default function Password({
     setCaptchaToken(value);
   };
 
+  /**
+   * Reset the captcha widget
+   * & its token value
+   */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  }
+
   //Handle Login API Integration here
   const authenticateUser = async () => {
     try {
@@ -157,7 +166,7 @@ export default function Password({
             show: true
           });
         }
-        _reCaptchaRef.current.reset();
+        resetCaptcha();
         return;
       } else {
         setErrorBanner(null);
@@ -182,7 +191,7 @@ export default function Password({
         show: true
       });
       setStatus(states.ERROR);
-      _reCaptchaRef.current.reset();
+      resetCaptcha();
     }
   };
 

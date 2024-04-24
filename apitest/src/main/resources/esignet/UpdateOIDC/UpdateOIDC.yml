@@ -1,0 +1,45 @@
+UpdateOIDCClient:
+   Esignet_UpdateOIDC_all_Valid_Smoke:
+      endPoint: /v1/partnermanager/oidc/client/{clientId}
+      role: partner
+      restMethod: put
+      inputTemplate: esignet/UpdateOIDC/UpdateOIDC
+      outputTemplate: esignet/UpdateOIDC/UpdateOIDCResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "status": "ACTIVE",
+        "grantTypes": "authorization_code",
+        "clientName": "MOSIP OIDC Client",
+        "clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+        "status": "ACTIVE"
+}'
+
+   Esignet_UpdateOIDC_Invalid_clientId_Neg:
+      endPoint: /v1/partnermanager/oidc/client/{clientId}
+      role: partner
+      restMethod: put
+      inputTemplate: esignet/UpdateOIDC/UpdateOIDC
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "status": "ACTIVE",
+        "grantTypes": "authorization_code",
+        "clientName": "MOSIP OIDC Client",
+        "clientId": "$DFDFF@#$",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "PMS_IDP_004"
+    }
+  ]
+}'

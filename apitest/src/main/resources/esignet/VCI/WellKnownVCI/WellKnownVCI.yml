@@ -1,0 +1,13 @@
+WellKnownVCI:
+   ESignet_WellKnownVCI_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/vci/.well-known/openid-credential-issuer
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/VCI/WellKnownVCI/WellKnownVCI
+      outputTemplate: esignet/VCI/WellKnownVCI/WellKnownVCIResult
+      input: '{
+}'
+      output: '{
+       
+}'

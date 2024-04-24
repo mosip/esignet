@@ -1,0 +1,114 @@
+{
+  "id": "string",
+  "metadata": {},
+  "request": {
+    "desc":"{{desc}}",
+    "name":"{{name}}",
+    "policyGroupName":"{{policyGroupName}}",
+    "policyType":"{{policyType}}",
+    "version": "{{version}}",
+    "policies": {
+		"authTokenType": "policy",
+		"allowedKycAttributes": [
+			{
+				"attributeName": "fullName"
+			},
+			{
+				"attributeName": "gender"
+			},
+			{
+				"attributeName": "phone"
+			},
+			{
+				"attributeName": "email"
+			},
+			{
+				"attributeName": "dateOfBirth"
+			},
+			{
+				"attributeName": "city"
+			},
+			{
+				"attributeName": "face"
+			},
+			{
+				"attributeName": "addressLine1"
+			}
+		],
+		"allowedAuthTypes": [
+			{
+				"authSubType": "IRIS",
+				"authType": "bio",
+				"mandatory": false
+			},
+			{
+				"authSubType": "FINGER",
+				"authType": "bio",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "otp",
+				"mandatory": false
+			},
+			{
+				"authSubType": "FACE",
+				"authType": "bio",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "otp-request",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "kyc",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "demo",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "kycauth",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "kycexchange",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "keybinding",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "kbt",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "wla",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "vciexchange",
+				"mandatory": false
+			},
+			{
+				"authSubType": "",
+				"authType": "pwd",
+				"mandatory": false
+			}
+		]
+	}
+  },
+  "requesttime": "{{requesttime}}",
+  "version": "string"
+}

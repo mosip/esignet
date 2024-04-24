@@ -1,0 +1,9 @@
+{
+  "id": "mosip.pre-registration.login.useridotp",
+  "version": "1.0",
+  "requesttime": "$TIMESTAMP$",
+  "request": {
+    "otp": "781412",
+    "userId": "robin.hood@mailinator.com"
+  }
+}

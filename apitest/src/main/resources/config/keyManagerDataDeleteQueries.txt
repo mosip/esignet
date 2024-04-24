@@ -1,0 +1,14 @@
+#####  DB queries to be executed to tear down the data used and generated during the test rig run
+
+delete from mosip_keymgr.keymgr.ca_cert_store where cert_subject ='CN=mosiptest.org,O=MOSIPTEST,L=Bangalore,ST=Karantaka,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=Techno.com,O=Techno,L=Bangalore,ST=Karnataka,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=Techno,O=Techno,L=Bangalore,ST=Karnataka,C=IN'
+delete from mosip_keymgr.keymgr.ca_cert_store where cert_subject ='CN=apitest,OU=apitest,O=apitest,L=BLR,ST=KAR,C=IN'
+delete from mosip_keymgr.keymgr.ca_cert_store where cert_subject ='CN=apitest2,OU=apitest2,O=apitest2,L=BLR,ST=KAR,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=deviceprovider,OU=deviceprovider,O=deviceprovider,L=BLR,ST=KAR,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=movp,OU=movp,O=movp,L=BLR,ST=KAR,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=ftp,OU=ftp,O=ftp,L=BLR,ST=KAR,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=misp,OU=misp,O=misp,L=BLR,ST=KAR,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=misp2,OU=misp2,O=misp2,L=BLR,ST=KAR,C=IN'
+delete from mosip_keymgr.keymgr.partner_cert_store where cert_subject ='CN=mosipprint,O=mosipprint,L=Bangalore,ST=Karnataka,C=IN'
+delete from mosip_keymgr.keymgr.ca_cert_store where cert_subject ='CN=mosipprint,O=mosipprint,L=Bangalore,ST=Karnataka,C=IN'

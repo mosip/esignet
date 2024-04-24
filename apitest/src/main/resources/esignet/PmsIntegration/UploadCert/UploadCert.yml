@@ -1,0 +1,128 @@
+uploadPartnerCert:
+   Esignet_UploadPartnerCert_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$PARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'
+
+   Esignet_UploadPartnerCert_Misp_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$MISPPARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'
+
+   Esignet_UploadPartnerCert_Kyc_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$PARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'
+
+   Esignet_UploadPartnerCert_NonAuth_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$PARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'
+
+   Esignet_UploadPartnerCert_Misp_False_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$MISPPARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'
+
+   Esignet_UploadPartnerCert_Auth_False_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$MISPPARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'
+
+   Esignet_UploadPartnerCert_Misp_S2_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$MISPPARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_Misp_S2_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'
+
+   Esignet_UploadPartnerCert_Auth_S2_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/upload
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
+      outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
+      input: '{
+  "certificateData": "$MISPPARTNERCERT$",
+  "partnerId": "$ID:PartnerSelfRegistration_Auth_S2_Valid_Smoke_sid_partnerId$",
+  "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+  "errors": "$IGNORE$"
+}'

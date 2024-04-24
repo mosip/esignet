@@ -1,0 +1,39 @@
+{
+  "identityRequest": {
+    "biometrics": [
+      {
+        "data": {
+          "bioSubType": "{{bioSubType}}",
+          "bioType": "{{bioType}}",
+          "bioValue": "{{bioValue}}",
+          "deviceCode": "{{deviceCode}}",
+          "deviceProviderID": "{{deviceProviderID}}",
+          "deviceServiceID": "{{deviceServiceID}}",
+          "deviceServiceVersion": "{{deviceServiceVersion}}",
+          "digitalId": {
+            "dateTime": "{{dateTime}}",
+            "deviceProvider": "{{deviceProvider}}",
+            "deviceProviderId": "{{deviceProviderID}}",
+            "deviceSubType": "{{deviceSubType}}",
+            "make": "{{make}}",
+            "model": "{{model}}",
+            "serialNo": "{{serialNo}}",
+            "type": "{{type}}"
+          },
+          "domainUri": "$DOMAINURI$",
+          "env": "Developer",
+          "purpose": "AUTH",
+          "qualityScore": 70,
+          "requestedScore": 70,
+          "timestamp": "$DATETIME$",
+          "transactionId": "{{transactionId}}"
+        },
+        "hash": "hash",
+        "sessionKey": "sessionKey",
+        "thumbprint": "IDAFIRthumbprint"
+      }
+    ],
+    "timestamp": "$DATETIME$",
+    "transactionID": "{{transactionId}}"
+  }
+}

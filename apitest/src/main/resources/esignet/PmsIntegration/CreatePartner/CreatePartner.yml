@@ -1,0 +1,168 @@
+createPartnerSelfRegistration:
+   Esignet_PartnerSelfRegistration_All_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$PARTNEREMAIL$",
+    "organizationName": "$PARTNERID$",
+    "partnerId": "$PARTNERID$",
+    "partnerType": "Auth_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'
+
+   Esignet_PartnerSelfRegistration_Misp_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$MISPPARTNEREMAIL$",
+    "organizationName": "$MISPPARTNERID$",
+    "partnerId": "$MISPPARTNERID$",
+    "partnerType": "MISP_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'
+
+   Esignet_PartnerSelfRegistration_Kyc_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$PARTNEREMAIL1$",
+    "organizationName": "$PARTNERID1$",
+    "partnerId": "$PARTNERID1$",
+    "partnerType": "Auth_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'
+
+   Esignet_PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$PARTNEREMAILNONAUTH$",
+    "organizationName": "$PARTNERIDNONAUTH$",
+    "partnerId": "$PARTNERIDNONAUTH$",
+    "partnerType": "Auth_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'
+
+   Esignet_PartnerSelfRegistration_Misp_False_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$RANDOMPARTNEREMAIL$",
+    "organizationName": "$RANDOMPARTNERID$",
+    "partnerId": "$RANDOMPARTNERID$",
+    "partnerType": "MISP_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'
+
+   Esignet_PartnerSelfRegistration_Auth_False_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$RANDOMPARTNEREMAIL$",
+    "organizationName": "$RANDOMPARTNERID$",
+    "partnerId": "$RANDOMPARTNERID$",
+    "partnerType": "Auth_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'
+
+   Esignet_PartnerSelfRegistration_Misp_S2_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$RANDOMPARTNEREMAIL$",
+    "organizationName": "$RANDOMPARTNERID$",
+    "partnerId": "$RANDOMPARTNERID$",
+    "partnerType": "MISP_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'
+
+   Esignet_PartnerSelfRegistration_Auth_S2_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$RANDOMPARTNEREMAIL$",
+    "organizationName": "$RANDOMPARTNERID$",
+    "partnerId": "$RANDOMPARTNERID$",
+    "partnerType": "Auth_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "partnerId": "$IGNORE$",
+        "status": "InProgress"
+}'

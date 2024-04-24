@@ -1,0 +1,12 @@
+GetJSONWebKeySet:
+   ESignet_GetJSONWebKeySet_all_Valid_Smoke:
+      endPoint: /v1/esignet/oauth/.well-known/jwks.json
+      role: resident
+      restMethod: get
+      inputTemplate: esignet/GetJSONWebKeySet/GetJSONWebKeySet
+      outputTemplate: esignet/GetJSONWebKeySet/GetJSONWebKeySetResult
+      input: '{
+}'
+      output: '{
+        
+}'

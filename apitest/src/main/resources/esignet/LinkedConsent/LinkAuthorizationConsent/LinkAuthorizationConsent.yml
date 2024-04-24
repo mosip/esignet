@@ -1,0 +1,36 @@
+LinkAuthorizationConsent:
+   ESignet_LinkedAuthorizationConsent_Consent_uin_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+    
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_Vid_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_Vid_all_Valid_Smoke_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREVID$"
+}'
+      output: '{
+    
+}'

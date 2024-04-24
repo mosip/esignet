@@ -432,6 +432,7 @@ oidc_ui:
       DEFAULT_FEVICON: 'favicon.ico'
       DEFAULT_TITLE: 'eSignet'
       DEFAULT_ID_PROVIDER_NAME: 'eSignet'
+      DEFAULT_FONT_URL: ''
 
 ## OIDC UI swagger should have only internal access. Hence linked to internal gateway
 ## We create a gateway for esignet specific URL(s) listed under `hosts`
