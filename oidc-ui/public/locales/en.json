@@ -87,9 +87,8 @@
     "fullName": "Enter Full Name",
     "dob": "Enter DOB",
     "policyNumber_placeholder": "Policy Number",
-    "name_placeholder": "Name",
-    "dob_placeholder": "DOB",
-    "auth_failed": "Login failed, please enter correct credentials"
+    "fullName_placeholder": "Name",
+    "dob_placeholder": "DOB"
   },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
@@ -297,6 +296,8 @@
     "captcha_validator_not_found": "Failed to find captcha validator instance, Please check classpath.",
     "invalid_captcha": "Invalid captcha found.",
     "invalid_auth_factor_type_or_challenge_format": "Invalid auth factor type or challenge format.",
+    "invalid_auth_factor_type_format" : "Invalid auth factor type or challenge format.",
+    "invalid_challenge_length" : "Invalid challenge, Min or Max length constraint violated.",
     "unsupported_pkce_challenge_method": "Unsupported proof key challenge exchange method.",
     "invalid_pkce_challenge": "Invalid Proof key challenge.",
     "invalid_pkce_code_verifier": "Invalid proof key code verifier.",
@@ -450,6 +451,9 @@
       "auth_failed": "Incorrect username or password. Please try again.",
       "password_error_msg": "Invalid Password",
       "IDA-MLC-018": "Incorrect username or password. Please try again."
+    },
+    "kba": {
+      "auth_failed": "Login failed, please enter correct credentials"
     },
     "statusCodeHeader": {
       "400": "Bad Request",
