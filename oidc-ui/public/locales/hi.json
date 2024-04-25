@@ -89,8 +89,7 @@
     "dob": "जन्मतिथि दर्ज करें",
     "policyNumber_placeholder": "पॉलिसी नंबर",
     "fullName_placeholder": "पूरा नाम",
-    "dob_placeholder": "जन्मतिथि",
-    "auth_failed": "लॉगिन विफल, कृपया सही क्रेडेंशियल दर्ज करें"
+    "dob_placeholder": "जन्मतिथि"
   },
   "LoginQRCode": {
     "scan_with_wallet": "लॉगिन करने के लिए {{walletName}} से स्कैन करें",
@@ -297,6 +296,8 @@
     "binding_auth_failed": "प्रमुख बाउंड ऑथेंटिकेशन (लिंक्ड-वॉलेट) विफल रहा।",
     "invalid_captcha": "अमान्य कैप्चा मिला।",
     "invalid_auth_factor_type_or_challenge_format": "अमान्य प्रामाणिक कारक प्रकार या चुनौती प्रारूप।",
+    "invalid_auth_factor_type_format" : "अमान्य प्रामाणिक कारक प्रकार या चुनौती प्रारूप।",
+    "invalid_challenge_length" : "अमान्य चुनौती, न्यूनतम या अधिकतम लंबाई बाधा का उल्लंघन किया गया।",
     "unsupported_pkce_challenge_method": "असमर्थित प्रमाण कुंजी चैलेंज एक्सचेंज विधि।",
     "invalid_pkce_challenge": "अमान्य प्रूफ कुंजी चुनौती।",
     "invalid_pkce_code_verifier": "अमान्य प्रूफ कुंजी कोड सत्यापनकर्ता।",
@@ -452,6 +453,9 @@
       "IDA-MLC-018": "गलत उपयोगकर्ता नाम या पासवर्ड। कृपया पुन: प्रयास करें।",
       "IDA-PSD-001": "गलत उपयोगकर्ता नाम या पासवर्ड। कृपया पुन: प्रयास करें।",
       "IDA-PSD-002": "गलत उपयोगकर्ता नाम या पासवर्ड। कृपया पुन: प्रयास करें।"
+    },
+    "kba": {
+      "auth_failed": "लॉगिन विफल, कृपया सही क्रेडेंशियल दर्ज करें"
     },
     "statusCodeHeader": {
       "400": "अमान्य अनुरोध",
