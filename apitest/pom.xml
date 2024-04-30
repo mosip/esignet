@@ -5,7 +5,7 @@
 	<groupId>io.mosip.esignet</groupId>
 	<artifactId>apitest-esignet</artifactId>
 	<packaging>jar</packaging>
-	<name>automationtests-esignet</name>
+	<name>apitest-esignet</name>
 	<description>Parent project of MOSIP functional tests</description>
 	<url>https://github.com/mosip/mosip-functional-tests</url>
 	<version>1.2.0.1-SNAPSHOT</version>
@@ -77,18 +77,6 @@
 		<mockito.version>1.10.19</mockito.version>
 		<powermock.version>1.7.4</powermock.version>
 		<powermock.beta.version>2.0.0-beta.5</powermock.beta.version>
-
-		<!-- logger -->
-		<logback.version>1.2.3</logback.version>
-		<slf4j.version>1.7.19</slf4j.version>
-		<log4j-over-slf4j>2.16.0</log4j-over-slf4j>
-		<jcl.to.slf4j.version>1.7.25</jcl.to.slf4j.version>
-
-		<!-- json -->
-		<jackson.version>2.9.5</jackson.version>
-		<json.utility.version>20180130</json.utility.version>
-		<json.schema.validator.version>2.2.10</json.schema.validator.version>
-		<json.version>20180130</json.version>
 
 		<!-- utilities -->
 		<commons-math3>3.6.1</commons-math3>
@@ -181,9 +169,213 @@
 		<rest.assured.version>3.0.7</rest.assured.version>
 		<testng.version>6.11</testng.version>
 		<zt.zip.version>1.13</zt.zip.version>
-		<fileName>automationtests-commons-1.2.0.1-SNAPSHOT-jar-with-dependencies</fileName>
+		<fileName>apitests-esignet-1.2.0.1-SNAPSHOT-jar-with-dependencies</fileName>
 		
-	</properties>
+		</properties>
+	<build>
+		<pluginManagement>
+			<plugins>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doclint>none</doclint>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
+				</configuration>
+			</plugin>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>3.2.0</version>
+                  <configuration>
+                     <doclint>none</doclint>    
+                  </configuration>
+                </plugin>			
+			<plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>populate-git-commit-information</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <dateFormat>MM/dd/yyyy HH:mm:ss Z</dateFormat>
+                            <abbrevLength>8</abbrevLength>
+                            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                            <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                </configuration>
+            </plugin>
+
+			<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.5</version>
+					<executions>
+						<execution>
+							<id>sign-artifacts</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+							<configuration>
+								<gpgArguments>
+									<arg>--pinentry-mode</arg>
+									<arg>loopback</arg>
+								</gpgArguments>
+							</configuration>
+						</execution>
+					</executions>
+			</plugin>
+
+
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>3.2.4</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>shade</goal>
+            </goals>
+            <configuration>
+                <finalName>${fileName}</finalName>
+                <transformers>
+                    <!-- need this to merge the services files properly -->
+                    <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    <!-- add Main-Class to manifest file -->
+                    <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <mainClass>io.mosip.testrig.apirig.testrunner.MosipTestRunner</mainClass>
+                    </transformer>
+                </transformers>
+                <!-- add this to prevent some security issues when merging everything together -->
+                <filters>
+                    <filter>
+                        <artifact>*:*</artifact>
+                        <excludes>
+                            <exclude>META-INF/*.SF</exclude>
+                            <exclude>META-INF/*.DSA</exclude>
+                            <exclude>META-INF/*.RSA</exclude>
+                        </excludes>
+                    </filter>
+                </filters>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${maven.jar.plugin.version}</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<addClasspath>true</addClasspath>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							</manifest>
+							<manifestEntries>
+								<Project-Name>${project.name}</Project-Name>
+								<Project-Version>${project.version}</Project-Version>
+								<Built-By>${user.name}</Built-By>
+								<Built-OS>${os.name}</Built-OS>
+								<Local-Build-Date>${maven.build.timestamp}</Local-Build-Date>
+								<Build-Number>${env.BUILD_NUMBER}</Build-Number>
+								<Build-Date>${env.BUILD_ID}</Build-Date>
+								<Build-URL>${env.BUILD_URL}</Build-URL>
+							</manifestEntries>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>${maven.war.plugin.version}</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<addClasspath>true</addClasspath>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							</manifest>
+							<manifestEntries>
+								<Project-Name>${project.name}</Project-Name>
+								<Project-Version>${project.version}</Project-Version>
+								<Built-By>${user.name}</Built-By>
+								<Built-OS>${os.name}</Built-OS>
+								<Local-Build-Date>${maven.build.timestamp}</Local-Build-Date>
+								<Build-Number>${env.BUILD_NUMBER}</Build-Number>
+								<Build-Date>${env.BUILD_ID}</Build-Date>
+								<Build-URL>${env.BUILD_URL}</Build-URL>
+							</manifestEntries>
+						</archive>
+					</configuration>
+				</plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-source-plugin</artifactId>
+                  <version>2.2.1</version>
+                  <executions>
+                        <execution>
+                          <id>attach-sources</id>
+                          <goals>
+                                <goal>jar-no-fork</goal>
+                          </goals>
+                        </execution>
+                  </executions>
+                </plugin>			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>make-jar-executable</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!-- Create a shell script to run the JAR file with executable permission -->
+								<chmod file="${project.build.directory}/*.jar" perm="ugo+rx"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+		
+	
 	<dependencies>
 
 		<dependency>
