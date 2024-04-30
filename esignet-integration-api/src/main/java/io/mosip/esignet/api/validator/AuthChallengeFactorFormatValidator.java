@@ -30,6 +30,9 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Value("#{${mosip.esignet.authenticator.default.auth-factor.kba.field-details}}")
     private List<Map<String, String>> fieldDetailList;  // {{'id':'policyNumber', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^\\s*[+-]?(\\d+|\\d*\\.\\d+|\\d+\\.\\d*)([Ee][+-]?\\d*)?\\s*$'},{'id':'fullName', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$'},{'id':'dob', 'type':'date', 'format':'dd/mm/yyyy'}}
 
@@ -56,21 +59,20 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             return false;
         }
         if (authFactor.equals("KBA")) {
-            return isValidRegex(authChallenge.getChallenge());
+            return validateChallenge(authChallenge.getChallenge());
         }
         return length >= min && length <= max;
     }
 
-    private boolean isValidRegex(String challenge) {
+    private boolean validateChallenge(String challenge) {
         byte[] decodedBytes = Base64.getDecoder().decode(challenge);
         String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> challengeMap;
         try {
             challengeMap = objectMapper.readValue(decodedString, new TypeReference<Map<String, String>>() {
             });
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return false;
         }
         for (Map<String, String> fieldDetail : fieldDetailList) {
             String id=fieldDetail.get("id");

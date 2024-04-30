@@ -871,6 +871,34 @@ public class AuthorizationControllerTest {
     }
 
     @Test
+    public void authenticateEndUser_withInvalidChallengeJson_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("abc");
+        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setFormat("base64url-encoded-json");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
+    }
+
+    @Test
     public void authenticateEndUser_withNullAuthFactorType_returnErrorResponse() throws Exception {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setIndividualId("1234567890");
