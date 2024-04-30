@@ -34,7 +34,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     private ObjectMapper objectMapper;
 
     @Value("#{${mosip.esignet.authenticator.default.auth-factor.kba.field-details}}")
-    private List<Map<String, String>> fieldDetailList;  // {{'id':'policyNumber', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^\\s*[+-]?(\\d+|\\d*\\.\\d+|\\d+\\.\\d*)([Ee][+-]?\\d*)?\\s*$'},{'id':'fullName', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$'},{'id':'dob', 'type':'date', 'format':'dd/mm/yyyy'}}
+    private List<Map<String, String>> fieldDetailList;
 
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
