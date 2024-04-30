@@ -166,7 +166,9 @@ export default function Password({
             show: true
           });
         }
-        resetCaptcha();
+        if (showCaptcha) {
+          resetCaptcha();
+        }
         return;
       } else {
         setErrorBanner(null);
@@ -191,7 +193,9 @@ export default function Password({
         show: true
       });
       setStatus(states.ERROR);
-      resetCaptcha();
+      if (showCaptcha) {
+        resetCaptcha();
+      }
     }
   };
 
