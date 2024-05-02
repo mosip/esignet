@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.util.ErrorConstants;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 public class AuthChallengeFactorFormatValidator implements ConstraintValidator<AuthChallengeFactorFormat, AuthChallenge> {
 
@@ -61,7 +63,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
         if (authFactor.equals("KBA")) {
             return validateChallenge(authChallenge.getChallenge());
         }
-        return length >= min && length <= max;
+        return true;
     }
 
     private boolean validateChallenge(String challenge) {
@@ -72,12 +74,15 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             challengeMap = objectMapper.readValue(decodedString, new TypeReference<Map<String, String>>() {
             });
         } catch (JsonProcessingException e) {
+            log.error("Failed to parse the input challenge", e);
             return false;
         }
         for (Map<String, String> fieldDetail : fieldDetailList) {
-            String id=fieldDetail.get("id");
-            if(fieldDetail.containsKey("regex") && challengeMap.containsKey(id) && !Pattern.compile(fieldDetail.get("regex")).matcher(challengeMap.get(id)).matches()) {
-                return false;
+            String fieldId = fieldDetail.get("id");
+            if(fieldDetail.containsKey("regex") && challengeMap.containsKey(fieldId) &&
+                    StringUtils.hasText(challengeMap.get(fieldId))) {
+                Pattern pattern = Pattern.compile(fieldDetail.get("regex"));
+                return pattern.matcher(challengeMap.get(fieldId)).matches();
             }
         }
         return true;
