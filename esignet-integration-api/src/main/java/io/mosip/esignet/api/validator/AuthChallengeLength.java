@@ -14,11 +14,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = AuthChallengeFactorFormatValidator.class)
+@Constraint(validatedBy = AuthChallengeLengthValidator.class)
 @Documented
-public @interface AuthChallengeFactorFormat {
+public @interface AuthChallengeLength {
 
-    String message() default ErrorConstants.INVALID_CHALLENGE;
+    String message() default ErrorConstants.INVALID_CHALLENGE_LENGTH;
 
     Class<?>[] groups() default {};
 

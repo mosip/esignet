@@ -137,6 +137,7 @@ export default function OtpGet({
             show: true
           });
         }
+
         if (showCaptcha) {
           resetCaptcha();
         }

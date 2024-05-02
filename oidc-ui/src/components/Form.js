@@ -158,6 +158,7 @@ export default function Form({
         if (showCaptcha) {
           resetCaptcha();
         }      
+
         return;
       } else {
         setError(null);
@@ -186,6 +187,7 @@ export default function Form({
       if (showCaptcha) {
         resetCaptcha();
       }      
+
     }
   };
 
