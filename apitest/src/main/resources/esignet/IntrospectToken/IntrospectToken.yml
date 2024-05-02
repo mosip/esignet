@@ -1,0 +1,15 @@
+IntrospectToken:
+   ESignet_IntrospectToken_all_Valid_Smoke:
+      endPoint: /introspect
+      role: resident
+      restMethod: get
+      inputTemplate: esignet/IntrospectToken/IntrospectToken
+      outputTemplate: esignet/IntrospectToken/IntrospectTokenResult
+      input: '{
+      	"client_id": "88Vjt34c5Twz1oJ",
+		"token": "$ID:GenerateToken_Valid_Smoke_sid_access_token$",
+		"token_type_hint": "access_token"
+}'
+      output: '{
+        "active": true
+}'

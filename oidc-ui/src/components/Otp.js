@@ -33,6 +33,7 @@ export default function Otp({
         {otpStatus === OTPStatusEnum.verifyOtp ? (
           <div className="h-6 items-center text-center flex items-start">
             <button
+              id="back-button"
               onClick={() => setOtpStatus(OTPStatusEnum.getOtp)}
               className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
             >

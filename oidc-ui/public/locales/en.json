@@ -53,8 +53,8 @@
     "scan_and_verify": "Scan and Verify",
     "sign_in_with_biometric": "Login with Biometric",
     "retry": "Retry",
-    "vid_label_text": "Enter Your VID",
-    "vid_placeholder": "VID",
+    "vid_label_text": "UIN/VID",
+    "vid_placeholder": "Enter Your UIN or VID",
     "Face": "Face",
     "Finger": "Finger",
     "Iris": "Iris",
@@ -64,18 +64,18 @@
     "sign_in_with_pin": "Login with PIN",
     "remember_me": "Remember Me",
     "login": "Login",
-    "uin_label_text": "UIN",
+    "uin_label_text": "UIN/VID",
     "pin_label_text": "PIN",
-    "uin_placeholder": "UIN or VID",
+    "uin_placeholder": "Enter Your UIN or VID",
     "pin_placeholder": "Enter PIN"
   },
   "password": {
     "sign_in_with_password": "Login with Password",
     "remember_me": "Remember Me",
     "login": "Login",
-    "uin_label_text": "Username",
+    "uin_label_text": "UIN/VID",
     "password_label_text": "Password",
-    "uin_placeholder": "Enter 8-9 digit mobile number",
+    "uin_placeholder": "Enter Your UIN or VID",
     "password_placeholder": "Enter password",
     "forgot_password": "Forgot Password?",
     "reset_password": "Reset Password"
@@ -87,9 +87,8 @@
     "fullName": "Enter Full Name",
     "dob": "Enter DOB",
     "policyNumber_placeholder": "Policy Number",
-    "name_placeholder": "Name",
-    "dob_placeholder": "DOB",
-    "auth_failed": "Login failed, please enter correct credentials"
+    "fullName_placeholder": "Name",
+    "dob_placeholder": "DOB"
   },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
@@ -106,9 +105,9 @@
     "not_a_robot": "I'm Not a Robot",
     "get_otp": "Get OTP",
     "verify": "Verify",
-    "vid_label_text": "Enter Your VID",
+    "vid_label_text": "UIN/VID",
     "otp_label_text": "OTP",
-    "vid_placeholder": "VID",
+    "vid_placeholder": "Enter Your UIN or VID",
     "otp_placeholder": "1234",
     "mobile_number": "Mobile Number",
     "email_address": "Email Address",
@@ -128,6 +127,7 @@
     "OTP": "OTP",
     "PWD": "Password",
     "KBA": "Details",
+    "walletName": "Inji",
     "preferred_mode_of_login": "Select a preferred mode of login",
     "more_ways_to_sign_in": "More ways to sign in",
     "or": "OR",
@@ -154,10 +154,10 @@
     "signup_for_unified_login": "Sign Up with Unified Login",
     "subheader_text": {
       "all_login_options": "Please choose the login option",
-      "otp_login": "Please enter your VID",
-      "biometrics_login": "Please enter your VID & verify using the Biometric device",
+      "otp_login": "Please enter your UIN/VID",
+      "biometrics_login": "Please enter your UIN/VID & verify using the Biometric device",
       "pin_login": "Please enter your UIN/VID and PIN",
-      "password_login": "Please enter your registered username and password",
+      "password_login": "Please enter your UIN/VID and password",
       "kba_login": "Please fill the below details",
       "wallet_login": "Please scan the below QR code to login"
     }
@@ -181,7 +181,10 @@
   },
   "tooltips": {
     "vid_info": "Please fill in this field",
-    "username_info": "Enter your 8-9 digit registered mobile number and ensure it does not begin with \"0\""
+    "otp_info": "Enter your generated UIN/VID",
+    "bio_info": "Enter your generated UIN/VID",
+    "pin_info": "Enter your generated UIN/VID",
+    "username_info": "Enter your generated UIN/VID"
   },
   "errors": {
     "navigate_option": "Please try navigating using the options below.",
@@ -293,6 +296,8 @@
     "captcha_validator_not_found": "Failed to find captcha validator instance, Please check classpath.",
     "invalid_captcha": "Invalid captcha found.",
     "invalid_auth_factor_type_or_challenge_format": "Invalid auth factor type or challenge format.",
+    "invalid_auth_factor_type_format" : "Invalid auth factor type or challenge format.",
+    "invalid_challenge_length" : "Invalid challenge, Min or Max length constraint violated.",
     "unsupported_pkce_challenge_method": "Unsupported proof key challenge exchange method.",
     "invalid_pkce_challenge": "Invalid Proof key challenge.",
     "invalid_pkce_code_verifier": "Invalid proof key code verifier.",
@@ -401,6 +406,7 @@
       "IDA-OTA-009": "Notification Channel not configured",
       "IDA-OTA-010": "Input Identity Type does not match Identity Type of OTP Request",
       "IDA-OTA-011": "Input Partner-ID does not match Partner-ID of OTP Request",
+      "IDA-OTA-012": "OTP validation can't be performed against this Individual-ID. Generate OTP first",
       "send_otp_failed": "Send OTP Failed. Invalid/Unknown IndividualId.",
       "send_otp_failed_msg": "Failed to Send OTP",
       "invalid_otp_channel": "Invalid OTP Channel Provided.",
@@ -445,6 +451,9 @@
       "auth_failed": "Incorrect username or password. Please try again.",
       "password_error_msg": "Invalid Password",
       "IDA-MLC-018": "Incorrect username or password. Please try again."
+    },
+    "kba": {
+      "auth_failed": "Login failed, please enter correct credentials"
     },
     "statusCodeHeader": {
       "400": "Bad Request",

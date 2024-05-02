@@ -1,0 +1,22 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <property name="hibernate.connection.driver_class"></property>
+        <property name="hibernate.connection.url"></property>
+        <property name="hibernate.connection.username"></property>
+        <property name="hibernate.connection.password"></property>
+        <property name="hibernate.hibernate.default_schema"></property>
+        <property name="hibernate.connection.pool_size"></property>
+        <property name="hibernate.dialect"></property>
+        <property name="hibernate.show_sql"></property>
+		<property name="hibernate.current_session_context_class"></property>
+		
+    </session-factory>
+    
+
+</hibernate-configuration>

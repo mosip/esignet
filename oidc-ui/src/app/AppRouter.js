@@ -60,6 +60,14 @@ export const AppRouter = () => {
         />
         <img
           className="bottom_left_bg_logo hidden md:block"
+          alt="bottom left background"
+        />
+        <img
+          className="top_right_bg_logo hidden md:block"
+          alt="top right background"
+        />
+        <img
+          className="bottom_right_bg_logo hidden md:block"
           alt="bottom right background"
         />
       </>
@@ -76,7 +84,7 @@ export const AppRouter = () => {
     { route: CONSENT, component: <ConsentPage /> },
     { route: SOMETHING_WENT_WRONG, component: <SomethingWrongPage /> },
     { route: PAGE_NOT_FOUND, component: <PageNotFoundPage /> },
-    { route: "*", component: <PageNotFoundPage />}
+    { route: "*", component: <PageNotFoundPage /> },
   ];
 
   return (

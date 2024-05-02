@@ -51,50 +51,50 @@ export default function InputWithImage({
 
     var keyCode = e.keyCode || e.which;
 
+    // number checking function checks if the key is a number or not
+    // restricting with shift + number key
+    const numberChecking = (key, shift) =>
+      (key >= 48 && key <= 57 && !shift) || (key >= 96 && key <= 105);
+
+    // letter checking function checks if the key is a letter or not
+    const letterChecking = (key) =>
+      (key >= 65 && key <= 90);
+
+    // multiKeyChecking function checks if the key is
+    // ctrl + a, ctrl + c, ctrl + v
+    const multiKeyChecking = (key, ctrl) =>
+      ctrl && (key === 65 || key === 67 || key === 86);
+
+    // checking max length for the input
     const checkMaxLength = (maxLength) =>
       maxLength === "" ? true : e.target.value.length < parseInt(maxLength);
 
     // Allow some special keys like Backspace, Tab, Home, End, Left Arrow, Right Arrow, Delete.
-    const allowedKeyCodes = [8, 9, 35, 36, 37, 39, 46];
+    const allowedKeyCodes = [8, 9, 17, 35, 36, 37, 39, 46];
 
-    if (!allowedKeyCodes.includes(keyCode)) {
-
+    if (!allowedKeyCodes.includes(keyCode) && !multiKeyChecking(keyCode, e.ctrlKey)) {
       // checking max length for the input
-      // if greater than the maxlength then prevent the default action
+      // if greater than the max length then prevent the default action
       if (!checkMaxLength(maxLength)) {
         e.preventDefault();
       }
 
-      if (type === "number") {
-
+      if (type === "number" && !numberChecking(keyCode, e.shiftKey)) {
         // Check if the pressed key is a number
-        if (keyCode < 48 || keyCode > 57) {
-          // Prevent the default action (typing the letter or specified character)
-          e.preventDefault();
-        }
-      }
-
-      else if (type === "letter") {
-
+        e.preventDefault();
+      } else if (type === "letter" && !letterChecking(keyCode)) {
         // Check if the pressed key is a letter (a-zA-Z)
-        if (!((keyCode >= 65 && keyCode <= 90) ||     // Uppercase letters A-Z
-          (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z
-
-          // Prevent input of other characters
-          e.preventDefault();
-        }
-      }
-
-      else if (type === "alpha-numeric") {
-
+        // Lower & upper case letters a-z
+        // Prevent input of other characters
+        e.preventDefault();
+      } else if (
+        type === "alpha-numeric" &&
+        !(numberChecking(keyCode, e.shiftKey) || letterChecking(keyCode))
+      ) {
         // Check if the pressed key is a number (0-9) or a letter (a-zA-Z)
-        if (!((keyCode >= 48 && keyCode <= 57) ||     // Numbers 0-9
-          (keyCode >= 65 && keyCode <= 90) ||           // Uppercase letters A-Z
-          (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z  
-
-          // Prevent input of other characters
-          e.preventDefault();
-        }
+        // Numpad numbers 0-9
+        // Prevent input of other characters
+        e.preventDefault();
       }
     }
   }
@@ -141,7 +141,7 @@ export default function InputWithImage({
             {labelText}
           </label>
           {icon && (
-            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]" />} content={t1("username_info")} position="right" contentSize="text-xs" />
+            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px] relative bottom-[1px]" />} content={id.includes("Otp") ? t1("otp_info") : id.includes("sbi") ? t1("bio_info") : id.includes("Pin") ? t1("pin_info") : t1("username_info")} position="right" contentSize="text-xs" />
           )}
         </div>
         {formError && (
@@ -177,6 +177,7 @@ export default function InputWithImage({
         />
         {id.includes("password") && (
           <span
+            id="password-eye"
             type="button"
             className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 hover:cursor-pointer z-50"
             onClick={changePasswordState}

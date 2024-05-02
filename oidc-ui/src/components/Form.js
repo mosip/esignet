@@ -1,12 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import {
   buttonTypes,
-  challengeFormats,
-  challengeTypes,
   configurationKeys,
 } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
@@ -14,17 +11,26 @@ import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
+import redirectOnError from "../helpers/redirectOnError";
+import langConfigService from "../services/langConfigService";
 
 let fieldsState = {};
+const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function Form({
   authService,
   openIDConnectService,
   backButtonDiv,
-  i18nKeyPrefix = "Form",
+  i18nKeyPrefix1 = "Form",
+  i18nKeyPrefix2 = "errors"
 }) {
-  const { t, i18n } = useTranslation("translation", {
-    keyPrefix: i18nKeyPrefix,
+  
+  const { t: t1, i18n } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix1,
+  });
+
+  const { t: t2 } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix2,
   });
   
   const inputCustomClass =
@@ -44,17 +50,25 @@ export default function Form({
   useEffect(() => {  
   }, []);
 
-
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setLoginState({ ...loginState, [e.target.id]: e.target.value });
+  const handleChange = (e, field) => {
+    const regex = new RegExp(field.regex);
+    const value = e.target.value;
+    
+    if (e.target.type === 'text' && field?.regex !== null && field?.regex !== undefined) {
+      setLoginState({ ...loginState, [e.target.id]: regex.test(value) || value === "" || value === null ? value : loginState[e.target.id] });
+    }
+    else {
+      setLoginState({ ...loginState, [e.target.id]: e.target.value });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     authenticateUser();
   };
+
   const captchaEnableComponents =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.captchaEnableComponents
@@ -65,7 +79,7 @@ export default function Form({
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("pwd") !== -1
+    captchaEnableComponentsList.indexOf("kba") !== -1
   );
 
   const captchaSiteKey =
@@ -78,6 +92,15 @@ export default function Form({
   const handleCaptchaChange = (value) => {
     setCaptchaToken(value);
   };
+
+  /**
+   * Reset the captcha widget
+   * & its token value
+   */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  }
 
   //Handle Login API Integration here
   const authenticateUser = async () => {
@@ -114,20 +137,32 @@ export default function Form({
       const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
-        if(errors[0].errorCode === "auth_failed"){
-          setError({
-            defaultMsg: t(`${errors[0].errorCode}`)
-          });
-        }else{
-          setError({
-            errorCode: `${errors[0].errorCode}`
+        let errorCodeCondition = langConfig.errors.otp[errors[0].errorCode] !== undefined && langConfig.errors.kba[errors[0].errorCode] !== null;
+
+        if (errorCodeCondition) {
+          setErrorBanner({
+            errorCode: `kba.${errors[0].errorCode}`,
+            show: true
           });
         }
-        _reCaptchaRef.current.reset();        
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        }
+        else {
+          setErrorBanner({
+            errorCode: `${errors[0].errorCode}`,
+            show: true
+          });
+        }
+
+        if (showCaptcha) {
+          resetCaptcha();
+        }      
+
         return;
       } else {
         setError(null);
-
+        setErrorBanner(null);
         let nonce = openIDConnectService.getNonce();
         let state = openIDConnectService.getState();
 
@@ -143,13 +178,16 @@ export default function Form({
         });
       }
     } catch (error) {
-      setError({
-        prefix: "authentication_failed_msg",
-        errorCode: error.message,
-        defaultMsg: error.message,
+      setErrorBanner({
+        errorCode: "kba.auth_failed",
+        show: true
       });
       setStatus(states.ERROR);
-      _reCaptchaRef.current.reset();        
+
+      if (showCaptcha) {
+        resetCaptcha();
+      }      
+
     }
   };
 
@@ -170,9 +208,7 @@ export default function Form({
   }, [loginState]);
 
   const onCloseHandle = () => {
-    let tempBanner = errorBanner.map((_) => _);
-    tempBanner[0].show = false;
-    setErrorBanner(tempBanner);
+    setErrorBanner(null);
   };
 
   return (
@@ -181,10 +217,10 @@ export default function Form({
       {(backButtonDiv)}
       </div>
 
-      {errorBanner.length > 0 && (
+      {errorBanner !== null && (
         <ErrorBanner
-          showBanner={errorBanner[0]?.show}
-          errorCode={errorBanner[0]?.errorCode}
+          showBanner={errorBanner.show}
+          errorCode={t2(errorBanner.errorCode)}
           onCloseHandle={onCloseHandle}
         />
       )}
@@ -194,17 +230,20 @@ export default function Form({
           <div className="-space-y-px">
             <InputWithImage
               key={"_form_" + field.id}
-              handleChange={handleChange}
+              handleChange={(e) => {
+                handleChange(e, field)
+              }}
               value={loginState["_form_" + field.id]}
-              labelText={t(field.id)}
+              labelText={t1(field.id)}
               labelFor={field.id}
               id={"_form_" + field.id}
               type={field.type}
               isRequired={true}
-              placeholder={t(field.id + "_placeholder" )}
+              placeholder={t1(field.id + "_placeholder" )}
               customClass={inputCustomClass}
               imgPath={null}
               icon={field.infoIcon}
+              maxLength={field.maxLength}
             />
           </div>
         ))}
@@ -223,7 +262,7 @@ export default function Form({
 
         <FormAction
           type={buttonTypes.submit}
-          text={t("login")}
+          text={t1("login")}
           id="verify_form"
           disabled={
             invalidState ||
@@ -236,13 +275,6 @@ export default function Form({
         <div className="mt-2">
           <LoadingIndicator size="medium" message="authenticating_msg" />
         </div>
-      )}
-      {status !== states.LOADING && error && (
-        <ErrorIndicator
-          prefix={error.prefix}
-          errorCode={error.errorCode}
-          defaultMsg={error.defaultMsg}
-        />
       )}
     </>
   );

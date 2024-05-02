@@ -15,6 +15,7 @@ import InputWithImage from "./InputWithImage";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import redirectOnError from "../helpers/redirectOnError";
 
 const fields = passwordFields;
 let fieldsState = {};
@@ -106,6 +107,15 @@ export default function Password({
     setCaptchaToken(value);
   };
 
+  /**
+   * Reset the captcha widget
+   * & its token value
+   */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  }
+
   //Handle Login API Integration here
   const authenticateUser = async () => {
     try {
@@ -148,28 +158,7 @@ export default function Password({
           });
         }
         else if (errors[0].errorCode === "invalid_transaction") {
-          let state = openIDConnectService.getState();
-          let redirect_uri = openIDConnectService.getRedirectUri();
-
-          if (!redirect_uri) {
-            return;
-          }
-
-          let params = "?";
-
-          if (errors[0].errorCode) {
-            params = params + "error_description=" + errors[0].errorCode + "&";
-          }
-
-          //REQUIRED
-          params = params + "state=" + state + "&";
-
-          //REQUIRED
-          params = params + "error=" + errors[0].errorCode;
-
-          window.onbeforeunload = null;
-
-          window.location.replace(redirect_uri + params);
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         }
         else {
           setErrorBanner({
@@ -177,7 +166,9 @@ export default function Password({
             show: true
           });
         }
-        _reCaptchaRef.current.reset();
+        if (showCaptcha) {
+          resetCaptcha();
+        }
         return;
       } else {
         setErrorBanner(null);
@@ -202,7 +193,9 @@ export default function Password({
         show: true
       });
       setStatus(states.ERROR);
-      _reCaptchaRef.current.reset();
+      if (showCaptcha) {
+        resetCaptcha();
+      }
     }
   };
 
@@ -290,7 +283,7 @@ export default function Password({
         ))}
 
         {forgotPassword && 
-          <a className="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
+          <a className="forgot-password-hyperlink" id="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
         }
 
         {showCaptcha && (

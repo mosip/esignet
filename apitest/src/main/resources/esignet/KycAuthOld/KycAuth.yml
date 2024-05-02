@@ -1,0 +1,44 @@
+KycAuth:
+   Esignet_KycAuth_all_Valid_Smoke:
+      endPoint: /idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/KycAuth/KycAuth
+      outputTemplate: esignet/KycAuth/KycAuthResult
+      input: '{
+      	  "id": "mosip.identity.kycauth",
+		  "version": "1.0",
+		  "individualId": "$ID:AddIdentity_KycAuth_smoke_Pos_UIN$",
+		  "individualIdType": "UIN",
+		  "transactionID": "$TRANSACTIONID$",
+		  "requestTime": "$TIMESTAMP$",
+		  "specVersion": "1.0",
+		  "thumbprint": "$THUMBPRINT$",
+		  "domainUri": "$BASEURI$",
+		  "env": "Staging",
+          "serialNo": "78467171",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "type": "Face",
+          "deviceSubType": "Single",
+          "deviceProvider": "SYNCBYTE",
+          "dp": "SYNCBYTE",
+          "dpId": "SYNCBYTE.LTC165",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "dateTime": "$TIMESTAMP$",
+          "bioType": "FACE",
+          "bioSubType": "",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "deviceServiceVersion": "SB.WIN.001",
+          "transactionId": "$TRANSACTIONID$",
+          "timestamp": "$TIMESTAMP$",
+          "purpose": "Auth",
+    	  "hash": "",
+          "sessionKey": "$ENCRYPTEDSESSIONKEY$",
+		  "requestHMAC": "",
+		  "requestSessionKey": "$ENCRYPTEDSESSIONKEY$"
+}'
+      output: '{
+        
+}'

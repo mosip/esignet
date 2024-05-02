@@ -79,7 +79,7 @@ export default function SignInOptions({
       {showMoreOptions && (
         <div
           className="text-center cursor-pointer font-medium text-[#0953FA] mt-3 flex flex-row rtl:flex-row-reverse items-center justify-center"
-          onClick={() => setShowMoreOptions(false)}
+          onClick={() => setShowMoreOptions(false)} id="show-more-options"
         >
           <span className="mr-2 rtl:ml-2">{t("more_ways_to_sign_in")}</span>
           <span>

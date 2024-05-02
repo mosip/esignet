@@ -34,10 +34,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_FORMAT;
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
@@ -816,7 +813,89 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_AUTH_FACTOR_TYPE_FORMAT));
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge_format"));
+    }
+
+    @Test
+    public void authenticateEndUser_withValidKBADetails_returnSuccessResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("eyJmdWxsTmFtZSI6IkthaWYgU2lkZGlxdWUiLCJkb2IiOiIyMDAwLTA3LTI2In0\u003d");
+        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setFormat("base64url-encoded-json");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidChallenge_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("eyJmdWxsTmFtZSI6IjEyMyIsImRvYiI6IjIwMDAtMDctMjYifQ==");
+        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setFormat("base64url-encoded-json");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidChallengeJson_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("abc");
+        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setFormat("base64url-encoded-json");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
     }
 
     @Test
@@ -846,10 +925,8 @@ public class AuthorizationControllerTest {
 
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
     }
 
     @Test
@@ -881,11 +958,8 @@ public class AuthorizationControllerTest {
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,INVALID_CHALLENGE_FORMAT,
                 INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 4);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(3)).getErrorCode()));
     }
 
     @Test
@@ -914,9 +988,8 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk()).andReturn();
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
 
     }
 
@@ -946,9 +1019,8 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk()).andReturn();
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 2);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
     }
 
     @Test

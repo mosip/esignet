@@ -1,0 +1,24 @@
+{
+  "URL": "$IGNORE$",
+  "authRequest": {
+    "body": "$IGNORE$",
+    "signature": "$IGNORE$"
+  },
+  "authResponse": {
+    "body": {
+      "transactionID": "$IGNORE$",
+      "version": "$IGNORE$",
+      "id": "$IGNORE$",
+      "errors": [
+        {
+          "errorCode": "IDA-MLC-015",
+          "errorMessage": "$IGNORE$"
+        }
+      ],
+      "responseTime": "$IGNORE$",
+      "response": {
+        "kycStatus": false
+      }
+    }
+  }
+}

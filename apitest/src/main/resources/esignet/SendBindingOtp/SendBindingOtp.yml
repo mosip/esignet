@@ -1,0 +1,718 @@
+SendBindingOtp:
+   ESignet_SendBindingOtp_uin_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/SendBindingOtp/SendBindingOtpResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+  		"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+    "maskedEmail": "$IGNORE$",
+    "maskedMobile": "$IGNORE$"
+}'
+
+   ESignet_SendBindingOtp_Vid_Valid_Smoke_sid:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/SendBindingOtp/SendBindingOtpResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+  		"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+    "maskedEmail": "$IGNORE$",
+    "maskedMobile": "$IGNORE$"
+}'
+
+   ESignet_SendBindingOtp_uin_Email_Valid_Smoke_sid:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/SendBindingOtp/SendBindingOtpResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+  		"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_WOPhone_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"}]
+}'
+      output: '{
+    "maskedEmail": "$IGNORE$",
+    "maskedMobile": "$IGNORE$"
+}'
+
+   ESignet_SendBindingOtp_uin_Phone_Valid_Smoke_sid:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/SendBindingOtp/SendBindingOtpResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+  		"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_WOEmail_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "phone"}]
+}'
+      output: '{
+    "maskedEmail": "$IGNORE$",
+    "maskedMobile": "$IGNORE$"
+}'
+
+   ESignet_SendBindingOtp_uin_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "2022-11-08T06:35:53",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Past_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Future_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "2033-11-07T06:51:30.195Z",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Missing_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$REMOVE$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Space_As_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": " ",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_invalid_individual_id_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "168461341611351",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Invalid_Case_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "@#$#$##",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_NR_Email_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/SendBindingOtp/SendBindingOtpResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_WOEmail_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+    "maskedEmail": "$IGNORE$",
+    "maskedMobile": "$IGNORE$"
+}'
+
+   ESignet_SendBindingOtp_uin_NR_Phone_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/SendBindingOtp/SendBindingOtpResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_WOPhone_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+    "maskedEmail": "$IGNORE$",
+    "maskedMobile": "$IGNORE$"
+}'
+
+   ESignet_SendBindingOtp_uin_Missing_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$REMOVE$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Empty_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Missing_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtpEmptyOtpChannel
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": "$REMOVE$"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Empty_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: ""}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Invalid_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "emaeill"},{channel: "moebileee"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_uin_Space_Sep_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "em ail"},{channel: "mobi le"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "2022-11-08T06:35:53",
+	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Past_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Future_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "2033-11-07T06:51:30.195Z",
+	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Missing_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$REMOVE$",
+	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Space_As_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": " ",
+	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_invalid_individual_id_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "168461341611351",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Invalid_Case_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "@#$#$##",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Missing_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$REMOVE$",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Empty_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "",
+	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Missing_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtpEmptyOtpChannel
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": "$REMOVE$"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Empty_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: ""}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Invalid_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "emaeill"},{channel: "moebileee"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_SendBindingOtp_Vid_Space_Sep_OtpChannels_Neg:
+      endPoint: /v1/esignet/binding/binding-otp
+      role: mobileauth
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/SendBindingOtp/SendBindingOtp
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+  		"partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      	"requestTime": "$TIMESTAMP$",
+	    "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+	    "otpChannels": [{channel: "em ail"},{channel: "mobi le"}]
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_otp_channel",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'

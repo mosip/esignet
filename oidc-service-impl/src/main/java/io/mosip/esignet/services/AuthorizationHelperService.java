@@ -91,16 +91,20 @@ public class AuthorizationHelperService {
     @Value("${mosip.esignet.cache.store.individual-id}")
     private boolean storeIndividualId;
 
-    @Value("${mosip.esignet.send-otp.captcha-required:false}")
-    private boolean captchaRequired;
+    @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
+    private List<String> captchaRequired;
 
     @Value("#{${mosip.esignet.supported.credential.scopes}}")
     private List<String> credentialScopes;
 
     protected void validateSendOtpCaptchaToken(String captchaToken) {
-        if(!captchaRequired) {
+        if(!captchaRequired.contains("send-otp")) {
             log.warn("captcha validation is disabled for send-otp request!");
             return;
+        }
+        if(!StringUtils.hasText(captchaToken)) {
+        	log.error("Captcha token is Null or Empty");
+        	throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
         }
         validateCaptchaToken(captchaToken);
     }

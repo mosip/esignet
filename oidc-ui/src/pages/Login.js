@@ -216,6 +216,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       handleBackButtonClick && (
         <div className="h-6 items-center text-center flex items-start">
           <button
+            id="back-button"
             onClick={() => handleBackButtonClick()}
             className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
           >

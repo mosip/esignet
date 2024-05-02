@@ -70,7 +70,7 @@ export default function Login(){
         </div>
 
         <FormExtra/>
-        <FormAction handleSubmit={handleSubmit} text="Login"/>
+        <FormAction handleSubmit={handleSubmit} text="Login" id="login-button" />
 
       </form>
     )

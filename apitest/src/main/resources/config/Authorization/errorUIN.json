@@ -1,0 +1,17 @@
+{
+    "transactionID": "$IGNORE$",
+    "version": "$IGNORE$",
+    "id": "$IGNORE$",
+    "errors": [
+        {
+          "errorCode": "IDA-MLC-015",
+          "errorMessage": "$IGNORE$",
+          "actionMessage": "$IGNORE$"
+        }
+  ],
+    "responseTime": "$IGNORE$",
+    "response": {
+        "authStatus": false,
+        "authToken": "$IGNORE$"
+    }
+}
