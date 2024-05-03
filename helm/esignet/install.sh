@@ -13,7 +13,7 @@ echo Create $SOFTHSM_NS namespace
 kubectl create ns $SOFTHSM_NS
 
 NS=esignet
-CHART_VERSION=0.0.1-develop
+CHART_VERSION=1.0.1-develop
 
 ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
 
