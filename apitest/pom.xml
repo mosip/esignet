@@ -6,8 +6,8 @@
 	<artifactId>apitest-esignet</artifactId>
 	<packaging>jar</packaging>
 	<name>apitest-esignet</name>
-	<description>Parent project of MOSIP functional tests</description>
-	<url>https://github.com/mosip/mosip-functional-tests</url>
+	<description>Parent project of apitest-esignet</description>
+	<url>https://github.com/mosip/esignet</url>
 	<version>1.2.0.1-SNAPSHOT</version>
 
 	<licenses>
@@ -20,11 +20,18 @@
 	<scm>
 		<connection>scm:git:git://github.com/mosip/mosip-functional-tests.git</connection>
 		<developerConnection>scm:git:ssh://github.com:mosip/mosip-functional-tests.git</developerConnection>
-		<url>https://github.com/mosip/mosip-functional-tests</url>
+		<url>https://github.com/mosip/esignet</url>
 		<tag>HEAD</tag>
 	</scm>
 
-
+	<developers>
+		<developer>
+			<name>Mosip</name>
+			<email>mosip.emailnotifier@gmail.com</email>
+			<organization>io.mosip</organization>
+			<organizationUrl>https://github.com/mosip/esignet</organizationUrl>
+		</developer>
+	</developers>
 
 
 	<properties>
@@ -169,7 +176,7 @@
 		<rest.assured.version>3.0.7</rest.assured.version>
 		<testng.version>6.11</testng.version>
 		<zt.zip.version>1.13</zt.zip.version>
-		<fileName>apitests-esignet-1.2.0.1-SNAPSHOT-jar-with-dependencies</fileName>
+		<fileName>apitest-esignet-1.2.0.1-SNAPSHOT-jar-with-dependencies</fileName>
 		
 		</properties>
 	<build>
@@ -380,7 +387,7 @@
 
 		<dependency>
 			<groupId>io.mosip.testrig.apirig.automationtests.commons</groupId>
-			<artifactId>automationtests-commons</artifactId>
+			<artifactId>apitest-commons</artifactId>
 			<version>1.2.0.1-SNAPSHOT</version>
 		</dependency>
 		
