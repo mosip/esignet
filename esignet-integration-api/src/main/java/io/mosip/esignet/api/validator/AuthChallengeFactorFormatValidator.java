@@ -7,6 +7,7 @@ import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.util.ErrorConstants;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -60,6 +61,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
         if (!(length >= min && length <= max)) {
             return false;
         }
+
         if (authFactor.equals("KBA")) {
             return validateChallenge(authChallenge.getChallenge());
         }
@@ -71,19 +73,26 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
         String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
         Map<String, String> challengeMap;
         try {
-            challengeMap = objectMapper.readValue(decodedString, new TypeReference<Map<String, String>>() {
-            });
+            challengeMap = objectMapper.readValue(decodedString, new TypeReference<Map<String, String>>() {});
+            return fieldDetailList.stream().allMatch( fieldDetail -> isValid(fieldDetail, challengeMap) );
         } catch (JsonProcessingException e) {
             log.error("Failed to parse the input challenge", e);
             return false;
         }
-        for (Map<String, String> fieldDetail : fieldDetailList) {
-            String fieldId = fieldDetail.get("id");
-            if(fieldDetail.containsKey("regex") && challengeMap.containsKey(fieldId) &&
-                    StringUtils.hasText(challengeMap.get(fieldId))) {
-                Pattern pattern = Pattern.compile(fieldDetail.get("regex"));
-                return pattern.matcher(challengeMap.get(fieldId)).matches();
-            }
+    }
+
+    private boolean isValid(Map<String, String> fieldDetail, Map<String, String> challengeMap) {
+        if(fieldDetail.get("type").equals("text")) {
+            String value = challengeMap.get(fieldDetail.get("id"));
+            if(!StringUtils.hasText(value))
+                return false;
+
+            int maxLength = Integer.parseInt(fieldDetail.getOrDefault("maxLength", "50"));
+            if(value.length() > maxLength)
+                return false;
+
+            Pattern pattern = Pattern.compile(fieldDetail.get("regex"));
+            return pattern.matcher(value).matches();
         }
         return true;
     }
