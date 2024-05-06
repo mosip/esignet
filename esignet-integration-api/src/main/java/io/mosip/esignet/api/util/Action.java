@@ -29,6 +29,7 @@ public enum Action {
     DELETE_USER_CONSENT("consent-service"),
     SEND_BINDING_OTP("key-binding"),
     KEY_BINDING("key-binding"),
+    USER_FREEZE("user-freeze"),
     VC_ISSUANCE("vci-service");
 
     String module;

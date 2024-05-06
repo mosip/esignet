@@ -26,6 +26,7 @@ import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.LinkCodeQueue;
+import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private CacheUtilService cacheUtilService;
+    
+    @Autowired
+    private RateLimitUtilService rateLimitUtil;
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -139,6 +143,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException {
+    	rateLimitUtil.rateLimitCheck(otpRequest.getTransactionId(), otpRequest.getIndividualId(), Optional.empty());
         authorizationHelperService.validateSendOtpCaptchaToken(otpRequest.getCaptchaToken());
 
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(otpRequest.getTransactionId());
@@ -222,6 +227,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction) {
+    	rateLimitUtil.rateLimitCheck(authRequest.getTransactionId(), authRequest.getIndividualId(), Optional.of(authRequest.getChallengeList()));
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -292,6 +298,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
+        oidcTransaction.setNumOfFailedAttempts(0);
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 

@@ -20,6 +20,13 @@ public class AuditHelper {
         auditDTO.setIdType("ClientId");
         return auditDTO;
     }
+    
+    public static AuditDTO buildAuditDtoWithIndividualId(String individualId) {
+        AuditDTO auditDTO = new AuditDTO();
+        auditDTO.setIndividualId(individualId);
+        auditDTO.setIdType("individualId");
+        return auditDTO;
+    }
 
     public static AuditDTO buildAuditDto(String transactionId, OIDCTransaction transaction) {
         return buildAuditDto(transactionId, "transaction", transaction);

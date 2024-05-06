@@ -10,9 +10,15 @@ import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -30,6 +36,21 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    @CachePut(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
+    public OIDCTransaction updateAuthTransaction(String transactionId, String lastAccessedMethod,LocalDateTime lastAccesssedTime,  OIDCTransaction oidcTransaction) {
+    	oidcTransaction.setLastAccessedMethod(lastAccessedMethod);
+    	oidcTransaction.setLastAccessedTime(lastAccesssedTime);
+        return oidcTransaction;
+    }
+    
+    @CachePut(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
+    public OIDCTransaction updateFailedAuthTransaction(String transactionId, String lastAccessedMethod,LocalDateTime lastAccesssedTime, OIDCTransaction oidcTransaction) {
+    	oidcTransaction.setNumOfFailedAttempts(oidcTransaction.getNumOfFailedAttempts()+1);
+    	oidcTransaction.setLastAccessedMethod(lastAccessedMethod);
+    	oidcTransaction.setLastAccessedTime(lastAccesssedTime);
+        return oidcTransaction;
+    }
+    
     @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     @Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
     public OIDCTransaction setAuthenticatedTransaction(String transactionId,
@@ -104,6 +125,7 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    
     //------------------------------------------------------------------------------------------------------------------
 
     public OIDCTransaction getPreAuthTransaction(String transactionId) {
@@ -141,4 +163,15 @@ public class CacheUtilService {
     public OIDCTransaction getLinkedAuthTransaction(String linkTransactionId) {
         return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
+    
+    //----------------------------------------------------------------------------------------------------------------------
+    @Cacheable(value = Constants.FREEZE_USER_CACHE, key = "#userId")
+    public LocalDateTime setUserFreeze(String userId, Duration expiry) {
+    	return LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(expiry.toSeconds());
+    }
+    
+    public LocalDateTime getUserFreeze(String userId) {
+    	return cacheManager.getCache(Constants.FREEZE_USER_CACHE).get(userId, LocalDateTime.class);
+    }
+    
 }

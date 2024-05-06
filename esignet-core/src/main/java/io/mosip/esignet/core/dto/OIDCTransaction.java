@@ -12,6 +12,7 @@ import lombok.Data;
 
 import java.util.List;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -53,6 +54,10 @@ public class OIDCTransaction implements Serializable {
 
     String oauthDetailsHash;
     ConsentAction consentAction;
+    
+	LocalDateTime lastAccessedTime;
+	String lastAccessedMethod;
+	long numOfFailedAttempts;
 
     //PKCE support
     ProofKeyCodeExchange proofKeyCodeExchange;

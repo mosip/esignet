@@ -276,11 +276,8 @@ public class AuthorizationAPIFlowTest {
 
         ResponseWrapper<OtpResponse> otpResponseResponseWrapper = sendOtp(oAuthDetailResponse.getTransactionId(),
                 "8267411571");
-        Assert.assertNotNull(otpResponseResponseWrapper);
-        Assert.assertNotNull(otpResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(otpResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), otpResponseResponseWrapper.getResponse().getTransactionId());
-    }
+        assertErrorCode(otpResponseResponseWrapper,  ErrorConstants.TOO_MANY_REQUESTS);
+      }
 
     private void assertErrorCode(ResponseWrapper responseWrapper, String expectedErrorCode) {
         Assert.assertNotNull(responseWrapper);

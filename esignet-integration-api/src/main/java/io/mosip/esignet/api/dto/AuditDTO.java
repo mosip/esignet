@@ -16,6 +16,7 @@ public class AuditDTO {
 
     String transactionId;
     String clientId;
+    String individualId;
     String relyingPartyId;
     String redirectUri;
     Claims requestedClaims;
