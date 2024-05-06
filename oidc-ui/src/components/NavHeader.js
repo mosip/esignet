@@ -119,9 +119,9 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   
   return (
     <nav className="bg-white border-gray-500 md:px-[4rem] py-2 px-[0.5rem] navbar-header" id="navbar-header">
-      <div className="flex justify-between">
+      <div className="flex h-full items-center justify-between">
         <div className="ltr:sm:ml-8 rtl:sm:mr-8 ltr:ml-1 rtl:mr-1">
-          <img className="brand-logo" alt="brand_logo"/>
+          <img className="brand-logo" alt="brand_logo" />
         </div>
         <div className="flex rtl:sm:ml-8 ltr:sm:mr-8 rtl:ml-1 ltr:mr-1">
           <div className="mx-2 rtl:scale-x-[-1]">

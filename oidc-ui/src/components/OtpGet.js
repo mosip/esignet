@@ -8,6 +8,7 @@ import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
+import redirectOnError from "../helpers/redirectOnError";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -50,7 +51,7 @@ export default function OtpGet({
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("otp") !== -1
+    captchaEnableComponentsList.indexOf("send-otp") !== -1
   );
 
   const captchaSiteKey =
@@ -88,6 +89,15 @@ export default function OtpGet({
   const handleChange = (e) => {
     setLoginState({ ...loginState, [e.target.id]: e.target.value });
   };
+  
+  /**
+   * Reset the captcha widget
+   * & its token value
+   */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  }
 
   const sendOTP = async () => {
     try {
@@ -118,11 +128,17 @@ export default function OtpGet({
             show: true
           });
         }
+        else if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        }
         else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
             show: true
           });
+        }
+        if (showCaptcha) {
+          resetCaptcha();
         }
         return;
       } else {
@@ -135,6 +151,9 @@ export default function OtpGet({
         show: true
       });
       setStatus({ state: states.ERROR, msg: "" });
+      if (showCaptcha) {
+        resetCaptcha();
+      }
     }
   };
 
@@ -156,7 +175,7 @@ export default function OtpGet({
         />
       )}
 
-      <div className="mt-12">
+      <div className="mt-6">
         {fields.map((field) => (
           <InputWithImage
             key={"Otp_" + field.id}
@@ -177,6 +196,7 @@ export default function OtpGet({
             errorCode={field.errorCode}
             maxLength={field.maxLength}
             regex={field.regex}
+            icon={field.infoIcon}
           />
         ))}
 

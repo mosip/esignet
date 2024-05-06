@@ -1,0 +1,72 @@
+AuthorizationCodeConsent:
+   ESignet_AuthorizationCode_Consent_uin_Claim2_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_Claim2_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_Claim2_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+      	"redirectUri": "$IGNORE$"
+}'
+
+   ESignet_AuthorizationCode_Consent_Vid_Claim2_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_Vid_Claim2_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_Vid_Claim2_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+      	"redirectUri": "$IGNORE$"
+}'
+
+   ESignet_AuthorizationCode_Consent_uin_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+      	"redirectUri": "$IGNORE$"
+}'
+
+   ESignet_AuthorizationCode_Consent_Vid_All_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_Vid_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_Vid_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
+}'
+      output: '{
+      	"redirectUri": "$IGNORE$"
+}'

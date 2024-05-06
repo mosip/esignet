@@ -1,0 +1,20 @@
+DeactivatePolicy:
+   Esignet_DeactivatePolicy_After_Publish_Neg:
+      endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}
+      role: partner
+      restMethod: patch
+      inputTemplate: esignet/PmsIntegration/DeactivatePolicy/DeactivatePolicy
+      outputTemplate: esignet/error
+      input: '{
+		  "policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
+		  "policyId": "$ID:DefinePolicy_NonAuth_All_Valid_Smoke_sid_id$",
+		  "requesttime": "$TIMESTAMP$",
+		  "status": "De-active"
+}'
+      output: ' {
+    "errors": [
+        {
+            "errorCode": "PMS_POL_058"
+        }
+    ]
+}'

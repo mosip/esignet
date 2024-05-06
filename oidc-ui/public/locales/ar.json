@@ -53,8 +53,8 @@
     "scan_and_verify": "المسح والتحقق",
     "sign_in_with_biometric": "تسجيل الدخول باستخدام البيومترية",
     "retry": "أعد المحاولة",
-    "vid_label_text": "أدخل VID الخاص بك",
-    "vid_placeholder": "VID",
+    "vid_label_text": "رقم التعريف الفريد/المعرف",
+    "vid_placeholder": "أدخل رقم UIN أو VID الخاص بك",
     "Face": "وجه",
     "Finger": "اصبع اليد",
     "Iris": "قزحية",
@@ -64,18 +64,18 @@
     "sign_in_with_pin": "تسجيل الدخول باستخدام PIN",
     "remember_me": "تذكرنى",
     "login": "تسجيل الدخول",
-    "uin_label_text": "UIN",
+    "uin_label_text": "رقم التعريف الفريد/المعرف",
     "pin_label_text": "PIN",
-    "uin_placeholder": "UIN أو VID",
+    "uin_placeholder": "أدخل رقم UIN أو VID الخاص بك",
     "pin_placeholder": "أدخل رقم التعريف الشخصي"
   },
   "password": {
     "sign_in_with_password": "تسجيل الدخول باستخدام كلمة المرور",
     "remember_me": "تذكرنى",
     "login": "تسجيل الدخول",
-    "uin_label_text": "اسم المستخدم",
+    "uin_label_text": "رقم التعريف الفريد/المعرف",
     "password_label_text": "كلمة المرور",
-    "uin_placeholder": "أدخل رقم الجوال المكون من 8-9 أرقام",
+    "uin_placeholder": "أدخل رقم UIN أو VID الخاص بك",
     "password_placeholder": "أدخل كلمة المرور",
     "forgot_password": "هل نسيت كلمة السر؟",
     "reset_password": "إعادة تعيين كلمة المرور"
@@ -84,12 +84,11 @@
     "sign_in_with_details": "تسجيل الدخول بالتفاصيل",
     "login": "تسجيل الدخول",
     "policyNumber": "ادخل رقم الوثيقة",
-    "name": "ادخل الاسم",
+    "fullName": "ادخل الاسم",
     "dob": "ادخل تاريخ الميلاد",
     "policyNumber_placeholder": "رقم الوثيقة",
-    "name_placeholder": "الاسم",
-    "dob_placeholder": "تاريخ الميلاد",
-    "auth_failed": "فشل تسجيل الدخول، يرجى ادخال بيانات الاعتماد الصحيحة"
+    "fullName_placeholder": "الاسم",
+    "dob_placeholder": "تاريخ الميلاد"
   },
   "LoginQRCode": {
     "scan_with_wallet": "قم بالمسح باستخدام {{walletName}} لتسجيل الدخول",
@@ -106,9 +105,9 @@
     "not_a_robot": "أنا لست روبوتًا",
     "get_otp": "احصل على OTP",
     "verify": "يؤكد",
-    "vid_label_text": "أدخل VID الخاص بك",
+    "vid_label_text": "رقم التعريف الفريد/المعرف",
     "otp_label_text": "OTP",
-    "vid_placeholder": "VID",
+    "vid_placeholder": "أدخل رقم UIN أو VID الخاص بك",
     "otp_placeholder": "1234",
     "mobile_number": "رقم الهاتف المحمول",
     "email_address": "عنوان البريد الالكترونى",
@@ -127,6 +126,7 @@
     "QRCode": "رمز الاستجابة السريعة",
     "OTP": "OTP",
     "PWD": "كلمة المرور",
+    "walletName": "إنجي",
     "preferred_mode_of_login": "حدد الوضع المفضل لتسجيل الدخول",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "or": "أو",
@@ -153,10 +153,10 @@
     "signup_for_unified_login": "قم بالتسجيل باستخدام تسجيل الدخول الموحد",
     "subheader_text": {
       "all_login_options": "الرجاء اختيار خيار تسجيل الدخول",
-      "otp_login": "الرجاء إدخال VID الخاص بك",
-      "biometrics_login": "يرجى إدخال VID الخاص بك والتحقق باستخدام الجهاز البيومتري",
+      "otp_login": "الرجاء إدخال UIN/VID الخاص بك",
+      "biometrics_login": "يرجى إدخال UIN/VID الخاص بك والتحقق باستخدام جهاز القياس الحيوي",
       "pin_login": "الرجاء إدخال UIN/VID وPIN",
-      "password_login": "الرجاء إدخال اسم المستخدم وكلمة المرور المسجلين لديك",
+      "password_login": "الرجاء إدخال UIN/VID وكلمة المرور",
       "kba_login": "يرجى ملء التفاصيل أدناه",
       "wallet_login": "يرجى مسح رمز الاستجابة السريعة أدناه لتسجيل الدخول"
     }
@@ -180,7 +180,10 @@
   },
   "tooltips": {
     "vid_info": "يرجى ملء هذا الحقل",
-    "username_info": "أدخل رقم هاتفك المحمول المسجل والمكون من 8 إلى 9 أرقام وتأكد من أنه لا يبدأ بـ \"0\""
+    "otp_info": "أدخل UIN/VID الذي تم إنشاؤه",
+    "bio_info": "أدخل UIN/VID الذي تم إنشاؤه",
+    "pin_info": "أدخل UIN/VID الذي تم إنشاؤه",
+    "username_info": "أدخل UIN/VID الذي تم إنشاؤه"
   },
   "errors": {
     "navigate_option": "يرجى محاولة التنقل باستخدام الخيارات أدناه.",
@@ -292,6 +295,8 @@
     "captcha_validator_not_found": "فشل في العثور على مثيل Captcha Valitator ، يرجى التحقق من ClassPath.",
     "invalid_captcha": "وجدت captcha غير صالحة.",
     "invalid_auth_factor_type_or_challenge_format": "نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
+    "invalid_auth_factor_type_format" :"نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
+    "invalid_challenge_length" : "اعتراض غير صالح ، تم انتهاك قيد الحد الأدنى أو الحد الأقصى للطول.",
     "unsupported_pkce_challenge_method": "طريقة تبادل التحدي الرئيسية إثبات غير مدعوم.",
     "invalid_pkce_challenge": "تحدي مفتاح إثبات غير صالح.",
     "invalid_pkce_code_verifier": "دليل مفتاح إثبات غير صالح.",
@@ -400,6 +405,7 @@
       "IDA-OTA-009": "لم يتم تكوين قناة الإعلام",
       "IDA-OTA-010": "نوع معرف الإدخال لا يتطابق مع نوع الهوية لطلب OTP",
       "IDA-OTA-011": "إدخال معرّف الشريك لا يتطابق مع معرّف الشريك لطلب OTP",
+      "IDA-OTA-012": "لا يمكن إجراء التحقق من صحة كلمة المرور لمرة واحدة (OTP) مقابل معرف الفرد هذا. قم بإنشاء OTP أولاً",
       "send_otp_failed": "فشل send-otp. معرف فردي غير صالح / غير معروف.",
       "send_otp_failed_msg": "فشل إرسال OTP",
       "invalid_otp_channel": "تم توفير قناة OTP غير صالحة.",
@@ -444,6 +450,9 @@
       "auth_failed": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة اخرى.",
       "password_error_msg": "رمز مرور خاطئ",
       "IDA-MLC-018": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة اخرى."
+    },
+    "kba": {
+      "auth_failed": "فشل تسجيل الدخول، يرجى ادخال بيانات الاعتماد الصحيحة"
     },
     "statusCodeHeader": {
       "400": "طلب غير صالح",

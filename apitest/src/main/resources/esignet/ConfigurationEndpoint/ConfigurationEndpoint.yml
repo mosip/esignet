@@ -1,0 +1,10 @@
+ConfigurationEndpoint:
+   ESignet_ConfigurationEndpoint_StatusCode_all_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/.well-known/openid-configuration
+      role: resident
+      restMethod: get
+      inputTemplate: esignet/ConfigurationEndpoint/ConfigurationEndpoint
+      outputTemplate: esignet/ConfigurationEndpoint/ConfigurationEndpointResult
+      input: '{
+}'
+      output: "200"

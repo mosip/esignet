@@ -1,4 +1,7 @@
 {
+    "otp_info_icon": true,
+    "biometrics_info_icon": true,
+    "pin_info_icon": true,
     "username_info_icon": true,
     "background_logo": false,
     "footer": true,

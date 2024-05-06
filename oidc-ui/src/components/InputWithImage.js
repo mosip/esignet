@@ -49,52 +49,64 @@ export default function InputWithImage({
 
   const handleKeyDown = (e) => {
 
-    var keyCode = e.keyCode || e.which;
+    var keyCode = e.key || e.which;
 
+    // multiKeyChecking function checks if the key is
+    // ctrl + a, ctrl + c, ctrl + v
+    // while pasting it will also check maxlength
+    const multiKeyChecking = (key, ctrl, maxLength) => {
+      if (
+        ctrl &&
+        (key === "a" || key === "c"
+          || (key === "v" && checkMaxLength(maxLength)))
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    // checking max length for the input
     const checkMaxLength = (maxLength) =>
       maxLength === "" ? true : e.target.value.length < parseInt(maxLength);
 
+    // testing with all input type
+    // with respective regex
+    const patternTest = (type, key) => {
+      if (type === "number") {
+        // Check if the pressed key is a number
+        return /^\d$/.test(key);
+      }
+      if (type === "letter") {
+        // Check if the pressed key is a letter (a-zA-Z)
+        // Lower & upper case letters a-z
+        // Prevent input of other characters
+        return /^[a-zA-Z]$/.test(key);
+      }
+      if (type === "alpha-numeric") {
+        // Check if the pressed key is a number (0-9) or a letter (a-zA-Z)
+        // Numpad numbers 0-9
+        // Prevent input of other characters
+        return /^[a-zA-Z\d]$/.test(key);
+      }
+
+      return true
+    }
+
+
     // Allow some special keys like Backspace, Tab, Home, End, Left Arrow, Right Arrow, Delete.
-    const allowedKeyCodes = [8, 9, 35, 36, 37, 39, 46];
+    const allowedKeyCodes =
+      ['Backspace', 'Tab', 'Control', 'End', 'Home', 'ArrowLeft', 'ArrowRight', 'Delete'];
 
-    if (!allowedKeyCodes.includes(keyCode)) {
-
+    if (!allowedKeyCodes.includes(keyCode) && !multiKeyChecking(keyCode, e.ctrlKey, maxLength)) {
       // checking max length for the input
-      // if greater than the maxlength then prevent the default action
+      // if greater than the max length then prevent the default action
       if (!checkMaxLength(maxLength)) {
         e.preventDefault();
       }
 
-      if (type === "number") {
-
-        // Check if the pressed key is a number
-        if (keyCode < 48 || keyCode > 57) {
-          // Prevent the default action (typing the letter or specified character)
-          e.preventDefault();
-        }
-      }
-
-      else if (type === "letter") {
-
-        // Check if the pressed key is a letter (a-zA-Z)
-        if (!((keyCode >= 65 && keyCode <= 90) ||     // Uppercase letters A-Z
-          (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z
-
-          // Prevent input of other characters
-          e.preventDefault();
-        }
-      }
-
-      else if (type === "alpha-numeric") {
-
-        // Check if the pressed key is a number (0-9) or a letter (a-zA-Z)
-        if (!((keyCode >= 48 && keyCode <= 57) ||     // Numbers 0-9
-          (keyCode >= 65 && keyCode <= 90) ||           // Uppercase letters A-Z
-          (keyCode >= 97 && keyCode <= 122))) {         // Lowercase letters a-z  
-
-          // Prevent input of other characters
-          e.preventDefault();
-        }
+      // checking patter for number, letter & alpha-numeric
+      if (!patternTest(type, keyCode)) {
+        e.preventDefault();
       }
     }
   }
@@ -141,7 +153,7 @@ export default function InputWithImage({
             {labelText}
           </label>
           {icon && (
-            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px]" />} content={t1("username_info")} position="right" contentSize="text-xs" />
+            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px] relative bottom-[1px]" />} content={id.includes("Otp") ? t1("otp_info") : id.includes("sbi") ? t1("bio_info") : id.includes("Pin") ? t1("pin_info") : t1("username_info")} position="right" contentSize="text-xs" />
           )}
         </div>
         {formError && (
