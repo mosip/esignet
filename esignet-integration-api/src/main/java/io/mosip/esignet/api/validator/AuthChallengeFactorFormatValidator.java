@@ -39,6 +39,9 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     @Value("#{${mosip.esignet.authenticator.default.auth-factor.kba.field-details}}")
     private List<Map<String, String>> fieldDetailList;
 
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kba.individual-id-field}")
+    private String idField;
+
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
     	String authFactor = authChallenge.getAuthFactorType();
@@ -82,7 +85,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     }
 
     private boolean isValid(Map<String, String> fieldDetail, Map<String, String> challengeMap) {
-        if(fieldDetail.get("type").equals("text")) {
+        if(fieldDetail.get("type").equals("text") && !fieldDetail.get("id").equals(idField)) {
             String value = challengeMap.get(fieldDetail.get("id"));
             if(!StringUtils.hasText(value))
                 return false;
