@@ -2,12 +2,15 @@ package io.mosip.esignet.advice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,12 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     @Value("#{${mosip.esignet.header-filter.paths-to-validate}}")
     private List<String> pathsToValidate;
 
+    @Value("${mosip.esignet.send-otp.attempts:3}")
+    private int sendOtpAttempts;
+
+    @Value("${mosip.esignet.authenticate.attempts:3}")
+    private int authenticateAttempts;
+
     @Autowired
     private CacheUtilService cacheUtilService;
 
@@ -47,6 +56,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
 
     @Autowired
     private MessageSource messageSource;
+
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
@@ -59,7 +69,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
         final String path = request.getRequestURI();
 
         try {
-            log.info("Started to validate {} for oauth-details headers", path);
+            log.debug("Started to validate {} for oauth-details headers", path);
             final String transactionId = request.getHeader(HEADER_OAUTH_DETAILS_KEY);
             final String hashValue = request.getHeader(HEADER_OAUTH_DETAILS_HASH);
             OIDCTransaction transaction = path.endsWith("auth-code") ? cacheUtilService.getAuthenticatedTransaction(transactionId) :
@@ -67,7 +77,13 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             if(transaction == null) {
                 throw new InvalidTransactionException();
             }
+
+            //For the first attempt individualId will be null, hence blocked check is not required
+            if(transaction.getIndividualIdHash() != null && cacheUtilService.isIndividualIdBlocked(transaction.getIndividualIdHash()))
+                throw new EsignetException(ErrorConstants.INDIVIDUAL_ID_BLOCKED);
+
             if(transaction.getOauthDetailsHash().equals(hashValue)) {
+                validateApiRateLimits(path, transactionId, transaction.getIndividualIdHash());
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -100,5 +116,39 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             log.error("Message not found in the i18n bundle", ex);
         }
         return errorCode;
+    }
+
+    private void validateApiRateLimits(String path, String transactionId, String individualIdHash) {
+        int apiCode = path.endsWith("send-otp") ? 1 : path.endsWith("authenticate")? 2 : 3;
+
+        switch (apiCode) {
+            case 1:
+                ApiRateLimit sendOtpLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
+                checkCountLimit(1, sendOtpLimit, sendOtpAttempts, individualIdHash);
+                cacheUtilService.saveApiRateLimit(transactionId, sendOtpLimit);
+                break;
+            case 2:
+                ApiRateLimit authenticateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
+                checkCountLimit(2, authenticateLimit, authenticateAttempts, individualIdHash);
+                cacheUtilService.saveApiRateLimit(transactionId, authenticateLimit);
+                break;
+        }
+    }
+
+    private void checkCountLimit(int apiCode, ApiRateLimit apiRateLimit, int attemptsLimit, String individualId) {
+        if(apiRateLimit == null) {
+            apiRateLimit = new ApiRateLimit();
+        }
+        apiRateLimit.increment(apiCode);
+        if(apiRateLimit.getCount().get(apiCode) > attemptsLimit) {
+            blockIndividualId(individualId);
+            throw new EsignetException(ErrorConstants.NO_ATTEMPTS_LEFT);
+        }
+    }
+
+    private void blockIndividualId(String individualIdHash) {
+        if(individualIdHash != null) {
+            cacheUtilService.blockIndividualId(individualIdHash);
+        }
     }
 }
