@@ -379,7 +379,7 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>io.mosip.testrig.apirig.automationtests.commons</groupId>
+			<groupId>io.mosip.testrig.apirig.apitest.commons</groupId>
 			<artifactId>apitest-commons</artifactId>
 			<version>1.2.0.1-SNAPSHOT</version>
 		</dependency>
