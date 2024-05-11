@@ -58,7 +58,7 @@ public class AuthorizationController {
         return responseWrapper;
     }
     
-    @GetMapping("/token")
+    @GetMapping("/setup-id-token-hint")
     public ResponseWrapper<IdTokenHintResponse> getIdTokenHint(@RequestHeader Map<String, String> headers, HttpServletResponse response) {
     	ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
