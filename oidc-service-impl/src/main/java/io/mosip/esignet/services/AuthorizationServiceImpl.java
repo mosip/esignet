@@ -27,14 +27,21 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.UUID;
 
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
@@ -44,6 +51,9 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 @Slf4j
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
+	
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -53,6 +63,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private CacheUtilService cacheUtilService;
+    
+    @Autowired
+    private TokenServiceImpl tokenServiceImpl;
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -77,6 +90,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Value("${mosip.esignet.auth-txn-id-length:10}")
     private int authTransactionIdLength;
+    
+    @Value("${mosip.esignet.cookie.maxage:180}")
+    private int cookieMaxAge;
+    
 
     //Number of times generate-link-code could be invoked per transaction
     @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
@@ -396,4 +413,32 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         return new String(authTransactionIdBytes);
     }
+
+	@Override
+	public IdTokenHintResponse getIdTokenHint(Map<String, String> requestHeaders, HttpServletResponse response) {
+		String transactionId = requestHeaders.get("oauth-details-key");
+		OIDCTransaction oidcTransaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
+		if(oidcTransaction == null) {
+            throw new InvalidTransactionException();
+        }
+		String uuid = UUID.fromString(transactionId).toString();
+		String secret = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, uuid);
+		oidcTransaction.setSecretCode(secret);
+		cacheUtilService.updateAuthenticatedTransaction(transactionId, oidcTransaction);
+		setCookie(response,uuid,secret);
+		IdTokenHintResponse idTokenHintResponse = new IdTokenHintResponse();
+		idTokenHintResponse.setTransactionId(transactionId);
+		idTokenHintResponse.setIdTokenHint(tokenServiceImpl.getIDToken(oidcTransaction,uuid));
+		return idTokenHintResponse;
+	}
+	
+	
+	public void setCookie(HttpServletResponse response,String key, String value) {
+		Cookie cookie = new Cookie(key,value);
+		cookie.setMaxAge(cookieMaxAge);
+		cookie.setHttpOnly(true);
+		cookie.setDomain(environment.getProperty("mosip.esignet.host"));
+		cookie.setPath(environment.getProperty("server.servlet.path"));
+		response.addCookie(cookie);
+	}
 }
