@@ -15,8 +15,12 @@ import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Slf4j
@@ -49,6 +53,19 @@ public class AuthorizationController {
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+    
+    @GetMapping("/token")
+    public ResponseWrapper<IdTokenHintResponse> getIdTokenHint(@RequestHeader Map<String, String> headers, HttpServletResponse response) {
+    	ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(authorizationService.getIdTokenHint(headers, response));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(headers.getOrDefault("oauth-details-key","")), ex);
             throw ex;
         }
         return responseWrapper;
