@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -58,13 +57,6 @@ public class CacheUtilService {
     public void removeAuthCodeGeneratedTransaction(String codeHash) {
         log.debug("Evicting entry from authCodeGeneratedCache");
     }
-    
-    @CachePut(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
-    public OIDCTransaction updateAuthenticatedTransaction(String transactionId,
-                                                       OIDCTransaction oidcTransaction) {
-        return oidcTransaction;
-    }
-
 
     //---------------------------------------------- Linked authorization ----------------------------------------------
 

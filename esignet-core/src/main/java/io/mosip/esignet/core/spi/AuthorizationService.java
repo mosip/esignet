@@ -5,10 +5,6 @@
  */
 package io.mosip.esignet.core.spi;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 
@@ -72,8 +68,4 @@ public interface AuthorizationService {
      * @param authCodeRequest
      */
     AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException;
-    
-    
-    
-    IdTokenHintResponse getIdTokenHint(Map<String, String> requestHeaders, HttpServletResponse response);
 }
