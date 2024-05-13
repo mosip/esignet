@@ -15,10 +15,38 @@ kubectl create ns $SOFTHSM_NS
 NS=esignet
 CHART_VERSION=0.0.1-develop
 
-ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
+echo "Choose the deployment type:"
+echo "1. Mosip"
+echo "2. Mock-id system"
 
-echo Create $NS namespace
-kubectl create ns $NS
+read -p "Enter your choice: " deployment_choice
+
+case $deployment_choice in
+  1)
+    DEPLOYMENT_TYPE="mosip"
+    ;;
+  2)
+    DEPLOYMENT_TYPE="mock-id"
+    ;;
+  *)
+    echo "Invalid choice. Exiting."
+    exit 1
+    ;;
+esac
+
+if [ "$DEPLOYMENT_TYPE" = "mosip" ]; then
+  ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
+elif [ "$DEPLOYMENT_TYPE" = "mock-id" ]; then
+  # Set ESIGNET_HOST for mock-id system
+  ESIGNET_HOST="mock-id.example.com"  # Set your mock-id host here
+  # Update config server with the ESIGNET_HOST for mock-id system
+  kubectl -n config-server set env --keys=mosip-esignet-host --from-literal=mosip-esignet-host=$ESIGNET_HOST deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+else
+  echo "Invalid deployment type. Exiting."
+  exit 1
+fi
+
+echo "ESIGNET_HOST set to: $ESIGNET_HOST"
 
 function installing_esignet() {
 
@@ -31,43 +59,34 @@ function installing_esignet() {
   helm -n $SOFTHSM_NS install softhsm-esignet mosip/softhsm -f softhsm-values.yaml --version $SOFTHSM_CHART_VERSION --wait
   echo Installed Softhsm for esignet
 
-  echo Copy configmaps
-  ./copy_cm_func.sh configmap global default config-server
+  # Conditional check to include Mosip modules dependencies
+  if [ "$DEPLOYMENT_TYPE" = "mosip" ]; then
+    echo Copy configmaps
+    ./copy_cm_func.sh configmap global default config-server
 
-  echo Copy secrets
-  ./copy_cm_func.sh secret softhsm-esignet softhsm config-server
+    echo Copy secrets
+    ./copy_cm_func.sh secret softhsm-esignet softhsm config-server
 
-  kubectl -n config-server set env --keys=mosip-esignet-host --from configmap/global deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
-  kubectl -n config-server set env --keys=security-pin --from secret/softhsm-esignet deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SOFTHSM_ESIGNET_
-  kubectl -n config-server rollout restart deploy config-server
-  kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
+    ./keycloak-init.sh
 
-  ./keycloak-init.sh
+    echo Setting up captcha secrets
+    kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
 
-  echo Please enter the recaptcha admin site key for domain $ESIGNET_HOST
-  read ESITE_KEY
-  echo Please enter the recaptcha admin secret key for domain $ESIGNET_HOST
-  read ESECRET_KEY
+    echo Setting up dummy values for esignet misp license key
+    kubectl create secret generic esignet-misp-onboarder-key -n $NS --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
 
-  echo Setting up captcha secrets
-  kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
+    ./copy_cm_func.sh secret esignet-misp-onboarder-key esignet config-server
 
-  echo Setting up dummy values for esignet misp license key
-  kubectl create secret generic esignet-misp-onboarder-key -n $NS --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
+    echo Copy configmaps
+    ./copy_cm.sh
 
-  ./copy_cm_func.sh secret esignet-misp-onboarder-key esignet config-server
+    echo copy secrets
+    ./copy_secrets.sh
 
-  echo Copy configmaps
-  ./copy_cm.sh
-
-  echo copy secrets
-  ./copy_secrets.sh
-
-  kubectl -n config-server set env --keys=esignet-captcha-site-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
-  kubectl -n config-server set env --keys=esignet-captcha-secret-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
-  kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/esignet-misp-onboarder-key deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
-
-  kubectl -n config-server get deploy -o name |  xargs -n1 -t  kubectl -n config-server rollout status
+    kubectl -n config-server set env --keys=esignet-captcha-site-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+    kubectl -n config-server set env --keys=esignet-captcha-secret-key --from secret/esignet-captcha deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+    kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/esignet-misp-onboarder-key deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+  fi
 
   echo "Do you have public domain & valid SSL? (Y/n) "
   echo "Y: if you have public domain & valid ssl certificate"
@@ -98,4 +117,11 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-installing_esignet   # calling function
+
+# Determine if Mosip modules are being used
+if [ "$DEPLOYMENT_TYPE" = "mosip" ]; then
+  installing_esignet
+else
+  echo "Installing without Mosip modules"
+  # Add steps for installing without Mosip modules here
+fi
