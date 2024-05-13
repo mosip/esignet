@@ -739,7 +739,10 @@ public class AuthorizationServiceTest {
     @Test
     public void authenticate_multipleRegisteredAcrsWithSingleFactor_thenPass() throws EsignetException, KycAuthException {
         String transactionId = "test-transaction";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
@@ -755,7 +758,7 @@ public class AuthorizationServiceTest {
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
-        authRequest.setIndividualId("23423434234");
+        authRequest.setIndividualId(individualId);
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
         authRequest.setChallengeList(authChallenges);
@@ -768,7 +771,10 @@ public class AuthorizationServiceTest {
     @Test
     public void authenticate_multipleRegisteredAcrsWithInvalidSingleFactor_thenFail() throws EsignetException {
         String transactionId = "test-transaction";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
@@ -779,7 +785,7 @@ public class AuthorizationServiceTest {
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
-        authRequest.setIndividualId("23423434234");
+        authRequest.setIndividualId(individualId);
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("BIO"));
         authRequest.setChallengeList(authChallenges);
@@ -795,7 +801,10 @@ public class AuthorizationServiceTest {
     @Test
     public void authenticate_multipleRegisteredAcrsWithMultiFactor_thenPass() throws EsignetException, KycAuthException {
         String transactionId = "test-transaction";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
@@ -811,7 +820,7 @@ public class AuthorizationServiceTest {
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
-        authRequest.setIndividualId("23423434234");
+        authRequest.setIndividualId(individualId);
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
         authChallenges.add(getAuthChallengeDto("BIO"));
@@ -825,7 +834,10 @@ public class AuthorizationServiceTest {
     @Test
     public void authenticate_multipleRegisteredAcrsWithInvalidMultiFactor_thenPass() throws EsignetException {
         String transactionId = "test-transaction";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:linked-wallet"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:linked-wallet"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
@@ -836,7 +848,7 @@ public class AuthorizationServiceTest {
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
-        authRequest.setIndividualId("23423434234");
+        authRequest.setIndividualId(individualId);
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
         authChallenges.add(getAuthChallengeDto("PIN"));
@@ -868,7 +880,10 @@ public class AuthorizationServiceTest {
     @Test
     public void authenticateV2_multipleRegisteredAcrsWithSingleFactor_thenPass() throws EsignetException, KycAuthException {
         String transactionId = "test-transaction";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
@@ -884,7 +899,7 @@ public class AuthorizationServiceTest {
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
-        authRequest.setIndividualId("23423434234");
+        authRequest.setIndividualId(individualId);
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
         authRequest.setChallengeList(authChallenges);
@@ -897,18 +912,21 @@ public class AuthorizationServiceTest {
     @Test
     public void authenticateV2_multipleRegisteredAcrsWithInvalidSingleFactor_thenFail() throws EsignetException {
         String transactionId = "test-transaction";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:generated-code", "mosip:idp:acr:static-code"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
         allAuthFactors.add(getAuthFactors("mosip:idp:acr:generated-code"));
         allAuthFactors.add(getAuthFactors("mosip:idp:acr:static-code"));
-        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
-                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);
+        /*when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
+                "mosip:idp:acr:static-code"})).thenReturn(allAuthFactors);*/
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
-        authRequest.setIndividualId("23423434234");
+        authRequest.setIndividualId(individualId);
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("BIO"));
         authRequest.setChallengeList(authChallenges);
@@ -925,7 +943,10 @@ public class AuthorizationServiceTest {
     public void authenticateV2_multipleRegisteredAcrsWithMultiFactor_thenPass() throws EsignetException, KycAuthException {
         String transactionId = "test-transaction";
         String consentAction="Capture";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
@@ -941,7 +962,7 @@ public class AuthorizationServiceTest {
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
-        authRequest.setIndividualId("23423434234");
+        authRequest.setIndividualId(individualId);
         List<AuthChallenge> authChallenges = new ArrayList<>();
         authChallenges.add(getAuthChallengeDto("OTP"));
         authChallenges.add(getAuthChallengeDto("BIO"));
@@ -956,14 +977,17 @@ public class AuthorizationServiceTest {
     @Test
     public void authenticateV2_multipleRegisteredAcrsWithInvalidMultiFactor_thenFail() throws EsignetException {
         String transactionId = "test-transaction";
+        String individualId = "23423434234";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:linked-wallet"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:biometrics-generated-code", "mosip:idp:acr:static-code"}));
 
         List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
         allAuthFactors.add(getAuthFactors("mosip:idp:acr:biometrics-generated-code"));
         allAuthFactors.add(getAuthFactors("mosip:idp:acr:linked-wallet"));
-        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:biometrics-generated-code",
-                "mosip:idp:acr:linked-wallet"})).thenReturn(allAuthFactors);
+        /*when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:biometrics-generated-code",
+                "mosip:idp:acr:linked-wallet"})).thenReturn(allAuthFactors);*/
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
