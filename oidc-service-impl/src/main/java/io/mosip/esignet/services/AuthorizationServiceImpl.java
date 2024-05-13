@@ -91,7 +91,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.auth-txn-id-length:10}")
     private int authTransactionIdLength;
     
-    @Value("${mosip.esignet.cookie.maxage:180}")
+    @Value("${mosip.esignet.id-token-hint-cookie.max-age:180}")
     private int cookieMaxAge;
     
     @Value("${mosip.esignet.host}")
