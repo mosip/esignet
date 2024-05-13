@@ -48,6 +48,12 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     @Value("${mosip.esignet.authenticate.attempts:3}")
     private int authenticateAttempts;
 
+    @Value("${mosip.esignet.send-otp.invocation-gap-secs:1}")
+    private int sendOtpInvocationGapInSeconds;
+
+    @Value("${mosip.esignet.authenticate.invocation-gap-secs:1}")
+    private int authenticateInvocationGapInSeconds;
+
     @Autowired
     private CacheUtilService cacheUtilService;
 
@@ -77,10 +83,6 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             if(transaction == null) {
                 throw new InvalidTransactionException();
             }
-
-            //For the first attempt individualId will be null, hence blocked check is not required
-            if(transaction.getIndividualIdHash() != null && cacheUtilService.isIndividualIdBlocked(transaction.getIndividualIdHash()))
-                throw new EsignetException(ErrorConstants.INDIVIDUAL_ID_BLOCKED);
 
             if(transaction.getOauthDetailsHash().equals(hashValue)) {
                 validateApiRateLimits(path, transactionId, transaction.getIndividualIdHash());
@@ -121,29 +123,47 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     private void validateApiRateLimits(String path, String transactionId, String individualIdHash) {
         int apiCode = path.endsWith("send-otp") ? 1 : path.endsWith("authenticate")? 2 : 3;
 
-        switch (apiCode) {
-            case 1:
-                ApiRateLimit sendOtpLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
-                checkCountLimit(1, sendOtpLimit, sendOtpAttempts, individualIdHash);
-                cacheUtilService.saveApiRateLimit(transactionId, sendOtpLimit);
-                break;
-            case 2:
-                ApiRateLimit authenticateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
-                checkCountLimit(2, authenticateLimit, authenticateAttempts, individualIdHash);
-                cacheUtilService.saveApiRateLimit(transactionId, authenticateLimit);
-                break;
+        ApiRateLimit apiRateLimit = null;
+        try {
+            switch (apiCode) {
+                case 1:
+                    apiRateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
+                    apiRateLimit = checkRateLimit(1, apiRateLimit, sendOtpAttempts, sendOtpInvocationGapInSeconds, individualIdHash);
+                    break;
+                case 2:
+                    apiRateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
+                    apiRateLimit = checkRateLimit(2, apiRateLimit, authenticateAttempts, authenticateInvocationGapInSeconds, individualIdHash);
+                    break;
+            }
+        } finally {
+            if(apiRateLimit != null) {
+                cacheUtilService.saveApiRateLimit(transactionId, apiRateLimit);
+            }
         }
     }
 
-    private void checkCountLimit(int apiCode, ApiRateLimit apiRateLimit, int attemptsLimit, String individualId) {
+    private ApiRateLimit checkRateLimit(int apiCode, ApiRateLimit apiRateLimit, int attemptsLimit, int invocationGapInSeconds,
+                                String individualIdHash) {
         if(apiRateLimit == null) {
             apiRateLimit = new ApiRateLimit();
         }
         apiRateLimit.increment(apiCode);
         if(apiRateLimit.getCount().get(apiCode) > attemptsLimit) {
-            blockIndividualId(individualId);
+            blockIndividualId(individualIdHash);
             throw new EsignetException(ErrorConstants.NO_ATTEMPTS_LEFT);
         }
+
+        //TODO Need enhance this logic to handle invocation gaps w.r.t auth-factor used in authenticate request
+        //TODO Logic to check invocation gaps between send-otp and authenticate endpoints
+        try {
+            long currentTimeInSeconds = System.currentTimeMillis()/1000;
+            if((currentTimeInSeconds - apiRateLimit.getLastInvocation().get(apiCode)) < invocationGapInSeconds) {
+                throw new EsignetException(ErrorConstants.TOO_EARLY_ATTEMPT);
+            }
+        } finally {
+            apiRateLimit.updateLastInvocation(apiCode);
+        }
+        return apiRateLimit;
     }
 
     private void blockIndividualId(String individualIdHash) {

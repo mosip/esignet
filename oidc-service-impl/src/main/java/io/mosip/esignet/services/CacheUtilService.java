@@ -119,12 +119,10 @@ public class CacheUtilService {
         return individualIdHash;
     }
 
-    @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
+    @CachePut(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     public OIDCTransaction updateIndividualIdHashInPreAuthCache(String transactionId, String individualId) {
         OIDCTransaction oidcTransaction = cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class);//NOSONAR getCache() will not be returning null here.
-        if(oidcTransaction != null) {
-            oidcTransaction.setIndividualIdHash(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId));
-        }
+        oidcTransaction.setIndividualIdHash(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId));
         return oidcTransaction;
     }
 

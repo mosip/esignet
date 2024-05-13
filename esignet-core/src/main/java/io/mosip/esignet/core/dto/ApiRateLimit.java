@@ -18,6 +18,10 @@ public class ApiRateLimit implements Serializable {
 
     public void increment(int apiCode) {
         count.compute(apiCode, (k, v) -> (v == null) ? 1 : v + 1);
-        lastInvocation.compute(apiCode, (k, v) -> System.currentTimeMillis());
+        lastInvocation.compute(apiCode, (k, v) -> (v == null) ? 0 : v);
+    }
+
+    public void updateLastInvocation(int apiCode) {
+        lastInvocation.compute(apiCode, (k, v) -> System.currentTimeMillis()/1000 );
     }
 }
