@@ -1,0 +1,350 @@
+keycloak:
+  realms: |-
+    del_realms:
+      - preregistration
+    mosip: # realm
+      roles:
+       - Default
+       - ABIS_PARTNER
+       - SDK_PARTNER
+       - AUTH
+       - AUTH_PARTNER
+       - BIOMETRIC_READ
+       - CENTRAL_ADMIN
+       - CENTRAL_APPROVER
+       - CREATE_SHARE
+       - CREDENTIAL_ISSUANCE
+       - CREDENTIAL_PARTNER
+       - CREDENTIAL_REQUEST
+       - DATA_READ
+       - DEVICE_PROVIDER
+       - DOCUMENT_READ
+       - FTM_PROVIDER
+       - GLOBAL_ADMIN
+       - ID_AUTHENTICATION
+       - ID_REPOSITORY
+       - INDIVIDUAL
+       - KEY_MAKER
+       - MASTERDATA_ADMIN
+       - METADATA_READ
+       - MISP
+       - MISP_PARTNER
+       - offline_access
+       - ONLINE_VERIFICATION_PARTNER
+       - PARTNER
+       - PARTNER_ADMIN
+       - PARTNERMANAGER
+       - PMS_ADMIN
+       - PMS_USER
+       - POLICYMANAGER
+       - PREREG
+       - PRE_REGISTRATION
+       - PRE_REGISTRATION_ADMIN
+       - PRINT_PARTNER
+       - PUBLISH_ACTIVATE_ID_ALL_INDIVIDUAL
+       - PUBLISH_ANONYMOUS_PROFILE_GENERAL
+       - PUBLISH_APIKEY_APPROVED_GENERAL
+       - PUBLISH_APIKEY_UPDATED_GENERAL
+       - PUBLISH_AUTHENTICATION_TRANSACTION_STATUS_GENERAL
+       - PUBLISH_AUTH_TYPE_STATUS_UPDATE_ACK_GENERAL
+       - PUBLISH_AUTH_TYPE_STATUS_UPDATE_ALL_INDIVIDUAL
+       - PUBLISH_CA_CERTIFICATE_UPLOADED_GENERAL
+       - PUBLISH_CREDENTIAL_ISSUED_ALL_INDIVIDUAL
+       - PUBLISH_CREDENTIAL_STATUS_UPDATE_GENERAL
+       - PUBLISH_DEACTIVATE_ID_ALL_INDIVIDUAL
+       - PUBLISH_IDA_FRAUD_ANALYTICS_GENERAL
+       - PUBLISH_MASTERDATA_IDAUTHENTICATION_TEMPLATES_GENERAL
+       - PUBLISH_MASTERDATA_TITLES_GENERAL
+       - PUBLISH_MISP_LICENSE_GENERATED_GENERAL
+       - PUBLISH_MISP_LICENSE_UPDATED_GENERAL
+       - PUBLISH_MOSIP_HOTLIST_GENERAL
+       - PUBLISH_PARTNER_UPDATED_GENERAL
+       - PUBLISH_POLICY_UPDATED_GENERAL
+       - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+       - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
+       - PUBLISH_REMOVE_ID_ALL_INDIVIDUAL
+       - PUBLISH_VID_CRED_STATUS_UPDATE_GENERAL
+       - REGISTRATION_ADMIN
+       - REGISTRATION_OFFICER
+       - REGISTRATION_OPERATOR
+       - REGISTRATION_PROCESSOR
+       - REGISTRATION_SUPERVISOR
+       - RESIDENT
+       - SUBSCRIBE_ACTIVATE_ID_INDIVIDUAL
+       - SUBSCRIBE_APIKEY_APPROVED_GENERAL
+       - SUBSCRIBE_APIKEY_UPDATED_GENERAL
+       - SUBSCRIBE_AUTH_TYPE_STATUS_UPDATE_ACK_GENERAL
+       - SUBSCRIBE_AUTH_TYPE_STATUS_UPDATE_INDIVIDUAL
+       - SUBSCRIBE_CA_CERTIFICATE_UPLOADED_GENERAL
+       - SUBSCRIBE_CREDENTIAL_ISSUED_INDIVIDUAL
+       - SUBSCRIBE_CREDENTIAL_STATUS_UPDATE_GENERAL
+       - SUBSCRIBE_DEACTIVATE_ID_INDIVIDUAL
+       - SUBSCRIBE_MASTERDATA_IDAUTHENTICATION_TEMPLATES_GENERAL
+       - SUBSCRIBE_MASTERDATA_TITLES_GENERAL
+       - SUBSCRIBE_MISP_LICENSE_GENERATED_GENERAL
+       - SUBSCRIBE_MISP_LICENSE_UPDATED_GENERAL
+       - SUBSCRIBE_MOSIP_HOTLIST_GENERAL
+       - SUBSCRIBE_PARTNER_UPDATED_GENERAL
+       - SUBSCRIBE_POLICY_UPDATED_GENERAL
+       - SUBSCRIBE_REMOVE_ID_INDIVIDUAL
+       - SUBSCRIBE_VID_CRED_STATUS_UPDATE_GENERAL
+       - uma_authorization
+       - ZONAL_ADMIN
+       - ZONAL_APPROVER
+       - HOTLIST_ADMIN
+       - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+       - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
+      clients: 
+       - name: mosip-abis-client
+         mappers: []
+         saroles: []
+       - name: mosip-admin-client
+         mappers: []
+         saroles: 
+           - MASTERDATA_ADMIN
+           - GLOBAL_ADMIN
+           - PUBLISH_MASTERDATA_IDAUTHENTICATION_TEMPLATES_GENERAL
+           - offline_access
+           - PUBLISH_MOSIP_HOTLIST_GENERAL
+           - uma_authorization
+           - PUBLISH_MASTERDATA_TITLES_GENERAL
+       - name: mosip-admin-services-client
+         mappers: []
+         saroles: []
+       - name: mosip-auth-client
+         mappers: []
+         saroles:
+           - AUTH
+       - name: mosip-crereq-client
+         mappers: []
+         saroles:
+           - CREDENTIAL_ISSUANCE
+           - CREDENTIAL_REQUEST
+           - SUBSCRIBE_CREDENTIAL_STATUS_UPDATE_GENERAL
+           - offline_access
+           - uma_authorization
+    
+       - name: mosip-creser-client 
+         mappers: []
+         saroles:
+           - CREDENTIAL_ISSUANCE
+           - REGISTRATION_PROCESSOR
+           - POLICYMANAGER
+           - CREATE_SHARE
+           - offline_access
+           - PUBLISH_CREDENTIAL_ISSUED_ALL_INDIVIDUAL
+           - uma_authorization
+       - name: mosip-creser-idpass-client
+         mappers: []
+         saroles: 
+           - REGISTRATION_PROCESSOR
+           - DATA_READ
+           - DOCUMENT_READ
+           - BIOMETRIC_READ
+           - METADATA_READ
+           - CREATE_SHARE
+           - CREDENTIAL_REQUEST
+       - name: mosip-datsha-client
+         mappers: []
+         saroles:
+           - CREATE_SHARE
+           - REGISTRATION_PROCESSOR
+           - POLICYMANAGER
+    
+       - name: mosip-ida-client
+         mappers: []
+         saroles:
+           - CREDENTIAL_REQUEST
+           - GLOBAL_ADMIN
+           - ID_AUTHENTICATION
+           - PARTNERMANAGER  # Added only for cert upload using postman during install. Not required otherwise.
+       - name: mosip-misp-client
+         mappers: []
+         saroles: []
+       - name: mosip-partner-client
+         mappers: 
+           - mapper_name: phoneNumber
+             mapper_user_attribute: phoneNumber
+             token_claim_name: phoneNumber
+           - mapper_name: organizationName
+             mapper_user_attribute: organizationName
+             token_claim_name: organizationName
+           - mapper_name: partnerType
+             mapper_user_attribute: partnerType
+             token_claim_name: partnerType
+           - mapper_name: addressTest
+             mapper_user_attribute: address
+             token_claim_name: addressTest
+         saroles:
+           - REGISTRATION_PROCESSOR
+           - CREATE_SHARE
+           - PMS_USER
+           - PMS_ADMIN
+           - PARTNER_ADMIN
+           - SUBSCRIBE_CA_CERTIFICATE_UPLOADED_GENERAL
+           - PUBLISH_MISP_LICENSE_UPDATED_GENERAL
+           - PUBLISH_PARTNER_UPDATED_GENERAL
+           - PUBLISH_MISP_LICENSE_GENERATED_GENERAL
+           - PUBLISH_APIKEY_APPROVED_GENERAL
+           - PUBLISH_APIKEY_UPDATED_GENERAL
+           - PUBLISH_CA_CERTIFICATE_UPLOADED_GENERAL
+           - PUBLISH_POLICY_UPDATED_GENERAL
+       - name: mosip-partnermanager-client
+         mappers: []
+         saroles: 
+           - PARTNERMANAGER
+           - KEY_MAKER
+       - name: mosip-pms-client
+         mappers: []
+         saroles: 
+           - PARTNER_ADMIN
+       - name: mosip-policymanager-client
+         mappers: []
+         saroles: []
+       - name: mosip-reg-client
+         mappers: []
+         saroles:
+           - GLOBAL_ADMIN
+           - REGISTRATION_ADMIN
+           - REGISTRATION_OFFICER
+           - REGISTRATION_OPERATOR
+           - REGISTRATION_SUPERVISOR
+       - name: mosip-regproc-client
+         mappers: []
+         saroles:
+           - REGISTRATION_PROCESSOR
+           - DATA_READ
+           - DOCUMENT_READ
+           - BIOMETRIC_READ
+           - METADATA_READ
+           - CREATE_SHARE
+           - CREDENTIAL_REQUEST
+       - name: mpartner-default-mobile
+         mappers: []
+         saroles: 
+           - CREDENTIAL_PARTNER
+           - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+           - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
+           - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+           - PUBLISH_CREDENTIAL_STATUS_UPDATE_GENERAL
+           - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
+           - SUBSCRIBE_CREDENTIAL_ISSUED_INDIVIDUAL
+       - name: mosip-resident-client
+         mappers: []
+         saroles:
+           - RESIDENT
+           - PARTNER_ADMIN
+           - CREDENTIAL_REQUEST
+           - offline_access
+           - uma_authorization
+       - name: mosip-prereg-client
+         mappers: []
+         del_saroles:
+           - INDIVIDUAL
+         saroles:
+           - PREREG
+           - REGISTRATION_PROCESSOR
+           - PRE_REGISTRATION_ADMIN
+       - name: mosip-creser-idpass-client
+         mappers: []
+         saroles: 
+           - REGISTRATION_PROCESSOR
+           - DATA_READ
+           - DOCUMENT_READ
+           - BIOMETRIC_READ
+           - METADATA_READ
+           - CREATE_SHARE
+           - CREDENTIAL_REQUEST
+       - name: mosip-syncdata-client
+         mappers: []
+         saroles: 
+           - REGISTRATION_ADMIN
+           - GLOBAL_ADMIN
+           - SUBSCRIBE_CA_CERTIFICATE_UPLOADED_GENERAL
+           - REGISTRATION_SUPERVISOR
+           - REGISTRATION_OFFICER
+       - name: mpartner-default-auth
+         mappers: 
+           - mapper_name: langCode
+             mapper_user_attribute: langCode 
+             token_claim_name: langCode
+         saroles: 
+           - SUBSCRIBE_AUTH_TYPE_STATUS_UPDATE_INDIVIDUAL
+           - SUBSCRIBE_POLICY_UPDATED_GENERAL
+           - SUBSCRIBE_MISP_LICENSE_GENERATED_GENERAL
+           - CREDENTIAL_REQUEST
+           - SUBSCRIBE_MOSIP_HOTLIST_GENERAL
+           - PUBLISH_ANONYMOUS_PROFILE_GENERAL
+           - SUBSCRIBE_ACTIVATE_ID_INDIVIDUAL
+           - SUBSCRIBE_REMOVE_ID_INDIVIDUAL
+           - SUBSCRIBE_MASTERDATA_TITLES_GENERAL
+           - SUBSCRIBE_CREDENTIAL_ISSUED_INDIVIDUAL
+           - SUBSCRIBE_MISP_LICENSE_UPDATED_GENERAL
+           - ID_AUTHENTICATION
+           - PUBLISH_CREDENTIAL_STATUS_UPDATE_GENERAL
+           - SUBSCRIBE_AUTH_TYPE_STATUS_UPDATE_ACK_GENERAL
+           - SUBSCRIBE_PARTNER_UPDATED_GENERAL
+           - offline_access
+           - SUBSCRIBE_APIKEY_APPROVED_GENERAL
+           - PUBLISH_AUTH_TYPE_STATUS_UPDATE_ACK_GENERAL
+           - SUBSCRIBE_MASTERDATA_IDAUTHENTICATION_TEMPLATES_GENERAL
+           - uma_authorization
+           - SUBSCRIBE_APIKEY_UPDATED_GENERAL
+           - SUBSCRIBE_DEACTIVATE_ID_INDIVIDUAL
+           - SUBSCRIBE_CA_CERTIFICATE_UPLOADED_GENERAL
+           - PUBLISH_AUTHENTICATION_TRANSACTION_STATUS_GENERAL
+           - PUBLISH_IDA_FRAUD_ANALYTICS_GENERAL
+       - name: mosip-idrepo-client
+         mappers: []
+         saroles: 
+           - PUBLISH_DEACTIVATE_ID_ALL_INDIVIDUAL
+           - SUBSCRIBE_VID_CRED_STATUS_UPDATE_GENERAL
+           - ID_REPOSITORY
+           - PUBLISH_ACTIVATE_ID_ALL_INDIVIDUAL
+           - offline_access
+           - PUBLISH_REMOVE_ID_ALL_INDIVIDUAL
+           - PUBLISH_AUTHENTICATION_TRANSACTION_STATUS_GENERAL
+           - uma_authorization
+           - PUBLISH_VID_CRED_STATUS_UPDATE_GENERAL
+           - PUBLISH_AUTH_TYPE_STATUS_UPDATE_ALL_INDIVIDUAL
+       - name: mpartner-default-print
+         mappers: []
+         saroles: 
+           - SUBSCRIBE_CREDENTIAL_ISSUED_INDIVIDUAL
+           - PUBLISH_CREDENTIAL_STATUS_UPDATE_GENERAL
+           - CREATE_SHARE
+           - PRINT_PARTNER
+       - name: mosip-hotlist-client
+         saroles:
+           - HOTLIST_ADMIN
+           - uma_authorization
+           - offline_access
+           - PUBLISH_MOSIP_HOTLIST_GENERAL
+       # Used only for initial deployment purposes. Maybe deleted from installation later.
+       - name: mosip-deployment-client
+         saroles:
+           - ID_AUTHENTICATION
+           - GLOBAL_ADMIN # TODO: do we need this?
+           - PARTNER_ADMIN
+           - uma_authorization
+           - offline_access
+    
+       - name: mosip-testrig-client
+         saroles:
+           - ID_AUTHENTICATION
+           - GLOBAL_ADMIN # TODO: do we need this?
+           - PARTNER_ADMIN
+           - REGISTRATION_PROCESSOR
+           - CREATE_SHARE
+           - PMS_ADMIN
+           - PMS_USER
+           - uma_authorization
+           - offline_access
+          sa_client_roles:
+            - realm-management:  ## realm-management client id
+                - view-users     # realm-management client roles
+                - view-clients
+                - view-realms
+                - manage-users
+    
+      users: []

@@ -1,0 +1,15 @@
+## The data here is of generic interest to modules in different namespaces hence this is marked as global.
+## Replace your domain names here.
+## mosip-api-host:  External public access. (Typically required only in production rollouts).
+## mosip-api-internal-host: Internal secure access over Wireguard.
+## By default all domains and subdomains listed below point to mosip-api-internal-host. Modify this default behavior ONLY in production rollout as follows:
+##     mosip-prereg-host:  Points to mosip-api-host.
+##     mosip-pmp-host: Points to mosip-api-host.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: global
+  namespace: default
+data:
+  mosip-esignet-host: esignet.sandbox.xyz.net
