@@ -70,6 +70,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.discovery.issuer-id}")
     private String issuerId;
+    
+    @Value("${mosip.esignet.id-token-hint.aud}")
+    private String idTokenHintAud;
 
     @Value("#{${mosip.esignet.openid.scope.claims}}")
     private Map<String, List<String>> claims;
@@ -109,11 +112,11 @@ public class TokenServiceImpl implements TokenService {
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
     
-    public String getIDToken(@NonNull OIDCTransaction transaction, String subject) {
+    public String getIDTokenHint(@NonNull OIDCTransaction transaction, String subject) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
         payload.put(SUB, subject);
-        payload.put(AUD, transaction.getClientId());
+        payload.put(AUD, idTokenHintAud);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
         payload.put(EXP, issueTime + (idTokenHintExpireSeconds<=0 ? 3600 : idTokenHintExpireSeconds));
@@ -121,7 +124,6 @@ public class TokenServiceImpl implements TokenService {
         payload.put(NONCE, transaction.getNonce());
         List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
         payload.put(ACR, String.join(SPACE, acrs));
-        payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
 

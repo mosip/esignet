@@ -62,7 +62,7 @@ public class AuthorizationController {
     public ResponseWrapper<IdTokenHintResponse> getIdTokenHint(@RequestHeader Map<String, String> headers, HttpServletResponse response) {
     	ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
-            responseWrapper.setResponse(authorizationService.getIdTokenHint(headers, response));
+            responseWrapper.setResponse(authorizationService.getIdTokenHint(headers.get("oauth-details-key"), response));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.SETUP_TOKEN_ID_HINT, ActionStatus.ERROR, AuditHelper.buildAuditDto(headers.getOrDefault("oauth-details-key","")), ex);

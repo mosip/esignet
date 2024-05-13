@@ -75,5 +75,5 @@ public interface AuthorizationService {
     
     
     
-    IdTokenHintResponse getIdTokenHint(Map<String, String> requestHeaders, HttpServletResponse response);
+    IdTokenHintResponse getIdTokenHint(String transactionId, HttpServletResponse response);
 }

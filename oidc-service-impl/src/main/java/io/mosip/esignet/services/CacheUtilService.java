@@ -58,13 +58,6 @@ public class CacheUtilService {
     public void removeAuthCodeGeneratedTransaction(String codeHash) {
         log.debug("Evicting entry from authCodeGeneratedCache");
     }
-    
-    @CachePut(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
-    public OIDCTransaction updateAuthenticatedTransaction(String transactionId,
-                                                       OIDCTransaction oidcTransaction) {
-        return oidcTransaction;
-    }
-
 
     //---------------------------------------------- Linked authorization ----------------------------------------------
 

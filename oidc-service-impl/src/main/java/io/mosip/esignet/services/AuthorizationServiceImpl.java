@@ -94,6 +94,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.cookie.maxage:180}")
     private int cookieMaxAge;
     
+    @Value("${mosip.esignet.host}")
+    private String domain;
+    
+    @Value("${server.servlet.path}")
+    private String servletPath;
+    
 
     //Number of times generate-link-code could be invoked per transaction
     @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
@@ -308,6 +314,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
+        oidcTransaction.setSecretCode(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, transactionId));
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
@@ -415,20 +422,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
 	@Override
-	public IdTokenHintResponse getIdTokenHint(Map<String, String> requestHeaders, HttpServletResponse response) {
-		String transactionId = requestHeaders.get("oauth-details-key");
+	public IdTokenHintResponse getIdTokenHint(String transactionId, HttpServletResponse response) {
 		OIDCTransaction oidcTransaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
 		if(oidcTransaction == null) {
             throw new InvalidTransactionException();
         }
 		String uuid = UUID.fromString(transactionId).toString();
-		String secret = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, uuid);
-		oidcTransaction.setSecretCode(secret);
-		cacheUtilService.updateAuthenticatedTransaction(transactionId, oidcTransaction);
+		String secret = oidcTransaction.getSecretCode();
 		setCookie(response,uuid,secret);
 		IdTokenHintResponse idTokenHintResponse = new IdTokenHintResponse();
 		idTokenHintResponse.setTransactionId(transactionId);
-		idTokenHintResponse.setIdTokenHint(tokenServiceImpl.getIDToken(oidcTransaction,uuid));
+		idTokenHintResponse.setIdTokenHint(tokenServiceImpl.getIDTokenHint(oidcTransaction,uuid));
 		return idTokenHintResponse;
 	}
 	
@@ -436,9 +440,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 	public void setCookie(HttpServletResponse response,String key, String value) {
 		Cookie cookie = new Cookie(key,value);
 		cookie.setMaxAge(cookieMaxAge);
-		cookie.setHttpOnly(true);
-		cookie.setDomain(environment.getProperty("mosip.esignet.host"));
-		cookie.setPath(environment.getProperty("server.servlet.path"));
+		cookie.setSecure(true);
+		cookie.setDomain(domain);
+		cookie.setPath(servletPath);
 		response.addCookie(cookie);
 	}
 }
