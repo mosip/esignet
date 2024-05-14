@@ -5,8 +5,6 @@
  */
 package io.mosip.esignet.core.spi;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 
 import io.mosip.esignet.core.dto.*;
@@ -72,8 +70,14 @@ public interface AuthorizationService {
      * @param authCodeRequest
      */
     AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException;
-    
-    
-    
-    IdTokenHintResponse getIdTokenHint(String transactionId, HttpServletResponse response);
+
+
+    /**
+     * Validates the transaction and prepares the ID token and sets up a cookie.
+     * ID token sent in the response will be used as hint from signup service
+     * @param signupRedirectRequest
+     * @param response
+     * @return
+     */
+    SignupRedirectResponse prepareSignupRedirect(SignupRedirectRequest signupRedirectRequest, HttpServletResponse response);
 }

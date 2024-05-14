@@ -61,18 +61,12 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.id-token-expire-seconds:60}")
     private int idTokenExpireSeconds;
-
-    @Value("${mosip.esignet.id-token-hint-expire-seconds:60}")
-    private int idTokenHintExpireSeconds;
     
     @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
     @Value("${mosip.esignet.discovery.issuer-id}")
     private String issuerId;
-    
-    @Value("${mosip.esignet.id-token-hint.aud}")
-    private String idTokenHintAud;
 
     @Value("#{${mosip.esignet.openid.scope.claims}}")
     private Map<String, List<String>> claims;
@@ -97,36 +91,19 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getIDToken(@NonNull OIDCTransaction transaction) {
-        JSONObject payload = new JSONObject();
-        payload.put(ISS, issuerId);
-        payload.put(SUB, transaction.getPartnerSpecificUserToken());
-        payload.put(AUD, transaction.getClientId());
-        long issueTime = IdentityProviderUtil.getEpochSeconds();
-        payload.put(IAT, issueTime);
-        payload.put(EXP, issueTime + (idTokenExpireSeconds<=0 ? 3600 : idTokenExpireSeconds));
-        payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
-        payload.put(NONCE, transaction.getNonce());
-        List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
-        payload.put(ACR, String.join(SPACE, acrs));
+        JSONObject payload = buildIDToken(transaction.getPartnerSpecificUserToken(),
+                transaction.getClientId(), idTokenExpireSeconds, transaction);
         payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
-    
-    public String getIDTokenHint(@NonNull OIDCTransaction transaction, String subject) {
-        JSONObject payload = new JSONObject();
-        payload.put(ISS, issuerId);
-        payload.put(SUB, subject);
-        payload.put(AUD, idTokenHintAud);
-        long issueTime = IdentityProviderUtil.getEpochSeconds();
-        payload.put(IAT, issueTime);
-        payload.put(EXP, issueTime + (idTokenHintExpireSeconds<=0 ? 3600 : idTokenHintExpireSeconds));
-        payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
-        payload.put(NONCE, transaction.getNonce());
-        List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
-        payload.put(ACR, String.join(SPACE, acrs));
+
+    @Override
+    public String getIDToken(@NonNull String subject, @NonNull String audience, int validitySeconds,
+                             @NonNull OIDCTransaction transaction) {
+        JSONObject payload = buildIDToken(transaction.getPartnerSpecificUserToken(),
+                transaction.getClientId(), validitySeconds, transaction);
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
-
 
     @Override
     public String getAccessToken(OIDCTransaction transaction, String cNonce) {
@@ -215,6 +192,22 @@ public class TokenServiceImpl implements TokenService {
         jwtSignatureRequestDto.setIncludeCertHash(false);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
+    }
+
+    private JSONObject buildIDToken(String subject, String audience, int validitySeconds,
+                                    OIDCTransaction transaction) {
+        JSONObject payload = new JSONObject();
+        payload.put(ISS, issuerId);
+        payload.put(SUB, subject);
+        payload.put(AUD, audience);
+        long issueTime = IdentityProviderUtil.getEpochSeconds();
+        payload.put(IAT, issueTime);
+        payload.put(EXP, issueTime + (validitySeconds<=0 ? 3600 : validitySeconds));
+        payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
+        payload.put(NONCE, transaction.getNonce());
+        List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
+        payload.put(ACR, String.join(SPACE, acrs));
+        return payload;
     }
 
     private boolean isSignatureValid(String jwt) {

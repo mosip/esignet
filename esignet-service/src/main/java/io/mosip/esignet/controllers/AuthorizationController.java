@@ -15,7 +15,6 @@ import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -58,14 +57,15 @@ public class AuthorizationController {
         return responseWrapper;
     }
     
-    @GetMapping("/setup-id-token-hint")
-    public ResponseWrapper<IdTokenHintResponse> getIdTokenHint(@RequestHeader Map<String, String> headers, HttpServletResponse response) {
+    @GetMapping("/prepare-signup-redirect")
+    public ResponseWrapper<SignupRedirectResponse> prepareSignupRedirect(@Valid @RequestBody RequestWrapper<SignupRedirectRequest> requestWrapper,
+                                                                         HttpServletResponse response) {
     	ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
-            responseWrapper.setResponse(authorizationService.getIdTokenHint(headers.get("oauth-details-key"), response));
+            responseWrapper.setResponse(authorizationService.prepareSignupRedirect(requestWrapper.getRequest(), response));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.SETUP_TOKEN_ID_HINT, ActionStatus.ERROR, AuditHelper.buildAuditDto(headers.getOrDefault("oauth-details-key","")), ex);
+            auditWrapper.logAudit(Action.PREPARE_SIGNUP_REDIRECT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
             throw ex;
         }
         return responseWrapper;
