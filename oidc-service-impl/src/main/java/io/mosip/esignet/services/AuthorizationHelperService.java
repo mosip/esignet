@@ -187,7 +187,19 @@ public class AuthorizationHelperService {
 
     protected KycAuthResult delegateAuthenticateRequest(String transactionId, String individualId,
                                                         List<AuthChallenge> challengeList, OIDCTransaction transaction) {
+
         KycAuthResult kycAuthResult;
+        if(challengeList.size() == 1 && challengeList.get(0).getAuthFactorType().equals("IDT")) {
+            //TODO verify ID token, if not valid and signed by esignet, fail the auth request
+            //TODO Fetch the OIDC transaction based on the ID token subject.
+            //TODO Find the cookie with key same as ID token subject.
+            //TODO check if the code in the cookie is same as the secretCode in the OIDC transaction
+            kycAuthResult = new KycAuthResult();
+            kycAuthResult.setKycToken("kyc-token");
+            kycAuthResult.setPartnerSpecificUserToken(UUID.randomUUID().toString());
+            return kycAuthResult;
+        }
+
         try {
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
                     new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList));

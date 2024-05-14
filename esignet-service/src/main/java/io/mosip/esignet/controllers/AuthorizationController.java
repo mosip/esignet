@@ -8,6 +8,7 @@ package io.mosip.esignet.controllers;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
@@ -17,10 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Arrays;
 
 @Slf4j
 @RestController
@@ -52,20 +52,6 @@ public class AuthorizationController {
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
-            throw ex;
-        }
-        return responseWrapper;
-    }
-    
-    @GetMapping("/prepare-signup-redirect")
-    public ResponseWrapper<SignupRedirectResponse> prepareSignupRedirect(@Valid @RequestBody RequestWrapper<SignupRedirectRequest> requestWrapper,
-                                                                         HttpServletResponse response) {
-    	ResponseWrapper responseWrapper = new ResponseWrapper();
-        try {
-            responseWrapper.setResponse(authorizationService.prepareSignupRedirect(requestWrapper.getRequest(), response));
-            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.PREPARE_SIGNUP_REDIRECT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
             throw ex;
         }
         return responseWrapper;
@@ -152,6 +138,61 @@ public class AuthorizationController {
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/v3/oauth-details")
+    public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV3(@Valid @RequestBody RequestWrapper<OAuthDetailtRequestV3>
+                                                                            requestWrapper) throws EsignetException {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            //TODO wire this with v3 implementation @SaiDurga, Below is a temporary logic for UI work to proceed
+            responseWrapper.setResponse(authorizationService.getOauthDetailsV2(requestWrapper.getRequest()));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/prepare-signup-redirect")
+    public ResponseWrapper<SignupRedirectResponse> prepareSignupRedirect(@Valid @RequestBody RequestWrapper<SignupRedirectRequest> requestWrapper,
+                                                                         HttpServletResponse response) {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(authorizationService.prepareSignupRedirect(requestWrapper.getRequest(), response));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.PREPARE_SIGNUP_REDIRECT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @GetMapping("/consent-details")
+    public ResponseWrapper<ConsentDetailResponse> getConsentDetails(@RequestHeader("oauth-details-key") String transactionId) {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            //TODO wire this with actual implementation @Kaif, Below is a temporary logic for UI work to proceed
+            ConsentDetailResponse consentDetailResponse = new ConsentDetailResponse();
+            consentDetailResponse.setTransactionId(transactionId);
+            consentDetailResponse.setConsentAction(ConsentAction.CAPTURE);
+            ClaimStatus emailClaim = new ClaimStatus();
+            emailClaim.setAvailable(false);
+            emailClaim.setVerified(false);
+            emailClaim.setClaim("email");
+            ClaimStatus nameClaim = new ClaimStatus();
+            nameClaim.setAvailable(true);
+            nameClaim.setVerified(false);
+            nameClaim.setClaim("name");
+            consentDetailResponse.setClaimStatus(Arrays.asList(emailClaim, nameClaim));
+            responseWrapper.setResponse(consentDetailResponse);
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);
             throw ex;
         }
         return responseWrapper;

@@ -3,12 +3,17 @@
     "PIN" :  [{ "type": "PIN" }],
     "OTP" :  [{ "type": "OTP" }],
     "Wallet" :  [{ "type": "WALLET" }],
-    "L1-bio-device" :  [{ "type": "BIO", "count": 1 }]
+    "L1-bio-device" :  [{ "type": "BIO", "count": 1 }],
+    "Knowledge" :  [{ "type": "KBA" }],
+    "Password" :  [{ "type": "PWD" }],
+    "ID-token" :  [{ "type": "IDT" }]
   },
   "acr_amr" : {
     "mosip:idp:acr:static-code" : ["PIN"],
     "mosip:idp:acr:generated-code" : ["OTP"],
     "mosip:idp:acr:linked-wallet" : [ "Wallet" ],
-    "mosip:idp:acr:biometrics" : [ "L1-bio-device" ]
+    "mosip:idp:acr:biometrics" : [ "L1-bio-device" ],
+    "mosip:idp:acr:knowledge" : [ "Knowledge" ],
+    "mosip:idp:acr:id-token" : [ "ID-token" ]
   }
 }
