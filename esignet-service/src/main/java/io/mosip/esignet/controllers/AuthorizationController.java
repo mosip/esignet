@@ -30,6 +30,8 @@ public class AuthorizationController {
     @Autowired
     AuditPlugin auditWrapper;
 
+    private final String TRANSACTION_ID="oauth-details-key";
+
     /**
      * @deprecated
      * This method is no longer acceptable to get oauth detail response
@@ -135,6 +137,21 @@ public class AuthorizationController {
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @GetMapping("/consent-details")
+    public ResponseWrapper<ConsentDetailResponse> getConsentDetails(@RequestHeader(TRANSACTION_ID) String transactionId){
+
+        ResponseWrapper<ConsentDetailResponse> responseWrapper = new ResponseWrapper<>();
+        try {
+            ConsentDetailResponse consentDetailResponse = authorizationService.getConsentDetails(transactionId);
+            responseWrapper.setResponse(consentDetailResponse);
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GET_USER_CONSENT, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId, null), ex);
             throw ex;
         }
         return responseWrapper;

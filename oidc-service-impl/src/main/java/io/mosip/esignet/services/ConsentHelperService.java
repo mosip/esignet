@@ -86,6 +86,32 @@ public class ConsentHelperService {
         }
     }
 
+    public ConsentAction getConsentAction(OIDCTransaction transaction,boolean linked) {
+        UserConsentRequest userConsentRequest = new UserConsentRequest();
+        userConsentRequest.setClientId(transaction.getClientId());
+        userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
+        Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
+        ConsentAction consentAction=null;
+        if (CollectionUtils.isEmpty(transaction.getVoluntaryClaims())
+                && CollectionUtils.isEmpty(transaction.getEssentialClaims())
+                && CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes())) {
+            transaction.setConsentAction(ConsentAction.NOCAPTURE);
+            transaction.setAcceptedClaims(List.of());
+            transaction.setPermittedScopes(List.of());
+            return ConsentAction.NOCAPTURE;
+        } else {
+            consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction, consent.get(), linked);
+
+            transaction.setConsentAction(consentAction);
+
+            if (consentAction.equals(ConsentAction.NOCAPTURE)) {
+                transaction.setAcceptedClaims(consent.get().getAcceptedClaims()); //NOSONAR consent is already evaluated to be not null
+                transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
+            }
+        }
+        return consentAction;
+    }
+
 
     public void updateUserConsent(OIDCTransaction transaction, String signature) {
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())

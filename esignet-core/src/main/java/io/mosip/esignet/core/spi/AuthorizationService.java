@@ -68,4 +68,6 @@ public interface AuthorizationService {
      * @param authCodeRequest
      */
     AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException;
+
+    ConsentDetailResponse getConsentDetails(String transactionId);
 }
