@@ -80,4 +80,6 @@ public interface AuthorizationService {
      * @return
      */
     SignupRedirectResponse prepareSignupRedirect(SignupRedirectRequest signupRedirectRequest, HttpServletResponse response);
+
+    ConsentDetailResponse getConsentDetails(String transactionId);
 }

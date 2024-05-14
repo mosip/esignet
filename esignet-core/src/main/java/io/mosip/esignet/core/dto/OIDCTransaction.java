@@ -60,4 +60,5 @@ public class OIDCTransaction implements Serializable {
     //PKCE support
     ProofKeyCodeExchange proofKeyCodeExchange;
     List<String> requestedCredentialScopes;
+    List<ClaimStatus> claimStatuses;
 }
