@@ -58,8 +58,8 @@ public class AuthorizationController {
         return responseWrapper;
     }
     
-    @GetMapping("/setup-id-token-hint")
-    public ResponseWrapper<IdTokenHintResponse> getIdTokenHint(@RequestHeader Map<String, String> headers, HttpServletResponse response) {
+    @GetMapping("/prepare-signup-redirect")
+    public ResponseWrapper<SignupRedirectResponse> getIdTokenHint(@RequestHeader Map<String, String> headers, HttpServletResponse response) {
     	ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
             responseWrapper.setResponse(authorizationService.getIdTokenHint(headers.get("oauth-details-key"), response));

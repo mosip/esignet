@@ -51,9 +51,6 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 @Slf4j
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
-	
-    @Autowired
-    private Environment environment;
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -422,7 +419,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
 	@Override
-	public IdTokenHintResponse getIdTokenHint(String transactionId, HttpServletResponse response) {
+	public SignupRedirectResponse getIdTokenHint(String transactionId, HttpServletResponse response) {
 		OIDCTransaction oidcTransaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
 		if(oidcTransaction == null) {
             throw new InvalidTransactionException();
@@ -430,7 +427,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		String uuid = UUID.fromString(transactionId).toString();
 		String secret = oidcTransaction.getSecretCode();
 		setCookie(response,uuid,secret);
-		IdTokenHintResponse idTokenHintResponse = new IdTokenHintResponse();
+		SignupRedirectResponse idTokenHintResponse = new SignupRedirectResponse();
 		idTokenHintResponse.setTransactionId(transactionId);
 		idTokenHintResponse.setIdTokenHint(tokenServiceImpl.getIDTokenHint(oidcTransaction,uuid));
 		return idTokenHintResponse;
