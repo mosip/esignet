@@ -30,8 +30,8 @@ public enum Action {
     DELETE_USER_CONSENT("consent-service"),
     SEND_BINDING_OTP("key-binding"),
     KEY_BINDING("key-binding"),
-    VC_ISSUANCE("vci-service");
-	
+    VC_ISSUANCE("vci-service"),
+    CONSENT_DETAILS("esignet-service");
 
     String module;
 

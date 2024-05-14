@@ -428,7 +428,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		if(oidcTransaction == null) {
             throw new InvalidTransactionException();
         }
-		String uuid = UUID.fromString(signupRedirectRequest.getTransactionId()).toString();
+		String uuid = UUID.randomUUID().toString();
 		SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
 		signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
 		signupRedirectResponse.setIdToken(tokenService.getIDToken(uuid, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
