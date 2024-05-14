@@ -7,7 +7,7 @@ public enum Action {
     OAUTH_CLIENT_UPDATE("client-mgmt-service"),
     GET_OAUTH_DETAILS("esignet-service"),
     TRANSACTION_STARTED("esignet-service"),
-    SETUP_TOKEN_ID_HINT("esignet-service"),
+    PREPARE_SIGNUP_REDIRECT("esignet-service"),
     SEND_OTP("esignet-service"),
     AUTHENTICATE("esignet-service"),
     GET_AUTH_CODE("esignet-service"),

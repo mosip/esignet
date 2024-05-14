@@ -124,4 +124,14 @@ public interface TokenService {
      * @return
      */
      String getSignedJWT(String applicationId, JSONObject payload);
+
+    /**
+     * Creates ID token with the given subject and audience
+     * @param subject
+     * @param audience
+     * @param validitySeconds
+     * @param transaction
+     * @return
+     */
+     String getIDToken(String subject, String audience, int validitySeconds, OIDCTransaction transaction);
 }
