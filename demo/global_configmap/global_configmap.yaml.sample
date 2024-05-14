@@ -13,3 +13,4 @@ metadata:
   namespace: default
 data:
   mosip-esignet-host: esignet.sandbox.xyz.net
+  mosip-iam-external-host: iam.sandbox.xyz.net
