@@ -6,5 +6,7 @@ import lombok.Data;
 public class SignupRedirectResponse {
 
 	public String transactionId;
-	public String idTokenHint;
+
+	public String idToken;
+
 }

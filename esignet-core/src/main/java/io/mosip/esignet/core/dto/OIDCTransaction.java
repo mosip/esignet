@@ -54,7 +54,9 @@ public class OIDCTransaction implements Serializable {
     String oauthDetailsHash;
     ConsentAction consentAction;
 
+    //signup redirect secret
     String secretCode;
+
     //PKCE support
     ProofKeyCodeExchange proofKeyCodeExchange;
     List<String> requestedCredentialScopes;
