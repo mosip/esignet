@@ -13,10 +13,12 @@ import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
+import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -1002,6 +1004,48 @@ public class AuthorizationServiceTest {
 		Mockito.when(cacheUtilService.setAuthCodeGeneratedTransaction(Mockito.anyString(), Mockito.any())).thenReturn(transaction);
 		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getNonce(), "test-nonce");
 		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getState(), "test-state");
+    }
+
+    @Test
+    public void getConsentDetails_withConsentedClaims_thenPass(){
+        OIDCTransaction transaction=new OIDCTransaction();
+        ClaimStatus claimStatus=new ClaimStatus();
+        claimStatus.setClaim("email");
+        claimStatus.setVerified(true);
+        claimStatus.setAvailable(true);
+        transaction.setClaimStatuses(List.of(claimStatus));
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+        Mockito.when(consentHelperService.getConsentAction(Mockito.any(),Mockito.anyBoolean())).thenReturn(ConsentAction.NOCAPTURE);
+
+        ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
+        Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
+        Assert.assertEquals(consentDetailResponse.getTransactionId(),"transactionId");
+    }
+
+    @Test
+    public void getConsentDetails_withNotConsentedClaims_thenPass(){
+        OIDCTransaction transaction=new OIDCTransaction();
+        ClaimStatus claimStatus=new ClaimStatus();
+        claimStatus.setClaim("email");
+        claimStatus.setVerified(false);
+        claimStatus.setAvailable(true);
+        transaction.setClaimStatuses(List.of(claimStatus));
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+        Mockito.when(consentHelperService.getConsentAction(Mockito.any(),Mockito.anyBoolean())).thenReturn(ConsentAction.CAPTURE);
+
+        ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
+        Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.CAPTURE);
+        Assert.assertEquals(consentDetailResponse.getTransactionId(),"transactionId");
+    }
+
+    @Test
+    public void getConsentDetails_withInvalidTransaction_thenFail(){
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
+        try{
+            authorizationServiceImpl.getConsentDetails("transactionId");
+        }catch (InvalidTransactionException ex){
+            Assert.assertEquals(ex.getErrorCode(),ErrorConstants.INVALID_TRANSACTION);
+        }
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {
