@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -144,12 +145,12 @@ public class AuthorizationController {
     }
 
     @PostMapping("/v3/oauth-details")
-    public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV3(@Valid @RequestBody RequestWrapper<OAuthDetailtRequestV3>
-                                                                            requestWrapper) throws EsignetException {
+    public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV3(@Valid @RequestBody RequestWrapper<OAuthDetailRequestV3>
+                                                                            requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
             //TODO wire this with v3 implementation @SaiDurga, Below is a temporary logic for UI work to proceed
-            responseWrapper.setResponse(authorizationService.getOauthDetailsV2(requestWrapper.getRequest()));
+            responseWrapper.setResponse(authorizationService.getOauthDetailsV3(requestWrapper.getRequest(),httpServletRequest));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
