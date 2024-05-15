@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class ConsentDetailResponse {
 
-    List<ClaimStatus> claimStatusList;
     private String transactionId;
     private ConsentAction consentAction;
+    private List<ClaimStatus> claimStatus;
 }

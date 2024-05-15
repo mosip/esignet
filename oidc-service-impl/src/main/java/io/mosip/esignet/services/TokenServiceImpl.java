@@ -61,7 +61,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.id-token-expire-seconds:60}")
     private int idTokenExpireSeconds;
-
+    
     @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
@@ -91,18 +91,17 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getIDToken(@NonNull OIDCTransaction transaction) {
-        JSONObject payload = new JSONObject();
-        payload.put(ISS, issuerId);
-        payload.put(SUB, transaction.getPartnerSpecificUserToken());
-        payload.put(AUD, transaction.getClientId());
-        long issueTime = IdentityProviderUtil.getEpochSeconds();
-        payload.put(IAT, issueTime);
-        payload.put(EXP, issueTime + (idTokenExpireSeconds<=0 ? 3600 : idTokenExpireSeconds));
-        payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
-        payload.put(NONCE, transaction.getNonce());
-        List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
-        payload.put(ACR, String.join(SPACE, acrs));
+        JSONObject payload = buildIDToken(transaction.getPartnerSpecificUserToken(),
+                transaction.getClientId(), idTokenExpireSeconds, transaction);
         payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
+        return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
+    }
+
+    @Override
+    public String getIDToken(@NonNull String subject, @NonNull String audience, int validitySeconds,
+                             @NonNull OIDCTransaction transaction) {
+        JSONObject payload = buildIDToken(transaction.getPartnerSpecificUserToken(),
+                transaction.getClientId(), validitySeconds, transaction);
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
 
@@ -193,6 +192,22 @@ public class TokenServiceImpl implements TokenService {
         jwtSignatureRequestDto.setIncludeCertHash(false);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
+    }
+
+    private JSONObject buildIDToken(String subject, String audience, int validitySeconds,
+                                    OIDCTransaction transaction) {
+        JSONObject payload = new JSONObject();
+        payload.put(ISS, issuerId);
+        payload.put(SUB, subject);
+        payload.put(AUD, audience);
+        long issueTime = IdentityProviderUtil.getEpochSeconds();
+        payload.put(IAT, issueTime);
+        payload.put(EXP, issueTime + (validitySeconds<=0 ? 3600 : validitySeconds));
+        payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
+        payload.put(NONCE, transaction.getNonce());
+        List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
+        payload.put(ACR, String.join(SPACE, acrs));
+        return payload;
     }
 
     private boolean isSignatureValid(String jwt) {

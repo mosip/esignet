@@ -62,8 +62,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             log.info("Started to validate {} for oauth-details headers", path);
             final String transactionId = request.getHeader(HEADER_OAUTH_DETAILS_KEY);
             final String hashValue = request.getHeader(HEADER_OAUTH_DETAILS_HASH);
-            OIDCTransaction transaction = path.endsWith("auth-code") ? cacheUtilService.getAuthenticatedTransaction(transactionId) :
-                    cacheUtilService.getPreAuthTransaction(transactionId);
+            OIDCTransaction transaction = getTransaction(transactionId, path);
             if(transaction == null) {
                 throw new InvalidTransactionException();
             }
@@ -100,5 +99,13 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             log.error("Message not found in the i18n bundle", ex);
         }
         return errorCode;
+    }
+
+    private OIDCTransaction getTransaction(String transactionId, String requestUri) {
+        if(requestUri.endsWith("auth-code") || requestUri.endsWith("prepare-signup-redirect") ||
+                requestUri.endsWith("consent-details")) {
+            return cacheUtilService.getAuthenticatedTransaction(transactionId);
+        }
+        return cacheUtilService.getPreAuthTransaction(transactionId);
     }
 }

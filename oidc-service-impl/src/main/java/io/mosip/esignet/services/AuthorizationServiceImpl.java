@@ -22,11 +22,13 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.UUID;
 
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
@@ -45,6 +52,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
 
+    private static String COOKIE_VALUE = "{\"code\":\"%s\",\"pathFragment\":\"%s\"}";
+
     @Autowired
     private ClientManagementService clientManagementService;
 
@@ -53,6 +62,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private CacheUtilService cacheUtilService;
+    
+    @Autowired
+    private TokenService tokenService;
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -90,6 +102,18 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
     private List<String> captchaRequired;
+
+    @Value("${mosip.esignet.signup-id-token-expire-seconds:60}")
+    private int signupIDTokenValidity;
+
+    @Value("${mosip.esignet.signup-id-token-audience:mosip-signup-client}")
+    private String signupIDTokenAudience;
+
+    @Value("${mosip.esignet.host}")
+    private String domain;
+
+    @Value("${server.servlet.path}")
+    private String servletPath;
 
 
     @Override
@@ -230,7 +254,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         ConsentDetailResponse consentDetailResponse=new ConsentDetailResponse();
         consentDetailResponse.setConsentAction(consentHelperService.getConsentAction(transaction,false));
         consentDetailResponse.setTransactionId(transactionId);
-        consentDetailResponse.setClaimStatusList(transaction.getClaimStatuses());
+        consentDetailResponse.setClaimStatus(transaction.getClaimStatuses());
         return  consentDetailResponse;
     }
 
@@ -305,6 +329,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
+        oidcTransaction.setSecretCode(IdentityProviderUtil.createTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
@@ -410,4 +435,25 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         return new String(authTransactionIdBytes);
     }
+
+	@Override
+	public SignupRedirectResponse prepareSignupRedirect(SignupRedirectRequest signupRedirectRequest, HttpServletResponse response) {
+		OIDCTransaction oidcTransaction = cacheUtilService.getAuthenticatedTransaction(signupRedirectRequest.getTransactionId());
+		if(oidcTransaction == null) {
+            throw new InvalidTransactionException();
+        }
+		String uuid = UUID.randomUUID().toString();
+		SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
+		signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
+		signupRedirectResponse.setIdToken(tokenService.getIDToken(uuid, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
+
+        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getSecretCode(), signupRedirectRequest.getPathFragment());
+        Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
+        cookie.setMaxAge(signupIDTokenValidity);
+        cookie.setSecure(true);
+        cookie.setDomain(domain);
+        cookie.setPath(servletPath);
+        response.addCookie(cookie);
+        return signupRedirectResponse;
+	}
 }
