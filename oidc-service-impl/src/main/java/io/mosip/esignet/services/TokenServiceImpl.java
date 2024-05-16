@@ -100,8 +100,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String getIDToken(@NonNull String subject, @NonNull String audience, int validitySeconds,
                              @NonNull OIDCTransaction transaction) {
-        JSONObject payload = buildIDToken(transaction.getPartnerSpecificUserToken(),
-                transaction.getClientId(), validitySeconds, transaction);
+        JSONObject payload = buildIDToken(subject, transaction.getClientId(), validitySeconds, transaction);
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
 
