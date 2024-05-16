@@ -15,3 +15,34 @@ envVariables:
           name: db-common-secrets
           key: db-dbuser-password
     enabled: true
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_KEYCLOAK_EXTERNAL_URL
+    valueFrom:
+        configMapKeyRef:
+          key: keycloak-external-url
+          name: keycloak-host
+    enabled: true
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_API_PUBLIC_HOST
+    valueFrom:
+          configMapKeyRef:
+            key: mosip-api-host
+            name: global
+    enabled: true
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_ABIS_CLIENT_SECRET
+    valueFrom:
+          secretKeyRef:
+            key: mosip_abis_client_secret
+            name: keycloak-client-secrets
+    enabled: true
+  - name: >-
+          SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MPARTNER_DEFAULT_AUTH_SECRET
+    valueFrom:
+          secretKeyRef:
+            key: mpartner_default_auth_secret
+            name: keycloak-client-secrets
+    enabled: true
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_IDA_CLIENT_SECRET
+    valueFrom:
+          secretKeyRef:
+            key: mosip_ida_client_secret
+            name: keycloak-client-secrets
+    enabled: true
