@@ -1014,8 +1014,8 @@ public class AuthorizationServiceTest {
         claimStatus.setVerified(true);
         claimStatus.setAvailable(true);
         transaction.setClaimStatuses(List.of(claimStatus));
+        transaction.setConsentAction(ConsentAction.NOCAPTURE);
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
-        Mockito.when(consentHelperService.getConsentAction(Mockito.any(),Mockito.anyBoolean())).thenReturn(ConsentAction.NOCAPTURE);
 
         ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
         Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
@@ -1030,8 +1030,8 @@ public class AuthorizationServiceTest {
         claimStatus.setVerified(false);
         claimStatus.setAvailable(true);
         transaction.setClaimStatuses(List.of(claimStatus));
+        transaction.setConsentAction(ConsentAction.CAPTURE);
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
-        Mockito.when(consentHelperService.getConsentAction(Mockito.any(),Mockito.anyBoolean())).thenReturn(ConsentAction.CAPTURE);
 
         ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
         Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.CAPTURE);
