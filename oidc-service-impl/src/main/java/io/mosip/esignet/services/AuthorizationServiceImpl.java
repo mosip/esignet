@@ -252,7 +252,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new InvalidTransactionException();
         }
         ConsentDetailResponse consentDetailResponse=new ConsentDetailResponse();
-        consentDetailResponse.setConsentAction(consentHelperService.getConsentAction(transaction,false));
+        consentDetailResponse.setConsentAction(transaction.getConsentAction());
         consentDetailResponse.setTransactionId(transactionId);
         consentDetailResponse.setClaimStatus(transaction.getClaimStatuses());
         return  consentDetailResponse;
