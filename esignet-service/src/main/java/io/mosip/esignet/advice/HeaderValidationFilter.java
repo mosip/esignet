@@ -153,16 +153,18 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             throw new EsignetException(ErrorConstants.NO_ATTEMPTS_LEFT);
         }
 
+        //Reason for invocation time gap check is to deny bot actions, but if we introduce incremental blockage
+        //of the individual on wrong attempts - by itself could be a way to mitigate bot actions. TBD
         //TODO Need enhance this logic to handle invocation gaps w.r.t auth-factor used in authenticate request
         //TODO Logic to check invocation gaps between send-otp and authenticate endpoints
-        try {
+        /*try {
             long currentTimeInSeconds = System.currentTimeMillis()/1000;
             if((currentTimeInSeconds - apiRateLimit.getLastInvocation().get(apiCode)) < invocationGapInSeconds) {
                 throw new EsignetException(ErrorConstants.TOO_EARLY_ATTEMPT);
             }
         } finally {
             apiRateLimit.updateLastInvocation(apiCode);
-        }
+        }*/
         return apiRateLimit;
     }
 
