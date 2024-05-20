@@ -111,12 +111,20 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 			request.remove(GlobalConstants.IDENTITYREQUEST);
 		}
 		identityRequest = buildIdentityRequest(identityRequest);
+		identityRequest = inputJsonKeyWordHandeler(identityRequest, testCaseName);
 
 		JSONObject identityReqJson = new JSONObject(identityRequest);
 		identityRequestTemplate = identityReqJson.getString("identityRequestTemplate");
 		identityReqJson.remove("identityRequestTemplate");
 		identityRequestEncUrl = identityReqJson.getString("identityRequestEncUrl");
 		identityReqJson.remove("identityRequestEncUrl");
+		
+		if (identityReqJson.has("transactionId")) {
+			String oidcTransactionId = AdminTestUtil.getAuthTransactionId(identityReqJson.getString("transactionId"));
+			if (oidcTransactionId != null && !oidcTransactionId.isBlank())
+				identityReqJson.put("transactionId", oidcTransactionId);
+		}
+		
 		identityRequest = getJsonFromTemplate(identityReqJson.toString(), identityRequestTemplate);
 		if (identityRequest.contains("$DOMAINURI$")) {
 			String domainUrl = ApplnURI.replace("api-internal", GlobalConstants.ESIGNET);
@@ -187,7 +195,7 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		} catch (SkipException e) {
 			throw new SkipException(e.getMessage());
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			throw new AdminTestException(e.getMessage());
 		}
 
 	}

@@ -522,8 +522,7 @@ WalletBinding:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_auth_factor_type_or_challenge_format",
-      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+      "errorCode": "invalid_challenge_length"
     }
   ],
         "sendOtpResp": {
@@ -536,6 +535,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_Missing_AuthFactorType_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -565,8 +565,7 @@ WalletBinding:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_auth_factor_type",
-      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+      "errorCode": "invalid_auth_factor_type"
     }
   ],
         "sendOtpResp": {
@@ -579,6 +578,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_EmptyVal_AuthFactorType_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -608,8 +608,7 @@ WalletBinding:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_auth_factor_type",
-      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+      "errorCode": "invalid_auth_factor_type"
     }
   ],
         "sendOtpResp": {
@@ -622,6 +621,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_SpaceVal_AuthFactorType_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -694,8 +694,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "binding_auth_failed",
-      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+      "errorCode": "invalid_challenge_length"
     }
   ],
         "sendOtpResp": {
@@ -708,6 +707,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_EmptyVal_Challenge_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -751,6 +751,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_Missing_Challenge_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -794,6 +795,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_SpaceVal_Challenge_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -866,8 +868,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_auth_factor_type_or_challenge_format",
-      "errorMessage": "request.format: unsupported_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ],
         "sendOtpResp": {
@@ -880,6 +881,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_Missing_Formate_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -909,8 +911,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_challenge_format",
-      "errorMessage": "request.format: unsupported_challenge_format"
+      "errorCode": "invalid_challenge_format"
     }
   ],
         "sendOtpResp": {
@@ -923,6 +924,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_SpaceVal_Formate_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -966,6 +968,7 @@ WalletBinding:
    ESignet_WalletBinding_uin_Empty_Formate_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -995,8 +998,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_challenge_format",
-      "errorMessage": "unsupported_challenge_format"
+      "errorCode": "invalid_challenge_format"
     }
   ],
         "sendOtpResp": {
@@ -1807,8 +1809,7 @@ WalletBinding:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_auth_factor_type_or_challenge_format",
-      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+      "errorCode": "invalid_challenge_length"
     }
   ],
         "sendOtpResp": {
@@ -1821,6 +1822,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_Missing_AuthFactorType_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -1850,8 +1852,7 @@ WalletBinding:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_auth_factor_type",
-      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+      "errorCode": "invalid_auth_factor_type"
     }
   ],
         "sendOtpResp": {
@@ -1864,6 +1865,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_EmptyVal_AuthFactorType_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -1908,6 +1910,7 @@ WalletBinding:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
       checkErrorsOnlyInResponse: true
+      allowedErrorCodes: invalid_auth_factor_type,invalid_auth_factor_type_format,invalid_challenge_length
       validityCheckRequired: true
       restMethod: post
       inputTemplate: esignet/WalletBinding/WalletBinding
@@ -1979,8 +1982,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "binding_auth_failed",
-      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+      "errorCode": "invalid_challenge_length"
     }
   ],
         "sendOtpResp": {
@@ -1993,6 +1995,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_EmptyVal_Challenge_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -2036,6 +2039,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_Missing_Challenge_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -2079,6 +2083,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_SpaceVal_Challenge_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -2151,8 +2156,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_auth_factor_type_or_challenge_format",
-      "errorMessage": "request.format: unsupported_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ],
         "sendOtpResp": {
@@ -2165,6 +2169,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_Missing_Formate_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -2208,6 +2213,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_SpaceVal_Formate_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -2251,6 +2257,7 @@ WalletBinding:
    ESignet_WalletBinding_Vid_Empty_Formate_Neg:
       endPoint: /v1/esignet/binding/wallet-binding
       role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       restMethod: post
@@ -2280,8 +2287,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_challenge_format",
-      "errorMessage": "unsupported_challenge_format"
+      "errorCode": "invalid_challenge_format"
     }
   ],
         "sendOtpResp": {

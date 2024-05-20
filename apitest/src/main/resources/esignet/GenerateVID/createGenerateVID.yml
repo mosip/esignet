@@ -454,6 +454,41 @@ GenerateVID:
     }
 }'
 
+   ESignetRes_Generate_Perpetual_VID_Linked_Consent_User2_Valid_Smoke_sid:
+      endPoint: /resident/v1/vid
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/GenerateVID/createGenerateVID
+      outputTemplate: esignet/GenerateVID/createGenerateVIDResult
+      input: '{
+        "transactionID": "$TRANSACTIONID$",
+        "individualId": "$ID:AddIdentity_Linked_Consent_User2_Vid_smoke_Pos_UIN$",
+        "individualIdType": "UIN",
+        "requesttime": "$TIMESTAMP$",
+        "id": "mosip.resident.vid",
+        "version": "v1",
+        "vidType": "Perpetual",
+        "otp": "$ID:AddIdentity_Linked_Consent_User2_Vid_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "transactionID": "$TRANSACTIONID$",
+    "requestTime": "$TIMESTAMP$",
+    "individualId": "$ID:AddIdentity_Linked_Consent_User2_Vid_smoke_Pos_UIN$",
+    "individualIdType": "UIN",
+    "sendOtpReqTemplate": "esignet/SendOTPRes/createSendOTP",
+    "sendOtpEndPoint": "/resident/v1/req/otp"
+    }
+    }'
+      output: '{
+  "vid": "$IGNORE$",
+  "message": "$IGNORE$",
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOTPRes/createSendOTPResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
    ESignetRes_Generate_Perpetual_VID_VCI_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
       role: resident
