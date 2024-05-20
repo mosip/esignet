@@ -81,7 +81,7 @@ export default function SignInOptions({
           className="text-center cursor-pointer font-medium text-[#0953FA] mt-3 flex flex-row rtl:flex-row-reverse items-center justify-center"
           onClick={() => setShowMoreOptions(false)} id="show-more-options"
         >
-          <span className="mr-2 rtl:ml-2">{t("more_ways_to_sign_in")}</span>
+          <span className="mr-2 rtl:ml-2 more-signin-options">{t("more_ways_to_sign_in")}</span>
           <span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -89,7 +89,7 @@ export default function SignInOptions({
               viewBox="0 0 512 512"
             >
               <path
-                className="fill-[#0953FA]"
+                className="arrow-down"
                 d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
               />
             </svg>

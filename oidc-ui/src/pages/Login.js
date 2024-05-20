@@ -218,7 +218,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
           <button
             id="back-button"
             onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+            className="back-button-color text-2xl font-semibold justify-left rtl:rotate-180"
           >
             &#8592;
           </button>
