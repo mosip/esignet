@@ -150,7 +150,7 @@ export default function Authorize({ authService }) {
                     uuid,
                     challengeList,
                     getOauthDetailsHash(oAuthDetailsResponse.response)
-                  ).then((authenticateResponse) => {
+                  ).then(() => {
                     (async () => {
                       await post_AuthCode(
                         transactionId,

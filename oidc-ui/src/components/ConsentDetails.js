@@ -152,9 +152,9 @@ const ConsentDetails = ({
         redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         return;
       } else {
-        // const encodedIdToken = btoa(response.idToken);
+        const encodedIdToken = btoa(response.idToken);
         window.location.replace(
-          `${eKYCStepsURL}?state=${state}#${response.idToken}`
+          `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
         );
       }
     } catch (error) {
