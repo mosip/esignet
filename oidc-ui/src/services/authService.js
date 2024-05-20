@@ -9,6 +9,8 @@ import {
   OAUTH_DETAIL,
   AUTHCODE,
   CSRF,
+  CONSENT_DETAILS,
+  PREPARE_SIGNUP_REDIRECT,
 } from "./../constants/routes";
 
 const authorizeQueryParam = "authorize_query_param";
@@ -30,7 +32,8 @@ class authService {
   post_AuthenticateUser = async (
     transactionId,
     individualId,
-    challengeList
+    challengeList,
+    oAuthDetailsHash
   ) => {
     let request = {
       requestTime: new Date().toISOString(),
@@ -40,14 +43,16 @@ class authService {
         challengeList: challengeList,
       },
     };
-
+    console.log(oAuthDetailsHash);
     let response = await ApiService.post(AUTHENTICATE, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         "oauth-details-hash":
-          await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+          (await oAuthDetailsHash) ||
+          (await this.openIDConnectService.getOauthDetailsHash()),
+        "oauth-details-key":
+          transactionId || (await this.openIDConnectService.getTransactionId()),
       },
     });
     return response.data;
@@ -72,42 +77,10 @@ class authService {
    * @params {string} codeChallengeMethod
    * @returns /oauthDetails API response
    */
-  post_OauthDetails = async (
-    nonce,
-    state,
-    clientId,
-    redirectUri,
-    responseType,
-    scope,
-    acrValues,
-    claims,
-    claimsLocales,
-    display,
-    maxAge,
-    prompt,
-    uiLocales,
-    codeChallenge,
-    codeChallengeMethod
-  ) => {
+  post_OauthDetails = async (params) => {
     let request = {
       requestTime: new Date().toISOString(),
-      request: {
-        nonce: nonce,
-        state: state,
-        clientId: clientId,
-        redirectUri: redirectUri,
-        responseType: responseType,
-        scope: scope,
-        acrValues: acrValues,
-        claims: claims,
-        claimsLocales: claimsLocales,
-        display: display,
-        maxAge: maxAge,
-        prompt: prompt,
-        uiLocales: uiLocales,
-        codeChallenge: codeChallenge,
-        codeChallengeMethod: codeChallengeMethod,
-      },
+      request: params,
     };
 
     let response = await ApiService.post(OAUTH_DETAIL, request, {
@@ -129,7 +102,8 @@ class authService {
   post_AuthCode = async (
     transactionId,
     acceptedClaims,
-    permittedAuthorizeScopes
+    permittedAuthorizeScopes,
+    oAuthDetailsHash
   ) => {
     let request = {
       requestTime: new Date().toISOString(),
@@ -145,8 +119,10 @@ class authService {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         "oauth-details-hash":
-          await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+          (await oAuthDetailsHash) ||
+          (await this.openIDConnectService.getOauthDetailsHash()),
+        "oauth-details-key":
+          transactionId || (await this.openIDConnectService.getTransactionId()),
       },
     });
     return response.data;
@@ -274,6 +250,40 @@ class authService {
     };
 
     let response = await ApiService.post(AUTHENTICATE_V3, request, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+      },
+    });
+    return response.data;
+  };
+
+  getConsentDetails = async () => {
+    let response = await ApiService.get(CONSENT_DETAILS, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "oauth-details-hash":
+          await this.openIDConnectService.getOauthDetailsHash(),
+        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+      },
+    });
+    return response.data;
+  };
+
+  prepareSignupRedirect = async (transactionId, pathFragment) => {
+    let request = {
+      requestTime: new Date().toISOString(),
+      request: {
+        transactionId,
+        pathFragment,
+      },
+    };
+
+    let response = await ApiService.post(PREPARE_SIGNUP_REDIRECT, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
