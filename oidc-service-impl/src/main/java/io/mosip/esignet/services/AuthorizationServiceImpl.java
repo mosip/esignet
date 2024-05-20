@@ -166,26 +166,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
+        if (oauthDetailReqDto.getIdTokenHint() == null || oauthDetailReqDto.getIdTokenHint().isEmpty()) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
         String subject = getSubject(oauthDetailReqDto.getIdTokenHint());
         boolean isCookiePresent = Arrays.stream(httpServletRequest.getCookies()).anyMatch(x -> x.getName().equals(subject));
         if (!isCookiePresent) {
-            throw new EsignetException("unknown_id_token_hint");
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
         }
         return getOauthDetailsV2(oauthDetailReqDto);
     }
 
     private String getSubject(String idTokenHint) {
         String[] jwtParts = idTokenHint.split("\\.");
-        String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
-        JSONObject payloadJson = null;
-        String subject;
-        try {
-            payloadJson = new JSONObject(payload);
-            subject = payloadJson.getString("sub");
-        } catch (JSONException e) {
-            throw new EsignetException("unknown_id_token_hint");
+        if (jwtParts.length != 3) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
         }
-        return subject;
+        try {
+            String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
+            JSONObject payloadJson = new JSONObject(payload);
+            return payloadJson.getString("sub");
+        } catch (JSONException e) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
     }
 
     @Override
