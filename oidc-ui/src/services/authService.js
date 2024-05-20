@@ -43,7 +43,6 @@ class authService {
         challengeList: challengeList,
       },
     };
-    console.log(oAuthDetailsHash);
     let response = await ApiService.post(AUTHENTICATE, request, {
       headers: {
         "Content-Type": "application/json",
