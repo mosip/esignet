@@ -84,4 +84,7 @@ public class ErrorConstants {
     public static final String PROOF_HEADER_INVALID_ALG = "proof_header_invalid_alg";
     public static final String PROOF_HEADER_INVALID_KEY = "proof_header_invalid_key";
     public static final String PROOF_HEADER_AMBIGUOUS_KEY = "proof_header_ambiguous_key";
+    public static final String NO_ATTEMPTS_LEFT = "no_attempts_left";
+    public static final String INDIVIDUAL_ID_BLOCKED = "individual_id_blocked";
+    public static final String TOO_EARLY_ATTEMPT = "too_early_attempt";
 }

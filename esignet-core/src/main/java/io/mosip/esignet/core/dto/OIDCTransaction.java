@@ -50,6 +50,7 @@ public class OIDCTransaction implements Serializable {
     String state;
 
     String individualId;
+    String individualIdHash;
 
     String oauthDetailsHash;
     ConsentAction consentAction;

@@ -5,25 +5,29 @@
  */
 package io.mosip.esignet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.ClaimDetail;
 import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.entity.ConsentDetail;
 import io.mosip.esignet.entity.ConsentHistory;
+import io.mosip.esignet.mapper.ConsentMapperImpl;
 import io.mosip.esignet.repository.ConsentHistoryRepository;
 import io.mosip.esignet.repository.ConsentRepository;
 import io.mosip.esignet.services.ConsentServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.modelmapper.MappingException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -31,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
 import static org.mockito.Mockito.doNothing;
 
 @Slf4j
@@ -50,7 +55,14 @@ public class ConsentServiceImplTest {
     @InjectMocks
     ConsentServiceImpl consentService;
 
+    @InjectMocks
+    ConsentMapperImpl consentMapper;
 
+    @Before
+    public void initialize() {
+        ReflectionTestUtils.setField(consentMapper, "objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(consentService, "consentMapper", consentMapper);
+    }
 
     @Test
     public void getUserConsent_withValidDetails_thenPass() throws Exception{
@@ -95,8 +107,8 @@ public class ConsentServiceImplTest {
         try{
             Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
             Assert.fail();
-        }catch (MappingException e){
-            Assert.assertTrue(true);
+        }catch (EsignetException e){
+            Assert.assertTrue(e.getErrorCode().equals(INVALID_CLAIM));
         }
     }
 

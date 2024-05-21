@@ -2,12 +2,15 @@ package io.mosip.esignet.advice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,18 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     @Value("#{${mosip.esignet.header-filter.paths-to-validate}}")
     private List<String> pathsToValidate;
 
+    @Value("${mosip.esignet.send-otp.attempts:3}")
+    private int sendOtpAttempts;
+
+    @Value("${mosip.esignet.authenticate.attempts:3}")
+    private int authenticateAttempts;
+
+    @Value("${mosip.esignet.send-otp.invocation-gap-secs:1}")
+    private int sendOtpInvocationGapInSeconds;
+
+    @Value("${mosip.esignet.authenticate.invocation-gap-secs:1}")
+    private int authenticateInvocationGapInSeconds;
+
     @Autowired
     private CacheUtilService cacheUtilService;
 
@@ -47,6 +62,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
 
     @Autowired
     private MessageSource messageSource;
+
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
@@ -59,7 +75,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
         final String path = request.getRequestURI();
 
         try {
-            log.info("Started to validate {} for oauth-details headers", path);
+            log.debug("Started to validate {} for oauth-details headers", path);
             final String transactionId = request.getHeader(HEADER_OAUTH_DETAILS_KEY);
             final String hashValue = request.getHeader(HEADER_OAUTH_DETAILS_HASH);
             OIDCTransaction transaction = path.endsWith("auth-code") ? cacheUtilService.getAuthenticatedTransaction(transactionId) :
@@ -67,7 +83,9 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             if(transaction == null) {
                 throw new InvalidTransactionException();
             }
+
             if(transaction.getOauthDetailsHash().equals(hashValue)) {
+                validateApiRateLimits(path, transactionId, transaction.getIndividualIdHash());
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -100,5 +118,59 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             log.error("Message not found in the i18n bundle", ex);
         }
         return errorCode;
+    }
+
+    private void validateApiRateLimits(String path, String transactionId, String individualIdHash) {
+        int apiCode = path.endsWith("send-otp") ? 1 : path.endsWith("authenticate")? 2 : 3;
+
+        ApiRateLimit apiRateLimit = null;
+        try {
+            switch (apiCode) {
+                case 1:
+                    apiRateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
+                    apiRateLimit = checkRateLimit(1, apiRateLimit, sendOtpAttempts, sendOtpInvocationGapInSeconds, individualIdHash);
+                    break;
+                case 2:
+                    apiRateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
+                    apiRateLimit = checkRateLimit(2, apiRateLimit, authenticateAttempts, authenticateInvocationGapInSeconds, individualIdHash);
+                    break;
+            }
+        } finally {
+            if(apiRateLimit != null) {
+                cacheUtilService.saveApiRateLimit(transactionId, apiRateLimit);
+            }
+        }
+    }
+
+    private ApiRateLimit checkRateLimit(int apiCode, ApiRateLimit apiRateLimit, int attemptsLimit, int invocationGapInSeconds,
+                                String individualIdHash) {
+        if(apiRateLimit == null) {
+            apiRateLimit = new ApiRateLimit();
+        }
+        apiRateLimit.increment(apiCode);
+        if(apiRateLimit.getCount().get(apiCode) > attemptsLimit) {
+            blockIndividualId(individualIdHash);
+            throw new EsignetException(ErrorConstants.NO_ATTEMPTS_LEFT);
+        }
+
+        //Reason for invocation time gap check is to deny bot actions, but if we introduce incremental blockage
+        //of the individual on wrong attempts - by itself could be a way to mitigate bot actions. TBD
+        //TODO Need enhance this logic to handle invocation gaps w.r.t auth-factor used in authenticate request
+        //TODO Logic to check invocation gaps between send-otp and authenticate endpoints
+        /*try {
+            long currentTimeInSeconds = System.currentTimeMillis()/1000;
+            if((currentTimeInSeconds - apiRateLimit.getLastInvocation().get(apiCode)) < invocationGapInSeconds) {
+                throw new EsignetException(ErrorConstants.TOO_EARLY_ATTEMPT);
+            }
+        } finally {
+            apiRateLimit.updateLastInvocation(apiCode);
+        }*/
+        return apiRateLimit;
+    }
+
+    private void blockIndividualId(String individualIdHash) {
+        if(individualIdHash != null) {
+            cacheUtilService.blockIndividualId(individualIdHash);
+        }
     }
 }
