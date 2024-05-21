@@ -437,8 +437,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
-        cookie.setDomain(domain);
-        cookie.setPath(servletPath);
+        cookie.setHttpOnly(true);
         response.addCookie(cookie);
         return signupRedirectResponse;
 	}
