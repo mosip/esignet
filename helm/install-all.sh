@@ -14,10 +14,14 @@ function installing_All() {
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
 
-  declare -a module=("redis"
-                     "esignet"
-                 "oidc-ui"
-                     )
+  declare -a module=("postgres"
+                      "iam"
+                      "kafka"
+                      "artifactory"
+                      "config-server"
+                      "redis"
+                      "esignet"
+                      "oidc-ui")
 
   echo Installing esignet services
 
