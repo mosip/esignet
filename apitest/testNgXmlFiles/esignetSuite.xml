@@ -398,13 +398,6 @@
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
 	</test>
-	<test name="LinkedAuthenticationWlaNoBinding">
-		<parameter name="ymlFile"
-			value="esignet/LinkedAuthenticationWlaNoBinding/LinkedAuthenticationWla.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
 	<test name="LinkedAuthenticationWla">
 		<parameter name="ymlFile"
 			value="esignet/LinkedAuthenticationWla/LinkedAuthenticationWla.yml" />

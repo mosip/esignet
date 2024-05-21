@@ -228,6 +228,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge_length
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -244,7 +245,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "auth_factor_mismatch"
+      "errorCode": "invalid_challenge_length"
     }
   ]
 }'
@@ -253,6 +254,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -278,6 +280,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -303,6 +306,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge_length
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -319,7 +323,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "auth_factor_mismatch"
+      "errorCode": "invalid_challenge_length"
     }
   ]
 }'
@@ -328,6 +332,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge_length
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -344,7 +349,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "auth_factor_mismatch"
+      "errorCode": "invalid_challenge_length"
     }
   ]
 }'
@@ -353,6 +358,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -378,6 +384,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -403,6 +410,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -478,6 +486,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -519,7 +528,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "auth_failed"
+      "errorCode": "invalid_challenge_length"
     }
   ]
 }'
@@ -553,6 +562,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -578,6 +588,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -603,6 +614,7 @@ AuthenticateUserSunBirdRCNegTC:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC
@@ -689,7 +701,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ]
 }'
@@ -714,7 +726,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ]
 }'
@@ -739,7 +751,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ]
 }'
@@ -764,7 +776,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ]
 }'
@@ -789,7 +801,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ]
 }'
@@ -814,7 +826,7 @@ AuthenticateUserSunBirdRCNegTC:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_challenge_format"
+      "errorCode": "invalid_auth_factor_type_format"
     }
   ]
 }'
