@@ -90,6 +90,7 @@ const configurationKeys = {
   forgotPasswordConfig: "forgot-password.config",
   forgotPassword: "forgot-password",
   forgotPasswordURL: "forgot-password.url",
+  eKYCStepsConfig: "eKYC-steps.config",
   bannerCloseTimer: "error.banner.close-timer",
   authFactorKnowledgeFieldDetails: "auth.factor.kba.field-details",
   authFactorKnowledgeIndividualIdField: "auth.factor.kba.individual-id-field"

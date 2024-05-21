@@ -35,7 +35,7 @@ export default function Otp({
             <button
               id="back-button"
               onClick={() => setOtpStatus(OTPStatusEnum.getOtp)}
-              className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+              className="text-2xl font-semibold justify-left rtl:rotate-180 back-button-color"
             >
               &#8592;
             </button>

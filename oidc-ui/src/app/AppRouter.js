@@ -17,8 +17,10 @@ import {
   PAGE_NOT_FOUND,
   SOMETHING_WENT_WRONG,
   ESIGNET_DETAIL,
+  CONSENT_DETAIL,
 } from "../constants/routes";
 import configService from "../services/configService";
+import ConsentDetails from "../components/ConsentDetails";
 
 const config = await configService();
 
@@ -82,6 +84,7 @@ export const AppRouter = () => {
     { route: LOGIN, component: <LoginPage /> },
     { route: AUTHORIZE, component: <AuthorizePage /> },
     { route: CONSENT, component: <ConsentPage /> },
+    { route: CONSENT_DETAIL, component: <ConsentDetails /> },
     { route: SOMETHING_WENT_WRONG, component: <SomethingWrongPage /> },
     { route: PAGE_NOT_FOUND, component: <PageNotFoundPage /> },
     { route: "*", component: <PageNotFoundPage /> },
