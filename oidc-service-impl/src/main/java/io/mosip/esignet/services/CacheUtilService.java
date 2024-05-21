@@ -7,15 +7,20 @@ package io.mosip.esignet.services;
 
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
+import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+
+import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
 
 @Slf4j
@@ -104,6 +109,23 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    @CachePut(value = Constants.RATE_LIMIT_CACHE, key = "#transactionId")
+    public ApiRateLimit saveApiRateLimit(String transactionId, ApiRateLimit apiRateLimit) {
+        return apiRateLimit;
+    }
+
+    @Cacheable(value = Constants.BLOCKED_CACHE, key = "#individualIdHash")
+    public String blockIndividualId(String individualIdHash) {
+        return individualIdHash;
+    }
+
+    @CachePut(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
+    public OIDCTransaction updateIndividualIdHashInPreAuthCache(String transactionId, String individualId) {
+        OIDCTransaction oidcTransaction = cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class);//NOSONAR getCache() will not be returning null here.
+        oidcTransaction.setIndividualIdHash(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId));
+        return oidcTransaction;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     public OIDCTransaction getPreAuthTransaction(String transactionId) {
@@ -140,5 +162,14 @@ public class CacheUtilService {
 
     public OIDCTransaction getLinkedAuthTransaction(String linkTransactionId) {
         return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
+    }
+
+    public ApiRateLimit getApiRateLimitTransaction(String transactionId) {
+        return cacheManager.getCache(Constants.RATE_LIMIT_CACHE).get(transactionId, ApiRateLimit.class); //NOSONAR getCache() will not be returning null here.
+    }
+
+    public boolean isIndividualIdBlocked(String individualIdHash) {
+        String idHash = cacheManager.getCache(Constants.BLOCKED_CACHE).get(individualIdHash, String.class); //NOSONAR getCache() will not be returning null here.
+        return idHash != null;
     }
 }

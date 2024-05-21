@@ -145,6 +145,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(transaction == null)
             throw new InvalidTransactionException();
 
+        transaction = cacheUtilService.updateIndividualIdHashInPreAuthCache(otpRequest.getTransactionId(),
+                otpRequest.getIndividualId());
+
+        if(cacheUtilService.isIndividualIdBlocked(transaction.getIndividualIdHash()))
+            throw new EsignetException(ErrorConstants.INDIVIDUAL_ID_BLOCKED);
+
         SendOtpResult sendOtpResult = authorizationHelperService.delegateSendOtpRequest(otpRequest, transaction);
         OtpResponse otpResponse = new OtpResponse();
         otpResponse.setTransactionId(otpRequest.getTransactionId());
@@ -225,6 +231,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
+
+        transaction = cacheUtilService.updateIndividualIdHashInPreAuthCache(authRequest.getTransactionId(),
+                authRequest.getIndividualId());
+        if(cacheUtilService.isIndividualIdBlocked(transaction.getIndividualIdHash()))
+            throw new EsignetException(ErrorConstants.INDIVIDUAL_ID_BLOCKED);
 
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
         Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
