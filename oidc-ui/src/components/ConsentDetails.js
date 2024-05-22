@@ -280,7 +280,7 @@ const ConsentDetails = ({
                                 content={claimScope.tooltip}
                                 position="bottom"
                                 contentSize="text-xs"
-                                contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-screen sm:w-[26rem] leading-none abc"
+                                contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-screen sm:w-[26rem] leading-none"
                               />
                             </div>
                           </div>
