@@ -112,7 +112,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.host}")
     private String domain;
 
-    @Value("${server.servlet.path}")
+    @Value("${mosip.esignet.servlet.path}")
     private String servletPath;
 
 
