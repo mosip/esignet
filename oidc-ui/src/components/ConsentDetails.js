@@ -55,7 +55,7 @@ const ConsentDetails = ({
       const { response, errors } = consentDetailsResponse;
 
       if (errors != null && errors.length > 0) {
-        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        // redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         return;
       } else {
         let claimsScopes = [];
@@ -131,7 +131,7 @@ const ConsentDetails = ({
         setClaimsScopes(claimsScopes);
       }
     } catch (error) {
-      redirectOnError("authorization_failed_msg", error.message);
+      // redirectOnError("authorization_failed_msg", error.message);
     }
   };
 
@@ -141,25 +141,28 @@ const ConsentDetails = ({
 
   const handleProceed = async () => {
     window.onbeforeunload = null;
-    try {
-      const signupRedirectResponse = await authServices.prepareSignupRedirect(
-        transactionId,
-        window.location.href
-      );
-      const { response, errors } = signupRedirectResponse;
-
-      if (errors != null && errors.length > 0) {
-        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-        return;
-      } else {
-        const encodedIdToken = btoa(response.idToken);
-        window.location.replace(
-          `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
+         window.location.replace(
+          `${eKYCStepsURL}?state=${state}#id_token`
         );
-      }
-    } catch (error) {
-      redirectOnError("authorization_failed_msg", error.message);
-    }
+    // try {
+    //   const signupRedirectResponse = await authServices.prepareSignupRedirect(
+    //     transactionId,
+    //     window.location.href
+    //   );
+    //   const { response, errors } = signupRedirectResponse;
+
+    //   if (errors != null && errors.length > 0) {
+    //     redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+    //     return;
+    //   } else {
+    //     const encodedIdToken = btoa(response.idToken);
+    //     window.location.replace(
+    //       `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
+    //     );
+    //   }
+    // } catch (error) {
+    //   redirectOnError("authorization_failed_msg", error.message);
+    // }
   };
 
   const handleCancel = () => {
@@ -277,7 +280,7 @@ const ConsentDetails = ({
                                 content={claimScope.tooltip}
                                 position="bottom"
                                 contentSize="text-xs"
-                                contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-screen sm:w-[26rem] leading-none"
+                                contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-screen sm:w-[26rem] leading-none abc"
                               />
                             </div>
                           </div>
