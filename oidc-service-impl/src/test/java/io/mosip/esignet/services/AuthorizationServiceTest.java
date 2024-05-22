@@ -20,7 +20,10 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.AuthorizationServiceImpl;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,6 +37,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,6 +56,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     CacheUtilService cacheUtilService;
+    
+    @Mock
+    TokenService tokenService;
 
     @Mock
     Authenticator authenticationWrapper;
@@ -63,6 +71,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     ConsentHelperService consentHelperService;
+    
+    @Mock
+    HttpServletResponse httpServletResponse;
 
 
     @Before
@@ -78,13 +89,37 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationContextClassRefUtil", authenticationContextClassRefUtil);
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationWrapper", authenticationWrapper);
         ReflectionTestUtils.setField(authorizationHelperService, "auditWrapper", auditWrapper);
-
+        
+        ReflectionTestUtils.setField(authorizationServiceImpl, "servletPath", "/v1/esignet");
+        ReflectionTestUtils.setField(authorizationServiceImpl, "domain", "dev.mosip.net");
+//        ReflectionTestUtils.setField(authorizationServiceImpl, "signupIDTokenValidity", 60);
         ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
         ReflectionTestUtils.setField(authorizationServiceImpl, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);
     }
 
-
+    
+    @Test(expected = InvalidTransactionException.class)
+    public void prepareSignupRedirect_withInvalidTransactionId_throwsException() {
+    	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+    	signupRedirectRequest.setTransactionId("transactionId");
+    	signupRedirectRequest.setPathFragment("pathFragment");
+    	when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
+    	authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse);
+    }
+    
+    @Test
+    public void prepareSignupRedirect_withValidInput_thenPass() {
+    	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+    	signupRedirectRequest.setTransactionId("transactionId");
+    	signupRedirectRequest.setPathFragment("pathFragment");
+    	OIDCTransaction oidcTransaction = new OIDCTransaction();
+    	oidcTransaction.setSecretCode("secretCode");
+    	when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+    	SignupRedirectResponse signupRedirectResponse = authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse);
+    	Assert.assertEquals(signupRedirectResponse.getTransactionId(), "transactionId");
+    }
+    
     @Test(expected = InvalidClientException.class)
     public void getOauthDetails_withInvalidClientId_throwsException() throws EsignetException {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
