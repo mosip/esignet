@@ -143,7 +143,6 @@ export default function Pin({
         //   response.consentAction
         // );
 
-
         //TODO navigate to specific url based on the response
         // navigate(process.env.PUBLIC_URL + "/consent" + params, {
         //   replace: true,
