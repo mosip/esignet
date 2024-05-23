@@ -132,14 +132,8 @@ export default function Pin({
           openIDConnectService.getOAuthDetails(),
           response.consentAction
         );
-
-
-        //TODO navigate to specific url based on the response
-        // navigate(process.env.PUBLIC_URL + "/consent" + params, {
-        //   replace: true,
-        // });
-
-        navigate(process.env.PUBLIC_URL + "/claims-details" + params, {
+        
+        navigate(process.env.PUBLIC_URL + "/consent" + params, {
           replace: true,
         });
       }

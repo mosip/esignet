@@ -239,7 +239,12 @@ export default function OtpVerify({
 
         let params = buildRedirectParams(nonce, state, openIDConnectService.getOAuthDetails(), response.consentAction);
 
-        navigate(process.env.PUBLIC_URL + "/consent" + params, {
+        //TODO navigate to specific url based on the response
+        // navigate(process.env.PUBLIC_URL + "/consent" + params, {
+        //   replace: true,
+        // });
+
+        navigate(process.env.PUBLIC_URL + "/claims-details" + params, {
           replace: true,
         });
       }
