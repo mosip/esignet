@@ -21,4 +21,9 @@ public class KycAuthResult {
     private String kycToken;
     private String partnerSpecificUserToken;
     private Map<String, List<ClaimMetadata>> claimsMetadata;
+
+    public KycAuthResult(String kycToken, String partnerSpecificUserToken) {
+        this.kycToken = kycToken;
+        this.partnerSpecificUserToken = partnerSpecificUserToken;
+    }
 }
