@@ -21,4 +21,12 @@ public class KycAuthDto {
     private String individualId;
 
     private List<AuthChallenge> challengeList;
+
+    private boolean claimMetadataRequired;
+
+    public KycAuthDto(String transactionId, String individualId, List<AuthChallenge> challengeList) {
+        this.transactionId = transactionId;
+        this.individualId = individualId;
+        this.challengeList = challengeList;
+    }
 }

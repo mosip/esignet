@@ -6,14 +6,9 @@
 package io.mosip.esignet.api.spi;
 
 import java.util.List;
+import java.util.Map;
 
-import io.mosip.esignet.api.dto.KycAuthDto;
-import io.mosip.esignet.api.dto.KycAuthResult;
-import io.mosip.esignet.api.dto.KycExchangeDto;
-import io.mosip.esignet.api.dto.KycExchangeResult;
-import io.mosip.esignet.api.dto.KycSigningCertificateData;
-import io.mosip.esignet.api.dto.SendOtpDto;
-import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
@@ -66,4 +61,10 @@ public interface Authenticator {
      */
     List<KycSigningCertificateData> getAllKycSigningCertificates() throws KycSigningCertificateException;
 
+    /**
+     * Fetch claims metadata
+     * @param kycToken
+     * @return
+     */
+    Map<String, List<ClaimMetadata>> getClaimMetadata(String partnerSpecificUserToken, String kycToken);
 }

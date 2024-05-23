@@ -278,7 +278,7 @@ public class AuthCodeFlowTest {
     }
 
     private ResponseWrapper<AuthResponse> authenticate(String transactionId) throws Exception {
-        KycAuthDto kycAuthDto = new KycAuthDto();
+        AuthRequest kycAuthDto = new AuthRequest();
         kycAuthDto.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
@@ -287,7 +287,7 @@ public class AuthCodeFlowTest {
         kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
         kycAuthDto.setTransactionId(transactionId);
 
-        RequestWrapper<KycAuthDto> wrapper = new RequestWrapper<>();
+        RequestWrapper<AuthRequest> wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(kycAuthDto);
 

@@ -315,6 +315,11 @@ public class TestAuthenticationService implements Authenticator {
         return certs;
     }
 
+    @Override
+    public Map<String, List<ClaimMetadata>> getClaimMetadata(String partnerSpecificUserToken, String kycToken) {
+        return Map.of();
+    }
+
     private boolean authenticateUser(String transactionId, String individualId, AuthChallenge authChallenge) {
         switch (authChallenge.getAuthFactorType()) {
             case "PIN" :
