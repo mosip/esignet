@@ -55,7 +55,7 @@ const ConsentDetails = ({
       const { response, errors } = consentDetailsResponse;
 
       if (errors != null && errors.length > 0) {
-        // redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         return;
       } else {
         let claimsScopes = [];
@@ -131,7 +131,7 @@ const ConsentDetails = ({
         setClaimsScopes(claimsScopes);
       }
     } catch (error) {
-      // redirectOnError("authorization_failed_msg", error.message);
+      redirectOnError("authorization_failed_msg", error.message);
     }
   };
 
@@ -141,28 +141,26 @@ const ConsentDetails = ({
 
   const handleProceed = async () => {
     window.onbeforeunload = null;
-         window.location.replace(
-          `${eKYCStepsURL}?state=${state}#id_token`
-        );
-    // try {
-    //   const signupRedirectResponse = await authServices.prepareSignupRedirect(
-    //     transactionId,
-    //     window.location.href
-    //   );
-    //   const { response, errors } = signupRedirectResponse;
+    
+    try {
+      const signupRedirectResponse = await authServices.prepareSignupRedirect(
+        transactionId,
+        window.location.href
+      );
+      const { response, errors } = signupRedirectResponse;
 
-    //   if (errors != null && errors.length > 0) {
-    //     redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-    //     return;
-    //   } else {
-    //     const encodedIdToken = btoa(response.idToken);
-    //     window.location.replace(
-    //       `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
-    //     );
-    //   }
-    // } catch (error) {
-    //   redirectOnError("authorization_failed_msg", error.message);
-    // }
+      if (errors != null && errors.length > 0) {
+        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        return;
+      } else {
+        const encodedIdToken = btoa(response.idToken);
+        window.location.replace(
+          `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
+        );
+      }
+    } catch (error) {
+      redirectOnError("authorization_failed_msg", error.message);
+    }
   };
 
   const handleCancel = () => {
