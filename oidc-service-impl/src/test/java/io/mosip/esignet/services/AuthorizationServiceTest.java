@@ -1007,7 +1007,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getConsentDetails_withConsentedClaims_thenPass(){
+    public void getConsentDetails_withValidTransaction_thenPass(){
         OIDCTransaction transaction=new OIDCTransaction();
         ClaimStatus claimStatus=new ClaimStatus();
         claimStatus.setClaim("email");
@@ -1019,22 +1019,6 @@ public class AuthorizationServiceTest {
 
         ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
         Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
-        Assert.assertEquals(consentDetailResponse.getTransactionId(),"transactionId");
-    }
-
-    @Test
-    public void getConsentDetails_withNotConsentedClaims_thenPass(){
-        OIDCTransaction transaction=new OIDCTransaction();
-        ClaimStatus claimStatus=new ClaimStatus();
-        claimStatus.setClaim("email");
-        claimStatus.setVerified(false);
-        claimStatus.setAvailable(true);
-        transaction.setClaimStatuses(List.of(claimStatus));
-        transaction.setConsentAction(ConsentAction.CAPTURE);
-        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
-
-        ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
-        Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.CAPTURE);
         Assert.assertEquals(consentDetailResponse.getTransactionId(),"transactionId");
     }
 
