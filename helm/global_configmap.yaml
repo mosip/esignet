@@ -1,0 +1,21 @@
+## The data here is of generic interest to modules in different namespaces hence this is marked as global.
+## Replace your domain names here.
+## mosip-api-host:  External public access. (Typically required only in production rollouts).
+## mosip-api-internal-host: Internal secure access over Wireguard.
+## By default all domains and subdomains listed below point to mosip-api-internal-host. Modify this default behavior ONLY in production rollout as follows:
+##     mosip-prereg-host:  Points to mosip-api-host.
+##     mosip-pmp-host: Points to mosip-api-host.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: global
+  namespace: default
+data:
+  mosip-version: develop
+  mosip-api-host: api.sandbox.xyz.net
+  mosip-iam-external-host: iam.sandbox.xyz.net
+  mosip-api-internal-host: api-internal.sandbox.xyz.net
+  mosip-kafka-host: kafka.sandbox.xyz.net
+  mosip-postgres-host: postgres.sandbox.xyz.net
+  is_glowroot_env: absent
