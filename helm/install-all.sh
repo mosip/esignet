@@ -21,8 +21,8 @@ kubectl apply -f global_configmap.yaml
   declare -a module=("postgres"
                       "iam"
                       "kafka"
-                      "artifactory"
                       "config-server"
+                      "artifactory"
                       "redis"
                       "esignet"
                       "oidc-ui")

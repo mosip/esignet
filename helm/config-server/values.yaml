@@ -62,10 +62,3 @@ envVariables:
         key: mosip_ida_client_secret
     enabled: true
 
-  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_API_INTERNAL_HOST
-    valueFrom:
-      configMapKeyRef:
-        name: global
-        key: mosip-api-internal-host
-    enabled: true
-
