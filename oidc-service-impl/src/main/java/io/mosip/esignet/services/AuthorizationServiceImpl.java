@@ -245,6 +245,20 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return authCodeResponse;
     }
 
+    @Override
+    public ConsentDetailResponse getConsentDetails(String transactionId) {
+        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
+        if(transaction == null) {
+            throw new InvalidTransactionException();
+        }
+        ConsentDetailResponse consentDetailResponse=new ConsentDetailResponse();
+        consentDetailResponse.setConsentAction(transaction.getConsentAction());
+        consentDetailResponse.setTransactionId(transactionId);
+        consentDetailResponse.setClaimStatus(transaction.getClaimStatuses());
+        return  consentDetailResponse;
+    }
+
+
     private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction) {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)

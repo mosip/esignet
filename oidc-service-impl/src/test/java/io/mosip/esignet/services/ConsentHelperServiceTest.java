@@ -458,7 +458,6 @@ public class ConsentHelperServiceTest {
         consentDetail.setSignature("haa.naa");
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
-
         try{
             consentHelperService.processConsent(oidcTransaction,true);
             Assert.fail();
@@ -481,6 +480,7 @@ public class ConsentHelperServiceTest {
         consentHelperService.processConsent(oidcTransaction,true);
         Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
     }
+
 
     private String generateSignature(Map<String,Object> payloadMap) throws Exception {
 
