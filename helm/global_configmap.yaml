@@ -17,5 +17,6 @@ data:
   mosip-iam-external-host: iam.sandbox.xyz.net
   mosip-api-internal-host: api-internal.sandbox.xyz.net
   mosip-kafka-host: kafka.sandbox.xyz.net
+  mosip-esignet-host: esignet.sandobox.xyz.net
   mosip-postgres-host: postgres.sandbox.xyz.net
   is_glowroot_env: absent
