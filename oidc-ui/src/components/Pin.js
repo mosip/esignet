@@ -97,6 +97,16 @@ export default function Pin({
       );
 
       setStatus(states.LOADED);
+      let nonce = openIDConnectService.getNonce();
+      let state = openIDConnectService.getState();
+      let params = buildRedirectParams(
+        nonce,
+        state,
+        openIDConnectService.getOAuthDetails()
+      );
+      navigate(process.env.PUBLIC_URL + "/claims-details" + params, {
+        replace: true,
+      });
 
       const { response, errors } = authenticateResponse;
 
@@ -123,24 +133,24 @@ export default function Pin({
       } else {
         setErrorBanner(null);
 
-        let nonce = openIDConnectService.getNonce();
-        let state = openIDConnectService.getState();
+        // let nonce = openIDConnectService.getNonce();
+        // let state = openIDConnectService.getState();
 
-        let params = buildRedirectParams(
-          nonce,
-          state,
-          openIDConnectService.getOAuthDetails(),
-          response.consentAction
-        );
+        // let params = buildRedirectParams(
+        //   nonce,
+        //   state,
+        //   openIDConnectService.getOAuthDetails(),
+        //   response.consentAction
+        // );
 
         //TODO navigate to specific url based on the response
         // navigate(process.env.PUBLIC_URL + "/consent" + params, {
         //   replace: true,
         // });
 
-        navigate(process.env.PUBLIC_URL + "/claims-details" + params, {
-          replace: true,
-        });
+        // navigate(process.env.PUBLIC_URL + "/claims-details" + params, {
+        //   replace: true,
+        // });
       }
     } catch (error) {
       setErrorBanner({
