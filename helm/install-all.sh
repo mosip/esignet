@@ -14,6 +14,10 @@ function installing_All() {
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
 
+#  apply global config-map
+
+kubectl apply -f global_configmap.yaml
+
   declare -a module=("postgres"
                       "iam"
                       "kafka"
