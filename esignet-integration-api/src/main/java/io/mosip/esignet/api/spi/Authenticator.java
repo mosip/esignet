@@ -62,9 +62,25 @@ public interface Authenticator {
     List<KycSigningCertificateData> getAllKycSigningCertificates() throws KycSigningCertificateException;
 
     /**
-     * Fetch claims metadata
-     * @param kycToken
+     * Authenticate and return individual's claims metadata if requested
+     * @param relyingPartyId
+     * @param clientId
+     * @param claimsMetadataRequired
+     * @param kycAuthDto
      * @return
+     * @throws KycAuthException
      */
-    Map<String, List<ClaimMetadata>> getClaimMetadata(String partnerSpecificUserToken, String kycToken);
+    KycAuthResult doKycAuth(String relyingPartyId, String clientId, boolean claimsMetadataRequired, KycAuthDto kycAuthDto)
+            throws KycAuthException;
+
+    /**
+     * Providioned to return verified userinfo based on the provided verification requirement
+     * @param relyingPartyId
+     * @param clientId
+     * @param kycExchangeDto
+     * @return
+     * @throws KycExchangeException
+     */
+    KycExchangeResult doVerifiedKycExchange(String relyingPartyId, String clientId, VerifiedKycExchangeDto kycExchangeDto)
+            throws KycExchangeException;
 }

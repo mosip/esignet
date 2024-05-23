@@ -5,20 +5,13 @@
  */
 package io.mosip.esignet.api.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
 
-
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class KycAuthResult {
+public class VerifiedKycExchangeDto extends KycExchangeDto  {
 
-    private String kycToken;
-    private String partnerSpecificUserToken;
-    private Map<String, List<ClaimMetadata>> claimsMetadata;
+    private Map<String, ClaimMetadata> acceptedVerifiedClaims;
 }
