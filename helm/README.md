@@ -25,6 +25,7 @@ Istio
 * [nginx](https://github.com/mosip/k8s-infra/tree/main/mosip/on-prem/nginx)
 
 ## Esignet dependent modules installation
+ Install in the following order:
 
 * postgres
 * iam
@@ -35,7 +36,12 @@ Istio
 * esignet
 * oidc-ui
 
-## Run install-all.sh() TODO
+## Install
+
+* The same can be achieved by running helm/install-all.sh
+* `cd helm`
+
+  `./install-all.sh`
 
 ### Once all the services are up and running, perform the onboarding process for Esignet
 
