@@ -8,7 +8,6 @@ Before you begin, ensure you have the following installed and configured on your
 
 Kubernetes (kubectl)
 Helm
-Nginx
 Istio
 * [reference-link](https://github.com/mosip/k8s-infra/blob/main/mosip/on-prem/README.md)
 
@@ -24,7 +23,7 @@ Istio
 
 * [nginx](https://github.com/mosip/k8s-infra/tree/main/mosip/on-prem/nginx)
 
-## Esignet dependent modules installation
+## Esignet and dependent modules installation
  Install in the following order:
 
 * postgres
@@ -44,12 +43,5 @@ Istio
   `./install-all.sh`
 
 ### Once all the services are up and running, perform the onboarding process for Esignet
-
 * [partner-onboarding](https://github.com/mosip/esignet/tree/v1.4.0/partner-onboarder)
-
-
-
-
-
-
 

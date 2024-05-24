@@ -13,14 +13,14 @@ function Deleting_All() {
 
   helm -n $SOFTHSM_NS delete softhsm-esignet
 
-  declare -a module=("postgres"
-                      "iam"
-                      "kafka"
-                      "artifactory"
-                      "config-server"
-                      "redis"
-                      "esignet"
-                      "oidc-ui")
+  declare -a module=("oidc-ui"
+                     "esignet"
+                     "redis"
+                     "config-server"
+                     "artifactory"
+                     "kafka"
+                     "iam"
+                     "postgres")
 
   echo Installing esignet services
 

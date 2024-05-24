@@ -9,10 +9,6 @@ fi
 NS=config-server
 CHART_VERSION=0.0.1-develop
 
-read -p "Is conf-secrets module installed?(Y/n) " yn
-if [ $yn = "Y" ]; then read -p "Is values.yaml for config-server chart set correctly as part of Pre-requisites?(Y/n) " yn; fi
-if [ $yn = "Y" ]
-  then
     echo Create $NS namespace
     kubectl create ns $NS
 
@@ -38,7 +34,3 @@ if [ $yn = "Y" ]
     echo Installing config-server
     helm -n $NS install config-server mosip/config-server -f values.yaml --wait --version $CHART_VERSION
     echo Installed Config-server.
-  else
-    echo Exiting the MOSIP installation. Please meet the pre-requisites and than start again.
-    kill -9 `ps --pid $$ -oppid=`; exit
-fi

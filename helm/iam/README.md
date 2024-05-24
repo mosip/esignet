@@ -55,28 +55,6 @@ To populate base data of MOSIP, run Keycloak Init job:
 ```
 $ ./keycloak_init.sh <kubeconfig file for mosip cluster>
 ```
-
-## Frontend URL
-- Navigate to keycloak admin console.
-- Navigate to `Mosip` realm.
-- Configure *Frontend URL* property in *Realm Settings* page. Value for the frontend url should be: `https://<mosip-iam-external-host>/auth`. Eg: `https://iam.sandbox.mosip.net/auth`.
-- Save it.
-
-Automated this as part of keycloak-init
-
-## Enable Multi Languages in keycloak
-- Navigate to the keycloak admin console.
-- Navigate to `Mosip` realm.
-- Navigate to `Realms Settings` ----> `Themes`.
-- Enable `Internationalization Enabled`.
-- Set languages in `Supported Locales`.
-- Click on `Save`.
-  ![keycloak-1.png](../../docs/images/keycloak-1.png)
-- Confirm via checking languages in `Mosip` admin login page `https://iam.sandbox.xyz.net/auth/admin/mosip/console/`.
-  ![img.png](../../docs/images/keycloak-2.png)
-
-TODO: Automate this as part of keycloak-init
-
 ## EXPORT 
 
 ### Export from Jboss keycloak 9.0.0

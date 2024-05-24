@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Installs esignet services in correct order
-## Usage: ./install-all.sh [kubeconfig]
+# Installs eSignet services in correct order
+## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
@@ -9,40 +9,34 @@ fi
 
 ROOT_DIR=`pwd`
 
-function installing_All() {
+function installing_eSignet() {
 
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
 
-#  apply global config-map
+  # Apply global config-map
+  kubectl apply -f global_configmap.yaml
 
-kubectl apply -f global_configmap.yaml
+  # List of modules to install
+  declare -a modules=("config-server" "artifactory" "esignet" "oidc-ui")
 
-  declare -a module=("postgres"
-                      "iam"
-                      "kafka"
-                      "config-server"
-                      "artifactory"
-                      "redis"
-                      "esignet"
-                      "oidc-ui")
+  echo "Installing eSignet services"
 
-  echo Installing esignet services
-
-  for i in "${module[@]}"
+  # Install modules
+  for module in "${modules[@]}"
   do
-    cd $ROOT_DIR/"$i"
+    cd $ROOT_DIR/"$module"
     ./install.sh
   done
 
-  echo All esignet services deployed sucessfully.
+  echo "All eSignet services deployed successfully."
   return 0
 }
 
-# set commands for error handling.
+# Set commands for error handling.
 set -e
 set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
-set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o nounset   ## set -u : exit the script if you try to use an uninitialized variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-installing_All   # calling function
+installing_eSignet   # calling function
