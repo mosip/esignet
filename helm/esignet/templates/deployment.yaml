@@ -94,12 +94,18 @@ spec:
           env:
             - name: container_user
               value: {{ .Values.containerSecurityContext.runAsUser }}
+            {{- if .Values.additionalResources.javaOpts }}
             - name: JDK_JAVA_OPTIONS
               value: {{ .Values.additionalResources.javaOpts }}
+            {{- end }}
+            {{- if .Values.springConfigNameEnv }}
             - name: spring_config_name_env
               value: {{ .Values.springConfigNameEnv }}
+            {{- end }}
+            {{- if .Values.activeProfileEnv }}
             - name: active_profile_env
               value: {{ .Values.activeProfileEnv }}
+            {{- end}}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}

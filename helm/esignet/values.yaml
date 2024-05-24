@@ -457,5 +457,5 @@ istio:
   prefix: /v1/esignet/
 
 enable_insecure: false
-springConfigNameEnv: esignet
-activeProfileEnv: default
+springConfigNameEnv:
+activeProfileEnv:
