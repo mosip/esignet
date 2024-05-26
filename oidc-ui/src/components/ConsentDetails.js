@@ -144,7 +144,8 @@ const ConsentDetails = ({
     try {
        const signupRedirectResponse = await authServices.prepareSignupRedirect(
          transactionId,
-         window.location.href
+         ""
+         // window.location.href
        );
        const { response, errors } = signupRedirectResponse;
 
