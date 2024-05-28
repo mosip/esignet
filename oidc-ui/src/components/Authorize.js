@@ -4,15 +4,19 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
+import localStorageService from "../services/local-storageService";
+import sha256 from "crypto-js/sha256";
+import Base64 from "crypto-js/enc-base64";
 
-export default function Authorize({
-  authService,
-}) {
+const { getCookie } = { ...localStorageService };
 
+export default function Authorize({ authService }) {
   const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails = authService.post_OauthDetails;
   const buildRedirectParams = authService.buildRedirectParams;
   const storeQueryParam = authService.storeQueryParam;
+  const post_AuthenticateUser = authService.post_AuthenticateUser;
+  const post_AuthCode = authService.post_AuthCode;
 
   const [status, setStatus] = useState(states.LOADING);
   const [oAuthDetailResponse, setOAuthDetailResponse] = useState(null);
@@ -42,6 +46,7 @@ export default function Authorize({
         let uiLocales = searchParams.get("ui_locales");
         let codeChallenge = searchParams.get("code_challenge");
         let codeChallengeMethod = searchParams.get("code_challenge_method");
+        let idTokenHint = searchParams.get("id_token_hint");
 
         let claimsDecoded;
         if (claims == null) {
@@ -56,28 +61,118 @@ export default function Authorize({
           }
         }
 
-        await get_CsrfToken();
+        if (idTokenHint === null || idTokenHint === undefined) {
+          await get_CsrfToken();
+        }
 
-        const response = await post_OauthDetails(
-          nonce,
-          state,
-          client_id,
-          redirect_uri,
-          response_type,
-          scope,
-          acr_values,
-          claimsDecoded,
-          claimsLocales,
-          display,
-          maxAge,
-          prompt,
-          uiLocales,
-          codeChallenge,
-          codeChallengeMethod
+        let request = {
+          nonce: nonce,
+          state: state,
+          clientId: client_id,
+          redirectUri: redirect_uri,
+          responseType: response_type,
+          scope: scope,
+          acrValues: acr_values,
+          claims: claimsDecoded,
+          claimsLocales: claimsLocales,
+          display: display,
+          maxAge: maxAge,
+          prompt: prompt,
+          uiLocales: uiLocales,
+          codeChallenge: codeChallenge,
+          codeChallengeMethod: codeChallengeMethod,
+          idTokenHint: idTokenHint,
+        };
+
+        let filteredRequest = Object.fromEntries(
+          Object.entries(request).filter(([key, value]) => value !== null)
         );
 
-        setOAuthDetailResponse(response);
-        setStatus(states.LOADED);
+        await post_OauthDetails(filteredRequest).then(
+          (oAuthDetailsResponse) => {
+            setOAuthDetailResponse(oAuthDetailsResponse);
+            setStatus(states.LOADED);
+
+            if (idTokenHint !== null && idTokenHint !== undefined) {
+              function base64UrlDecode(str) {
+                return decodeURIComponent(
+                  atob(str.replace(/-/g, "+").replace(/_/g, "/"))
+                    .split("")
+                    .map(function (c) {
+                      return (
+                        "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+                      );
+                    })
+                    .join("")
+                );
+              }
+
+              var uuid = JSON.parse(
+                base64UrlDecode(atob(idTokenHint).split(".")[1])
+              ).sub;
+
+              var code = JSON.parse(
+                base64UrlDecode(getCookie(uuid).split(".")[0])
+              ).code;
+
+              if (code !== null && code !== undefined) {
+                let transactionId = oAuthDetailsResponse.response.transactionId;
+
+                let challenge = {
+                  token: idTokenHint,
+                  code: code,
+                };
+
+                const encodedChallenge = btoa(JSON.stringify(challenge));
+
+                let challengeList = [
+                  {
+                    format: "jwt",
+                    challenge: encodedChallenge,
+                    authFactorType:
+                      oAuthDetailsResponse.response.authFactors[0][0].type,
+                  },
+                ];
+
+                const getOauthDetailsHash = async (value) => {
+                  let sha256Hash = sha256(JSON.stringify(value));
+                  let hashB64 = Base64.stringify(sha256Hash);
+                  // Remove padding characters
+                  hashB64 = hashB64.replace(/=+$/, "");
+                  // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
+                  hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
+                  return hashB64;
+                };
+
+                (async () => {
+                  await post_AuthenticateUser(
+                    transactionId,
+                    uuid,
+                    challengeList,
+                    getOauthDetailsHash(oAuthDetailsResponse.response)
+                  ).then(() => {
+                    (async () => {
+                      await post_AuthCode(
+                        transactionId,
+                        [],
+                        [],
+                        getOauthDetailsHash(oAuthDetailsResponse.response)
+                      ).then((authCodeResponse) => {
+                        window.onbeforeunload = null;
+                        const encodedStateCode = btoa(
+                          `state=${authCodeResponse.response.state}&code=${authCodeResponse.response.code}`
+                        );
+                        window.location.replace(
+                          `${authCodeResponse.response.redirectUri}#${encodedStateCode}`
+                        );
+                      });
+                    })();
+                  });
+                })();
+              }
+            }
+          }
+        );
       } catch (error) {
         setOAuthDetailResponse(null);
         setError(error.message);

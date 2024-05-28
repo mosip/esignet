@@ -48,6 +48,7 @@ import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -1171,5 +1172,12 @@ public class AuthorizationControllerTest {
      }
 
   
+
+    @Test
+    public void getConsentDetails_withValidDetails_thenSuccessResposne() throws Exception {
+        mockMvc.perform(get("/authorization/consent-details").header("oauth-details-key", "1234567890"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.consentAction").value("CAPTURE"));
+    }
 
 }

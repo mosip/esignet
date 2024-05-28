@@ -86,7 +86,6 @@ public class ConsentHelperService {
         }
     }
 
-
     public void updateUserConsent(OIDCTransaction transaction, String signature) {
         if(ConsentAction.NOCAPTURE.equals(transaction.getConsentAction())
             && transaction.getEssentialClaims().isEmpty()

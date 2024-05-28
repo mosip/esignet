@@ -115,7 +115,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.servlet.path}")
     private String servletPath;
 
-
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
@@ -244,6 +243,20 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         authCodeResponse.setState(transaction.getState());
         return authCodeResponse;
     }
+
+    @Override
+    public ConsentDetailResponse getConsentDetails(String transactionId) {
+        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
+        if(transaction == null) {
+            throw new InvalidTransactionException();
+        }
+        ConsentDetailResponse consentDetailResponse=new ConsentDetailResponse();
+        consentDetailResponse.setConsentAction(transaction.getConsentAction());
+        consentDetailResponse.setTransactionId(transactionId);
+        consentDetailResponse.setClaimStatus(transaction.getClaimStatuses());
+        return  consentDetailResponse;
+    }
+
 
     private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction) {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
@@ -437,8 +450,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
-        cookie.setDomain(domain);
-        cookie.setPath(servletPath);
+        cookie.setHttpOnly(true);
         response.addCookie(cookie);
         return signupRedirectResponse;
 	}

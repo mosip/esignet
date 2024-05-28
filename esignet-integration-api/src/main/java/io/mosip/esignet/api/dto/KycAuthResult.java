@@ -9,6 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 
 @Data
 @AllArgsConstructor
@@ -17,4 +20,10 @@ public class KycAuthResult {
 
     private String kycToken;
     private String partnerSpecificUserToken;
+    private Map<String, List<ClaimMetadata>> claimsMetadata;
+
+    public KycAuthResult(String kycToken, String partnerSpecificUserToken) {
+        this.kycToken = kycToken;
+        this.partnerSpecificUserToken = partnerSpecificUserToken;
+    }
 }

@@ -315,6 +315,16 @@ public class TestAuthenticationService implements Authenticator {
         return certs;
     }
 
+    @Override
+    public KycAuthResult doKycAuth(String relyingPartyId, String clientId, boolean claimsMetadataRequired, KycAuthDto kycAuthDto) throws KycAuthException {
+        return null;
+    }
+
+    @Override
+    public KycExchangeResult doVerifiedKycExchange(String relyingPartyId, String clientId, VerifiedKycExchangeDto kycExchangeDto) throws KycExchangeException {
+        return null;
+    }
+
     private boolean authenticateUser(String transactionId, String individualId, AuthChallenge authChallenge) {
         switch (authChallenge.getAuthFactorType()) {
             case "PIN" :

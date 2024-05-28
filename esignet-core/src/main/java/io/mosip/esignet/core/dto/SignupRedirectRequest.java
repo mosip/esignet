@@ -11,6 +11,6 @@ public class SignupRedirectRequest {
     @NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;
 
-    @NotBlank
+    //@NotBlank
     private String pathFragment;
 }
