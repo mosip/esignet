@@ -1,38 +1,28 @@
 #!/bin/bash
-# Installs oidc-ui helm charts
+# Installs artifactory
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=esignet
+NS=artifactory
 CHART_VERSION=0.0.1-develop
 
 echo Create $NS namespace
 kubectl create ns $NS
 
-function installing_oidc-ui() {
+function installing_artifactory() {
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
-
-  helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
 
-  echo Copy configmaps
-  ./copy_cm.sh
-
-  ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
-
-  echo Installing OIDC UI
-  helm -n $NS install oidc-ui mosip/oidc-ui \
-  -f values.yaml \
-  --set istio.hosts\[0\]=$ESIGNET_HOST \
-  --version $CHART_VERSION
+  echo Installing artifactory
+  helm -n $NS install artifactory mosip/artifactory --version $CHART_VERSION
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
-  echo Installed oidc-ui
+  echo Installed artifactory service
   return 0
 }
 
@@ -42,4 +32,4 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-installing_oidc-ui   # calling function
+installing_artifactory   # calling function
