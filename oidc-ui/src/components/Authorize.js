@@ -108,7 +108,7 @@ export default function Authorize({ authService }) {
               }
 
               var uuid = JSON.parse(
-                base64UrlDecode(idTokenHint.split(".")[1])
+                base64UrlDecode(atob(idTokenHint).split(".")[1])
               ).sub;
 
               var code = JSON.parse(
