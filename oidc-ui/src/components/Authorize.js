@@ -129,7 +129,7 @@ export default function Authorize({ authService }) {
 
                   let challengeList = [
                     {
-                      format: "jwt",
+                      format: "base64url-encoded-json",
                       challenge: encodedChallenge,
                       authFactorType:
                         oAuthDetailsResponse.response.authFactors[0][0].type,
