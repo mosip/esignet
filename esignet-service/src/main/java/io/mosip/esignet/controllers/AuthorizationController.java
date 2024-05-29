@@ -149,7 +149,6 @@ public class AuthorizationController {
                                                                             requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
-            //TODO wire this with v3 implementation @SaiDurga, Below is a temporary logic for UI work to proceed
             responseWrapper.setResponse(authorizationService.getOauthDetailsV3(requestWrapper.getRequest(),httpServletRequest));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
@@ -177,20 +176,7 @@ public class AuthorizationController {
     public ResponseWrapper<ConsentDetailResponse> getConsentDetails(@RequestHeader("oauth-details-key") String transactionId) {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
-            //TODO wire this with actual implementation @Kaif, Below is a temporary logic for UI work to proceed
-            ConsentDetailResponse consentDetailResponse = new ConsentDetailResponse();
-            consentDetailResponse.setTransactionId(transactionId);
-            consentDetailResponse.setConsentAction(ConsentAction.CAPTURE);
-            ClaimStatus emailClaim = new ClaimStatus();
-            emailClaim.setAvailable(false);
-            emailClaim.setVerified(false);
-            emailClaim.setClaim("email");
-            ClaimStatus nameClaim = new ClaimStatus();
-            nameClaim.setAvailable(true);
-            nameClaim.setVerified(false);
-            nameClaim.setClaim("name");
-            consentDetailResponse.setClaimStatus(Arrays.asList(emailClaim, nameClaim));
-            responseWrapper.setResponse(consentDetailResponse);
+            responseWrapper.setResponse(authorizationService.getConsentDetails(transactionId));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);

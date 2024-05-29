@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -160,29 +161,15 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
-        if (oauthDetailReqDto.getIdTokenHint() == null || oauthDetailReqDto.getIdTokenHint().isEmpty()) {
-            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-        }
-        String subject = getSubject(oauthDetailReqDto.getIdTokenHint());
-        boolean isCookiePresent = Arrays.stream(httpServletRequest.getCookies()).anyMatch(x -> x.getName().equals(subject));
-        if (!isCookiePresent) {
-            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
+        if (oauthDetailReqDto.getIdTokenHint() != null) {
+            String subject = getSubject(oauthDetailReqDto.getIdTokenHint());
+            boolean isCookiePresent = Arrays.stream(httpServletRequest.getCookies()).anyMatch(x -> x.getName().equals(subject));
+            if (!isCookiePresent) {
+                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            }
         }
         return getOauthDetailsV2(oauthDetailReqDto);
-    }
-
-    private String getSubject(String idTokenHint) {
-        String[] jwtParts = idTokenHint.split("\\.");
-        if (jwtParts.length != 3) {
-            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-        }
-        try {
-            String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
-            JSONObject payloadJson = new JSONObject(payload);
-            return payloadJson.getString("sub");
-        } catch (JSONException e) {
-            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-        }
     }
 
     @Override
@@ -278,8 +265,33 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         ConsentDetailResponse consentDetailResponse=new ConsentDetailResponse();
         consentDetailResponse.setConsentAction(transaction.getConsentAction());
         consentDetailResponse.setTransactionId(transactionId);
-        consentDetailResponse.setClaimStatus(transaction.getClaimStatuses());
+        //TODO transaction should be set with claims metadata
+        consentDetailResponse.setClaimStatus(List.of(new ClaimStatus("name", false, true),
+                new ClaimStatus("phone_number", false, true),
+                new ClaimStatus("email", false, true)));
         return  consentDetailResponse;
+    }
+
+
+    @Override
+    public SignupRedirectResponse prepareSignupRedirect(SignupRedirectRequest signupRedirectRequest, HttpServletResponse response) {
+        OIDCTransaction oidcTransaction = cacheUtilService.getAuthenticatedTransaction(signupRedirectRequest.getTransactionId());
+        if(oidcTransaction == null) {
+            throw new InvalidTransactionException();
+        }
+        String uuid = UUID.randomUUID().toString();
+        SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
+        signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
+        signupRedirectResponse.setIdToken(tokenService.getIDToken(uuid, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
+
+        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getSecretCode(), signupRedirectRequest.getPathFragment());
+        Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
+        cookie.setMaxAge(signupIDTokenValidity);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(false);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return signupRedirectResponse;
     }
 
 
@@ -300,6 +312,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
+
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
 
         if(checkConsentAction) {
@@ -460,24 +473,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return new String(authTransactionIdBytes);
     }
 
-	@Override
-	public SignupRedirectResponse prepareSignupRedirect(SignupRedirectRequest signupRedirectRequest, HttpServletResponse response) {
-		OIDCTransaction oidcTransaction = cacheUtilService.getAuthenticatedTransaction(signupRedirectRequest.getTransactionId());
-		if(oidcTransaction == null) {
-            throw new InvalidTransactionException();
+    private String getSubject(String idTokenHint) {
+        try {
+            String[] jwtParts = idTokenHint.split("\\.");
+            if (jwtParts.length == 3) {
+                String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
+                JSONObject payloadJson = new JSONObject(payload);
+                return payloadJson.getString(TokenService.SUB);
+            }
+        } catch (Exception e) {
+           log.error("Failed to parse the given IDTokenHint as JWT", e);
         }
-		String uuid = UUID.randomUUID().toString();
-		SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
-		signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
-		signupRedirectResponse.setIdToken(tokenService.getIDToken(uuid, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
-
-        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getSecretCode(), signupRedirectRequest.getPathFragment());
-        Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
-        cookie.setMaxAge(signupIDTokenValidity);
-        cookie.setSecure(true);
-        cookie.setHttpOnly(false);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        return signupRedirectResponse;
-	}
+        throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+    }
 }
