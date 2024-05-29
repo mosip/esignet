@@ -6,7 +6,8 @@ import {
   SEND_OTP,
   AUTHENTICATE,
   AUTHENTICATE_V3,
-  OAUTH_DETAIL,
+  OAUTH_DETAIL_V2,
+  OAUTH_DETAIL_V3,
   AUTHCODE,
   CSRF,
   CONSENT_DETAILS,
@@ -76,13 +77,28 @@ class authService {
    * @params {string} codeChallengeMethod
    * @returns /oauthDetails API response
    */
-  post_OauthDetails = async (params) => {
+  post_OauthDetails_v2 = async (params) => {
     let request = {
       requestTime: new Date().toISOString(),
       request: params,
     };
 
-    let response = await ApiService.post(OAUTH_DETAIL, request, {
+    let response = await ApiService.post(OAUTH_DETAIL_V2, request, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+      },
+    });
+    return response.data;
+  };
+
+  post_OauthDetails_v3 = async (params) => {
+    let request = {
+      requestTime: new Date().toISOString(),
+      request: params,
+    };
+
+    let response = await ApiService.post(OAUTH_DETAIL_V3, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
