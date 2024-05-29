@@ -47,7 +47,10 @@ export default function Authorize({ authService }) {
         let uiLocales = searchParams.get("ui_locales");
         let codeChallenge = searchParams.get("code_challenge");
         let codeChallengeMethod = searchParams.get("code_challenge_method");
-        let idTokenHint = atob(searchParams.get("id_token_hint"));
+        let idTokenHint = searchParams.get("id_token_hint");
+        if (idTokenHint && idTokenHint !== "") {
+          idTokenHint = atob(idTokenHint);
+        }
 
         let claimsDecoded;
         if (claims == null) {
