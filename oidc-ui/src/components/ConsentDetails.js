@@ -213,155 +213,165 @@ const ConsentDetails = ({
   ) : claimsScopes.length === 0 ? (
     <LoadingIndicator size="medium" message={"loading_msg"} />
   ) : (
-    <div
-      className="relative z-50 consent-details"
-      aria-labelledby="modal-title"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <div className="relative transform overflow-hidden rounded-[20px] bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-[28rem] w-screen">
-            <div className="flex flex-shrink-0 flex-wrap items-center justify-center rounded-b-md p-4 py-0 my-5">
-              <div className="header my-2">{t1("header")}</div>
-              <div className="w-full flex my-3 justify-center items-center">
-                <img
-                  className="client-logo-size"
-                  src={oAuth_Details?.logoUrl}
-                  alt={oAuth_Details?.clientName}
-                />
-                <img
-                  className="h-5 mx-5"
-                  src="/images/sync_alt_black.svg"
-                  alt="sync_alt"
-                />
-                <img
-                  className="brand-only-logo client-logo-size"
-                  alt={t1("logo_alt")}
-                />
-              </div>
-              <p className="sub-header m-0 mt-1 md:mx-5 md:mb-1 md:mt-3">
-                {t1("sub-header", {
-                  clientName: oAuth_Details?.clientName["@none"],
-                })}
-              </p>
-              <div className="claims-list mx-0 md:mx-5">
-                {claimsScopes?.map(
-                  (claimScope) =>
-                    claimScope?.values?.length > 0 && (
-                      <div key={claimScope.label} className="mt-2">
-                        <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4">
-                          <div className="flex sm:justify-start w-max">
-                            <div className="font-semibold mb-1">
-                              {t1(claimScope.label)}
-                              <PopoverContainer
-                                child={
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 18.5 18.5"
-                                    className="mx-1 mt-[2px] w-[15px] h-[14px] inline relative bottom-[2px]"
-                                  >
-                                    <g
-                                      id="info_FILL0_wght400_GRAD0_opsz48"
-                                      transform="translate(0.25 0.25)"
+    <>
+      <img
+        className="top_left_bg_logo hidden md:block"
+        alt="top left background"
+      />
+      <img
+        className="bottom_left_bg_logo hidden md:block"
+        alt="bottom left background"
+      />
+      <div
+        className="relative z-50 consent-details"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div className="relative transform overflow-hidden rounded-[20px] bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-[28rem] w-screen">
+              <div className="flex flex-shrink-0 flex-wrap items-center justify-center rounded-b-md p-4 py-0 my-5">
+                <div className="header my-2">{t1("header")}</div>
+                <div className="w-full flex my-3 justify-center items-center">
+                  <img
+                    className="client-logo-size"
+                    src={oAuth_Details?.logoUrl}
+                    alt={oAuth_Details?.clientName}
+                  />
+                  <img
+                    className="h-5 mx-5"
+                    src="/images/sync_alt_black.svg"
+                    alt="sync_alt"
+                  />
+                  <img
+                    className="brand-only-logo client-logo-size"
+                    alt={t1("logo_alt")}
+                  />
+                </div>
+                <p className="sub-header m-0 mt-1 md:mx-5 md:mb-1 md:mt-3">
+                  {t1("sub-header", {
+                    clientName: oAuth_Details?.clientName["@none"],
+                  })}
+                </p>
+                <div className="claims-list mx-0 md:mx-5">
+                  {claimsScopes?.map(
+                    (claimScope) =>
+                      claimScope?.values?.length > 0 && (
+                        <div key={claimScope.label} className="mt-2">
+                          <div className="grid sm:grid-cols-2 grid-cols-2 sm:gap-4">
+                            <div className="flex sm:justify-start w-max">
+                              <div className="font-semibold mb-1">
+                                {t1(claimScope.label)}
+                                <PopoverContainer
+                                  child={
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 18.5 18.5"
+                                      className="mx-1 mt-[2px] w-[15px] h-[14px] inline relative bottom-[2px]"
                                     >
-                                      <path
-                                        id="info_FILL0_wght400_GRAD0_opsz48-2"
-                                        data-name="info_FILL0_wght400_GRAD0_opsz48"
-                                        d="M88.393-866.5h1.35v-5.4h-1.35ZM89-873.565a.731.731,0,0,0,.529-.207.685.685,0,0,0,.214-.513.752.752,0,0,0-.213-.545.707.707,0,0,0-.529-.22.708.708,0,0,0-.529.22.751.751,0,0,0-.214.545.686.686,0,0,0,.213.513A.729.729,0,0,0,89-873.565ZM89.006-862a8.712,8.712,0,0,1-3.5-.709,9.145,9.145,0,0,1-2.863-1.935,9.14,9.14,0,0,1-1.935-2.865,8.728,8.728,0,0,1-.709-3.5,8.728,8.728,0,0,1,.709-3.5,9,9,0,0,1,1.935-2.854,9.237,9.237,0,0,1,2.865-1.924,8.728,8.728,0,0,1,3.5-.709,8.728,8.728,0,0,1,3.5.709,9.1,9.1,0,0,1,2.854,1.924,9.089,9.089,0,0,1,1.924,2.858,8.749,8.749,0,0,1,.709,3.5,8.712,8.712,0,0,1-.709,3.5,9.192,9.192,0,0,1-1.924,2.859,9.087,9.087,0,0,1-2.857,1.935A8.707,8.707,0,0,1,89.006-862Zm.005-1.35a7.348,7.348,0,0,0,5.411-2.239,7.4,7.4,0,0,0,2.228-5.422,7.374,7.374,0,0,0-2.223-5.411A7.376,7.376,0,0,0,89-878.65a7.4,7.4,0,0,0-5.411,2.223A7.357,7.357,0,0,0,81.35-871a7.372,7.372,0,0,0,2.239,5.411A7.385,7.385,0,0,0,89.011-863.35ZM89-871Z"
-                                        transform="translate(-80 880)"
-                                        strokeWidth="0.75"
-                                      />
-                                    </g>
-                                  </svg>
-                                }
-                                content={claimScope.tooltip}
-                                position="bottom"
-                                contentSize="text-xs"
-                                contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-screen sm:w-[26rem] leading-none"
-                              />
+                                      <g
+                                        id="info_FILL0_wght400_GRAD0_opsz48"
+                                        transform="translate(0.25 0.25)"
+                                      >
+                                        <path
+                                          id="info_FILL0_wght400_GRAD0_opsz48-2"
+                                          data-name="info_FILL0_wght400_GRAD0_opsz48"
+                                          d="M88.393-866.5h1.35v-5.4h-1.35ZM89-873.565a.731.731,0,0,0,.529-.207.685.685,0,0,0,.214-.513.752.752,0,0,0-.213-.545.707.707,0,0,0-.529-.22.708.708,0,0,0-.529.22.751.751,0,0,0-.214.545.686.686,0,0,0,.213.513A.729.729,0,0,0,89-873.565ZM89.006-862a8.712,8.712,0,0,1-3.5-.709,9.145,9.145,0,0,1-2.863-1.935,9.14,9.14,0,0,1-1.935-2.865,8.728,8.728,0,0,1-.709-3.5,8.728,8.728,0,0,1,.709-3.5,9,9,0,0,1,1.935-2.854,9.237,9.237,0,0,1,2.865-1.924,8.728,8.728,0,0,1,3.5-.709,8.728,8.728,0,0,1,3.5.709,9.1,9.1,0,0,1,2.854,1.924,9.089,9.089,0,0,1,1.924,2.858,8.749,8.749,0,0,1,.709,3.5,8.712,8.712,0,0,1-.709,3.5,9.192,9.192,0,0,1-1.924,2.859,9.087,9.087,0,0,1-2.857,1.935A8.707,8.707,0,0,1,89.006-862Zm.005-1.35a7.348,7.348,0,0,0,5.411-2.239,7.4,7.4,0,0,0,2.228-5.422,7.374,7.374,0,0,0-2.223-5.411A7.376,7.376,0,0,0,89-878.65a7.4,7.4,0,0,0-5.411,2.223A7.357,7.357,0,0,0,81.35-871a7.372,7.372,0,0,0,2.239,5.411A7.385,7.385,0,0,0,89.011-863.35ZM89-871Z"
+                                          transform="translate(-80 880)"
+                                          strokeWidth="0.75"
+                                        />
+                                      </g>
+                                    </svg>
+                                  }
+                                  content={claimScope.tooltip}
+                                  position="bottom"
+                                  contentSize="text-xs"
+                                  contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-screen sm:w-[26rem] leading-none"
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="divide-y">
-                          {claimScope?.values?.map((item) => (
-                            <ul className="list-disc marker:text-[#B9B9B9] ml-4 !border-0">
-                              <li key={item} className="mb-1">
-                                <div className="claimsGrid">
-                                  <div className="flex justify-start relative items-center mb-1 mt-1">
-                                    <label
-                                      className={`${
-                                        item.available
-                                          ? "text-[#B9B9B9] inline-block"
-                                          : null
-                                      }`}
-                                    >
-                                      <span className="mr-1">
-                                        {t1(item.claim)}
-                                      </span>
-                                      {item.verified ? (
-                                        <em className="text-[#B9B9B9] inline-block">
-                                          ({t1("verified")})
-                                        </em>
+                          <div className="divide-y">
+                            {claimScope?.values?.map((item) => (
+                              <ul className="list-disc marker:text-[#B9B9B9] ml-4 !border-0">
+                                <li key={item} className="mb-1">
+                                  <div className="claimsGrid">
+                                    <div className="flex justify-start relative items-center mb-1 mt-1">
+                                      <label
+                                        className={`${
+                                          item.available
+                                            ? "text-[#B9B9B9] inline-block"
+                                            : null
+                                        }`}
+                                      >
+                                        <span className="mr-1">
+                                          {t1(item.claim)}
+                                        </span>
+                                        {item.verified ? (
+                                          <em className="text-[#B9B9B9] inline-block">
+                                            ({t1("verified")})
+                                          </em>
+                                        ) : (
+                                          <em className="text-[#B9B9B9] inline-block">
+                                            ({t1("not-verified")})
+                                          </em>
+                                        )}
+                                      </label>
+                                    </div>
+                                    <div className="flex justify-end">
+                                      {item.available ? (
+                                        <span className="available-claim">
+                                          {t1("available")}
+                                        </span>
                                       ) : (
-                                        <em className="text-[#B9B9B9] inline-block">
-                                          ({t1("not-verified")})
-                                        </em>
+                                        <span className="not-available-claim">
+                                          {t1("not-available")}
+                                        </span>
                                       )}
-                                    </label>
+                                    </div>
                                   </div>
-                                  <div className="flex justify-end">
-                                    {item.available ? (
-                                      <span className="available-claim">
-                                        {t1("available")}
-                                      </span>
-                                    ) : (
-                                      <span className="not-available-claim">
-                                        {t1("not-available")}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </li>
-                            </ul>
-                          ))}
+                                </li>
+                              </ul>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )
-                )}
-              </div>
-              <div className="message mx-0 px-2 mt-2 md:mx-5">
-                {t1("message")}
-              </div>
-              <div className="mx-0 w-full mt-2 md:mx-5">
-                <div className="mb-3">
-                  <button
-                    type="button"
-                    className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 primary-button"
-                    onClick={handleProceed}
-                  >
-                    {t1("proceed")}
-                  </button>
+                      )
+                  )}
                 </div>
-                <div className="mt-3">
-                  <button
-                    type="button"
-                    className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 secondary-button"
-                    onClick={handleCancel}
-                  >
-                    {t1("cancel")}
-                  </button>
+                <div className="message mx-0 px-2 mt-2 md:mx-5">
+                  {t1("message")}
+                </div>
+                <div className="mx-0 w-full mt-2 md:mx-5">
+                  <div className="mb-3">
+                    <button
+                      type="button"
+                      className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 primary-button"
+                      onClick={handleProceed}
+                    >
+                      {t1("proceed")}
+                    </button>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 secondary-button"
+                      onClick={handleCancel}
+                    >
+                      {t1("cancel")}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
