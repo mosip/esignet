@@ -52,7 +52,7 @@
   --signup-banner-signup-url-color: #1262C9;
   --signup-banner-signup-url-color-hover: #2F8EA3;
   --signup-banner-signup-url-color-focus: #2F8EA3;
-  --signup-banner-font: normal normal normal 15px/19px Inter;
+  --signup-banner-font: normal normal normal 15px/19px Roboto;
   --multipurpose-login-card-border-radius: 20px;
   --multipurpose-login-card-background-color: #FFFFFF;
   --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
@@ -81,7 +81,7 @@
   --more-signin-options-color: #1262C9;
   --arrow-down-color: #1262C9;
   --primary-button-border-radius: 5px;
-  --consent-details-header-font: normal normal 600 24px/29px Inter;
+  --consent-details-header-font: normal normal 600 24px/29px Roboto;
   --consent-details-header-color: #2b3840;
   --consent-details-subheader-font: normal normal bold 16px/21px Roboto;
   --consent-details-subheader-color: #2c2c2c;
@@ -149,7 +149,7 @@
   --signup-banner-signup-url-color: #eb6f2d;
   --signup-banner-signup-url-color-hover: #eb6f2d;
   --signup-banner-signup-url-color-focus: #eb6f2d;
-  --signup-banner-font: normal normal normal 15px/19px Inter;
+  --signup-banner-font: normal normal normal 15px/19px Roboto;
   --multipurpose-login-card-border-radius: 10px;
   --multipurpose-login-card-background-color: #ffffff;
   --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
@@ -178,7 +178,7 @@
   --more-signin-options-color: #eb6f2d;
   --arrow-down-color: #eb6f2d;
   --primary-button-border-radius: 8px;
-  --consent-details-header-font: normal normal 600 24px/29px Inter;
+  --consent-details-header-font: normal normal 600 24px/29px Roboto;
   --consent-details-header-color: #2b3840;
   --consent-details-subheader-font: normal normal bold 16px/21px Roboto;
   --consent-details-subheader-color: #2c2c2c;
@@ -283,7 +283,7 @@
   --more-signin-options-color: #004282;
   --arrow-down-color: #004282;
   --primary-button-border-radius: 8px;
-  --consent-details-header-font: normal normal 600 24px/29px Inter;
+  --consent-details-header-font: normal normal 600 24px/29px Roboto;
   --consent-details-header-color: #2b3840;
   --consent-details-subheader-font: normal normal bold 16px/21px Roboto;
   --consent-details-subheader-color: #2c2c2c;

@@ -90,85 +90,92 @@ export default function Authorize({ authService }) {
 
         await post_OauthDetails(filteredRequest).then(
           (oAuthDetailsResponse) => {
-            setOAuthDetailResponse(oAuthDetailsResponse);
-            setStatus(states.LOADED);
+            if (oAuthDetailsResponse.errors.length === 0) {
+              setOAuthDetailResponse(oAuthDetailsResponse);
+              setStatus(states.LOADED);
 
-            if (idTokenHint !== null && idTokenHint !== undefined) {
-              function base64UrlDecode(str) {
-                return decodeURIComponent(
-                  atob(str.replace(/-/g, "+").replace(/_/g, "/"))
-                    .split("")
-                    .map(function (c) {
-                      return (
-                        "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-                      );
-                    })
-                    .join("")
-                );
-              }
-
-              var uuid = JSON.parse(
-                base64UrlDecode(atob(idTokenHint).split(".")[1])
-              ).sub;
-
-              var code = JSON.parse(
-                base64UrlDecode(getCookie(uuid).split(".")[0])
-              ).code;
-
-              if (code !== null && code !== undefined) {
-                let transactionId = oAuthDetailsResponse.response.transactionId;
-
-                let challenge = {
-                  token: idTokenHint,
-                  code: code,
-                };
-
-                const encodedChallenge = btoa(JSON.stringify(challenge));
-
-                let challengeList = [
-                  {
-                    format: "jwt",
-                    challenge: encodedChallenge,
-                    authFactorType:
-                      oAuthDetailsResponse.response.authFactors[0][0].type,
-                  },
-                ];
-
-                const getOauthDetailsHash = async (value) => {
-                  let sha256Hash = sha256(JSON.stringify(value));
-                  let hashB64 = Base64.stringify(sha256Hash);
-                  // Remove padding characters
-                  hashB64 = hashB64.replace(/=+$/, "");
-                  // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
-                  hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
-                  return hashB64;
-                };
-
-                (async () => {
-                  await post_AuthenticateUser(
-                    transactionId,
-                    uuid,
-                    challengeList,
-                    getOauthDetailsHash(oAuthDetailsResponse.response)
-                  ).then(() => {
-                    (async () => {
-                      await post_AuthCode(
-                        transactionId,
-                        [],
-                        [],
-                        getOauthDetailsHash(oAuthDetailsResponse.response)
-                      ).then((authCodeResponse) => {
-                        window.onbeforeunload = null;
-                        const encodedStateCode = btoa(
-                          `state=${authCodeResponse.response.state}&code=${authCodeResponse.response.code}`
+              if (idTokenHint !== null && idTokenHint !== undefined) {
+                function base64UrlDecode(str) {
+                  return decodeURIComponent(
+                    atob(str.replace(/-/g, "+").replace(/_/g, "/"))
+                      .split("")
+                      .map(function (c) {
+                        return (
+                          "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
                         );
-                        window.location.replace(
-                          `${authCodeResponse.response.redirectUri}#${encodedStateCode}`
-                        );
-                      });
-                    })();
-                  });
-                })();
+                      })
+                      .join("")
+                  );
+                }
+
+                var uuid = JSON.parse(
+                  base64UrlDecode(atob(idTokenHint).split(".")[1])
+                ).sub;
+
+                var code = JSON.parse(
+                  base64UrlDecode(getCookie(uuid).split(".")[0])
+                ).code;
+
+                if (code !== null && code !== undefined) {
+                  let transactionId =
+                    oAuthDetailsResponse.response.transactionId;
+
+                  let challenge = {
+                    token: idTokenHint,
+                    code: code,
+                  };
+
+                  const encodedChallenge = btoa(JSON.stringify(challenge));
+
+                  let challengeList = [
+                    {
+                      format: "jwt",
+                      challenge: encodedChallenge,
+                      authFactorType:
+                        oAuthDetailsResponse.response.authFactors[0][0].type,
+                    },
+                  ];
+
+                  const getOauthDetailsHash = async (value) => {
+                    let sha256Hash = sha256(JSON.stringify(value));
+                    let hashB64 = Base64.stringify(sha256Hash);
+                    // Remove padding characters
+                    hashB64 = hashB64.replace(/=+$/, "");
+                    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
+                    hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
+                    return hashB64;
+                  };
+
+                  (async () => {
+                    await post_AuthenticateUser(
+                      transactionId,
+                      uuid,
+                      challengeList,
+                      getOauthDetailsHash(oAuthDetailsResponse.response)
+                    ).then((authenticateResponse) => {
+                      if (authenticateResponse.errors.length === 0) {
+                        (async () => {
+                          await post_AuthCode(
+                            transactionId,
+                            [],
+                            [],
+                            getOauthDetailsHash(oAuthDetailsResponse.response)
+                          ).then((authCodeResponse) => {
+                            if (authCodeResponse.errors.length === 0) {
+                              window.onbeforeunload = null;
+                              const encodedStateCode = btoa(
+                                `state=${authCodeResponse.response.state}&code=${authCodeResponse.response.code}`
+                              );
+                              window.location.replace(
+                                `${authCodeResponse.response.redirectUri}#${encodedStateCode}`
+                              );
+                            }
+                          });
+                        })();
+                      }
+                    });
+                  })();
+                }
               }
             }
           }
