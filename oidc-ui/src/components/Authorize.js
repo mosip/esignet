@@ -47,7 +47,7 @@ export default function Authorize({ authService }) {
         let uiLocales = searchParams.get("ui_locales");
         let codeChallenge = searchParams.get("code_challenge");
         let codeChallengeMethod = searchParams.get("code_challenge_method");
-        let idTokenHint = searchParams.get("id_token_hint");
+        let idTokenHint = atob(searchParams.get("id_token_hint"));
 
         let claimsDecoded;
         if (claims == null) {
@@ -121,7 +121,7 @@ export default function Authorize({ authService }) {
                   }
 
                   var uuid = JSON.parse(
-                    base64UrlDecode(atob(idTokenHint).split(".")[1])
+                    base64UrlDecode(idTokenHint.split(".")[1])
                   ).sub;
 
                   var code = JSON.parse(
