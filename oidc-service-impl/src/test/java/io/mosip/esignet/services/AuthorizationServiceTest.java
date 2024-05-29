@@ -90,9 +90,6 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationWrapper", authenticationWrapper);
         ReflectionTestUtils.setField(authorizationHelperService, "auditWrapper", auditWrapper);
         
-        ReflectionTestUtils.setField(authorizationServiceImpl, "servletPath", "/v1/esignet");
-        ReflectionTestUtils.setField(authorizationServiceImpl, "domain", "dev.mosip.net");
-//        ReflectionTestUtils.setField(authorizationServiceImpl, "signupIDTokenValidity", 60);
         ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
         ReflectionTestUtils.setField(authorizationServiceImpl, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);

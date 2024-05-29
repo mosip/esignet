@@ -109,12 +109,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.signup-id-token-audience:mosip-signup-client}")
     private String signupIDTokenAudience;
 
-    @Value("${mosip.esignet.host}")
-    private String domain;
-
-    @Value("${mosip.esignet.servlet.path}")
-    private String servletPath;
-
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
@@ -451,7 +445,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
-        cookie.setHttpOnly(true);
+        cookie.setHttpOnly(false);
+        cookie.setPath("/");
         response.addCookie(cookie);
         return signupRedirectResponse;
 	}
