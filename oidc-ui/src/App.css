@@ -424,7 +424,7 @@ body {
   border: none;
   outline: none;
   padding-left: 0rem;
-  font: normal normal normal 16px/20px Inter;
+  font: normal normal normal 16px/20px Roboto;
 }
 
 [dir="ltr"] .input-box input {

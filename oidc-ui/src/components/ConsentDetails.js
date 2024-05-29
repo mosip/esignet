@@ -6,6 +6,7 @@ import PopoverContainer from "../common/Popover";
 import ModalPopup from "../common/ModalPopup";
 import redirectOnError from "../helpers/redirectOnError";
 import { configurationKeys } from "../constants/clientConstants";
+import LoadingIndicator from "../common/LoadingIndicator";
 
 const ConsentDetails = ({
   i18nKeyPrefix1 = "consentDetails",
@@ -55,7 +56,7 @@ const ConsentDetails = ({
       const { response, errors } = consentDetailsResponse;
 
       if (errors != null && errors.length > 0) {
-         redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         return;
       } else {
         let claimsScopes = [];
@@ -131,7 +132,7 @@ const ConsentDetails = ({
         setClaimsScopes(claimsScopes);
       }
     } catch (error) {
-       redirectOnError("authorization_failed_msg", error.message);
+      redirectOnError("authorization_failed_msg", error.message);
     }
   };
 
@@ -142,25 +143,25 @@ const ConsentDetails = ({
   const handleProceed = async () => {
     window.onbeforeunload = null;
     try {
-       const signupRedirectResponse = await authServices.prepareSignupRedirect(
-         transactionId,
-         ""
-         // window.location.href
-       );
-       const { response, errors } = signupRedirectResponse;
+      const signupRedirectResponse = await authServices.prepareSignupRedirect(
+        transactionId,
+        ""
+        // window.location.href
+      );
+      const { response, errors } = signupRedirectResponse;
 
-       if (errors != null && errors.length > 0) {
-         redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-         return;
-       } else {
-         const encodedIdToken = btoa(response.idToken);
-         window.location.replace(
-           `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
-         );
-       }
-     } catch (error) {
-       redirectOnError("authorization_failed_msg", error.message);
-     }
+      if (errors != null && errors.length > 0) {
+        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+        return;
+      } else {
+        const encodedIdToken = btoa(response.idToken);
+        window.location.replace(
+          `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
+        );
+      }
+    } catch (error) {
+      redirectOnError("authorization_failed_msg", error.message);
+    }
   };
 
   const handleCancel = () => {
@@ -209,6 +210,8 @@ const ConsentDetails = ({
       footer={footerButtons}
       footerClassname="flex flex-shrink-0 flex-wrap items-center justify-center rounded-b-md p-4 my-4"
     />
+  ) : claimsScopes.length === 0 ? (
+    <LoadingIndicator size="medium" message={"loading_msg"} />
   ) : (
     <div
       className="relative z-50 consent-details"
