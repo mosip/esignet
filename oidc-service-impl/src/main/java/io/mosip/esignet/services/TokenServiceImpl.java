@@ -181,6 +181,25 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
+    public void verifyIdTokenHint(String idTokenHint, String clientId) throws NotAuthenticatedException {
+        if(!isSignatureValid(idTokenHint)) {
+            log.error("ID token hint signature verification failed");
+            throw new NotAuthenticatedException();
+        }
+        try {
+            JWT jwt = JWTParser.parse(idTokenHint);
+            JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
+                    .audience(clientId)
+                    .issuer(issuerId)
+                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
+            claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
+        } catch (Exception e) {
+            log.error("ID token hint claims verification failed", e);
+            throw new NotAuthenticatedException();
+        }
+    }
+
+    @Override
     public String getSignedJWT(String applicationId, JSONObject payload) {
         JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
         jwtSignatureRequestDto.setApplicationId(applicationId);

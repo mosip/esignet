@@ -30,6 +30,8 @@ import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -39,6 +41,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.UUID;
@@ -153,6 +156,33 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oAuthDetailResponseV2.getTransactionId(),
                 pair.getSecond()), null);
         return oAuthDetailResponseV2;
+    }
+
+    @Override
+    public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
+        if (oauthDetailReqDto.getIdTokenHint() == null || oauthDetailReqDto.getIdTokenHint().isEmpty()) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
+        String subject = getSubject(oauthDetailReqDto.getIdTokenHint());
+        boolean isCookiePresent = Arrays.stream(httpServletRequest.getCookies()).anyMatch(x -> x.getName().equals(subject));
+        if (!isCookiePresent) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
+        return getOauthDetailsV2(oauthDetailReqDto);
+    }
+
+    private String getSubject(String idTokenHint) {
+        String[] jwtParts = idTokenHint.split("\\.");
+        if (jwtParts.length != 3) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
+        try {
+            String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
+            JSONObject payloadJson = new JSONObject(payload);
+            return payloadJson.getString("sub");
+        } catch (JSONException e) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
     }
 
     @Override
