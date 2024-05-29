@@ -29,7 +29,7 @@ const ModalPopup = ({
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div className="relative transform overflow-hidden rounded-[20px] bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-[28rem]">
+            <div className="relative transform overflow-hidden rounded-[20px] bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-[28rem] m-auto">
               {alertIcon && (
                 <div className={alertClassname}>
                   <img src={alertIcon} />
