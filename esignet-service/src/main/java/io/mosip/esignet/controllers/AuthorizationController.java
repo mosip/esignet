@@ -8,7 +8,6 @@ package io.mosip.esignet.controllers;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
-import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.AuthorizationService;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Arrays;
 
 @Slf4j
 @RestController
@@ -149,7 +147,6 @@ public class AuthorizationController {
                                                                             requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
-            //TODO wire this with v3 implementation @SaiDurga, Below is a temporary logic for UI work to proceed
             responseWrapper.setResponse(authorizationService.getOauthDetailsV3(requestWrapper.getRequest(),httpServletRequest));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
@@ -173,24 +170,11 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
-    @GetMapping("/consent-details")
-    public ResponseWrapper<ConsentDetailResponse> getConsentDetails(@RequestHeader("oauth-details-key") String transactionId) {
+    @GetMapping("/claim-details")
+    public ResponseWrapper<ClaimDetailResponse> getClaimDetails(@RequestHeader("oauth-details-key") String transactionId) {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
-            //TODO wire this with actual implementation @Kaif, Below is a temporary logic for UI work to proceed
-            ConsentDetailResponse consentDetailResponse = new ConsentDetailResponse();
-            consentDetailResponse.setTransactionId(transactionId);
-            consentDetailResponse.setConsentAction(ConsentAction.CAPTURE);
-            ClaimStatus emailClaim = new ClaimStatus();
-            emailClaim.setAvailable(false);
-            emailClaim.setVerified(false);
-            emailClaim.setClaim("email");
-            ClaimStatus nameClaim = new ClaimStatus();
-            nameClaim.setAvailable(true);
-            nameClaim.setVerified(false);
-            nameClaim.setClaim("name");
-            consentDetailResponse.setClaimStatus(Arrays.asList(emailClaim, nameClaim));
-            responseWrapper.setResponse(consentDetailResponse);
+            responseWrapper.setResponse(authorizationService.getClaimDetails(transactionId));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);

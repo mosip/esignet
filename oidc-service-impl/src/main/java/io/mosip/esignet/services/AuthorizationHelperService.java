@@ -18,6 +18,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
+import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.*;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
@@ -76,6 +77,9 @@ public class AuthorizationHelperService {
     @Autowired(required = false)
     private CaptchaValidator captchaValidator;
 
+    @Autowired
+    private TokenService tokenService;
+
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
 
@@ -104,7 +108,7 @@ public class AuthorizationHelperService {
         }
         if(!StringUtils.hasText(captchaToken)) {
         	log.error("Captcha token is Null or Empty");
-        	throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
+        	throw new EsignetException(INVALID_CAPTCHA);
         }
         validateCaptchaToken(captchaToken);
     }
@@ -112,11 +116,11 @@ public class AuthorizationHelperService {
     protected void validateCaptchaToken(String captchaToken) {
         if(captchaValidator == null) {
             log.error("Captcha validator instance is NULL, Unable to validate captcha token");
-            throw new EsignetException(ErrorConstants.FAILED_TO_VALIDATE_CAPTCHA);
+            throw new EsignetException(FAILED_TO_VALIDATE_CAPTCHA);
         }
 
         if(!captchaValidator.validateCaptcha(captchaToken))
-            throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
+            throw new EsignetException(INVALID_CAPTCHA);
     }
 
 
@@ -172,14 +176,14 @@ public class AuthorizationHelperService {
     }
 
     protected List<String> getAuthorizeScopes(String requestedScopes) {
-        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE);
+        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, SPACE);
         return Arrays.stream(scopes)
                 .filter( s -> authorizeScopes.contains(s) )
                 .collect(Collectors.toList());
     }
 
     protected List<String> getCredentialScopes(String requestedScopes) {
-        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE);
+        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, SPACE);
         return Arrays.stream(scopes)
                 .filter( s -> credentialScopes.contains(s) )
                 .collect(Collectors.toList());
@@ -189,17 +193,6 @@ public class AuthorizationHelperService {
                                                         List<AuthChallenge> challengeList, OIDCTransaction transaction) {
 
         KycAuthResult kycAuthResult;
-        if(challengeList.size() == 1 && challengeList.get(0).getAuthFactorType().equals("IDT")) {
-            //TODO verify ID token, if not valid and signed by esignet, fail the auth request
-            //TODO Fetch the OIDC transaction based on the ID token subject.
-            //TODO Find the cookie with key same as ID token subject.
-            //TODO check if the code in the cookie is same as the secretCode in the OIDC transaction
-            kycAuthResult = new KycAuthResult();
-            kycAuthResult.setKycToken("kyc-token");
-            kycAuthResult.setPartnerSpecificUserToken(UUID.randomUUID().toString());
-            return kycAuthResult;
-        }
-
         try {
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
                     new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList));
@@ -215,6 +208,19 @@ public class AuthorizationHelperService {
         }
 
         auditWrapper.logAudit(Action.DO_KYC_AUTH, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, transaction), null);
+        return kycAuthResult;
+    }
+
+    protected KycAuthResult internalAuthenticateRequest(String transactionId, String individualId,
+                                                        List<AuthChallenge> challengeList, OIDCTransaction transaction) {
+        //TODO verify ID token, if not valid and signed by esignet, fail the auth request
+        //TODO Fetch the OIDC transaction based on the ID token subject.
+        //TODO Find the cookie with key same as ID token subject.
+        //TODO check if the code in the cookie is same as the secretCode in the OIDC transaction
+        KycAuthResult kycAuthResult;
+        kycAuthResult = new KycAuthResult();
+        kycAuthResult.setKycToken("kyc-token");
+        kycAuthResult.setPartnerSpecificUserToken(UUID.randomUUID().toString());
         return kycAuthResult;
     }
 
@@ -360,7 +366,7 @@ public class AuthorizationHelperService {
             return IdentityProviderUtil.b64Encode(cipher.doFinal(secretDataBytes, 0, secretDataBytes.length));
         } catch(Exception e) {
             log.error("Error Cipher Operations of provided secret data.", e);
-            throw new EsignetException(ErrorConstants.AES_CIPHER_FAILED);
+            throw new EsignetException(AES_CIPHER_FAILED);
         }
     }
 
@@ -372,7 +378,7 @@ public class AuthorizationHelperService {
             return new String(cipher.doFinal(decodedBytes, 0, decodedBytes.length));
         } catch(Exception e) {
             log.error("Error Cipher Operations of provided secret data.", e);
-            throw new EsignetException(ErrorConstants.AES_CIPHER_FAILED);
+            throw new EsignetException(AES_CIPHER_FAILED);
         }
     }
 
@@ -381,7 +387,7 @@ public class AuthorizationHelperService {
         if (Objects.nonNull(keyAlias)) {
             return keyStore.getSymmetricKey(keyAlias);
         }
-        throw new EsignetException(ErrorConstants.NO_UNIQUE_ALIAS);
+        throw new EsignetException(NO_UNIQUE_ALIAS);
     }
 
     private String getKeyAlias(String keyAppId, String keyRefId) {
@@ -391,6 +397,6 @@ public class AuthorizationHelperService {
             return currentKeyAliases.get(0).getAlias();
         }
         log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
-        throw new EsignetException(ErrorConstants.NO_UNIQUE_ALIAS);
+        throw new EsignetException(NO_UNIQUE_ALIAS);
     }
 }

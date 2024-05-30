@@ -89,5 +89,5 @@ public interface AuthorizationService {
      * @param transactionId
      * @return
      */
-    ConsentDetailResponse getConsentDetails(String transactionId);
+    ClaimDetailResponse getClaimDetails(String transactionId);
 }

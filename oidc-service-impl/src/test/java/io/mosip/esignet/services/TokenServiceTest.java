@@ -146,12 +146,12 @@ public class TokenServiceTest {
 
     @Test(expected = NotAuthenticatedException.class)
     public void verifyIdTokenHint_withNullToken_thenFail() {
-        tokenService.verifyIdTokenHint(null,"client-id");
+        tokenService.verifyIdToken(null,"client-id");
     }
 
     @Test(expected = NotAuthenticatedException.class)
     public void verifyTokenHint_withInvalidToken_thenFail() {
-        tokenService.verifyIdTokenHint("id_token_hint","client-id");
+        tokenService.verifyIdToken("id_token_hint","client-id");
     }
 
     private SignatureService getSignatureService() {
