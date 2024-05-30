@@ -117,11 +117,11 @@ public interface TokenService {
      void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException;
 
     /**
-     * Verifies id token hint signature and also the claims with expected values
+     * Verifies id token signature and also the claims with expected values
      * if any one verification fails then throws NotAuthenticatedException
      * @throws NotAuthenticatedException
      */
-     void verifyIdTokenHint(String idTokenHint,String clientId) throws NotAuthenticatedException;
+     void verifyIdToken(String idToken, String clientId) throws NotAuthenticatedException;
 
 
     /**

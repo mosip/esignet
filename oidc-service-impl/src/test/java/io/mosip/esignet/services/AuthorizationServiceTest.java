@@ -22,8 +22,6 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.services.AuthorizationServiceImpl;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1049,16 +1047,16 @@ public class AuthorizationServiceTest {
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 
-        ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
-        Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
-        Assert.assertEquals(consentDetailResponse.getTransactionId(),"transactionId");
+        ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
+        Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
     }
 
     @Test
     public void getConsentDetails_withInvalidTransaction_thenFail(){
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
         try{
-            authorizationServiceImpl.getConsentDetails("transactionId");
+            authorizationServiceImpl.getClaimDetails("transactionId");
         }catch (InvalidTransactionException ex){
             Assert.assertEquals(ex.getErrorCode(),ErrorConstants.INVALID_TRANSACTION);
         }

@@ -13,7 +13,6 @@ import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -23,11 +22,8 @@ import io.mosip.esignet.services.CacheUtilService;
 import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,8 +37,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import javax.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_FORMAT;
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
@@ -1175,16 +1169,16 @@ public class AuthorizationControllerTest {
   
 
     @Test
-    public void getConsentDetails_withValidDetails_thenSuccessResposne() throws Exception {
+    public void getClaimDetails_withValidDetails_thenSuccessResposne() throws Exception {
 
-        ConsentDetailResponse consentDetailResponse = new ConsentDetailResponse();
-        consentDetailResponse.setConsentAction(ConsentAction.CAPTURE);
-        consentDetailResponse.setClaimStatus(List.of(new ClaimStatus("name", false, true),
+        ClaimDetailResponse claimDetailResponse = new ClaimDetailResponse();
+        claimDetailResponse.setConsentAction(ConsentAction.CAPTURE);
+        claimDetailResponse.setClaimStatus(List.of(new ClaimStatus("name", false, true),
                 new ClaimStatus("phone_number", false, true),
                 new ClaimStatus("email", false, true)));
-        when(authorizationService.getConsentDetails("transactionId")).thenReturn(consentDetailResponse);
+        when(authorizationService.getClaimDetails("transactionId")).thenReturn(claimDetailResponse);
 
-        mockMvc.perform(get("/authorization/consent-details").header("oauth-details-key", "transactionId"))
+        mockMvc.perform(get("/authorization/claim-details").header("oauth-details-key", "transactionId"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isEmpty())
                 .andExpect(jsonPath("$.response.consentAction").value("CAPTURE"));

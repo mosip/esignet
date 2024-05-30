@@ -30,13 +30,11 @@ import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -257,19 +255,20 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public ConsentDetailResponse getConsentDetails(String transactionId) {
+    public ClaimDetailResponse getClaimDetails(String transactionId) {
         OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
         if(transaction == null) {
             throw new InvalidTransactionException();
         }
-        ConsentDetailResponse consentDetailResponse=new ConsentDetailResponse();
-        consentDetailResponse.setConsentAction(transaction.getConsentAction());
-        consentDetailResponse.setTransactionId(transactionId);
+        ClaimDetailResponse claimDetailResponse = new ClaimDetailResponse();
+        claimDetailResponse.setConsentAction(transaction.getConsentAction());
+        claimDetailResponse.setTransactionId(transactionId);
+        claimDetailResponse.setProfileUpdateRequired(true); //TODO need to compute this
         //TODO transaction should be set with claims metadata
-        consentDetailResponse.setClaimStatus(List.of(new ClaimStatus("name", false, true),
+        claimDetailResponse.setClaimStatus(List.of(new ClaimStatus("name", false, true),
                 new ClaimStatus("phone_number", false, true),
                 new ClaimStatus("email", false, true)));
-        return  consentDetailResponse;
+        return claimDetailResponse;
     }
 
 
@@ -284,14 +283,21 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
         signupRedirectResponse.setIdToken(tokenService.getIDToken(uuid, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
 
-        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getSecretCode(), signupRedirectRequest.getPathFragment());
+        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getSecretCode(),
+                sanitizePathFragment(signupRedirectRequest.getPathFragment()));
         Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
-        cookie.setHttpOnly(false);
+        cookie.setHttpOnly(false); //It is required to be false, as UI should access this cookie to read ID Token
         cookie.setPath("/");
         response.addCookie(cookie);
         return signupRedirectResponse;
+    }
+
+    //As pathFragment is included in the response header, we should sanitize the input to mitigate
+    //response splitting vulnerability
+    private String sanitizePathFragment(String pathFragment) {
+        return pathFragment.replaceAll("[\r\n]", "");
     }
 
 
@@ -303,8 +309,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
         Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
                 authRequest.getChallengeList());
-        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
-                authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+
+        KycAuthResult kycAuthResult;
+        if(authRequest.getChallengeList().size() == 1 &&  authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
+            kycAuthResult = authorizationHelperService.internalAuthenticateRequest(authRequest.getTransactionId(),
+                    authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+        }
+        else {
+            kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
+                    authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+        }
+
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
