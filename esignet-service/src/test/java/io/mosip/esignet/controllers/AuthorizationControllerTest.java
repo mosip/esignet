@@ -1162,14 +1162,59 @@ public class AuthorizationControllerTest {
       SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
       signupRedirectResponse.setIdToken("idToken");
       signupRedirectResponse.setTransactionId("TransactionId");
-      MockHttpServletResponse response = new MockHttpServletResponse();
-      when(authorizationService.prepareSignupRedirect(signupRedirectRequest, response)).thenReturn(signupRedirectResponse);
+
+      when(authorizationService.prepareSignupRedirect(Mockito.any(SignupRedirectRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn(signupRedirectResponse);
       mockMvc.perform(post("/authorization/prepare-signup-redirect")
                       .content(objectMapper.writeValueAsString(wrapper))
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk())
+              .andExpect(jsonPath("$.response.idToken").value("idToken"))
               .andExpect(jsonPath("$.errors").isEmpty());
      }
+    
+    @Test
+    public void prepareSignupRedirect_withInvalidTransactionId_thenFail() throws Exception {
+    	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+    	signupRedirectRequest.setTransactionId("");
+    	signupRedirectRequest.setPathFragment("Path Fragment");
+    	
+        RequestWrapper<Object> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(signupRedirectRequest);
+
+        SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
+        signupRedirectResponse.setIdToken("idToken");
+        signupRedirectResponse.setTransactionId("TransactionId");
+        when(authorizationService.prepareSignupRedirect(Mockito.any(SignupRedirectRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn(signupRedirectResponse);
+        mockMvc.perform(post("/authorization/prepare-signup-redirect")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID));
+                ;
+       }
+    
+    @Test
+    @Ignore
+    public void prepareSignupRedirect_withInvalidPathFragment_thenFail() throws Exception {
+    	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+    	signupRedirectRequest.setTransactionId("Transaction_Id");
+    	signupRedirectRequest.setPathFragment("");
+    	
+        RequestWrapper<Object> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(signupRedirectRequest);
+
+        SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
+        signupRedirectResponse.setIdToken("idToken");
+        signupRedirectResponse.setTransactionId("TransactionId");
+        when(authorizationService.prepareSignupRedirect(Mockito.any(SignupRedirectRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn(signupRedirectResponse);
+        mockMvc.perform(post("/authorization/prepare-signup-redirect")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PATH_FRAGMENT));
+       }
 
   
 
