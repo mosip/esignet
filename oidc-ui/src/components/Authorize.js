@@ -31,33 +31,49 @@ export default function Authorize({ authService }) {
       try {
         storeQueryParam(searchParams.toString());
 
-        let nonce = searchParams.get("nonce");
-        let state = searchParams.get("state");
+        const extractParam = (param) => searchParams.get(param);
+        const params = [
+          "nonce",
+          "state",
+          "client_id",
+          "redirect_uri",
+          "response_type",
+          "scope",
+          "acr_values",
+          "claims",
+          "claims_locales",
+          "display",
+          "max_age",
+          "prompt",
+          "ui_locales",
+          "code_challenge",
+          "code_challenge_method",
+          "id_token_hint",
+        ];
 
-        let client_id = searchParams.get("client_id");
-        let redirect_uri = searchParams.get("redirect_uri");
-        let response_type = searchParams.get("response_type");
-        let scope = searchParams.get("scope");
-        let acr_values = searchParams.get("acr_values");
-        let claims = searchParams.get("claims");
-        let claimsLocales = searchParams.get("claims_locales");
-        let display = searchParams.get("display");
-        let maxAge = searchParams.get("max_age");
-        let prompt = searchParams.get("prompt");
-        let uiLocales = searchParams.get("ui_locales");
-        let codeChallenge = searchParams.get("code_challenge");
-        let codeChallengeMethod = searchParams.get("code_challenge_method");
-        let idTokenHint = searchParams.get("id_token_hint");
-        if (idTokenHint && idTokenHint !== "") {
-          idTokenHint = atob(idTokenHint);
-        }
+        const request = {
+          nonce: extractParam("nonce"),
+          state: extractParam("state"),
+          clientId: extractParam("client_id"),
+          redirectUri: extractParam("redirect_uri"),
+          responseType: extractParam("response_type"),
+          scope: extractParam("scope"),
+          acrValues: extractParam("acr_values"),
+          claims: extractParam("claims"),
+          claimsLocales: extractParam("claims_locales"),
+          display: extractParam("display"),
+          maxAge: extractParam("max_age"),
+          prompt: extractParam("prompt"),
+          uiLocales: extractParam("ui_locales"),
+          codeChallenge: extractParam("code_challenge"),
+          codeChallengeMethod: extractParam("code_challenge_method"),
+          idTokenHint: extractParam("id_token_hint"),
+        };
 
-        let claimsDecoded;
-        if (claims == null) {
-          claimsDecoded = null;
-        } else {
+        let claimsDecoded = null;
+        if (request.claims) {
           try {
-            claimsDecoded = JSON.parse(decodeURI(claims));
+            claimsDecoded = JSON.parse(decodeURI(request.claims));
           } catch {
             setError("parsing_error_msg");
             setStatus(states.ERROR);
@@ -65,136 +81,99 @@ export default function Authorize({ authService }) {
           }
         }
 
-        if (idTokenHint === null || idTokenHint === undefined) {
+        if (!request.idTokenHint) {
           await get_CsrfToken();
         }
 
-        let request = {
-          nonce: nonce,
-          state: state,
-          clientId: client_id,
-          redirectUri: redirect_uri,
-          responseType: response_type,
-          scope: scope,
-          acrValues: acr_values,
-          claims: claimsDecoded,
-          claimsLocales: claimsLocales,
-          display: display,
-          maxAge: maxAge,
-          prompt: prompt,
-          uiLocales: uiLocales,
-          codeChallenge: codeChallenge,
-          codeChallengeMethod: codeChallengeMethod,
-          idTokenHint: idTokenHint,
-        };
-
-        let filteredRequest = Object.fromEntries(
-          Object.entries(request).filter(([key, value]) => value !== null)
+        const filteredRequest = Object.fromEntries(
+          Object.entries({ ...request, claims: claimsDecoded }).filter(
+            ([_, value]) => value !== null
+          )
         );
 
-        if (idTokenHint === null || idTokenHint === undefined) {
-          await post_OauthDetails_v2(filteredRequest).then(
-            (oAuthDetailsResponse) => {
-              if (oAuthDetailsResponse.errors.length === 0) {
-                setOAuthDetailResponse(oAuthDetailsResponse);
-                setStatus(states.LOADED);
-              }
-            }
-          );
-        } else {
-          await post_OauthDetails_v3(filteredRequest).then(
-            (oAuthDetailsResponse) => {
-              if (oAuthDetailsResponse.errors.length === 0) {
-                setOAuthDetailResponse(oAuthDetailsResponse);
-                setStatus(states.LOADED);
+        const handleResponse = async (oAuthDetailsResponse) => {
+          if (oAuthDetailsResponse.errors.length === 0) {
+            setOAuthDetailResponse(oAuthDetailsResponse);
+            setStatus(states.LOADED);
 
-                if (idTokenHint !== null && idTokenHint !== undefined) {
-                  function base64UrlDecode(str) {
-                    return decodeURIComponent(
-                      atob(str.replace(/-/g, "+").replace(/_/g, "/"))
-                        .split("")
-                        .map(function (c) {
-                          return (
-                            "%" +
-                            ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-                          );
-                        })
-                        .join("")
+            if (request.idTokenHint) {
+              const base64UrlDecode = (str) => {
+                return decodeURIComponent(
+                  atob(str.replace(/-/g, "+").replace(/_/g, "/"))
+                    .split("")
+                    .map(
+                      (c) =>
+                        `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`
+                    )
+                    .join("")
+                );
+              };
+
+              const uuid = JSON.parse(
+                base64UrlDecode(request.idTokenHint.split(".")[1])
+              ).sub;
+              const code = JSON.parse(
+                base64UrlDecode(getCookie(uuid).split(".")[0])
+              ).code;
+
+              if (code) {
+                const { transactionId, authFactors } =
+                  oAuthDetailsResponse.response;
+                const challenge = { token: request.idTokenHint, code };
+                const encodedChallenge = btoa(JSON.stringify(challenge));
+                const challengeList = [
+                  {
+                    format: "base64url-encoded-json",
+                    challenge: encodedChallenge,
+                    authFactorType: authFactors[0][0].type,
+                  },
+                ];
+
+                const getOauthDetailsHash = async (value) => {
+                  let sha256Hash = sha256(JSON.stringify(value));
+                  let hashB64 = Base64.stringify(sha256Hash)
+                    .replace(/=+$/, "")
+                    .replace(/\+/g, "-")
+                    .replace(/\//g, "_");
+                  return hashB64;
+                };
+
+                const hash = await getOauthDetailsHash(
+                  oAuthDetailsResponse.response
+                );
+
+                const authenticateResponse = await post_AuthenticateUser(
+                  transactionId,
+                  uuid,
+                  challengeList,
+                  hash
+                );
+                if (authenticateResponse.errors.length === 0) {
+                  const authCodeResponse = await post_AuthCode(
+                    transactionId,
+                    [],
+                    [],
+                    hash
+                  );
+                  if (authCodeResponse.errors.length === 0) {
+                    window.onbeforeunload = null;
+                    const encodedStateCode = btoa(
+                      `state=${authCodeResponse.response.state}&code=${authCodeResponse.response.code}&ui_locales=${request.uiLocales}`
                     );
-                  }
-
-                  var uuid = JSON.parse(
-                    base64UrlDecode(idTokenHint.split(".")[1])
-                  ).sub;
-
-                  var code = JSON.parse(
-                    base64UrlDecode(getCookie(uuid).split(".")[0])
-                  ).code;
-
-                  if (code !== null && code !== undefined) {
-                    let transactionId =
-                      oAuthDetailsResponse.response.transactionId;
-
-                    let challenge = {
-                      token: idTokenHint,
-                      code: code,
-                    };
-
-                    const encodedChallenge = btoa(JSON.stringify(challenge));
-
-                    let challengeList = [
-                      {
-                        format: "base64url-encoded-json",
-                        challenge: encodedChallenge,
-                        authFactorType:
-                          oAuthDetailsResponse.response.authFactors[0][0].type,
-                      },
-                    ];
-
-                    const getOauthDetailsHash = async (value) => {
-                      let sha256Hash = sha256(JSON.stringify(value));
-                      let hashB64 = Base64.stringify(sha256Hash);
-                      // Remove padding characters
-                      hashB64 = hashB64.replace(/=+$/, "");
-                      // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
-                      hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
-                      return hashB64;
-                    };
-
-                    (async () => {
-                      await post_AuthenticateUser(
-                        transactionId,
-                        uuid,
-                        challengeList,
-                        getOauthDetailsHash(oAuthDetailsResponse.response)
-                      ).then((authenticateResponse) => {
-                        if (authenticateResponse.errors.length === 0) {
-                          (async () => {
-                            await post_AuthCode(
-                              transactionId,
-                              [],
-                              [],
-                              getOauthDetailsHash(oAuthDetailsResponse.response)
-                            ).then((authCodeResponse) => {
-                              if (authCodeResponse.errors.length === 0) {
-                                window.onbeforeunload = null;
-                                const encodedStateCode = btoa(
-                                  `state=${authCodeResponse.response.state}&code=${authCodeResponse.response.code}`
-                                );
-                                window.location.replace(
-                                  `${authCodeResponse.response.redirectUri}#${encodedStateCode}`
-                                );
-                              }
-                            });
-                          })();
-                        }
-                      });
-                    })();
+                    window.location.replace(
+                      `${authCodeResponse.response.redirectUri}#${encodedStateCode}`
+                    );
                   }
                 }
               }
             }
-          );
+          }
+        };
+
+        if (!request.idTokenHint) {
+          await post_OauthDetails_v2(filteredRequest).then(handleResponse);
+        } else {
+          await post_OauthDetails_v3(filteredRequest).then(handleResponse);
         }
       } catch (error) {
         setOAuthDetailResponse(null);

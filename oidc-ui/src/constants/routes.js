@@ -6,7 +6,7 @@ export const OAUTH_DETAIL_V2 = "/authorization/v2/oauth-details";
 export const OAUTH_DETAIL_V3 = "/authorization/v3/oauth-details";
 export const AUTHCODE = "/authorization/auth-code";
 export const CSRF = "/csrf/token";
-export const CONSENT_DETAILS = "/authorization/consent-details";
+export const CLAIM_DETAILS = "/authorization/claim-details";
 export const PREPARE_SIGNUP_REDIRECT = "/authorization/prepare-signup-redirect";
 
 // Config endpoint
@@ -33,4 +33,4 @@ export const LOGIN = "/login";
 export const AUTHORIZE = "/authorize";
 export const CONSENT = "/consent";
 export const ESIGNET_DETAIL = "/";
-export const CONSENT_DETAIL = "/claims-details";
+export const CLAIM_DETAIL = "/claim-details";

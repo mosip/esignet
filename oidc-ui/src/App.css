@@ -16,7 +16,6 @@ body {
 .section-background {
   position: relative;
   background-color: var(--login-background);
-  background: var(--login-background-image);
   background-size: cover;
   min-height: var(--login-background-min-height);
 }
