@@ -472,8 +472,12 @@ public class AuthorizationServiceTest {
     public void testGetOauthDetailsV3_WithInvalidIdTokenHint_ShouldThrowEsignetException() {
         OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
         oauthDetailReqDto.setIdTokenHint("invalid_id_token_hint");
-        Assert.assertThrows(EsignetException.class, () ->
-                authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest));
+        try {
+            authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
+        }
     }
 
     @Test
@@ -481,8 +485,12 @@ public class AuthorizationServiceTest {
         OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
         oauthDetailReqDto.setIdTokenHint("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.3RJf1g9bKzRC-dEj4b2Jx2yCk7Mz4oG1bZbDqGt8QxE");
         Mockito.when(httpServletRequest.getCookies()).thenReturn(new Cookie[]{});
-        Assert.assertThrows(EsignetException.class, () ->
-                authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest));
+        try {
+            authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
+        }
     }
 
     @Test
