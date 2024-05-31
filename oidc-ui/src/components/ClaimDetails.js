@@ -8,7 +8,7 @@ import redirectOnError from "../helpers/redirectOnError";
 import { configurationKeys } from "../constants/clientConstants";
 import LoadingIndicator from "../common/LoadingIndicator";
 
-const ConsentDetails = ({
+const ClaimDetails = ({
   i18nKeyPrefix1 = "consentDetails",
   i18nKeyPrefix2 = "errors",
 }) => {
@@ -20,6 +20,7 @@ const ConsentDetails = ({
   });
   const [claimsScopes, setClaimsScopes] = useState([]);
   const [isPopup, setPopup] = useState(false);
+  const [isProceedDisabled, setProceedDisabled] = useState(false);
 
   // Parsing the current URL into a URL object
   const urlObj = new URL(window.location.href);
@@ -42,6 +43,9 @@ const ConsentDetails = ({
   );
 
   const authServices = new authService(oidcService);
+  const uiLocales = new URLSearchParams(
+    atob(authServices.getAuthorizeQueryParam())
+  ).get("ui_locales");
 
   const oAuth_Details = oidcService.getOAuthDetails();
   const transactionId = oidcService.getTransactionId();
@@ -50,64 +54,61 @@ const ConsentDetails = ({
     configurationKeys.eKYCStepsConfig
   );
 
-  const getAllConsentDetails = async () => {
-    try {
-      const consentDetailsResponse = await authServices.getConsentDetails();
-      const { response, errors } = consentDetailsResponse;
-
-      if (errors != null && errors.length > 0) {
-        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-        return;
-      } else {
-        let claimsScopes = [];
-
-        function mergeArrays(arr1, arr2) {
-          const mergedArray = [];
-
-          arr2.forEach((item) => {
-            const match = arr1.find((item1) => item1.claim === item);
-            if (match) {
-              mergedArray.push({
-                claim: item,
-                available: match.available,
-                verified: match.verified,
-              });
+  const mergeArrays = (arr1, arr2) => {
+    return arr2
+      .map((item) => {
+        const match = arr1.find((item1) => item1.claim === item);
+        return match
+          ? {
+              claim: item,
+              available: match.available,
+              verified: match.verified,
             }
-          });
+          : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => (a.available === b.available ? 0 : a.available ? -1 : 1));
+  };
 
-          mergedArray.sort((a, b) =>
-            a.available === b.available ? 0 : a.available ? -1 : 1
-          );
+  const createClaimsTooltip = (label) => {
+    if (label === "essential") {
+      return (
+        <div>
+          <p className="!font-bold mb-1">{t1("essential_claims")}</p>
+          <p className="mb-1">
+            <span className="!font-semibold">{t1("essential_claims")}: </span>
+            {t1("essentialClaimsTooltip")}
+          </p>
+          <p className="mb-1">
+            <span className="!font-semibold">{t1("verified_claim")}: </span>
+            {t1("verifiedClaimTooltip")}
+          </p>
+          <p className="mb-1">
+            <span className="!font-semibold">{t1("unverified_claim")}: </span>
+            {t1("unverifiedClaimTooltip")}
+          </p>
+        </div>
+      );
+    } else if (label === "voluntary") {
+      return (
+        <div>
+          <p className="!font-bold mb-1">{t1("voluntary_claims")}</p>
+          <p className="mb-1">{t1("voluntaryClaimsTooltip")}</p>
+        </div>
+      );
+    }
+  };
 
-          return mergedArray;
-        }
+  const getAllClaimDetails = async () => {
+    try {
+      const { response, errors } = await authServices.getClaimDetails();
+      if (errors?.length) {
+        redirectOnError(errors[0].errorCode, t2(errors[0].errorCode));
+        return;
+      }
 
-        var essentialClaimsTooltip = (
-          <div>
-            <p className="!font-bold mb-1">{t1("essential_claims")}</p>
-            <p className="mb-1">
-              <span className="!font-semibold">{t1("essential_claims")}: </span>
-              {t1("essentialClaimsTooltip")}
-            </p>
-            <p className="mb-1">
-              <span className="!font-semibold">{t1("verified_claim")}: </span>
-              {t1("verifiedClaimTooltip")}
-            </p>
-            <p className="mb-1">
-              <span className="!font-semibold">{t1("unverified_claim")}: </span>
-              {t1("unverifiedClaimTooltip")}
-            </p>
-          </div>
-        );
-
-        var voluntaryClaimsTooltip = (
-          <div>
-            <p className="!font-bold mb-1">{t1("voluntary_claims")}</p>
-            <p className="mb-1">{t1("voluntaryClaimsTooltip")}</p>
-          </div>
-        );
-
-        claimsScopes.push({
+      const claimsScopes = [
+        {
           label: "essential_claims",
           type: "claim",
           required: true,
@@ -115,10 +116,9 @@ const ConsentDetails = ({
             response?.claimStatus,
             oAuth_Details.essentialClaims
           ),
-          tooltip: essentialClaimsTooltip,
-        });
-
-        claimsScopes.push({
+          tooltip: createClaimsTooltip("essential"),
+        },
+        {
           label: "voluntary_claims",
           type: "claim",
           required: false,
@@ -126,10 +126,29 @@ const ConsentDetails = ({
             response?.claimStatus,
             oAuth_Details.voluntaryClaims
           ),
-          tooltip: voluntaryClaimsTooltip,
-        });
+          tooltip: createClaimsTooltip("voluntary"),
+        },
+      ];
 
-        setClaimsScopes(claimsScopes);
+      setClaimsScopes(claimsScopes);
+      if (!response?.profileUpdateRequired) {
+        window.onbeforeunload = null;
+        if (response?.consentAction === "CAPTURE") {
+          window.location.replace(new URL("/consent", window.location.href));
+        } else if (response?.consentAction === "NOCAPTURE") {
+          const { response: authCodeResponse, errors: authCodeErrors } =
+            await authServices.post_AuthCode(transactionId, [], []);
+          if (authCodeErrors?.length) {
+            redirectOnError(
+              authCodeErrors[0].errorCode,
+              t2(authCodeErrors[0].errorCode)
+            );
+          } else {
+            window.location.replace(
+              `${authCodeResponse.redirectUri}?state=${authCodeResponse.state}&code=${authCodeResponse.code}`
+            );
+          }
+        }
       }
     } catch (error) {
       redirectOnError("authorization_failed_msg", error.message);
@@ -137,30 +156,31 @@ const ConsentDetails = ({
   };
 
   useEffect(() => {
-    getAllConsentDetails();
+    getAllClaimDetails();
   }, []);
 
   const handleProceed = async () => {
+    setProceedDisabled(true);
     window.onbeforeunload = null;
     try {
-      const signupRedirectResponse = await authServices.prepareSignupRedirect(
+      const { response, errors } = await authServices.prepareSignupRedirect(
         transactionId,
         ""
-        // window.location.href
       );
-      const { response, errors } = signupRedirectResponse;
-
-      if (errors != null && errors.length > 0) {
-        redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-        return;
+      if (errors?.length) {
+        redirectOnError(errors[0].errorCode, t2(errors[0].errorCode));
       } else {
-        const encodedIdToken = btoa(response.idToken);
+        const encodedIdToken = btoa(
+          `id_token_hint=${response.idToken}&ui_locales=${uiLocales}`
+        );
         window.location.replace(
           `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
         );
       }
     } catch (error) {
       redirectOnError("authorization_failed_msg", error.message);
+    } finally {
+      setProceedDisabled(false);
     }
   };
 
@@ -182,6 +202,7 @@ const ConsentDetails = ({
     <div className="mx-2 w-full md:mx-5">
       <div className="mb-2">
         <button
+          id="stay-button"
           type="button"
           className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 primary-button"
           onClick={handleStay}
@@ -190,6 +211,7 @@ const ConsentDetails = ({
         </button>
       </div>
       <button
+        id="discontinue-button"
         type="button"
         className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 secondary-button"
         onClick={handleDiscontinue}
@@ -349,18 +371,22 @@ const ConsentDetails = ({
                 <div className="mx-0 w-full mt-2 md:mx-5">
                   <div className="mb-3">
                     <button
+                      id="proceed-button"
                       type="button"
                       className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 primary-button"
                       onClick={handleProceed}
+                      disabled={isProceedDisabled}
                     >
                       {t1("proceed")}
                     </button>
                   </div>
                   <div className="mt-3">
                     <button
+                      id="cancel-button"
                       type="button"
                       className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 secondary-button"
                       onClick={handleCancel}
+                      disabled={isProceedDisabled}
                     >
                       {t1("cancel")}
                     </button>
@@ -375,4 +401,4 @@ const ConsentDetails = ({
   );
 };
 
-export default ConsentDetails;
+export default ClaimDetails;

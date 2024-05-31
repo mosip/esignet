@@ -10,7 +10,7 @@ import {
   OAUTH_DETAIL_V3,
   AUTHCODE,
   CSRF,
-  CONSENT_DETAILS,
+  CLAIM_DETAILS,
   PREPARE_SIGNUP_REDIRECT,
 } from "./../constants/routes";
 
@@ -276,8 +276,8 @@ class authService {
     return response.data;
   };
 
-  getConsentDetails = async () => {
-    let response = await ApiService.get(CONSENT_DETAILS, {
+  getClaimDetails = async () => {
+    let response = await ApiService.get(CLAIM_DETAILS, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
