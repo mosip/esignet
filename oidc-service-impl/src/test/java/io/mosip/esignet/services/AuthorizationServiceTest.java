@@ -36,6 +36,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
@@ -72,6 +74,9 @@ public class AuthorizationServiceTest {
     
     @Mock
     HttpServletResponse httpServletResponse;
+
+    @Mock
+    HttpServletRequest httpServletRequest;
 
 
     @Before
@@ -461,6 +466,23 @@ public class AuthorizationServiceTest {
         } catch (EsignetException e) {
             Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
         }
+    }
+
+    @Test
+    public void testGetOauthDetailsV3_WithInvalidIdTokenHint_ShouldThrowEsignetException() {
+        OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
+        oauthDetailReqDto.setIdTokenHint("invalid_id_token_hint");
+        Assert.assertThrows(EsignetException.class, () ->
+                authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest));
+    }
+
+    @Test
+    public void getOauthDetailsV3_WithCookieNotPresent_ThrowsEsignetException() {
+        OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
+        oauthDetailReqDto.setIdTokenHint("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.3RJf1g9bKzRC-dEj4b2Jx2yCk7Mz4oG1bZbDqGt8QxE");
+        Mockito.when(httpServletRequest.getCookies()).thenReturn(new Cookie[]{});
+        Assert.assertThrows(EsignetException.class, () ->
+                authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest));
     }
 
     @Test
