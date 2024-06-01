@@ -22,6 +22,8 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.AuthorizationServiceImpl;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import org.junit.Assert;
 import org.junit.Before;

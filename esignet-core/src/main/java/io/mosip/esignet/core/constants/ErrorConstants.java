@@ -85,4 +85,5 @@ public class ErrorConstants {
     public static final String PROOF_HEADER_INVALID_ALG = "proof_header_invalid_alg";
     public static final String PROOF_HEADER_INVALID_KEY = "proof_header_invalid_key";
     public static final String PROOF_HEADER_AMBIGUOUS_KEY = "proof_header_ambiguous_key";
+    public static final String INVALID_PATH_FRAGMENT = "invalid_path_fragment";
 }
