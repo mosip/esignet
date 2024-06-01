@@ -183,7 +183,7 @@ export default function Password({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/consent" + params, {
+        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
           replace: true,
         });
       }

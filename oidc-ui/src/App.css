@@ -16,7 +16,6 @@ body {
 .section-background {
   position: relative;
   background-color: var(--login-background);
-  background: var(--login-background-image);
   background-size: cover;
   min-height: var(--login-background-min-height);
 }
@@ -424,7 +423,7 @@ body {
   border: none;
   outline: none;
   padding-left: 0rem;
-  font: normal normal normal 16px/20px Inter;
+  font: normal normal normal 16px/20px Roboto;
 }
 
 [dir="ltr"] .input-box input {

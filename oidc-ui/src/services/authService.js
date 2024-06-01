@@ -6,10 +6,11 @@ import {
   SEND_OTP,
   AUTHENTICATE,
   AUTHENTICATE_V3,
-  OAUTH_DETAIL,
+  OAUTH_DETAIL_V2,
+  OAUTH_DETAIL_V3,
   AUTHCODE,
   CSRF,
-  CONSENT_DETAILS,
+  CLAIM_DETAILS,
   PREPARE_SIGNUP_REDIRECT,
 } from "./../constants/routes";
 
@@ -76,13 +77,28 @@ class authService {
    * @params {string} codeChallengeMethod
    * @returns /oauthDetails API response
    */
-  post_OauthDetails = async (params) => {
+  post_OauthDetails_v2 = async (params) => {
     let request = {
       requestTime: new Date().toISOString(),
       request: params,
     };
 
-    let response = await ApiService.post(OAUTH_DETAIL, request, {
+    let response = await ApiService.post(OAUTH_DETAIL_V2, request, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+      },
+    });
+    return response.data;
+  };
+
+  post_OauthDetails_v3 = async (params) => {
+    let request = {
+      requestTime: new Date().toISOString(),
+      request: params,
+    };
+
+    let response = await ApiService.post(OAUTH_DETAIL_V3, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
@@ -260,8 +276,8 @@ class authService {
     return response.data;
   };
 
-  getConsentDetails = async () => {
-    let response = await ApiService.get(CONSENT_DETAILS, {
+  getClaimDetails = async () => {
+    let response = await ApiService.get(CLAIM_DETAILS, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),

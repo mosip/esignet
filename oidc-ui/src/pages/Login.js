@@ -233,19 +233,35 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     setClientName(oAuthDetailResponse?.clientName);
     handleBackButtonClick();
   };
+ 
+  function checkForIDT(authFactors) {
+    for (const factor of authFactors) {
+      if (Array.isArray(factor)) {
+        if (checkForIDT(factor)) {
+          return true;
+        }
+      } else if (factor.type === "IDT") {
+        return true;
+      }
+    }
+    return false;
+  }
+
   return (
     <>
-      <Background
-        heading={t("login_heading", {
-          idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
-        })}
-        subheading={subHeaderText}
-        clientLogoPath={clientLogoURL}
-        clientName={clientName}
-        component={compToShow}
-        oidcService={oidcService}
-        authService={new authService(null)}
-      />
+      {!checkForIDT(JSON.parse(decodeOAuth).authFactors) && (
+        <Background
+          heading={t("login_heading", {
+            idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
+          })}
+          subheading={subHeaderText}
+          clientLogoPath={clientLogoURL}
+          clientName={clientName}
+          component={compToShow}
+          oidcService={oidcService}
+          authService={new authService(null)}
+        />
+      )}
     </>
   );
 }

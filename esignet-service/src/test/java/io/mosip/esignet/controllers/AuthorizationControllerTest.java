@@ -8,6 +8,7 @@ package io.mosip.esignet.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
@@ -1150,10 +1151,10 @@ public class AuthorizationControllerTest {
     
     
     @Test
-  public void prepareSignupRedirect_withValidInput_thenPass() throws Exception {
-  	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
-  	signupRedirectRequest.setTransactionId("TransactionId");
-  	signupRedirectRequest.setPathFragment("Path Fragment");
+    public void prepareSignupRedirect_withValidInput_thenPass() throws Exception {
+  	  SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+  	  signupRedirectRequest.setTransactionId("TransactionId");
+  	  signupRedirectRequest.setPathFragment("Path Fragment");
   	
       RequestWrapper<Object> wrapper = new RequestWrapper<>();
       wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
@@ -1216,12 +1217,22 @@ public class AuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PATH_FRAGMENT));
        }
 
+
   
 
     @Test
-    public void getConsentDetails_withValidDetails_thenSuccessResposne() throws Exception {
-        mockMvc.perform(get("/authorization/consent-details").header("oauth-details-key", "1234567890"))
+    public void getClaimDetails_withValidDetails_thenSuccessResposne() throws Exception {
+
+        ClaimDetailResponse claimDetailResponse = new ClaimDetailResponse();
+        claimDetailResponse.setConsentAction(ConsentAction.CAPTURE);
+        claimDetailResponse.setClaimStatus(List.of(new ClaimStatus("name", false, true),
+                new ClaimStatus("phone_number", false, true),
+                new ClaimStatus("email", false, true)));
+        when(authorizationService.getClaimDetails("transactionId")).thenReturn(claimDetailResponse);
+
+        mockMvc.perform(get("/authorization/claim-details").header("oauth-details-key", "transactionId"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isEmpty())
                 .andExpect(jsonPath("$.response.consentAction").value("CAPTURE"));
     }
 

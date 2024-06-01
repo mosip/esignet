@@ -1049,16 +1049,16 @@ public class AuthorizationServiceTest {
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 
-        ConsentDetailResponse consentDetailResponse = authorizationServiceImpl.getConsentDetails("transactionId");
-        Assert.assertEquals(consentDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
-        Assert.assertEquals(consentDetailResponse.getTransactionId(),"transactionId");
+        ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
+        Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
     }
 
     @Test
     public void getConsentDetails_withInvalidTransaction_thenFail(){
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
         try{
-            authorizationServiceImpl.getConsentDetails("transactionId");
+            authorizationServiceImpl.getClaimDetails("transactionId");
         }catch (InvalidTransactionException ex){
             Assert.assertEquals(ex.getErrorCode(),ErrorConstants.INVALID_TRANSACTION);
         }
