@@ -32,24 +32,6 @@ export default function Authorize({ authService }) {
         storeQueryParam(searchParams.toString());
 
         const extractParam = (param) => searchParams.get(param);
-        const params = [
-          "nonce",
-          "state",
-          "client_id",
-          "redirect_uri",
-          "response_type",
-          "scope",
-          "acr_values",
-          "claims",
-          "claims_locales",
-          "display",
-          "max_age",
-          "prompt",
-          "ui_locales",
-          "code_challenge",
-          "code_challenge_method",
-          "id_token_hint",
-        ];
 
         const request = {
           nonce: extractParam("nonce"),
