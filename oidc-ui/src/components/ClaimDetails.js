@@ -12,7 +12,7 @@ const ClaimDetails = ({
   i18nKeyPrefix1 = "consentDetails",
   i18nKeyPrefix2 = "errors",
 }) => {
-  const { t: t1 } = useTranslation("translation", {
+  const { t: t1, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix1,
   });
   const { t: t2 } = useTranslation("translation", {
@@ -21,6 +21,7 @@ const ClaimDetails = ({
   const [claimsScopes, setClaimsScopes] = useState([]);
   const [isPopup, setPopup] = useState(false);
   const [isProceedDisabled, setProceedDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Parsing the current URL into a URL object
   const urlObj = new URL(window.location.href);
@@ -43,9 +44,6 @@ const ClaimDetails = ({
   );
 
   const authServices = new authService(oidcService);
-  const uiLocales = new URLSearchParams(
-    atob(authServices.getAuthorizeQueryParam())
-  ).get("ui_locales");
 
   const oAuth_Details = oidcService.getOAuthDetails();
   const transactionId = oidcService.getTransactionId();
@@ -171,7 +169,7 @@ const ClaimDetails = ({
         redirectOnError(errors[0].errorCode, t2(errors[0].errorCode));
       } else {
         const encodedIdToken = btoa(
-          `id_token_hint=${response.idToken}&ui_locales=${uiLocales}`
+          `id_token_hint=${response.idToken}&ui_locales=${i18n.language}`
         );
         window.location.replace(
           `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
@@ -180,6 +178,7 @@ const ClaimDetails = ({
     } catch (error) {
       redirectOnError("authorization_failed_msg", error.message);
     } finally {
+      setIsLoading(true);
       setProceedDisabled(false);
     }
   };
@@ -232,7 +231,7 @@ const ClaimDetails = ({
       footer={footerButtons}
       footerClassname="flex flex-shrink-0 flex-wrap items-center justify-center rounded-b-md p-4 my-4"
     />
-  ) : claimsScopes.length === 0 ? (
+  ) : claimsScopes.length === 0 || isLoading ? (
     <LoadingIndicator size="medium" message={"loading_msg"} />
   ) : (
     <>
