@@ -5,9 +5,9 @@
  */
 package io.mosip.esignet.api.dto;
 
+import io.mosip.esignet.api.dto.Claim.ClaimMetadata;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
