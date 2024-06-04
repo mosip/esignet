@@ -10,9 +10,9 @@ import java.util.List;
 public class Verification {
 
     @NotBlank(message=ErrorConstants.INVALID_TRUST_FRAMEWORK)
-    private FilterCriteria trust_framework;
+    private FilterCriteria trustFramework;
     private FilterTime time;
-    private FilterCriteria assurance_level;
+    private FilterCriteria assuranceLevel;
     private List<Evidence> evidence;
 
 }

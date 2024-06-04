@@ -4,10 +4,12 @@ import lombok.Data;
 
 @Data
 public class DocumentDetails {
+
     private FilterCriteria type;
     private String documentNumber;
-    private String dateOfIssuance;
-    private String dateOfExpiry;
-    private Issuer issuer;
+    private FilterTime dateOfIssuance;
+    private FilterTime dateOfExpiry;
+    private EvidenceIssuer issuer;
+
 
 }
