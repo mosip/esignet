@@ -6,7 +6,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
-      - 'charts/**'
+      - 'helm/**'
   workflow_dispatch:
     inputs:
       IGNORE_CHARTS:
