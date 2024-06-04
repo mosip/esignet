@@ -37,7 +37,7 @@ WORKDIR /home/${container_user}
 
 ENV work_dir=/home/${container_user}
 
-ADD ./target/ $work_dir
+ADD ./apitest/target/ $work_dir
 
 ADD entrypoint.sh $work_dir/entrypoint.sh
 
