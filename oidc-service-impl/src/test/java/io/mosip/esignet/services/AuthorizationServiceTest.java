@@ -1071,11 +1071,8 @@ public class AuthorizationServiceTest {
     @Test
     public void getConsentDetails_withValidTransaction_thenPass(){
         OIDCTransaction transaction=new OIDCTransaction();
-        ClaimStatus claimStatus=new ClaimStatus();
-        claimStatus.setClaim("email");
-        claimStatus.setVerified(true);
-        claimStatus.setAvailable(true);
-        transaction.setClaimStatuses(List.of(claimStatus));
+        transaction.setEssentialClaims(List.of("name", "email"));
+        transaction.setVoluntaryClaims(List.of("phone_number"));
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 
