@@ -5,21 +5,21 @@
  */
 package io.mosip.esignet.api.dto.claim;
 
-import io.mosip.esignet.api.util.ErrorConstants;
 import io.mosip.esignet.api.util.EvidenceType;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Data
-public class Evidence {
+public class Evidence extends ElectronicSignature{
 
         private EvidenceType evidenceType;
         private FilterCriteria method;
         private FilterTime time;
         private VerificationMethod verificationMethod;
         private List<EvidenceCheckDetail> checkDetails;
-        private DocumentDetails documentDetails;
+        private DocumentDetail documentDetail;
+        private String attestation;
+        private ElectronicRecord record;
 
 }

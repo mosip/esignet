@@ -24,7 +24,6 @@ public class ClaimDetail implements Serializable {
     private String[] values;
     private boolean essential;
 
-    @Size(min = 3, max = 300,message = ErrorConstants.INVALID_PURPOSE)
     private String purpose;
 
     public ClaimDetail(String value, String[] values, boolean essential) {

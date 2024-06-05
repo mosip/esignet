@@ -8,7 +8,7 @@ package io.mosip.esignet.api.dto.claim;
 import lombok.Data;
 
 @Data
-public class ElectronicSignature extends Evidence {
+public class ElectronicSignature{
     private FilterCriteria signatureType;
     private FilterCriteria issuer;
     private String serialNumber;

@@ -8,7 +8,7 @@ package io.mosip.esignet.api.dto.claim;
 import lombok.Data;
 
 @Data
-public class DocumentDetails {
+public class DocumentDetail {
 
     private FilterCriteria type;
     private String documentNumber;
