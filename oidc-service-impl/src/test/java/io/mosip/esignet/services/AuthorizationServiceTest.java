@@ -7,8 +7,8 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
-import io.mosip.esignet.api.dto.Claim.ClaimDetail;
-import io.mosip.esignet.api.dto.Claim.Claims;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;

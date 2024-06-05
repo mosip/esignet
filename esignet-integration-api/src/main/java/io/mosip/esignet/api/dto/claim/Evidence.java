@@ -1,4 +1,9 @@
-package io.mosip.esignet.api.dto.Claim;
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+package io.mosip.esignet.api.dto.claim;
 
 import io.mosip.esignet.api.util.ErrorConstants;
 import io.mosip.esignet.api.util.EvidenceType;
@@ -10,18 +15,11 @@ import java.util.List;
 @Data
 public class Evidence {
 
-        @NotBlank(message = ErrorConstants.INVALID_EVIDENCE_TYPE)
-        private EvidenceType type;
+        private EvidenceType evidenceType;
         private FilterCriteria method;
         private FilterTime time;
         private VerificationMethod verificationMethod;
         private List<EvidenceCheckDetail> checkDetails;
         private DocumentDetails documentDetails;
-        private String attestation;
-        private FilterCriteria signatureType;
-        private FilterCriteria issuer;
-        private String serialNumber;
-        private FilterTime createdAt;
-        private EvidenceRecord record;
 
 }

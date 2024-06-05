@@ -3,15 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package io.mosip.esignet.api.dto;
+package io.mosip.esignet.api.dto.claim;
 
-import io.mosip.esignet.api.dto.claim.ClaimMetadata;
 import lombok.Data;
 
-import java.util.Map;
-
 @Data
-public class VerifiedKycExchangeDto extends KycExchangeDto  {
+public class EvidenceIssuer {
 
-    private Map<String, ClaimMetadata> acceptedVerifiedClaims;
+    private String name;
+    private String country;
+    private String countryCode;
+    private String jurisdiction;
+
 }

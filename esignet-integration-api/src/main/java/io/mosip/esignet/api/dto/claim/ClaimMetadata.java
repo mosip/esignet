@@ -1,4 +1,4 @@
-package io.mosip.esignet.api.dto.Claim;
+package io.mosip.esignet.api.dto.claim;
 
 import lombok.Data;
 

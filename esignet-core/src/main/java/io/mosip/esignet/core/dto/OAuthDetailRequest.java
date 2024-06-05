@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
-import io.mosip.esignet.api.dto.Claim.Claims;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.core.validator.OIDCDisplay;
 import io.mosip.esignet.core.validator.OIDCPrompt;
 import io.mosip.esignet.core.validator.OIDCResponseType;

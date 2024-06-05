@@ -23,4 +23,5 @@ public class ErrorConstants {
     public static final String INVALID_CLAIMS = "invalid_claims";
     public static final String INVALID_TRUST_FRAMEWORK = "invalid_trust_framework";
     public static final String INVALID_EVIDENCE_TYPE = "invalid_evidence_type";
+    public static final String INVALID_PURPOSE= "invalid_purpose";
 }
