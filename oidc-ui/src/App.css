@@ -334,6 +334,17 @@ body {
   }
 }
 
+.align-loading-center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
 @media screen and (max-width: 768px) {
   .section-background .top_left_bg_logo,
   .section-background .top_right_bg_logo,
