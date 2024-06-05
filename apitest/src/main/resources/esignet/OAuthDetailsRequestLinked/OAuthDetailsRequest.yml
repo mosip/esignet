@@ -143,54 +143,6 @@ OAuthDetailsRequestLinked:
        
 }'
 
-   ESignet_OAuthDetailsRequest_LinkAuth_Consent_SameClaim_Uin_NoBinding_Valid_Smoke_sid:
-      endPoint: /v1/esignet/authorization/oauth-details
-      role: resident
-      checkErrorsOnlyInResponse: true
-      restMethod: post
-      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
-      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
-      	"scope": "openid resident-service profile",
-      	"responseType": "code",
-      	"redirectUri": "$IDPREDIRECTURI$",
-      	"display": "popup",
-	    "prompt": "login",
-	    "acrValues": "mosip:idp:acr:linked-wallet",
-	    "nonce": "973eieljzng",
-	    "state": "eree2311",
-	    "claimsLocales": "en"
-}'
-      output: '{
-       
-}'
-
-   ESignet_OAuthDetailsRequest_LinkAuth_Consent_SameClaim_Vid_NoBinding_Valid_Smoke_sid:
-      endPoint: /v1/esignet/authorization/oauth-details
-      role: resident
-      checkErrorsOnlyInResponse: true
-      restMethod: post
-      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
-      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
-      	"scope": "openid resident-service profile",
-      	"responseType": "code",
-      	"redirectUri": "$IDPREDIRECTURI$",
-      	"display": "popup",
-	    "prompt": "login",
-	    "acrValues": "mosip:idp:acr:linked-wallet",
-	    "nonce": "973eieljzng",
-	    "state": "eree2311",
-	    "claimsLocales": "en"
-}'
-      output: '{
-       
-}'
-
    ESignet_OAuthDetailsRequest_LinkAuth_Other_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
       role: resident

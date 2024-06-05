@@ -5,11 +5,7 @@
 	<!-- Passing Group as parmeter unsing "testType" Possible Groups are: smoke 
 		regression smokeAndRegression -->
 	<listeners>
-		<listener class-name="io.mosip.testrig.apirig.report.CustomTestNGReporter" />
-		<listener
-			class-name="io.mosip.testrig.apirig.authentication.fw.util.AuthenticationTestsListener" />
-		<listener class-name="io.mosip.testrig.apirig.authentication.e2e.E2EReport" />
-		<listener class-name="io.mosip.testrig.apirig.customReport.EmailableReport" />
+		<listener class-name="io.mosip.testrig.apirig.report.EmailableReport"/>
 	</listeners>
 		
 <!--	<test name ="SignUpSettings">
@@ -398,13 +394,6 @@
 	<test name="GetLinkStatus">
 		<parameter name="ymlFile"
 			value="esignet/GetLinkStatus/GetLinkStatus.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name="LinkedAuthenticationWlaNoBinding">
-		<parameter name="ymlFile"
-			value="esignet/LinkedAuthenticationWlaNoBinding/LinkedAuthenticationWla.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>

@@ -79,7 +79,7 @@ export default function Form({
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("pwd") !== -1
+    captchaEnableComponentsList.indexOf("kba") !== -1
   );
 
   const captchaSiteKey =

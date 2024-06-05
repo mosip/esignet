@@ -93,38 +93,6 @@ GenerateLinkCode:
         
 }'
 
-   ESignet_GenerateLinkCode_Consent_uin_SameClaim_NoBinding_all_Valid_Smoke_sid:
-      endPoint: /v1/esignet/linked-authorization/link-code
-      role: resident
-      checkErrorsOnlyInResponse: true
-      restMethod: post
-      validityCheckRequired: true
-      inputTemplate: esignet/GenerateLinkCode/GenerateLinkCode
-      outputTemplate: esignet/GenerateLinkCode/GenerateLinkCodeResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_LinkAuth_Consent_SameClaim_Uin_NoBinding_Valid_Smoke_sid_transactionId$"
-}'
-      output: '{
-        
-}'
-
-   ESignet_GenerateLinkCode_Consent_Vid_SameClaim_NoBinding_all_Valid_Smoke_sid:
-      endPoint: /v1/esignet/linked-authorization/link-code
-      role: resident
-      checkErrorsOnlyInResponse: true
-      restMethod: post
-      validityCheckRequired: true
-      inputTemplate: esignet/GenerateLinkCode/GenerateLinkCode
-      outputTemplate: esignet/GenerateLinkCode/GenerateLinkCodeResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_LinkAuth_Consent_SameClaim_Uin_NoBinding_Valid_Smoke_sid_transactionId$"
-}'
-      output: '{
-        
-}'
-
    ESignet_GenerateLinkCode_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
       role: resident

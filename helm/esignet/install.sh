@@ -7,13 +7,13 @@ if [ $# -ge 1 ] ; then
 fi
 
 SOFTHSM_NS=softhsm
-SOFTHSM_CHART_VERSION=12.0.2
+SOFTHSM_CHART_VERSION=0.0.1-develop
 
 echo Create $SOFTHSM_NS namespace
 kubectl create ns $SOFTHSM_NS
 
 NS=esignet
-CHART_VERSION=1.0.1
+CHART_VERSION=0.0.1-develop
 
 ESIGNET_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-esignet-host})
 
@@ -83,8 +83,37 @@ function installing_esignet() {
     ENABLE_INSECURE='--set enable_insecure=true';
   fi
 
+  default_enable_volume=false
+  read -p "Would you like to enable volume (true/false) : [ default : false ] : " enable_volume
+  enable_volume=${enable_volume:-$default_enable_volume}
+
+  ESIGNET_HELM_ARGS=''
+  if [[ $enable_volume == 'true' ]]; then
+
+    default_volume_size=100M
+    read -p "Provide the size for volume [ default : 100M ]" volume_size
+    volume_size=${volume_size:-$default_volume_size}
+
+    default_volume_mount_path='/home/mosip/config/'
+    read -p "Provide the mount path for volume [ default : '/home/mosip/config/' ] : " volume_mount_path
+    volume_mount_path=${volume_mount_path:-$default_volume_mount_path}
+
+    PVC_CLAIM_NAME='esignet'
+    ESIGNET_HELM_ARGS="--set persistence.enabled=true  \
+                   --set volumePermissions.enabled=true \
+                   --set persistence.mountDir=\"$volume_mount_path\" \
+                   --set persistence.size=$volume_size \
+                   --set springConfigNameEnv='esignet' \
+                   --set activeProfileEnv=default     \
+                   --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"  \
+                   --set extraEnvVarsCM={'global','config-server-share','artifactory-share'} \
+                  "
+  fi
+  echo "ESIGNET HELM ARGS $ESIGNET_HELM_ARGS"
+
+
   echo Installing esignet
-  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE
+  helm -n $NS install esignet mosip/esignet $ESIGNET_HELM_ARGS --version $CHART_VERSION $ENABLE_INSECURE
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 

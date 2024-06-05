@@ -24,9 +24,7 @@ const allErrorStatusCodes = [
 // Create own axios instance with defaults.
 export const ApiService = axios.create({
   withCredentials: true,
-  baseURL: API_BASE_URL,
-  signal: AbortSignal.timeout(5 * 60 * 1000),
-  timeout: 5 * 60 * 1000
+  baseURL: API_BASE_URL
 });
 
 export const setupResponseInterceptor = (navigate) => {

@@ -1,50 +1,74 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
 package io.mosip.esignet.mapper;
 
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.api.dto.Claims;
 import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.UserConsent;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.entity.ConsentHistory;
-import io.mosip.esignet.mapper.converter.*;
-import org.modelmapper.ModelMapper;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_PERMITTED_SCOPE;
 
-public class ConsentMapper {
+@Mapper(componentModel = "spring")
+public abstract class ConsentMapper {
 
-    private ConsentMapper(){}
+    @Autowired
+    protected ObjectMapper objectMapper;
 
-    private static final ModelMapper modelMapper = new ModelMapper();
+    public abstract io.mosip.esignet.entity.ConsentDetail toEntity(UserConsent userConsent);
 
-    static {
-        ObjectMapper objectMapper = new ObjectMapper();
-        modelMapper.addConverter(new ClaimsToStringConverter(objectMapper));
-        modelMapper.addConverter(new StringToClaimsConverter(objectMapper));
-        modelMapper.addConverter(new MapToStringConverter(objectMapper));
-        modelMapper.addConverter(new StringToMapConverter(objectMapper));
-        modelMapper.addConverter(new ListToStringConverter());
-        modelMapper.addConverter(new StringToListConverter());
-        modelMapper.addMappings(new CustomConsentRequestMapping());
-        modelMapper.addMappings(new CustomConsentHistoryMapping());
+    public abstract ConsentDetail toDto(io.mosip.esignet.entity.ConsentDetail consentDetail);
+
+    public abstract ConsentHistory toConsentHistoryEntity(UserConsent userConsent);
+
+    public String convertClaimsToString(Claims claims) {
+        try {
+            return claims != null ? objectMapper.writeValueAsString(claims) : "";
+        } catch (JsonProcessingException e) {
+            throw new EsignetException(INVALID_CLAIM);
+        }
     }
 
-    public static io.mosip.esignet.entity.ConsentDetail toEntity(ConsentDetail consentDetailDTo) {
-        return modelMapper.map(consentDetailDTo, io.mosip.esignet.entity.ConsentDetail.class);
+    public Claims convertStringToClaims(String claims) {
+        try {
+            return StringUtils.isNotBlank(claims) ? objectMapper.readValue(claims, Claims.class) : null;
+        } catch (JsonProcessingException e) {
+            throw new EsignetException(INVALID_CLAIM);
+        }
     }
 
-    public static io.mosip.esignet.entity.ConsentDetail toEntity(UserConsent userConsent) {
-        return modelMapper.map(userConsent, io.mosip.esignet.entity.ConsentDetail.class);
+    public String convertListToString(List<String> list) {
+        return list == null ? "" : String.join(",", list);
     }
 
-    public static ConsentDetail toDto(io.mosip.esignet.entity.ConsentDetail consentDetail) {
-        return modelMapper.map(consentDetail, ConsentDetail.class);
+    public List<String> convertStringToList(String value) {
+        return StringUtils.isEmpty(value) ? List.of(): Arrays.asList(value.split(","));
     }
 
-    public static ConsentHistory toConsentHistoryEntity(UserConsent userConsent){
-        return modelMapper.map(userConsent, ConsentHistory.class);
+    public String convertMapToString(Map<String, Boolean> map) {
+        try{
+            return map!=null?objectMapper.writeValueAsString(map):"";
+        }catch (JsonProcessingException e) {
+            throw new EsignetException(INVALID_PERMITTED_SCOPE);
+        }
+    }
+
+    public Map<String, Boolean> convertStringToMap(String value) {
+        try{
+            return StringUtils.isNotBlank(value) ? objectMapper.readValue(value,Map.class): Collections.emptyMap();
+        } catch (JsonProcessingException e) {
+            throw new EsignetException(INVALID_PERMITTED_SCOPE);
+        }
     }
 }

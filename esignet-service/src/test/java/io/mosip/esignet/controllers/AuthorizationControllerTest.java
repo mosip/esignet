@@ -34,10 +34,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_FORMAT;
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
@@ -817,6 +814,88 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge_format"));
+    }
+
+    @Test
+    public void authenticateEndUser_withValidKBADetails_returnSuccessResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("eyJmdWxsTmFtZSI6IkthaWYgU2lkZGlxdWUiLCJkb2IiOiIyMDAwLTA3LTI2In0\u003d");
+        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setFormat("base64url-encoded-json");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidChallenge_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("eyJmdWxsTmFtZSI6IjEyMyIsImRvYiI6IjIwMDAtMDctMjYifQ==");
+        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setFormat("base64url-encoded-json");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
+    }
+
+    @Test
+    public void authenticateEndUser_withInvalidChallengeJson_returnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("abc");
+        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setFormat("base64url-encoded-json");
+
+        List<AuthChallenge> authChallengeList = new ArrayList<>();
+        authChallengeList.add(authChallenge);
+
+        authRequest.setChallengeList(authChallengeList);
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+        when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
     }
 
     @Test
