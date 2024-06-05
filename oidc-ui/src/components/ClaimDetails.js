@@ -127,12 +127,12 @@ const ClaimDetails = ({
           tooltip: createClaimsTooltip("voluntary"),
         },
       ];
-
-      setClaimsScopes(claimsScopes);
       if (!response?.profileUpdateRequired) {
         window.onbeforeunload = null;
         if (response?.consentAction === "CAPTURE") {
-          window.location.replace(new URL("/consent", window.location.href));
+          window.location.replace(
+            window.location.href.replace("claim-details", "consent")
+          );
         } else if (response?.consentAction === "NOCAPTURE") {
           const { response: authCodeResponse, errors: authCodeErrors } =
             await authServices.post_AuthCode(transactionId, [], []);
@@ -147,6 +147,8 @@ const ClaimDetails = ({
             );
           }
         }
+      } else {
+        setClaimsScopes(claimsScopes);
       }
     } catch (error) {
       redirectOnError("authorization_failed_msg", error.message);
@@ -232,7 +234,11 @@ const ClaimDetails = ({
       footerClassname="flex flex-shrink-0 flex-wrap items-center justify-center rounded-b-md p-4 my-4"
     />
   ) : claimsScopes.length === 0 || isLoading ? (
-    <LoadingIndicator size="medium" message={"loading_msg"} />
+    <LoadingIndicator
+      size="medium"
+      message={"loading_msg"}
+      className="align-loading-center"
+    />
   ) : (
     <>
       <img
