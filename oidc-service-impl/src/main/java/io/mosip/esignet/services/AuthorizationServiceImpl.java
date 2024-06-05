@@ -263,11 +263,19 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         ClaimDetailResponse claimDetailResponse = new ClaimDetailResponse();
         claimDetailResponse.setConsentAction(transaction.getConsentAction());
         claimDetailResponse.setTransactionId(transactionId);
-        claimDetailResponse.setProfileUpdateRequired(true); //TODO need to compute this
-        //TODO transaction should be set with claims metadata
-        claimDetailResponse.setClaimStatus(List.of(new ClaimStatus("name", false, true),
-                new ClaimStatus("phone_number", false, true),
-                new ClaimStatus("email", false, true)));
+        List<ClaimStatus> list = new ArrayList<>();
+
+        //TODO need to compute this
+        for(String claim : transaction.getEssentialClaims()) {
+            list.add(new ClaimStatus(claim, false, (claim.equals("name") || claim.equals("phone_number")) ));
+        }
+        for(String claim : transaction.getVoluntaryClaims()) {
+            list.add(new ClaimStatus(claim, false, (claim.equals("name") || claim.equals("phone_number")) ));
+        }
+
+        //TODO only if verified claim is requested
+        claimDetailResponse.setProfileUpdateRequired(list.stream().anyMatch(c -> !c.isAvailable()));
+        claimDetailResponse.setClaimStatus(list);
         return claimDetailResponse;
     }
 
