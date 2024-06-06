@@ -16,8 +16,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FilterTime implements Serializable {
+public class FilterDateTime implements Serializable {
 
-    private int maxAge;
+    private int max_age;
 
 }

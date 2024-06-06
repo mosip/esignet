@@ -5,21 +5,26 @@
  */
 package io.mosip.esignet.api.dto.claim;
 
-import io.mosip.esignet.api.util.EvidenceType;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class Evidence extends ElectronicSignature{
+public class Evidence implements Serializable  {
 
-        private EvidenceType evidenceType;
+        private FilterCriteria type;
         private FilterCriteria method;
-        private FilterTime time;
-        private VerificationMethod verificationMethod;
-        private List<EvidenceCheckDetail> checkDetails;
-        private DocumentDetail documentDetail;
+        private FilterDateTime time;
+        private VerificationMethod verification_method;
+        private List<EvidenceCheckDetail> check_details;
+        private DocumentDetail document_details;
         private String attestation;
         private ElectronicRecord record;
+
+        private FilterCriteria signature_type;
+        private FilterCriteria issuer;
+        private String serial_number;
+        private FilterDateTime created_at;
 
 }

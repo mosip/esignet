@@ -12,7 +12,7 @@ public class EvidenceIssuer {
 
     private String name;
     private String country;
-    private String countryCode;
+    private String country_code;
     private String jurisdiction;
 
 }
