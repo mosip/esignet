@@ -189,8 +189,8 @@
   "consentDetails": {
     "essential_claims": "ការទាមទារសំខាន់ៗ",
     "voluntary_claims": "ការទាមទារដោយស្ម័គ្រចិត្ត",
-    "verified_claim": "ការទាមទារដែលបានផ្ទៀងផ្ទាត់",
-    "unverified_claim": "ការទាមទារដែលមិនបានផ្ទៀងផ្ទាត់",
+    "verified_claims": "ការទាមទារដែលបានផ្ទៀងផ្ទាត់",
+    "unverified_claims": "ការទាមទារដែលមិនបានបញ្ជាក់",
     "name": "ឈ្មោះ",
     "given_name": "ឈ្មោះ",
     "middle_name": "ជា​ឈ្មោះ​ក​ណ្តា​ល",

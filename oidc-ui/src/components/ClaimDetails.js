@@ -72,17 +72,16 @@ const ClaimDetails = ({
     if (label === "essential") {
       return (
         <div>
-          <p className="!font-bold mb-1">{t1("essential_claims")}</p>
           <p className="mb-1">
             <span className="!font-semibold">{t1("essential_claims")}: </span>
             {t1("essentialClaimsTooltip")}
           </p>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("verified_claim")}: </span>
+            <span className="!font-semibold">{t1("verified_claims")}: </span>
             {t1("verifiedClaimTooltip")}
           </p>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("unverified_claim")}: </span>
+            <span className="!font-semibold">{t1("unverified_claims")}: </span>
             {t1("unverifiedClaimTooltip")}
           </p>
         </div>
@@ -90,7 +89,6 @@ const ClaimDetails = ({
     } else if (label === "voluntary") {
       return (
         <div>
-          <p className="!font-bold mb-1">{t1("voluntary_claims")}</p>
           <p className="mb-1">{t1("voluntaryClaimsTooltip")}</p>
         </div>
       );
