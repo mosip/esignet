@@ -5,15 +5,19 @@
  */
 package io.mosip.esignet.api.dto.claim;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class DocumentDetail {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class DocumentDetail implements Serializable {
 
     private FilterCriteria type;
-    private String documentNumber;
-    private FilterTime dateOfIssuance;
-    private FilterTime dateOfExpiry;
+    private String document_number;
+    private FilterDateTime date_of_issuance;
+    private FilterDateTime date_of_expiry;
     private EvidenceIssuer issuer;
 
 

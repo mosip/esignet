@@ -5,14 +5,18 @@
  */
 package io.mosip.esignet.api.dto.claim;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-@Data
-public class EvidenceCheckDetail {
+import java.io.Serializable;
 
-    private String checkMethod;
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class EvidenceCheckDetail implements Serializable  {
+
+    private String check_method;
     private String organisation;
     private String txn;
-    private FilterTime time;
+    private FilterDateTime time;
 
 }

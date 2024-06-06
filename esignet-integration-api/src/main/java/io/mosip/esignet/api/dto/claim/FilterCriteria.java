@@ -11,12 +11,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FilterCriteria implements Serializable {
+
     private String value;
-    private String[] values;
+    private List<String> values;
 }

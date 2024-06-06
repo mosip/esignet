@@ -5,15 +5,19 @@
  */
 package io.mosip.esignet.api.dto.claim;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class ElectronicRecord extends Evidence{
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ElectronicRecord implements Serializable {
 
     private FilterCriteria type;
-    private String personalNumber;
-    private FilterTime createdAt;
-    private FilterTime dateOfExpiry;
+    private String personal_number;
+    private FilterDateTime created_at;
+    private FilterDateTime date_of_expiry;
     private EvidenceIssuer source;
 
 }

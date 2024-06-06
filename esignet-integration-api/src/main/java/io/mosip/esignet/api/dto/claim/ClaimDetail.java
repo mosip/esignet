@@ -18,7 +18,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ClaimDetail implements Serializable {
+public class ClaimDetail extends VerifiedClaimDetail implements Serializable {
 
     private String value;
     private String[] values;

@@ -17,7 +17,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class VerifiedClaimDetail extends ClaimDetail implements Serializable {
+public class VerifiedClaimDetail implements Serializable {
 
     private Verification verification;
 

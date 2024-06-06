@@ -5,10 +5,15 @@
  */
 package io.mosip.esignet.api.dto.claim;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class VerificationMethod {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class VerificationMethod implements Serializable {
+
     private FilterCriteria type;
 
 }
