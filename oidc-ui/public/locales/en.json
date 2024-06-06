@@ -189,8 +189,8 @@
   "consentDetails": {
     "essential_claims": "Essential Claims",
     "voluntary_claims": "Voluntary Claims",
-    "verified_claim": "Verified Claim",
-    "unverified_claim": "Unverified Claim",
+    "verified_claims": "Verified Claims",
+    "unverified_claims": "Unverified Claims",
     "name": "Name",
     "given_name": "Name",
     "middle_name": "Middle Name",

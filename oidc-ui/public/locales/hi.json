@@ -189,8 +189,8 @@
   "consentDetails": {
     "essential_claims": "आवश्यक दावे",
     "voluntary_claims": "स्वैच्छिक दावे",
-    "verified_claim": "सत्यापित दावा",
-    "unverified_claim": "असत्यापित दावा",
+    "verified_claims": "सत्यापित दावे",
+    "unverified_claims": "असत्यापित दावे",
     "name": "नाम",
     "given_name": "नाम",
     "middle_name": "मध्य नाम",

@@ -79,6 +79,7 @@ export default function Authorize({ authService }) {
             setStatus(states.LOADED);
 
             if (request.idTokenHint) {
+              setStatus(states.LOADING);
               const base64UrlDecode = (str) => {
                 return decodeURIComponent(
                   atob(str.replace(/-/g, "+").replace(/_/g, "/"))
@@ -207,7 +208,7 @@ export default function Authorize({ authService }) {
 
   switch (status) {
     case states.LOADING:
-      el = <LoadingIndicator size="medium" message={"loading_msg"} />;
+      el = <LoadingIndicator size="medium" message={"loading_msg"} className="align-loading-center"/>;
       break;
     case states.LOADED:
       if (!oAuthDetailResponse) {

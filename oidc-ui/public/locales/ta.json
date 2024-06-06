@@ -189,8 +189,8 @@
   "consentDetails": {
     "essential_claims": "அத்தியாவசிய உரிமைகோரல்கள்",
     "voluntary_claims": "தன்னார்வ உரிமைகோரல்கள்",
-    "verified_claim": "சரிபார்க்கப்பட்ட உரிமைகோரல்",
-    "unverified_claim": "சரிபார்க்கப்படாத உரிமைகோரல்",
+    "verified_claims": "சரிபார்க்கப்பட்ட உரிமைகோரல்கள்",
+    "unverified_claims": "சரிபார்க்கப்படாத உரிமைகோரல்கள்",
     "name": "பெயர்",
     "given_name": "பெயர்",
     "middle_name": "நடுத்தர பெயர்",

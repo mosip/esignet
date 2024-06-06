@@ -189,8 +189,8 @@
   "consentDetails": {
     "essential_claims": "ಅಗತ್ಯ ಹಕ್ಕುಗಳು",
     "voluntary_claims": "ಸ್ವಯಂಪ್ರೇರಿತ ಹಕ್ಕುಗಳು",
-    "verified_claim": "ಪರಿಶೀಲಿಸಿದ ಹಕ್ಕು",
-    "unverified_claim": "ಪರಿಶೀಲಿಸದ ಹಕ್ಕು",
+    "verified_claims": "ಪರಿಶೀಲಿಸಿದ ಹಕ್ಕುಗಳು",
+    "unverified_claims": "ಪರಿಶೀಲಿಸದ ಹಕ್ಕುಗಳು",
     "name": "ಹೆಸರು",
     "given_name": "ಹೆಸರು",
     "middle_name": "ಮಧ್ಯದ ಹೆಸರು",

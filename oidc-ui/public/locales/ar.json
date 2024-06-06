@@ -188,8 +188,8 @@
   "consentDetails": {
     "essential_claims": "المطالبات الأساسية",
     "voluntary_claims": "المطالبات الطوعية",
-    "verified_claim": "المطالبة التي تم التحقق منها",
-    "unverified_claim": "مطالبة لم يتم التحقق منها",
+    "verified_claims": "المطالبات التي تم التحقق منها",
+    "unverified_claims": "مطالبات لم يتم التحقق منها",
     "name": "اسم",
     "given_name": "اسم",
     "middle_name": "الاسم الأوسط",
