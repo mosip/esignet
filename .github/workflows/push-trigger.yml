@@ -17,7 +17,7 @@ on:
       - '!release-branch'
       - master
       - 1.*
-      - develop
+      - develop*
       - MOSIP*
       - release*
       - ES-496
