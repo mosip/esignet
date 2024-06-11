@@ -7,9 +7,6 @@ The tables are described under `<db name>/ddl/`.
 Default data that's populated in the tables is present under `<db name>/dml` folder.
 
 ## Prerequisites
-* Make sure DB changes for IDA and PMS are up to date.
-* If not upgraded, IDA DB using the [release script](https://github.com/mosip/id-authentication/tree/develop/db_release_scripts).
-* If not upgraded, PMS DB using the [release script](https://github.com/mosip/partner-management-services/tree/develop/db_release_scripts).
 * Command line utilities:
   - kubectl
   - helm
@@ -20,7 +17,8 @@ Default data that's populated in the tables is present under `<db name>/dml` fol
   ```
 
 ## Install in existing MOSIP K8 Cluster
-These scripts are automatically run with below mentioned script in existing k8 cluster with Postgres installed.
+1. Setup [Postgres server](https://github.com/mosip/mosip-infra/blob/v1.2.0.2/deployment/v3/external/postgres/install.sh) if not. Note: only install the server dont initialise.
+1. Execute init script as mentioned below for existing k8 cluster with Postgres installed.
 ### Install
 * Set your kube_config file or kube_config variable on PC.
 * Update `init_values.yaml` with db-common-password from the postgres namespace in the required field `dbUserPasswords.dbuserPassword` and ensure `databases.mosip_esignet` is enabled.
