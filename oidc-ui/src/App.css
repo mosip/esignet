@@ -335,6 +335,7 @@ body {
 }
 
 .align-loading-center {
+  width: 100%;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -343,6 +344,23 @@ body {
   -moz-transform: translate(-50%, -50%);
   -o-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
+}
+
+.pincode-input-text {
+  width: var(--otp-pin-input-width) !important;
+  height: var(--otp-pin-input-height) !important;
+  margin: var(--otp-pin-input-margin) !important;
+  color: var(--otp-pin-input-color) !important;
+  border: 0 !important;
+  border-bottom: var(--otp-pin-input-border-bottom) !important;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--checkbox-color);
+}
+
+input[type="checkbox"]:hover {
+  cursor: pointer;
 }
 
 @media screen and (max-width: 768px) {
@@ -537,6 +555,12 @@ input[type="number"] {
   text-align: center;
   letter-spacing: 0px;
   padding-top: 10px;
+}
+
+@media screen and (max-width: 375px) {
+  .pincode-input-text {
+    width: 2em !important;
+  }
 }
 
 @layer base {

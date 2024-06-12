@@ -29,6 +29,7 @@ export default function Authorize({ authService }) {
   useEffect(() => {
     const callAuthorize = async () => {
       try {
+        setStatus(states.LOADING);
         storeQueryParam(searchParams.toString());
 
         const extractParam = (param) => searchParams.get(param);
@@ -76,10 +77,8 @@ export default function Authorize({ authService }) {
         const handleResponse = async (oAuthDetailsResponse) => {
           if (oAuthDetailsResponse.errors.length === 0) {
             setOAuthDetailResponse(oAuthDetailsResponse);
-            setStatus(states.LOADED);
 
             if (request.idTokenHint) {
-              setStatus(states.LOADING);
               const base64UrlDecode = (str) => {
                 return decodeURIComponent(
                   atob(str.replace(/-/g, "+").replace(/_/g, "/"))
@@ -150,6 +149,9 @@ export default function Authorize({ authService }) {
                 }
               }
             }
+            else {
+              setStatus(states.LOADED);
+            }
           }
         };
 
@@ -159,6 +161,7 @@ export default function Authorize({ authService }) {
           await post_OauthDetails_v3(filteredRequest).then(handleResponse);
         }
       } catch (error) {
+        setStatus(states.LOADED);
         setOAuthDetailResponse(null);
         setError(error.message);
         setStatus(states.ERROR);
