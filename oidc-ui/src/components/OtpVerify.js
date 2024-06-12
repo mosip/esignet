@@ -252,19 +252,6 @@ export default function OtpVerify({
     }
   };
 
-  let styles = {
-    width: "40px",
-    height: "40px",
-    margin: "0 5px",
-    border: "",
-    borderBottom: "2px solid #0284c7",
-    color: "#0284c7"
-  };
-
-  if(window.screen.availWidth <= 375) {
-    styles = {...styles, width: "2em"}
-  }
-
   const onCloseHandle = () => {
     setErrorBanner(null);
   };
@@ -313,9 +300,6 @@ export default function OtpVerify({
             }}
             type="numeric"
             inputMode="number"
-            style={{ padding: "5px 0px" }}
-            inputStyle={styles}
-            inputFocusStyle={{ borderBottom: "2px solid #075985" }}
             onComplete={(value, index) => {
               //TO handle case when user pastes OTP
               setOtpValue(value);

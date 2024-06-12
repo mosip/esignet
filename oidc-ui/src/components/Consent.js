@@ -340,7 +340,7 @@ export default function Consent({
     return (
       <div className="flex items-center justify-center section-background">
         <div className="max-w-md w-full shadow mt-5 rounded loading-indicator px-4 py-4">
-          <LoadingIndicator size="medium" message="redirecting_msg" />
+          <LoadingIndicator size="medium" message="redirecting_msg" className="align-loading-center"/>
         </div>
       </div>
     );
