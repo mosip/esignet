@@ -817,14 +817,14 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void authenticateEndUser_withValidKBADetails_returnSuccessResponse() throws Exception {
+    public void authenticateEndUser_withValidKBIDetails_returnSuccessResponse() throws Exception {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setIndividualId("1234567890");
         authRequest.setTransactionId("1234567890");
 
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setChallenge("eyJmdWxsTmFtZSI6IkthaWYgU2lkZGlxdWUiLCJkb2IiOiIyMDAwLTA3LTI2In0\u003d");
-        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setAuthFactorType("KBI");
         authChallenge.setFormat("base64url-encoded-json");
 
         List<AuthChallenge> authChallengeList = new ArrayList<>();
@@ -850,7 +850,7 @@ public class AuthorizationControllerTest {
 
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setChallenge("eyJmdWxsTmFtZSI6IjEyMyIsImRvYiI6IjIwMDAtMDctMjYifQ==");
-        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setAuthFactorType("KBI");
         authChallenge.setFormat("base64url-encoded-json");
 
         List<AuthChallenge> authChallengeList = new ArrayList<>();
@@ -878,7 +878,7 @@ public class AuthorizationControllerTest {
 
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setChallenge("abc");
-        authChallenge.setAuthFactorType("KBA");
+        authChallenge.setAuthFactorType("KBI");
         authChallenge.setFormat("base64url-encoded-json");
 
         List<AuthChallenge> authChallengeList = new ArrayList<>();

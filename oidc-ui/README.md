@@ -30,17 +30,17 @@ Esignet UI contains the following pages:
   - OTP: Sign in with OTP
   - PIN: Sign in with PIN
   - PWD: Sign in with Password
-  - KBA: Sign in with Details (Knowledge based authentication)
+  - KBI: Sign in with Details (Knowledge based identification)
 
   The initialization of the component on this page is contingent upon the authentication factors received from the oauth-details endpoint. These authentication factors are determined based on the acr_values parameter specified in the authorize request.
 
   The password-based authentication system incorporates a functionality allowing users to initiate a password recovery process through a designated `Forgot Password` hyperlink.
 
-  For knowledge based authentication, the form schema is defined in the property : 'auth.factor.kba.field-details'.
+  For knowledge based identification, the form schema is defined in the property : 'auth.factor.kbi.field-details'.
 
-  Example: auth.factor.kba.field-details={{"id":"policyNumber", "type":"text", "format":""},{"id":"fullName", "type":"text", "format":""},{"id":"dob", "type":"date", "format":"dd/mm/yyyy"}}
+  Example: auth.factor.kbi.field-details={{"id":"policyNumber", "type":"text", "format":""},{"id":"fullName", "type":"text", "format":""},{"id":"dob", "type":"date", "format":"dd/mm/yyyy"}}
 
-  Note: The labels for the KBA form is fetched from i18 bundle of OIDC-UI.
+  Note: The labels for the KBI form is fetched from i18 bundle of OIDC-UI.
 
 - /consent: is a page that prompts the user to provide consent to share one's details from the MOSIP to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
 

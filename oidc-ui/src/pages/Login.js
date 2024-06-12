@@ -117,7 +117,7 @@ function createDynamicLoginElements(
     return InitiatePassword(oidcService, backButtonDiv);
   }
 
-  if (authFactorType === validAuthFactors.KBA) {
+  if (authFactorType === validAuthFactors.KBI) {
     return InitiateForm(oidcService, backButtonDiv);
   }
   
@@ -171,8 +171,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     else if (authFactorType === "PWD") {
       setSubHeaderText(t("subheader_text.password_login"));
     }
-    else if (authFactorType === "KBA") {
-      setSubHeaderText(t("subheader_text.kba_login"));
+    else if (authFactorType === "KBI") {
+      setSubHeaderText(t("subheader_text.kbi_login"));
     }
     else if(authFactorType === "WLA") {
       setSubHeaderText(t("subheader_text.wallet_login"));

@@ -36,10 +36,10 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("#{${mosip.esignet.authenticator.default.auth-factor.kba.field-details}}")
+    @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
     private List<Map<String, String>> fieldDetailList;
 
-    @Value("${mosip.esignet.authenticator.default.auth-factor.kba.individual-id-field}")
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.individual-id-field}")
     private String idField;
 
     @Override
@@ -65,7 +65,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             return false;
         }
 
-        if (authFactor.equals("KBA")) {
+        if (authFactor.equals("KBI")) {
             return validateChallenge(authChallenge.getChallenge());
         }
         return true;

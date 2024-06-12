@@ -126,7 +126,7 @@
     "QRCode": "QR Code",
     "OTP": "OTP",
     "PWD": "Password",
-    "KBA": "Details",
+    "KBI": "Details",
     "walletName": "Inji",
     "preferred_mode_of_login": "Select a preferred mode of login",
     "more_ways_to_sign_in": "More ways to sign in",
@@ -158,7 +158,7 @@
       "biometrics_login": "Please enter your UIN/VID & verify using the Biometric device",
       "pin_login": "Please enter your UIN/VID and PIN",
       "password_login": "Please enter your UIN/VID and password",
-      "kba_login": "Please fill the below details",
+      "kbi_login": "Please fill the below details",
       "wallet_login": "Please scan the below QR code to login"
     }
   },
@@ -452,7 +452,7 @@
       "password_error_msg": "Invalid Password",
       "IDA-MLC-018": "Incorrect username or password. Please try again."
     },
-    "kba": {
+    "kbi": {
       "auth_failed": "Login failed, please enter correct credentials"
     },
     "statusCodeHeader": {
