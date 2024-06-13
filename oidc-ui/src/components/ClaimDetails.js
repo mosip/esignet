@@ -163,7 +163,7 @@ const ClaimDetails = ({
     try {
       const { response, errors } = await authServices.prepareSignupRedirect(
         transactionId,
-        window.location.href
+        ""
       );
       if (errors?.length) {
         redirectOnError(errors[0].errorCode, t2(errors[0].errorCode));
