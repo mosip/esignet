@@ -1,0 +1,11 @@
+envs:
+  config:
+    KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka.kafka:9092
+    KAFKA_CLUSTERS_0_NAME: main_kafka
+    KAFKA_CLUSTERS_0_ZOOKEEPER: kafka-zookeeper.kafka:2181
+    KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://debezium-service.reporting:8083
+    KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: debezium
+    KAFKA_CLUSTERS_0_KAFKACONNECT_1_ADDRESS: http://es-connect.reporting:8083
+    KAFKA_CLUSTERS_0_KAFKACONNECT_1_NAME: es-connect
+image:
+  pullPolicy: Always

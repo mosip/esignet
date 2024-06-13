@@ -1,0 +1,39 @@
+clusterDomain: cluster.local
+logRetentionBytes: _1073741824
+defaultReplicationFactor: 3
+offsetsTopicReplicationFactor: 3
+transactionStateLogReplicationFactor: 3
+numPartitions: 20
+replicaCount: 5
+sidecars: {}
+autoCreateTopicsEnable: true
+# CAUTION: Option to delete topics should be disabled in production. 
+deleteTopicEnable: true
+
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+
+zookeeper:
+  replicaCount: 5
+  persistence:
+    enabled: true
+    size: 2Gi
+
+resources:
+  limits: {}
+  #   cpu: 250m
+  #   memory: 1Gi
+  requests: 
+    cpu: 200m
+    memory: 2000Mi
+
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 30
+  successThreshold: 1

@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: kafka-ui
+spec:
+  selector:
+    istio: ingressgateway-internal
+  servers:
+  - port:
+      number: 80
+      name: kafka-ui
+      protocol: HTTP
+    hosts:
+    - {{ .Values.kafkaUiHost }}
