@@ -66,4 +66,4 @@ databases:
         name: postgres-postgresql
         key: postgres-password
     dml: 1
-    branch: develop
+    branch: v1.4.1
