@@ -6,7 +6,9 @@
 package io.mosip.esignet.flows;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -21,6 +23,7 @@ import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthDto;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.dto.*;
@@ -316,9 +319,9 @@ public class AuthCodeFlowTest {
         oAuthDetailRequest.setResponseType("code");
         oAuthDetailRequest.setNonce(nonce);
         oAuthDetailRequest.setState(state);
-        Claims claims = new Claims();
+        ClaimsV2 claims = new ClaimsV2();
         claims.setUserinfo(new HashMap<>());
-        claims.getUserinfo().put("email", new ClaimDetail(null,null,true));
+        claims.getUserinfo().put("email", getClaimDetail(null, null, true));
         oAuthDetailRequest.setClaims(claims);
 
         RequestWrapper<OAuthDetailRequest> request = new RequestWrapper<>();
@@ -362,6 +365,18 @@ public class AuthCodeFlowTest {
                 .andExpect(jsonPath("$.errors").isEmpty())
                 .andExpect(jsonPath("$.response.clientId").value(clientId))
                 .andExpect(jsonPath("$.response.status").value(Constants.CLIENT_ACTIVE_STATUS));
+    }
+
+    private JsonNode getClaimDetail(String value, String[] values, boolean essential) {
+        Map<String, Object> detail = new HashMap<>();
+        detail.put("value", value);
+        detail.put("values", values);
+        detail.put("essential", essential);
+        try {
+            return objectMapper.readTree(objectMapper.writeValueAsString(detail));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

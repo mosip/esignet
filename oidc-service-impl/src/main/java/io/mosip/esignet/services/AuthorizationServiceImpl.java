@@ -5,11 +5,15 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
+import io.mosip.esignet.api.dto.claim.VerifiedClaimDetail;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.Action;
@@ -54,6 +58,7 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
 
+    private static final String VERIFIED_CLAIMS = "verified_claims";
     private static String COOKIE_VALUE = "{\"code\":\"%s\",\"pathFragment\":\"%s\"}";
 
     @Autowired
@@ -357,7 +362,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
         resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(),
-                oauthDetailReqDto.getAcrValues(), oauthDetailReqDto.getClaims()));
+                oauthDetailReqDto.getAcrValues(),
+                oauthDetailReqDto.getClaims()!=null ? oauthDetailReqDto.getClaims().getId_token():null ));
         log.info("Final resolved claims : {}", resolvedClaims);
 
         final String transactionId = IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce());
@@ -401,15 +407,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         resolvedClaims.setId_token(new HashMap<>());
 
         String[] requestedScopes = IdentityProviderUtil.splitAndTrimValue(oauthDetailRequest.getScope(), Constants.SPACE);
-        Claims requestedClaims = oauthDetailRequest.getClaims();
+        ClaimsV2 requestedClaims = oauthDetailRequest.getClaims();
         boolean isRequestedUserInfoClaimsPresent = requestedClaims != null && requestedClaims.getUserinfo() != null;
         log.info("isRequestedUserInfoClaimsPresent ? {}", isRequestedUserInfoClaimsPresent);
-
         //Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
         if(isRequestedUserInfoClaimsPresent && !Arrays.stream(requestedScopes).anyMatch(s  -> SCOPE_OPENID.equals(s)))
             throw new EsignetException(ErrorConstants.INVALID_SCOPE);
 
         log.info("Started to resolve claims based on the request scope {} and claims {}", requestedScopes, requestedClaims);
+
+        Map<String, ClaimDetail> verifiedClaimsMap = new HashMap<>();
+        if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().get(VERIFIED_CLAIMS) != null) {
+            JsonNode verifiedClaims = requestedClaims.getUserinfo().get(VERIFIED_CLAIMS);
+            if(verifiedClaims.isArray()) {
+                Iterator itr = verifiedClaims.iterator();
+                while(itr.hasNext()) {
+                    resolveVerifiedClaims((JsonNode) itr.next(), verifiedClaimsMap);
+                }
+            }
+            else {
+                resolveVerifiedClaims(verifiedClaims, verifiedClaimsMap);
+            }
+        }
+
         //get claims based on scope
         List<String> claimBasedOnScope = new ArrayList<>();
         Arrays.stream(requestedScopes)
@@ -423,9 +443,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                     .stream()
                     .forEach( claimName -> {
                         if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().containsKey(claimName))
-                            resolvedClaims.getUserinfo().put(claimName, requestedClaims.getUserinfo().get(claimName));
+                            resolvedClaims.getUserinfo().put(claimName, convertJsonNodeToClaimDetail(requestedClaims.getUserinfo().get(claimName)));
                         else if(claimBasedOnScope.contains(claimName))
                             resolvedClaims.getUserinfo().put(claimName, null);
+
+                        if(verifiedClaimsMap.containsKey(claimName))
+                            resolvedClaims.getUserinfo().put(claimName, verifiedClaimsMap.get(claimName));
                     });
         }
 
@@ -433,7 +456,42 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return resolvedClaims;
     }
 
-    private ClaimDetail resolveACRClaim(List<String> registeredACRs, String requestedAcr, Claims requestedClaims) throws EsignetException {
+    private void resolveVerifiedClaims(JsonNode verifiedClaims, Map<String, ClaimDetail> verifiedClaimsMap) {
+        ClaimDetail verifiedClaim = convertJsonNodeToClaimDetail(verifiedClaims);
+        validateVerifiedClaims(verifiedClaim);
+        //iterate through all the claims in the verified_claims object
+        for(Map.Entry<String, ClaimDetail> entry : verifiedClaim.getClaims().entrySet()) {
+            ClaimDetail claimDetail = new ClaimDetail();
+            claimDetail.setVerification(verifiedClaim.getVerification());
+            claimDetail.setEssential(entry.getValue() != null && entry.getValue().isEssential());
+            claimDetail.setPurpose(entry.getValue() != null? entry.getValue().getPurpose(): null);
+            verifiedClaimsMap.put(entry.getKey(), claimDetail);
+        }
+    }
+
+    private ClaimDetail convertJsonNodeToClaimDetail(JsonNode claimDetailJsonNode) {
+        try {
+            if(claimDetailJsonNode.isNull())
+                return null;
+            return objectMapper.treeToValue(claimDetailJsonNode, ClaimDetail.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse the requested claim details", e);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_CLAIM);
+    }
+
+    private void validateVerifiedClaims(ClaimDetail verifiedClaim) {
+        if(verifiedClaim == null)
+            throw new EsignetException(ErrorConstants.INVALID_VERIFIED_CLAIMS);
+
+        if(verifiedClaim.getVerification() == null)
+            throw new EsignetException(ErrorConstants.INVALID_VERIFICATION);
+
+        if(verifiedClaim.getClaims() == null || verifiedClaim.getClaims().isEmpty())
+            throw new EsignetException(ErrorConstants.INVALID_VERIFIED_CLAIMS);
+    }
+
+    private ClaimDetail resolveACRClaim(List<String> registeredACRs, String requestedAcr, Map<String, ClaimDetail> requestedIdToken) throws EsignetException {
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setEssential(true);
 
@@ -442,8 +500,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new EsignetException(ErrorConstants.NO_ACR_REGISTERED);
 
         //First priority is given to claims request parameter
-        if(requestedClaims != null && requestedClaims.getId_token() != null && requestedClaims.getId_token().get(ACR) != null) {
-            String [] acrs = requestedClaims.getId_token().get(ACR).getValues();
+        if(requestedIdToken != null && requestedIdToken.get(ACR) != null) {
+            String [] acrs = requestedIdToken.get(ACR).getValues();
             String[] filteredAcrs = Arrays.stream(acrs).filter(acr -> registeredACRs.contains(acr)).toArray(String[]::new);
             if(filteredAcrs.length > 0) {
                 claimDetail.setValues(filteredAcrs);

@@ -5,11 +5,14 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
@@ -79,6 +82,8 @@ public class AuthorizationServiceTest {
 
     @Mock
     HttpServletRequest httpServletRequest;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
 
     @Before
@@ -192,9 +197,10 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
         oauthDetailRequest.setScope("openid test-scope");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("level4");
@@ -223,9 +229,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
@@ -254,9 +260,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("test-scope openid resident");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("phone", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("phone", getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code");
@@ -392,7 +398,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
+        ClaimsV2 claims = new ClaimsV2();
         claims.setId_token(new HashMap<>());
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setValues(new String[]{"mosip:idp:acr:wallet", "mosip:idp:acr:webauthn"});
@@ -424,9 +430,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("resident service");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name", getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
@@ -536,9 +542,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
         oauthDetailRequest.setScope("openid test-scope");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("level4");
@@ -567,9 +573,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name", getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
@@ -598,9 +604,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("test-scope openid resident");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("phone", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("phone",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code");
@@ -736,7 +742,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
+        ClaimsV2 claims = new ClaimsV2();
         claims.setId_token(new HashMap<>());
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setValues(new String[]{"mosip:idp:acr:wallet", "mosip:idp:acr:webauthn"});
@@ -768,9 +774,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("resident service");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
@@ -1136,6 +1142,18 @@ public class AuthorizationServiceTest {
                 break;
         }
         return acrAuthFactors;
+    }
+
+    private JsonNode getClaimDetail(String value, String[] values, boolean essential) {
+        Map<String, Object> detail = new HashMap<>();
+        detail.put("value", value);
+        detail.put("values", values);
+        detail.put("essential", essential);
+        try {
+            return objectMapper.readTree(objectMapper.writeValueAsString(detail));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

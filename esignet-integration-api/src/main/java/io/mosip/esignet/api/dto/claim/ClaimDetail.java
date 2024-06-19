@@ -6,12 +6,10 @@
 package io.mosip.esignet.api.dto.claim;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.mosip.esignet.api.util.ErrorConstants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Data
