@@ -15,8 +15,6 @@ import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
-import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;

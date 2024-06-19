@@ -34,6 +34,16 @@ public interface AuthorizationService {
      */
     OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oAuthDetailRequestV2) throws EsignetException;
 
+    /**
+     * All the query parameters passed in /authorize request are echoed to this request.
+     * Validated the provided input and resolves required auth-factors and claims.
+     * If all the input parameters pass the validation, starts the transaction.
+     *
+     * @param oAuthDetailRequestV3
+     * @param httpServletRequest
+     * @return
+     * @throws EsignetException
+     */
     OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oAuthDetailRequestV3, HttpServletRequest httpServletRequest) throws EsignetException;
 
     /**

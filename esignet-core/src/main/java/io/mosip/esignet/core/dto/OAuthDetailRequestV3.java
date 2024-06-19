@@ -6,4 +6,5 @@ import lombok.Data;
 public class OAuthDetailRequestV3 extends OAuthDetailRequestV2 {
 
     private String idTokenHint;
+
 }
