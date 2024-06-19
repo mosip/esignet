@@ -277,8 +277,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             list.add(new ClaimStatus(claim, false, (claim.equals("name") || claim.equals("phone_number")) ));
         }
 
-        //TODO only if verified claim is requested
-        claimDetailResponse.setProfileUpdateRequired(list.stream().anyMatch(c -> !c.isAvailable()));
+        //Profile update is mandated only if any essential verified claim is requested
+        boolean isEssentialVerifiedClaimRequested = transaction.getRequestedClaims().getUserinfo()
+                .entrySet()
+                .stream()
+                .anyMatch( entry -> entry.getValue().isEssential() && entry.getValue().getVerification() != null);
+        claimDetailResponse.setProfileUpdateRequired(isEssentialVerifiedClaimRequested);
         claimDetailResponse.setClaimStatus(list);
         return claimDetailResponse;
     }

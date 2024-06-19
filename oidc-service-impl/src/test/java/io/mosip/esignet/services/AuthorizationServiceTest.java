@@ -1077,6 +1077,10 @@ public class AuthorizationServiceTest {
     @Test
     public void getConsentDetails_withValidTransaction_thenPass(){
         OIDCTransaction transaction=new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+
+        transaction.setRequestedClaims(resolvedClaims);
         transaction.setEssentialClaims(List.of("name", "email"));
         transaction.setVoluntaryClaims(List.of("phone_number"));
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
