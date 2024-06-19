@@ -12,7 +12,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "sgsfdg",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -37,7 +37,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$REMOVE$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -62,7 +62,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "sgsfdg",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -87,7 +87,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "LIqWka8p3F4ID2Z2X4Dnxqf57ixUZyHxGGrDe7R96p4",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -112,7 +112,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "5adsf1",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -137,7 +137,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -162,7 +162,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": " ",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -187,7 +187,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "null",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -212,7 +212,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$REMOVE$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -394,7 +394,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$REMOVE$",
       	"format": "base64url-encoded-json"
     }'
@@ -420,7 +420,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "",
       	"format": "base64url-encoded-json"
     }'
@@ -445,7 +445,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "eyJmdWxsTmFtZSI6IkthaWYgZGFmZHNmZCIsImRvYiI6IjIwMDAtMDctMjYifQ==",
       	"format": "base64url-encoded-json"
     }'
@@ -470,7 +470,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "eyJmdWxsTmFtZSI6IkthaWYgZGFmZHNmZCIsImRvYiI6IjIwMDAtMDctMjYifQ==",
       	"format": "base64url-encoded-json"
     }'
@@ -496,7 +496,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : " ",
       	"format": "base64url-encoded-json"
     }'
@@ -521,7 +521,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "null",
       	"format": "base64url-encoded-json"
     }'
@@ -546,7 +546,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "sfdgsfhsgjrtjysngfbfsnbsgfjhsgj",
       	"format": "base64url-encoded-json"
     }'
@@ -572,7 +572,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "$REMOVE$"
     }'
@@ -598,7 +598,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": ""
     }'
@@ -624,7 +624,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": " "
     }'
@@ -649,7 +649,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -669,7 +669,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -694,7 +694,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen1_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "null"
     }'
@@ -719,7 +719,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen2_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "sdfgffgs"
     }'
@@ -744,7 +744,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen3_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "alpha-numeric"
     }'
@@ -769,7 +769,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen4_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "encoded-json"
     }'
@@ -794,7 +794,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen5_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "number"
     }'
@@ -819,7 +819,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen6_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "jwt"
     }'
@@ -844,7 +844,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen1_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -864,7 +864,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen2_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -884,7 +884,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen3_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -904,7 +904,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen4_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -924,7 +924,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen5_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -944,7 +944,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen6_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -964,7 +964,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen7_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
@@ -984,7 +984,7 @@ AuthenticateUserSunBirdRCNegTC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdRCNegTC_Scen8_AuthCode_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDRC$",
       	"format": "base64url-encoded-json"
     }'
