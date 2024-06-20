@@ -281,7 +281,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         boolean isEssentialVerifiedClaimRequested = transaction.getRequestedClaims().getUserinfo()
                 .entrySet()
                 .stream()
-                .anyMatch( entry -> entry.getValue().isEssential() && entry.getValue().getVerification() != null);
+                .anyMatch( entry -> entry.getValue() !=null && entry.getValue().isEssential() && entry.getValue().getVerification() != null);
         claimDetailResponse.setProfileUpdateRequired(isEssentialVerifiedClaimRequested);
         claimDetailResponse.setClaimStatus(list);
         return claimDetailResponse;
