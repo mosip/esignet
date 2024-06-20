@@ -99,6 +99,7 @@
   --otp-pin-input-color: #1262C9;
   --otp-pin-input-border-bottom: 2px solid #1262C9;
   --checkbox-color: #1262C9;
+  --wallet-download-text-color: #1262C9;
 }
 
 [class="orange_theme"] {
@@ -202,6 +203,7 @@
   --otp-pin-input-color: #eb6f2d;
   --otp-pin-input-border-bottom: 2px solid #eb6f2d;
   --checkbox-color: #eb6f2d;
+  --wallet-download-text-color: #eb6f2d;
 }
 
 [class="blue"] {
@@ -313,4 +315,5 @@
   --otp-pin-input-color: #004282;
   --otp-pin-input-border-bottom: 2px solid #004282;
   --checkbox-color: #004282;
+  --wallet-download-text-color: #004282;
 }

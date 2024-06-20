@@ -26,6 +26,7 @@ export default function OtpVerify({
   openIDConnectService,
   i18nKeyPrefix1 = "otp",
   i18nKeyPrefix2 = "errors",
+  captcha
 }) {
 
   const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
@@ -206,7 +207,8 @@ export default function OtpVerify({
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
         idvid,
-        challengeList
+        challengeList,
+        captcha
       );
       setStatus({ state: states.LOADED, msg: "" });
 

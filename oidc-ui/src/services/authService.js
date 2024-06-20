@@ -5,7 +5,6 @@ import { ApiService } from "./api.service";
 import {
   SEND_OTP,
   AUTHENTICATE,
-  AUTHENTICATE_V3,
   OAUTH_DETAIL_V2,
   OAUTH_DETAIL_V3,
   AUTHCODE,
@@ -27,13 +26,15 @@ class authService {
    * Triggers /authenticate API on Esignet service
    * @param {string} transactionId same as Esignet transactionId
    * @param {String} individualId UIN/VIN of the individual
-   * @param {List<AuthChallenge>} challengeList challenge list based on the auth type(ie. BIO, PIN, INJI)
+   * @param {List<AuthChallenge>} challengeList challenge list based on the auth type(ie. BIO, PIN, INJI)   
+   * @param {string} captchaToken captcha token detail
    * @returns /authenticate API response
    */
   post_AuthenticateUser = async (
     transactionId,
     individualId,
     challengeList,
+    captchaToken,
     oAuthDetailsHash
   ) => {
     let request = {
@@ -42,6 +43,7 @@ class authService {
         transactionId: transactionId,
         individualId: individualId,
         challengeList: challengeList,
+        captchaToken: captchaToken,
       },
     };
     let response = await ApiService.post(AUTHENTICATE, request, {
@@ -238,42 +240,6 @@ class authService {
    */
   getAuthorizeQueryParam = () => {
     return localStorage.getItem(authorizeQueryParam) ?? "";
-  };
-
-  /**
-   * post authenticate user for password with captcha token
-   * @param {string} transactionId same as Esignet transactionId
-   * @param {String} individualId UIN/VIN of the individual
-   * @param {List<AuthChallenge>} challengeList challenge list based on the auth type(ie. BIO, PIN, INJI)
-   * @param {string} captchaToken captcha token detail
-   * @returns /authenticate API response
-   */
-  post_PasswordAuthenticate = async (
-    transactionId,
-    individualId,
-    challengeList,
-    captchaToken
-  ) => {
-    let request = {
-      requestTime: new Date().toISOString(),
-      request: {
-        transactionId,
-        individualId,
-        challengeList,
-        captchaToken,
-      },
-    };
-
-    let response = await ApiService.post(AUTHENTICATE_V3, request, {
-      headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
-          await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
-      },
-    });
-    return response.data;
   };
 
   getClaimDetails = async () => {
