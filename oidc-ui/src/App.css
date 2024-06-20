@@ -363,6 +363,10 @@ input[type="checkbox"]:hover {
   cursor: pointer;
 }
 
+.wallet-download {
+  color: var(--wallet-download-text-color);
+}
+
 @media screen and (max-width: 768px) {
   .section-background .top_left_bg_logo,
   .section-background .top_right_bg_logo,

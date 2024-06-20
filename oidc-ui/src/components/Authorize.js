@@ -26,11 +26,38 @@ export default function Authorize({ authService }) {
 
   const navigate = useNavigate();
 
+  const base64UrlDecode = (str) => {
+    return decodeURIComponent(
+      atob(str.replace(/-/g, "+").replace(/_/g, "/"))
+        .split("")
+        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+        .join("")
+    );
+  };
+
+  const getDataFromCookie = (idTokenHint) => {
+    const uuid = JSON.parse(base64UrlDecode(idTokenHint.split(".")[1])).sub;
+
+    const code = JSON.parse(
+      base64UrlDecode(getCookie(uuid).split(".")[0])
+    ).code;
+
+    return { uuid, code };
+  };
+
+  const getOauthDetailsHash = async (value) => {
+    let sha256Hash = sha256(JSON.stringify(value));
+    let hashB64 = Base64.stringify(sha256Hash)
+      .replace(/=+$/, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+    return hashB64;
+  };
+
   useEffect(() => {
     const callAuthorize = async () => {
       try {
         setStatus(states.LOADING);
-        storeQueryParam(searchParams.toString());
 
         const extractParam = (param) => searchParams.get(param);
 
@@ -66,6 +93,7 @@ export default function Authorize({ authService }) {
 
         if (!request.idTokenHint) {
           await get_CsrfToken();
+          storeQueryParam(searchParams.toString());
         }
 
         const filteredRequest = Object.fromEntries(
@@ -79,24 +107,7 @@ export default function Authorize({ authService }) {
             setOAuthDetailResponse(oAuthDetailsResponse);
 
             if (request.idTokenHint) {
-              const base64UrlDecode = (str) => {
-                return decodeURIComponent(
-                  atob(str.replace(/-/g, "+").replace(/_/g, "/"))
-                    .split("")
-                    .map(
-                      (c) =>
-                        `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`
-                    )
-                    .join("")
-                );
-              };
-
-              const uuid = JSON.parse(
-                base64UrlDecode(request.idTokenHint.split(".")[1])
-              ).sub;
-              const code = JSON.parse(
-                base64UrlDecode(getCookie(uuid).split(".")[0])
-              ).code;
+              const { uuid, code } = getDataFromCookie(request.idTokenHint);
 
               if (code) {
                 const { transactionId, authFactors } =
@@ -111,15 +122,6 @@ export default function Authorize({ authService }) {
                   },
                 ];
 
-                const getOauthDetailsHash = async (value) => {
-                  let sha256Hash = sha256(JSON.stringify(value));
-                  let hashB64 = Base64.stringify(sha256Hash)
-                    .replace(/=+$/, "")
-                    .replace(/\+/g, "-")
-                    .replace(/\//g, "_");
-                  return hashB64;
-                };
-
                 const hash = await getOauthDetailsHash(
                   oAuthDetailsResponse.response
                 );
@@ -128,6 +130,7 @@ export default function Authorize({ authService }) {
                   transactionId,
                   uuid,
                   challengeList,
+                  null,
                   hash
                 );
                 if (authenticateResponse.errors.length === 0) {
@@ -139,17 +142,24 @@ export default function Authorize({ authService }) {
                   );
                   if (authCodeResponse.errors.length === 0) {
                     window.onbeforeunload = null;
-                    const encodedStateCode = btoa(
-                      `state=${authCodeResponse.response.state}&code=${authCodeResponse.response.code}&ui_locales=${request.uiLocales}`
-                    );
+                    const paramObj = {
+                      state: authCodeResponse.response.state,
+                      code: authCodeResponse.response.code,
+                      ui_locales: request.uiLocales,
+                    };
+
+                    const redirectParams = new URLSearchParams(
+                      paramObj
+                    ).toString();
+
+                    const encodedValue = btoa(redirectParams);
                     window.location.replace(
-                      `${authCodeResponse.response.redirectUri}#${encodedStateCode}`
+                      `${authCodeResponse.response.redirectUri}#${encodedValue}`
                     );
                   }
                 }
               }
-            }
-            else {
+            } else {
               setStatus(states.LOADED);
             }
           }
@@ -211,7 +221,13 @@ export default function Authorize({ authService }) {
 
   switch (status) {
     case states.LOADING:
-      el = <LoadingIndicator size="medium" message={"loading_msg"} className="align-loading-center"/>;
+      el = (
+        <LoadingIndicator
+          size="medium"
+          message={"loading_msg"}
+          className="align-loading-center"
+        />
+      );
       break;
     case states.LOADED:
       if (!oAuthDetailResponse) {
