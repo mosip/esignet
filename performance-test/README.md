@@ -68,26 +68,23 @@
 
 ### Execution points for eSignet Authentication API's
 
-*Esignet_Helper_Script.jmx
+*Esignet_Test_Script.jmx
 	
 	* Create Identities in MOSIP Authentication System (Setup) : This thread contains the authorization api's for regproc and idrepo from which the auth token will be generated. There is set of 4 api's generate RID, generate UIN, add identity and add VID. From here we will get the VID which can be further used as individual id. These 4 api's are present in the loop controller where we can define the number of samples for creating identities in which "addIdentitySetup" is used as a variable. 
 	* Create Identities in MOSIP Authentication System - Password Based Auth (Setup) : This thread contains the authorization api's for regproc and idrepo from which the auth token will be generated. There is set of 3 api's generate UIN, generate hash for password and add identity. From here we will get the identifier value which can be further used as an individual id or we can say as phone number in pwd based authentication. These 3 api's are present in the loop controller where we can define the number of samples for creating identities in which "addIdentitySetup" is used as a variable.
+	* Auth Token Generation (Setup) : This thread conatins Auth manager authentication API which will generate auth token value for PMS and mobile client. 
 	* Create OIDC Client in MOSIP Authentication System (Setup) : This thread contains a JSR223 sampler(Generate Key Pair) from which will get a public-private key pair. The public key generated will be used in the OIDC client api to generate client id's  which will be registered for both IDA and eSignet. The private key generated from the sampler will be used in another JSR223 sampler(Generate Client Assertion) present in the OIDC Token (Execution). Generated client id's and there respective private key will be stored in a file which will be used further in the required api's.
 	* OIDC - UserInfo (Preparation) : For the preparation we need 5 api's OAuth Details, Send OTP, Authentication, Authorization Code and Token Endpoint api from which a access token will be generated. Access token will be used for the execution.
-
-*Esignet_OtpAuthentication_Test_Script.jmx
 	
-	*Scenario -1: OTP Authentication:
-		*Esignet_S01_T01_GetCsrf: This thread generated CSRF token
-		*Esignet_S01_T02_Oauthdetails , Esignet_S01_T03_SendOTP, Esignet_S01_T04_Authentication, Esignet_S01_T05_Authorisation, Esignet_S01_T06_Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Sampler. The sampler(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
-		*Esignet_S01_T07_Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
+	*Scenario 01: OTP Authentication:
+		*S01 T01 GetCsrf: This thread generated CSRF token
+		*S01 T02 Oauthdetails , S01 T03 SendOTP, S01 T04 Authentication, S01 T04 Authentication, S01 T06 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Sampler. The sampler(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
+		*S01 T07 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
 
-*Esignet_PasswordAuthentication_Test_Script.jmx
-	
-	*Scenario -1: Password Authentication:
-		*Esignet_S01_T01_GetCsrf: This thread generated CSRF token
-		*Esignet_S01_T02_Oauthdetails , Esignet_S01_T03_Authentication, Esignet_S01_T04_Authorisation, Esignet_S01_T05_Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Sampler. The sampler(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
-		*Esignet_S01_T06_Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.	
+	*Scenario 02: Password Authentication:
+		*S02 T01 GetCsrftoken: This thread generated CSRF token
+		*S02 T02 Oauthdetails , S02 T03 Authenticate, S02 T04 Auth-code, S02 T05 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Sampler. The sampler(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
+		*S02 T06 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.	
 	
 		
 ### Designing the workload model for performance test execution
