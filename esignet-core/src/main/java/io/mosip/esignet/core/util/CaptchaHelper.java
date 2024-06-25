@@ -1,5 +1,6 @@
 package io.mosip.esignet.core.util;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.CaptchaRequest;
 import io.mosip.esignet.core.dto.RequestWrapper;
 import io.mosip.esignet.core.dto.ResponseWrapper;
@@ -25,10 +26,17 @@ public class CaptchaHelper {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${mosip.esignet.captcha-validator.url}")
-    private String captchaUrl;
+    @Value("mosip.esignet.captcha.module-name")
+    private String moduleName;
 
-    public boolean validateCaptcha(String captchaToken, String moduleName) {
+    @Value("${mosip.esignet.captcha.module-name}")
+    private String validatorUrl;
+
+    public boolean validateCaptcha(String captchaToken) {
+
+        if (captchaToken == null) {
+            throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -41,7 +49,7 @@ public class CaptchaHelper {
         requestWrapper.setRequest(captchaRequest);
 
         RequestEntity<RequestWrapper<CaptchaRequest>> requestEntity = RequestEntity
-                .post(URI.create(captchaUrl))
+                .post(URI.create(validatorUrl))
                 .headers(headers)
                 .body(requestWrapper);
 
@@ -50,17 +58,18 @@ public class CaptchaHelper {
                 ResponseEntity.class
         );
 
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            ResponseWrapper<?> responseWrapper = (ResponseWrapper<?>) response.getBody();
-            if (responseWrapper.getErrors().isEmpty()) {
-                log.info("Captcha Validation Successful");
-                return true;
-            } else {
-                log.error("Errors received from CaptchaService: " + response.getStatusCode());
-                throw new EsignetException("Captcha validation failed");
-            }
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            log.error("Errors received from CaptchaService: " + response.getStatusCode());
+            throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
         }
+
+        ResponseWrapper<?> responseWrapper = (ResponseWrapper<?>) response.getBody();
+        if (responseWrapper != null && responseWrapper.getErrors().isEmpty()) {
+            log.info("Captcha Validation Successful");
+            return true;
+        }
+
         log.error("Errors received from CaptchaService: " + response.getStatusCode());
-        throw new EsignetException("Captcha validation failed");
+        throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
     }
 }
