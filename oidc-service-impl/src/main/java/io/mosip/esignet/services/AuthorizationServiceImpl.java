@@ -487,7 +487,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(verifiedClaim == null)
             throw new EsignetException(ErrorConstants.INVALID_VERIFIED_CLAIMS);
 
-        if(verifiedClaim.getVerification() == null)
+        if(verifiedClaim.getVerification() == null) //TODO add more validations
             throw new EsignetException(ErrorConstants.INVALID_VERIFICATION);
 
         if(verifiedClaim.getClaims() == null || verifiedClaim.getClaims().isEmpty())
