@@ -1,12 +1,13 @@
 
 ### Contains
-* This folder contains performance helper script and test script of below API endpoint categories.
+* This folder contains performance Test script and test script of below API endpoint categories.
     1. Create Identities in MOSIP Authentication System (Setup)
     2. Create Identities in MOSIP Authentication System - Password Based Auth (Setup)
-    3. Create OIDC Client in MOSIP Authentication System (Setup)
-	4. OIDC - UserInfo (Preparation)
-	5. Scenario - 01 : OTP Authentication
-	6. Scenario - 01 : Password Authentication
+    3. Auth Token Generation (Setup)
+	4. Create OIDC Client in MOSIP Authentication System (Setup)
+	5. OIDC - UserInfo (Preparation)
+	6. Scenario - 01 : OTP Authentication
+	7. Scenario - 02 : Password Authentication
 
 * Open source Tools used,
     1. [Apache JMeter](https://jmeter.apache.org/)
