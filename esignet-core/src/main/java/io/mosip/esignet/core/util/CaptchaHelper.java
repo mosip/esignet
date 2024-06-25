@@ -29,7 +29,7 @@ public class CaptchaHelper {
     @Value("${mosip.esignet.captcha.module-name}")
     private String moduleName;
 
-    @Value("${mosip.esignet.captcha.validator-name}")
+    @Value("${mosip.esignet.captcha.validator-url}")
     private String validatorUrl;
 
     public boolean validateCaptcha(String captchaToken) {
