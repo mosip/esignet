@@ -5,13 +5,14 @@
  */
 package io.mosip.esignet.api.dto;
 
-import io.mosip.esignet.api.dto.claim.ClaimMetadata;
+import io.mosip.esignet.api.dto.claim.VerificationFilter;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
 public class VerifiedKycExchangeDto extends KycExchangeDto  {
 
-    private Map<String, ClaimMetadata> acceptedVerifiedClaims;
+    private Map<String, List<VerificationFilter>> acceptedVerifiedClaims;
 }

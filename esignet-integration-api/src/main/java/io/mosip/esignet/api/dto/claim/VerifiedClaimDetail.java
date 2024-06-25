@@ -19,7 +19,6 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VerifiedClaimDetail implements Serializable {
 
-    private Verification verification;
-
-    private Map<String,ClaimDetail> claims;
+    private VerificationFilter verification;
+    private Map<String, ClaimDetail> claims;
 }
