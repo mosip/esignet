@@ -58,7 +58,6 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String VERIFIED_CLAIMS = "verified_claims";
-    private static final String COOKIE_VALUE = "{\"code\":\"%s\"}";
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -306,8 +305,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         //Move the transaction to update-consented transaction
         cacheUtilService.setUpdateConsentedTransaction(updateTransactionId, signupRedirectRequest.getTransactionId(), oidcTransaction);
 
-        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getServerNonce());
-        Cookie cookie = new Cookie(updateTransactionId, IdentityProviderUtil.b64Encode(cookieValue));
+        Cookie cookie = new Cookie(updateTransactionId, oidcTransaction.getServerNonce());
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
