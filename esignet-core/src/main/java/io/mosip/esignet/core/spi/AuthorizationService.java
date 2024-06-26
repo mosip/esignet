@@ -75,7 +75,7 @@ public interface AuthorizationService {
      * @param authRequest
      * @return
      */
-    AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest) throws EsignetException;
+    AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest, HttpServletRequest httpServletRequest) throws EsignetException;
 
     /**
      * Accepted claims are verified and KYC exchange is performed

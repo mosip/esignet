@@ -121,7 +121,7 @@ public class AuthorizationServiceTest {
     	signupRedirectRequest.setTransactionId("transactionId");
     	signupRedirectRequest.setPathFragment("pathFragment");
     	OIDCTransaction oidcTransaction = new OIDCTransaction();
-    	oidcTransaction.setSecretCode("secretCode");
+    	oidcTransaction.setServerNonce("secretCode");
     	when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
     	SignupRedirectResponse signupRedirectResponse = authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse);
     	Assert.assertEquals(signupRedirectResponse.getTransactionId(), "transactionId");
