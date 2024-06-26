@@ -133,7 +133,7 @@ public interface TokenService {
      String getSignedJWT(String applicationId, JSONObject payload);
 
     /**
-     * Creates ID token with the given subject and audience
+     * Creates ID token with the given subject and audience and nonce
      * @param subject
      * @param audience
      * @param validitySeconds

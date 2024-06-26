@@ -5,6 +5,10 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
@@ -24,6 +28,7 @@ import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,9 +39,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.crypto.Cipher;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -80,6 +89,9 @@ public class AuthorizationHelperService {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
 
@@ -100,6 +112,9 @@ public class AuthorizationHelperService {
 
     @Value("#{${mosip.esignet.supported.credential.scopes}}")
     private List<String> credentialScopes;
+
+    @Value("${mosip.esignet.signup-id-token-audience}")
+    private String signupIDTokenAudience;
 
     protected void validateSendOtpCaptchaToken(String captchaToken) {
         if(!captchaRequired.contains("send-otp")) {
@@ -211,17 +226,42 @@ public class AuthorizationHelperService {
         return kycAuthResult;
     }
 
-    protected KycAuthResult internalAuthenticateRequest(String transactionId, String individualId,
-                                                        List<AuthChallenge> challengeList, OIDCTransaction transaction) {
-        //TODO verify ID token, if not valid and signed by esignet, fail the auth request
-        //TODO Fetch the OIDC transaction based on the ID token subject.
-        //TODO Find the cookie with key same as ID token subject.
-        //TODO check if the code in the cookie is same as the secretCode in the OIDC transaction
-        KycAuthResult kycAuthResult;
-        kycAuthResult = new KycAuthResult();
-        kycAuthResult.setKycToken("kyc-token");
-        kycAuthResult.setPartnerSpecificUserToken(UUID.randomUUID().toString());
-        return kycAuthResult;
+    /**
+     * Method validates challenge with "IDT" auth factor
+     * @param authChallenge
+     * @param transaction
+     * @param httpServletRequest
+     * @return
+     */
+    protected KycAuthResult handleInternalAuthenticateRequest(@NonNull AuthChallenge authChallenge,
+                                                              @NonNull OIDCTransaction transaction, HttpServletRequest httpServletRequest) {
+        try {
+            JsonNode jsonNode = objectMapper.readTree(IdentityProviderUtil.b64Decode(authChallenge.getChallenge()));
+            if(jsonNode.isNull() || jsonNode.get("token").isNull())
+                throw new EsignetException(AUTH_FAILED);
+            String token = jsonNode.get("token").textValue();
+            tokenService.verifyIdToken(token, signupIDTokenAudience);
+            JWT jwt = JWTParser.parse(token);
+            String subject = jwt.getJWTClaimsSet().getSubject();
+            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies())
+                    .filter(x -> x.getName().equals(subject))
+                    .findFirst();
+            OIDCTransaction haltedTransaction = cacheUtilService.getUpdateConsentedTransaction(subject);
+
+            //Validate if cookie is present with token subject as name and halted transaction is present in cache
+            if(result.isPresent() && haltedTransaction != null && haltedTransaction.getServerNonce().equals(result.get().getValue())) {
+                transaction.setIndividualId(haltedTransaction.getIndividualId());
+                KycAuthResult kycAuthResult = new KycAuthResult();
+                kycAuthResult.setKycToken(subject);
+                kycAuthResult.setPartnerSpecificUserToken(subject);
+                return kycAuthResult;
+            }
+            log.error("ID token in the challenge is not matching the required conditions. isCookiePresent: {}, isHaltedTransactionFound: {}",
+                    result.isPresent(), haltedTransaction!=null);
+        } catch (Exception e) {
+            log.error("Failed to parse ID token as challenge", e);
+        }
+        throw new EsignetException(AUTH_FAILED);
     }
 
     /**

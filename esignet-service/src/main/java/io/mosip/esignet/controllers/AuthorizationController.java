@@ -129,10 +129,10 @@ public class AuthorizationController {
 
     @PostMapping("/v3/authenticate")
     public ResponseWrapper<AuthResponseV2> authenticateEndUserV3(@Valid @RequestBody RequestWrapper<AuthRequestV2>
-                                                                         requestWrapper) throws EsignetException {
+                                                                         requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
         ResponseWrapper<AuthResponseV2> responseWrapper = new ResponseWrapper<>();
         try {
-            AuthResponseV2 authResponse = authorizationService.authenticateUserV3(requestWrapper.getRequest());
+            AuthResponseV2 authResponse = authorizationService.authenticateUserV3(requestWrapper.getRequest(), httpServletRequest);
             responseWrapper.setResponse(authResponse);
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {

@@ -58,7 +58,7 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String VERIFIED_CLAIMS = "verified_claims";
-    private static String COOKIE_VALUE = "{\"code\":\"%s\",\"pathFragment\":\"%s\"}";
+    private static final String COOKIE_VALUE = "{\"code\":\"%s\"}";
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -112,7 +112,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.signup-id-token-expire-seconds:60}")
     private int signupIDTokenValidity;
 
-    @Value("${mosip.esignet.signup-id-token-audience:mosip-signup-client}")
+    @Value("${mosip.esignet.signup-id-token-audience}")
     private String signupIDTokenAudience;
 
 
@@ -193,7 +193,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
-        authenticate(authRequest, false);
+        authenticate(authRequest, false, null);
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(authRequest.getTransactionId());
         return authRespDto;
@@ -201,7 +201,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public AuthResponseV2 authenticateUserV2(AuthRequest authRequest) throws EsignetException {
-        OIDCTransaction transaction = authenticate(authRequest, true);
+        OIDCTransaction transaction = authenticate(authRequest, true, null);
         AuthResponseV2 authRespDto = new AuthResponseV2();
         authRespDto.setTransactionId(authRequest.getTransactionId());
         authRespDto.setConsentAction(transaction.getConsentAction());
@@ -209,13 +209,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest) throws EsignetException {
+    public AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest, HttpServletRequest httpServletRequest) throws EsignetException {
         if(!CollectionUtils.isEmpty(captchaRequired) &&
                 authRequest.getChallengeList().stream().anyMatch(authChallenge ->
                         captchaRequired.contains(authChallenge.getAuthFactorType().toLowerCase()))) {
             authorizationHelperService.validateCaptchaToken(authRequest.getCaptchaToken());
         }
-        return authenticateUserV2(authRequest);
+        OIDCTransaction transaction = authenticate(authRequest, true, httpServletRequest);
+        AuthResponseV2 authRespDto = new AuthResponseV2();
+        authRespDto.setTransactionId(authRequest.getTransactionId());
+        authRespDto.setConsentAction(transaction.getConsentAction());
+        return authRespDto;
     }
 
     @Override
@@ -294,30 +298,25 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(oidcTransaction == null) {
             throw new InvalidTransactionException();
         }
-        String uuid = UUID.randomUUID().toString();
+        String updateTransactionId = IdentityProviderUtil.createTransactionId(oidcTransaction.getServerNonce());
         SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
         signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
-        signupRedirectResponse.setIdToken(tokenService.getIDToken(uuid, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
+        signupRedirectResponse.setIdToken(tokenService.getIDToken(updateTransactionId, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
 
-        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getSecretCode(),
-                sanitizePathFragment(signupRedirectRequest.getPathFragment()));
-        Cookie cookie = new Cookie(uuid, IdentityProviderUtil.b64Encode(cookieValue));
+        //Move the transaction to update-consented transaction
+        cacheUtilService.setUpdateConsentedTransaction(updateTransactionId, signupRedirectRequest.getTransactionId(), oidcTransaction);
+
+        Cookie cookie = new Cookie(updateTransactionId, oidcTransaction.getServerNonce());
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
-        cookie.setHttpOnly(false); //It is required to be false, as UI should access this cookie to read ID Token
+        cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
         return signupRedirectResponse;
     }
 
-    //As pathFragment is included in the response header, we should sanitize the input to mitigate
-    //response splitting vulnerability
-    private String sanitizePathFragment(String pathFragment) {
-        return pathFragment.replaceAll("[\r\n]", "");
-    }
 
-
-    private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction) {
+    private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction, HttpServletRequest httpServletRequest) {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -327,9 +326,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 authRequest.getChallengeList());
 
         KycAuthResult kycAuthResult;
-        if(authRequest.getChallengeList().size() == 1 &&  authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
-            kycAuthResult = authorizationHelperService.internalAuthenticateRequest(authRequest.getTransactionId(),
-                    authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+        if(authRequest.getChallengeList().size() == 1 && authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
+            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0), transaction,
+                    httpServletRequest);
+            transaction.setInternalAuthSuccess(true);
         }
         else {
             kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
@@ -398,8 +398,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        oidcTransaction.setSecretCode(IdentityProviderUtil.createTransactionId(oAuthDetailResponse.getTransactionId()));
+        oidcTransaction.setServerNonce(UUID.randomUUID().toString());
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
+        oidcTransaction.setInternalAuthSuccess(false);
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 

@@ -103,7 +103,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
 
     private OIDCTransaction getTransaction(String transactionId, String requestUri) {
         if(requestUri.endsWith("auth-code") || requestUri.endsWith("prepare-signup-redirect") ||
-                requestUri.endsWith("consent-details")) {
+                requestUri.endsWith("claim-details")) {
             return cacheUtilService.getAuthenticatedTransaction(transactionId);
         }
         return cacheUtilService.getPreAuthTransaction(transactionId);
