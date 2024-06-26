@@ -38,9 +38,7 @@ export default function Authorize({ authService }) {
   const getDataFromCookie = (idTokenHint) => {
     const uuid = JSON.parse(base64UrlDecode(idTokenHint.split(".")[1])).sub;
 
-    const code = JSON.parse(
-      base64UrlDecode(getCookie(uuid).split(".")[0])
-    ).code;
+    const code = "code";
 
     return { uuid, code };
   };
