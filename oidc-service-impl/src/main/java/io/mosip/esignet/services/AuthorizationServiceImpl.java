@@ -306,7 +306,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         //Move the transaction to update-consented transaction
         cacheUtilService.setUpdateConsentedTransaction(updateTransactionId, signupRedirectRequest.getTransactionId(), oidcTransaction);
 
-        Cookie cookie = new Cookie(updateTransactionId, oidcTransaction.getServerNonce());
+        String cookieValue = String.format(COOKIE_VALUE, oidcTransaction.getServerNonce());
+        Cookie cookie = new Cookie(updateTransactionId, IdentityProviderUtil.b64Encode(cookieValue));
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
