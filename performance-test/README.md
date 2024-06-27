@@ -65,7 +65,9 @@
     <artifactId>nimbus-jose-jwt</artifactId>
     <version>9.25.6</version>
 </dependency>
-
+	
+	* jmeter-plugins-synthesis-2.2.jar
+		* <!-- https://jmeter-plugins.org/files/packages/jpgc-synthesis-2.2.zip -->
 
 ### Execution points for eSignet Authentication API's
 
