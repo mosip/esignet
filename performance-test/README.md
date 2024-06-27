@@ -26,45 +26,45 @@
 
    * bcprov-jdk15on-1.66.jar
       * <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
-<dependency>
-    <groupId>org.bouncycastle</groupId>
-    <artifactId>bcprov-jdk15on</artifactId>
-    <version>1.66</version>
-</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk15on</artifactId>
+				<version>1.66</version>
+			</dependency>
 
    * jjwt-api-0.11.2.jar
       * <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-api</artifactId>
-    <version>0.11.2</version>
-</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-api</artifactId>
+				<version>0.11.2</version>
+			</dependency>
 
    * jjwt-impl-0.11.2.jar
        * <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl -->
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-impl</artifactId>
-    <version>0.11.2</version>
-    <scope>runtime</scope>
-</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-impl</artifactId>
+				<version>0.11.2</version>
+				<scope>runtime</scope>
+			</dependency>
 
    * jjwt-jackson-0.11.2.jar
        * <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-jackson</artifactId>
-    <version>0.11.2</version>
-    <scope>runtime</scope>
-</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
+				<version>0.11.2</version>
+				<scope>runtime</scope>
+			</dependency>
 
    * nimbus-jose-jwt-9.25.6.jar  
        * <!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
-<dependency>
-    <groupId>com.nimbusds</groupId>
-    <artifactId>nimbus-jose-jwt</artifactId>
-    <version>9.25.6</version>
-</dependency>
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>nimbus-jose-jwt</artifactId>
+				<version>9.25.6</version>
+			</dependency>
 	
 	* jmeter-plugins-synthesis-2.2.jar
 		* <!-- https://jmeter-plugins.org/files/packages/jpgc-synthesis-2.2.zip -->
