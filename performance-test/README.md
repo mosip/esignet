@@ -1,6 +1,6 @@
 
 ### Contains
-* This folder contains performance Test script and test script of below API endpoint categories.
+* This folder contains performance Test script and below API endpoint categories.
     1. Create Identities in MOSIP Authentication System (Setup)
     2. Create Identities in MOSIP Authentication System - Password Based Auth (Setup)
     3. Auth Token Generation (Setup)
