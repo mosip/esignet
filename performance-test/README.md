@@ -75,7 +75,7 @@
 	*https://jmeter-plugins.org/get/
 
 * After downloading the jar file place it in below folder path.
-	*apache-jmeter-5.3\lib\ext
+	*lib/ext
 	
 ### Execution points for eSignet Authentication API's
 
