@@ -69,6 +69,14 @@
 	* jmeter-plugins-synthesis-2.2.jar
 		* <!-- https://jmeter-plugins.org/files/packages/jpgc-synthesis-2.2.zip -->
 
+### Downloading Plugin manager jar file for the purpose installing other JMeter specific plugins
+
+* Download JMeter plugin manager from below url links.
+	*https://jmeter-plugins.org/get/
+
+* After downloading the jar file place it in below folder path.
+	*apache-jmeter-5.3\lib\ext
+	
 ### Execution points for eSignet Authentication API's
 
 *Esignet_Test_Script.jmx
