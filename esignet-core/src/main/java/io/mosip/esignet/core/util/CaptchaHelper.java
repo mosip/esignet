@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.core.util;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -65,13 +70,12 @@ public class CaptchaHelper {
                     return true;
                 }
                 log.error("Errors received from CaptchaService: {}", responseWrapper.getErrors()); //NOSONAR responseWrapper is already evaluated to be not null
-                throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
             }
             log.error("Errors received from CaptchaService: {}", responseEntity.getStatusCode());
-            throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
         } catch (Exception e) {
-            throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
+            log.error("Failed to validate captcha", e);
         }
+        throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
     }
 
 }
