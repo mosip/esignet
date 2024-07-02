@@ -15,6 +15,7 @@ import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
@@ -26,10 +27,7 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
-import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.LinkCodeQueue;
+import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -85,6 +83,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     ConsentHelperService consentHelperService;
+
+    @Autowired(required = false)
+    private CaptchaValidator captchaValidator;
 
     @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
@@ -212,7 +213,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(!CollectionUtils.isEmpty(captchaRequired) &&
                 authRequest.getChallengeList().stream().anyMatch(authChallenge ->
                         captchaRequired.contains(authChallenge.getAuthFactorType().toLowerCase()))) {
-            authorizationHelperService.validateCaptchaToken(authRequest.getCaptchaToken());
+            captchaValidator.validateCaptcha(authRequest.getCaptchaToken());
         }
         OIDCTransaction transaction = authenticate(authRequest, true, httpServletRequest);
         AuthResponseV2 authRespDto = new AuthResponseV2();
