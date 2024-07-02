@@ -102,9 +102,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.credential.mandate-pkce:true}")
     private boolean mandatePKCEForVC;
 
-    @Autowired
-    private CaptchaHelper captchaHelper;
-
     @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
     private List<String> captchaRequired;
 
@@ -212,7 +209,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(!CollectionUtils.isEmpty(captchaRequired) &&
                 authRequest.getChallengeList().stream().anyMatch(authChallenge ->
                         captchaRequired.contains(authChallenge.getAuthFactorType().toLowerCase()))) {
-            captchaHelper.validateCaptcha(authRequest.getCaptchaToken());
+            authorizationHelperService.validateSendOtpCaptchaToken(authRequest.getCaptchaToken());
         }
         OIDCTransaction transaction = authenticate(authRequest, true, httpServletRequest);
         AuthResponseV2 authRespDto = new AuthResponseV2();

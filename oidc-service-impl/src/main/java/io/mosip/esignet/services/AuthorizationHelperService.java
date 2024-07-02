@@ -83,9 +83,6 @@ public class AuthorizationHelperService {
     @Autowired
     private AuditPlugin auditWrapper;
 
-    @Autowired(required = false)
-    private CaptchaValidator captchaValidator;
-
     @Autowired
     private TokenService tokenService;
 
@@ -130,17 +127,6 @@ public class AuthorizationHelperService {
         }
         captchaHelper.validateCaptcha(captchaToken);
     }
-
-    protected void validateCaptchaToken(String captchaToken) {
-        if(captchaValidator == null) {
-            log.error("Captcha validator instance is NULL, Unable to validate captcha token");
-            throw new EsignetException(FAILED_TO_VALIDATE_CAPTCHA);
-        }
-
-        if(!captchaValidator.validateCaptcha(captchaToken))
-            throw new EsignetException(INVALID_CAPTCHA);
-    }
-
 
     protected void addEntryInLinkStatusDeferredResultMap(String key, DeferredResult deferredResult) {
         LINK_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
