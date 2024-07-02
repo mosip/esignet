@@ -19,6 +19,7 @@ import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
@@ -54,6 +55,9 @@ public class AuthorizationHelperServiceTest {
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
     @Mock
+    private CaptchaHelper captchaHelper;
+
+    @Mock
     private Authenticator authenticationWrapper;
 
     @Mock
@@ -85,7 +89,7 @@ public class AuthorizationHelperServiceTest {
     public void validateSendOtpCaptchaToken_withValidToken_thenFail() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
         ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(false);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
         	authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
         } catch(EsignetException e) {
@@ -97,7 +101,7 @@ public class AuthorizationHelperServiceTest {
     public void validateSendOtpCaptchaToken_withValidToken_thenPass() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
         ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(true);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(true);
         authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
     }
 

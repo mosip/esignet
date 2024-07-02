@@ -26,10 +26,7 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
-import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.LinkCodeQueue;
+import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -104,6 +101,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Value("${mosip.esignet.credential.mandate-pkce:true}")
     private boolean mandatePKCEForVC;
+
+    @Autowired
+    private CaptchaHelper captchaHelper;
 
     @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
     private List<String> captchaRequired;
@@ -212,7 +212,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(!CollectionUtils.isEmpty(captchaRequired) &&
                 authRequest.getChallengeList().stream().anyMatch(authChallenge ->
                         captchaRequired.contains(authChallenge.getAuthFactorType().toLowerCase()))) {
-            authorizationHelperService.validateCaptchaToken(authRequest.getCaptchaToken());
+            captchaHelper.validateCaptcha(authRequest.getCaptchaToken());
         }
         OIDCTransaction transaction = authenticate(authRequest, true, httpServletRequest);
         AuthResponseV2 authRespDto = new AuthResponseV2();

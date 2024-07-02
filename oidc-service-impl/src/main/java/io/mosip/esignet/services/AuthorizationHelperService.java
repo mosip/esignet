@@ -92,6 +92,9 @@ public class AuthorizationHelperService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private CaptchaHelper captchaHelper;
+
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
 
@@ -125,7 +128,7 @@ public class AuthorizationHelperService {
         	log.error("Captcha token is Null or Empty");
         	throw new EsignetException(INVALID_CAPTCHA);
         }
-        validateCaptchaToken(captchaToken);
+        captchaHelper.validateCaptcha(captchaToken);
     }
 
     protected void validateCaptchaToken(String captchaToken) {
