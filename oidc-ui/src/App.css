@@ -294,6 +294,7 @@ body {
 
   .claims-list {
     width: 100vw;
+    overflow-wrap: anywhere;
   }
 
   .claims-list svg path {
@@ -306,6 +307,7 @@ body {
     color: var(--consent-details-available-color);
     display: flex;
     align-items: center;
+    margin-left: 1em;
   }
 
   .not-available-claim {
@@ -313,6 +315,7 @@ body {
     color: var(--consent-details-unavailable-color);
     display: flex;
     align-items: center;
+    margin-left: 1em;
   }
 
   .message {
