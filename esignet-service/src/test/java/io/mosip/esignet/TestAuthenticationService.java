@@ -317,12 +317,12 @@ public class TestAuthenticationService implements Authenticator {
 
     @Override
     public KycAuthResult doKycAuth(String relyingPartyId, String clientId, boolean claimsMetadataRequired, KycAuthDto kycAuthDto) throws KycAuthException {
-        return null;
+        return doKycAuth(relyingPartyId, clientId, kycAuthDto);
     }
 
     @Override
     public KycExchangeResult doVerifiedKycExchange(String relyingPartyId, String clientId, VerifiedKycExchangeDto kycExchangeDto) throws KycExchangeException {
-        return null;
+        return doKycExchange(relyingPartyId, clientId, kycExchangeDto);
     }
 
     private boolean authenticateUser(String transactionId, String individualId, AuthChallenge authChallenge) {

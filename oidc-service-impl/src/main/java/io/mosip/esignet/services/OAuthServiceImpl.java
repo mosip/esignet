@@ -10,6 +10,8 @@ import com.nimbusds.jose.jwk.JWK;
 import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
+import io.mosip.esignet.api.dto.VerifiedKycExchangeDto;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -30,6 +32,7 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -245,18 +248,31 @@ public class OAuthServiceImpl implements OAuthService {
     private KycExchangeResult doKycExchange(OIDCTransaction transaction) {
         KycExchangeResult kycExchangeResult;
         try {
-            KycExchangeDto kycExchangeDto = new KycExchangeDto();
+            VerifiedKycExchangeDto kycExchangeDto = new VerifiedKycExchangeDto();
             kycExchangeDto.setTransactionId(transaction.getAuthTransactionId());
             kycExchangeDto.setKycToken(transaction.getKycToken());
             kycExchangeDto.setAcceptedClaims(transaction.getAcceptedClaims());
             kycExchangeDto.setClaimsLocales(transaction.getClaimsLocales());
             kycExchangeDto.setIndividualId(authorizationHelperService.getIndividualId(transaction));
+            kycExchangeDto.setAcceptedVerifiedClaims(new HashMap<>());
+
+            if(!CollectionUtils.isEmpty(transaction.getAcceptedClaims()) && transaction.getRequestedClaims().getUserinfo() != null) {
+                for(String claim : transaction.getAcceptedClaims()) {
+                    ClaimDetail claimDetail = transaction.getRequestedClaims().getUserinfo().get(claim);
+                    if(claimDetail != null) {
+                        kycExchangeDto.getAcceptedVerifiedClaims().put(claim, claimDetail.getVerification());
+                    }
+                }
+            }
 
             if(transaction.isInternalAuthSuccess()) {
                 log.info("Internal kyc exchange is invoked as the transaction is marked as internal auth success");
                 kycExchangeResult = doInternalKycExchange(kycExchangeDto);
             } else {
-                kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
+                kycExchangeResult = kycExchangeDto.getAcceptedVerifiedClaims().isEmpty() ?
+                        authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
+                        transaction.getClientId(), kycExchangeDto) :
+                        authenticationWrapper.doVerifiedKycExchange(transaction.getRelyingPartyId(),
                         transaction.getClientId(), kycExchangeDto);
             }
 

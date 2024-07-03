@@ -45,8 +45,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -381,7 +380,7 @@ public class LinkedAuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         linkedKycAuthRequest.setIndividualId("23423434234");
         List<AuthChallenge> authChallenges = new ArrayList<>();
@@ -425,7 +424,7 @@ public class LinkedAuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         linkedKycAuthRequest.setIndividualId("23423434234");
         List<AuthChallenge> authChallenges = new ArrayList<>();

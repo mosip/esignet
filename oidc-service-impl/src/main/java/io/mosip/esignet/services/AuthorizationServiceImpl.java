@@ -8,11 +8,9 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
-import io.mosip.esignet.api.dto.claim.Claims;
+import io.mosip.esignet.api.dto.claim.*;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
-import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.Action;
@@ -39,6 +37,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,6 +60,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String VERIFIED_CLAIMS = "verified_claims";
+    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -272,12 +276,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         claimDetailResponse.setTransactionId(transactionId);
         List<ClaimStatus> list = new ArrayList<>();
 
-        //TODO need to compute this
-        for(String claim : transaction.getEssentialClaims()) {
-            list.add(new ClaimStatus(claim, false, (claim.equals("name") || claim.equals("phone_number")) ));
-        }
-        for(String claim : transaction.getVoluntaryClaims()) {
-            list.add(new ClaimStatus(claim, false, (claim.equals("name") || claim.equals("phone_number")) ));
+        for(Map.Entry<String, ClaimDetail> entry : transaction.getRequestedClaims().getUserinfo().entrySet()) {
+            list.add(getClaimStatus(entry.getKey(), entry.getValue(), transaction.getClaimMetadata()));
         }
 
         //Profile update is mandated only if any essential verified claim is requested
@@ -339,6 +339,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
+        transaction.setClaimMetadata(kycAuthResult.getClaimsMetadata());
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
@@ -450,6 +451,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                         else if(claimBasedOnScope.contains(claimName))
                             resolvedClaims.getUserinfo().put(claimName, null);
 
+                        //Verified claim request takes priority
                         if(verifiedClaimsMap.containsKey(claimName))
                             resolvedClaims.getUserinfo().put(claimName, verifiedClaimsMap.get(claimName));
                     });
@@ -570,4 +572,77 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
     }
+
+    private ClaimStatus getClaimStatus(String claim, ClaimDetail claimDetail, Map<String,
+            List<VerificationDetail>> storedVerificationData) {
+        if(storedVerificationData == null || storedVerificationData.isEmpty())
+            return new ClaimStatus(claim, false, false);
+
+        if(claimDetail == null || claimDetail.getVerification() == null || !CollectionUtils.isEmpty(storedVerificationData.get(claim)))
+            return new ClaimStatus(claim, false, storedVerificationData.containsKey(claim));
+
+        List<VerificationDetail> verificationDetails = storedVerificationData.get(claim);
+
+        //check trust_framework
+        Optional<VerificationDetail> result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getTrust_framework(), vd.getTrust_framework()))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        //check verification datetime
+        result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getTime(), vd.getTime(), dateTimeFormat))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        //check verification_process
+        result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getVerification_process(), vd.getVerification_process()))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        //check assuranceLevel
+        result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getAssurance_level(), vd.getAssurance_level()))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        return new ClaimStatus(claim, true, true);
+    }
+
+    private boolean doMatch(FilterCriteria filterCriteria, String value) {
+        if(filterCriteria == null)
+            return true;
+        if(filterCriteria.getValue() != null)
+           return filterCriteria.getValue().equals(value);
+        if(filterCriteria.getValues() != null)
+            return filterCriteria.getValues().contains(value);
+        return false;
+    }
+
+    private boolean doMatch(FilterDateTime filterDateTime, String value, SimpleDateFormat format) {
+        if(filterDateTime == null)
+            return true;
+
+        if(value == null || value.isEmpty())
+            return false;
+
+        try {
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = format.parse(value);
+            return ((System.currentTimeMillis() - date.getTime())/1000) < filterDateTime.getMax_age();
+        } catch (ParseException e) {
+            log.error("Failed to parse the given date-time : {}", value, e);
+        }
+        return false;
+    }
+
 }
