@@ -46,8 +46,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -821,7 +820,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
@@ -877,7 +876,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
@@ -950,7 +949,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
@@ -1007,7 +1006,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);

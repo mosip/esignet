@@ -43,6 +43,8 @@ import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant.CURRENTKEYALIAS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationHelperServiceTest {
@@ -215,10 +217,11 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRequestedClaims(new Claims());
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("psut");
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(kycAuthResult);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(kycAuthResult);
         KycAuthResult result = authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
         Assert.assertNotNull(result);
         Assert.assertEquals(kycAuthResult.getKycToken(), result.getKycToken());
@@ -234,8 +237,9 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRequestedClaims(new Claims());
 
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(null);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(null);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -244,7 +248,7 @@ public class AuthorizationHelperServiceTest {
         }
 
         KycAuthResult result = new KycAuthResult();
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(result);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -254,7 +258,7 @@ public class AuthorizationHelperServiceTest {
 
         result.setPartnerSpecificUserToken("PSUT");
         result.setKycToken(null);
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(result);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -264,7 +268,7 @@ public class AuthorizationHelperServiceTest {
 
         result.setPartnerSpecificUserToken(null);
         result.setKycToken("kyctoken");
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(result);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -435,7 +439,7 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rpid");
         oidcTransaction.setClientId("client-id");
         SendOtpResult sendOtpResult = new SendOtpResult(oidcTransaction.getAuthTransactionId(), "masked-email", "masked-mobile");
-        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), Mockito.any(SendOtpDto.class))).thenReturn(sendOtpResult);
+        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenReturn(sendOtpResult);
         SendOtpResult result = authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
         Assert.assertEquals(sendOtpResult.getMaskedMobile(), result.getMaskedMobile());
         Assert.assertEquals(sendOtpResult.getMaskedEmail(), result.getMaskedEmail());
@@ -451,7 +455,7 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rpid");
         oidcTransaction.setClientId("client-id");
         SendOtpResult sendOtpResult = new SendOtpResult("temp-id", "masked-email", "masked-mobile");
-        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), Mockito.any(SendOtpDto.class))).thenReturn(sendOtpResult);
+        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenReturn(sendOtpResult);
 
         try {
             authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
@@ -483,7 +487,7 @@ public class AuthorizationHelperServiceTest {
         AuthenticationFactor pinAuthFactor = new AuthenticationFactor();
         pinAuthFactor.setType("PIN");
         list.add(Arrays.asList(pinAuthFactor));
-        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(Mockito.any(String[].class))).thenReturn(list);
+        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(any(String[].class))).thenReturn(list);
 
         Set<List<AuthenticationFactor>> result = authorizationHelperService.getProvidedAuthFactors(oidcTransaction, challengeList);
         Assert.assertTrue(result.size() == 1);
@@ -512,7 +516,7 @@ public class AuthorizationHelperServiceTest {
         AuthenticationFactor pinAuthFactor = new AuthenticationFactor();
         pinAuthFactor.setType("PIN");
         list.add(Arrays.asList(pinAuthFactor));
-        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(Mockito.any(String[].class))).thenReturn(list);
+        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(any(String[].class))).thenReturn(list);
 
         try {
             authorizationHelperService.getProvidedAuthFactors(oidcTransaction, challengeList);
@@ -533,7 +537,7 @@ public class AuthorizationHelperServiceTest {
         KeyAlias keyAlias = new KeyAlias();
         keyAlias.setAlias("test");
         keyaliasesMap.put(CURRENTKEYALIAS, Arrays.asList(keyAlias));
-        Mockito.when(dbHelper.getKeyAliases(Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime.class))).thenReturn(keyaliasesMap);
+        Mockito.when(dbHelper.getKeyAliases(Mockito.anyString(), Mockito.anyString(), any(LocalDateTime.class))).thenReturn(keyaliasesMap);
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(256);
         SecretKey key = generator.generateKey();

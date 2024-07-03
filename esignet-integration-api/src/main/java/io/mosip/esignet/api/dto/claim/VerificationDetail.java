@@ -6,10 +6,12 @@
 package io.mosip.esignet.api.dto.claim;
 
 import lombok.Data;
+
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class VerificationDetail {
+public class VerificationDetail implements Serializable {
 
     private String trust_framework;
     private String time;

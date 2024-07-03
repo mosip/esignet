@@ -209,8 +209,9 @@ public class AuthorizationHelperService {
 
         KycAuthResult kycAuthResult;
         try {
+            KycAuthDto kycAuthDto = new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList);
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList));
+                    isVerifiedClaimRequested(transaction), kycAuthDto);
         } catch (KycAuthException e) {
             log.error("KYC auth failed for transaction : {}", transactionId, e);
             throw new EsignetException(e.getErrorCode());
@@ -438,5 +439,13 @@ public class AuthorizationHelperService {
         }
         log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
         throw new EsignetException(NO_UNIQUE_ALIAS);
+    }
+
+    private boolean isVerifiedClaimRequested(OIDCTransaction transaction) {
+        return transaction.getRequestedClaims().getUserinfo() != null &&
+                transaction.getRequestedClaims().getUserinfo()
+                .entrySet()
+                .stream()
+                .anyMatch( entry -> entry.getValue() != null && entry.getValue().getVerification() != null);
     }
 }
