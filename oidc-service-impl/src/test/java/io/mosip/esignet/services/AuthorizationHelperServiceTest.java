@@ -100,6 +100,36 @@ public class AuthorizationHelperServiceTest {
     }
 
     @Test
+    public void validateCaptchaToken_withNoValidator_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", null);
+        try {
+            authorizationHelperService.validateCaptchaToken("captcha-token");
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(FAILED_TO_VALIDATE_CAPTCHA, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void validateCaptchaToken_withInvalidToken_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", captchaHelper);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
+        try {
+            authorizationHelperService.validateCaptchaToken("captcha-token");
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void validateCaptchaToken_withValidToken_thenPass() {
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", captchaHelper);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(true);
+        authorizationHelperService.validateCaptchaToken("captcha-token");
+    }
+
+    @Test
     public void consumeLinkStatus_withValidDetails_thenPass() {
         String linkCodeHash = "link-code-hash";
         DeferredResult<ResponseWrapper<LinkStatusResponse>> deferredResult = new DeferredResult<>();

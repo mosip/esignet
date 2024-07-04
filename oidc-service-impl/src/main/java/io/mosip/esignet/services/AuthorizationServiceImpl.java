@@ -84,9 +84,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     ConsentHelperService consentHelperService;
 
-    @Autowired(required = false)
-    private CaptchaValidator captchaValidator;
-
     @Value("#{${mosip.esignet.ui.config.key-values}}")
     private Map<String, Object> uiConfigMap;
 
@@ -213,7 +210,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(!CollectionUtils.isEmpty(captchaRequired) &&
                 authRequest.getChallengeList().stream().anyMatch(authChallenge ->
                         captchaRequired.contains(authChallenge.getAuthFactorType().toLowerCase()))) {
-            captchaValidator.validateCaptcha(authRequest.getCaptchaToken());
+            authorizationHelperService.validateCaptchaToken(authRequest.getCaptchaToken());
         }
         OIDCTransaction transaction = authenticate(authRequest, true, httpServletRequest);
         AuthResponseV2 authRespDto = new AuthResponseV2();

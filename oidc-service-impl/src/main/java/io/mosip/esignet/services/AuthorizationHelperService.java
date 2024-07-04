@@ -125,7 +125,17 @@ public class AuthorizationHelperService {
         	log.error("Captcha token is Null or Empty");
         	throw new EsignetException(INVALID_CAPTCHA);
         }
-        captchaHelper.validateCaptcha(captchaToken);
+        validateCaptchaToken(captchaToken);
+    }
+
+    protected void validateCaptchaToken(String captchaToken) {
+        if (captchaHelper == null) {
+            log.error("Captcha validator instance is NULL, Unable to validate captcha token");
+            throw new EsignetException(FAILED_TO_VALIDATE_CAPTCHA);
+        }
+
+        if (!captchaHelper.validateCaptcha(captchaToken))
+            throw new EsignetException(INVALID_CAPTCHA);
     }
 
     protected void addEntryInLinkStatusDeferredResultMap(String key, DeferredResult deferredResult) {
