@@ -210,7 +210,8 @@ public class AuthorizationHelperService {
         KycAuthResult kycAuthResult;
         try {
             KycAuthDto kycAuthDto = new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList);
-            kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(), kycAuthDto);
+            kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
+                    isVerifiedClaimRequested(transaction), kycAuthDto);
         } catch (KycAuthException e) {
             log.error("KYC auth failed for transaction : {}", transactionId, e);
             throw new EsignetException(e.getErrorCode());
