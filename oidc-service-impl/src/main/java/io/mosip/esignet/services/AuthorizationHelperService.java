@@ -83,14 +83,14 @@ public class AuthorizationHelperService {
     @Autowired
     private AuditPlugin auditWrapper;
 
-    @Autowired(required = false)
-    private CaptchaValidator captchaValidator;
-
     @Autowired
     private TokenService tokenService;
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private CaptchaHelper captchaHelper;
 
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
@@ -129,15 +129,14 @@ public class AuthorizationHelperService {
     }
 
     protected void validateCaptchaToken(String captchaToken) {
-        if(captchaValidator == null) {
+        if (captchaHelper == null) {
             log.error("Captcha validator instance is NULL, Unable to validate captcha token");
             throw new EsignetException(FAILED_TO_VALIDATE_CAPTCHA);
         }
 
-        if(!captchaValidator.validateCaptcha(captchaToken))
+        if (!captchaHelper.validateCaptcha(captchaToken))
             throw new EsignetException(INVALID_CAPTCHA);
     }
-
 
     protected void addEntryInLinkStatusDeferredResultMap(String key, DeferredResult deferredResult) {
         LINK_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);

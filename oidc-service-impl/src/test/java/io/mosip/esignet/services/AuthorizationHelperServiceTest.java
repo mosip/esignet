@@ -13,12 +13,12 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
@@ -56,6 +56,9 @@ public class AuthorizationHelperServiceTest {
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
     @Mock
+    private CaptchaHelper captchaHelper;
+
+    @Mock
     private Authenticator authenticationWrapper;
 
     @Mock
@@ -69,9 +72,6 @@ public class AuthorizationHelperServiceTest {
 
     @Mock
     private AuditPlugin auditWrapper;
-
-    @Mock
-    private CaptchaValidator captchaValidator;
     
     @Test
     public void validateSendOtpCaptchaToken_withEmptyToken_thenFail() {
@@ -86,8 +86,7 @@ public class AuthorizationHelperServiceTest {
     @Test
     public void validateSendOtpCaptchaToken_withValidToken_thenFail() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(false);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
         	authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
         } catch(EsignetException e) {
@@ -98,14 +97,13 @@ public class AuthorizationHelperServiceTest {
     @Test
     public void validateSendOtpCaptchaToken_withValidToken_thenPass() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(true);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(true);
         authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
     }
 
     @Test
     public void validateCaptchaToken_withNoValidator_thenFail() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", null);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", null);
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
             Assert.fail();
@@ -116,8 +114,8 @@ public class AuthorizationHelperServiceTest {
 
     @Test
     public void validateCaptchaToken_withInvalidToken_thenFail() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(false);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", captchaHelper);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
             Assert.fail();
@@ -125,11 +123,11 @@ public class AuthorizationHelperServiceTest {
             Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
         }
     }
-    
+
     @Test
     public void validateCaptchaToken_withValidToken_thenPass() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(true);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", captchaHelper);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(true);
         authorizationHelperService.validateCaptchaToken("captcha-token");
     }
 
