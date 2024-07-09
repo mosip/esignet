@@ -24,6 +24,7 @@ public interface Authenticator {
      * @return KYC Token and Partner specific User Token (PSUT)
      * @throws KycAuthException
      */
+    @Deprecated
     KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthDto kycAuthDto)
             throws KycAuthException;
 
