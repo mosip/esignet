@@ -71,7 +71,7 @@ public class MosipTestRunner {
 			ConfigManager.init();
 			BaseTestCase.suiteSetup();
 			setLogLevels();
-			AdminTestUtil.encryptDecryptUtil = new EncryptionDecrptionUtil();
+			//AdminTestUtil.encryptDecryptUtil = new EncryptionDecrptionUtil();
 
 			// For now we are not doing health check for qa-115.
 			if (BaseTestCase.isTargetEnvLTS()) {
