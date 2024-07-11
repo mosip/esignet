@@ -10,12 +10,9 @@ import io.mosip.esignet.core.dto.CaptchaRequest;
 import io.mosip.esignet.core.dto.RequestWrapper;
 import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.exception.EsignetException;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -25,18 +22,18 @@ import java.time.format.DateTimeFormatter;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 
-@Component
 @Slf4j
 public class CaptchaHelper {
 
-    @Autowired
     private RestTemplate restTemplate;
-
-    @Value("${mosip.esignet.captcha.module-name}")
     private String moduleName;
-
-    @Value("${mosip.esignet.captcha.validator-url}")
     private String validatorUrl;
+
+    public CaptchaHelper(RestTemplate restTemplate, String validatorUrl, String moduleName) {
+        this.restTemplate = restTemplate;
+        this.validatorUrl = validatorUrl;
+        this.moduleName = moduleName;
+    }
 
     public boolean validateCaptcha(String captchaToken) {
 
@@ -61,18 +58,17 @@ public class CaptchaHelper {
 
             ResponseEntity<ResponseWrapper> responseEntity = restTemplate.exchange(
                     requestEntity,
-                    ResponseWrapper.class
-            );
+                    ResponseWrapper.class);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 ResponseWrapper<?> responseWrapper = (ResponseWrapper<?>) responseEntity.getBody();
-                if (responseWrapper != null && responseWrapper.getResponse() != null) {
+                if (responseWrapper != null && responseWrapper.getResponse() != null &&
+                        CollectionUtils.isEmpty(responseWrapper.getErrors())) {
                     log.info("Captcha Validation Successful");
                     return true;
                 }
-                log.error("Errors received from CaptchaService: {}", responseWrapper.getErrors()); //NOSONAR responseWrapper is already evaluated to be not null
+                log.error("Errors received from CaptchaService: {}", responseEntity.getBody());
             }
-            log.error("Errors received from CaptchaService: {}", responseEntity.getStatusCode());
         } catch (Exception e) {
             log.error("Failed to validate captcha", e);
         }

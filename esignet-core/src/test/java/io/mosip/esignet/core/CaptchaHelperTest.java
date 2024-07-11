@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -29,36 +30,32 @@ public class CaptchaHelperTest {
     @Mock
     RestTemplate restTemplate;
 
-    @InjectMocks
     CaptchaHelper captchaHelper;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        ReflectionTestUtils.setField(captchaHelper, "validatorUrl", "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha");
-        ReflectionTestUtils.setField(captchaHelper,"moduleName","esignet");
+        captchaHelper = new CaptchaHelper(restTemplate, "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha",
+                "esignet");
     }
 
     @Test
-    public void validateCaptcha_WithNullCaptchaToken_ThrowsException() {
-        CaptchaHelper captchaHelper=new CaptchaHelper();
+    public void validateCaptcha_withNullCaptchaToken_thenFail() {
         Assert.assertThrows(EsignetException.class,()->captchaHelper.validateCaptcha(null));
     }
 
     @Test
-    public void validateCaptcha_WithCaptchaToken_ThrowsException() {
-        CaptchaHelper captchaHelper=new CaptchaHelper();
+    public void validateCaptcha_withEmptyCaptchaToken_thenFail() {
         Assert.assertThrows(EsignetException.class,()->captchaHelper.validateCaptcha(""));
     }
 
     @Test
-    public void validateCaptcha_WithNullResponse_ThrowsException() {
+    public void validateCaptcha_withNullResponse_thenFail() {
         Mockito.when(restTemplate.exchange((RequestEntity<?>) any(), (Class<Object>) any())).thenReturn(null);
         Assert.assertThrows(EsignetException.class,()->captchaHelper.validateCaptcha("captchaToken"));
     }
 
     @Test
-    public void validateCaptcha_SuccessfulResponse() {
+    public void validateCaptcha_validData_thenPass() {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         responseWrapper.setResponse("success");
         ResponseEntity<ResponseWrapper> responseEntity = ResponseEntity.ok(responseWrapper);
@@ -69,9 +66,9 @@ public class CaptchaHelperTest {
     }
 
     @Test
-    public void validateCaptcha_UnsuccessfulValidation_ThrowsEsignetException() {
+    public void validateCaptcha_unsuccessfulValidation_thenFail() {
         ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setErrors(new ArrayList<>());
+        responseWrapper.setErrors(Arrays.asList("server_unavailable"));
         ResponseEntity<ResponseWrapper> responseEntity = ResponseEntity.ok(responseWrapper);
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.eq(ResponseWrapper.class)))
                 .thenReturn(responseEntity);
@@ -79,7 +76,7 @@ public class CaptchaHelperTest {
     }
 
     @Test
-    public void validateCaptcha_RequestException_ThrowsEsignetException() {
+    public void validateCaptcha_withRequestException_thenFail() {
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.eq(ResponseWrapper.class)))
                 .thenThrow(new RestClientException("Request failed"));
         Assert.assertThrows(EsignetException.class, () -> captchaHelper.validateCaptcha("captchaToken"));
