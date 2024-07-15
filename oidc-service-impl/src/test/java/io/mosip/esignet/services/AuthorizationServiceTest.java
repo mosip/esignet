@@ -5,20 +5,28 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
-import io.mosip.esignet.api.dto.ClaimDetail;
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
+import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.AuthorizationServiceImpl;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,9 +41,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import static io.mosip.esignet.core.spi.TokenService.ACR;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,6 +60,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     CacheUtilService cacheUtilService;
+    
+    @Mock
+    TokenService tokenService;
 
     @Mock
     Authenticator authenticationWrapper;
@@ -61,6 +75,14 @@ public class AuthorizationServiceTest {
 
     @Mock
     ConsentHelperService consentHelperService;
+    
+    @Mock
+    HttpServletResponse httpServletResponse;
+
+    @Mock
+    HttpServletRequest httpServletRequest;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
 
     @Before
@@ -76,13 +98,34 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationContextClassRefUtil", authenticationContextClassRefUtil);
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationWrapper", authenticationWrapper);
         ReflectionTestUtils.setField(authorizationHelperService, "auditWrapper", auditWrapper);
-
+        
         ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
         ReflectionTestUtils.setField(authorizationServiceImpl, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);
     }
 
-
+    
+    @Test(expected = InvalidTransactionException.class)
+    public void prepareSignupRedirect_withInvalidTransactionId_throwsException() {
+    	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+    	signupRedirectRequest.setTransactionId("transactionId");
+    	signupRedirectRequest.setPathFragment("pathFragment");
+    	when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
+    	authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse);
+    }
+    
+    @Test
+    public void prepareSignupRedirect_withValidInput_thenPass() {
+    	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+    	signupRedirectRequest.setTransactionId("transactionId");
+    	signupRedirectRequest.setPathFragment("pathFragment");
+    	OIDCTransaction oidcTransaction = new OIDCTransaction();
+    	oidcTransaction.setServerNonce("secretCode");
+    	when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+    	SignupRedirectResponse signupRedirectResponse = authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse);
+    	Assert.assertEquals(signupRedirectResponse.getTransactionId(), "transactionId");
+    }
+    
     @Test(expected = InvalidClientException.class)
     public void getOauthDetails_withInvalidClientId_throwsException() throws EsignetException {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
@@ -153,9 +196,10 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
         oauthDetailRequest.setScope("openid test-scope");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("level4");
@@ -184,9 +228,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
@@ -215,9 +259,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("test-scope openid resident");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("phone", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("phone", getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code");
@@ -353,7 +397,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
+        ClaimsV2 claims = new ClaimsV2();
         claims.setId_token(new HashMap<>());
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setValues(new String[]{"mosip:idp:acr:wallet", "mosip:idp:acr:webauthn"});
@@ -385,9 +429,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("resident service");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name", getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
@@ -432,6 +476,31 @@ public class AuthorizationServiceTest {
     }
 
     @Test
+    public void testGetOauthDetailsV3_WithInvalidIdTokenHint_ShouldThrowEsignetException() {
+        OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
+        oauthDetailReqDto.setIdTokenHint("invalid_id_token_hint");
+        try {
+            authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
+        }
+    }
+
+    @Test
+    public void getOauthDetailsV3_WithCookieNotPresent_ThrowsEsignetException() {
+        OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
+        oauthDetailReqDto.setIdTokenHint("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.3RJf1g9bKzRC-dEj4b2Jx2yCk7Mz4oG1bZbDqGt8QxE");
+        Mockito.when(httpServletRequest.getCookies()).thenReturn(new Cookie[]{});
+        try {
+            authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
+        }
+    }
+
+    @Test
     public void getOauthDetailsV2_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setName(new HashMap<>());
@@ -472,9 +541,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
         oauthDetailRequest.setScope("openid test-scope");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("level4");
@@ -503,9 +572,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name", getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
@@ -534,9 +603,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("test-scope openid resident");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("phone", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("phone",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code");
@@ -672,7 +741,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
+        ClaimsV2 claims = new ClaimsV2();
         claims.setId_token(new HashMap<>());
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setValues(new String[]{"mosip:idp:acr:wallet", "mosip:idp:acr:webauthn"});
@@ -704,9 +773,9 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("resident service");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
-        Claims claims = new Claims();
-        Map<String, ClaimDetail> userClaims = new HashMap<>();
-        userClaims.put("given_name", new ClaimDetail(null, null, true));
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
@@ -754,7 +823,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
@@ -816,7 +885,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
@@ -895,7 +964,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
@@ -958,7 +1027,7 @@ public class AuthorizationServiceTest {
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("test-kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("test-psut");
-        when(authenticationWrapper.doKycAuth(anyString(), anyString(), any())).thenReturn(kycAuthResult);
+        when(authenticationWrapper.doKycAuth(anyString(), anyString(), anyBoolean(), any())).thenReturn(kycAuthResult);
 
         AuthRequest authRequest = new AuthRequest();
         authRequest.setTransactionId(transactionId);
@@ -1028,6 +1097,33 @@ public class AuthorizationServiceTest {
 		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getState(), "test-state");
     }
 
+    @Test
+    public void getConsentDetails_withValidTransaction_thenPass(){
+        OIDCTransaction transaction=new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+
+        transaction.setRequestedClaims(resolvedClaims);
+        transaction.setEssentialClaims(List.of("name", "email"));
+        transaction.setVoluntaryClaims(List.of("phone_number"));
+        transaction.setConsentAction(ConsentAction.NOCAPTURE);
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
+        Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
+    }
+
+    @Test
+    public void getConsentDetails_withInvalidTransaction_thenFail(){
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
+        try{
+            authorizationServiceImpl.getClaimDetails("transactionId");
+        }catch (InvalidTransactionException ex){
+            Assert.assertEquals(ex.getErrorCode(),ErrorConstants.INVALID_TRANSACTION);
+        }
+    }
+
     private OIDCTransaction createIdpTransaction(String[] acrs) {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         Map<String, ClaimDetail> idClaims = new HashMap<>();
@@ -1073,6 +1169,18 @@ public class AuthorizationServiceTest {
                 break;
         }
         return acrAuthFactors;
+    }
+
+    private JsonNode getClaimDetail(String value, String[] values, boolean essential) {
+        Map<String, Object> detail = new HashMap<>();
+        detail.put("value", value);
+        detail.put("values", values);
+        detail.put("essential", essential);
+        try {
+            return objectMapper.readTree(objectMapper.writeValueAsString(detail));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

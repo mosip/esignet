@@ -23,8 +23,10 @@ public class Constants {
     public static final String LINKED_SESSION_CACHE = "linked";
     public static final String LINKED_CODE_CACHE = "linkedcode";
     public static final String AUTH_CODE_GENERATED_CACHE = "authcodegenerated";
+    public static final String UPDATE_CONSENTED_CACHE = "updateconsented";
     public static final String RATE_LIMIT_CACHE = "apiRateLimit";
     public static final String BLOCKED_CACHE = "blocked";
+
 
     public static final String ROOT_KEY = "ROOT";
     public static final String OIDC_PARTNER_APP_ID = "OIDC_PARTNER";

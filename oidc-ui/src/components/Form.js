@@ -172,7 +172,7 @@ export default function Form({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/consent" + params, {
+        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
           replace: true,
         });
       }

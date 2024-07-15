@@ -26,6 +26,7 @@ export default function OtpVerify({
   openIDConnectService,
   i18nKeyPrefix1 = "otp",
   i18nKeyPrefix2 = "errors",
+  captcha
 }) {
 
   const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
@@ -206,7 +207,8 @@ export default function OtpVerify({
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
         idvid,
-        challengeList
+        challengeList,
+        captcha
       );
       setStatus({ state: states.LOADED, msg: "" });
 
@@ -239,7 +241,7 @@ export default function OtpVerify({
 
         let params = buildRedirectParams(nonce, state, openIDConnectService.getOAuthDetails(), response.consentAction);
 
-        navigate(process.env.PUBLIC_URL + "/consent" + params, {
+        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
           replace: true,
         });
       }
@@ -251,19 +253,6 @@ export default function OtpVerify({
       setStatus({ state: states.ERROR, msg: "" });
     }
   };
-
-  let styles = {
-    width: "40px",
-    height: "40px",
-    margin: "0 5px",
-    border: "",
-    borderBottom: "2px solid #0284c7",
-    color: "#0284c7"
-  };
-
-  if(window.screen.availWidth <= 375) {
-    styles = {...styles, width: "2em"}
-  }
 
   const onCloseHandle = () => {
     setErrorBanner(null);
@@ -313,9 +302,6 @@ export default function OtpVerify({
             }}
             type="numeric"
             inputMode="number"
-            style={{ padding: "5px 0px" }}
-            inputStyle={styles}
-            inputFocusStyle={{ borderBottom: "2px solid #075985" }}
             onComplete={(value, index) => {
               //TO handle case when user pastes OTP
               setOtpValue(value);

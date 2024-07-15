@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.Claims;
 import lombok.Data;
 
 import java.time.LocalDateTime;

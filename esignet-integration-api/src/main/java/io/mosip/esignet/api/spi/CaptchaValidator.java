@@ -5,7 +5,9 @@
  */
 package io.mosip.esignet.api.spi;
 
+@Deprecated
 public interface CaptchaValidator {
+
 
     boolean validateCaptcha(String captchaToken);
 }

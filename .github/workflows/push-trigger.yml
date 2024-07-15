@@ -20,7 +20,7 @@ on:
       - develop
       - MOSIP*
       - release*
-      - ES-496
+      - ES-842
 
 jobs:
   build-maven-esignet:

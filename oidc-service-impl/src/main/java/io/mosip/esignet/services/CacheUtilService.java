@@ -63,6 +63,12 @@ public class CacheUtilService {
         log.debug("Evicting entry from authCodeGeneratedCache");
     }
 
+    @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId", condition = "#transactionId != null")
+    @Cacheable(value = Constants.UPDATE_CONSENTED_CACHE, key = "#updateTransactionId")
+    public OIDCTransaction setUpdateConsentedTransaction(String updateTransactionId, String transactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
+    }
+
     //---------------------------------------------- Linked authorization ----------------------------------------------
 
     @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
@@ -162,6 +168,10 @@ public class CacheUtilService {
 
     public OIDCTransaction getLinkedAuthTransaction(String linkTransactionId) {
         return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
+    }
+
+    public OIDCTransaction getUpdateConsentedTransaction(String updateTransactionId) {
+        return cacheManager.getCache(Constants.UPDATE_CONSENTED_CACHE).get(updateTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public ApiRateLimit getApiRateLimitTransaction(String transactionId) {

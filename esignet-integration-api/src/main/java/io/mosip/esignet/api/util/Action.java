@@ -7,6 +7,7 @@ public enum Action {
     OAUTH_CLIENT_UPDATE("client-mgmt-service"),
     GET_OAUTH_DETAILS("esignet-service"),
     TRANSACTION_STARTED("esignet-service"),
+    PREPARE_SIGNUP_REDIRECT("esignet-service"),
     SEND_OTP("esignet-service"),
     AUTHENTICATE("esignet-service"),
     GET_AUTH_CODE("esignet-service"),
@@ -29,7 +30,8 @@ public enum Action {
     DELETE_USER_CONSENT("consent-service"),
     SEND_BINDING_OTP("key-binding"),
     KEY_BINDING("key-binding"),
-    VC_ISSUANCE("vci-service");
+    VC_ISSUANCE("vci-service"),
+    CONSENT_DETAILS("esignet-service");
 
     String module;
 

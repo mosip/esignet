@@ -167,9 +167,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setLinkTransactionId(linkedTransactionId);
         linkTransactionResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
                 transaction.getRequestedClaims().getId_token().get(ACR).getValues()));
-        Map<String, List> claimsMap = authorizationHelperService.getClaimNames(transaction.getRequestedClaims());
-        linkTransactionResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
-        linkTransactionResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
+        linkTransactionResponse.setEssentialClaims(transaction.getEssentialClaims());
+        linkTransactionResponse.setVoluntaryClaims(transaction.getVoluntaryClaims());
         linkTransactionResponse.setAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
         linkTransactionResponse.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionResponse.setConfigs(uiConfigMap);
