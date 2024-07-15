@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.3.1-SNAPSHOT</version>
+		<version>1.5.0-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>io.mosip.esignet</groupId>
@@ -25,7 +25,7 @@
 		<jackson.databind>2.12.0</jackson.databind>
 		<fasterxml.jackson.module.jsr310.version>2.12.0</fasterxml.jackson.module.jsr310.version>
 		<fasterxml.jackson.module.afterburner.version>2.12.0</fasterxml.jackson.module.afterburner.version>
-		<kernel.keymanager.version>1.2.0.1-B3</kernel.keymanager.version>
+		<kernel.keymanager.version>1.2.0.2-SNAPSHOT</kernel.keymanager.version>
 		<javassist.version>3.27.0-GA</javassist.version>
 		<junit.version>4.13.2</junit.version>
 		<mockito.version>2.22.0</mockito.version>

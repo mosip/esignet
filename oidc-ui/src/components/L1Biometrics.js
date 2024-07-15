@@ -13,6 +13,7 @@ import { init, propChange } from "secure-biometric-interface-integrator";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
+import ReCAPTCHA from "react-google-recaptcha";
 
 let fieldsState = {};
 const langConfig = await langConfigService.getEnLocaleConfiguration();  
@@ -54,6 +55,26 @@ export default function L1Biometrics({
   const [errorBanner, setErrorBanner] = useState(null);
   const [inputError, setInputError] = useState(null);
   const navigate = useNavigate();
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const _reCaptchaRef = useRef(null);
+
+  const captchaEnableComponents =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.captchaEnableComponents
+    ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
+
+  const captchaEnableComponentsList = captchaEnableComponents
+    .split(",")
+    .map((x) => x.trim().toLowerCase());
+
+  const [showCaptcha, setShowCaptcha] = useState(
+    captchaEnableComponentsList.indexOf("bio") !== -1
+  );
+
+  const captchaSiteKey =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.captchaSiteKey
+    ) ?? process.env.REACT_APP_CAPTCHA_SITE_KEY;
 
   const authTxnIdLengthValue =
     openIDConnectService.getEsignetConfiguration(
@@ -133,6 +154,31 @@ export default function L1Biometrics({
     return { errorCode: null, defaultMsg: null };
   };
 
+  useEffect(() => {
+    let loadComponent = async () => {
+      i18n.on("languageChanged", () => {
+        if (showCaptcha) {
+          //to rerender recaptcha widget on language change
+          setShowCaptcha(false);
+          setTimeout(() => {
+            setShowCaptcha(true);
+          }, 1);
+        }
+      });
+    };
+
+    loadComponent();
+  }, []);
+
+  const handleCaptchaChange = (value) => {
+    setCaptchaToken(value);
+  };
+
+  const resetCaptcha = () => {
+    _reCaptchaRef.current.reset();
+    setCaptchaToken(null);
+  };
+
   const Authenticate = async (transactionId, uin, bioValue) => {
     const challengeList = [
       {
@@ -150,7 +196,8 @@ export default function L1Biometrics({
     const authenticateResponse = await post_AuthenticateUser(
       transactionId,
       uin,
-      challengeList
+      challengeList,
+      captchaToken
     );
 
     setStatus({ state: states.LOADED, msg: "" });
@@ -176,6 +223,9 @@ export default function L1Biometrics({
           show: true
         });
       }
+      if (showCaptcha) {
+        resetCaptcha();
+      }
     } else {
       setErrorBanner(null);
       let nonce = openIDConnectService.getNonce();
@@ -188,7 +238,7 @@ export default function L1Biometrics({
         response.consentAction
       );
 
-      navigate(process.env.PUBLIC_URL + "/consent" + params, {
+      navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
         replace: true,
       });
     }
@@ -234,10 +284,11 @@ export default function L1Biometrics({
       return;
     }
     propChange({
-      disable: !loginState["sbi_mosip-vid"].length || inputError,
+      disable: !loginState["sbi_mosip-vid"].length || inputError ||
+      (showCaptcha && captchaToken === null),
       onCapture: (e) => authenticateBiometricResponse(e),
     });
-  }, [loginState, inputError]);
+  }, [loginState, inputError, captchaToken]);
 
   const onCloseHandle = () => {
     setErrorBanner(null);
@@ -285,6 +336,18 @@ export default function L1Biometrics({
             />
           ))}
         </div>
+        
+        {showCaptcha && (
+          <div className="flex justify-center mt-5 mb-5">
+            <ReCAPTCHA
+              hl={i18n.language}
+              ref={_reCaptchaRef}
+              onChange={handleCaptchaChange}
+              sitekey={captchaSiteKey}
+            />
+          </div>
+        )}
+
         {status.state === states.LOADING && errorBanner === null && (
           <div>
             <LoadingIndicator size="medium" message={status.msg} />

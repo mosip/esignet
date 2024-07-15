@@ -3,7 +3,7 @@ package io.mosip.esignet.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.exception.EsignetException;

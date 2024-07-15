@@ -10,8 +10,8 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.util.Base64URL;
-import io.mosip.esignet.api.dto.ClaimDetail;
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -142,7 +142,7 @@ public class ConsentHelperServiceTest {
         consentHelperService.updateUserConsent(oidcTransaction, signature);
         UserConsent userConsent = new UserConsent();
         userConsent.setAuthorizationScopes(Map.of("openid",false,"profile",false,"email",false));
-        userConsent.setHash("UrgNGrbWUB5v_oSvupBCqp7V31MJdE3nNqfGv9eazBc");
+        userConsent.setHash("uDMR7oP9Gnh0mzhmB8C44rwVpPz_vVwO_lWyfaGMius");
         userConsent.setClaims(claims);
         userConsent.setAcceptedClaims(List.of("email","gender","name"));
 
@@ -182,7 +182,7 @@ public class ConsentHelperServiceTest {
 
         consentHelperService.updateUserConsent(oidcTransaction, "");
         UserConsent userConsent = new UserConsent();
-        userConsent.setHash("Cgh8oWpNM84WPYQVvluGj616_kd4z60elVXtc7R_lXw");
+        userConsent.setHash("9zZ7-MRGzfit5Xr0Qlnsh9hTquqUTeerUo7P3TDE7hI");
         userConsent.setClaims(claims);
         userConsent.setAuthorizationScopes(Map.of());
         userConsent.setAcceptedClaims(List.of("name","email"));
@@ -458,7 +458,6 @@ public class ConsentHelperServiceTest {
         consentDetail.setSignature("haa.naa");
 
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
-
         try{
             consentHelperService.processConsent(oidcTransaction,true);
             Assert.fail();
@@ -481,6 +480,7 @@ public class ConsentHelperServiceTest {
         consentHelperService.processConsent(oidcTransaction,true);
         Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
     }
+
 
     private String generateSignature(Map<String,Object> payloadMap) throws Exception {
 

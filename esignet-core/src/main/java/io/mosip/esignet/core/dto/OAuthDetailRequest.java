@@ -5,7 +5,8 @@
  */
 package io.mosip.esignet.core.dto;
 
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.Claims;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.core.validator.OIDCDisplay;
 import io.mosip.esignet.core.validator.OIDCPrompt;
 import io.mosip.esignet.core.validator.OIDCResponseType;
@@ -72,7 +73,7 @@ public class OAuthDetailRequest {
      * The userinfo and id_token members of the claims request both are JSON objects with the
      * names of the individual Claims being requested as the member names.
      */
-    private Claims claims;
+    private ClaimsV2 claims;
 
     /**
      * Optional

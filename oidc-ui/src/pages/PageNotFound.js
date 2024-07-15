@@ -5,7 +5,7 @@ export default function PageNotFoundPage({ i18nKeyPrefix = "errors" }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
   return (
-    <div className="multipurpose-login-card w-full m-16 shadow shadow-lg py-24">
+    <div className="multipurpose-login-card w-full m-0 sm:shadow sm:shadow-lg py-24 sm:m-16 section-background">
       <img
         className="mx-auto my-0"
         src="images/under_construction.svg"

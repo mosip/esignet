@@ -6,14 +6,9 @@
 package io.mosip.esignet.api.spi;
 
 import java.util.List;
+import java.util.Map;
 
-import io.mosip.esignet.api.dto.KycAuthDto;
-import io.mosip.esignet.api.dto.KycAuthResult;
-import io.mosip.esignet.api.dto.KycExchangeDto;
-import io.mosip.esignet.api.dto.KycExchangeResult;
-import io.mosip.esignet.api.dto.KycSigningCertificateData;
-import io.mosip.esignet.api.dto.SendOtpDto;
-import io.mosip.esignet.api.dto.SendOtpResult;
+import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
@@ -29,6 +24,7 @@ public interface Authenticator {
      * @return KYC Token and Partner specific User Token (PSUT)
      * @throws KycAuthException
      */
+    @Deprecated
     KycAuthResult doKycAuth(String relyingPartyId, String clientId, KycAuthDto kycAuthDto)
             throws KycAuthException;
 
@@ -66,4 +62,26 @@ public interface Authenticator {
      */
     List<KycSigningCertificateData> getAllKycSigningCertificates() throws KycSigningCertificateException;
 
+    /**
+     * Authenticate and return individual's claims metadata if requested
+     * @param relyingPartyId
+     * @param clientId
+     * @param claimsMetadataRequired
+     * @param kycAuthDto
+     * @return
+     * @throws KycAuthException
+     */
+    KycAuthResult doKycAuth(String relyingPartyId, String clientId, boolean claimsMetadataRequired, KycAuthDto kycAuthDto)
+            throws KycAuthException;
+
+    /**
+     * Providioned to return verified userinfo based on the provided verification requirement
+     * @param relyingPartyId
+     * @param clientId
+     * @param kycExchangeDto
+     * @return
+     * @throws KycExchangeException
+     */
+    KycExchangeResult doVerifiedKycExchange(String relyingPartyId, String clientId, VerifiedKycExchangeDto kycExchangeDto)
+            throws KycExchangeException;
 }

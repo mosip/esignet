@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "1e494db2-0411-43ea-bf20-8d6dd74d78eb",
+		"_postman_id": "8849347d-3900-4364-a171-b6d53ea2f7d6",
 		"name": "e-Signet Collection Mock IDA",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20579541"
+		"_exporter_id": "16926030"
 	},
 	"item": [
 		{
@@ -102,8 +102,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -173,8 +172,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -331,8 +329,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{access_token}}",
-								"type": "text"
+								"value": "Bearer {{access_token}}"
 							}
 						],
 						"url": {
@@ -439,8 +436,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -473,18 +469,15 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}",
-								"type": "text"
+								"value": "{{oauth_details_key}}"
 							},
 							{
 								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}",
-								"type": "text"
+								"value": "{{oauth_details_hash}}"
 							}
 						],
 						"body": {
@@ -537,18 +530,15 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}",
-								"type": "text"
+								"value": "{{oauth_details_key}}"
 							},
 							{
 								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}",
-								"type": "text"
+								"value": "{{oauth_details_hash}}"
 							}
 						],
 						"body": {
@@ -569,6 +559,75 @@
 								"authorization",
 								"v3",
 								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Prepare Signup Redirect Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"var id_token = jsonData.idToken;",
+									"pm.expect(id_token).not.equals(null);",
+									"",
+									"var jwt_parts = id_token.split('.'); // header.payload.signature",
+									"var jwt_payload = JSON.parse(atob(jwt_parts[1]));",
+									"var secret = pm.cookies.get(jwt_payload.sub)",
+									"pm.environment.set(jwt_payload.sub, secret);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"pathFragment\": \"path-fragment\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/prepare-signup-redirect",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"prepare-signup-redirect"
 							]
 						}
 					},
@@ -602,18 +661,15 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}",
-								"type": "text"
+								"value": "{{oauth_details_key}}"
 							},
 							{
 								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}",
-								"type": "text"
+								"value": "{{oauth_details_hash}}"
 							}
 						],
 						"body": {
@@ -845,18 +901,15 @@
 								"header": [
 									{
 										"key": "X-XSRF-TOKEN",
-										"value": "{{csrf_token}}",
-										"type": "text"
+										"value": "{{csrf_token}}"
 									},
 									{
 										"key": "PARTNER-ID",
-										"value": "mpartner-default-keybindingtoken",
-										"type": "text"
+										"value": "mpartner-default-keybindingtoken"
 									},
 									{
 										"key": "PARTNER-API-KEY",
-										"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
-										"type": "text"
+										"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k"
 									}
 								],
 								"body": {
@@ -929,18 +982,15 @@
 								"header": [
 									{
 										"key": "PARTNER-ID",
-										"value": "mpartner-default-keybindingtoken",
-										"type": "text"
+										"value": "mpartner-default-keybindingtoken"
 									},
 									{
 										"key": "PARTNER-API-KEY",
-										"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k",
-										"type": "text"
+										"value": "Aci9jg28B8mO_LDfDXo3ZTp5_HKgEMun2tYyHCa1e8k"
 									},
 									{
 										"key": "X-XSRF-TOKEN",
-										"value": "{{csrf_token}}",
-										"type": "text"
+										"value": "{{csrf_token}}"
 									}
 								],
 								"body": {
@@ -1012,8 +1062,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -1061,18 +1110,15 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "oauth_details_key",
-								"value": "{{oauth_details_key}}",
-								"type": "text"
+								"value": "{{oauth_details_key}}"
 							},
 							{
 								"key": "oauth_details_hash",
-								"value": "{{oauth_details_hash}}",
-								"type": "text"
+								"value": "{{oauth_details_hash}}"
 							}
 						],
 						"body": {
@@ -1119,8 +1165,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -1152,8 +1197,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -1216,8 +1260,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -1302,8 +1345,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -1351,8 +1393,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -1692,8 +1733,7 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							}
 						],
 						"body": {
@@ -1726,18 +1766,15 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}",
-								"type": "text"
+								"value": "{{oauth_details_key}}"
 							},
 							{
 								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}",
-								"type": "text"
+								"value": "{{oauth_details_hash}}"
 							}
 						],
 						"body": {
@@ -1790,18 +1827,15 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}",
-								"type": "text"
+								"value": "{{oauth_details_key}}"
 							},
 							{
 								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}",
-								"type": "text"
+								"value": "{{oauth_details_hash}}"
 							}
 						],
 						"body": {
@@ -1855,18 +1889,15 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}",
-								"type": "text"
+								"value": "{{oauth_details_key}}"
 							},
 							{
 								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}",
-								"type": "text"
+								"value": "{{oauth_details_hash}}"
 							}
 						],
 						"body": {

@@ -18,7 +18,8 @@ export default function OtpGet({
   openIDConnectService,
   onOtpSent,
   i18nKeyPrefix1 = "otp",
-  i18nKeyPrefix2 = "errors"
+  i18nKeyPrefix2 = "errors",
+  getCaptchaToken
 }) {
 
   const { t: t1, i18n } = useTranslation("translation", {
@@ -84,6 +85,7 @@ export default function OtpGet({
 
   const handleCaptchaChange = (value) => {
     setCaptchaToken(value);
+    getCaptchaToken(value);
   };
 
   const handleChange = (e) => {
@@ -97,6 +99,7 @@ export default function OtpGet({
   const resetCaptcha = () => {
     _reCaptchaRef.current.reset();
     setCaptchaToken(null);
+    getCaptchaToken(null);
   }
 
   const sendOTP = async () => {
