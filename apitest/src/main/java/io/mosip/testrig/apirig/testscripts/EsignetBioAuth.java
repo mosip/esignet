@@ -9,6 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -28,7 +29,9 @@ import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.BioDataUtility;
 import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
@@ -40,6 +43,12 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 	public Response response = null;
 	public boolean isInternal = false;
 
+	@Autowired
+	private EncryptionDecrptionUtil encryptDecryptUtil;
+	
+	@Autowired
+	private BioDataUtility bioDataUtil;
+	
 	@BeforeClass
 	public static void setLogLevel() {
 		if (ConfigManager.IsDebugEnabled())
@@ -132,7 +141,7 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		}
 		String encryptedIdentityReq = null;
 		try {
-			encryptedIdentityReq = getBioDataUtil().constractBioIdentityRequest(identityRequest,
+			encryptedIdentityReq = bioDataUtil.constractBioIdentityRequest(identityRequest,
 					getResourcePath() + properties.getProperty("bioValueEncryptionTemplate"), testCaseName, isInternal);
 
 			if (encryptedIdentityReq == null)
