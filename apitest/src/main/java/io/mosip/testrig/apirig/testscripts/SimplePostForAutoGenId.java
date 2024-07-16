@@ -113,8 +113,13 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		String[] templateFields = testCaseDTO.getTemplateFields();
 		String inputJson = "";
-
+		
+		if (!(BaseTestCase.certsForModule.equals("DSL") && (testCaseName.startsWith("Esignet_CreateOIDCClient")))) {
 			inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+		} else {
+			inputJson = testCaseDTO.getInput();
+
+		}
 
 		String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
 
