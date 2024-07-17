@@ -324,17 +324,22 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 
     @Override
-    public ResumeResponse resumeHaltedTransaction(String transactionId) {
-        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(transactionId);
+    public ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest) {
+        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(resumeRequest.getTransactionId());
         if(oidcTransaction == null) {
             throw new InvalidTransactionException();
         }
 
-        //move the transaction to "authenticated" cache
-        cacheUtilService.setAuthenticatedTransaction(transactionId, oidcTransaction);
-
         ResumeResponse resumeResponse = new ResumeResponse();
-        resumeResponse.setStatus("RESUMED");
+        if(resumeRequest.isWithError()) {
+            cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
+            resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
+            return resumeResponse;
+        }
+
+        //move the transaction to "authenticated" cache
+        cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
+        resumeResponse.setStatus(Constants.RESUMED);
         return resumeResponse;
     }
 

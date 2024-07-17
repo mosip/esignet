@@ -187,15 +187,14 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
-    @GetMapping("/resume")
-    public ResponseWrapper<ResumeResponse> resumeHaltedTransaction(@Valid @NotBlank(message = INVALID_TRANSACTION)
-                                                                                  @RequestHeader("oauth-details-key") String transactionId) {
+    @PostMapping("/resume")
+    public ResponseWrapper<ResumeResponse> resumeHaltedTransaction(@Valid @RequestBody RequestWrapper<ResumeRequest> requestWrapper) {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
-            responseWrapper.setResponse(authorizationService.resumeHaltedTransaction(transactionId));
+            responseWrapper.setResponse(authorizationService.resumeHaltedTransaction(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);
+            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
             throw ex;
         }
         return responseWrapper;

@@ -103,8 +103,8 @@ public interface AuthorizationService {
 
     /**
      * Resume and get the status of resumed transaction
-     * @param transactionId
+     * @param resumeRequest
      * @return
      */
-    ResumeResponse resumeHaltedTransaction(String transactionId);
+    ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest);
 }

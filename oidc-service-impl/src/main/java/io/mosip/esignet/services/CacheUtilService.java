@@ -70,6 +70,11 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    @CacheEvict(value = Constants.HALTED_CACHE, key = "#transactionId")
+    public void removeHaltedTransaction(String transactionId) {
+        log.debug("Evicting entry from HALTED_CACHE");
+    }
+
     //---------------------------------------------- Linked authorization ----------------------------------------------
 
     @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
