@@ -102,7 +102,7 @@ public interface AuthorizationService {
     ClaimDetailResponse getClaimDetails(String transactionId);
 
     /**
-     * Get the status of halted transaction
+     * Resume and get the status of resumed transaction
      * @param transactionId
      * @return
      */
