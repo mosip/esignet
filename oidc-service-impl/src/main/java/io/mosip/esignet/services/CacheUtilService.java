@@ -35,8 +35,9 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
-    @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
-    @Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
+    @Caching(evict = {@CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId"),
+            @CacheEvict(value = Constants.HALTED_CACHE, key = "#transactionId")},
+    cacheable = {@Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")})
     public OIDCTransaction setAuthenticatedTransaction(String transactionId,
                                                        OIDCTransaction oidcTransaction) {
         return oidcTransaction;
@@ -63,9 +64,9 @@ public class CacheUtilService {
         log.debug("Evicting entry from authCodeGeneratedCache");
     }
 
-    @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId", condition = "#transactionId != null")
-    @Cacheable(value = Constants.UPDATE_CONSENTED_CACHE, key = "#updateTransactionId")
-    public OIDCTransaction setUpdateConsentedTransaction(String updateTransactionId, String transactionId, OIDCTransaction oidcTransaction) {
+    @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
+    @Cacheable(value = Constants.HALTED_CACHE, key = "#transactionId")
+    public OIDCTransaction setHaltedTransaction(String transactionId, OIDCTransaction oidcTransaction) {
         return oidcTransaction;
     }
 
@@ -170,8 +171,8 @@ public class CacheUtilService {
         return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
-    public OIDCTransaction getUpdateConsentedTransaction(String updateTransactionId) {
-        return cacheManager.getCache(Constants.UPDATE_CONSENTED_CACHE).get(updateTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
+    public OIDCTransaction getHaltedTransaction(String transactionId) {
+        return cacheManager.getCache(Constants.HALTED_CACHE).get(transactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public ApiRateLimit getApiRateLimitTransaction(String transactionId) {

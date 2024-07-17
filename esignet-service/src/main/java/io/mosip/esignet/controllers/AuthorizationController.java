@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_TRANSACTION;
 
 @Slf4j
 @RestController
@@ -171,10 +174,25 @@ public class AuthorizationController {
     }
 
     @GetMapping("/claim-details")
-    public ResponseWrapper<ClaimDetailResponse> getClaimDetails(@RequestHeader("oauth-details-key") String transactionId) {
+    public ResponseWrapper<ClaimDetailResponse> getClaimDetails(@Valid @NotBlank(message = INVALID_TRANSACTION)
+                                                                    @RequestHeader("oauth-details-key") String transactionId) {
         ResponseWrapper responseWrapper = new ResponseWrapper();
         try {
             responseWrapper.setResponse(authorizationService.getClaimDetails(transactionId));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @GetMapping("/resume")
+    public ResponseWrapper<ResumeResponse> resumeHaltedTransaction(@Valid @NotBlank(message = INVALID_TRANSACTION)
+                                                                                  @RequestHeader("oauth-details-key") String transactionId) {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(authorizationService.resumeHaltedTransaction(transactionId));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);

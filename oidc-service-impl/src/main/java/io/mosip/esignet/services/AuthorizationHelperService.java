@@ -16,7 +16,6 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.dto.*;
@@ -42,10 +41,8 @@ import javax.crypto.Cipher;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -246,10 +243,11 @@ public class AuthorizationHelperService {
             Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies())
                     .filter(x -> x.getName().equals(subject))
                     .findFirst();
-            OIDCTransaction haltedTransaction = cacheUtilService.getUpdateConsentedTransaction(subject);
+            OIDCTransaction haltedTransaction = cacheUtilService.getHaltedTransaction(subject);
 
             //Validate if cookie is present with token subject as name and halted transaction is present in cache
-            if(result.isPresent() && haltedTransaction != null && haltedTransaction.getServerNonce().equals(result.get().getValue())) {
+            if(result.isPresent() && haltedTransaction != null && haltedTransaction.getServerNonce().equals(
+                    result.get().getValue().split(SERVER_NONCE_SEPARATOR)[0])) {
                 transaction.setIndividualId(haltedTransaction.getIndividualId());
                 KycAuthResult kycAuthResult = new KycAuthResult();
                 kycAuthResult.setKycToken(subject);
