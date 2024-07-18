@@ -161,9 +161,29 @@ const ClaimDetails = ({
     setProceedDisabled(true);
     window.onbeforeunload = null;
     try {
+      function randomKey(prefix) {
+        const timestamp = new Date().getTime();
+        return `${prefix}${timestamp}`;
+      }
+
+      const key = randomKey("urlInfo");
+
+      for (let key in localStorage) {
+        if (key.startsWith("urlInfo")) {
+          localStorage.removeItem(key);
+        }
+      }
+
+      localStorage.setItem(
+        key,
+        window.location.search.substring(1) +
+          "#" +
+          window.location.hash.substring(1)
+      );
+
       const { response, errors } = await authServices.prepareSignupRedirect(
         transactionId,
-        ""
+        key
       );
       if (errors?.length) {
         redirectOnError(errors[0].errorCode, t2(errors[0].errorCode));
