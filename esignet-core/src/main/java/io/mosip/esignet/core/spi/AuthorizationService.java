@@ -100,4 +100,11 @@ public interface AuthorizationService {
      * @return
      */
     ClaimDetailResponse getClaimDetails(String transactionId);
+
+    /**
+     * Resume and get the status of resumed transaction
+     * @param resumeRequest
+     * @return
+     */
+    ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest);
 }

@@ -39,8 +39,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -169,10 +167,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
         if (oauthDetailReqDto.getIdTokenHint() != null) {
             String subject = getSubject(oauthDetailReqDto.getIdTokenHint());
-            boolean isCookiePresent = Arrays.stream(httpServletRequest.getCookies()).anyMatch(x -> x.getName().equals(subject));
-            if (!isCookiePresent) {
+            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(subject)).findFirst();
+            if (result.isEmpty()) {
                 throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
             }
+            String[] parts = result.get().getValue().split(SERVER_NONCE_SEPARATOR);
+            oauthDetailReqDto.setState(parts.length == 2? parts[1] : result.get().getValue());
         }
         return getOauthDetailsV2(oauthDetailReqDto);
     }
@@ -303,21 +303,50 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(oidcTransaction == null) {
             throw new InvalidTransactionException();
         }
-        String updateTransactionId = IdentityProviderUtil.createTransactionId(oidcTransaction.getServerNonce());
+
         SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
         signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
-        signupRedirectResponse.setIdToken(tokenService.getIDToken(updateTransactionId, signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
+        signupRedirectResponse.setIdToken(tokenService.getIDToken(signupRedirectRequest.getTransactionId(), signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
 
-        //Move the transaction to update-consented transaction
-        cacheUtilService.setUpdateConsentedTransaction(updateTransactionId, signupRedirectRequest.getTransactionId(), oidcTransaction);
+        //Move the transaction to halted transaction
+        cacheUtilService.setHaltedTransaction(signupRedirectRequest.getTransactionId(), oidcTransaction);
 
-        Cookie cookie = new Cookie(updateTransactionId, oidcTransaction.getServerNonce());
+        Cookie cookie = new Cookie(signupRedirectRequest.getTransactionId(), oidcTransaction.getServerNonce()
+                .concat(SERVER_NONCE_SEPARATOR)
+                .concat(sanitizePathFragment(signupRedirectRequest.getPathFragment())));
         cookie.setMaxAge(signupIDTokenValidity);
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
         return signupRedirectResponse;
+    }
+
+
+    @Override
+    public ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest) {
+        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(resumeRequest.getTransactionId());
+        if(oidcTransaction == null) {
+            throw new InvalidTransactionException();
+        }
+
+        ResumeResponse resumeResponse = new ResumeResponse();
+        if(resumeRequest.isWithError()) {
+            cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
+            resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
+            return resumeResponse;
+        }
+
+        //move the transaction to "authenticated" cache
+        cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
+        resumeResponse.setStatus(Constants.RESUMED);
+        return resumeResponse;
+    }
+
+    //As pathFragment is included in the response header, we should sanitize the input to mitigate
+    //response splitting vulnerability
+    private String sanitizePathFragment(String pathFragment) {
+        return pathFragment.replaceAll("[\r\n]", "");
     }
 
 
