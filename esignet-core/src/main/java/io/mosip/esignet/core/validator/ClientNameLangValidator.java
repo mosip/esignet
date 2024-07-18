@@ -10,10 +10,6 @@ public class ClientNameLangValidator implements ConstraintValidator<ClientNameLa
     private static final Locale[] availableLocales = Locale.getAvailableLocales();
 
     @Override
-    public void initialize(ClientNameLang constraintAnnotation) {
-    }
-
-    @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         boolean isValid = Arrays.stream(availableLocales)
                 .anyMatch(locale -> value.equals(locale.getISO3Language()));

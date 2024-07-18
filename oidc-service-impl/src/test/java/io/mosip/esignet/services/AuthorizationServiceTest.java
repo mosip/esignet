@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -1073,7 +1074,59 @@ public class AuthorizationServiceTest {
             Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }
-    
+
+    @Test
+    public void authenticateV3_withInvalidTransaction_thenFail() {
+        String transactionId = "test-transaction";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(null);
+
+        AuthRequestV2 authRequest = new AuthRequestV2();
+        authRequest.setTransactionId(transactionId);
+        try {
+            authorizationServiceImpl.authenticateUserV3(authRequest,httpServletRequest);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
+        }
+    }
+
+    @Test
+    public void resumeHaltedTransaction_withValidTransaction() {
+        String transactionId = "validTransactionId";
+        ResumeRequest resumeRequest = new ResumeRequest();
+        resumeRequest.setTransactionId(transactionId);
+        resumeRequest.setWithError(false);
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
+        ResumeResponse result = authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
+        Assert.assertEquals(Constants.RESUMED, result.getStatus());
+    }
+
+    @Test
+    public void resumeHaltedTransaction_withInvalidTransaction() {
+        String transactionId = "invalidTransactionId";
+        ResumeRequest resumeRequest = new ResumeRequest();
+        resumeRequest.setTransactionId(transactionId);
+        resumeRequest.setWithError(false);
+        when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(null);
+        assertThrows(InvalidTransactionException.class, () -> {
+            authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
+        });
+    }
+
+    @Test
+    public void resumeHaltedTransaction_withResumeNotApplicable() {
+        String transactionId = "transactionId";
+        ResumeRequest resumeRequest = new ResumeRequest();
+        resumeRequest.setTransactionId(transactionId);
+        resumeRequest.setWithError(true);
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
+
+        ResumeResponse result = authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
+        Assert.assertEquals(Constants.RESUME_NOT_APPLICABLE, result.getStatus());
+    }
+
     @Test
     public void getAuthCode_withValidInput_thenPass() {
     	AuthCodeRequest authCodeRequest = new AuthCodeRequest();
