@@ -48,6 +48,7 @@ export default function Consent({
   const [langMap, setLangMap] = useState("");
   const [timeLeft, setTimeLeft] = useState(null);
   const [cancelPopup, setCancelPopup] = useState(false);
+  const [voluntaryClaims, setVoluntaryClaims] = useState([]);
 
   const slideToggleClass = config["outline_toggle"]
     ? "toggle-outline"
@@ -61,6 +62,34 @@ export default function Consent({
 
   const difference = (mainArray, subArray) =>
     mainArray.filter((el) => !subArray.includes(el));
+
+  useEffect(() => {
+    if (voluntaryClaims.length === 0) {
+      setVoluntaryClaims(
+        openIDConnectService.getOAuthDetails().voluntaryClaims
+      );
+    }
+    setVoluntaryClaims(
+      openIDConnectService
+        .getOAuthDetails()
+        .voluntaryClaims.filter((item) => !claims.includes(item))
+    );
+  }, [claims, openIDConnectService]);
+
+  const formatArray = (arr) => {
+    if (arr.length === 0) return "";
+    if (arr.length === 1) return arr[0];
+    if (arr.length === 2) return arr.join(` ${t("and")} `);
+
+    return arr.slice(0, -1).join(", ") + ` ${t("and")} ` + arr[arr.length - 1];
+  };
+
+  const translateClaims = (claims) => {
+    return claims.map((claim) => t(claim));
+  };
+
+  // Format and translate the claims
+  const formattedClaims = formatArray(translateClaims(voluntaryClaims));
 
   const handleScopeChange = (e) => {
     let id = e.target.id;
@@ -211,8 +240,10 @@ export default function Consent({
       setClaimsScopes(claimsScopes);
       setClientMultiLang(langConfig);
       setClientLogoPath(oAuthDetails?.logoUrl);
-
       setClaims(oAuthDetails?.essentialClaims);
+      setVoluntaryClaims(
+        openIDConnectService.getOAuthDetails().voluntaryClaims
+      );
     };
     if (firstRender.current) {
       firstRender.current = false;
@@ -340,7 +371,7 @@ export default function Consent({
     return (
       <div className="flex items-center justify-center section-background">
         <div className="max-w-md w-full shadow mt-5 rounded loading-indicator px-4 py-4">
-          <LoadingIndicator size="medium" message="redirecting_msg" className="align-loading-center"/>
+        <LoadingIndicator size="medium" message="redirecting_msg" className="align-loading-center"/>
         </div>
       </div>
     );
@@ -470,7 +501,15 @@ export default function Consent({
                             <li key={item}>
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="flex justify-start relative items-center mb-1 mt-1">
-                                  <label className="text-sm text-black-900">
+                                  <label
+                                    className={`text-sm ${
+                                      claimScope?.label ===
+                                        "voluntary_claims" &&
+                                      voluntaryClaims.includes(item)
+                                        ? "text-[#8D8D8DD5]"
+                                        : "text-[#01070DD5]"
+                                    }`}
+                                  >
                                     {t(item)}
                                   </label>
                                 </div>
@@ -495,6 +534,11 @@ export default function Consent({
                       </div>
                     </div>
                   )
+              )}
+              {voluntaryClaims.length !== 0 && (
+                <div className="no-claims-record-banner">
+                  {t("noRecordClaimsMessage", { claims: formattedClaims })}
+                </div>
               )}
               {
                 <div>
