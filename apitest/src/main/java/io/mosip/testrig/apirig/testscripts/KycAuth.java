@@ -111,7 +111,9 @@ public class KycAuth extends AdminTestUtil implements ITest {
 
 		String input = getJsonFromTemplate(requestString, testCaseDTO.getInputTemplate());
 
-		String url = ConfigManager.getAuthDemoServiceUrl();
+//		String url = ConfigManager.getAuthDemoServiceUrl();
+		
+		String url = "";
 
 		logger.info("******Post request Json to EndPointUrl: " + url + testCaseDTO.getEndPoint() + " *******");
 
