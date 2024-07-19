@@ -1,0 +1,10 @@
+{
+	"serialNo":"3456789099",
+   	"make":"MOSIP",
+   	"model":"IRIS02",
+   	"type":"Iris",
+   	"deviceSubType":"Single",
+   	"deviceProvider":"MOSIP",
+   	"deviceProviderId":"MOSIP.PROXY.SBI",
+   	"dateTime":""
+}

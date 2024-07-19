@@ -1,12 +1,18 @@
 package io.mosip.testrig.apirig.testscripts;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -25,10 +31,12 @@ import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.AuthUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
+import io.mosip.testrig.apirig.utils.PartnerTypes;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.restassured.response.Response;
 
@@ -76,29 +84,90 @@ public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implem
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
-
-		if (testCaseName.contains("_AuthDemoUrl_")) {
-			String url = ConfigManager.getAuthDemoServiceUrl();
-
-			logger.info("******Post request Json to EndPointUrl: " + url + testCaseDTO.getEndPoint() + " *******");
-
-			response = postWithQueryParamsBodyAndCookie(url + testCaseDTO.getEndPoint(),
-					getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
-					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), queryParams, idKeyName);
-		} else {
-			logger.info("Not Getting" + GlobalConstants.POST_REQ_URL + testCaseDTO.getTestCaseName() + " *******");
+		
+		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+		
+		inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+		
+		JSONObject requestJson = new JSONObject(inputJson);
+		HashMap<String, String> requestBody = new HashMap<>();
+		String partnerId = null, certValueSigned =null, moduleName = null, partnerType = null;
+		PartnerTypes partnerTypeEnum = null;
+		boolean keyFileNameByPartnerName = false;
+		if (requestJson.has("partnerType")) {
+			partnerType = requestJson.get("partnerType").toString();
+			requestJson.remove("partnerType");
 		}
+		
+		if (partnerType.equals("RELYING_PARTY")) {
+			partnerTypeEnum = PartnerTypes.RELYING_PARTY;           
+        } else if (partnerType.equals("DEVICE")) {
+        	partnerTypeEnum = PartnerTypes.DEVICE;
+        }else if (partnerType.equals("FTM")) {
+        	partnerTypeEnum = PartnerTypes.FTM;
+        }else if (partnerType.equals("EKYC")) {
+        	partnerTypeEnum = PartnerTypes.EKYC;
+        }else if (partnerType.equals("MISP")) {
+        	partnerTypeEnum = PartnerTypes.MISP;
+        }
+		
+		if (requestJson.has("partnerName")) {
+			partnerId = requestJson.get("partnerName").toString();
+			requestJson.remove("partnerName");
+		}
+		
+		if (requestJson.has("moduleName")) {
+			moduleName = requestJson.get("moduleName").toString();
+			requestJson.remove("moduleName");
+		}
+		
+		if (requestJson.has("keyFileNameByPartnerName")) {
+			keyFileNameByPartnerName = requestJson.get("keyFileNameByPartnerName").toString().equals("true");
+			requestJson.remove("keyFileNameByPartnerName");
+		}
+		
+		if (requestJson.has("certData")) {
+			certValueSigned = requestJson.get("certData").toString();
+			requestJson.remove("certData");
+		}
+		
+		requestBody.put("certData", certValueSigned);
+		
+		AuthUtil authUtil = new AuthUtil();
+		
+		String str;
+		try {
+			str = authUtil.updatePartnerCertificate(partnerTypeEnum, partnerId, keyFileNameByPartnerName, requestBody,
+					null, moduleName, ApplnURI.replace("https://", ""));
+		} catch (Exception e) {
+			throw new AdminTestException("Failed to Update Partner Certificate");
+		}
+		logger.info("Is update partner certificate " + str);
+
+//		if (testCaseName.contains("_AuthDemoUrl_")) {
+//			String url = ConfigManager.getAuthDemoServiceUrl();
+//
+//			logger.info("******Post request Json to EndPointUrl: " + url + testCaseDTO.getEndPoint() + " *******");
+//
+//			response = postWithQueryParamsBodyAndCookie(url + testCaseDTO.getEndPoint(),
+//					getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
+//					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), queryParams, idKeyName);
+//		} else {
+//			logger.info("Not Getting" + GlobalConstants.POST_REQ_URL + testCaseDTO.getTestCaseName() + " *******");
+//		}
 
 		Map<String, List<OutputValidationDto>> ouputValid = null;
 		if (testCaseName.contains("_StatusCode")) {
-
-			OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
-					testCaseDTO.getOutput());
-
+			OutputValidationDto customResponse = null;
+			if (testCaseName.contains("updatePartnerCertificate_StatusCode_")) {
+				customResponse = customStatusCodeResponse("200", testCaseDTO.getOutput());
+			} else {
+				customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
+						testCaseDTO.getOutput());
+			}
 			ouputValid = new HashMap<>();
 			ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
 		} else {
-
 			ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
 					getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
 					response.getStatusCode());

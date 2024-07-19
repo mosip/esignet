@@ -1,0 +1,18 @@
+{
+  	"deviceStatus": "Ready",
+  	"deviceId": "1",
+  	"firmware": "MOSIP.IRIS.1.0.0.0",
+  	"certification": "L0",
+  	"serviceVersion": "0.9.5",
+  	"deviceSubId":[
+		"1", "2", "3"
+	],
+  	"callbackId":"",
+  	"digitalId": "",
+  	"deviceCode": "b692b595-3523-iris-99fc-bd76e35f190f",
+  	"env": "Staging",
+  	"purpose": "",
+  	"specVersion": [
+  		"0.9.5"
+	]
+}
