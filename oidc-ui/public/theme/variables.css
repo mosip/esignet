@@ -87,9 +87,9 @@
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: #1262C9;
   --consent-details-infoIcon-stroke: #1262C9;
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;;
+  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;;
+  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: #1262C9;
   --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
@@ -100,6 +100,11 @@
   --otp-pin-input-border-bottom: 2px solid #1262C9;
   --checkbox-color: #1262C9;
   --wallet-download-text-color: #1262C9;
+  --no-record-banner-background: #fff9f0 0% 0% no-repeat padding-box;
+  --no-record-banner-border-radius: 10px;
+  --no-record-banner-font: normal normal normal 13px/18px Roboto;
+  --no-record-banner-color: #1262c9;
+  --no-record-banner-padding: 1em 1.5em;
 }
 
 [class="orange_theme"] {
@@ -191,9 +196,9 @@
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: #eb6f2d;
   --consent-details-infoIcon-stroke: #eb6f2d;
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;;
+  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;;
+  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: #de7a24;
   --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
@@ -204,6 +209,11 @@
   --otp-pin-input-border-bottom: 2px solid #eb6f2d;
   --checkbox-color: #eb6f2d;
   --wallet-download-text-color: #eb6f2d;
+  --no-record-banner-background: #fff9f0 0% 0% no-repeat padding-box;
+  --no-record-banner-border-radius: 10px;
+  --no-record-banner-font: normal normal normal 13px/18px Roboto;
+  --no-record-banner-color: #de7a24;
+  --no-record-banner-padding: 1em 1.5em;
 }
 
 [class="blue"] {
@@ -303,9 +313,9 @@
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: #004282;
   --consent-details-infoIcon-stroke: #004282;
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;;
+  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;;
+  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: #004282;
   --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
@@ -316,4 +326,9 @@
   --otp-pin-input-border-bottom: 2px solid #004282;
   --checkbox-color: #004282;
   --wallet-download-text-color: #004282;
+  --no-record-banner-background: #fff9f0 0% 0% no-repeat padding-box;
+  --no-record-banner-border-radius: 10px;
+  --no-record-banner-font: normal normal normal 13px/18px Roboto;
+  --no-record-banner-color: #004282;
+  --no-record-banner-padding: 1em 1.5em;
 }

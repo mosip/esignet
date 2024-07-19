@@ -47,7 +47,9 @@
       "confirm_text": "هل أنت متأكد أنك تريد إيقاف عملية تسجيل الدخول؟",
       "stay_btn": "يقضي",
       "discontinue_btn": "توقف"
-    }
+    },
+    "noRecordClaimsMessage": "ليس لدينا حاليًا سجل بـ {{claims}}. انقر على السماح للتحقق من {{claims}} والتقاطها.",
+    "and": "و"
   },
   "l1Biometrics": {
     "scan_and_verify": "المسح والتحقق",
@@ -332,8 +334,8 @@
     "captcha_validator_not_found": "فشل في العثور على مثيل Captcha Valitator ، يرجى التحقق من ClassPath.",
     "invalid_captcha": "وجدت captcha غير صالحة.",
     "invalid_auth_factor_type_or_challenge_format": "نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
-    "invalid_auth_factor_type_format" :"نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
-    "invalid_challenge_length" : "اعتراض غير صالح ، تم انتهاك قيد الحد الأدنى أو الحد الأقصى للطول.",
+    "invalid_auth_factor_type_format": "نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
+    "invalid_challenge_length": "اعتراض غير صالح ، تم انتهاك قيد الحد الأدنى أو الحد الأقصى للطول.",
     "unsupported_pkce_challenge_method": "طريقة تبادل التحدي الرئيسية إثبات غير مدعوم.",
     "invalid_pkce_challenge": "تحدي مفتاح إثبات غير صالح.",
     "invalid_pkce_code_verifier": "دليل مفتاح إثبات غير صالح.",

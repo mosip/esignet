@@ -48,7 +48,9 @@
       "confirm_text": "क्या आप वाकई लॉगिन प्रक्रिया बंद करना चाहते हैं?",
       "stay_btn": "रहना",
       "discontinue_btn": "बंद"
-    }
+    },
+    "noRecordClaimsMessage": "वर्तमान में हमारे पास आपके {{claims}} का रिकॉर्ड नहीं है। अपने {{claims}} को सत्यापित करने और कैप्चर करने के लिए 'अनुमति देना' पर क्लिक करें।",
+    "and": "और"
   },
   "l1Biometrics": {
     "scan_and_verify": "स्कैन करें और सत्यापित करें",
@@ -333,8 +335,8 @@
     "binding_auth_failed": "प्रमुख बाउंड ऑथेंटिकेशन (लिंक्ड-वॉलेट) विफल रहा।",
     "invalid_captcha": "अमान्य कैप्चा मिला।",
     "invalid_auth_factor_type_or_challenge_format": "अमान्य प्रामाणिक कारक प्रकार या चुनौती प्रारूप।",
-    "invalid_auth_factor_type_format" : "अमान्य प्रामाणिक कारक प्रकार या चुनौती प्रारूप।",
-    "invalid_challenge_length" : "अमान्य चुनौती, न्यूनतम या अधिकतम लंबाई बाधा का उल्लंघन किया गया।",
+    "invalid_auth_factor_type_format": "अमान्य प्रामाणिक कारक प्रकार या चुनौती प्रारूप।",
+    "invalid_challenge_length": "अमान्य चुनौती, न्यूनतम या अधिकतम लंबाई बाधा का उल्लंघन किया गया।",
     "unsupported_pkce_challenge_method": "असमर्थित प्रमाण कुंजी चैलेंज एक्सचेंज विधि।",
     "invalid_pkce_challenge": "अमान्य प्रूफ कुंजी चुनौती।",
     "invalid_pkce_code_verifier": "अमान्य प्रूफ कुंजी कोड सत्यापनकर्ता।",
