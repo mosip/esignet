@@ -15,11 +15,7 @@ import io.mosip.esignet.services.AuthorizationHelperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
@@ -85,11 +81,13 @@ public class OAuthController {
     }
 
     @GetMapping("/.well-known/jwks.json")
+    @CrossOrigin(origins = "*")
     public Map<String, Object> getAllJwks() {
         return oAuthService.getJwks();
     }
 
     @GetMapping("/.well-known/oauth-authorization-server")
+    @CrossOrigin(origins = "*")
     public Map<String, Object> getOAuthServerDiscoveryInfo() {
         return oAuthService.getOAuthServerDiscoveryInfo();
     }
