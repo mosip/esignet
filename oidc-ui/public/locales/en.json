@@ -212,7 +212,7 @@
     "not-verified": "Not Verified",
     "available": "Available",
     "not-available": "Not-Available",
-    "message": "Click on proceed to begin the verification process",
+    "message": "Click on proceed to begin with the verification process",
     "proceed": "Proceed",
     "cancel": "Cancel",
     "essentialClaimsTooltip": "Mandatory user information required by the Service Provider.",
