@@ -1076,7 +1076,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateV3_withInvalidTransaction_thenFail() {
+    public void authenticateV3_withInvalidTransactionId_thenFail() {
         String transactionId = "test-transaction";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(null);
 
@@ -1091,7 +1091,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void resumeHaltedTransaction_withValidTransaction() {
+    public void resumeHaltedTransaction_withValidTransactionId_thenPass() {
         String transactionId = "validTransactionId";
         ResumeRequest resumeRequest = new ResumeRequest();
         resumeRequest.setTransactionId(transactionId);
@@ -1103,7 +1103,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void resumeHaltedTransaction_withInvalidTransaction() {
+    public void resumeHaltedTransaction_withInvalidTransactionId_thenFail() {
         String transactionId = "invalidTransactionId";
         ResumeRequest resumeRequest = new ResumeRequest();
         resumeRequest.setTransactionId(transactionId);
@@ -1115,7 +1115,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void resumeHaltedTransaction_withResumeNotApplicable() {
+    public void resumeHaltedTransaction_withResumeNotApplicable_thenPass() {
         String transactionId = "transactionId";
         ResumeRequest resumeRequest = new ResumeRequest();
         resumeRequest.setTransactionId(transactionId);

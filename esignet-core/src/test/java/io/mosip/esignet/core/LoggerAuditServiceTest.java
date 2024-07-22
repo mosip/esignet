@@ -21,7 +21,7 @@ public class LoggerAuditServiceTest {
     private LoggerAuditService loggerAuditService;
 
     @Test
-    public void logAudit_withThrowable() {
+    public void logAudit_withThrowable_thenPass() {
         Action action = Action.SEND_OTP;
         ActionStatus status = ActionStatus.ERROR;
         Throwable throwable = new RuntimeException("Test Exception");
@@ -41,7 +41,7 @@ public class LoggerAuditServiceTest {
     }
 
     @Test
-    public void logAudit_withDefaultStatus() {
+    public void logAudit_withDefaultStatus_thenPass() {
         Action action = Action.SEND_OTP;
         ActionStatus status = ActionStatus.SUCCESS;
         String username = "testUser";
@@ -54,7 +54,7 @@ public class LoggerAuditServiceTest {
     }
 
     @Test
-    public void logAudit_withErrorStatus() {
+    public void logAudit_withErrorStatus_thenPass() {
         Action action = Action.SEND_OTP;
         ActionStatus status = ActionStatus.ERROR;
         String username = "testUser";
