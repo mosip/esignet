@@ -48,7 +48,7 @@ RUN apt-get -y update && \
     chmod +x $work_dir/entrypoint.sh
 
 
-# select container user for all tasks
+#select container user for all tasks
 USER ${container_user_uid}:${container_user_gid}
 
 WORKDIR ${work_dir}
