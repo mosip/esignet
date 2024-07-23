@@ -259,7 +259,7 @@ public class OAuthServiceImpl implements OAuthService {
             if(!CollectionUtils.isEmpty(transaction.getAcceptedClaims()) && transaction.getRequestedClaims().getUserinfo() != null) {
                 for(String claim : transaction.getAcceptedClaims()) {
                     ClaimDetail claimDetail = transaction.getRequestedClaims().getUserinfo().get(claim);
-                    if(claimDetail != null) {
+                    if(claimDetail != null && claimDetail.getVerification()!=null) {
                         kycExchangeDto.getAcceptedVerifiedClaims().put(claim, claimDetail.getVerification());
                     }
                 }
