@@ -79,7 +79,7 @@ export default function Form({
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("kba") !== -1
+    captchaEnableComponentsList.indexOf("kbi") !== -1
   );
 
   const captchaSiteKey =
@@ -117,7 +117,7 @@ export default function Form({
 
       let challengeList = [
         {
-          authFactorType: "KBA",
+          authFactorType: "KBI",
           challenge: challenge,
           format: "base64url-encoded-json",
         },
@@ -137,11 +137,11 @@ export default function Form({
       const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
-        let errorCodeCondition = langConfig.errors.otp[errors[0].errorCode] !== undefined && langConfig.errors.kba[errors[0].errorCode] !== null;
+        let errorCodeCondition = langConfig.errors.otp[errors[0].errorCode] !== undefined && langConfig.errors.kbi[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
           setErrorBanner({
-            errorCode: `kba.${errors[0].errorCode}`,
+            errorCode: `kbi.${errors[0].errorCode}`,
             show: true
           });
         }
@@ -172,13 +172,13 @@ export default function Form({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/consent" + params, {
+        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
           replace: true,
         });
       }
     } catch (error) {
       setErrorBanner({
-        errorCode: "kba.auth_failed",
+        errorCode: "kbi.auth_failed",
         show: true
       });
       setStatus(states.ERROR);

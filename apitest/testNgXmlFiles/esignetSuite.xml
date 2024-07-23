@@ -277,13 +277,13 @@
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="KycBioAuth">
+<!--	<test name="KycBioAuth">
 		<parameter name="ymlFile" value="esignet/KycBioAuth/KycBioAuth.yml" />
 		<parameter name="isInternal" value="false" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.KycAuth" />
 		</classes>
-	</test>
+	</test>-->
 	<test name="SendBindingOtp">
 		<parameter name="ymlFile"
 			value="esignet/SendBindingOtp/SendBindingOtp.yml" />

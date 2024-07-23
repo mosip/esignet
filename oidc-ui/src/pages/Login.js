@@ -117,7 +117,7 @@ function createDynamicLoginElements(
     return InitiatePassword(oidcService, backButtonDiv);
   }
 
-  if (authFactorType === validAuthFactors.KBA) {
+  if (authFactorType === validAuthFactors.KBI) {
     return InitiateForm(oidcService, backButtonDiv);
   }
   
@@ -171,8 +171,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     else if (authFactorType === "PWD") {
       setSubHeaderText(t("subheader_text.password_login"));
     }
-    else if (authFactorType === "KBA") {
-      setSubHeaderText(t("subheader_text.kba_login"));
+    else if (authFactorType === "KBI") {
+      setSubHeaderText(t("subheader_text.kbi_login"));
     }
     else if(authFactorType === "WLA") {
       setSubHeaderText(t("subheader_text.wallet_login"));
@@ -218,7 +218,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
           <button
             id="back-button"
             onClick={() => handleBackButtonClick()}
-            className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+            className="back-button-color text-2xl font-semibold justify-left rtl:rotate-180"
           >
             &#8592;
           </button>
@@ -233,19 +233,35 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     setClientName(oAuthDetailResponse?.clientName);
     handleBackButtonClick();
   };
+ 
+  function checkForIDT(authFactors) {
+    for (const factor of authFactors) {
+      if (Array.isArray(factor)) {
+        if (checkForIDT(factor)) {
+          return true;
+        }
+      } else if (factor.type === "IDT") {
+        return true;
+      }
+    }
+    return false;
+  }
+
   return (
     <>
-      <Background
-        heading={t("login_heading", {
-          idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
-        })}
-        subheading={subHeaderText}
-        clientLogoPath={clientLogoURL}
-        clientName={clientName}
-        component={compToShow}
-        oidcService={oidcService}
-        authService={new authService(null)}
-      />
+      {!checkForIDT(JSON.parse(decodeOAuth).authFactors) && (
+        <Background
+          heading={t("login_heading", {
+            idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
+          })}
+          subheading={subHeaderText}
+          clientLogoPath={clientLogoURL}
+          clientName={clientName}
+          component={compToShow}
+          oidcService={oidcService}
+          authService={new authService(null)}
+        />
+      )}
     </>
   );
 }

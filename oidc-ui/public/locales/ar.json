@@ -47,7 +47,9 @@
       "confirm_text": "هل أنت متأكد أنك تريد إيقاف عملية تسجيل الدخول؟",
       "stay_btn": "يقضي",
       "discontinue_btn": "توقف"
-    }
+    },
+    "noRecordClaimsMessage": "ليس لدينا حاليًا سجل بـ {{claims}}. انقر على السماح للتحقق من {{claims}} والتقاطها.",
+    "and": "و"
   },
   "l1Biometrics": {
     "scan_and_verify": "المسح والتحقق",
@@ -157,7 +159,7 @@
       "biometrics_login": "يرجى إدخال UIN/VID الخاص بك والتحقق باستخدام جهاز القياس الحيوي",
       "pin_login": "الرجاء إدخال UIN/VID وPIN",
       "password_login": "الرجاء إدخال UIN/VID وكلمة المرور",
-      "kba_login": "يرجى ملء التفاصيل أدناه",
+      "kbi_login": "يرجى ملء التفاصيل أدناه",
       "wallet_login": "يرجى مسح رمز الاستجابة السريعة أدناه لتسجيل الدخول"
     }
   },
@@ -184,6 +186,43 @@
     "bio_info": "أدخل UIN/VID الذي تم إنشاؤه",
     "pin_info": "أدخل UIN/VID الذي تم إنشاؤه",
     "username_info": "أدخل UIN/VID الذي تم إنشاؤه"
+  },
+  "consentDetails": {
+    "essential_claims": "المطالبات الأساسية",
+    "voluntary_claims": "المطالبات الطوعية",
+    "verified_claims": "المطالبات التي تم التحقق منها",
+    "unverified_claims": "مطالبات لم يتم التحقق منها",
+    "name": "اسم",
+    "given_name": "اسم",
+    "middle_name": "الاسم الأوسط",
+    "picture": "صورة",
+    "gender": "جنس",
+    "birthdate": "تاريخ الميلاد",
+    "locale": "لغة",
+    "nickname": "كنية",
+    "family_name": "اسم العائلة",
+    "address": "عنوان",
+    "email": "عنوان البريد الإلكتروني",
+    "phone": "هاتف",
+    "phone_number": "رقم التليفون",
+    "header": "انتباه",
+    "sub-header": "يطلب {{clientName}} الوصول إلى المعلومات أدناه للمضي قدمًا. لكن القليل من التفاصيل غير متوفرة حاليًا",
+    "verified": "تم التحقق",
+    "not-verified": "لم يتم التحقق منها",
+    "available": "متاح",
+    "not-available": "غير متاح",
+    "message": "انقر على متابعة لبدء عملية التحقق",
+    "proceed": "يتابع",
+    "cancel": "يلغي",
+    "essentialClaimsTooltip": "معلومات المستخدم الإلزامية التي يطلبها مزود الخدمة.",
+    "verifiedClaimTooltip": "المعلومات المتعلقة بالمستخدم والتي تم التأكد من دقتها من خلال مصدر موثوق به، مثل وكالة حكومية أو مؤسسة مالية. تساعد المطالبات التي تم التحقق منها في بناء الثقة والتحقق من هوية المستخدم في الأنظمة الرقمية.",
+    "unverifiedClaimTooltip": "معلومات حول المستخدم لم يتم التأكد من دقتها من قبل مصدر موثوق به، مثل وكالة حكومية أو مؤسسة مالية.",
+    "voluntaryClaimsTooltip": "معلومات المستخدم الإضافية التي يمكنك اختيار مشاركتها مع مزود الخدمة",
+    "stay_btn": "يقضي",
+    "discontinue_btn": "توقف",
+    "popup_header": "انتباه",
+    "popup_body": "يتطلب {{clientName}} الوصول للمتابعة، هل مازلت ترغب في التوقف؟",
+    "consent_details_rejected": "آسفون! لم يكن تسجيل الدخول الخاص بك ناجحًا نظرًا لعدم مشاركة الموافقة."
   },
   "errors": {
     "navigate_option": "يرجى محاولة التنقل باستخدام الخيارات أدناه.",
@@ -295,8 +334,8 @@
     "captcha_validator_not_found": "فشل في العثور على مثيل Captcha Valitator ، يرجى التحقق من ClassPath.",
     "invalid_captcha": "وجدت captcha غير صالحة.",
     "invalid_auth_factor_type_or_challenge_format": "نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
-    "invalid_auth_factor_type_format" :"نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
-    "invalid_challenge_length" : "اعتراض غير صالح ، تم انتهاك قيد الحد الأدنى أو الحد الأقصى للطول.",
+    "invalid_auth_factor_type_format": "نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
+    "invalid_challenge_length": "اعتراض غير صالح ، تم انتهاك قيد الحد الأدنى أو الحد الأقصى للطول.",
     "unsupported_pkce_challenge_method": "طريقة تبادل التحدي الرئيسية إثبات غير مدعوم.",
     "invalid_pkce_challenge": "تحدي مفتاح إثبات غير صالح.",
     "invalid_pkce_code_verifier": "دليل مفتاح إثبات غير صالح.",
@@ -451,7 +490,7 @@
       "password_error_msg": "رمز مرور خاطئ",
       "IDA-MLC-018": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة اخرى."
     },
-    "kba": {
+    "kbi": {
       "auth_failed": "فشل تسجيل الدخول، يرجى ادخال بيانات الاعتماد الصحيحة"
     },
     "statusCodeHeader": {

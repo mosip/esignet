@@ -2102,14 +2102,14 @@ paths:
                       - authFactorType: OTP
                         challenge: '111111'
                         format: alpha-numeric
-              KBA auth factor example:
+              KBI auth factor example:
                 value:
                   requestTime: '2023-09-22T08:01:10.000Z'
                   request:
                     transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
                     individualId: 238/934-9045/236789
                     challengeList:
-                      - authFactorType: KBA
+                      - authFactorType: KBI
                         challenge: eyJuYW1lIjogIlRvbSBLaXJrbWFuIiwgImRvYiI6ICIyNi8wMS8xOTgwIn0
                         format: base64url-encoded-json
                     captchaToken: token string
@@ -4602,7 +4602,7 @@ components:
             - OTP
             - L1-bio-device
             - Wallet
-            - KBA
+            - KBI
           description: Name of the authentication method
         count:
           type: integer
@@ -4629,7 +4629,7 @@ components:
             - PIN
             - WLA
             - PWD
-            - KBA
+            - KBI
           description: Defines the type of auth challenge. It should be same as authfactor.type (oauth-details response).
         challenge:
           type: string

@@ -26,7 +26,7 @@ const validAuthFactors = {
   BIO: "BIO",
   PWD: "PWD",
   WLA: "WLA",
-  KBA: "KBA"
+  KBI: "KBI"
 };
 
 const buttonTypes = {
@@ -90,9 +90,10 @@ const configurationKeys = {
   forgotPasswordConfig: "forgot-password.config",
   forgotPassword: "forgot-password",
   forgotPasswordURL: "forgot-password.url",
+  eKYCStepsConfig: "eKYC-steps.config",
   bannerCloseTimer: "error.banner.close-timer",
-  authFactorKnowledgeFieldDetails: "auth.factor.kba.field-details",
-  authFactorKnowledgeIndividualIdField: "auth.factor.kba.individual-id-field"
+  authFactorKnowledgeFieldDetails: "auth.factor.kbi.field-details",
+  authFactorKnowledgeIndividualIdField: "auth.factor.kbi.individual-id-field"
 };
 
 const modalityIconPath = {
@@ -101,7 +102,7 @@ const modalityIconPath = {
   WALLET: "images/wallet_icon.svg",
   BIO: "images/bio_icon.svg",
   PWD: "images/sign_in_with_otp.png",
-  KBA: "images/sign_in_with_kba.png"
+  KBI: "images/sign_in_with_kba.png"
 };
 
 export {

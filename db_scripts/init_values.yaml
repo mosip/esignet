@@ -49,6 +49,9 @@ databases:
   
   mosip_resident:
     enabled: false
+
+  mosip_otp:
+    enabled: false
   
   mosip_digitalcard:
     enabled: false

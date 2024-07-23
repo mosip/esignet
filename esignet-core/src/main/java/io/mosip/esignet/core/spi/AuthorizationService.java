@@ -5,6 +5,9 @@
  */
 package io.mosip.esignet.core.spi;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 
@@ -30,6 +33,18 @@ public interface AuthorizationService {
      * @return
      */
     OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oAuthDetailRequestV2) throws EsignetException;
+
+    /**
+     * All the query parameters passed in /authorize request are echoed to this request.
+     * Validated the provided input and resolves required auth-factors and claims.
+     * If all the input parameters pass the validation, starts the transaction.
+     *
+     * @param oAuthDetailRequestV3
+     * @param httpServletRequest
+     * @return
+     * @throws EsignetException
+     */
+    OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oAuthDetailRequestV3, HttpServletRequest httpServletRequest) throws EsignetException;
 
     /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel
@@ -60,7 +75,7 @@ public interface AuthorizationService {
      * @param authRequest
      * @return
      */
-    AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest) throws EsignetException;
+    AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest, HttpServletRequest httpServletRequest) throws EsignetException;
 
     /**
      * Accepted claims are verified and KYC exchange is performed
@@ -68,4 +83,28 @@ public interface AuthorizationService {
      * @param authCodeRequest
      */
     AuthCodeResponse getAuthCode(AuthCodeRequest authCodeRequest) throws EsignetException;
+
+
+    /**
+     * Validates the transaction and prepares the ID token and sets up a cookie.
+     * ID token sent in the response will be used as hint from signup service
+     * @param signupRedirectRequest
+     * @param response
+     * @return
+     */
+    SignupRedirectResponse prepareSignupRedirect(SignupRedirectRequest signupRedirectRequest, HttpServletResponse response);
+
+    /**
+     * Get the ClaimStatus and check the consent Action
+     * @param transactionId
+     * @return
+     */
+    ClaimDetailResponse getClaimDetails(String transactionId);
+
+    /**
+     * Resume and get the status of resumed transaction
+     * @param resumeRequest
+     * @return
+     */
+    ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest);
 }

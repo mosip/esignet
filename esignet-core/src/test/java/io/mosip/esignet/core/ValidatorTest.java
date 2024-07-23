@@ -633,4 +633,18 @@ public class ValidatorTest {
 		Assert.assertFalse(validator.isValid(request,null));
 	}
 
+	// ============================ ClientNameLang Validator =========================
+
+	@Test
+	public void test_ClientNameLangValidator_WithValidDetails_thenPass(){
+		ClientNameLangValidator validator=new ClientNameLangValidator();
+		Assert.assertTrue(validator.isValid("eng", null));
+	}
+
+	@Test
+	public void test_ClientNameLangValidator_WithInValidDetail_thenFail(){
+		ClientNameLangValidator validator=new ClientNameLangValidator();
+		Assert.assertFalse(validator.isValid("abc", null));
+	}
+
 }

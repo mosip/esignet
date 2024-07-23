@@ -32,7 +32,6 @@ export const setupResponseInterceptor = (navigate) => {
     (response) => response,
     (error) => {
       const state = { code: error.response.status };
-      console.log(typeof error.response.status);
       if (
         error.response?.status &&
         allErrorStatusCodes.includes(state.code)

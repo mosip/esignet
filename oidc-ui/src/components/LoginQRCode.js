@@ -503,7 +503,7 @@ export default function LoginQRCode({
             &nbsp;
             <a
               href={walletDetail[walletConfigKeys.appDownloadURI]}
-              className="text-sky-600"
+              className="wallet-download"
               id="download_now"
             >
               {t1("download_now")}

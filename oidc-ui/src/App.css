@@ -16,7 +16,6 @@ body {
 .section-background {
   position: relative;
   background-color: var(--login-background);
-  background: var(--login-background-image);
   background-size: cover;
   min-height: var(--login-background-min-height);
 }
@@ -76,7 +75,7 @@ body {
   color: var(--primary-button-color);
   background-color: var(--primary-button-bg-color);
   border: 1px solid var(--primary-button-border-color);
-  border-radius: 5px;
+  border-radius: var(--primary-button-border-radius);
 }
 
 .primary-button:disabled {
@@ -202,8 +201,7 @@ body {
 }
 
 .signup-banner-text {
-  font: normal normal normal 15px/19px "Kantumruy Pro";
-  /* font-family: "Kantumruy Pro", sans-serif; */
+  font: var(--signup-banner-font);
   letter-spacing: 0px;
 }
 
@@ -265,6 +263,119 @@ body {
   content: var(--bottom-right-bg-logo-url);
   right: 10px;
   bottom: 10px;
+}
+
+.back-button-color {
+  color: var(--back-button-color);
+}
+
+.more-signin-options {
+  color: var(--more-signin-options-color);
+}
+
+.arrow-down {
+  fill: var(--arrow-down-color);
+}
+
+.consent-details {
+  .header {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: var(--consent-details-header-font);
+    color: var(--consent-details-header-color);
+  }
+
+  .sub-header {
+    font: var(--consent-details-subheader-font);
+    color: var(--consent-details-subheader-color);
+  }
+
+  .claims-list {
+    width: 100vw;
+    overflow-wrap: anywhere;
+  }
+
+  .claims-list svg path {
+    fill: var(--consent-details-infoIcon-fill);
+    stroke: var(--consent-details-infoIcon-stroke);
+  }
+
+  .available-claim {
+    font: var(--consent-details-available-font);
+    color: var(--consent-details-available-color);
+    display: flex;
+    align-items: center;
+    margin-left: 1em;
+  }
+
+  .not-available-claim {
+    font: var(--consent-details-unavailable-font);
+    color: var(--consent-details-unavailable-color);
+    display: flex;
+    align-items: center;
+    margin-left: 1em;
+  }
+
+  .message {
+    color: var(--consent-details-message-color);
+    background: var(--consent-details-message-background);
+    border-radius: 10px;
+    width: 100vw;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .claimsGrid {
+    display: grid;
+    grid-gap: 4;
+    grid-template-columns: auto auto;
+  }
+}
+
+.align-loading-center {
+  width: 100%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
+.pincode-input-text {
+  width: var(--otp-pin-input-width) !important;
+  height: var(--otp-pin-input-height) !important;
+  margin: var(--otp-pin-input-margin) !important;
+  color: var(--otp-pin-input-color) !important;
+  border: 0 !important;
+  border-bottom: var(--otp-pin-input-border-bottom) !important;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--checkbox-color);
+}
+
+input[type="checkbox"]:hover {
+  cursor: pointer;
+}
+
+.wallet-download {
+  color: var(--wallet-download-text-color);
+}
+
+.no-claims-record-banner {
+  background: var(--no-record-banner-background);
+  border-radius: var(--no-record-banner-border-radius);
+  font: var(--no-record-banner-font);
+  color: var(--no-record-banner-color);
+  padding: var(--no-record-banner-padding);
 }
 
 @media screen and (max-width: 768px) {
@@ -356,7 +467,7 @@ body {
   border: none;
   outline: none;
   padding-left: 0rem;
-  font: normal normal normal 16px/20px Inter;
+  font: normal normal normal 16px/20px Roboto;
 }
 
 [dir="ltr"] .input-box input {
@@ -459,6 +570,12 @@ input[type="number"] {
   text-align: center;
   letter-spacing: 0px;
   padding-top: 10px;
+}
+
+@media screen and (max-width: 375px) {
+  .pincode-input-text {
+    width: 2em !important;
+  }
 }
 
 @layer base {

@@ -47,7 +47,9 @@
       "confirm_text": "Are you sure you want to discontinue the login process?",
       "stay_btn": "Stay",
       "discontinue_btn": "Discontinue"
-    }
+    },
+    "noRecordClaimsMessage": "We currently do not have a record of your {{claims}}. Click on 'Allow' to verify and capture your {{claims}}.",
+    "and": "and"
   },
   "l1Biometrics": {
     "scan_and_verify": "Scan and Verify",
@@ -126,7 +128,7 @@
     "QRCode": "QR Code",
     "OTP": "OTP",
     "PWD": "Password",
-    "KBA": "Details",
+    "KBI": "Details",
     "walletName": "Inji",
     "preferred_mode_of_login": "Select a preferred mode of login",
     "more_ways_to_sign_in": "More ways to sign in",
@@ -158,7 +160,7 @@
       "biometrics_login": "Please enter your UIN/VID & verify using the Biometric device",
       "pin_login": "Please enter your UIN/VID and PIN",
       "password_login": "Please enter your UIN/VID and password",
-      "kba_login": "Please fill the below details",
+      "kbi_login": "Please fill the below details",
       "wallet_login": "Please scan the below QR code to login"
     }
   },
@@ -185,6 +187,43 @@
     "bio_info": "Enter your generated UIN/VID",
     "pin_info": "Enter your generated UIN/VID",
     "username_info": "Enter your generated UIN/VID"
+  },
+  "consentDetails": {
+    "essential_claims": "Essential Claims",
+    "voluntary_claims": "Voluntary Claims",
+    "verified_claims": "Verified Claims",
+    "unverified_claims": "Unverified Claims",
+    "name": "Name",
+    "given_name": "Name",
+    "middle_name": "Middle Name",
+    "picture": "Picture",
+    "gender": "Gender",
+    "birthdate": "Birthdate",
+    "locale": "Locale",
+    "nickname": "Nickname",
+    "family_name": "Family Name",
+    "address": "Address",
+    "email": "Email Address",
+    "phone": "Phone",
+    "phone_number": "Phone Number",
+    "header": "Attention",
+    "sub-header": "{{clientName}} is requesting access to the below information to proceed further. However few details are currently not available",
+    "verified": "Verified",
+    "not-verified": "Not Verified",
+    "available": "Available",
+    "not-available": "Not-Available",
+    "message": "Click on proceed to begin with the verification process",
+    "proceed": "Proceed",
+    "cancel": "Cancel",
+    "essentialClaimsTooltip": "Mandatory user information required by the Service Provider.",
+    "verifiedClaimTooltip": "Information about a user that has been confirmed as accurate by a trusted source, such as a government agency or financial institution. Verified claims help establish trust and verify user identity in digital systems.",
+    "unverifiedClaimTooltip": "Information about a user that has not been confirmed as accurate by a trusted source, such as a government agency or financial institution.",
+    "voluntaryClaimsTooltip": "Additional user information you can choose to share with the Service Provider",
+    "stay_btn": "Stay",
+    "discontinue_btn": "Discontinue",
+    "popup_header": "Attention!",
+    "popup_body": "{{clientName}} requires access in order to proceed further, do you still wish to discontinue?",
+    "consent_details_rejected": "We’re sorry! Your login was unsuccessful as consent was not shared."
   },
   "errors": {
     "navigate_option": "Please try navigating using the options below.",
@@ -296,8 +335,8 @@
     "captcha_validator_not_found": "Failed to find captcha validator instance, Please check classpath.",
     "invalid_captcha": "Invalid captcha found.",
     "invalid_auth_factor_type_or_challenge_format": "Invalid auth factor type or challenge format.",
-    "invalid_auth_factor_type_format" : "Invalid auth factor type or challenge format.",
-    "invalid_challenge_length" : "Invalid challenge, Min or Max length constraint violated.",
+    "invalid_auth_factor_type_format": "Invalid auth factor type or challenge format.",
+    "invalid_challenge_length": "Invalid challenge, Min or Max length constraint violated.",
     "unsupported_pkce_challenge_method": "Unsupported proof key challenge exchange method.",
     "invalid_pkce_challenge": "Invalid Proof key challenge.",
     "invalid_pkce_code_verifier": "Invalid proof key code verifier.",
@@ -452,7 +491,7 @@
       "password_error_msg": "Invalid Password",
       "IDA-MLC-018": "Incorrect username or password. Please try again."
     },
-    "kba": {
+    "kbi": {
       "auth_failed": "Login failed, please enter correct credentials"
     },
     "statusCodeHeader": {

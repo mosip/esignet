@@ -78,8 +78,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
             log.debug("Started to validate {} for oauth-details headers", path);
             final String transactionId = request.getHeader(HEADER_OAUTH_DETAILS_KEY);
             final String hashValue = request.getHeader(HEADER_OAUTH_DETAILS_HASH);
-            OIDCTransaction transaction = path.endsWith("auth-code") ? cacheUtilService.getAuthenticatedTransaction(transactionId) :
-                    cacheUtilService.getPreAuthTransaction(transactionId);
+            OIDCTransaction transaction = getTransaction(transactionId, path);
             if(transaction == null) {
                 throw new InvalidTransactionException();
             }
@@ -172,5 +171,16 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
         if(individualIdHash != null) {
             cacheUtilService.blockIndividualId(individualIdHash);
         }
+    }
+
+    private OIDCTransaction getTransaction(String transactionId, String requestUri) {
+        if(requestUri.endsWith("auth-code") || requestUri.endsWith("prepare-signup-redirect") ||
+                requestUri.endsWith("claim-details")) {
+            return cacheUtilService.getAuthenticatedTransaction(transactionId);
+        }
+        if(requestUri.endsWith("resume")) {
+            return cacheUtilService.getHaltedTransaction(transactionId);
+        }
+        return cacheUtilService.getPreAuthTransaction(transactionId);
     }
 }

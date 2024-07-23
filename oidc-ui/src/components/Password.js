@@ -44,7 +44,7 @@ export default function Password({
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
   const fields = param;
-  const post_AuthenticateUser = authService.post_PasswordAuthenticate;
+  const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
 
   const [loginState, setLoginState] = useState(fieldsState);
@@ -183,7 +183,7 @@ export default function Password({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/consent" + params, {
+        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
           replace: true,
         });
       }

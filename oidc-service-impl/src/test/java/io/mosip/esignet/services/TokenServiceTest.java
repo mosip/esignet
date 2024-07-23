@@ -144,6 +144,16 @@ public class TokenServiceTest {
         tokenService.verifyAccessToken("client-id", publidKey, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJhZWxkdW5nIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.qH7Zj_m3kY69kxhaQXTa-ivIpytKXXjZc1ZSmapZnGE");
     }
 
+    @Test(expected = NotAuthenticatedException.class)
+    public void verifyIdTokenHint_withNullToken_thenFail() {
+        tokenService.verifyIdToken(null,"client-id");
+    }
+
+    @Test(expected = NotAuthenticatedException.class)
+    public void verifyTokenHint_withInvalidToken_thenFail() {
+        tokenService.verifyIdToken("id_token_hint","client-id");
+    }
+
     private SignatureService getSignatureService() {
         return new SignatureService() {
 

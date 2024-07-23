@@ -5,9 +5,10 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.esignet.api.dto.ClaimDetail;
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.*;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -22,19 +23,30 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections.CollectionUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.UUID;
 
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
@@ -45,6 +57,10 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
 
+    private static final String VERIFIED_CLAIMS = "verified_claims";
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     @Autowired
     private ClientManagementService clientManagementService;
 
@@ -53,6 +69,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private CacheUtilService cacheUtilService;
+    
+    @Autowired
+    private TokenService tokenService;
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -90,6 +109,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
     private List<String> captchaRequired;
+
+    @Value("${mosip.esignet.signup-id-token-expire-seconds:60}")
+    private int signupIDTokenValidity;
+
+    @Value("${mosip.esignet.signup-id-token-audience}")
+    private String signupIDTokenAudience;
 
 
     @Override
@@ -138,6 +163,21 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
+    public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
+        //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
+        if (oauthDetailReqDto.getIdTokenHint() != null) {
+            String subject = getSubject(oauthDetailReqDto.getIdTokenHint());
+            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(subject)).findFirst();
+            if (result.isEmpty()) {
+                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            }
+            String[] parts = result.get().getValue().split(SERVER_NONCE_SEPARATOR);
+            oauthDetailReqDto.setState(parts.length == 2? parts[1] : result.get().getValue());
+        }
+        return getOauthDetailsV2(oauthDetailReqDto);
+    }
+
+    @Override
     public OtpResponse sendOtp(OtpRequest otpRequest) throws EsignetException {
         authorizationHelperService.validateSendOtpCaptchaToken(otpRequest.getCaptchaToken());
 
@@ -162,7 +202,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public AuthResponse authenticateUser(AuthRequest authRequest)  throws EsignetException {
-        authenticate(authRequest, false);
+        authenticate(authRequest, false, null);
         AuthResponse authRespDto = new AuthResponse();
         authRespDto.setTransactionId(authRequest.getTransactionId());
         return authRespDto;
@@ -170,7 +210,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public AuthResponseV2 authenticateUserV2(AuthRequest authRequest) throws EsignetException {
-        OIDCTransaction transaction = authenticate(authRequest, true);
+        OIDCTransaction transaction = authenticate(authRequest, true, null);
         AuthResponseV2 authRespDto = new AuthResponseV2();
         authRespDto.setTransactionId(authRequest.getTransactionId());
         authRespDto.setConsentAction(transaction.getConsentAction());
@@ -178,13 +218,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest) throws EsignetException {
+    public AuthResponseV2 authenticateUserV3(AuthRequestV2 authRequest, HttpServletRequest httpServletRequest) throws EsignetException {
         if(!CollectionUtils.isEmpty(captchaRequired) &&
                 authRequest.getChallengeList().stream().anyMatch(authChallenge ->
                         captchaRequired.contains(authChallenge.getAuthFactorType().toLowerCase()))) {
             authorizationHelperService.validateCaptchaToken(authRequest.getCaptchaToken());
         }
-        return authenticateUserV2(authRequest);
+        OIDCTransaction transaction = authenticate(authRequest, true, httpServletRequest);
+        AuthResponseV2 authRespDto = new AuthResponseV2();
+        authRespDto.setTransactionId(authRequest.getTransactionId());
+        authRespDto.setConsentAction(transaction.getConsentAction());
+        return authRespDto;
     }
 
     @Override
@@ -227,7 +271,86 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return authCodeResponse;
     }
 
-    private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction) {
+    @Override
+    public ClaimDetailResponse getClaimDetails(String transactionId) {
+        OIDCTransaction transaction = cacheUtilService.getAuthenticatedTransaction(transactionId);
+        if(transaction == null) {
+            throw new InvalidTransactionException();
+        }
+        ClaimDetailResponse claimDetailResponse = new ClaimDetailResponse();
+        claimDetailResponse.setConsentAction(transaction.getConsentAction());
+        claimDetailResponse.setTransactionId(transactionId);
+        List<ClaimStatus> list = new ArrayList<>();
+
+        for(Map.Entry<String, ClaimDetail> entry : transaction.getRequestedClaims().getUserinfo().entrySet()) {
+            list.add(getClaimStatus(entry.getKey(), entry.getValue(), transaction.getClaimMetadata()));
+        }
+
+        //Profile update is mandated only if any essential verified claim is requested
+        boolean isEssentialVerifiedClaimRequested = transaction.getRequestedClaims().getUserinfo()
+                .entrySet()
+                .stream()
+                .anyMatch( entry -> entry.getValue() !=null && entry.getValue().isEssential() && entry.getValue().getVerification() != null);
+        claimDetailResponse.setProfileUpdateRequired(isEssentialVerifiedClaimRequested);
+        claimDetailResponse.setClaimStatus(list);
+        return claimDetailResponse;
+    }
+
+
+    @Override
+    public SignupRedirectResponse prepareSignupRedirect(SignupRedirectRequest signupRedirectRequest, HttpServletResponse response) {
+        OIDCTransaction oidcTransaction = cacheUtilService.getAuthenticatedTransaction(signupRedirectRequest.getTransactionId());
+        if(oidcTransaction == null) {
+            throw new InvalidTransactionException();
+        }
+
+        SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
+        signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
+        signupRedirectResponse.setIdToken(tokenService.getIDToken(signupRedirectRequest.getTransactionId(), signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
+
+        //Move the transaction to halted transaction
+        cacheUtilService.setHaltedTransaction(signupRedirectRequest.getTransactionId(), oidcTransaction);
+
+        Cookie cookie = new Cookie(signupRedirectRequest.getTransactionId(), oidcTransaction.getServerNonce()
+                .concat(SERVER_NONCE_SEPARATOR)
+                .concat(sanitizePathFragment(signupRedirectRequest.getPathFragment())));
+        cookie.setMaxAge(signupIDTokenValidity);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return signupRedirectResponse;
+    }
+
+
+    @Override
+    public ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest) {
+        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(resumeRequest.getTransactionId());
+        if(oidcTransaction == null) {
+            throw new InvalidTransactionException();
+        }
+
+        ResumeResponse resumeResponse = new ResumeResponse();
+        if(resumeRequest.isWithError()) {
+            cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
+            resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
+            return resumeResponse;
+        }
+
+        //move the transaction to "authenticated" cache
+        cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
+        resumeResponse.setStatus(Constants.RESUMED);
+        return resumeResponse;
+    }
+
+    //As pathFragment is included in the response header, we should sanitize the input to mitigate
+    //response splitting vulnerability
+    private String sanitizePathFragment(String pathFragment) {
+        return pathFragment.replaceAll("[\r\n]", "");
+    }
+
+
+    private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction, HttpServletRequest httpServletRequest) {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
         if(transaction == null)
             throw new InvalidTransactionException();
@@ -240,15 +363,27 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         //Validate provided challenge list auth-factors with resolved auth-factors for the transaction.
         Set<List<AuthenticationFactor>> providedAuthFactors = authorizationHelperService.getProvidedAuthFactors(transaction,
                 authRequest.getChallengeList());
-        KycAuthResult kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
-                authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+
+        KycAuthResult kycAuthResult;
+        if(authRequest.getChallengeList().size() == 1 && authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
+            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0), transaction,
+                    httpServletRequest);
+            transaction.setInternalAuthSuccess(true);
+        }
+        else {
+            kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
+                    authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+        }
+
         //cache tokens on successful response
         transaction.setPartnerSpecificUserToken(kycAuthResult.getPartnerSpecificUserToken());
         transaction.setKycToken(kycAuthResult.getKycToken());
         transaction.setAuthTimeInSeconds(IdentityProviderUtil.getEpochSeconds());
+        transaction.setClaimMetadata(kycAuthResult.getClaimsMetadata());
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
+
         authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
 
         if(checkConsentAction) {
@@ -270,7 +405,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         Claims resolvedClaims = getRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
         resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(),
-                oauthDetailReqDto.getAcrValues(), oauthDetailReqDto.getClaims()));
+                oauthDetailReqDto.getAcrValues(),
+                oauthDetailReqDto.getClaims()!=null ? oauthDetailReqDto.getClaims().getId_token():null ));
         log.info("Final resolved claims : {}", resolvedClaims);
 
         final String transactionId = IdentityProviderUtil.createTransactionId(oauthDetailReqDto.getNonce());
@@ -302,7 +438,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
+        oidcTransaction.setServerNonce(UUID.randomUUID().toString());
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
+        oidcTransaction.setInternalAuthSuccess(false);
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -313,15 +451,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         resolvedClaims.setId_token(new HashMap<>());
 
         String[] requestedScopes = IdentityProviderUtil.splitAndTrimValue(oauthDetailRequest.getScope(), Constants.SPACE);
-        Claims requestedClaims = oauthDetailRequest.getClaims();
+        ClaimsV2 requestedClaims = oauthDetailRequest.getClaims();
         boolean isRequestedUserInfoClaimsPresent = requestedClaims != null && requestedClaims.getUserinfo() != null;
         log.info("isRequestedUserInfoClaimsPresent ? {}", isRequestedUserInfoClaimsPresent);
-
         //Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
         if(isRequestedUserInfoClaimsPresent && !Arrays.stream(requestedScopes).anyMatch(s  -> SCOPE_OPENID.equals(s)))
             throw new EsignetException(ErrorConstants.INVALID_SCOPE);
 
         log.info("Started to resolve claims based on the request scope {} and claims {}", requestedScopes, requestedClaims);
+
+        Map<String, ClaimDetail> verifiedClaimsMap = new HashMap<>();
+        if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().get(VERIFIED_CLAIMS) != null) {
+            JsonNode verifiedClaims = requestedClaims.getUserinfo().get(VERIFIED_CLAIMS);
+            if(verifiedClaims.isArray()) {
+                Iterator itr = verifiedClaims.iterator();
+                while(itr.hasNext()) {
+                    resolveVerifiedClaims((JsonNode) itr.next(), verifiedClaimsMap);
+                }
+            }
+            else {
+                resolveVerifiedClaims(verifiedClaims, verifiedClaimsMap);
+            }
+        }
+
         //get claims based on scope
         List<String> claimBasedOnScope = new ArrayList<>();
         Arrays.stream(requestedScopes)
@@ -335,9 +487,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                     .stream()
                     .forEach( claimName -> {
                         if(isRequestedUserInfoClaimsPresent && requestedClaims.getUserinfo().containsKey(claimName))
-                            resolvedClaims.getUserinfo().put(claimName, requestedClaims.getUserinfo().get(claimName));
+                            resolvedClaims.getUserinfo().put(claimName, convertJsonNodeToClaimDetail(requestedClaims.getUserinfo().get(claimName)));
                         else if(claimBasedOnScope.contains(claimName))
                             resolvedClaims.getUserinfo().put(claimName, null);
+
+                        //Verified claim request takes priority
+                        if(verifiedClaimsMap.containsKey(claimName))
+                            resolvedClaims.getUserinfo().put(claimName, verifiedClaimsMap.get(claimName));
                     });
         }
 
@@ -345,7 +501,42 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return resolvedClaims;
     }
 
-    private ClaimDetail resolveACRClaim(List<String> registeredACRs, String requestedAcr, Claims requestedClaims) throws EsignetException {
+    private void resolveVerifiedClaims(JsonNode verifiedClaims, Map<String, ClaimDetail> verifiedClaimsMap) {
+        ClaimDetail verifiedClaim = convertJsonNodeToClaimDetail(verifiedClaims);
+        validateVerifiedClaims(verifiedClaim);
+        //iterate through all the claims in the verified_claims object
+        for(Map.Entry<String, ClaimDetail> entry : verifiedClaim.getClaims().entrySet()) {
+            ClaimDetail claimDetail = new ClaimDetail();
+            claimDetail.setVerification(verifiedClaim.getVerification());
+            claimDetail.setEssential(entry.getValue() != null && entry.getValue().isEssential());
+            claimDetail.setPurpose(entry.getValue() != null? entry.getValue().getPurpose(): null);
+            verifiedClaimsMap.put(entry.getKey(), claimDetail);
+        }
+    }
+
+    private ClaimDetail convertJsonNodeToClaimDetail(JsonNode claimDetailJsonNode) {
+        try {
+            if(claimDetailJsonNode.isNull())
+                return null;
+            return objectMapper.treeToValue(claimDetailJsonNode, ClaimDetail.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse the requested claim details", e);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_CLAIM);
+    }
+
+    private void validateVerifiedClaims(ClaimDetail verifiedClaim) {
+        if(verifiedClaim == null)
+            throw new EsignetException(ErrorConstants.INVALID_VERIFIED_CLAIMS);
+
+        if(verifiedClaim.getVerification() == null) //TODO add more validations
+            throw new EsignetException(ErrorConstants.INVALID_VERIFICATION);
+
+        if(verifiedClaim.getClaims() == null || verifiedClaim.getClaims().isEmpty())
+            throw new EsignetException(ErrorConstants.INVALID_VERIFIED_CLAIMS);
+    }
+
+    private ClaimDetail resolveACRClaim(List<String> registeredACRs, String requestedAcr, Map<String, ClaimDetail> requestedIdToken) throws EsignetException {
         ClaimDetail claimDetail = new ClaimDetail();
         claimDetail.setEssential(true);
 
@@ -354,8 +545,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new EsignetException(ErrorConstants.NO_ACR_REGISTERED);
 
         //First priority is given to claims request parameter
-        if(requestedClaims != null && requestedClaims.getId_token() != null && requestedClaims.getId_token().get(ACR) != null) {
-            String [] acrs = requestedClaims.getId_token().get(ACR).getValues();
+        if(requestedIdToken != null && requestedIdToken.get(ACR) != null) {
+            String [] acrs = requestedIdToken.get(ACR).getValues();
             String[] filteredAcrs = Arrays.stream(acrs).filter(acr -> registeredACRs.contains(acr)).toArray(String[]::new);
             if(filteredAcrs.length > 0) {
                 claimDetail.setValues(filteredAcrs);
@@ -407,4 +598,91 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         return new String(authTransactionIdBytes);
     }
+
+    private String getSubject(String idTokenHint) {
+        try {
+            String[] jwtParts = idTokenHint.split("\\.");
+            if (jwtParts.length == 3) {
+                String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
+                JSONObject payloadJson = new JSONObject(payload);
+                return payloadJson.getString(TokenService.SUB);
+            }
+        } catch (Exception e) {
+           log.error("Failed to parse the given IDTokenHint as JWT", e);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+    }
+
+    private ClaimStatus getClaimStatus(String claim, ClaimDetail claimDetail, Map<String,
+            List<VerificationDetail>> storedVerificationData) {
+        if(storedVerificationData == null || storedVerificationData.isEmpty())
+            return new ClaimStatus(claim, false, false);
+
+        if(claimDetail == null || claimDetail.getVerification() == null || !CollectionUtils.isEmpty(storedVerificationData.get(claim)))
+            return new ClaimStatus(claim, false, storedVerificationData.containsKey(claim));
+
+        List<VerificationDetail> verificationDetails = storedVerificationData.get(claim);
+
+        //check trust_framework
+        Optional<VerificationDetail> result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getTrust_framework(), vd.getTrust_framework()))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        //check verification datetime
+        result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getTime(), vd.getTime(), dateTimeFormat))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        //check verification_process
+        result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getVerification_process(), vd.getVerification_process()))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        //check assuranceLevel
+        result = verificationDetails.stream()
+                .filter( vd -> doMatch(claimDetail.getVerification().getAssurance_level(), vd.getAssurance_level()))
+                .findFirst();
+
+        if(result.isEmpty())
+            return new ClaimStatus(claim, false, true);
+
+        return new ClaimStatus(claim, true, true);
+    }
+
+    private boolean doMatch(FilterCriteria filterCriteria, String value) {
+        if(filterCriteria == null)
+            return true;
+        if(filterCriteria.getValue() != null)
+           return filterCriteria.getValue().equals(value);
+        if(filterCriteria.getValues() != null)
+            return filterCriteria.getValues().contains(value);
+        return false;
+    }
+
+    private boolean doMatch(FilterDateTime filterDateTime, String value, SimpleDateFormat format) {
+        if(filterDateTime == null)
+            return true;
+
+        if(value == null || value.isEmpty())
+            return false;
+
+        try {
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = format.parse(value);
+            return ((System.currentTimeMillis() - date.getTime())/1000) < filterDateTime.getMax_age();
+        } catch (ParseException e) {
+            log.error("Failed to parse the given date-time : {}", value, e);
+        }
+        return false;
+    }
+
 }
