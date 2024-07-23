@@ -1,0 +1,15 @@
+GetPolicySunBirdR:
+   Mimoto_ESignet_SunBirdR_DeletePolicy_NOAUTH_Valid_Smoke:
+      endPoint: $SUNBIRDBASEURL$/api/v1/Insurance/{insuranceid}
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: mimoto/SunBirdR/GetPolicySunBirdR/GetPolicySunBirdR
+      outputTemplate: mimoto/SunBirdR/GetPolicySunBirdR/GetPolicySunBirdRResult
+      input: '{
+        "insuranceid": "$ID:ESignet_SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_Sid_osid$"
+    }'
+      output: '{
+	"policyNumber": "326253801"
+}'

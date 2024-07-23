@@ -1,0 +1,24 @@
+CreatePolicySunBirdR:
+   Mimoto_ESignet_SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_Sid:
+      endPoint: $SUNBIRDBASEURL$/api/v1/Insurance
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: mimoto/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR
+      outputTemplate: mimoto/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdRResult
+      input: '{
+        "policyNumber": "$POLICYNUMBERFORSUNBIRDRC$",
+      	"policyName": "Start Insurance Gold Premium",
+      	"policyExpiresOn": "2033-04-20T20:48:17.684Z",
+      	"policyIssuedOn": "$TIMESTAMP$",
+      	"fullName" : "$FULLNAMEFORSUNBIRDRC$",
+      	"dob" : "$DOBFORSUNBIRDRC$",
+      	"benefits": [{"benefits": "Critical Surgery"}, {"benefits": "Full body checkup"}],
+      	"gender": "Male",
+      	"mobile": "0123456789",
+      	"email": "abhishek@gmail.com"
+    }'
+      output: '{
+	"status": "SUCCESSFUL"
+}'

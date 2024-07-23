@@ -1,0 +1,18 @@
+SearchPolicySunBirdR:
+   Mimoto_ESignet_SunBirdR_SearchPolicy_NOAUTH_Valid_Smoke:
+      endPoint: $SUNBIRDBASEURL$/api/v1/Insurance/search
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: mimoto/SunBirdR/SearchPolicySunBirdR/SearchPolicySunBirdR
+      outputTemplate: mimoto/SunBirdR/SearchPolicySunBirdR/SearchPolicySunBirdRResult
+      input: '{
+        "offset": "0",
+      	"limit": "5",
+      	"fullName": "$FULLNAMEFORSUNBIRDRC$",
+      	"dob": "$DOBFORSUNBIRDRC$",
+      	"policyNumber": "$POLICYNUMBERFORSUNBIRDRC$"
+    }'
+      output: '{
+}'
