@@ -11,6 +11,7 @@ import {
   CSRF,
   CLAIM_DETAILS,
   PREPARE_SIGNUP_REDIRECT,
+  RESUME,
 } from "./../constants/routes";
 
 const authorizeQueryParam = "authorize_query_param";
@@ -26,7 +27,7 @@ class authService {
    * Triggers /authenticate API on Esignet service
    * @param {string} transactionId same as Esignet transactionId
    * @param {String} individualId UIN/VIN of the individual
-   * @param {List<AuthChallenge>} challengeList challenge list based on the auth type(ie. BIO, PIN, INJI)   
+   * @param {List<AuthChallenge>} challengeList challenge list based on the auth type(ie. BIO, PIN, INJI)
    * @param {string} captchaToken captcha token detail
    * @returns /authenticate API response
    */
@@ -273,6 +274,31 @@ class authService {
         "oauth-details-key": await this.openIDConnectService.getTransactionId(),
       },
     });
+    return response.data;
+  };
+
+  resume = async (transactionId, withError, oAuthDetailsHash) => {
+    const requestTime = new Date().toISOString();
+    const request = {
+      requestTime,
+      request: { transactionId, withError },
+    };
+
+    const oauthDetailsHash =
+      oAuthDetailsHash ||
+      (await this.openIDConnectService.getOauthDetailsHash());
+    const oauthDetailsKey =
+      transactionId || (await this.openIDConnectService.getTransactionId());
+
+    const headers = {
+      "Content-Type": "application/json",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+      "oauth-details-hash": oauthDetailsHash,
+      "oauth-details-key": oauthDetailsKey,
+    };
+
+    const response = await ApiService.post(RESUME, request, { headers });
+
     return response.data;
   };
 }
