@@ -23,8 +23,10 @@ public class Constants {
     public static final String LINKED_SESSION_CACHE = "linked";
     public static final String LINKED_CODE_CACHE = "linkedcode";
     public static final String AUTH_CODE_GENERATED_CACHE = "authcodegenerated";
-    public static final String RATE_LIMIT_CACHE = "apiRateLimit";
+    public static final String HALTED_CACHE = "halted";
+    public static final String RATE_LIMIT_CACHE = "apiratelimit";
     public static final String BLOCKED_CACHE = "blocked";
+
 
     public static final String ROOT_KEY = "ROOT";
     public static final String OIDC_PARTNER_APP_ID = "OIDC_PARTNER";
@@ -44,4 +46,8 @@ public class Constants {
     public static final String LINKED_STATUS = "LINKED";
     public static final String NONE_LANG_KEY = "@none";
     public static final String S256 = "S256";
+
+    public static final String SERVER_NONCE_SEPARATOR = "~###~";
+    public static final String RESUMED = "RESUMED";
+    public static final String RESUME_NOT_APPLICABLE = "RESUME_NOT_APPLICABLE";
 }

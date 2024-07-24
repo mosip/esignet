@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.api.dto;
 
+import io.mosip.esignet.api.dto.claim.Claims;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

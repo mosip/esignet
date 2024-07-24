@@ -35,8 +35,9 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
-    @CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
-    @Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
+    @Caching(evict = {@CacheEvict(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId"),
+            @CacheEvict(value = Constants.HALTED_CACHE, key = "#transactionId")},
+    cacheable = {@Cacheable(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")})
     public OIDCTransaction setAuthenticatedTransaction(String transactionId,
                                                        OIDCTransaction oidcTransaction) {
         return oidcTransaction;
@@ -61,6 +62,17 @@ public class CacheUtilService {
     @CacheEvict(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#codeHash", condition = "#codeHash != null")
     public void removeAuthCodeGeneratedTransaction(String codeHash) {
         log.debug("Evicting entry from authCodeGeneratedCache");
+    }
+
+    @CacheEvict(value = Constants.AUTHENTICATED_CACHE, key = "#transactionId")
+    @Cacheable(value = Constants.HALTED_CACHE, key = "#transactionId")
+    public OIDCTransaction setHaltedTransaction(String transactionId, OIDCTransaction oidcTransaction) {
+        return oidcTransaction;
+    }
+
+    @CacheEvict(value = Constants.HALTED_CACHE, key = "#transactionId")
+    public void removeHaltedTransaction(String transactionId) {
+        log.debug("Evicting entry from HALTED_CACHE");
     }
 
     //---------------------------------------------- Linked authorization ----------------------------------------------
@@ -122,7 +134,9 @@ public class CacheUtilService {
     @CachePut(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     public OIDCTransaction updateIndividualIdHashInPreAuthCache(String transactionId, String individualId) {
         OIDCTransaction oidcTransaction = cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class);//NOSONAR getCache() will not be returning null here.
-        oidcTransaction.setIndividualIdHash(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId));
+        if (oidcTransaction != null) {
+            oidcTransaction.setIndividualIdHash(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId));
+        }
         return oidcTransaction;
     }
 
@@ -162,6 +176,10 @@ public class CacheUtilService {
 
     public OIDCTransaction getLinkedAuthTransaction(String linkTransactionId) {
         return cacheManager.getCache(Constants.LINKED_AUTH_CACHE).get(linkTransactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
+    }
+
+    public OIDCTransaction getHaltedTransaction(String transactionId) {
+        return cacheManager.getCache(Constants.HALTED_CACHE).get(transactionId, OIDCTransaction.class);	//NOSONAR getCache() will not be returning null here.
     }
 
     public ApiRateLimit getApiRateLimitTransaction(String transactionId) {
