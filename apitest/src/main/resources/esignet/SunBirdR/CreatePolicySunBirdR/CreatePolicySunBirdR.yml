@@ -1,12 +1,12 @@
 CreatePolicySunBirdR:
-   Mimoto_ESignet_SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_Sid:
+   ESignet_SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_Sid:
       endPoint: $SUNBIRDBASEURL$/api/v1/Insurance
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: mimoto/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR
-      outputTemplate: mimoto/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdRResult
+      inputTemplate: esignet/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR
+      outputTemplate: esignet/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdRResult
       input: '{
         "policyNumber": "$POLICYNUMBERFORSUNBIRDRC$",
       	"policyName": "Start Insurance Gold Premium",

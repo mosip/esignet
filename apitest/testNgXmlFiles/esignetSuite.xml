@@ -802,7 +802,7 @@
 	</test>
 	<test name="CreatePolicySunBirdR">
 		<parameter name="ymlFile"
-			value="mimoto/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR.yml" />
+			value="esignet/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR.yml" />
 		<parameter name="idKeyName" value="osid" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
@@ -810,14 +810,14 @@
 	</test>
 	<test name="GetPolicySunBirdR">
 		<parameter name="ymlFile"
-			value="mimoto/SunBirdR/GetPolicySunBirdR/GetPolicySunBirdR.yml" />
+			value="esignet/SunBirdR/GetPolicySunBirdR/GetPolicySunBirdR.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="SearchPolicySunBirdR">
 		<parameter name="ymlFile"
-			value="mimoto/SunBirdR/SearchPolicySunBirdR/SearchPolicySunBirdR.yml" />
+			value="esignet/SunBirdR/SearchPolicySunBirdR/SearchPolicySunBirdR.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -908,7 +908,7 @@
 	</test>
 	<test name="DeletePolicySunBirdR">
 		<parameter name="ymlFile"
-			value="mimoto/SunBirdR/DeletePolicySunBirdR/DeletePolicySunBirdR.yml" />
+			value="esignet/SunBirdR/DeletePolicySunBirdR/DeletePolicySunBirdR.yml" />
 		<parameter name="pathParams" value="insuranceid" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.DeleteWithParam" />
