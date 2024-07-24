@@ -21,7 +21,6 @@ on:
       - MOSIP*
       - release*
       - ES-842
-      - patch*
 
 jobs:
   build-maven-esignet:
