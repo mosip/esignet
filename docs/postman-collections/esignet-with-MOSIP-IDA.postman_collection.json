@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "fac7e829-ac04-422a-9411-518a1399d2f5",
+		"_postman_id": "aede4439-e291-4c7d-a60c-b7be4b9cf813",
 		"name": "e-Signet Collection MOSIP IDA",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16926030"
+		"_exporter_id": "30559009"
 	},
 	"item": [
 		{
@@ -1905,6 +1905,625 @@
 								"vci",
 								".well-known",
 								"openid-credential-issuer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AuthCode Flow with Verified Claims",
+			"item": [
+				{
+					"name": "Get CSRF token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/csrf/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"csrf",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorize / OAuthdetails request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var btoa = require('btoa');",
+									"",
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);",
+									"",
+									"pm.test(\"Validate transactionId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.transactionId).not.equals(null);",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
+									"});",
+									"",
+									"pm.test(\"Validate auth factors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));",
+									"});",
+									"",
+									"pm.test(\"set oauth-details-hash\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
+									"    // Remove padding characters",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '');",
+									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding",
+									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');",
+									"    console.log(\"base64Encoded : \" + base64Encoded);",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claimsV3}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"uiLocales\": \"en-US\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/v3/oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"v3",
+								"oauth-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/send-otp",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"send-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authenticate User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/v3/authenticate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"v3",
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Claim Details",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/claim-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"claim-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Prepare Signup Redirect Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"var id_token = jsonData.response.idToken;",
+									"pm.expect(id_token).not.equals(null);",
+									"",
+									"var jwt_parts = id_token.split('.'); // header.payload.signature",
+									"var jwt_payload = JSON.parse(atob(jwt_parts[1]));",
+									"var secret = pm.cookies.get(jwt_payload.sub)",
+									"pm.environment.set(jwt_payload.sub, secret);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"pathFragment\": \"path-fragment\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/prepare-signup-redirect",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"prepare-signup-redirect"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resume Halted Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}",
+								"type": "text"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"requestTime\": \"{{$isoTimestamp}}\",\r\n    \"request\": {\r\n        \"transactionId\": \"{{transaction_id}}\",\r\n        \"withError\": false\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/resume",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"resume"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorization Code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"pm.environment.set(\"csrf_token\", token);",
+									"",
+									"pm.test(\"Validate code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.code).not.equals(null);",
+									"    pm.environment.set(\"code\", jsonData.response.code);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [\"email\", \"phone_number\"],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authorization/auth-code",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authorization",
+								"auth-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tokens",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"// Set headers for JWT",
+									"var header = {\t",
+									"\t\"alg\": \"RS256\"",
+									"};",
+									"",
+									"",
+									"//sign token",
+									"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
+									"//generated private and public keys are stored in the postman environment ",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"privateKey_jwk\")), pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"",
+									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate Id-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id_token).not.equals(null);",
+									"});",
+									"",
+									"pm.test(\"Validate access-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).not.equals(null);",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "code",
+									"value": "{{code}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{clientId}}",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirectionUrl}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{client_assertion}}",
+									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth/v2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth",
+								"v2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get UserInfo",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(pm.environment.get(\"access_token\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"eval(pm.globals.get('pmlib_code'))",
+									"",
+									"const private_key_jwk = {",
+									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
+									"\t\"kty\": \"RSA\",",
+									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
+									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
+									"\t\"e\": \"AQAB\",",
+									"\t\"use\": \"sig\",",
+									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
+									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
+									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
+									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
+									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
+									"}",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/oidc/userinfo",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oidc",
+								"userinfo"
 							]
 						}
 					},
