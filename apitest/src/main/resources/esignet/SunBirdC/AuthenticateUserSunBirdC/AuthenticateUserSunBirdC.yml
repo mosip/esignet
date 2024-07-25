@@ -1,0 +1,20 @@
+AuthenticateUserSunBirdC:
+   ESignet_AuthenticateUserSunBirdC_Valid_Smoke:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdC/AuthenticateUserSunBirdC/AuthenticateUserSunBirdC
+      outputTemplate: esignet/SunBirdC/AuthenticateUserSunBirdC/AuthenticateUserSunBirdCResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
+      	"authFactorType" : "KBA",
+      	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
+      	"format": "base64url-encoded-json"
+    }'
+      output: '{
+}'

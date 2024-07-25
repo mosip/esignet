@@ -800,88 +800,118 @@
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="CreateOIDCClientV2SunBirdRC">
+	<test name="CreatePolicySunBirdR">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRC/CreateOIDCClientV2SunBirdRC/CreateOIDCClientV2SunBirdRC.yml" />
+			value="esignet/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR.yml" />
+		<parameter name="idKeyName" value="osid" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="GetPolicySunBirdR">
+		<parameter name="ymlFile"
+			value="esignet/SunBirdR/GetPolicySunBirdR/GetPolicySunBirdR.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="SearchPolicySunBirdR">
+		<parameter name="ymlFile"
+			value="esignet/SunBirdR/SearchPolicySunBirdR/SearchPolicySunBirdR.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+		</classes>
+	</test>
+	<test name="CreateOIDCClientV2SunBirdC">
+		<parameter name="ymlFile"
+			value="esignet/SunBirdC/CreateOIDCClientV2SunBirdC/CreateOIDCClientV2SunBirdC.yml" />
 			<parameter name="idKeyName"	value="clientId" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="OAuthDetailsRequestSunBirdRC">
+	<test name="OAuthDetailsRequestSunBirdC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRC/OAuthDetailsRequestSunBirdRC/OAuthDetailsRequestSunBirdRC.yml" />
+			value="esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="AuthenticateUserSunBirdRC">
+	<test name="AuthenticateUserSunBirdC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRC/AuthenticateUserSunBirdRC/AuthenticateUserSunBirdRC.yml" />
+			value="esignet/SunBirdC/AuthenticateUserSunBirdC/AuthenticateUserSunBirdC.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
 	</test>
-	<test name="AuthorizationCodeSunBirdRC">
+	<test name="AuthorizationCodeSunBirdC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRC/AuthorizationCodeSunBirdRC/AuthorizationCodeSunBirdRC.yml" />
+			value="esignet/SunBirdC/AuthorizationCodeSunBirdC/AuthorizationCodeSunBirdC.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="GenerateTokenSunBirdRC">
+	<test name="GenerateTokenSunBirdC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRC/GenerateTokenSunBirdRC/GenerateTokenSunBirdRC.yml" />
+			value="esignet/SunBirdC/GenerateTokenSunBirdC/GenerateTokenSunBirdC.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
-	<test name="GetCredentialSunBirdRC">
+	<test name="GetCredentialSunBirdC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRC/GetCredentialSunBirdRC/GetCredentialSunBirdRC.yml" />
+			value="esignet/SunBirdC/GetCredentialSunBirdC/GetCredentialSunBirdC.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
 	</test>
-	<test name="OAuthDetailsRequestSunBirdRCNegTC">
+	<test name="OAuthDetailsRequestSunBirdCNegTC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRCNegTC/OAuthDetailsRequestSunBirdRCNegTC/OAuthDetailsRequestSunBirdRCNegTC.yml" />
+			value="esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="AuthenticateUserSunBirdRCNegTC">
+	<test name="AuthenticateUserSunBirdCNegTC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC/AuthenticateUserSunBirdRCNegTC.yml" />
+			value="esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
 	</test>
-	<test name="AuthorizationCodeSunBirdRCNegTC">
+	<test name="AuthorizationCodeSunBirdCNegTC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC/AuthorizationCodeSunBirdRCNegTC.yml" />
+			value="esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="GenerateTokenSunBirdRCNegTC">
+	<test name="GenerateTokenSunBirdCNegTC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRCNegTC/GenerateTokenSunBirdRCNegTC/GenerateTokenSunBirdRCNegTC.yml" />
+			value="esignet/SunBirdCNegTC/GenerateTokenSunBirdCNegTC/GenerateTokenSunBirdCNegTC.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
-	<test name="GetCredentialSunBirdRCNegTC">
+	<test name="GetCredentialSunBirdCNegTC">
 		<parameter name="ymlFile"
-			value="esignet/SunBirdRCNegTC/GetCredentialSunBirdRCNegTC/GetCredentialSunBirdRCNegTC.yml" />
+			value="esignet/SunBirdCNegTC/GetCredentialSunBirdCNegTC/GetCredentialSunBirdCNegTC.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+		</classes>
+	</test>
+	<test name="DeletePolicySunBirdR">
+		<parameter name="ymlFile"
+			value="esignet/SunBirdR/DeletePolicySunBirdR/DeletePolicySunBirdR.yml" />
+		<parameter name="pathParams" value="insuranceid" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.DeleteWithParam" />
 		</classes>
 	</test>
 
