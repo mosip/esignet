@@ -1228,7 +1228,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void testSendOtp_InValidRequest_thenFail() throws Exception {
+    public void sendOtp_whenIndividualIdBlocked_thenFail() throws Exception {
         OtpRequest otpRequest = new OtpRequest();
         otpRequest.setCaptchaToken("captchaToken");
         otpRequest.setTransactionId("transactionId");
@@ -1254,7 +1254,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void testSendOtp_InvalidTransaction_thenFail() throws Exception {
+    public void sendOtp_invalidTransactionId_thenFail() throws Exception {
         OtpRequest otpRequest = new OtpRequest();
         otpRequest.setTransactionId("invalidTransactionId");
         when(cacheUtilService.getPreAuthTransaction("invalidTransactionId")).thenReturn(null);
