@@ -370,6 +370,14 @@ input[type="checkbox"]:hover {
   color: var(--wallet-download-text-color);
 }
 
+.no-claims-record-banner {
+  background: var(--no-record-banner-background);
+  border-radius: var(--no-record-banner-border-radius);
+  font: var(--no-record-banner-font);
+  color: var(--no-record-banner-color);
+  padding: var(--no-record-banner-padding);
+}
+
 @media screen and (max-width: 768px) {
   .section-background .top_left_bg_logo,
   .section-background .top_right_bg_logo,

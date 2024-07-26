@@ -6,6 +6,7 @@
 package io.mosip.esignet.services;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.*;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
@@ -17,6 +18,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
+import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
@@ -34,6 +36,8 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -45,6 +49,7 @@ import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant.CURRENTKEYALIAS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doNothing;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationHelperServiceTest {
@@ -72,6 +77,15 @@ public class AuthorizationHelperServiceTest {
 
     @Mock
     private AuditPlugin auditWrapper;
+
+    @Mock
+    private TokenService tokenService;
+
+    @Mock
+    private HttpServletRequest httpServletRequest;
+
+    ObjectMapper objectMapper=new ObjectMapper();
+
     
     @Test
     public void validateSendOtpCaptchaToken_withEmptyToken_thenFail() {
@@ -275,6 +289,20 @@ public class AuthorizationHelperServiceTest {
         }
     }
 
+    @Test
+    public void delegateAuthenticateRequest_withInValidDetails_thenFail() throws KycAuthException {
+        String transactionId = "transaction-id";
+        String individualId = "individual-id";
+        List<AuthChallenge> challengeList = new ArrayList<>();
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRequestedClaims(new Claims());
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenThrow(KycAuthException.class);
+        Assert.assertThrows(EsignetException.class,()->authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction));
+    }
+
 
     @Test
     public void validateAcceptedClaims_withEmptyAcceptedClaims_thenPass() {
@@ -464,6 +492,20 @@ public class AuthorizationHelperServiceTest {
     }
 
     @Test
+    public void delegateSendOtpRequest_withInvalidDetail_thenFail() throws SendOtpException {
+        OtpRequest otpRequest = new OtpRequest();
+        otpRequest.setIndividualId("individual-id");
+        otpRequest.setOtpChannels(Arrays.asList("email"));
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rpid");
+        oidcTransaction.setClientId("client-id");
+        SendOtpResult sendOtpResult = new SendOtpResult("temp-id", "masked-email", "masked-mobile");
+        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenThrow(SendOtpException.class);
+        Assert.assertThrows(EsignetException.class,()->authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction));
+    }
+
+    @Test
     public void getProvidedAuthFactors_withValidInput_thenPass() {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setId_token(new HashMap<>());
@@ -572,4 +614,55 @@ public class AuthorizationHelperServiceTest {
         String result = authorizationHelperService.getIndividualId(oidcTransaction);
         Assert.assertEquals(individualId, result);
     }
+
+    @Test
+    public void testHandleInternalAuthenticateRequest_ValidDetails_thenPass(){
+        ReflectionTestUtils.setField(authorizationHelperService, "objectMapper",objectMapper);
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSW4wLjl0MG5GMkNtVWZaeTlCYlA3cjM4bElhSlJSeTNaSk41MnBRNlpLSl9qVWMifQ==");
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setIndividualId("individualId");
+        doNothing().when(tokenService).verifyIdToken(any(), any());
+        Mockito.when(httpServletRequest.getCookies()).thenReturn(createMockCookies("subject"));
+
+        OIDCTransaction haltedTransaction = new OIDCTransaction();
+        haltedTransaction.setIndividualId("individualId");
+        haltedTransaction.setTransactionId("transactionId");
+        haltedTransaction.setServerNonce("subject");
+        Mockito.when(cacheUtilService.getHaltedTransaction(Mockito.anyString())).thenReturn(haltedTransaction);
+
+        KycAuthResult result = authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals("subject", result.getKycToken());
+        Assert.assertEquals("subject", result.getPartnerSpecificUserToken());
+        Assert.assertEquals("individualId", transaction.getIndividualId());
+    }
+
+    @Test
+    public void testHandleInternalAuthenticateRequest_NoCookie_thenFail() {
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("base64encodedchallenge");
+        OIDCTransaction transaction = new OIDCTransaction();
+        HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
+        Assert.assertThrows(EsignetException.class, () ->
+                authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest));
+    }
+
+    @Test
+    public void testHandleInternalAuthenticateRequest_NoHaltedTransaction_thenFail() {
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("base64encodedchallenge");
+        OIDCTransaction transaction = new OIDCTransaction();
+        Assert.assertThrows(EsignetException.class, () ->
+                authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest));
+    }
+
+    private Cookie[] createMockCookies(String subject) {
+        Cookie cookie = new Cookie(subject, "subject");
+        return new Cookie[]{cookie};
+    }
+
 }

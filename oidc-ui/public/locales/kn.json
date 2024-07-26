@@ -48,7 +48,9 @@
       "confirm_text": "ಲಾಗಿನ್ ಪ್ರಕ್ರಿಯೆಯನ್ನು ನಿಲ್ಲಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
       "stay_btn": "ಉಳಿಯಿರಿ",
       "discontinue_btn": "ಸ್ಥಗಿತಗೊಳಿಸಿ"
-    }
+    },
+    "noRecordClaimsMessage": "ಪ್ರಸ್ತುತ ನಿಮ್ಮ {{claims}} ದಾಖಲೆಯನ್ನು ನಾವು ಹೊಂದಿಲ್ಲ. ನಿಮ್ಮ {{claims}} ಪರಿಶೀಲಿಸಲು ಮತ್ತು ಸೆರೆಹಿಡಿಯಲು 'ಅನುಮತಿಸಿ' ಕ್ಲಿಕ್ ಮಾಡಿ.",
+    "and": "ಮತ್ತು"
   },
   "l1Biometrics": {
     "scan_and_verify": "ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ಮತ್ತು ಪರಿಶೀಲಿಸಿ",
@@ -333,8 +335,8 @@
     "captcha_validator_not_found": "ಕ್ಯಾಪ್ಚಾ ವ್ಯಾಲಿಡೇಟರ್ ನಿದರ್ಶನವನ್ನು ಕಂಡುಹಿಡಿಯಲು ವಿಫಲವಾಗಿದೆ, ದಯವಿಟ್ಟು ಕ್ಲಾಸ್‌ಪಾತ್ ಪರಿಶೀಲಿಸಿ.",
     "invalid_captcha": "ಅಮಾನ್ಯ ಕ್ಯಾಪ್ಚಾ ಕಂಡುಬಂದಿದೆ.",
     "invalid_auth_factor_type_or_challenge_format": "ಅಮಾನ್ಯ ದೃ uth ೀಕರಣ ಅಂಶ ಪ್ರಕಾರ ಅಥವಾ ಸವಾಲು ಸ್ವರೂಪ.",
-    "invalid_auth_factor_type_format" : "ಅಮಾನ್ಯ ದೃ uth ೀಕರಣ ಅಂಶ ಪ್ರಕಾರ ಅಥವಾ ಸವಾಲು ಸ್ವರೂಪ.",
-    "invalid_challenge_length" : "ಅಮಾನ್ಯ ಸವಾಲು, ಕನಿಷ್ಠ ಅಥವಾ ಗರಿಷ್ಠ ಉದ್ದದ ನಿರ್ಬಂಧವನ್ನು ಉಲ್ಲಂಘಿಸಲಾಗಿದೆ.",
+    "invalid_auth_factor_type_format": "ಅಮಾನ್ಯ ದೃ uth ೀಕರಣ ಅಂಶ ಪ್ರಕಾರ ಅಥವಾ ಸವಾಲು ಸ್ವರೂಪ.",
+    "invalid_challenge_length": "ಅಮಾನ್ಯ ಸವಾಲು, ಕನಿಷ್ಠ ಅಥವಾ ಗರಿಷ್ಠ ಉದ್ದದ ನಿರ್ಬಂಧವನ್ನು ಉಲ್ಲಂಘಿಸಲಾಗಿದೆ.",
     "unsupported_pkce_challenge_method": "ಬೆಂಬಲಿಸದ ಪ್ರೂಫ್ ಕೀ ಚಾಲೆಂಜ್ ಎಕ್ಸ್ಚೇಂಜ್ ವಿಧಾನ.",
     "invalid_pkce_challenge": "ಅಮಾನ್ಯ ಪುರಾವೆ ಕೀ ಸವಾಲು.",
     "invalid_pkce_code_verifier": "ಅಮಾನ್ಯ ಪ್ರೂಫ್ ಕೀ ಕೋಡ್ ಪರಿಶೀಲಕ.",
