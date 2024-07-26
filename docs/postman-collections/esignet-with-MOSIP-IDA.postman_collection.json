@@ -2179,7 +2179,7 @@
 					"response": []
 				},
 				{
-					"name": "Prepare Signup Redirect Copy",
+					"name": "Prepare Signup Redirect",
 					"event": [
 						{
 							"listen": "test",
