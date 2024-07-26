@@ -1,5 +1,5 @@
-#dbUserPasswords:
-#  dbuserPassword: ""
+dbUserPasswords:
+  dbuserPassword: ""
 
 databases:
   mosip_esignet:
