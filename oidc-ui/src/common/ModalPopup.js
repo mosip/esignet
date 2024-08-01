@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const ModalPopup = ({
   alertIcon,
@@ -10,6 +10,13 @@ const ModalPopup = ({
   footer,
   footerClassname,
 }) => {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  });
+
   return (
     <>
       <img
