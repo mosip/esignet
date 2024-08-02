@@ -1,8 +1,0 @@
-#####  DB queries to be executed to tear down the data used and generated during the test rig run
-
-delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=mosip_partnerorg%'
-delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=mosip_ekyc_partner%'
-delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=mosip_deviceorg%'
-delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=mosip_ftmorg%'
-delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=partnernameforautomationesi%'
-delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=partnernameforesignet%'
