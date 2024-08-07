@@ -1,0 +1,1036 @@
+BioNonAuth:
+  ESignet_BioAuth_Biometric_Face_NonAuth_With_Valid_uin_Smoke_Pos:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_BioFace_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_BioFace_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "UNKNOWN",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Full face",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+
+  ESignet_BioAuth_Biometric_RingFinger_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+      "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RingFinger_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RingFinger_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left RingFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTRINGFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftMiddleFingerr_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftMiddleFingerr_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left MiddleFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTMIDDLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftLittleFinger_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftLittleFinger_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftLittleFinger_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left LittleFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTLITTLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightIndexFinger_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightIndexFinger_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightIndexFinger_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right IndexFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTINDEXFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightRingFinger_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightRingFinger_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightRingFinger_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right RingFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTRINGFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightMiddleFinger_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightMiddleFinger_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightMiddleFinger_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right MiddleFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTMIDDLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightLittleFinger_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightLittleFinger_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightLittleFinger_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right LittleFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTLITTLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftThumb_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftThumb_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftThumb_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left Thumb",
+          "bioType": "Finger",
+          "bioValue": "$LEFTTHUMB$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightThumb_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightThumb_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightThumb_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right Thumb",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTTHUMB$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "invalid_challenge_length",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightIris_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+         "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightIris_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightIris_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right",
+          "bioType": "Iris",
+          "bioValue": "$RIGHTIRIS$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Iris",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftIris_With_uin_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftIris_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftIris_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:AddIdentity_BioAuth_smoke_Pos_UIN$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left",
+          "bioType": "Iris",
+          "bioValue": "$LEFTIRIS$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Iris",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+
+  ESignet_BioNonAuth_Biometric_Face_NonAuth_With_Valid_Vid_Smoke_Pos:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_BioFace_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_BioFace_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "UNKNOWN",
+          "bioType": "FACE",
+          "bioValue": "$FACE$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "1873299273",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Full face",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467171",
+          "type": "Face",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+
+  ESignet_BioAuth_Biometric_RingFinger_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+      "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RingFinger_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RingFinger_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left RingFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTRINGFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftMiddleFingerr_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftMiddleFingerr_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left MiddleFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTMIDDLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftLittleFinger_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftLittleFinger_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftLittleFinger_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left LittleFinger",
+          "bioType": "Finger",
+          "bioValue": "$LEFTLITTLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightIndexFinger_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightIndexFinger_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightIndexFinger_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right IndexFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTINDEXFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightRingFinger_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+       "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightRingFinger_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightRingFinger_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right RingFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTRINGFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightMiddleFinger_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightMiddleFinger_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightMiddleFinger_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right MiddleFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTMIDDLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightLittleFinger_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightLittleFinger_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightLittleFinger_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right LittleFinger",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTLITTLEFINGER$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftThumb_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftThumb_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftThumb_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left Thumb",
+          "bioType": "Finger",
+          "bioValue": "$LEFTTHUMB$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightThumb_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightThumb_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightThumb_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right Thumb",
+          "bioType": "Finger",
+          "bioValue": "$RIGHTTHUMB$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Finger",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "invalid_challenge_length",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_RightIris_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+         "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_RightIris_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_RightIris_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Right",
+          "bioType": "Iris",
+          "bioValue": "$RIGHTIRIS$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Iris",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'
+  ESignet_BioAuth_Biometric_LeftIris_With_Vid_NonAuth_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/BioAuthIdp/bioAuth
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NonAuth_LeftIris_Vid_all_Valid_Smoke_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_NonAuth_LeftIris_Vid_all_Valid_Smoke_sid_transactionId$",
+        "individualId": "$ID:Generate_Perpetual2_VID_Valid_Smoke_sid_vid$",
+        "authFactorType" : "BIO",
+        "challenge" : "$CHALLENGE$",
+        "identityRequest":{
+          "bioSubType": "Left",
+          "bioType": "Iris",
+          "bioValue": "$LEFTIRIS$",
+          "deviceCode": "bc0b6848-6d45-46d1-a9bd-b334410bf823",
+          "dateTime": "$DATETIME$",
+          "deviceProviderID": "SYNCBYTE.MC01A",
+          "deviceServiceID": "",
+          "deviceServiceVersion": "SB.WIN.001",
+          "deviceProvider": "SYNCBYTE",
+          "deviceProviderId": "SYNCBYTE.LTC165",
+          "deviceSubType": "Slap",
+          "make": "Logitech",
+          "model": "4d36e96c-e325-11ce-bfc1-08002be10318",
+          "serialNo": "78467175",
+          "type": "Iris",
+    "transactionId": "$TRANSACTIONID$",
+    "identityRequestTemplate": "esignet/BioAuthIdp/BioAuthIdentityEncrypt",
+    "identityRequestEncUrl": "/idauthentication/v1/internal/encrypt"
+    }
+    }'
+      output: '{
+		  "errors": [
+		    {
+		      "errorCode": "auth_factor_mismatch",
+		      "errorMessage": "$IGNORE$"
+		    }
+		  ]
+}'

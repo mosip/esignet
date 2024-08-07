@@ -1,0 +1,32 @@
+GetOidcClient:
+   Esignet_GetOidcClient_all_Valid_Smoke:
+      endPoint: /v1/partnermanager/oidc/client/{client_id}
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: get
+      inputTemplate: esignet/GetOidcClient/GetOidcClient
+      outputTemplate: esignet/GetOidcClient/GetOidcClientResult
+      input: '{
+      	"client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      
+}'
+
+   Esignet_GetOidcClient_Invalid_clientId_Neg:
+      endPoint: /v1/partnermanager/oidc/client/{client_id}
+      role: resident
+      restMethod: get
+      inputTemplate: esignet/GetOidcClient/GetOidcClient
+      outputTemplate: esignet/error
+      input: '{
+      	"client_id": "$sjdh@#$"
+}'
+      output: '{
+  "errors": [
+    {
+      "errorCode": "PMS_IDP_004",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'

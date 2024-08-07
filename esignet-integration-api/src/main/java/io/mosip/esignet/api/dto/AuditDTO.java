@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.api.dto;
 
+import io.mosip.esignet.api.dto.claim.Claims;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -31,4 +32,6 @@ public class AuditDTO {
     String linkedTransactionId;
     String nonce;
     String state;
+
+    String idType;
 }

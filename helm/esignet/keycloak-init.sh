@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=12.0.1-B2
+CHART_VERSION=0.0.1-develop
 COPY_UTIL=../copy_cm_func.sh
 
 helm repo add mosip https://mosip.github.io/mosip-helm
@@ -30,7 +30,6 @@ kubectl -n $NS delete secret  --ignore-not-found=true keycloak-client-secrets
 helm -n $NS delete esignet-keycloak-init
 helm -n $NS install esignet-keycloak-init mosip/keycloak-init \
 -f keycloak-init-values.yaml \
---set frontend=https://$IAMHOST_URL/auth \
 --set clientSecrets[0].name="$PMS_CLIENT_SECRET_KEY" \
 --set clientSecrets[0].secret="$PMS_CLIENT_SECRET_VALUE" \
 --set clientSecrets[1].name="$MPARTNER_DEFAULT_AUTH_SECRET_KEY" \

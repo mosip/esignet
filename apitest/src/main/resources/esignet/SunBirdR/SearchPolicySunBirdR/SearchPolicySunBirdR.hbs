@@ -1,0 +1,21 @@
+{
+	"offset": {{offset}},
+	"limit": {{limit}},
+	"filters": {
+		{{#if fullName}}
+		"fullName": {
+			"eq": "{{fullName}}"
+		},
+		{{/if}}
+		{{#if dob}}
+		"dob": {
+			"eq": "{{dob}}"
+		},
+		{{/if}}
+		{{#if policyNumber}}
+		"policyNumber": {
+			"eq": "{{policyNumber}}"
+		}
+		{{/if}}
+	}
+}

@@ -1,0 +1,594 @@
+AddIdentity:
+   ESignet_AddIdentity_Valid_Parameters_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Valid_Parameters_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Parameters_Sce2_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Valid_Parameters_Sce2_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Invalid_Scen_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Invalid_Scen_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Params_BindOtp_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Valid_Params_BindOtp_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Params_WOPhone_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "phone": "$REMOVE$",
+  "email": "ESignet_AddIdentity_Valid_Params_WOPhone_smoke_Pos@mosip.net",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Params_WOEmail_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "phone": "9876543210",
+  "email": "$REMOVE$",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Vid_Generation_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Vid_Generation_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Vid_2_Generation_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Vid_2_Generation_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Linked_Sce_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Linked_Sce_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Linked_Consent_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_User2_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Linked_Consent_User2_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_Vid_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Linked_Consent_Vid_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_User2_Vid_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Linked_Consent_User2_Vid_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_BioAuth_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_BioAuth_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_KycAuth_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_KycAuth_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Consent_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Consent_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Consent_Vid_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Consent_Vid_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_uin_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Valid_Params_VCI_uin_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_uin_Inv_Scen_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Valid_Params_VCI_uin_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_Vid_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Valid_Params_VCI_Vid_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_Vid_Inv_Scen_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Valid_Params_VCI_Vid_Inv_Scen_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+
+   ESignet_AddIdentity_Password_Auth_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+   "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_Password_Auth_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'

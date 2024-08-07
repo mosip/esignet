@@ -61,13 +61,14 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
                 throw new NotAuthenticatedException();
 
             tokenService.verifyAccessToken(transaction.getClientId(), transaction.getPartnerSpecificUserToken(), tokenParts[1]);
-            auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(accessTokenHash,
+            auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
                     transaction), null);
+            log.info("Userinfo response >> {}", transaction.getEncryptedKyc());
             return transaction.getEncryptedKyc();
 
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.ERROR, AuditHelper.buildAuditDto(accessTokenHash,
-                    transaction), null);
+                   "accessTokenHash", transaction), ex);
             throw ex;
         }
     }

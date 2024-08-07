@@ -12,14 +12,12 @@ import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.dto.ClientDetail;
-import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.dto.TokenRequest;
-import io.mosip.esignet.core.dto.TokenResponse;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
+import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
@@ -39,6 +37,7 @@ import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
 import static io.mosip.esignet.core.constants.Constants.BEARER;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static io.mosip.esignet.core.spi.OAuthService.JWT_BEARER_TYPE;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OAuthServiceTest {
@@ -67,6 +66,9 @@ public class OAuthServiceTest {
     @Mock
     private AuditPlugin auditWrapper;
 
+    @Mock
+    private SecurityHelperService securityHelperService;
+
     @Test
     public void getTokens_withValidRequest_thenPass() throws KycExchangeException {
         TokenRequest tokenRequest = new TokenRequest();
@@ -93,9 +95,48 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
-        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
+        Assert.assertNotNull(tokenResponse);
+        Assert.assertNotNull(tokenResponse.getId_token());
+        Assert.assertNotNull(tokenResponse.getAccess_token());
+        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+    }
+
+    @Test
+    public void getTokens_withValidRequestWithPKCE_thenPass() throws KycExchangeException {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+        tokenRequest.setCode_verifier("eyIxIjoxNzYsIjIiOjEzOCwiMyI6MiwiNCI6NTd9");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance("KgFzotzIWt3ZMFusBrpCIyWTP-F9QJdtM4Qb8m3I-4Q",
+                "S256"));
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
+        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
         Assert.assertNotNull(tokenResponse.getAccess_token());
@@ -107,7 +148,7 @@ public class OAuthServiceTest {
     public void getTokens_withInvalidAuthCode_thenFail() {
         TokenRequest tokenRequest = new TokenRequest();
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_TRANSACTION, ex.getErrorCode());
         }
@@ -138,9 +179,9 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
-        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
         Assert.assertNotNull(tokenResponse.getAccess_token());
@@ -174,9 +215,9 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
-        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest);
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
         Assert.assertNotNull(tokenResponse.getAccess_token());
@@ -197,7 +238,7 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_CLIENT_ID, ex.getErrorCode());
         }
@@ -217,7 +258,7 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
         }
@@ -227,7 +268,7 @@ public class OAuthServiceTest {
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
         }
@@ -252,14 +293,14 @@ public class OAuthServiceTest {
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_ASSERTION_TYPE, ex.getErrorCode());
         }
 
         tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_ASSERTION, ex.getErrorCode());
         }
@@ -290,13 +331,13 @@ public class OAuthServiceTest {
         kycExchangeResult.setEncryptedKyc(null);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(null, kycExchangeResult);
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
             Assert.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
         }
 
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
             Assert.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
         }
@@ -325,7 +366,7 @@ public class OAuthServiceTest {
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenThrow(new KycExchangeException("test-err-1"));
         try {
-            oAuthService.getTokens(tokenRequest);
+            oAuthService.getTokens(tokenRequest,false);
             Assert.fail();
         } catch (EsignetException ex) {
             Assert.assertEquals("test-err-1", ex.getErrorCode());
@@ -372,5 +413,111 @@ public class OAuthServiceTest {
         Map<String, Object> maps = oAuthService.getJwks();
         Assert.assertNotNull(maps);
         Assert.assertTrue(!maps.isEmpty());
+    }
+
+    @Test
+    public void getTokens_withInvalidPKCE_thenFail() {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+        tokenRequest.setCode_verifier("eyIxIjoxNzYsIjIiOjEzOCwiMyI6MiwiNCI6NTd91");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance("KgFzotzIWt3ZMFusBrpCIyWTP-F9QJdtM4Qb8m3I-4Q",
+                "S256"));
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+
+        try {
+            oAuthService.getTokens(tokenRequest,true);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(PKCE_FAILED, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getTokens_withInvalidChallengeMethod_thenFail() {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+        tokenRequest.setCode_verifier("eyIxIjoxNzYsIjIiOjEzOCwiMyI6MiwiNCI6NTd91");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        ProofKeyCodeExchange proofKeyCodeExchange = mock(ProofKeyCodeExchange.class);
+        oidcTransaction.setProofKeyCodeExchange(proofKeyCodeExchange);
+        Mockito.when(proofKeyCodeExchange.getCodeChallengeMethod()).thenReturn("Plaon");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+
+        try {
+            oAuthService.getTokens(tokenRequest,true);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(UNSUPPORTED_PKCE_CHALLENGE_METHOD, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getTokens_withVCScopedTransaction_thenPass() throws KycExchangeException {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+        tokenRequest.setCode_verifier("eyIxIjoxNzYsIjIiOjEzOCwiMyI6MiwiNCI6NTd9");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setRequestedCredentialScopes(Arrays.asList("sample_vc_ldp"));
+        oidcTransaction.setPermittedScopes(Arrays.asList("sample_vc_ldp"));
+        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance("KgFzotzIWt3ZMFusBrpCIyWTP-F9QJdtM4Qb8m3I-4Q",
+                "S256"));
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.generateSecureRandomString(20)).thenReturn("test-nonce");
+        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
+
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
+        Mockito.verifyNoInteractions(authenticationWrapper);
+        Assert.assertNotNull(tokenResponse);
+        Assert.assertNull(tokenResponse.getId_token());
+        Assert.assertNotNull(tokenResponse.getAccess_token());
+        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assert.assertNotNull(tokenResponse.getC_nonce());
+        Assert.assertNotNull(tokenResponse.getC_nonce_expires_in());
     }
 }

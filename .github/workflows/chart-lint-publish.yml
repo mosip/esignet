@@ -1,0 +1,62 @@
+name: Validate / Publish helm charts
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'helm/**'
+  workflow_dispatch:
+    inputs:
+      IGNORE_CHARTS:
+        description: 'Provide list of charts to be ignored separated by pipe(|)'
+        required: false
+        default: ''
+        type: string
+      CHART_PUBLISH:
+        description: 'Chart publishing to gh-pages branch'
+        required: false
+        default: 'NO'
+        type: string
+        options:
+          - YES
+          - NO
+      INCLUDE_ALL_CHARTS:
+        description: 'Include all charts for Linting/Publishing (YES/NO)'
+        required: false
+        default: 'NO'
+        type: string
+        options:
+          - YES
+          - NO
+  push:
+    branches:
+      - '!release-branch'
+      - master
+      - 1.*
+      - 0.*
+      - develop
+      - MOSIP*
+      - release*
+    paths:
+      - './helm/**'
+
+jobs:
+  chart-lint-publish:
+    uses: mosip/kattu/.github/workflows/chart-lint-publish.yml@master
+    with:
+      CHARTS_DIR: ./helm
+      CHARTS_URL: https://mosip.github.io/mosip-helm
+      REPOSITORY: mosip-helm
+      BRANCH: gh-pages
+      INCLUDE_ALL_CHARTS: "${{ inputs.INCLUDE_ALL_CHARTS || 'NO' }}"
+      IGNORE_CHARTS: "${{ inputs.IGNORE_CHARTS ||'redis' }}"
+      CHART_PUBLISH: "${{ inputs.CHART_PUBLISH || 'YES' }}"
+      LINTING_CHART_SCHEMA_YAML_URL: "https://raw.githubusercontent.com/mosip/kattu/master/.github/helm-lint-configs/chart-schema.yaml"
+      LINTING_LINTCONF_YAML_URL: "https://raw.githubusercontent.com/mosip/kattu/master/.github/helm-lint-configs/lintconf.yaml"
+      LINTING_CHART_TESTING_CONFIG_YAML_URL: "https://raw.githubusercontent.com/mosip/kattu/master/.github/helm-lint-configs/chart-testing-config.yaml"
+      LINTING_HEALTH_CHECK_SCHEMA_YAML_URL: "https://raw.githubusercontent.com/mosip/kattu/master/.github/helm-lint-configs/health-check-schema.yaml"
+    secrets:
+      TOKEN: ${{ secrets.ACTION_PAT }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

@@ -5,21 +5,28 @@
  */
 package io.mosip.esignet.core.dto;
 
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.Claims;
+import io.mosip.esignet.api.dto.claim.VerificationDetail;
+import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.Data;
 
 import java.util.List;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 @Data
 public class OIDCTransaction implements Serializable {
 
+    String transactionId;
+
     String clientId;
     String relyingPartyId;
     String redirectUri;
     Claims requestedClaims;
+    List<String> essentialClaims;
+    List<String> voluntaryClaims;
     List<String> requestedAuthorizeScopes;
     String[] claimsLocales;
     String authTransactionId;
@@ -45,6 +52,18 @@ public class OIDCTransaction implements Serializable {
     String state;
 
     String individualId;
+    String individualIdHash;
 
     String oauthDetailsHash;
+    ConsentAction consentAction;
+
+    //signup redirect secret
+    String serverNonce;
+
+    //PKCE support
+    ProofKeyCodeExchange proofKeyCodeExchange;
+    List<String> requestedCredentialScopes;
+
+    boolean isInternalAuthSuccess;
+    Map<String, List<VerificationDetail>> claimMetadata;
 }

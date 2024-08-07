@@ -23,6 +23,9 @@ public interface TokenService {
     String JTI = "jti";
     String SCOPE = "scope";
     String ACCESS_TOKEN_HASH = "at_hash";
+    String C_NONCE = "c_nonce";
+    String C_NONCE_EXPIRES_IN = "c_nonce_expires_in";
+    String CLIENT_ID = "client_id";
 
 
     /**
@@ -84,9 +87,10 @@ public interface TokenService {
      * scope: REQUIRED. The list of OAuth scopes this token includes
      *
      * @param transaction
+     * @param cNonce
      * @return
      */
-     String getAccessToken(OIDCTransaction transaction);
+     String getAccessToken(OIDCTransaction transaction, String cNonce);
 
     /**
      * Client's authentication token when using token endpoint
@@ -103,7 +107,7 @@ public interface TokenService {
      * exp : Expiration time on or after which the ID Token MUST NOT be accepted for processing.
      * iat : OPTIONAL. Time at which the JWT was issued.
      */
-     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion) throws EsignetException;
+     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException;
 
     /**
      * Verifies access token signature and also the claims with expected values
@@ -111,6 +115,13 @@ public interface TokenService {
      * @throws NotAuthenticatedException
      */
      void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException;
+
+    /**
+     * Verifies id token signature and also the claims with expected values
+     * if any one verification fails then throws NotAuthenticatedException
+     * @throws NotAuthenticatedException
+     */
+     void verifyIdToken(String idToken, String clientId) throws NotAuthenticatedException;
 
 
     /**
@@ -120,4 +131,14 @@ public interface TokenService {
      * @return
      */
      String getSignedJWT(String applicationId, JSONObject payload);
+
+    /**
+     * Creates ID token with the given subject and audience and nonce
+     * @param subject
+     * @param audience
+     * @param validitySeconds
+     * @param transaction
+     * @return
+     */
+     String getIDToken(String subject, String audience, int validitySeconds, OIDCTransaction transaction);
 }

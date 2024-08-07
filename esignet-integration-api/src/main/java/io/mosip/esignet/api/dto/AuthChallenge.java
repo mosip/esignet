@@ -6,19 +6,18 @@
 package io.mosip.esignet.api.dto;
 
 import io.mosip.esignet.api.util.ErrorConstants;
+import io.mosip.esignet.api.validator.AuthChallengeFactorFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
+@AuthChallengeFactorFormat
 public class AuthChallenge {
 
-    @NotBlank(message = ErrorConstants.INVALID_AUTH_FACTOR_TYPE)
     private String authFactorType;
 
-    @NotBlank(message = ErrorConstants.INVALID_CHALLENGE)
     private String challenge;
 
-    @NotBlank(message = ErrorConstants.INVALID_CHALLENGE_FORMAT)
     private String format;
 }

@@ -57,20 +57,22 @@ spec:
       initContainers:
         {{- if and .Values.volumePermissions.enabled .Values.persistence.enabled }}
         - name: volume-permissions
-          image: {{ include "esignet.volumePermissions.image" . }}
+          image: {{ template "esignet.image" . }}
           imagePullPolicy: {{ .Values.volumePermissions.image.pullPolicy | quote }}
           command:
-            - %%commands%%
+            - /bin/bash
+            - -c
+            - chown -R 1001:1001 {{ .Values.persistence.mountDir }}
           securityContext:
             runAsUser: 0
           {{- if .Values.volumePermissions.resources }}
           resources: {{- toYaml .Values.volumePermissions.resources | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: foo
-              mountPath: bar
+            - name: {{ .Values.persistence.volume_name }}
+              mountPath: {{ .Values.persistence.mountDir }}
         {{- end }}
-        {{- if .Values.initContainers }}
+        {{- if .Values.enable_insecure }}
           {{- include "common.tplvalues.render" (dict "value" .Values.initContainers "context" $) | nindent 8 }}
         {{- end }}
       containers:
@@ -92,8 +94,18 @@ spec:
           env:
             - name: container_user
               value: {{ .Values.containerSecurityContext.runAsUser }}
+            {{- if .Values.additionalResources.javaOpts }}
             - name: JDK_JAVA_OPTIONS
               value: {{ .Values.additionalResources.javaOpts }}
+            {{- end }}
+            {{- if .Values.springConfigNameEnv }}
+            - name: spring_config_name_env
+              value: {{ .Values.springConfigNameEnv }}
+            {{- end }}
+            {{- if .Values.activeProfileEnv }}
+            - name: active_profile_env
+              value: {{ .Values.activeProfileEnv }}
+            {{- end}}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
@@ -130,6 +142,26 @@ spec:
           {{- else if .Values.customReadinessProbe }}
           readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customReadinessProbe "context" $) | nindent 12 }}
           {{- end }}
+          volumeMounts:
+          {{- if .Values.enable_insecure }}
+          - mountPath: /usr/local/openjdk-11/lib/security/cacerts
+            name: cacerts
+            subPath: cacerts
+          {{- end }}
+          {{- if .Values.persistence.enabled }}
+          - name: {{ .Values.persistence.volume_name }}
+            mountPath: {{ .Values.persistence.mountDir }}
+          {{- end }}
         {{- if .Values.sidecars }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
+      volumes:
+      {{- if .Values.enable_insecure }}
+      - name: cacerts
+        emptyDir: {}
+      {{- end }}
+      {{- if .Values.persistence.enabled }}
+      - name: {{ .Values.persistence.volume_name }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default .Values.persistence.pvc_claim_name  }}
+      {{ end }}

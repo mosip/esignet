@@ -1,0 +1,2079 @@
+AuthenticateUser:
+   ESignet_AuthenticateUserIDP_uin_Otp_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Valid_Parameters_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_2nd_Otp_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_2nd_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_2nd_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Valid_Parameters_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_2nd_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_2nd_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Consent_uin_Otp_Same_Claims:
+      endPoint: /v1/esignet/authorization/v2/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsent
+      outputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_2nd_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_2nd_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Consent_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Consent_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Consent_2nd_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Consent_2nd_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Consent_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+          "consentAction": "NOCAPTURE",
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_2nd_Otp_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_2nd_vid_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_2nd_vid_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Valid_Parameters_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_2nd_vid_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_2nd_vid_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Otp_Vid_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Vid_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Vid_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Vid_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Vid_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Same_Claims:
+      endPoint: /v1/esignet/authorization/v2/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsent
+      outputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_Vid_2nd_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_Vid_2nd_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Consent_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Consent_Vid_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Consent_Vid_2nd_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Consent_Vid_2nd_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Consent_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+          "consentAction": "NOCAPTURE",
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Otp_Vid_Invalid_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Temporary_VID_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-OTA-012",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_2_Otp_UnAuthenticated_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_2_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_2_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_Sce2_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Valid_Parameters_Sce2_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Valid_Parameters_Sce2_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-OTA-005",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "2022-11-07T06:51:30",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Diff_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Future_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "2033-11-07T06:51:30.195Z",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Invalid_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "transactionId",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Expired_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+      "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "eZJZ0j3EeZJ_d9CsSakCoA0-Trbm6fOECY6J_q3dZtc",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Missing_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$REMOVE$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Empty_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Null_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "null",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Invalid_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "@#WE$#",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Missing_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$REMOVE$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Empty_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Null_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "null",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Invalid_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge_length
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "#$%FDF",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Missing_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "$REMOVE$",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Empty_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Null_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "null",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Diff_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge_length
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "bio",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Invalid_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "23432",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Missing_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$REMOVE$",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Empty_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Null_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "null",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Invalid_Otp_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+      "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "113453",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-OTA-004",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Other_Otp_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_2_Otp_UnAuthenticated_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_2_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_2_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-OTA-005",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "2022-11-07T06:51:30",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Diff_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Future_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "2033-11-07T06:51:30.195Z",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Invalid_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "transactionId",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Expired_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+      "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "eZJZ0j3EeZJ_d9CsSakCoA0-Trbm6fOECY6J_q3dZtc",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Missing_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$REMOVE$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Empty_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Null_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "null",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Invalid_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "@#WE$#",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Missing_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$REMOVE$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Empty_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Null_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "null",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Invalid_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "#$%FDF",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Missing_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "$REMOVE$",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Empty_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Null_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge_length
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "null",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Diff_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge_length,invalid_auth_factor_type_format
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "bio",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Invalid_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "23432",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Missing_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$REMOVE$",
+        "sendOtp":{
+     "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Empty_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Null_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      allowedErrorCodes: invalid_challenge_length
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "null",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_challenge_length",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Vid_Invalid_Otp_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+      "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "113453",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_vid_Other_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-OTA-004",
+      "errorMessage": "$IGNORE$"
+    }
+  ],
+  "sendOtpResp":{
+        "maskedMobile": "$IGNORE$",
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+        "maskedEmail": "$IGNORE$"
+    }
+}'

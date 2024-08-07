@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import javax.security.auth.x500.X500Principal;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,8 +47,8 @@ public class IdentityProviderUtilTest {
                 "https://api.dev.mosip.net/home/werrrwqfdsfg5fgs34sdffggdfgsdfg?state=reefdf");
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/t*"),
                 "https://api.dev.mosip.net/home/testament?rr=rrr");
-        IdentityProviderUtil.validateRedirectURI(Arrays.asList("HTTPS://DEV.MOSIP.NET/home"),
-                "https://dev.mosip.net/home");
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("io.mosip.residentapp://oauth"),
+                "io.mosip.residentapp://oauth");
     }
 
     @Test
@@ -85,6 +86,11 @@ public class IdentityProviderUtilTest {
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("test-url"),
                     "https://api.dev.mosip.net/home/TEST1");
+            Assert.fail();
+        } catch (EsignetException e) {}
+        try {
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("HTTPS://DEV.MOSIP.NET/home"),
+                "https://dev.mosip.net/home");
             Assert.fail();
         } catch (EsignetException e) {}
     }
@@ -158,7 +164,38 @@ public class IdentityProviderUtilTest {
     	try {
     		IdentityProviderUtil.getCertificateThumbprint("test", getCertificate());
     		Assert.fail();
-        } catch (EsignetException e) {}
+        } catch (EsignetException e) {
+            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_ALGORITHM);
+        }
+    }
+
+    @Test
+    public void test_generateThumbprintByCertificate()throws EsignetException{
+        String thumbprint="YfRxd-cG6urE1r_Ij7yRwMzt0JHoIadZ-lqkdlE0FYo";
+        String certificateString="-----BEGIN CERTIFICATE-----\n" +
+                "MIICrzCCAZegAwIBAgIGAYohPDZlMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
+                "CE1vY2stSURBMB4XDTIzMDgyMzAxNDE0OFoXDTIzMDkwMjAxNDE0OFowHjEcMBoG\n" +
+                "A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP\n" +
+                "ADCCAQoCggEBANcfMOxGBmCZ0sn/Fr1ZvGE1nl0zOxTdhSPkLxgHpq09minv6HsJ\n" +
+                "Om9Y5FBbPQavSYdliFO/61VlOMnKYpCKXx+Rf/+QCBgx4/Wc57bu3xmNtxl76ARh\n" +
+                "HnRGWEz0UH/JX2mX1XgnHSBMgS8F+ckQuvoA7vN/LTIxXl89OkUyHa7HIylvQpsS\n" +
+                "8bv7qXohaHf6IjbQGbjdSpKlLhNgOtgPWHxQu6nzBqtTR/Ks1S1zutfv8p5gip4F\n" +
+                "vLGQ68Il+Nco6vcvKmYIqBZQyMwMBGxYzwmDFeLMBjMi5LR3Qikj/BaH2aVPX8Zg\n" +
+                "D2TqeUvYzobV8Xc+qV6XnGkQdRNKDBKYGmcCAwEAATANBgkqhkiG9w0BAQsFAAOC\n" +
+                "AQEAo7Tjx59tq1hSv6XaGw2BUnBKPqyGpmHDb9y6VXQXkI2YAZghtDoebeppCnrU\n" +
+                "d5219dwEgM0FoUW3pumMN/rM5NGXljktMp5xhyYU1rbBwvj8mGg9YTv7oUk1IQ0K\n" +
+                "keecYS5ZFmbz0N5CgbitJginXn4HKTPd9CEXYEBtkO7C7Onl0LbnH0g2grVuNGqH\n" +
+                "pD5P6TbGJzwrlnxstOCyCVMmRfVIpQFTygMpNjDQTlsXwWt4ZEf/ZiB2W4zYcDMk\n" +
+                "cXGZv5rZBqX/uuptptN7HhYD45Ir4ZAyNFlZuPusQvxiSm674bCkV3lN6oH0Jw2/\n" +
+                "dHnX5TRuFoits1+jx3cNSBHmjA==\n" +
+                "-----END CERTIFICATE-----\n";
+        Assert.assertEquals(thumbprint,IdentityProviderUtil.generateCertificateThumbprint(certificateString));
+        try {
+            IdentityProviderUtil.generateCertificateThumbprint("test");
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_CERTIFICATE);
+        }
     }
     
     public static JWK generateJWK_RSA() {

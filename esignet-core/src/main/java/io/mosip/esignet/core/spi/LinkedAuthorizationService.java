@@ -7,7 +7,6 @@ package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.dto.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 public interface LinkedAuthorizationService {
@@ -26,6 +25,18 @@ public interface LinkedAuthorizationService {
      * @return
      */
     LinkTransactionResponse linkTransaction(LinkTransactionRequest linkTransactionRequest) throws EsignetException;
+
+    /**
+     * Starts a linked-transaction for the provided valid and active link-code.
+     * The started linked-transaction is identified with linked-transaction-id
+     * 
+     * This response will contain map instead of string in clientName, which
+     * contain client's name in multiple language, where key is the language code
+     * and the default client name is provided as value for the key @none
+     * @param linkTransactionRequest
+     * @return
+     */
+    LinkTransactionResponseV2 linkTransactionV2(LinkTransactionRequest linkTransactionRequest) throws EsignetException;
 
     /**
      * Returns the status of linked-transaction if any.
@@ -56,10 +67,24 @@ public interface LinkedAuthorizationService {
     LinkedKycAuthResponse authenticateUser(LinkedKycAuthRequest linkedKycAuthRequest) throws EsignetException;
 
     /**
+     * Authentication request for the required auth-factors
+     * @param linkedKycAuthRequest
+     * @return
+     */
+    LinkedKycAuthResponseV2 authenticateUserV2(LinkedKycAuthRequest linkedKycAuthRequest) throws EsignetException;
+
+    /**
      * Accepted claims are verified and KYC exchange is performed
      * Redirects to requested redirect_uri
      * @param linkedConsentRequest
      */
     LinkedConsentResponse saveConsent(LinkedConsentRequest linkedConsentRequest) throws EsignetException;
+
+    /**
+     * Accepted claims are verified and KYC exchange is performed
+     * Redirects to requested redirect_uri
+     * @param linkedConsentRequest
+     */
+    LinkedConsentResponse saveConsentV2(LinkedConsentRequestV2 linkedConsentRequest) throws EsignetException;
 
 }

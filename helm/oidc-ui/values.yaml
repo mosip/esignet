@@ -137,7 +137,7 @@ additionalResources:
 
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## Clamav container already runs as 'mosip' user, so we may not need to enable this
-container_user: 'root'
+container_user: 'mosip'
 containerSecurityContext:
   enabled: true
   runAsUser: 0
@@ -249,7 +249,7 @@ extraEnvVarsCM:
   - config-server-share
   - artifactory-share
   - softhsm-esignet-share
-  - oidc-ui-cm
+  - oidc-ui
 
 ## Secret with extra environment variables
 ##
@@ -420,6 +420,19 @@ metrics:
 oidc_ui:
   oidc_ui_port: '3000'
   oidc_service_host: 'esignet.esignet'
+  configmaps:
+    oidc-ui:
+      REACT_APP_API_BASE_URL: 'http://esignet.esignet/v1/esignet'
+      REACT_APP_SBI_DOMAIN_URI: 'http://esignet.$NS'
+      OIDC_UI_PUBLIC_URL: ''
+      SIGN_IN_WITH_ESIGNET_PLUGIN_URL: 'http://artifactory.artifactory:80/artifactory/libs-release-local/mosip-plugins/sign-in-with-esignet.zip'
+      DEFAULT_WELLKNOWN: '%5B%7B%22name%22%3A%22OpenID%20Configuration%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-configuration%22%7D%2C%7B%22name%22%3A%22Jwks%20Json%22%2C%22value%22%3A%22%2F.well-known%2Fjwks.json%22%7D%2C%7B%22name%22%3A%22Authorization%20Server%22%2C%22value%22%3A%22%2F.well-known%2Foauth-authorization-server%22%7D%2C%7B%22name%22%3A%22OpenID%20Credential%20Issuer%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-credential-issuer%22%7D%5D'
+      DEFAULT_THEME: ''
+      DEFAULT_LANG: 'en'
+      DEFAULT_FEVICON: 'favicon.ico'
+      DEFAULT_TITLE: 'eSignet'
+      DEFAULT_ID_PROVIDER_NAME: 'eSignet'
+      DEFAULT_FONT_URL: ''
 
 ## OIDC UI swagger should have only internal access. Hence linked to internal gateway
 ## We create a gateway for esignet specific URL(s) listed under `hosts`

@@ -1,0 +1,1001 @@
+CreateOIDCClient:
+   ESignet_CreateOIDCClient_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/CreateOIDCClient/CreateOIDCClientResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+    	"status": "ACTIVE"
+}'
+
+   ESignet_CreateOIDCClient_2_Same_RelyParty_Valid_Smoke_sid:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/CreateOIDCClient/CreateOIDCClientResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$2",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+    	"status": "ACTIVE"
+}'
+
+   ESignet_CreateOIDCClient_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2022-11-07T06:51:30",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Diff_RequestTime_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_StatusCode_Invalid_Token_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$2",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: "401"
+      
+   ESignet_CreateOIDCClient_StatusCode_Diff_Token_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$2",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: "403"
+
+   ESignet_CreateOIDCClient_Invalid_Range_ClientId_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Exceding_Range_ClientId_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv1kbjjl7srfy3veqp88g2u1nn2do7za1svus4hdfj8nr2xe4jlxa54n9okvcv1kbjjl7srfy3veqp88g2u1nn2do7za1svus4hdfj",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_Range_ClientName_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv1",
+      	"clientName": "",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_client_name",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Exceding_Range_ClientName_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv1",
+      	"clientName": "vc0neervbsu10dfbo2vu282lt0r9hf044b1q8wm957k97wpjmrmwz6kcbpv5p9zyocksfyg41u4rpm71hhqy29sqcixg1i0ed2aaxlfd9f5wtpf3py2igi3orhttvh6vqys16nmnke9qwjjr8byjflotzyw078t1azc9rvoftuhdis40mgy9uoyzoypwdbomdkjg3v9y216y7bfpiyoenhgaudirgn432u3c2x27z23zvd094m7ug4lvid8av6jhc24j",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_client_name",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_SpaceFirst_ClientId_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": " 8nr2xe4jlxa54n9okvcv12",
+      	"clientName": "MOSIP OIDC CLIENT",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_SpaceLast_ClientId_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv12 ",
+      	"clientName": "MOSIP OIDC CLIENT",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_SpaceMiddle_ClientId_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4j lxa54n9okvcv12",
+      	"clientName": "MOSIP OIDC CLIENT",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_Range_relyingPartyId_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv1",
+      	"clientName": "MOSIP OIDC CLIENT",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_rp_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_Exceding_Range_relyingPartyId_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv1",
+      	"clientName": "MOSIP OIDC CLIENT",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "8nr2xe4jlxa54n9okvcv1kbjjl7srfy3veqp88g2u1nn2do7za1svus4hdfj8nr2xe4jlxa54n9okvcv1kbjjl7srfy3veqp88g2u1nn2do7za1svus4hdfj",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_rp_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_Range_logoUri_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv1",
+      	"clientName": "MOSIP OIDC CLIENT",
+      	"logoUri": "",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_uri",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_Exceding_Range_logoUri_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "8nr2xe4jlxa54n9okvcv1",
+      	"clientName": "MOSIP OIDC CLIENT",
+      	"logoUri": "jfwy2ky9paqhidten6vg2g4iznvd7l3b6pjnghdvlqzpzmcyq8vdwjm0jalich5t3ro7j716t5zsbg8rqfc99py504vqq74b7p6jtyux9qzzz9ufu24hrgicws8ntszzcwva4tlj8lz1tfubr1vneuv503kn5b591zi0gdfqgj440z86syg0ikpwhpy0hgw1qp5px8dstsoncuc5f43t0hpj3rmiejdhyswpeu6fte0z7811zxauzadx22ii3rsffc7yxu216sqtblwfly7j8r7u32vi47grtqza0yvvondsnek32tktqtb7vycyo33nqhv7rpt5al4vxxa70fablzlr7rf3xzo0u2kti791nywnqed0du1e8356vfu5fsm1tfk6hbscc7ys77hipwernpsctvw3fgvk06qunxylzfmpwz645y8p8liv8s76nwrd3xae1amleljiheuvmrn2qqzcojv65tdreti1cy1sskw3srbgig0h4n6w3l9nts4pb90l19cgmp9y9h54m69uqwwexx8r5jgtcb3cpixwg35gjhzqjo8ub0lrk4etr81b25couzom4mr2ek8s416329cd8fh9k8w2cyr2uas0h9gvvvvvpbh7701kgmpoz712mi37ny7kv6oionrf3370ycsja9eenrr3aybnpt2htl65th9fqlwcpszvhr6ffhcu6q5fss521jr111cfeeobn6byherzj6ayr0io7kgjytucorl2hwir7ragjsdshd579ts55230dvmb4iv8823p7qjf47ik66igdu6b5pn4v3108hfi3gjmre12dusj6g1066n59400183urt2ungulo395k0krhvjotfkg42msujren8pnnz8pmf6vgc3megxhzi3ypycl7o77iq2596n9141mgmgwbe2vlfcc994mv483vwjr7dko10xv3y9n60wfb04a9egu83vws66hgljzey2ore7amcvi7t89kmjfwsy8mywtmokbh9d9jr0a40p76is71t",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_uri",
+      "errorMessage": "request.logoUri: invalid_uri"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Missing_redirectUris:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "2222222dddfggf",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$REMOVE$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_authContextRefs:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "invalid_acr"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_acr",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Null_authContextRefs:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "null"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_acr",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Missing_authContextRefs:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "$REMOVE$"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_acr",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Empty_authContextRefs:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: ""}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_acr",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_publicKey:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClientInvPublicKey
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RA5315$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_public_key",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_UserClaims:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RA5315$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "xyz",
+      	"userClaims2": "fd@gh.com",
+      	"userClaims3": "$REMOVE$",
+      	"userClaims4": "$REMOVE$",
+      	"userClaims5": "$REMOVE$",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Missing_grantTypes_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "$REMOVE$",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_grant_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Null_grantTypes_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "null",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_grant_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_grantTypes_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "$$@###$",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_grant_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Empty_grantTypes_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "",
+      	"clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_grant_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Missing_clientAuthMethods_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "$REMOVE$"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_client_auth",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Invalid_clientAuthMethods_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "$$#@@A"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_client_auth",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Empty_clientAuthMethods_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": ""
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_client_auth",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_CreateOIDCClient_Null_clientAuthMethods_Neg:
+      endPoint: /v1/esignet/client-mgmt/oidc-client
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMID$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "null"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_client_auth",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'

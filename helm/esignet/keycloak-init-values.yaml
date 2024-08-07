@@ -1,5 +1,5 @@
 keycloak:
-  realms: |-
+  realms:
     mosip: # realm
       roles:
         - PARTNER_ADMIN
@@ -25,7 +25,7 @@ keycloak:
         - name: add_oidc_client
           description: Scope required to create OIDC client
           protocol: openid-connect
-          Include In Token Scope : on
+          "Include In Token Scope": on
           attributes: {
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
@@ -33,7 +33,7 @@ keycloak:
         - name: update_oidc_client
           description: ''
           protocol: openid-connect
-          Include In Token Scope : on
+          "Include In Token Scope": on
           attributes: {
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
@@ -41,7 +41,7 @@ keycloak:
         - name: get_certificate
           description: Scope required to create OIDC client
           protocol: openid-connect
-          Include In Token Scope : on
+          "Include In Token Scope": on
           attributes: {
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
@@ -49,7 +49,7 @@ keycloak:
         - name: upload_certificate
           description: ''
           protocol: openid-connect
-          Include In Token Scope : on
+          "Include In Token Scope": on
           attributes: {
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
@@ -57,7 +57,7 @@ keycloak:
         - name: sending_binding_otp
           description: Scope required to create OIDC client
           protocol: openid-connect
-          Include In Token Scope : on
+          "Include In Token Scope": on
           attributes: {
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
@@ -65,7 +65,7 @@ keycloak:
         - name: wallet_binding
           description: ''
           protocol: openid-connect
-          Include In Token Scope : on
+          "Include In Token Scope": on
           attributes: {
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
@@ -74,23 +74,23 @@ keycloak:
         - name: mosip-pms-client
           mappers: []
           saroles:
-           - PARTNER_ADMIN
-           - PUBLISH_OIDC_CLIENT_CREATED_GENERAL
-           - PUBLISH_OIDC_CLIENT_UPDATED_GENERAL
-           - PUBLISH_APIKEY_APPROVED_GENERAL
-           - PUBLISH_APIKEY_UPDATED_GENERAL
-           - PUBLISH_CA_CERTIFICATE_UPLOADED_GENERAL
-           - PUBLISH_MISP_LICENSE_GENERATED_GENERAL
-           - PUBLISH_MISP_LICENSE_UPDATED_GENERAL
-           - PUBLISH_PARTNER_UPDATED_GENERAL
-           - PUBLISH_POLICY_UPDATED_GENERAL
-           - ZONAL_ADMIN
-           - CREATE_SHARE
-           - DEVICE_PROVIDER
-           - PARTNER
-           - PMS_ADMIN
-           - PMS_USER
-           - REGISTRATION_PROCESSOR
+            - PARTNER_ADMIN
+            - PUBLISH_OIDC_CLIENT_CREATED_GENERAL
+            - PUBLISH_OIDC_CLIENT_UPDATED_GENERAL
+            - PUBLISH_APIKEY_APPROVED_GENERAL
+            - PUBLISH_APIKEY_UPDATED_GENERAL
+            - PUBLISH_CA_CERTIFICATE_UPLOADED_GENERAL
+            - PUBLISH_MISP_LICENSE_GENERATED_GENERAL
+            - PUBLISH_MISP_LICENSE_UPDATED_GENERAL
+            - PUBLISH_PARTNER_UPDATED_GENERAL
+            - PUBLISH_POLICY_UPDATED_GENERAL
+            - ZONAL_ADMIN
+            - CREATE_SHARE
+            - DEVICE_PROVIDER
+            - PARTNER
+            - PMS_ADMIN
+            - PMS_USER
+            - REGISTRATION_PROCESSOR
           assign_client_scopes:
             - update_oidc_client
             - add_oidc_client

@@ -6,6 +6,7 @@
 package io.mosip.esignet.core;
 
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.core.dto.OAuthDetailRequestV2;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -485,7 +486,10 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
 		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
-		Assert.assertTrue(validator.isValid("resident-service email openid", null));		
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertTrue(validator.isValid("resident-service email openid", null));
+		Assert.assertTrue(validator.isValid("resident-service", null));
+		Assert.assertTrue(validator.isValid("mosip_identity_json_vc", null));
 	}
 	
 	@Test
@@ -493,7 +497,9 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
 		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
-		Assert.assertFalse(validator.isValid("test scope", null));		
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertFalse(validator.isValid("test scope", null));
+		Assert.assertFalse(validator.isValid("resident-service sample_ldp_vc", null));
 	}
 	
 	@Test
@@ -501,7 +507,8 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
 		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
-		Assert.assertFalse(validator.isValid("email", null));		
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertFalse(validator.isValid("email", null));
 	}
 	
 	@Test
@@ -515,4 +522,129 @@ public class ValidatorTest {
 		OIDCScopeValidator validator = new OIDCScopeValidator();
 		Assert.assertFalse(validator.isValid(null, null));		
 	}
+
+	@Test
+	public void test_OIDCScopeValidator_withBothOpenIdAndCredentialScope_thenFail() {
+		OIDCScopeValidator validator = new OIDCScopeValidator();
+		ReflectionTestUtils.setField(validator, "authorizeScopes", Arrays.asList("resident-service"));
+		ReflectionTestUtils.setField(validator, "openidScopes", Arrays.asList("profile", "email", "phone"));
+		ReflectionTestUtils.setField(validator, "credentialScopes", Arrays.asList("sample_ldp_vc", "mosip_identity_json_vc"));
+		Assert.assertFalse(validator.isValid("profile sample_ldp_vc", null));
+	}
+
+	// ============================ PKCECodeChallengeMethodValidator Validator =========================
+
+	@Test
+	public void test_challengeMethodValidator_withValidValues_thenPass() {
+		PKCECodeChallengeMethodValidator validator = new PKCECodeChallengeMethodValidator();
+		ReflectionTestUtils.setField(validator, "supportedMethods", Arrays.asList("S256", "plain"));
+		Assert.assertTrue(validator.isValid("S256", null));
+		Assert.assertTrue(validator.isValid("plain", null));
+		Assert.assertTrue(validator.isValid(null, null));
+	}
+
+	@Test
+	public void test_challengeMethodValidator_withInvalidValues_thenFail() {
+		PKCECodeChallengeMethodValidator validator = new PKCECodeChallengeMethodValidator();
+		ReflectionTestUtils.setField(validator, "supportedMethods", Arrays.asList("S256", "plain"));
+		Assert.assertFalse(validator.isValid("s256", null));
+		Assert.assertFalse(validator.isValid("PLAIN", null));
+		Assert.assertFalse(validator.isValid("null", null));
+		Assert.assertFalse(validator.isValid("", null));
+		Assert.assertFalse(validator.isValid(" ", null));
+	}
+
+	// ============================ RedirectURLValidator Validator =========================
+
+	@Test
+	public void test_redirectURLValidator_withValidValues_thenPass() {
+		RedirectURLValidator validator = new RedirectURLValidator();
+		Assert.assertTrue(validator.isValid("https://domain.com/test", null));
+		Assert.assertTrue(validator.isValid("http://localhost:9090/png", null));
+		Assert.assertTrue(validator.isValid("http://domain.com/*", null));
+		Assert.assertTrue(validator.isValid("https://domain.com/test/*", null));
+		Assert.assertTrue(validator.isValid("io.mosip.residentapp://oauth", null));
+		Assert.assertTrue(validator.isValid("residentapp://oauth/*", null));
+	}
+
+	@Test
+	public void test_redirectURLValidator_withInvalidValues_thenFail() {
+		RedirectURLValidator validator = new RedirectURLValidator();
+		Assert.assertFalse(validator.isValid("*", null));
+		Assert.assertFalse(validator.isValid("https://domain*", null));
+		Assert.assertFalse(validator.isValid("io.mosip.residentapp://*", null));
+		Assert.assertFalse(validator.isValid("residentapp*", null));
+		Assert.assertFalse(validator.isValid("http*", null));
+	}
+
+// ============================ Signature Format Validator =========================
+
+	@Test
+	public void test_Signature_FormatValidator_nullValue_thenFail() {
+		SignatureFormatValidator validator = new SignatureFormatValidator();
+		Assert.assertFalse(validator.isValid(null, null));
+		Assert.assertFalse(validator.isValid("", null));
+		Assert.assertFalse(validator.isValid("  ", null));
+	}
+
+	@Test
+	public void test_Signature_FormatValidator_validValue_thenPass() {
+		SignatureFormatValidator validator = new SignatureFormatValidator();
+		Assert.assertTrue(validator.isValid("ea12d.iba13", null));
+	}
+	@Test
+	public void test_Signature_FormatValidator_withInvalidValue_thenFail() {
+		SignatureFormatValidator validator = new SignatureFormatValidator();
+		Assert.assertFalse(validator.isValid("eab234", null));
+		Assert.assertFalse(validator.isValid("eabd2314.123cad.123d ", null));
+		Assert.assertFalse(validator.isValid("akf.ia*..aha", null));
+		Assert.assertFalse(validator.isValid("ajjf", null));
+	}
+
+	//=========================== CodeChallengeValidator ==============================//
+
+	@Test
+	public void test_ValidCodeChallengeValidator_withValidDetails_thenPass(){
+		CodeChallengeValidator validator=new CodeChallengeValidator();
+		OAuthDetailRequestV2 request=new OAuthDetailRequestV2();
+		request.setCodeChallenge("codeChallenge");
+		request.setCodeChallengeMethod("codeChallengeMethod");
+		Assert.assertTrue(validator.isValid(request,null));
+		request.setCodeChallenge(null);
+		request.setCodeChallengeMethod(null);
+		Assert.assertTrue(validator.isValid(request,null));
+		request.setCodeChallenge("");
+		request.setCodeChallengeMethod("");
+		Assert.assertTrue(validator.isValid(request,null));
+	}
+
+	@Test
+	public void test_ValidCodeChallengeValidator_withInvalidDetails_thenFail(){
+		CodeChallengeValidator validator=new CodeChallengeValidator();
+		OAuthDetailRequestV2 request=new OAuthDetailRequestV2();
+		request.setCodeChallenge("codeChallenge");
+		request.setCodeChallengeMethod(null);
+		Assert.assertFalse(validator.isValid(request,null));
+		request.setCodeChallenge(null);
+		request.setCodeChallengeMethod("codeChallengeMethod");
+		Assert.assertFalse(validator.isValid(request,null));
+		request.setCodeChallenge("");
+		request.setCodeChallengeMethod("codeChallengeMethod");
+		Assert.assertFalse(validator.isValid(request,null));
+	}
+
+	// ============================ ClientNameLang Validator =========================
+
+	@Test
+	public void test_ClientNameLangValidator_WithValidDetails_thenPass(){
+		ClientNameLangValidator validator=new ClientNameLangValidator();
+		Assert.assertTrue(validator.isValid("eng", null));
+	}
+
+	@Test
+	public void test_ClientNameLangValidator_WithInValidDetail_thenFail(){
+		ClientNameLangValidator validator=new ClientNameLangValidator();
+		Assert.assertFalse(validator.isValid("abc", null));
+	}
+
 }

@@ -5,24 +5,29 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import io.mosip.esignet.api.dto.*;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
-import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
+import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.*;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +38,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.crypto.Cipher;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -73,8 +80,14 @@ public class AuthorizationHelperService {
     @Autowired
     private AuditPlugin auditWrapper;
 
-    @Autowired(required = false)
-    private CaptchaValidator captchaValidator;
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private CaptchaHelper captchaHelper;
 
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
@@ -91,24 +104,36 @@ public class AuthorizationHelperService {
     @Value("${mosip.esignet.cache.store.individual-id}")
     private boolean storeIndividualId;
 
-    @Value("${mosip.esignet.send-otp.captcha-required:false}")
-    private boolean captchaRequired;
+    @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
+    private List<String> captchaRequired;
 
-    protected void validateCaptchaToken(String captchaToken) {
-        if(!captchaRequired) {
-            log.warn("captcha validation is disabled");
+    @Value("#{${mosip.esignet.supported.credential.scopes}}")
+    private List<String> credentialScopes;
+
+    @Value("${mosip.esignet.signup-id-token-audience}")
+    private String signupIDTokenAudience;
+
+    protected void validateSendOtpCaptchaToken(String captchaToken) {
+        if(!captchaRequired.contains("send-otp")) {
+            log.warn("captcha validation is disabled for send-otp request!");
             return;
         }
-
-        if(captchaValidator == null) {
-            log.error("Captcha validator instance is NULL, Unable to validate captcha token");
-            throw new EsignetException(ErrorConstants.FAILED_TO_VALIDATE_CAPTCHA);
+        if(!StringUtils.hasText(captchaToken)) {
+        	log.error("Captcha token is Null or Empty");
+        	throw new EsignetException(INVALID_CAPTCHA);
         }
-
-        if(!captchaValidator.validateCaptcha(captchaToken))
-            throw new EsignetException(ErrorConstants.INVALID_CAPTCHA);
+        validateCaptchaToken(captchaToken);
     }
 
+    protected void validateCaptchaToken(String captchaToken) {
+        if (captchaHelper == null) {
+            log.error("Captcha validator instance is NULL, Unable to validate captcha token");
+            throw new EsignetException(FAILED_TO_VALIDATE_CAPTCHA);
+        }
+
+        if (!captchaHelper.validateCaptcha(captchaToken))
+            throw new EsignetException(INVALID_CAPTCHA);
+    }
 
     protected void addEntryInLinkStatusDeferredResultMap(String key, DeferredResult deferredResult) {
         LINK_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
@@ -162,18 +187,27 @@ public class AuthorizationHelperService {
     }
 
     protected List<String> getAuthorizeScopes(String requestedScopes) {
-        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, Constants.SPACE);
+        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, SPACE);
         return Arrays.stream(scopes)
                 .filter( s -> authorizeScopes.contains(s) )
                 .collect(Collectors.toList());
     }
 
+    protected List<String> getCredentialScopes(String requestedScopes) {
+        String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, SPACE);
+        return Arrays.stream(scopes)
+                .filter( s -> credentialScopes.contains(s) )
+                .collect(Collectors.toList());
+    }
+
     protected KycAuthResult delegateAuthenticateRequest(String transactionId, String individualId,
                                                         List<AuthChallenge> challengeList, OIDCTransaction transaction) {
+
         KycAuthResult kycAuthResult;
         try {
+            KycAuthDto kycAuthDto = new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList);
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList));
+                    isVerifiedClaimRequested(transaction), kycAuthDto);
         } catch (KycAuthException e) {
             log.error("KYC auth failed for transaction : {}", transactionId, e);
             throw new EsignetException(e.getErrorCode());
@@ -189,28 +223,90 @@ public class AuthorizationHelperService {
         return kycAuthResult;
     }
 
-    protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws EsignetException {
-        if(CollectionUtils.isEmpty(acceptedClaims))
-            return;
+    /**
+     * Method validates challenge with "IDT" auth factor
+     * @param authChallenge
+     * @param transaction
+     * @param httpServletRequest
+     * @return
+     */
+    protected KycAuthResult handleInternalAuthenticateRequest(@NonNull AuthChallenge authChallenge,
+                                                              @NonNull OIDCTransaction transaction, HttpServletRequest httpServletRequest) {
+        try {
+            JsonNode jsonNode = objectMapper.readTree(IdentityProviderUtil.b64Decode(authChallenge.getChallenge()));
+            if(jsonNode.isNull() || jsonNode.get("token").isNull())
+                throw new EsignetException(AUTH_FAILED);
+            String token = jsonNode.get("token").textValue();
+            tokenService.verifyIdToken(token, signupIDTokenAudience);
+            JWT jwt = JWTParser.parse(token);
+            String subject = jwt.getJWTClaimsSet().getSubject();
+            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies())
+                    .filter(x -> x.getName().equals(subject))
+                    .findFirst();
+            OIDCTransaction haltedTransaction = cacheUtilService.getHaltedTransaction(subject);
 
-        if(CollectionUtils.isEmpty(transaction.getRequestedClaims().getUserinfo()))
-            throw new EsignetException(INVALID_ACCEPTED_CLAIM);
-
-        if(acceptedClaims.stream()
-                .allMatch( claim -> transaction.getRequestedClaims().getUserinfo().containsKey(claim) ))
-            return;
-
-        throw new EsignetException(INVALID_ACCEPTED_CLAIM);
+            //Validate if cookie is present with token subject as name and halted transaction is present in cache
+            if(result.isPresent() && haltedTransaction != null && haltedTransaction.getServerNonce().equals(
+                    result.get().getValue().split(SERVER_NONCE_SEPARATOR)[0])) {
+                transaction.setIndividualId(haltedTransaction.getIndividualId());
+                KycAuthResult kycAuthResult = new KycAuthResult();
+                kycAuthResult.setKycToken(subject);
+                kycAuthResult.setPartnerSpecificUserToken(subject);
+                return kycAuthResult;
+            }
+            log.error("ID token in the challenge is not matching the required conditions. isCookiePresent: {}, isHaltedTransactionFound: {}",
+                    result.isPresent(), haltedTransaction!=null);
+        } catch (Exception e) {
+            log.error("Failed to parse ID token as challenge", e);
+        }
+        throw new EsignetException(AUTH_FAILED);
     }
 
-    protected void validateAuthorizeScopes(OIDCTransaction transaction, List<String> authorizeScopes) throws EsignetException {
-        if(CollectionUtils.isEmpty(authorizeScopes))
+    /**
+     * This method is used to validate the requested claims against the accepted claims
+     * <ul>
+     *     <li>Checks Performed</li>
+     *     <ul>
+     *         <li>accepted Claims should be subset of requested claims</li>
+     *         <li>essential Claims should be a subset of accepted claims</li>
+     *     </ul>
+     * </ul>
+     *
+     * @param transaction object containg OIDC transaction details
+     * @param acceptedClaims list of accepted claims
+     * @throws EsignetException
+     *
+     */
+    protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws EsignetException {
+        Map<String, ClaimDetail> userinfo = Optional.ofNullable(transaction.getRequestedClaims())
+                .map(Claims::getUserinfo)
+                .orElse(Collections.emptyMap());
+
+        List<String> essentialClaims = userinfo.entrySet().stream()
+                .filter(e -> Optional.ofNullable(e.getValue()).map(ClaimDetail::isEssential).orElse(false))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        Set<String> allRequestedClaims = userinfo.keySet();
+        Set<String> acceptedClaimsSet = new HashSet<>(Optional.ofNullable(acceptedClaims).orElse(Collections.emptyList()));
+
+        if (essentialClaims.stream().anyMatch(c -> !acceptedClaimsSet.contains(c))
+                || !allRequestedClaims.containsAll(acceptedClaimsSet)) {
+            throw new EsignetException(INVALID_ACCEPTED_CLAIM);
+        }
+    }
+
+    protected void validatePermittedScopes(OIDCTransaction transaction, List<String> permittedScopes) throws EsignetException {
+        if(CollectionUtils.isEmpty(permittedScopes))
             return;
 
-        if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()))
+        if(CollectionUtils.isEmpty(transaction.getRequestedAuthorizeScopes()) &&
+                CollectionUtils.isEmpty(transaction.getRequestedCredentialScopes()))
             throw new EsignetException(INVALID_PERMITTED_SCOPE);
 
-        if(!transaction.getRequestedAuthorizeScopes().containsAll(authorizeScopes))
+        List<String> authorizeScopes = Objects.requireNonNullElse(transaction.getRequestedAuthorizeScopes(), Collections.emptyList());
+        List<String> credentialScopes = Objects.requireNonNullElse(transaction.getRequestedCredentialScopes(), Collections.emptyList());
+        if(!permittedScopes.stream().allMatch(scope -> authorizeScopes.contains(scope) || credentialScopes.contains(scope)))
             throw new EsignetException(INVALID_PERMITTED_SCOPE);
     }
 
@@ -280,10 +376,11 @@ public class AuthorizationHelperService {
         linkAuthCodeResponse.setCode(authCode);
         responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         responseWrapper.setResponse(linkAuthCodeResponse);
+        auditWrapper.logAudit(Action.LINK_AUTH_CODE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, oidcTransaction), null);
         return responseWrapper;
     }
 
-    protected String getKeyHash(@NotNull String value) {
+    public String getKeyHash(@NotNull String value) {
         return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, value);
     }
 
@@ -307,7 +404,7 @@ public class AuthorizationHelperService {
             return IdentityProviderUtil.b64Encode(cipher.doFinal(secretDataBytes, 0, secretDataBytes.length));
         } catch(Exception e) {
             log.error("Error Cipher Operations of provided secret data.", e);
-            throw new EsignetException(ErrorConstants.AES_CIPHER_FAILED);
+            throw new EsignetException(AES_CIPHER_FAILED);
         }
     }
 
@@ -319,7 +416,7 @@ public class AuthorizationHelperService {
             return new String(cipher.doFinal(decodedBytes, 0, decodedBytes.length));
         } catch(Exception e) {
             log.error("Error Cipher Operations of provided secret data.", e);
-            throw new EsignetException(ErrorConstants.AES_CIPHER_FAILED);
+            throw new EsignetException(AES_CIPHER_FAILED);
         }
     }
 
@@ -328,7 +425,7 @@ public class AuthorizationHelperService {
         if (Objects.nonNull(keyAlias)) {
             return keyStore.getSymmetricKey(keyAlias);
         }
-        throw new EsignetException(ErrorConstants.NO_UNIQUE_ALIAS);
+        throw new EsignetException(NO_UNIQUE_ALIAS);
     }
 
     private String getKeyAlias(String keyAppId, String keyRefId) {
@@ -338,6 +435,14 @@ public class AuthorizationHelperService {
             return currentKeyAliases.get(0).getAlias();
         }
         log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
-        throw new EsignetException(ErrorConstants.NO_UNIQUE_ALIAS);
+        throw new EsignetException(NO_UNIQUE_ALIAS);
+    }
+
+    private boolean isVerifiedClaimRequested(OIDCTransaction transaction) {
+        return transaction.getRequestedClaims().getUserinfo() != null &&
+                transaction.getRequestedClaims().getUserinfo()
+                .entrySet()
+                .stream()
+                .anyMatch( entry -> entry.getValue() != null && entry.getValue().getVerification() != null);
     }
 }

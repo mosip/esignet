@@ -9,6 +9,12 @@ Loads certs for default partners for sandbox. Refer [mosip-onboarding repo](http
 ```
 ./install.sh
 ```
+## Automating MISP Partner License key for eSignet module
+* Added `misp_key.sh` script through which the MISP license key is obtained with the following endpoint:
+  `v1/partnermanager/misps/$MISP_PARTNER_ID/licenseKey`
+* The above license key is passed through the `config-server` as placeholder named `mosip.esignet.misp.key` in `esignet-default.properties` file and then saved as a secret called `onboarder-keys` in the kubernetes environment.
+* This change is a part of the `install.sh` script of partner-onboarder.
+
 # Troubleshootings
 
 * After completion of the job, a very detailed `html report` is prepared and stored at https://onboarder.{sandbox_base_url}.mosip.net

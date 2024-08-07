@@ -1,0 +1,20 @@
+GenerateTokenSunBirdC:
+   ESignet_GenerateTokenSunBirdC_Valid_Smoke_sid:
+      endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/SunBirdC/GenerateTokenSunBirdC/GenerateTokenSunBirdC
+      outputTemplate: esignet/SunBirdC/GenerateTokenSunBirdC/GenerateTokenSunBirdCResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_SunBirdC_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$",
+  		  "code_verifier": "$CODEVERIFIER$"
+}'
+      output: '{
+   		"token_type": "Bearer"
+}'

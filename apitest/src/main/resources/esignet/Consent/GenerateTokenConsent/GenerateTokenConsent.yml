@@ -1,0 +1,76 @@
+GenerateTokenConsent:
+   ESignet_GenerateToken_Consent_uin_Claim2_Valid_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsent
+      outputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsentResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_Consent_uin_Claim2_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'
+
+   ESignet_GenerateToken_Consent_Vid_Claim2_Valid_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsent
+      outputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsentResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_Consent_Vid_Claim2_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'
+
+   ESignet_GenerateToken_Consent_uin_Valid_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsent
+      outputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsentResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_Consent_uin_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'
+
+   ESignet_GenerateToken_Consent_Vid_Valid_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsent
+      outputTemplate: esignet/Consent/GenerateTokenConsent/GenerateTokenConsentResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_Consent_Vid_All_Valid_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'

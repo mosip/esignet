@@ -1,0 +1,19 @@
+{
+    "requestTime": "{{requestTime}}",
+    "request": {
+        "linkedTransactionId": "{{linkedTransactionId}}",
+        "permittedAuthorizeScopes": [
+	      {{#each permittedAuthorizeScopes}}
+	            "{{scope}}"
+	          {{#unless @last}},{{/unless}}
+	      	{{/each}}
+    ],
+    "acceptedClaims": [
+	      {{#each acceptedClaims}}
+	            "{{claim}}"
+	          {{#unless @last}},{{/unless}}
+	      {{/each}}
+        ],
+    "signature": "{{signature}}"
+    }
+}

@@ -31,11 +31,13 @@ public interface OAuthService {
      * @return
      * @throws EsignetException
      */
-    TokenResponse getTokens(@Valid TokenRequest tokenRequest) throws EsignetException;
+    TokenResponse getTokens(@Valid TokenRequest tokenRequest,boolean isV2) throws EsignetException;
 
     /**
      * API to get list of IdP public keys
      * @return list of all the keys used to sign access-token, id-token and user kyc data
      */
     Map<String, Object> getJwks();
+
+    Map<String, Object> getOAuthServerDiscoveryInfo();
 }

@@ -1,0 +1,2724 @@
+WalletBinding:
+   ESignet_WalletBinding_uin_OTP_Valid_Smoke:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/WalletBinding/WalletBindingResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_OTP_Phone_Valid_Smoke:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/WalletBinding/WalletBindingResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_WOEmail_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_WOEmail_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_WOEmail_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_OTP_Email_Valid_Smoke:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/WalletBinding/WalletBindingResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_WOPhone_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_WOPhone_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_WOPhone_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_OTP_Valid_Smoke:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/WalletBinding/WalletBindingResult
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "asdf$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_PastVal_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "2033-11-07T06:51:30.195Z",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Future_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "2033-11-07T06:51:30.195Z",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$tyhg",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "binding_auth_failed",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Empty_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_individual_id",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Null_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "null",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "binding_auth_failed",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Missing_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$REMOVE$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_individual_id",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_SpaceVal_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": " ",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+         "errors": [
+    {
+      "errorCode": "invalid_individual_id"
+    }
+  ],
+       "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "dfg5",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_challenge_length"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Missing_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "$REMOVE$",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_EmptyVal_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_SpaceVal_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": " ",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "gd5$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_length"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_EmptyVal_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Missing_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$REMOVE$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+     "errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_SpaceVal_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": " ",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "GT$r5",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Missing_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "$REMOVE$",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_SpaceVal_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": " ",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_challenge_format",
+      "errorMessage": "request.challengeList[0].format: unsupported_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Empty_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "hy$5",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Missing_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "$REMOVE$",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "request.authFactorType: invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Empty_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "request.authFactorType: invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_SpaceVal_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": " ",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "hju$5",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Empty_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format",
+      "errorMessage": "request.format: unsupported_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Missing_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "$REMOVE$",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format",
+      "errorMessage": "request.format: unsupported_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_SpaceVal_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": " ",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Invalid_publicKey_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "ghj$4",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "unknown_error",
+      "errorMessage": "JSON parse error: Cannot construct instance of `java.util.LinkedHashMap` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value (\u0027ghj$4\u0027); nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of `java.util.LinkedHashMap` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value (\u0027ghj$4\u0027)\n at [Source: (PushbackInputStream); line: 1, column: 221] (through reference chain: io.mosip.idp.core.dto.RequestWrapper[\"request\"]-\u003eio.mosip.idp.core.dto.WalletBindingRequest[\"publicKey\"])"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_uin_Null_publicKey_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "null",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_UIN$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_public_key",
+      "errorMessage": "request.publicKey: invalid_public_key"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "asdf$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_PastVal_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "2033-11-07T06:51:30.195Z",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Future_RequestTime_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "2033-11-07T06:51:30.195Z",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$tyhg",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "binding_auth_failed",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Empty_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_individual_id",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Null_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "null",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "binding_auth_failed",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Missing_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$REMOVE$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_individual_id",
+      "errorMessage": "request.individualId: invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_SpaceVal_IndividualId_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": " ",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+         "errors": [
+    {
+      "errorCode": "invalid_individual_id"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "dfg5",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_challenge_length"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Missing_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "$REMOVE$",
+        "challenge": "$ID:AddIdentity_Valid_Params_BindOtp_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_EmptyVal_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_auth_factor_type
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_SpaceVal_AuthFactorType_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      allowedErrorCodes: invalid_auth_factor_type,invalid_auth_factor_type_format,invalid_challenge_length
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": " ",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "request.challengeList[0].authFactorType: invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "gd5$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_length"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_EmptyVal_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Missing_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$REMOVE$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+     "errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_SpaceVal_Challenge_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": " ",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "request.challengeList[0].challenge: invalid_challenge"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "GT$r5",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Missing_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "$REMOVE$",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format",
+      "errorMessage": "request.format: unsupported_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_SpaceVal_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": " ",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_challenge_format",
+      "errorMessage": "request.challengeList[0].format: unsupported_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Empty_Formate_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      allowedErrorCodes: invalid_challenge_format
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "hy$5",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Missing_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "$REMOVE$",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "request.authFactorType: invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Empty_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type",
+      "errorMessage": "request.authFactorType: invalid_auth_factor_type"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_SpaceVal_authFactorType1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": " ",
+        "format1": "jwt",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "hju$5",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Empty_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format",
+      "errorMessage": "request.format: unsupported_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Missing_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "$REMOVE$",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+       "errors": [
+    {
+      "errorCode": "invalid_challenge_format",
+      "errorMessage": "request.format: unsupported_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_SpaceVal_format1_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": " ",
+        "publicKey": "$JWKKEY$",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_auth_factor_type_or_challenge_format"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Invalid_publicKey_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "ghj$4",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "unknown_error",
+      "errorMessage": "JSON parse error: Cannot construct instance of `java.util.LinkedHashMap` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value (\u0027ghj$4\u0027); nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of `java.util.LinkedHashMap` (although at least one Creator exists): no String-argument constructor/factory method to deserialize from String value (\u0027ghj$4\u0027)\n at [Source: (PushbackInputStream); line: 1, column: 221] (through reference chain: io.mosip.idp.core.dto.RequestWrapper[\"request\"]-\u003eio.mosip.idp.core.dto.WalletBindingRequest[\"publicKey\"])"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'
+
+   ESignet_WalletBinding_Vid_Null_publicKey_Neg:
+      endPoint: /v1/esignet/binding/wallet-binding
+      role: mobileauth
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      restMethod: post
+      inputTemplate: esignet/WalletBinding/WalletBinding
+      outputTemplate: esignet/error
+      input: '{
+        "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "requestTime": "$TIMESTAMP$",
+        "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+        "authFactorType": "OTP",
+        "challenge": "$ID:AddIdentity_Vid_Generation_smoke_Pos_EMAIL$",
+        "format": "alpha-numeric",
+        "authFactorType1": "WLA",
+        "format1": "jwt",
+        "publicKey": "null",        
+        "sendOtp":{
+           "requestTime": "$TIMESTAMP$",
+           "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+           "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+   	       "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+           "otpChannels": [{channel: "email"},{channel: "phone"}],
+           "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+           "sendOtpEndPoint": "/v1/esignet/binding/binding-otp"
+    }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_public_key",
+      "errorMessage": "request.publicKey: invalid_public_key"
+    }
+  ],
+        "sendOtpResp": {
+           "maskedMobile": "$IGNORE$",
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
+           "maskedEmail": "$IGNORE$"
+       }
+}'

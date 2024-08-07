@@ -1,11 +1,19 @@
 {
   "languages_2Letters": {
     "en": "English",
-    "ar": "عربى"
+    "hi": "हिंदी",
+    "ar": "عربى",
+    "kn": "ಕನ್ನಡ",
+    "ta": "தமிழ்",
+    "km": "ខ្មែរ"
   },
   "rtlLanguages": ["ar"],
   "langCodeMapping": {
     "eng": "en",
-    "ara": "ar"
+    "hin": "hi",
+    "ara": "ar",
+    "kan": "kn",
+    "tam": "ta",
+    "khm": "km"
   }
 }

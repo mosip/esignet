@@ -72,6 +72,7 @@ public class KeyBindingHelperService {
         publicKeyRegistry.setExpiredtimes(expireDTimes);
         publicKeyRegistry.setWalletBindingId(walletBindingId == null ? generateWalletBindingId(partnerSpecificUserToken) : walletBindingId);
         publicKeyRegistry.setCertificate(certificateData);
+        publicKeyRegistry.setThumbprint(IdentityProviderUtil.generateCertificateThumbprint(certificateData));
         publicKeyRegistry.setCreatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
         publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
         log.info("Saved PublicKeyRegistry details successfully");

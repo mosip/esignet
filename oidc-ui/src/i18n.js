@@ -13,12 +13,12 @@ i18n
   // init i18next
   .init({
     debug: false,
-    fallbackLng: window["envConfigs"].defaultLang, //default language
+    fallbackLng: window._env_.DEFAULT_LANG, //default language
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },
     backend: {
-      loadPath: "/locales/{{lng}}.json",
+      loadPath: process.env.PUBLIC_URL + "/locales/{{lng}}.json",
     },
   });
 

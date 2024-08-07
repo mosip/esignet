@@ -1,43 +1,53 @@
 name: Tagging of repos
 
-env:
-  tag: v1.2.3
-
 on:
   workflow_dispatch:
     inputs:
-      tag:
+      TAG:
         description: 'Tag to be published'
         required: true
-        default: 'v1.2.3'
         type: string
-      body:
+      BODY:
         description: 'Release body message'
         required: true
         default: 'Changes in this Release'
         type: string
-      pre-release:
+      PRE_RELEASE:
         description: 'Pre-release? True/False'
-        required: true
-        default: False
+        required: false
+        default: 'false'
         type: string
+      DRAFT:
+        description: 'Draft? True/False'
+        required: false
+        default: 'false'
+        type: string
+      ONLY_TAG:
+        description: "Only Tag"
+        required: false
+        type: string
+        default: 'false'
+      BRANCH:
+        description: 'Branch name'
+        required: true
+        type: string
+      LATEST:
+        description: 'Latest release'
+        required: false
+        type: string
+        default: 'true'
 
 jobs:
-  build:
-    name: Create Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.event.inputs.tag }}
-          release_name: ${{ github.event.inputs.tag }}
-          body: |
-            ${{ github.event.inputs.body }}
-          draft: false
-          prerelease: ${{fromJSON(github.event.inputs.pre-release)}}
+  tag-branch:
+    uses: mosip/kattu/.github/workflows/tag.yml@master
+    with:
+      TAG: ${{ inputs.TAG }}
+      BODY: ${{ inputs.BODY }}
+      PRE_RELEASE: ${{ inputs.PRE_RELEASE }}
+      DRAFT: ${{ inputs.DRAFT }}
+      ONLY_TAG: ${{ inputs.ONLY_TAG }}
+      BRANCH: ${{ inputs.BRANCH }}
+      LATEST: ${{ inputs.LATEST }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      TOKEN: ${{ secrets.ACTION_PAT }}

@@ -34,6 +34,7 @@ export default function Tabs({ color, tabs, block }) {
                   data-toggle="tab"
                   href="#link1"
                   role="tablist"
+                  id={tab.name + index}
                 >
                   <i className={"fas fa-" + tab.icon + " text-base mr-1"}></i>{" "}
                   {t(tab.name)}

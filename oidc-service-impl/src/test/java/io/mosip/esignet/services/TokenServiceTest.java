@@ -71,7 +71,7 @@ public class TokenServiceTest {
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setClientId("client-id");
         transaction.setPartnerSpecificUserToken("psut");
-        transaction.setNonce("monce");
+        transaction.setNonce("nonce");
         transaction.setAuthTimeInSeconds(22);
         transaction.setAHash("access-token-hash");
         transaction.setProvidedAuthFactors(new HashSet<>());
@@ -93,7 +93,7 @@ public class TokenServiceTest {
         transaction.setClientId("client-id");
         transaction.setPartnerSpecificUserToken("psut");
         transaction.setPermittedScopes(Arrays.asList("read", "write"));
-        String token = tokenService.getAccessToken(transaction);
+        String token = tokenService.getAccessToken(transaction, null);
         Assert.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
@@ -102,14 +102,31 @@ public class TokenServiceTest {
         Assert.assertEquals("test-issuer", jsonObject.get(ISS));
     }
 
+    @Test
+    public void getAccessTokenWithNonce_test() throws JSONException {
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setClientId("client-id");
+        transaction.setPartnerSpecificUserToken("psut");
+        transaction.setPermittedScopes(Arrays.asList("read", "write"));
+        String token = tokenService.getAccessToken(transaction, "test_cnonce");
+        Assert.assertNotNull(token);
+        JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
+        Assert.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
+        Assert.assertEquals("read write", jsonObject.get(SCOPE));
+        Assert.assertEquals("test-issuer", jsonObject.get(ISS));
+        Assert.assertEquals("test_cnonce", jsonObject.get(C_NONCE));
+        Assert.assertNotNull(jsonObject.get(C_NONCE_EXPIRES_IN));
+    }
+
     @Test(expected = EsignetException.class)
     public void verifyClientAssertionToken_withNullAssertion_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", publidKey, null);
+        tokenService.verifyClientAssertionToken("client-id", publidKey, null,"audience");
     }
 
     @Test(expected = InvalidRequestException.class)
     public void verifyClientAssertionToken_withInvalidToken_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", publidKey, "client-assertion");
+        tokenService.verifyClientAssertionToken("client-id", publidKey, "client-assertion","audience");
     }
 
     @Test(expected = NotAuthenticatedException.class)
@@ -125,6 +142,16 @@ public class TokenServiceTest {
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withInvalidDataToken_thenFail() {
         tokenService.verifyAccessToken("client-id", publidKey, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJhZWxkdW5nIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.qH7Zj_m3kY69kxhaQXTa-ivIpytKXXjZc1ZSmapZnGE");
+    }
+
+    @Test(expected = NotAuthenticatedException.class)
+    public void verifyIdTokenHint_withNullToken_thenFail() {
+        tokenService.verifyIdToken(null,"client-id");
+    }
+
+    @Test(expected = NotAuthenticatedException.class)
+    public void verifyTokenHint_withInvalidToken_thenFail() {
+        tokenService.verifyIdToken("id_token_hint","client-id");
     }
 
     private SignatureService getSignatureService() {

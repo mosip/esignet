@@ -1,0 +1,48 @@
+GetOidcUserInfoConsent:
+   ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsent
+      outputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsentResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_Consent_uin_Claim2_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"
+      
+   ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsent
+      outputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsentResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_Consent_Vid_Claim2_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"
+
+   ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsent
+      outputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsentResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_Consent_uin_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"
+      
+   ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oidc/userinfo
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsent
+      outputTemplate: esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsentResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_Consent_Vid_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"

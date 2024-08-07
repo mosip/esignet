@@ -1,0 +1,574 @@
+AuthenticateUser:
+#   IDP_AuthenticateUserIDP_Pin_Valid_Smoke:
+#     endPoint: /v1/esignet/authorization/authenticate
+#      role: resident
+#      restMethod: post
+#      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+#      outputTemplate: idp/AuthenticateUser/AuthenticateUserResult
+#      input: '{
+#      	"requestTime": "$TIMESTAMP$",
+#      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+#      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+#      	"authFactorType" : "PIN",
+#      	"challenge" : "34789"
+#}'
+#      output: '{
+#      
+#}'
+#
+   IDP_AuthenticateUserIDP_Otp_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/AuthenticateUser/AuthenticateUserResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      
+}'
+
+   IDP_AuthenticateUserIDP_Otp_Vid_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/AuthenticateUser/AuthenticateUserResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      
+}'
+
+   IDP_AuthenticateUserIDP_Otp_Vid_Invalid_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/AuthenticateUser/AuthenticateUserResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:Generate_Temporary_VID_Valid_Smoke_sid_vid$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      
+}'
+
+   IDP_AuthenticateUserIDP_2_Otp_UnAuthenticated_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_2_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_Sce2_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "2022-11-07T06:51:30",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Diff_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Future_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "2033-11-07T06:51:30.195Z",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Invalid_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "transactionId",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Expired_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "eZJZ0j3EeZJ_d9CsSakCoA0-Trbm6fOECY6J_q3dZtc",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Missing_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$REMOVE$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Empty_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Null_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "null",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Invalid_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "@#WE$#",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Missing_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$REMOVE$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Empty_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_identifier",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Null_IndividualId_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "null",
+      	"authFactorType" : "OTP",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Invalid_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "#$%FDF",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "auth_factor_mismatch",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Missing_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "$REMOVE$",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "auth_factor_mismatch",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Empty_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "auth_factor_mismatch",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Null_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "null",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "auth_factor_mismatch",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Diff_AuthFactorType_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "bio",
+      	"challenge" : "111111"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "auth_factor_mismatch",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Invalid_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "23432"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Missing_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$REMOVE$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Empty_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : ""
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Null_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "null"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   IDP_AuthenticateUserIDP_Invalid_Otp_Challenge_Neg:
+      endPoint: /v1/esignet/authorization/authenticate
+      role: resident
+      restMethod: post
+      inputTemplate: idp/AuthenticateUser/AuthenticateUser
+      outputTemplate: idp/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "113453"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "IDA-MLC-007",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'

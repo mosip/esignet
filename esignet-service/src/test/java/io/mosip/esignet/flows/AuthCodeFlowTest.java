@@ -6,7 +6,9 @@
 package io.mosip.esignet.flows;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -18,9 +20,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.api.dto.AuthChallenge;
-import io.mosip.esignet.api.dto.ClaimDetail;
-import io.mosip.esignet.api.dto.Claims;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthDto;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.dto.*;
@@ -147,8 +150,8 @@ public class AuthCodeFlowTest {
         String redirectionUrl = "https://service.client.com/home";
         String code = null;
 
-        ResponseWrapper<OAuthDetailResponse> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
-        OAuthDetailResponse oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
+        ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
+        OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         log.info("Successfully received oauth details : {}", oAuthDetailResponse);
 
         oauthDetailsKeyHeader = oAuthDetailResponse.getTransactionId();
@@ -278,7 +281,7 @@ public class AuthCodeFlowTest {
     }
 
     private ResponseWrapper<AuthResponse> authenticate(String transactionId) throws Exception {
-        KycAuthDto kycAuthDto = new KycAuthDto();
+        AuthRequest kycAuthDto = new AuthRequest();
         kycAuthDto.setIndividualId("8267411571");
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("PIN");
@@ -287,7 +290,7 @@ public class AuthCodeFlowTest {
         kycAuthDto.setChallengeList(Arrays.asList(authChallenge));
         kycAuthDto.setTransactionId(transactionId);
 
-        RequestWrapper<KycAuthDto> wrapper = new RequestWrapper<>();
+        RequestWrapper<AuthRequest> wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(kycAuthDto);
 
@@ -305,7 +308,7 @@ public class AuthCodeFlowTest {
         return response;
     }
 
-    private ResponseWrapper<OAuthDetailResponse> getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
+    private ResponseWrapper<OAuthDetailResponseV1> getOauthDetails(String clientId, String redirectionUrl,String state, String nonce) throws Exception {
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
         oAuthDetailRequest.setClientId(clientId);
         oAuthDetailRequest.setRedirectUri(redirectionUrl);
@@ -316,9 +319,9 @@ public class AuthCodeFlowTest {
         oAuthDetailRequest.setResponseType("code");
         oAuthDetailRequest.setNonce(nonce);
         oAuthDetailRequest.setState(state);
-        Claims claims = new Claims();
+        ClaimsV2 claims = new ClaimsV2();
         claims.setUserinfo(new HashMap<>());
-        claims.getUserinfo().put("email", new ClaimDetail(null,null,true));
+        claims.getUserinfo().put("email", getClaimDetail(null, null, true));
         oAuthDetailRequest.setClaims(claims);
 
         RequestWrapper<OAuthDetailRequest> request = new RequestWrapper<>();
@@ -334,8 +337,8 @@ public class AuthCodeFlowTest {
                 .andExpect(jsonPath("$.response.essentialClaims.length()").value(1))
                 .andExpect(jsonPath("$.response.voluntaryClaims.length()").value(2)).andReturn();
 
-        ResponseWrapper<OAuthDetailResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),
-                new TypeReference<ResponseWrapper<OAuthDetailResponse>>() {});
+        ResponseWrapper<OAuthDetailResponseV1> response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<ResponseWrapper<OAuthDetailResponseV1>>() {});
         return response;
     }
 
@@ -362,6 +365,18 @@ public class AuthCodeFlowTest {
                 .andExpect(jsonPath("$.errors").isEmpty())
                 .andExpect(jsonPath("$.response.clientId").value(clientId))
                 .andExpect(jsonPath("$.response.status").value(Constants.CLIENT_ACTIVE_STATUS));
+    }
+
+    private JsonNode getClaimDetail(String value, String[] values, boolean essential) {
+        Map<String, Object> detail = new HashMap<>();
+        detail.put("value", value);
+        detail.put("values", values);
+        detail.put("essential", essential);
+        try {
+            return objectMapper.readTree(objectMapper.writeValueAsString(detail));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

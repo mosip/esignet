@@ -6,12 +6,12 @@
     <parent>
         <groupId>io.mosip.esignet</groupId>
         <artifactId>esignet-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.5.0-SNAPSHOT</version>
     </parent>
 
     <groupId>io.mosip.esignet</groupId>
     <artifactId>esignet-integration-api</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>${project.parent.version}</version>
     <name>esignet-integration-api</name>
     <description>e-Signet integration Library</description>
 
@@ -34,6 +34,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>decentralized-identity</groupId>
+            <artifactId>jsonld-common-java</artifactId>
+            <version>0.5.0</version>
         </dependency>
     </dependencies>
 

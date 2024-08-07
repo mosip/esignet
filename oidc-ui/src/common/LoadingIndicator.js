@@ -20,6 +20,7 @@ const LoadingIndicator = ({
   size,
   msgParam,
   i18nKeyPrefix = "loadingMsgs",
+  className,
 }) => {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -27,16 +28,14 @@ const LoadingIndicator = ({
     <>
       <div
         role="status"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className={
+          "flex justify-center items-center loading-indicator " + className
+        }
       >
         <svg
           style={dynamicSize[size]}
           aria-hidden="true"
-          className="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+          className="mr-2 rtl:ml-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -51,7 +50,7 @@ const LoadingIndicator = ({
           />
         </svg>
         <span className="sr-only">Loading...</span>
-        {t(message, msgParam)}
+        {message && t(message, msgParam)}
       </div>
     </>
   );
@@ -59,7 +58,6 @@ const LoadingIndicator = ({
 
 LoadingIndicator.defaultProps = {
   size: "medium",
-  message: "Loading",
 };
 
 export default LoadingIndicator;

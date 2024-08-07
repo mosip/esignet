@@ -286,6 +286,7 @@ public class TestAuthenticationService implements Authenticator {
                 DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
                 String maskedEmailId = context.read("$.maskedEmailId", String.class);
                 String maskedMobile = context.read("$.maskedMobile", String.class);
+                log.info("Sending otp to {} for individual {}", sendOtpDto.getIndividualId());
                 return new SendOtpResult(sendOtpDto.getTransactionId(), maskedEmailId, maskedMobile);
             }
 
@@ -312,6 +313,16 @@ public class TestAuthenticationService implements Authenticator {
                     dto.getExpiryAt(), dto.getIssuedAt()));
         }
         return certs;
+    }
+
+    @Override
+    public KycAuthResult doKycAuth(String relyingPartyId, String clientId, boolean claimsMetadataRequired, KycAuthDto kycAuthDto) throws KycAuthException {
+        return doKycAuth(relyingPartyId, clientId, kycAuthDto);
+    }
+
+    @Override
+    public KycExchangeResult doVerifiedKycExchange(String relyingPartyId, String clientId, VerifiedKycExchangeDto kycExchangeDto) throws KycExchangeException {
+        return doKycExchange(relyingPartyId, clientId, kycExchangeDto);
     }
 
     private boolean authenticateUser(String transactionId, String individualId, AuthChallenge authChallenge) {
