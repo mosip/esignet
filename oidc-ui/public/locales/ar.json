@@ -85,9 +85,9 @@
   "Form": {
     "sign_in_with_details": "تسجيل الدخول بالتفاصيل",
     "login": "تسجيل الدخول",
-    "policyNumber": "ادخل رقم الوثيقة",
-    "fullName": "ادخل الاسم",
-    "dob": "ادخل تاريخ الميلاد",
+    "policyNumber_label_text": "ادخل رقم الوثيقة",
+    "fullName_label_text": "ادخل الاسم",
+    "dob_label_text": "ادخل تاريخ الميلاد",
     "policyNumber_placeholder": "رقم الوثيقة",
     "fullName_placeholder": "الاسم",
     "dob_placeholder": "تاريخ الميلاد"
@@ -225,6 +225,9 @@
     "consent_details_rejected": "آسفون! لم يكن تسجيل الدخول الخاص بك ناجحًا نظرًا لعدم مشاركة الموافقة."
   },
   "errors": {
+    "invalid_policyNumber": "رقم السياسة غير صالح",
+    "invalid_fullName": "الاسم الكامل غير صالح",
+    "invalid_dob": "تاريخ الميلاد غير صالح",
     "navigate_option": "يرجى محاولة التنقل باستخدام الخيارات أدناه.",
     "page_not_exist": "أُووبس! الصفحة التي تبحث عنها غير موجودة.",
     "something_went_wrong": "هناك خطأ ما!",

@@ -149,6 +149,57 @@ const signupFields = [
   },
 ];
 
+const knowledgeFields = {
+  policyNumber: {
+    labelText: 'policyNumber_label_text',
+    labelFor: 'Mosip policy',
+    id: 'policyNumber',
+    name: 'policyNumber',
+    type: 'text',
+    format: '',
+    isRequired: true,
+    placeholder: 'policyNumber_placeholder',
+    infoIcon: '',
+    errorCode: 'invalid_policyNumber',
+    prefix: "",
+    postfix: "",
+    maxLength: 50,
+    regex: ""
+  },
+  fullName: {
+    labelText: 'fullName_label_text',
+    labelFor: 'Mosip fullname',
+    id: 'fullName',
+    name: 'fullName',
+    type: 'text',
+    format: '',
+    isRequired: true,
+    placeholder: 'fullName_placeholder',
+    infoIcon: '',
+    errorCode: 'invalid_fullName',
+    prefix: "",
+    postfix: "",
+    maxLength: 25,
+    regex: ""
+  },
+  dob: {
+    labelText: 'dob_label_text',
+    labelFor: 'Mosip dob',
+    id: 'dob',
+    name: 'dob',
+    type: 'text',
+    format: '',
+    isRequired: true,
+    placeholder: 'dob_placeholder',
+    infoIcon: '',
+    errorCode: 'invalid_dob',
+    prefix: "",
+    postfix: "",
+    maxLength: "",
+    regex: ""
+  }
+}
+
 //TODO fetch tablist from oidcDetails response
 const tabList = [
   {
@@ -175,6 +226,11 @@ const tabList = [
 
 const generateFieldData = (fieldName, openIDConnectService) => {
   let fieldData = [];
+
+  const knowledgeFieldList = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.authFactorKnowledgeFieldDetails
+  );
+
   const prefix =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.usernamePrefix
@@ -237,6 +293,9 @@ const generateFieldData = (fieldName, openIDConnectService) => {
       Object.assign(fieldData[0], individualFields);
       fieldData[1].maxLength = passwordMaxLength;
       fieldData[1].regex = passwordRegexValue;
+      break;
+    case validAuthFactors.KBI:
+      fieldData = knowledgeFieldList.map((field) => { return { ...knowledgeFields[field.id], ...field } })
       break;
   }
 

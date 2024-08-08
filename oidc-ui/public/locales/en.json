@@ -85,9 +85,9 @@
   "Form": {
     "sign_in_with_details": "Login with Details",
     "login": "Login",
-    "policyNumber": "Enter Policy Number",
-    "fullName": "Enter Full Name",
-    "dob": "Enter DOB",
+    "policyNumber_label_text": "Enter Policy Number",
+    "fullName_label_text": "Enter Full Name",
+    "dob_label_text": "Enter DOB",
     "policyNumber_placeholder": "Policy Number",
     "fullName_placeholder": "Name",
     "dob_placeholder": "DOB"
@@ -226,6 +226,9 @@
     "consent_details_rejected": "We’re sorry! Your login was unsuccessful as consent was not shared."
   },
   "errors": {
+    "invalid_policyNumber": "Invalid Policy Number",
+    "invalid_fullName": "Invalid Full Name",
+    "invalid_dob": "Invalid Date of Birth",
     "navigate_option": "Please try navigating using the options below.",
     "page_not_exist": "Oops! The page you are looking for does not exist.",
     "something_went_wrong": "Something went wrong!",
