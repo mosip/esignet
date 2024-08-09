@@ -27,6 +27,7 @@ public class VerificationFilter implements Serializable {
 @JsonIgnoreProperties(ignoreUnknown = true)
 class EvidenceFilter implements Serializable  {
 
+    private static final long serialVersionUID = 1L;
     private FilterCriteria type;
     private FilterCriteria method;
     private FilterDateTime time;
@@ -46,12 +47,14 @@ class EvidenceFilter implements Serializable  {
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 class VerificationMethodFilter implements Serializable {
+    private static final long serialVersionUID = 1L;
     private FilterCriteria type;
 }
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 class EvidenceCheckDetailFilter implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String check_method;
     private String organisation;
     private String txn;
@@ -61,6 +64,7 @@ class EvidenceCheckDetailFilter implements Serializable {
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DocumentDetailFilter implements Serializable {
+    private static final long serialVersionUID = 1L;
     private FilterCriteria type;
     private String document_number;
     private FilterDateTime date_of_issuance;
@@ -71,6 +75,7 @@ class DocumentDetailFilter implements Serializable {
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ElectronicRecordFilter implements Serializable {
+    private static final long serialVersionUID = 1L;
     private FilterCriteria type;
     private String personal_number;
     private FilterDateTime created_at;
@@ -81,6 +86,7 @@ class ElectronicRecordFilter implements Serializable {
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 class EvidenceIssuerFilter implements Serializable {
+    private static final long serialVersionUID = 1L;
     private FilterCriteria name;
     private FilterCriteria country;
     private FilterCriteria country_code;
