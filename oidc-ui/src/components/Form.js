@@ -18,6 +18,7 @@ let fieldsState = {};
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function Form({
+  param,
   authService,
   openIDConnectService,
   backButtonDiv,
@@ -36,7 +37,7 @@ export default function Form({
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
-  const fields = openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeFieldDetails) ?? [];
+  const fields = param;
   fields.forEach((field) => (fieldsState["_form_" + field.id] = ""));
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
@@ -44,6 +45,7 @@ export default function Form({
   const [loginState, setLoginState] = useState(fieldsState);
   const [error, setError] = useState(null);
   const [errorBanner, setErrorBanner] = useState([]);
+  const [inputErrorBanner, setInputErrorBanner] = useState([]);
   const [status, setStatus] = useState(states.LOADED);
   const [invalidState, setInvalidState] = useState(true);
 
@@ -52,16 +54,9 @@ export default function Form({
 
   const navigate = useNavigate();
 
-  const handleChange = (e, field) => {
-    const regex = new RegExp(field.regex);
-    const value = e.target.value;
-    
-    if (e.target.type === 'text' && field?.regex !== null && field?.regex !== undefined) {
-      setLoginState({ ...loginState, [e.target.id]: regex.test(value) || value === "" || value === null ? value : loginState[e.target.id] });
-    }
-    else {
-      setLoginState({ ...loginState, [e.target.id]: e.target.value });
-    }
+  const handleChange = (e) => {
+    onCloseHandle();
+    setLoginState({ ...loginState, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = (e) => {
@@ -106,11 +101,11 @@ export default function Form({
   const authenticateUser = async () => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
-      let uin = loginState["_form_"+openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField) ?? ""];
+      let uin = loginState["_form_" + openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField) ?? ""];
       let challengeManipulate = {};
-      fields.forEach(function(field) {
-        if(field.id !== openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField)){
-          challengeManipulate[field.id] = loginState["_form_"+field.id]
+      fields.forEach(function (field) {
+        if (field.id !== openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField)) {
+          challengeManipulate[field.id] = loginState["_form_" + field.id]
         }
       });
       let challenge = btoa(JSON.stringify(challengeManipulate));
@@ -209,10 +204,24 @@ export default function Form({
     setErrorBanner(null);
   };
 
+  const onBlurChange = (e, errors) => {
+    let id = e.target.id;
+    let tempError = inputErrorBanner.map(_ => _);
+    if (errors.length > 0) {
+      tempError.push(id)
+    } else {
+      let errorIndex = tempError.findIndex(_ => _ === id);
+      if (errorIndex !== -1) {
+        tempError.splice(errorIndex, 1);
+      }
+    }
+    setInputErrorBanner(tempError);
+  };
+
   return (
     <>
       <div className="grid grid-cols-8 items-center">
-      {(backButtonDiv)}
+        {(backButtonDiv)}
       </div>
 
       {errorBanner !== null && (
@@ -225,23 +234,25 @@ export default function Form({
 
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {fields.map((field) => (
-          <div className="-space-y-px">
+          <div className="-space-y-px" key={"_form-div_" + field.id}>
             <InputWithImage
               key={"_form_" + field.id}
-              handleChange={(e) => {
-                handleChange(e, field)
-              }}
+              handleChange={handleChange}
+              blurChange={onBlurChange}
               value={loginState["_form_" + field.id]}
-              labelText={t1(field.id)}
-              labelFor={field.id}
+              labelText={t1(field.labelText)}
+              labelFor={field.labelFor}
               id={"_form_" + field.id}
+              name={field.name}
               type={field.type}
-              isRequired={true}
-              placeholder={t1(field.id + "_placeholder" )}
+              isRequired={field.isRequired}
+              placeholder={t1(field.placeholder)}
               customClass={inputCustomClass}
               imgPath={null}
               icon={field.infoIcon}
               maxLength={field.maxLength}
+              errorCode={field.errorCode}
+              regex={field.regex}
             />
           </div>
         ))}
@@ -264,7 +275,7 @@ export default function Form({
           id="verify_form"
           disabled={
             invalidState ||
-            (errorBanner && errorBanner.length > 0) ||
+            (inputErrorBanner && inputErrorBanner.length > 0) ||
             (showCaptcha && captchaToken === null)
           }
         />
