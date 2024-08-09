@@ -288,7 +288,7 @@ public class AuthorizationHelperServiceTest {
     }
 
     @Test
-    public void delegateAuthenticateRequest_withInValidDetails_thenFail() throws KycAuthException {
+    public void delegateAuthenticateRequest_ThrowsKycAuthException_thenFail() throws KycAuthException {
         String transactionId = "transaction-id";
         String individualId = "individual-id";
         List<AuthChallenge> challengeList = new ArrayList<>();
@@ -298,7 +298,12 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
         oidcTransaction.setRequestedClaims(new Claims());
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenThrow(KycAuthException.class);
-        Assert.assertThrows(EsignetException.class,()->authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction));
+        try{
+            authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
+            Assert.fail();
+        }catch (EsignetException e) {
+            Assert.assertEquals(null,e.getErrorCode());
+        }
     }
 
     @Test
@@ -489,7 +494,7 @@ public class AuthorizationHelperServiceTest {
     }
 
     @Test
-    public void delegateSendOtpRequest_withInvalidDetail_thenFail() throws SendOtpException {
+    public void delegateSendOtpRequest_withThrowsSendOtpException_thenFail() throws SendOtpException {
         OtpRequest otpRequest = new OtpRequest();
         otpRequest.setIndividualId("individual-id");
         otpRequest.setOtpChannels(Arrays.asList("email"));
@@ -499,7 +504,12 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setClientId("client-id");
         SendOtpResult sendOtpResult = new SendOtpResult("temp-id", "masked-email", "masked-mobile");
         Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenThrow(SendOtpException.class);
-        Assert.assertThrows(EsignetException.class,()->authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction));
+        try {
+            authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
+            Assert.fail();
+        }catch(EsignetException e){
+            Assert.assertEquals(null,e.getErrorCode());
+        }
     }
 
     @Test
@@ -644,8 +654,12 @@ public class AuthorizationHelperServiceTest {
         authChallenge.setChallenge("base64encodedchallenge");
         OIDCTransaction transaction = new OIDCTransaction();
         HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
-        Assert.assertThrows(EsignetException.class, () ->
-                authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest));
+        try{
+            authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest);
+            Assert.fail();
+        }catch(EsignetException e){
+            Assert.assertEquals("auth_failed",e.getErrorCode());
+        }
     }
 
     @Test
@@ -653,8 +667,13 @@ public class AuthorizationHelperServiceTest {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setChallenge("base64encodedchallenge");
         OIDCTransaction transaction = new OIDCTransaction();
-        Assert.assertThrows(EsignetException.class, () ->
-                authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest));
+        try {
+            authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest);
+            Assert.fail();
+        }catch(EsignetException e)
+        {
+            Assert.assertEquals("auth_failed",e.getErrorCode());
+        }
     }
 
     private Cookie[] createMockCookies(String subject) {

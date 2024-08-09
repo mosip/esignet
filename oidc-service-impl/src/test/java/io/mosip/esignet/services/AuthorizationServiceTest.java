@@ -1154,13 +1154,18 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getAuthCode_withInValidTransaction_thenFail() {
+    public void getAuthCode_withInValidTransactionId_thenFail() {
         AuthCodeRequest authCodeRequest = new AuthCodeRequest();
         authCodeRequest.setTransactionId("987654321");
         authCodeRequest.setAcceptedClaims(Arrays.asList("fullName"));
         authCodeRequest.setPermittedAuthorizeScopes(Arrays.asList("test-scope"));
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
-        Assert.assertThrows(InvalidTransactionException.class,()->authorizationServiceImpl.getAuthCode(authCodeRequest));
+        try{
+            authorizationServiceImpl.getAuthCode(authCodeRequest);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertEquals("invalid_transaction",e.getErrorCode());
+        }
     }
 
     @Test
@@ -1259,7 +1264,12 @@ public class AuthorizationServiceTest {
         OtpRequest otpRequest = new OtpRequest();
         otpRequest.setTransactionId("invalidTransactionId");
         when(cacheUtilService.getPreAuthTransaction("invalidTransactionId")).thenReturn(null);
-        assertThrows(InvalidTransactionException.class, () -> authorizationServiceImpl.sendOtp(otpRequest));
+        try{
+            authorizationServiceImpl.sendOtp(otpRequest);
+            Assert.fail();
+        }catch(EsignetException e){
+            Assert.assertEquals("invalid_transaction",e.getErrorCode());
+        }
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {
