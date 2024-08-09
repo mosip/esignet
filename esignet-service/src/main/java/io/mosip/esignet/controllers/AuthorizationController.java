@@ -17,7 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_TRANSACTION;
 
 @Slf4j
 @RestController
@@ -127,14 +132,69 @@ public class AuthorizationController {
 
     @PostMapping("/v3/authenticate")
     public ResponseWrapper<AuthResponseV2> authenticateEndUserV3(@Valid @RequestBody RequestWrapper<AuthRequestV2>
-                                                                         requestWrapper) throws EsignetException {
+                                                                         requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
         ResponseWrapper<AuthResponseV2> responseWrapper = new ResponseWrapper<>();
         try {
-            AuthResponseV2 authResponse = authorizationService.authenticateUserV3(requestWrapper.getRequest());
+            AuthResponseV2 authResponse = authorizationService.authenticateUserV3(requestWrapper.getRequest(), httpServletRequest);
             responseWrapper.setResponse(authResponse);
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.AUTHENTICATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId(), null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/v3/oauth-details")
+    public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV3(@Valid @RequestBody RequestWrapper<OAuthDetailRequestV3>
+                                                                            requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(authorizationService.getOauthDetailsV3(requestWrapper.getRequest(),httpServletRequest));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GET_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/prepare-signup-redirect")
+    public ResponseWrapper<SignupRedirectResponse> prepareSignupRedirect(@Valid @RequestBody RequestWrapper<SignupRedirectRequest> requestWrapper,
+                                                                         HttpServletResponse response) {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(authorizationService.prepareSignupRedirect(requestWrapper.getRequest(), response));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.PREPARE_SIGNUP_REDIRECT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @GetMapping("/claim-details")
+    public ResponseWrapper<ClaimDetailResponse> getClaimDetails(@Valid @NotBlank(message = INVALID_TRANSACTION)
+                                                                    @RequestHeader("oauth-details-key") String transactionId) {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(authorizationService.getClaimDetails(transactionId));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
+    @PostMapping("/resume")
+    public ResponseWrapper<ResumeResponse> resumeHaltedTransaction(@Valid @RequestBody RequestWrapper<ResumeRequest> requestWrapper) {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(authorizationService.resumeHaltedTransaction(requestWrapper.getRequest()));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
             throw ex;
         }
         return responseWrapper;

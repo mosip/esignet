@@ -19,7 +19,6 @@ import java.util.UUID;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -74,5 +73,93 @@ public class ConsentHistory {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public @NotNull(message = INVALID_CLIENT_ID) String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(@NotNull(message = INVALID_CLIENT_ID) String clientId) {
+        this.clientId = clientId;
+    }
+
+    public @NotNull String getPsuToken() {
+        return psuToken;
+    }
+
+    public void setPsuToken(@NotNull String psuToken) {
+        this.psuToken = psuToken;
+    }
+
+    public @NotNull(message = INVALID_CLAIM) String getClaims() {
+        return claims;
+    }
+
+    public void setClaims(@NotNull(message = INVALID_CLAIM) String claims) {
+        this.claims = claims;
+    }
+
+    public @NotNull String getAuthorizationScopes() {
+        return authorizationScopes;
+    }
+
+    public void setAuthorizationScopes(@NotNull String authorizationScopes) {
+        this.authorizationScopes = authorizationScopes;
+    }
+
+    public @NotNull LocalDateTime getCreatedtimes() {
+        return createdtimes;
+    }
+
+    public void setCreatedtimes(@NotNull LocalDateTime createdtimes) {
+        this.createdtimes = createdtimes;
+    }
+
+    public LocalDateTime getExpiredtimes() {
+        return expiredtimes;
+    }
+
+    public void setExpiredtimes(LocalDateTime expiredtimes) {
+        this.expiredtimes = expiredtimes;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public String getAcceptedClaims() {
+        return acceptedClaims;
+    }
+
+    public void setAcceptedClaims(String acceptedClaims) {
+        this.acceptedClaims = acceptedClaims;
+    }
+
+    public String getPermittedScopes() {
+        return permittedScopes;
+    }
+
+    public void setPermittedScopes(String permittedScopes) {
+        this.permittedScopes = permittedScopes;
     }
 }

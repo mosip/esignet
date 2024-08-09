@@ -35,6 +35,7 @@ public class OpenIdConnectController {
     }
     
     @GetMapping("/.well-known/openid-configuration")
+    @CrossOrigin(origins = "*")
     public Map<String, Object> getDiscoveryEndpoints() {
         return openIdConnectService.getOpenIdConfiguration();
     }

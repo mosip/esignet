@@ -21,6 +21,7 @@ import org.testng.TestNG;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 
+import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.apirig.dbaccess.DBManager;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
@@ -71,7 +72,6 @@ public class MosipTestRunner {
 			ConfigManager.init();
 			BaseTestCase.suiteSetup();
 			setLogLevels();
-			AdminTestUtil.encryptDecryptUtil = new EncryptionDecrptionUtil();
 
 			// For now we are not doing health check for qa-115.
 			if (BaseTestCase.isTargetEnvLTS()) {
@@ -91,51 +91,22 @@ public class MosipTestRunner {
 			String updatedPartnerKeyURL = "";
 			String ekycPartnerKeyURL = "";
 
-			if (BaseTestCase.listOfModules.contains("auth")
-					|| BaseTestCase.listOfModules.contains(GlobalConstants.ESIGNET)) {
-				PartnerRegistration.deleteCertificates();
-				CertificateGenerationUtil.getThumbprints();
-				AdminTestUtil.createAndPublishPolicy();
-				AdminTestUtil.createEditAndPublishPolicy();
-				partnerKeyURL = PartnerRegistration.generateAndGetPartnerKeyUrl();
-				updatedPartnerKeyURL = PartnerRegistration.generateAndGetUpdatedPartnerKeyUrl();
-				
-				AdminTestUtil.createAndPublishPolicyForKyc();
-				ekycPartnerKeyURL = PartnerRegistration.generateAndGetEkycPartnerKeyUrl();
+			PartnerRegistration.deleteCertificates();
+			CertificateGenerationUtil.getThumbprints();
+			AdminTestUtil.createAndPublishPolicy();
+			AdminTestUtil.createEditAndPublishPolicy();
+			partnerKeyURL = PartnerRegistration.generateAndGetPartnerKeyUrl();
+			updatedPartnerKeyURL = PartnerRegistration.generateAndGetUpdatedPartnerKeyUrl();
 
-			}
+			AdminTestUtil.createAndPublishPolicyForKyc();
+			ekycPartnerKeyURL = PartnerRegistration.generateAndGetEkycPartnerKeyUrl();
 
-			if (BaseTestCase.listOfModules.contains(GlobalConstants.MASTERDATA)) {
-				AdminTestUtil.getHierarchyZoneCode();
-				BaseTestCase.mapUserToZone();
-				BaseTestCase.mapZone();
-				AdminTestUtil.getLocationLevelData();
-				AdminTestUtil.getLocationData();
-				AdminTestUtil.getZoneName();
-				
-				
+			BiometricDataProvider.generateBiometricTestData("Registration");
 
-				for (int i = 0; i < localLanguageList.size(); i++) {
-					BaseTestCase.languageList.clear();
-					BaseTestCase.languageList.add(localLanguageList.get(i));
-
-					DBManager.clearMasterDbData();
-					BaseTestCase.currentModule = GlobalConstants.MASTERDATA;
-					BaseTestCase.setReportName("masterdata-" + localLanguageList.get(i));
-					startTestRunner();
-
-				}
-
-			} else if (BaseTestCase.listOfModules.contains("auth")
-					|| BaseTestCase.listOfModules.contains(GlobalConstants.ESIGNET)) {
-				if (partnerKeyURL.isEmpty())
-				//	if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty())
-					LOGGER.error("partnerKeyURL is null");
-				else
-					startTestRunner();
-			} else {
+			if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty())
+				LOGGER.error("partnerKeyURL is null");
+			else
 				startTestRunner();
-			}
 		} catch (Exception e) {
 			LOGGER.error("Exception " + e.getMessage());
 		}

@@ -19,6 +19,7 @@ export default function Otp({
 
   const [otpStatus, setOtpStatus] = useState(OTPStatusEnum.getOtp);
   const [otpResponse, setOtpResponse] = useState("");
+  const [captchaToken, setCaptchaToken] = useState(null);
   const [vid, setVid] = useState("");
 
   const onOtpSent = async (vid, response) => {
@@ -35,7 +36,7 @@ export default function Otp({
             <button
               id="back-button"
               onClick={() => setOtpStatus(OTPStatusEnum.getOtp)}
-              className="text-sky-600 text-2xl font-semibold justify-left rtl:rotate-180"
+              className="text-2xl font-semibold justify-left rtl:rotate-180 back-button-color"
             >
               &#8592;
             </button>
@@ -51,6 +52,9 @@ export default function Otp({
           authService={authService}
           openIDConnectService={openIDConnectService}
           onOtpSent={onOtpSent}
+          getCaptchaToken={(value) => {
+            setCaptchaToken(value);
+          }}
         />
       )}
 
@@ -61,6 +65,7 @@ export default function Otp({
           vid={vid}
           authService={authService}
           openIDConnectService={openIDConnectService}
+          captcha={captchaToken}
         />
       )}
     </>

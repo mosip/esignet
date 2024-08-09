@@ -7,16 +7,18 @@ package io.mosip.esignet.services;
 
 
 import io.mosip.esignet.api.dto.*;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.api.spi.CaptchaValidator;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
@@ -41,6 +43,8 @@ import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant.CURRENTKEYALIAS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationHelperServiceTest {
@@ -50,6 +54,9 @@ public class AuthorizationHelperServiceTest {
 
     @Mock
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
+
+    @Mock
+    private CaptchaHelper captchaHelper;
 
     @Mock
     private Authenticator authenticationWrapper;
@@ -65,9 +72,6 @@ public class AuthorizationHelperServiceTest {
 
     @Mock
     private AuditPlugin auditWrapper;
-
-    @Mock
-    private CaptchaValidator captchaValidator;
     
     @Test
     public void validateSendOtpCaptchaToken_withEmptyToken_thenFail() {
@@ -82,8 +86,7 @@ public class AuthorizationHelperServiceTest {
     @Test
     public void validateSendOtpCaptchaToken_withValidToken_thenFail() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(false);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
         	authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
         } catch(EsignetException e) {
@@ -94,14 +97,13 @@ public class AuthorizationHelperServiceTest {
     @Test
     public void validateSendOtpCaptchaToken_withValidToken_thenPass() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(true);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(true);
         authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
     }
 
     @Test
     public void validateCaptchaToken_withNoValidator_thenFail() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", null);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", null);
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
             Assert.fail();
@@ -112,8 +114,8 @@ public class AuthorizationHelperServiceTest {
 
     @Test
     public void validateCaptchaToken_withInvalidToken_thenFail() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(false);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", captchaHelper);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
             Assert.fail();
@@ -121,11 +123,11 @@ public class AuthorizationHelperServiceTest {
             Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
         }
     }
-    
+
     @Test
     public void validateCaptchaToken_withValidToken_thenPass() {
-        ReflectionTestUtils.setField(authorizationHelperService, "captchaValidator", captchaValidator);
-        Mockito.when(captchaValidator.validateCaptcha(Mockito.anyString())).thenReturn(true);
+        ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", captchaHelper);
+        Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(true);
         authorizationHelperService.validateCaptchaToken("captcha-token");
     }
 
@@ -213,10 +215,11 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRequestedClaims(new Claims());
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("psut");
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(kycAuthResult);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(kycAuthResult);
         KycAuthResult result = authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
         Assert.assertNotNull(result);
         Assert.assertEquals(kycAuthResult.getKycToken(), result.getKycToken());
@@ -232,8 +235,9 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRequestedClaims(new Claims());
 
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(null);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(null);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -242,7 +246,7 @@ public class AuthorizationHelperServiceTest {
         }
 
         KycAuthResult result = new KycAuthResult();
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(result);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -252,7 +256,7 @@ public class AuthorizationHelperServiceTest {
 
         result.setPartnerSpecificUserToken("PSUT");
         result.setKycToken(null);
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(result);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -262,7 +266,7 @@ public class AuthorizationHelperServiceTest {
 
         result.setPartnerSpecificUserToken(null);
         result.setKycToken("kyctoken");
-        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), Mockito.any(KycAuthDto.class))).thenReturn(result);
+        Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
             Assert.fail();
@@ -433,7 +437,7 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rpid");
         oidcTransaction.setClientId("client-id");
         SendOtpResult sendOtpResult = new SendOtpResult(oidcTransaction.getAuthTransactionId(), "masked-email", "masked-mobile");
-        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), Mockito.any(SendOtpDto.class))).thenReturn(sendOtpResult);
+        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenReturn(sendOtpResult);
         SendOtpResult result = authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
         Assert.assertEquals(sendOtpResult.getMaskedMobile(), result.getMaskedMobile());
         Assert.assertEquals(sendOtpResult.getMaskedEmail(), result.getMaskedEmail());
@@ -449,7 +453,7 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rpid");
         oidcTransaction.setClientId("client-id");
         SendOtpResult sendOtpResult = new SendOtpResult("temp-id", "masked-email", "masked-mobile");
-        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), Mockito.any(SendOtpDto.class))).thenReturn(sendOtpResult);
+        Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenReturn(sendOtpResult);
 
         try {
             authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
@@ -481,7 +485,7 @@ public class AuthorizationHelperServiceTest {
         AuthenticationFactor pinAuthFactor = new AuthenticationFactor();
         pinAuthFactor.setType("PIN");
         list.add(Arrays.asList(pinAuthFactor));
-        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(Mockito.any(String[].class))).thenReturn(list);
+        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(any(String[].class))).thenReturn(list);
 
         Set<List<AuthenticationFactor>> result = authorizationHelperService.getProvidedAuthFactors(oidcTransaction, challengeList);
         Assert.assertTrue(result.size() == 1);
@@ -510,7 +514,7 @@ public class AuthorizationHelperServiceTest {
         AuthenticationFactor pinAuthFactor = new AuthenticationFactor();
         pinAuthFactor.setType("PIN");
         list.add(Arrays.asList(pinAuthFactor));
-        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(Mockito.any(String[].class))).thenReturn(list);
+        Mockito.when(authenticationContextClassRefUtil.getAuthFactors(any(String[].class))).thenReturn(list);
 
         try {
             authorizationHelperService.getProvidedAuthFactors(oidcTransaction, challengeList);
@@ -531,7 +535,7 @@ public class AuthorizationHelperServiceTest {
         KeyAlias keyAlias = new KeyAlias();
         keyAlias.setAlias("test");
         keyaliasesMap.put(CURRENTKEYALIAS, Arrays.asList(keyAlias));
-        Mockito.when(dbHelper.getKeyAliases(Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime.class))).thenReturn(keyaliasesMap);
+        Mockito.when(dbHelper.getKeyAliases(Mockito.anyString(), Mockito.anyString(), any(LocalDateTime.class))).thenReturn(keyaliasesMap);
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(256);
         SecretKey key = generator.generateKey();

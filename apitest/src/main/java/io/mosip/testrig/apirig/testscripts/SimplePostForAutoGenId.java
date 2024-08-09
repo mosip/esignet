@@ -146,7 +146,7 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 				}
 				String tempUrl = ConfigManager.getEsignetBaseUrl();
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
-						&& testCaseName.contains("SunBirdRC")) {
+						&& testCaseName.contains("SunBirdC")) {
 					if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
@@ -154,6 +154,16 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 							&& !ConfigManager.getEsignetMockBaseURL().isBlank())
 						tempUrl = ApplnURI.replace("api-internal.", ConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
+				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$") && testCaseName.contains("SunBirdR")) {
+
+					if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))
+						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
+
+					if (ConfigManager.getSunBirdBaseURL() != null && !ConfigManager.getSunBirdBaseURL().isBlank())
+						tempUrl = ConfigManager.getSunBirdBaseURL();
+						//Once sunbird registry is pointing to specific env, remove the above line and uncomment below line
+						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
+					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 				}
 				if (testCaseName.contains("_AuthorizationCode_")) {
 					response = postRequestWithCookieAuthHeaderAndXsrfTokenForAutoGenId(

@@ -20,6 +20,7 @@ const LoadingIndicator = ({
   size,
   msgParam,
   i18nKeyPrefix = "loadingMsgs",
+  className,
 }) => {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -27,7 +28,9 @@ const LoadingIndicator = ({
     <>
       <div
         role="status"
-        className="flex justify-center items-center loading-indicator"
+        className={
+          "flex justify-center items-center loading-indicator " + className
+        }
       >
         <svg
           style={dynamicSize[size]}
@@ -54,7 +57,7 @@ const LoadingIndicator = ({
 };
 
 LoadingIndicator.defaultProps = {
-  size: "medium"
+  size: "medium",
 };
 
 export default LoadingIndicator;

@@ -9,6 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -28,7 +29,9 @@ import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.BioDataUtility;
 import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
@@ -40,6 +43,12 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 	public Response response = null;
 	public boolean isInternal = false;
 
+	@Autowired
+	private EncryptionDecrptionUtil encryptDecryptUtil;
+	
+	@Autowired
+	private BioDataUtility bioDataUtil;
+	
 	@BeforeClass
 	public static void setLogLevel() {
 		if (ConfigManager.IsDebugEnabled())
@@ -111,12 +120,20 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 			request.remove(GlobalConstants.IDENTITYREQUEST);
 		}
 		identityRequest = buildIdentityRequest(identityRequest);
+		identityRequest = inputJsonKeyWordHandeler(identityRequest, testCaseName);
 
 		JSONObject identityReqJson = new JSONObject(identityRequest);
 		identityRequestTemplate = identityReqJson.getString("identityRequestTemplate");
 		identityReqJson.remove("identityRequestTemplate");
 		identityRequestEncUrl = identityReqJson.getString("identityRequestEncUrl");
 		identityReqJson.remove("identityRequestEncUrl");
+		
+		if (identityReqJson.has("transactionId")) {
+			String oidcTransactionId = AdminTestUtil.getAuthTransactionId(identityReqJson.getString("transactionId"));
+			if (oidcTransactionId != null && !oidcTransactionId.isBlank())
+				identityReqJson.put("transactionId", oidcTransactionId);
+		}
+		
 		identityRequest = getJsonFromTemplate(identityReqJson.toString(), identityRequestTemplate);
 		if (identityRequest.contains("$DOMAINURI$")) {
 			String domainUrl = ApplnURI.replace("api-internal", GlobalConstants.ESIGNET);
@@ -124,7 +141,7 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		}
 		String encryptedIdentityReq = null;
 		try {
-			encryptedIdentityReq = getBioDataUtil().constractBioIdentityRequest(identityRequest,
+			encryptedIdentityReq = bioDataUtil.constractBioIdentityRequest(identityRequest,
 					getResourcePath() + properties.getProperty("bioValueEncryptionTemplate"), testCaseName, isInternal);
 
 			if (encryptedIdentityReq == null)
@@ -187,7 +204,7 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		} catch (SkipException e) {
 			throw new SkipException(e.getMessage());
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			throw new AdminTestException(e.getMessage());
 		}
 
 	}

@@ -10,6 +10,8 @@ import com.nimbusds.jose.jwk.JWK;
 import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
+import io.mosip.esignet.api.dto.VerifiedKycExchangeDto;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -26,9 +28,11 @@ import io.mosip.esignet.core.util.*;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -244,14 +248,34 @@ public class OAuthServiceImpl implements OAuthService {
     private KycExchangeResult doKycExchange(OIDCTransaction transaction) {
         KycExchangeResult kycExchangeResult;
         try {
-            KycExchangeDto kycExchangeDto = new KycExchangeDto();
+            VerifiedKycExchangeDto kycExchangeDto = new VerifiedKycExchangeDto();
             kycExchangeDto.setTransactionId(transaction.getAuthTransactionId());
             kycExchangeDto.setKycToken(transaction.getKycToken());
             kycExchangeDto.setAcceptedClaims(transaction.getAcceptedClaims());
             kycExchangeDto.setClaimsLocales(transaction.getClaimsLocales());
             kycExchangeDto.setIndividualId(authorizationHelperService.getIndividualId(transaction));
-            kycExchangeResult = authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
-                    transaction.getClientId(), kycExchangeDto);
+            kycExchangeDto.setAcceptedVerifiedClaims(new HashMap<>());
+
+            if(!CollectionUtils.isEmpty(transaction.getAcceptedClaims()) && transaction.getRequestedClaims().getUserinfo() != null) {
+                for(String claim : transaction.getAcceptedClaims()) {
+                    ClaimDetail claimDetail = transaction.getRequestedClaims().getUserinfo().get(claim);
+                    if(claimDetail != null && claimDetail.getVerification()!=null) {
+                        kycExchangeDto.getAcceptedVerifiedClaims().put(claim, claimDetail.getVerification());
+                    }
+                }
+            }
+
+            if(transaction.isInternalAuthSuccess()) {
+                log.info("Internal kyc exchange is invoked as the transaction is marked as internal auth success");
+                kycExchangeResult = doInternalKycExchange(kycExchangeDto);
+            } else {
+                kycExchangeResult = kycExchangeDto.getAcceptedVerifiedClaims().isEmpty() ?
+                        authenticationWrapper.doKycExchange(transaction.getRelyingPartyId(),
+                        transaction.getClientId(), kycExchangeDto) :
+                        authenticationWrapper.doVerifiedKycExchange(transaction.getRelyingPartyId(),
+                        transaction.getClientId(), kycExchangeDto);
+            }
+
         } catch (KycExchangeException e) {
             log.error("KYC exchange failed", e);
             auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.ERROR, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), e);
@@ -262,6 +286,14 @@ public class OAuthServiceImpl implements OAuthService {
             return kycExchangeResult;
 
         throw new EsignetException(DATA_EXCHANGE_FAILED);
+    }
+
+    private KycExchangeResult doInternalKycExchange(KycExchangeDto kycExchangeDto) {
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        JSONObject payload = new JSONObject();
+        payload.put(TokenService.SUB, kycExchangeDto.getIndividualId());
+        kycExchangeResult.setEncryptedKyc(tokenService.getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload));
+        return kycExchangeResult;
     }
 
     private boolean isTransactionVCScoped(OIDCTransaction transaction) {

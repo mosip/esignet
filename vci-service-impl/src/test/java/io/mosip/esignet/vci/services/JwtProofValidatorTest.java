@@ -77,7 +77,7 @@ public class JwtProofValidatorTest {
                 .issuer("client-id")
                 .audience("test-credential-issuer")
                 .issueTime(Date.from(Instant.now(Clock.systemUTC())))
-                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(1)))
+                .expirationTime(Date.from(Instant.now(Clock.systemUTC()).plusSeconds(5)))
                 .claim("nonce", "test-nonce")
                 .build();
 

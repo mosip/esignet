@@ -116,6 +116,13 @@ public interface TokenService {
      */
      void verifyAccessToken(String clientId, String subject, String accessToken) throws NotAuthenticatedException;
 
+    /**
+     * Verifies id token signature and also the claims with expected values
+     * if any one verification fails then throws NotAuthenticatedException
+     * @throws NotAuthenticatedException
+     */
+     void verifyIdToken(String idToken, String clientId) throws NotAuthenticatedException;
+
 
     /**
      * Sign the provided payload with master key specific to application id
@@ -124,4 +131,14 @@ public interface TokenService {
      * @return
      */
      String getSignedJWT(String applicationId, JSONObject payload);
+
+    /**
+     * Creates ID token with the given subject and audience and nonce
+     * @param subject
+     * @param audience
+     * @param validitySeconds
+     * @param transaction
+     * @return
+     */
+     String getIDToken(String subject, String audience, int validitySeconds, OIDCTransaction transaction);
 }
