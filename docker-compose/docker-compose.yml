@@ -73,10 +73,10 @@ services:
       - ./loader_path/:/home/mosip/additional_jars/
 
   esignet-ui:
-    image: 'mosipqa/oidc-ui:1.4.x'
+    image: 'mosipid/oidc-ui:1.4.0'
     user: root
     ports: 
-      - 3000:3000
+      - 3001:3000
     depends_on:
       - esignet
       - artifactory-server
