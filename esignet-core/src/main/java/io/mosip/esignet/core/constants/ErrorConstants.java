@@ -91,4 +91,5 @@ public class ErrorConstants {
     public static final String INVALID_PATH_FRAGMENT = "invalid_path_fragment";
     public static final String INVALID_VERIFICATION = "invalid_verification";
     public static final String INVALID_VERIFIED_CLAIMS = "invalid_verified_claims";
+    public static final String INVALID_PURPOSE="invalid_purpose";
 }
