@@ -14,6 +14,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class LinkTransactionMetadata implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private String transactionId;
     private String linkedTransactionId;
 }

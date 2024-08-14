@@ -20,6 +20,8 @@ import static io.mosip.esignet.core.constants.Constants.S256;
 @Setter
 public class ProofKeyCodeExchange implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private String codeChallenge;
     private String codeChallengeMethod;
 
