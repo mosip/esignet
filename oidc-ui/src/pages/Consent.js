@@ -46,6 +46,7 @@ export default function ConsentPage() {
   const errorCodeObj = {
     dismiss: "consent_rejected",
     invalid_transaction: "invalid_transaction",
+    incompatible_browser: "incompatible_browser"
   };
 
   const handleRedirection = (redirect_uri, errorCode) => {

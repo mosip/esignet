@@ -19,6 +19,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VerifiedClaimDetail implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private VerificationFilter verification;
     private Map<String, ClaimDetail> claims;
 }

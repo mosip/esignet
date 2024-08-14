@@ -13,6 +13,8 @@ import java.util.List;
 @Data
 public class VerificationDetail implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private String trust_framework;
     private String time;
     private String assurance_level;

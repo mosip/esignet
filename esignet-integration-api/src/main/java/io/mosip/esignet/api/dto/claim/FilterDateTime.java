@@ -18,6 +18,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FilterDateTime implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private int max_age;
 
 }
