@@ -186,6 +186,7 @@ export default function InputWithImage({
           className={fixedInputClass + customClass}
           placeholder={placeholder}
           title={t1(tooltipMsg)}
+          onWheelCapture={(e) => e.target.blur()}
         />
         {id.includes("password") && (
           <span

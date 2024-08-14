@@ -158,8 +158,7 @@ public class SimplePost extends AdminTestUtil implements ITest {
 		else {
 			String tempUrl = ConfigManager.getEsignetBaseUrl();
 			if (testCaseName.contains("ESignet_")) {
-				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
-						&& testCaseName.contains("SunBirdRC")) {
+				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC")) {
 					if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
@@ -167,45 +166,60 @@ public class SimplePost extends AdminTestUtil implements ITest {
 							&& !ConfigManager.getEsignetMockBaseURL().isBlank())
 						tempUrl = ApplnURI.replace("api-internal.", ConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
-				}
-				if (testCaseName.contains("ESignet_SendBindingOtp")) {
-					response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$")
+						&& testCaseName.contains("SunBirdR")) {
+
+					if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))
+						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
+
+					if (ConfigManager.getSunBirdBaseURL() != null && !ConfigManager.getSunBirdBaseURL().isBlank())
+						tempUrl = ConfigManager.getSunBirdBaseURL();
+						//Once sunbird registry is pointing to specific env, remove the above line and uncomment below line
+						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
+						testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
+
+						response = postWithBodyAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
+
+					}
+					if (testCaseName.contains("ESignet_SendBindingOtp")) {
+						response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					} else {
+						response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
+								inputJson, COOKIENAME, testCaseDTO.getTestCaseName());
+
+					}
 				} else {
-					response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
-							inputJson, COOKIENAME, testCaseDTO.getTestCaseName());
-
+					response = postWithBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
+							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
 				}
-			} else {
-				response = postWithBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
-						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
+				Map<String, List<OutputValidationDto>> ouputValid = null;
+				if (testCaseName.contains("_StatusCode")) {
+
+					OutputValidationDto customResponse = customStatusCodeResponse(
+							String.valueOf(response.getStatusCode()), testCaseDTO.getOutput());
+
+					ouputValid = new HashMap<>();
+					ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
+				} else {
+					ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
+							getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
+							response.getStatusCode());
+				}
+
+				Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
+
+				if (!OutputValidationUtil.publishOutputResult(ouputValid)) {
+					if (response.asString().contains("IDA-OTA-001"))
+						throw new AdminTestException(
+								"Exceeded number of OTP requests in a given time, Increase otp.request.flooding.max-count");
+					else
+						throw new AdminTestException("Failed at otp output validation");
+				}
 			}
-			Map<String, List<OutputValidationDto>> ouputValid = null;
-			if (testCaseName.contains("_StatusCode")) {
 
-				OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
-						testCaseDTO.getOutput());
-
-				ouputValid = new HashMap<>();
-				ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
-			} else {
-				ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
-						getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
-						response.getStatusCode());
-			}
-
-			Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
-
-			if (!OutputValidationUtil.publishOutputResult(ouputValid)) {
-				if (response.asString().contains("IDA-OTA-001"))
-					throw new AdminTestException(
-							"Exceeded number of OTP requests in a given time, Increase otp.request.flooding.max-count");
-				else
-					throw new AdminTestException("Failed at otp output validation");
-			}
 		}
-
-	}
 
 	/**
 	 * The method ser current test name to result

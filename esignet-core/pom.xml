@@ -22,9 +22,9 @@
 		<java.version>11</java.version>
 		<jackson.version>2.9.5</jackson.version>
 		<jackson.datatype.version>2.9.8</jackson.datatype.version>
-		<jackson.databind>2.12.0</jackson.databind>
-		<fasterxml.jackson.module.jsr310.version>2.12.0</fasterxml.jackson.module.jsr310.version>
-		<fasterxml.jackson.module.afterburner.version>2.12.0</fasterxml.jackson.module.afterburner.version>
+		<jackson.databind>2.15.0</jackson.databind>
+		<fasterxml.jackson.module.jsr310.version>2.15.0</fasterxml.jackson.module.jsr310.version>
+		<fasterxml.jackson.module.afterburner.version>2.15.0</fasterxml.jackson.module.afterburner.version>
 		<kernel.keymanager.version>1.2.0.2-SNAPSHOT</kernel.keymanager.version>
 		<javassist.version>3.27.0-GA</javassist.version>
 		<junit.version>4.13.2</junit.version>
@@ -79,7 +79,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.9</version>
+			<version>1.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -149,7 +149,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>18.0</version>
+			<version>32.0.0-android</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

@@ -1,0 +1,8 @@
+#####  DB queries to be executed to tear down the data used and generated during the test rig run
+
+delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=esignet_pid%'
+delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=esignet_ekyc_pid%'
+delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=esignet_device_pid%'
+delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=esignet_ftm_pid%'
+delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=partnernameforautomationesi%'
+delete from ida.ca_cert_store WHERE cert_subject LIKE '%O=partnernameforesignet%'

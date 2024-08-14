@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-			<version>2.7.4</version>
+			<version>3.2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>

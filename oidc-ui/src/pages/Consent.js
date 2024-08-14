@@ -19,6 +19,7 @@ export default function ConsentPage() {
   const consentAction = searchParams.get("consentAction");
   const authTime = searchParams.get("authenticationTime");
   const key = searchParams.get("key");
+  const errorCode = searchParams.get("error");
   const urlInfo = localStorage.getItem(key);
 
   // Create a URL object using the URL info
@@ -40,6 +41,19 @@ export default function ConsentPage() {
       .replace(/\+/g, "-")
       .replace(/\//g, "_");
     return hashB64;
+  };
+
+  const errorCodeObj = {
+    dismiss: "consent_rejected",
+    invalid_transaction: "invalid_transaction",
+    incompatible_browser: "incompatible_browser"
+  };
+
+  const handleRedirection = (redirect_uri, errorCode) => {
+    urlInfoParams.set("error", errorCode);
+
+    // Redirect to the redirect URI with the error parameters (load the relying party screen)
+    window.location.replace(`${redirect_uri}?${urlInfoParams}`);
   };
 
   if (key && urlInfo) {
@@ -66,32 +80,35 @@ export default function ConsentPage() {
       // Initialize the authService with the openIDConnectService
       const authServices = new authService(oidcService);
 
-      const { response, errors } = await authServices.resume(
-        transactionId,
-        params.has("error"),
-        oAuthDetailsHash
-      );
-
       window.onbeforeunload = null;
 
-      // log to check the response for the dev testing
-      console.log(response);
-
-      if (!errors.length) {
-        // Set the authenticationTime parameter
-        urlInfoParams.set("authenticationTime", Math.floor(Date.now() / 1000));
-
-        // Update the search part of the URL object
-        urlInfoObj.search = urlInfoParams.toString();
-
-        // Redirect to the updated URL (load the consent screen)
-        window.location.replace(urlInfoObj.toString());
+      if (errorCodeObj[errorCode]) {
+        handleRedirection(redirect_uri, errorCodeObj[errorCode]);
       } else {
-        urlInfoParams.set("error_description", errors[0].errorCode);
-        urlInfoParams.set("error", errors[0].errorCode);
+        const { response, errors } = await authServices.resume(
+          transactionId,
+          params.has("error"),
+          oAuthDetailsHash
+        );
 
-        // Redirect to the redirect URI with the error parameters (load the relying party screen)
-        window.location.replace(`${redirect_uri}?${urlInfoParams}`);
+        // log to check the response for the dev testing
+        console.log(response);
+
+        if (!errors.length) {
+          // Set the authenticationTime parameter
+          urlInfoParams.set(
+            "authenticationTime",
+            Math.floor(Date.now() / 1000)
+          );
+
+          // Update the search part of the URL object
+          urlInfoObj.search = urlInfoParams.toString();
+
+          // Redirect to the updated URL (load the consent screen)
+          window.location.replace(urlInfoObj.toString());
+        } else {
+          handleRedirection(redirect_uri, errors[0].errorCode);
+        }
       }
     };
 

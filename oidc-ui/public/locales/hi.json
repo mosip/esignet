@@ -86,9 +86,9 @@
   "Form": {
     "sign_in_with_details": "विवरण के साथ लॉगिन करें",
     "login": "लॉगिन",
-    "policyNumber": "पॉलिसी नंबर दर्ज करें",
-    "fullName": "पूरा नाम दर्ज करें",
-    "dob": "जन्मतिथि दर्ज करें",
+    "policyNumber_label_text": "पॉलिसी नंबर दर्ज करें",
+    "fullName_label_text": "पूरा नाम दर्ज करें",
+    "dob_label_text": "जन्मतिथि दर्ज करें",
     "policyNumber_placeholder": "पॉलिसी नंबर",
     "fullName_placeholder": "पूरा नाम",
     "dob_placeholder": "जन्मतिथि"
@@ -226,6 +226,9 @@
     "consent_details_rejected": "हम क्षमा चाहते हैं! आपका लॉगिन असफल रहा क्योंकि सहमति साझा नहीं की गई थी।"
   },
   "errors": {
+    "invalid_policyNumber": "अमान्य नीति संख्या",
+    "invalid_fullName": "अमान्य पूरा नाम",
+    "invalid_dob": "अमान्य जन्म तिथि",
     "navigate_option": "कृपया नीचे दिए गए विकल्पों का उपयोग करके नेविगेट करने का प्रयास करें।",
     "page_not_exist": "उफ़! आप जिस पृष्ठ की तलाश कर रहे हैं वह मौजूद नहीं है।",
     "something_went_wrong": "कुछ गलत हो गया!",
