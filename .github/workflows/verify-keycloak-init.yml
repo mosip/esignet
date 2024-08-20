@@ -20,6 +20,8 @@ on:
       - develop
       - MOSIP*
       - release*
+    paths:
+      - 'helm/esignet/keycloak-init**' 
 
 jobs:
   verify-keycloak-init:
