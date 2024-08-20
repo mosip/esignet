@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -21,5 +22,5 @@ public class VerifiedClaimDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private VerificationFilter verification;
-    private Map<String, ClaimDetail> claims;
+    private Map<String,@Valid ClaimDetail> claims;
 }

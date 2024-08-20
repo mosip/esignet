@@ -14,6 +14,8 @@ import io.mosip.esignet.core.validator.OIDCScope;
 import lombok.Data;
 
 import io.mosip.esignet.core.validator.RedirectURL;
+
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
@@ -73,6 +75,7 @@ public class OAuthDetailRequest {
      * The userinfo and id_token members of the claims request both are JSON objects with the
      * names of the individual Claims being requested as the member names.
      */
+    @Valid
     private ClaimsV2 claims;
 
     /**

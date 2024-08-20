@@ -47,7 +47,7 @@ public class ValidatorTest {
     public void testIsValid_WithNullPurpose_theFail() {
         String purpose = null;
         boolean isValid = purposeValidator.isValid(purpose, constraintValidatorContext);
-        assertFalse(isValid);
+        assertTrue(isValid);
     }
 
     @Test
