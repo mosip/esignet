@@ -163,11 +163,7 @@ export default function Authorize({ authService }) {
           }
         };
 
-        if (!request.idTokenHint) {
-          await post_OauthDetails_v2(filteredRequest).then(handleResponse);
-        } else {
-          await post_OauthDetails_v3(filteredRequest).then(handleResponse);
-        }
+        await post_OauthDetails_v3(filteredRequest).then(handleResponse);
       } catch (error) {
         setStatus(states.LOADED);
         setOAuthDetailResponse(null);
