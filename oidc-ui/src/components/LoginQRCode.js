@@ -439,11 +439,10 @@ export default function LoginQRCode({
     setErrorBanner(null);
   };
 
-  {/* const handleQRCode = () => {
+  const handleQRCode = () => {
     window.onbeforeunload = null;
-    window.location.href = qrRedirectUrl;
-  }; */}
-  console.log(qrRedirectUrl);
+    window.open(qrRedirectUrl);
+  };
   
   return (
     <>
@@ -484,9 +483,9 @@ export default function LoginQRCode({
         )}
         {qr && (
           <div className="w-full flex justify-center">
-            <a className="border border-4 qrcode-border rounded-3xl p-2 hover:cursor-pointer href={qrRedirectUrl}">
+            <button className="border border-4 qrcode-border rounded-3xl p-2 hover:cursor-pointer onClick={handleQRCode} type="button" id="wallet-qr-btn">
               <img id="wallet-qr-code" src={qr} style={{ height: "186px", width: "186px" }} alt="wallet-qr-code"/>
-            </a>
+            </button>
           </div>
         )}
         {status.state === states.LOADING && error === null && (
