@@ -16,6 +16,7 @@ public class PurposeValidator implements ConstraintValidator<Purpose, String> {
 
     @Override
     public boolean isValid(String purpose, ConstraintValidatorContext constraintValidatorContext) {
+        if(purpose==null) return true;
         int length = StringUtils.hasText(purpose) ? purpose.length() : 0;
         return length >= minLength && length <= maxLength;
     }
