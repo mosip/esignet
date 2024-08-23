@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Consent from "../components/Consent";
 import authService from "../services/authService";
 import { Buffer } from "buffer";
@@ -21,6 +21,8 @@ export default function ConsentPage() {
   const key = searchParams.get("key");
   const errorCode = searchParams.get("error");
   const urlInfo = localStorage.getItem(key);
+  let hasResumed = false;
+  let resumeResponse = null;
 
   // Create a URL object using the URL info
   const urlInfoObj = new URL(
@@ -56,64 +58,68 @@ export default function ConsentPage() {
     window.location.replace(`${redirect_uri}?${urlInfoParams}`);
   };
 
-  if (key && urlInfo) {
-    // Parse the hash from the URL info
-    const hash = JSON.parse(atob(urlInfo.split("#")[1]));
+  useEffect(() => {
+    if (key && urlInfo && !hasResumed) {
+      hasResumed = true;
+      // Parse the hash from the URL info
+      const hash = JSON.parse(atob(urlInfo.split("#")[1]));
 
-    // Destructure the transactionId from the hash
-    const { transactionId } = hash;
+      // Destructure the transactionId from the hash
+      const { transactionId } = hash;
 
-    const resume = async (hash) => {
-      // Get the OAuth details hash
-      const oAuthDetailsHash = await getOauthDetailsHash(hash);
+      const resume = async (hash) => {
+        // Get the OAuth details hash
+        const oAuthDetailsHash = await getOauthDetailsHash(hash);
 
-      // Initialize the openIDConnectService
-      const oidcService = new openIDConnectService(
-        hash,
-        urlInfoParams.get("nonce"),
-        urlInfoParams.get("state")
-      );
-
-      // Get the redirect URI from the openIDConnectService
-      const redirect_uri = oidcService.getRedirectUri();
-
-      // Initialize the authService with the openIDConnectService
-      const authServices = new authService(oidcService);
-
-      window.onbeforeunload = null;
-
-      if (errorCodeObj[errorCode]) {
-        handleRedirection(redirect_uri, errorCodeObj[errorCode]);
-      } else {
-        const { response, errors } = await authServices.resume(
-          transactionId,
-          params.has("error"),
-          oAuthDetailsHash
+        // Initialize the openIDConnectService
+        const oidcService = new openIDConnectService(
+          hash,
+          urlInfoParams.get("nonce"),
+          urlInfoParams.get("state")
         );
 
-        // log to check the response for the dev testing
-        console.log(response);
+        // Get the redirect URI from the openIDConnectService
+        const redirect_uri = oidcService.getRedirectUri();
 
-        if (!errors.length) {
-          // Set the authenticationTime parameter
-          urlInfoParams.set(
-            "authenticationTime",
-            Math.floor(Date.now() / 1000)
+        // Initialize the authService with the openIDConnectService
+        const authServices = new authService(oidcService);
+
+        window.onbeforeunload = null;
+
+        if (errorCodeObj[errorCode]) {
+          handleRedirection(redirect_uri, errorCodeObj[errorCode]);
+        } else {
+          const { response, errors } = await authServices.resume(
+            transactionId,
+            params.has("error"),
+            oAuthDetailsHash
           );
 
-          // Update the search part of the URL object
-          urlInfoObj.search = urlInfoParams.toString();
+          resumeResponse = response;
 
-          // Redirect to the updated URL (load the consent screen)
-          window.location.replace(urlInfoObj.toString());
-        } else {
-          handleRedirection(redirect_uri, errors[0].errorCode);
+          if (!errors.length) {
+            // Set the authenticationTime parameter
+            urlInfoParams.set(
+              "authenticationTime",
+              Math.floor(Date.now() / 1000)
+            );
+
+            // Update the search part of the URL object
+            urlInfoObj.search = urlInfoParams.toString();
+
+            // Redirect to the updated URL (load the consent screen)
+            window.location.replace(urlInfoObj.toString());
+          } else {
+            handleRedirection(redirect_uri, errors[0].errorCode);
+          }
         }
-      }
-    };
+      };
 
-    resume(hash);
-  }
+      if (hasResumed) {
+        resume(hash);
+      }
+    }
+  }, [key, urlInfo, hasResumed]);
 
   let parsedOauth = null;
   try {
@@ -132,12 +138,14 @@ export default function ConsentPage() {
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
   return (
-    <Consent
-      backgroundImgPath="images/illustration_one.png"
-      authService={new authService(oidcService)}
-      openIDConnectService={oidcService}
-      consentAction={consentAction}
-      authTime={authTime}
-    />
+    resumeResponse && (
+      <Consent
+        backgroundImgPath="images/illustration_one.png"
+        authService={new authService(oidcService)}
+        openIDConnectService={oidcService}
+        consentAction={consentAction}
+        authTime={authTime}
+      />
+    )
   );
 }
