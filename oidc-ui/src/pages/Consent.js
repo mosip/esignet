@@ -10,7 +10,7 @@ import Base64 from "crypto-js/enc-base64";
 
 export default function ConsentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isRedirect, setRedirect] = useState(false);
+  
   const location = useLocation();
 
   let decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
@@ -94,8 +94,6 @@ export default function ConsentPage() {
             oAuthDetailsHash
           );
 
-          setRedirect(true);
-
           if (!errors.length) {
             // Set the authenticationTime parameter
             urlInfoParams.set(
@@ -118,7 +116,7 @@ export default function ConsentPage() {
         resume(hash);
       }
     }
-  }, [key, urlInfo, hasResumed, isRedirect]);
+  }, [key, urlInfo, hasResumed]);
 
   let parsedOauth = null;
   try {
@@ -137,7 +135,7 @@ export default function ConsentPage() {
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
   return (
-    isRedirect && (
+    state && (
       <Consent
         backgroundImgPath="images/illustration_one.png"
         authService={new authService(oidcService)}
