@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Consent from "../components/Consent";
 import authService from "../services/authService";
 import { Buffer } from "buffer";
@@ -10,7 +10,7 @@ import Base64 from "crypto-js/enc-base64";
 
 export default function ConsentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const [isRedirect, setRedirect] = useState(false);
   const location = useLocation();
 
   let decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
@@ -22,7 +22,6 @@ export default function ConsentPage() {
   const errorCode = searchParams.get("error");
   const urlInfo = localStorage.getItem(key);
   let hasResumed = false;
-  let resumeResponse = null;
 
   // Create a URL object using the URL info
   const urlInfoObj = new URL(
@@ -89,13 +88,13 @@ export default function ConsentPage() {
         if (errorCodeObj[errorCode]) {
           handleRedirection(redirect_uri, errorCodeObj[errorCode]);
         } else {
-          const { response, errors } = await authServices.resume(
+          const { errors } = await authServices.resume(
             transactionId,
             params.has("error"),
             oAuthDetailsHash
           );
 
-          resumeResponse = response;
+          setRedirect(true);
 
           if (!errors.length) {
             // Set the authenticationTime parameter
@@ -119,7 +118,7 @@ export default function ConsentPage() {
         resume(hash);
       }
     }
-  }, [key, urlInfo, hasResumed]);
+  }, [key, urlInfo, hasResumed, isRedirect]);
 
   let parsedOauth = null;
   try {
@@ -138,7 +137,7 @@ export default function ConsentPage() {
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
   return (
-    resumeResponse && (
+    isRedirect && (
       <Consent
         backgroundImgPath="images/illustration_one.png"
         authService={new authService(oidcService)}
