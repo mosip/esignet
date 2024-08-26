@@ -1,6 +1,7 @@
 AuthorizationCodeConsent:
    ESignet_AuthorizationCode_Consent_uin_Claim2_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: AuthorizationCode consent with claim2 and all valid details UIN
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -19,6 +20,7 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_Vid_Claim2_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: AuthorizationCode consent with claim2 and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -37,6 +39,7 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: AuthorizationCode consent with all valid details UIN
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -55,6 +58,7 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: AuthorizationCode consent with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

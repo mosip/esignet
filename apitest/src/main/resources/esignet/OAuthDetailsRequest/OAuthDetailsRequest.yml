@@ -1,6 +1,7 @@
 OAuthDetailsRequest:
    ESignet_OAuthDetailsRequest_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -25,6 +26,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2nd_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 2nd with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -49,6 +51,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2nd_vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 2nd with all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -73,6 +76,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Consent_2nd_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request consent 2nd with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -97,6 +101,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -121,6 +126,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_2nd_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request consent 2nd with all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -145,6 +151,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_SendOtp_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request sendOtp with all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -169,6 +176,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Other_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with other valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -193,6 +201,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_vid_Other_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with other valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -217,6 +226,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 2 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -240,6 +250,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_3all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 3 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -264,6 +275,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_4all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 4 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -288,6 +300,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_5all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 5 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -311,6 +324,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_6all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 6 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -334,6 +348,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_7all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 7 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -357,6 +372,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_8all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 8 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -380,6 +396,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_9all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 9 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -403,6 +420,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_10all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 10 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -426,6 +444,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_11all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 11 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -449,6 +468,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_12all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 12 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -472,6 +492,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_13all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 13 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -496,6 +517,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_14all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 14 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -520,6 +542,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_15all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 15 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -544,6 +567,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_16all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 16 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -568,6 +592,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_17all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 17 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -592,6 +617,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_18all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 18 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -616,6 +642,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_19all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 19 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -640,6 +667,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_20all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 20 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -664,6 +692,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_21all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 21 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -688,6 +717,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_22all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 22 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -712,6 +742,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_23all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 23 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -736,6 +767,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_24all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 24 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -760,6 +792,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_25all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 25 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -784,6 +817,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request 2 with all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -808,6 +842,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Invalid ClientId
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -837,6 +872,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in ClientId
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -866,6 +902,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without ClientId
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -895,6 +932,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Range_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Invalid range in ClientId
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -924,6 +962,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Exceding_Range_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with exceeding range in ClientId
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -953,6 +992,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Invalid redirectUri
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -982,6 +1022,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without redirectUri
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1011,6 +1052,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in redirectUri
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1040,6 +1082,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in redirectUri
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1069,6 +1112,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Invalid ResponseType
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1098,6 +1142,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without ResponseType
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1127,6 +1172,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in ResponseType
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1156,6 +1202,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in ResponseType
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1185,6 +1232,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Invalid Scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1214,6 +1262,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_WithoutSpace_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without space in Scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1243,6 +1292,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without Scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1272,6 +1322,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in Scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1301,6 +1352,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in Scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1330,6 +1382,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Invalid AcrValues
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1354,6 +1407,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Format_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Invalid format AcrValues
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1378,6 +1432,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_WithoutSpace_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without space in AcrValues
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1402,6 +1457,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without AcrValues
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1426,6 +1482,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in AcrValues
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1450,6 +1507,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in AcrValues
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1474,6 +1532,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_Claims_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without Claims
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1499,6 +1558,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Claims_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in Claims
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1528,6 +1588,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Claims_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with invalid Claims
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1552,6 +1613,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without claimsLocales
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1576,6 +1638,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with invalid claimsLocales
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1600,6 +1663,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in claimsLocales
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1624,6 +1688,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in claimsLocales
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1648,6 +1713,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_display_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without display
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1672,6 +1738,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with invalid display
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1701,6 +1768,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in display
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1729,6 +1797,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in display
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1758,6 +1827,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_SpaceValue_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with space in display
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1786,6 +1856,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with invalid state
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1810,6 +1881,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without state
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1834,6 +1906,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in state
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1858,6 +1931,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in state
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1882,6 +1956,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Exceding_Range_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with exceeding range in state
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1906,6 +1981,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Nonce_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with invalid Nonce
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1930,6 +2006,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_Nonce_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without Nonce
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1954,6 +2031,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Nonce_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in Nonce
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1978,6 +2056,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_Nonce_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in Nonce
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -2002,6 +2081,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with invalid requestTime
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -2031,6 +2111,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Diff_requestTime_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with different requestTime
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -2060,6 +2141,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with invalid prompt
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -2089,6 +2171,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_Prompt_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request without prompt
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -2112,6 +2195,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with empty value in prompt
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -2140,6 +2224,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with Null in prompt
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -2169,6 +2254,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_space_delimited_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with space delimited in prompt
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

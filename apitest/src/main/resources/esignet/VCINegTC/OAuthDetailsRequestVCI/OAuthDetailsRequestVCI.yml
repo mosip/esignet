@@ -1,6 +1,7 @@
 OAuthDetailsRequestVCINegTC:
    ESignet_OAuthDetailsRequest_VCI_uin_Empty_Scope_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with empty scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -31,6 +32,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Null_Scope_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with Null in scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -61,6 +63,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_SpaceVal_Scope_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with only space in scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -91,6 +94,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Diff_Scope_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with different scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -117,6 +121,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Invalid_Scope_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with invalid scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -147,6 +152,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Invalid_Code_Challenge_Method_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with invalid code challenge method UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -177,6 +183,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Empty_Code_Challenge_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with empty code challenge UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -207,6 +214,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Null_Code_Challenge_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with Null in code challenge UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -232,6 +240,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_SpaceVal_Code_Challenge_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with only space in code challenge UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -262,6 +271,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Empty_Code_Challenge_Method_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with empty value in code challenge method UIN
       role: resident
       restMethod: post
       allowedErrorCodes: unsupported_pkce_challenge_method,invalid_pkce_challenge
@@ -294,6 +304,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Null_Code_Challenge_Method_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with Null in code challenge method UIN
       role: resident
       restMethod: post
       allowedErrorCodes: unsupported_pkce_challenge_method,invalid_pkce_challenge
@@ -326,6 +337,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_SpaceVal_Code_Challenge_Method_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with only space in code challenge method UIN
       role: resident
       restMethod: post
       allowedErrorCodes: unsupported_pkce_challenge_method,invalid_pkce_challenge
@@ -357,6 +369,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Long_Code_Challenge_Pos:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with lengthy code challenge UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -383,6 +396,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Missing_Code_Challenge_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI without code challenge UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -413,6 +427,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Missing_Code_Challenge_Method_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI without code challenge method UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -443,6 +458,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Missing_Code_Challenge_And_Method_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI without code challenge and method UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -473,6 +489,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegAuthCodeScen1_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative authcode scenario 
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -499,6 +516,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegAuthCodeScen2_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative authcode scenario2
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -525,6 +543,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegAuthCodeScen3_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative authcode scenario3
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -551,6 +570,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegAuthCodeScen4_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative authcode scenario4
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -577,6 +597,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegAuthCodeScen5_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative authcode scenario5
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -603,6 +624,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegAuthCodeScen6_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative authcode scenario6
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -629,6 +651,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegAuthCodeScen7_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative authcode scenario7
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -655,6 +678,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegTokenScen1_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative token scenario1
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -681,6 +705,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegTokenScen2_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative token scenario2
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -707,6 +732,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegTokenScen3_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with valid details for negative token scenario3
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -733,6 +759,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Hash_CodeChallenge_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with hash value in code challenge using all valid details
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -759,6 +786,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Invalid_Val_Scope_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with invalid value in scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -789,6 +817,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Missing_Scope_Neg:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI without scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -819,6 +848,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen1_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario1 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -845,6 +875,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen2_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario2 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -871,6 +902,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen3_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario3 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -897,6 +929,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen4_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario4 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -923,6 +956,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen5_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario5 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -949,6 +983,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen6_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario6 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -975,6 +1010,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen7_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario7 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1001,6 +1037,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen8_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario8 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1027,6 +1064,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_NegCredScen9_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with all valid details for negative scenario9 credential UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1053,6 +1091,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Missing_ClaimsLocales_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI without claimslocales and valid details 
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1079,6 +1118,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Empty_ClaimsLocales_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with empty claimslocales and valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1105,6 +1145,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Null_ClaimsLocales_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with Null in claimslocales and valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1131,6 +1172,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_SpaceVal_ClaimsLocales_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with only space in claimslocales and valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -1157,6 +1199,7 @@ OAuthDetailsRequestVCINegTC:
 
    ESignet_OAuthDetailsRequest_VCI_uin_Invalid_ClaimsLocales_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request VCI with invalid claimslocales and valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

@@ -1,6 +1,7 @@
 LinkedAuthenticationWla:
    ESignet_LinkedAuthenticationWla_Consent_SameClaim_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      description: Linked AuthenticationWla consent same claim UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -52,6 +53,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Consent_SameClaim_Vid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      description: Linked AuthenticationWla consent same claim VID SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -103,6 +105,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Consent_User2_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      description: Linked AuthenticationWla consent User2 UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -154,6 +157,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Consent_User2_Vid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      description: Linked AuthenticationWla consent User2 UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -205,6 +209,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      description: Linked AuthenticationWla UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -255,6 +260,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Vid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      description: Linked AuthenticationWla VID SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

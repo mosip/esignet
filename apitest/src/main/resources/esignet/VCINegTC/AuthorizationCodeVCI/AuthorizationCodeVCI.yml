@@ -1,6 +1,7 @@
 AuthorizationCodeVCINegTC:
    ESignet_AuthorizationCode_VCI_uin_Empty_Scope:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code for VCI with empty scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -23,6 +24,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_Null_Scope:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code for VCI with Null in scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -40,6 +42,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_Invalid_Diff_Scope:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code for VCI with invalid different scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -62,6 +65,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_Invalid_Claim_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code for VCI with invalid claim UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -84,6 +88,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegTokenScen1_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative token scenario1 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -100,6 +105,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegTokenScen2_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative token scenario2 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -116,6 +122,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegTokenScen3_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative token scenario3 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -132,6 +139,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_Hash_CodeChallenge_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with hash value in code challenge and valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -148,6 +156,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen1_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario1 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -164,6 +173,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen2_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario2 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -180,6 +190,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen3_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario3 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -196,6 +207,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen4_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario4 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -212,6 +224,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen5_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario5 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -228,6 +241,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen6_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario6 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -244,6 +258,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen7_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario7 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -260,6 +275,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen8_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario8 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -276,6 +292,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_NegCredScen9_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with valid details for negative credential scenario9 UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -292,6 +309,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_SpaceVal_Scope:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with only space in scope UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -314,6 +332,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_Empty_Claim_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with empty claim UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -336,6 +355,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_Null_Claim_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with Null in claim UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -358,6 +378,7 @@ AuthorizationCodeVCINegTC:
 
    ESignet_AuthorizationCode_VCI_uin_spaceVal_Claim_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code VCI with only space in claim UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

@@ -1,6 +1,7 @@
 definePolicyGroup:
    Esignet_DefinePolicyGroup_All_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies/group/new
+      description: Define policy group with all valid parameters
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/DefinePolicyGroup/definePolicyGroup
@@ -19,6 +20,7 @@ definePolicyGroup:
 
    Esignet_DefinePolicyGroup_Misp_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies/group/new
+      description: Define policy group with valid Misp
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/DefinePolicyGroup/definePolicyGroup
@@ -37,6 +39,7 @@ definePolicyGroup:
 
    Esignet_DefinePolicyGroup_in_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies/group/new
+      description: Define policy group with valid details 
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/DefinePolicyGroup/definePolicyGroup
@@ -54,6 +57,7 @@ definePolicyGroup:
     }'
    Esignet_DefinePolicyGroup_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies/group/new
+      description: Define policy group with valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/DefinePolicyGroup/definePolicyGroup

@@ -1,6 +1,7 @@
 DeactivatePolicy:
    Esignet_DeactivatePolicy_After_Publish_Neg:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}
+      description: Deactivate policy after published
       role: partner
       restMethod: patch
       inputTemplate: esignet/PmsIntegration/DeactivatePolicy/DeactivatePolicy

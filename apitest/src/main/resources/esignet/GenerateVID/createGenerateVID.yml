@@ -1,6 +1,7 @@
 GenerateVID:
    ESignetRes_Generate_Perpetual_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -36,6 +37,7 @@ GenerateVID:
 
    ESignetRes_Generate_Temporary_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate temporary VID with valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -71,6 +73,7 @@ GenerateVID:
 
    ESignetRes_Generate_Onetimeuse_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate Onetimeuse VID with valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -106,6 +109,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual2_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual2 VID with valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -141,6 +145,7 @@ GenerateVID:
 
    ESignetRes_Generate_Temporary2_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate temporary2 VID valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -176,6 +181,7 @@ GenerateVID:
 
    ESignetRes_Generate_Onetimeuse2_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate Onetimeuse2 VID valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -211,6 +217,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Kyc_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID Kyc valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -246,6 +253,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_LinkedSce_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID Linkedsce valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -281,6 +289,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID with invalid scenario
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -316,6 +325,7 @@ GenerateVID:
 
    ESignetRes_Generate_Temporary_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate temporary VID invalid scen valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -351,6 +361,7 @@ GenerateVID:
 
    ESignetRes_Generate_Onetimeuse_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate Onetimeuse VID invalid scen valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -386,6 +397,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Consent_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID consent valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -421,6 +433,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Linked_Consent_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID linked consent valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -456,6 +469,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Linked_Consent_User2_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID linked consent user2 valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -491,6 +505,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_VCI_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID VCI valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -526,6 +541,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_VCI_Invalid_Scen_Smoke_sid:
       endPoint: /resident/v1/vid
+      description: Generate perpetual VID VCI with invalid scenario
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
