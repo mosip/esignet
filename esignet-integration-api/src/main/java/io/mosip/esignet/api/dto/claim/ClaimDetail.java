@@ -6,6 +6,7 @@
 package io.mosip.esignet.api.dto.claim;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.mosip.esignet.api.validator.Purpose;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,10 +19,12 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ClaimDetail extends VerifiedClaimDetail implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private String value;
     private String[] values;
     private boolean essential;
 
+    @Purpose
     private String purpose;
 
     public ClaimDetail(String value, String[] values, boolean essential) {

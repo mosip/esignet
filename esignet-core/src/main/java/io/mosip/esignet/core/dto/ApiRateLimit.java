@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Data
 public class ApiRateLimit implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     ConcurrentHashMap<Integer, Integer> count = new ConcurrentHashMap<>();
     ConcurrentHashMap<Integer, Long> lastInvocation = new ConcurrentHashMap<>();
 
