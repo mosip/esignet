@@ -1,6 +1,7 @@
 GenerateTokenVCINegTC:
    ESignet_GenerateTokenVCI_uin_NegTokenScen1_Invalid_code_verifier:
       endPoint: /v1/esignet/oauth/v2/token
+      description:To generate token with invalid code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -21,6 +22,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegTokenScen2_Empty_code_verifier:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with empty code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -41,6 +43,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegTokenScen1_SpaceVal_code_verifier:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with space value code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -61,6 +64,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegTokenScen2_Null_code_verifier:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with null value code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -81,6 +85,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegTokenScen3_NoHash_code_verifier:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with nohash code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -101,6 +106,8 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_Invalid_Hash_CodeChallenge:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with invalid hash codeChallenge
+      discription: 
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -121,6 +128,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen1_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with invalid credentials	  
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -141,6 +149,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen2_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -161,6 +170,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen3_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -181,6 +191,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen4_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -201,6 +212,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen5_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -221,6 +233,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen6_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -241,6 +254,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen7_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -261,6 +275,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen8_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -281,6 +296,7 @@ GenerateTokenVCINegTC:
 
    ESignet_GenerateTokenVCI_uin_NegCredScen9_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: To generate token with different invalid credentials
       role: resident
       restMethod: post
       validityCheckRequired: true

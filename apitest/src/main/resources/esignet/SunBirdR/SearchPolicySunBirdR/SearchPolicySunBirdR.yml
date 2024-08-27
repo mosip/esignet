@@ -1,6 +1,7 @@
 SearchPolicySunBirdR:
    ESignet_SunBirdR_SearchPolicy_NOAUTH_Valid_Smoke:
       endPoint: $SUNBIRDBASEURL$/api/v1/Insurance/search
+      description: To Search for the Policy with the policynumber and with no Authorization 
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

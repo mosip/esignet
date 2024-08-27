@@ -1,6 +1,7 @@
 CreateOIDCClient:
    ESignet_CreateOIDCClient_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with all valid data
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -29,6 +30,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_2_Same_RelyParty_Valid_Smoke_sid:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with two same relying party
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -57,6 +59,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid requestTime and all valid data
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -89,6 +92,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Diff_RequestTime_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with different requestTime
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -121,6 +125,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_StatusCode_Invalid_Token_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid token
       role: resident
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -146,6 +151,7 @@ CreateOIDCClient:
       
    ESignet_CreateOIDCClient_StatusCode_Diff_Token_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with different invalid token
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -171,6 +177,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_Range_ClientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid range clientId
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -203,6 +210,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Exceding_Range_ClientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with exceding range clientId
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -235,6 +243,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_Range_ClientName_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid range clientName
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -267,6 +276,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Exceding_Range_ClientName_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with exceding range clientName
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -299,6 +309,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_SpaceFirst_ClientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with a value starting with space in clientId
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -331,6 +342,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_SpaceLast_ClientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with a value ending with space in clientId
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -363,6 +375,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_SpaceMiddle_ClientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with clientId value having space in middle 
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -395,6 +408,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_Range_relyingPartyId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid range relyingpartyId
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -427,6 +441,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_Exceding_Range_relyingPartyId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with exceding range relyingpartyId
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -459,6 +474,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_Range_logoUri_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid range logoUri
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -491,6 +507,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_Exceding_Range_logoUri_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with exceding range logoUri
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -523,6 +540,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Missing_redirectUris:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with with missing redirectUris
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -555,6 +573,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_authContextRefs:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invaid authContextRefs
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -587,6 +606,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Null_authContextRefs:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with null value in authContextRefs
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -619,6 +639,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Missing_authContextRefs:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with missing authContextRefs
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -651,6 +672,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Empty_authContextRefs:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with missing authContextRefs
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -683,6 +705,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_publicKey:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid publicKey
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClientInvPublicKey
@@ -714,6 +737,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_UserClaims:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with invalid userClaims
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -746,6 +770,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Missing_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with missing grantTypes
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -778,6 +803,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Null_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with null value in grantTypes
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -810,6 +836,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with different invalid grantTypes
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -842,6 +869,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Empty_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with an empty grantTypes
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -874,6 +902,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Missing_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with missing clientAuthMethods
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -906,6 +935,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Invalid_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with different invalid clientAuthMethods
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -938,6 +968,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Empty_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with an empty clientAuthMethods
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
@@ -970,6 +1001,7 @@ CreateOIDCClient:
 
    ESignet_CreateOIDCClient_Null_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client
+      description: To create OIDC Client with null value in clientAuthMethods
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient

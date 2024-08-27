@@ -1,6 +1,7 @@
 OAuthDetailsRequestV2:
    ESignet_OAuthDetailsRequest_V2_uin_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: To get OAuthDetails V2  with all valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -27,6 +28,7 @@ OAuthDetailsRequestV2:
 
    ESignet_OAuthDetailsRequest_V2_uin_1stLang_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: To get OAuthDetails V2  with first language and all valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

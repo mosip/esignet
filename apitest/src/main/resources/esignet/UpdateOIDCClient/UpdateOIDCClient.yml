@@ -1,6 +1,7 @@
 UpdateOIDCClient:
    ESignet_UpdateOIDCClient_all_Valid_Smoke:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with all valid data
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -28,6 +29,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_2_all_Valid_Smoke:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with different  valid data
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -55,6 +57,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid requestTime
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -86,6 +89,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Diff_RequestTime_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with different invalid requestTime
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -117,6 +121,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_clientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid clientId
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -148,6 +153,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_StatusCode_Invalid_Token_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid token
       role: resident
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -172,6 +178,7 @@ UpdateOIDCClient:
       
    ESignet_UpdateOIDCClient_StatusCode_Diff_Token_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with different invalid token
       role: idrepo
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -196,6 +203,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_Range_ClientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid range
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -227,6 +235,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Exceding_Range_ClientId_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with exceding range clientId
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -258,6 +267,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_status_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid status
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -289,6 +299,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_Range_logoUri_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid range logoUri
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -320,6 +331,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Exceding_Range_logoUri_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with exceding range logoUri
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -351,6 +363,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Empty_redirectUris_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with an empty redirectUris
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -382,6 +395,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Missing_redirectUris_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with missing redirectUris
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -413,6 +427,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_userClaims_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid userClaims
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -444,6 +459,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_authContextRefs_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid authContextRefs
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -475,6 +491,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Empty_authContextRefs_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with an empty authContextRefs
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -506,6 +523,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Null_authContextRefs_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with null authContextRefs
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -537,6 +555,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Missing_authContextRefs_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with missing authContextRefs
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -568,6 +587,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid grantTypes
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -599,6 +619,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Null_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with null grantTypes
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -630,6 +651,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Empty_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with an empty grantTypes
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -661,6 +683,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Missing_grantTypes_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with missing grantTypes 
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -692,6 +715,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with invalid clientAuthMethods
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -723,6 +747,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Null_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with null value in clientAuthMethods
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -754,6 +779,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Empty_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with empty clientAuthMethods
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -785,6 +811,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Missing_clientAuthMethods_Neg:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with missing clientAuthMethods
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -816,6 +843,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Invalid_Range_ClientName:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with all invalid range clientName
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
@@ -847,6 +875,7 @@ UpdateOIDCClient:
 
    ESignet_UpdateOIDCClient_Exceding_Range_ClientName:
       endPoint: /v1/esignet/client-mgmt/oidc-client/{clientId}
+      description: To update OIDC client with exceding range clientName
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient

@@ -1,6 +1,7 @@
 GenerateTokenSunBirdCNegTC:
    ESignet_GenerateTokenSunBirdCNegTC_Invalid_Code_Verifier_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      description: To Authenticate the user for SunBirdC with invalid code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -21,6 +22,7 @@ GenerateTokenSunBirdCNegTC:
 
    ESignet_GenerateTokenSunBirdCNegTC_Missing_Code_Verifier_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      description: To Authenticate the user for SunBirdC with missing code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -41,6 +43,7 @@ GenerateTokenSunBirdCNegTC:
 
    ESignet_GenerateTokenSunBirdCNegTC_Empty_Code_Verifier_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      description: To Authenticate the user for SunBirdC with an empty code_verifier value
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -61,6 +64,7 @@ GenerateTokenSunBirdCNegTC:
 
    ESignet_GenerateTokenSunBirdCNegTC_SpaceVal_Code_Verifier_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      description: To Authenticate the user for SunBirdC with space value in code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -81,6 +85,7 @@ GenerateTokenSunBirdCNegTC:
 
    ESignet_GenerateTokenSunBirdCNegTC_Null_Code_Verifier_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      description: To Authenticate the user for SunBirdC with null value in code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -101,6 +106,7 @@ GenerateTokenSunBirdCNegTC:
 
    ESignet_GenerateTokenSunBirdCNegTC_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      description: To Authenticate the user for SunBirdC with invalid data
       role: resident
       restMethod: post
       validityCheckRequired: true
