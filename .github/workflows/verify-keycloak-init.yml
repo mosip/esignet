@@ -1,0 +1,30 @@
+name: verify-keycloak-init
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message for manually triggering'
+        required: false
+        default: 'Triggered for Updates'
+        type: string
+  push:
+    branches:
+      - '!release-branch'
+      - master
+      - 1.*
+      - develop
+      - MOSIP*
+      - release*
+    paths:
+      - 'helm/esignet/keycloak-init**' 
+
+jobs:
+  verify-keycloak-init:
+    uses: mosip/kattu/.github/workflows/verify-keycloak-init.yml@master
+    with: 
+      kc_values_file_path: helm/esignet/keycloak-init-values.yaml
