@@ -23,7 +23,7 @@ GenerateTokenVCIVidNegTC:
    ESignet_GenerateTokenVCI_Vid_NegTokenScen2_Empty_code_verifier:
       endPoint: /v1/esignet/oauth/v2/token
       description: To generate token with an empty code_verifier
-	  role: resident
+      role: resident
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/VCIVidNegTC/GenerateTokenVCI/GenerateTokenVCI
