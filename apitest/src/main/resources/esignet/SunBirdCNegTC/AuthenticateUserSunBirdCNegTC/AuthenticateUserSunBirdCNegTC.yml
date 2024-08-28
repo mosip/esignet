@@ -451,6 +451,7 @@ AuthenticateUserSunBirdCNegTC:
 
    ESignet_AuthenticateUserSunBirdCNegTC_Invalid_Challenge_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
+      description: To Authenticate the user for SunBirdC with an invalid challenge
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

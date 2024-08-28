@@ -405,7 +405,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-	  description: To request OAuthDetails for SunBirdC with invalid data
+      description: To request OAuthDetails for SunBirdC with invalid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

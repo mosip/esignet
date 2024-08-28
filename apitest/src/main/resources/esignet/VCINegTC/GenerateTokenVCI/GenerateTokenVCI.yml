@@ -1,7 +1,7 @@
 GenerateTokenVCINegTC:
    ESignet_GenerateTokenVCI_uin_NegTokenScen1_Invalid_code_verifier:
       endPoint: /v1/esignet/oauth/v2/token
-      description:To generate token with invalid code_verifier
+      description: To generate token with invalid code_verifier
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -107,7 +107,6 @@ GenerateTokenVCINegTC:
    ESignet_GenerateTokenVCI_uin_Invalid_Hash_CodeChallenge:
       endPoint: /v1/esignet/oauth/v2/token
       description: To generate token with invalid hash codeChallenge
-      discription: 
       role: resident
       restMethod: post
       validityCheckRequired: true
