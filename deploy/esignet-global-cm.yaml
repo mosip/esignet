@@ -1,0 +1,19 @@
+## The data here is of generic interest to modules in different namespaces hence this is marked as global.
+## Replace your domain names here.
+## mosip-api-host:  External public access. (Typically required only in production rollouts).
+## mosip-api-internal-host: Internal secure access over Wireguard.
+## By default all domains and subdomains listed below point to mosip-api-internal-host. Modify this default behavior ONLY in production rollout as follows:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: esignet-global
+  namespace: esignet
+data:
+  mosip-version: develop
+  mosip-api-host: api.soil-esignet.mosip.net
+  mosip-iam-external-host: iam.soil-esignet.mosip.net
+  mosip-api-internal-host: api-internal.soil-esignet.mosip.net
+  mosip-kafka-host: kafka.soil-esignet.mosip.net
+  mosip-esignet-host: esignet.sandobox.xyz.net
+  mosip-postgres-host: esignet-postgres.soil-esignet.mosip.net
+  mosip-minio-host: minio.soil-esignet.mosip.net
