@@ -248,7 +248,7 @@ extraEnvVarsCM:
   - esignet-global
   - esignet-config-server-share
   - esignet-artifactory-share
-  - softhsm-esignet-share
+  - esignet-softhsm-share
   - oidc-ui
 
 ## Secret with extra environment variables
