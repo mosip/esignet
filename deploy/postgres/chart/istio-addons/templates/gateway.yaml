@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: postgres
+spec:
+  selector:
+    istio: ingressgateway-internal
+  servers:
+  - port:
+      number: 5432
+      name: postgres
+      protocol: TCP
+    hosts:
+    - {{ .Values.postgresHost }}
