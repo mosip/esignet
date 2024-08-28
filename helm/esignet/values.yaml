@@ -245,10 +245,10 @@ extraEnvVars: []
 ## ConfigMap with extra environment variables that used
 ##
 extraEnvVarsCM:
-  - global
-  - config-server-share
-  - artifactory-share
-  - softhsm-esignet-share
+  - esignet-global
+  - esignet-config-server-share
+  - esignet-artifactory-share
+  - esignet-softhsm-share
 
 ## Secret with extra environment variables
 ##
