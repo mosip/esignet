@@ -1,0 +1,103 @@
+gitRepo:
+  uri: https://github.com/mosip/mosip-config
+  version: v1.4.1-ES
+  ## Folders within the base repo where properties may be found.
+  searchFolders: ""
+  private: false
+  ## User name of user who has access to the private repo. Ignore for public repo
+  username: ""
+  token: ""
+
+envVariables:
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_DB_DBUSER_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-common-secrets
+        key: db-dbuser-password
+    enabled: true
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_API_PUBLIC_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-api-host
+    enabled: true
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_API_INTERNAL_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-api-internal-host
+    enabled: true
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_KEYCLOAK_INTERNAL_URL
+    valueFrom:
+      configMapKeyRef:
+        name: keycloak-host
+        key: keycloak-internal-url
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_KEYCLOAK_EXTERNAL_URL
+    valueFrom:
+      configMapKeyRef:
+        name: keycloak-host
+        key: keycloak-external-url
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_ESIGNET_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-esignet-host
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_KEYCLOAK_INTERNAL_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: keycloak-host
+        key: keycloak-internal-host
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_KEYCLOAK_EXTERNAL_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: keycloak-host
+        key: keycloak-external-host
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MPARTNER_DEFAULT_AUTH_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-client-secrets
+        key: mpartner_default_auth_secret
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_PMS_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        key: mosip_pms_client_secret
+        name: keycloak-client-secrets
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SOFTHSM_ESIGNET_SECURITY_PIN
+    valueFrom:
+      secretKeyRef:
+        name: esignet-softhsm
+        key: security-pin
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_ESIGNET_CAPTCHA_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        key: esignet-captcha-secret-key
+        name: esignet-captcha
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_ESIGNET_CAPTCHA_SITE_KEY
+    valueFrom:
+      secretKeyRef:
+        key: esignet-captcha-site-key
+        name: esignet-captcha
+    enabled: true
+
+  - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_ESIGNET_MISP_KEY
+    valueFrom:
+      secretKeyRef:
+        key: mosip-esignet-misp-key
+        name: esignet-misp-onboarder-key
