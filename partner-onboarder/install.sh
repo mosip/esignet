@@ -34,15 +34,17 @@ function installing_onboarder() {
     kubectl label ns $NS istio-injection=disabled --overwrite
     helm repo update
 
-    echo Copy configmaps
+    echo Copy configmaps and secrets
     kubectl -n $NS --ignore-not-found=true delete cm s3
-    sed -i 's/\r$//' copy_cm.sh
-    ./copy_cm.sh
     kubectl -n $NS delete cm --ignore-not-found=true onboarding
 
-    echo Copy secrets
-    sed -i 's/\r$//' copy_secrets.sh
-    ./copy_secrets.sh
+    COPY_UTIL=../deploy//copy_cm_func.sh
+    $COPY_UTIL configmap keycloak-env-vars keycloak $NS
+    $COPY_UTIL configmap keycloak-host keycloak $NS
+
+    $COPY_UTIL secret s3 s3 $DST_NS
+    $COPY_UTIL secret keycloak keycloak $DST_NS
+    $COPY_UTIL secret keycloak-client-secrets keycloak $DST_NS
 
     read -p "Provide onboarder bucket name : " s3_bucket
     if [[ -z $s3_bucket ]]; then
@@ -78,15 +80,13 @@ function installing_onboarder() {
     --version $CHART_VERSION \
     --wait --wait-for-jobs
 
-   ./copy_cm_func.sh secret esignet-misp-onboarder-key esignet config-server
-   ./copy_cm_func.sh secret resident-oidc-onboarder-key esignet config-server
-   ./copy_cm_func.sh secret resident-oidc-onboarder-key esignet resident
-    kubectl -n config-server set env --keys=mosip-esignet-misp-key --from secret/esignet-misp-onboarder-key deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
-    kubectl -n config-server set env --keys=resident-oidc-clientid --from secret/resident-oidc-onboarder-key deployment/config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
-    kubectl -n config-server rollout restart deploy config-server
-    kubectl -n config-server get deploy -o name | xargs -n1 -t kubectl -n config-server rollout status
-    kubectl rollout restart deployment -n esignet esignet
-    kubectl rollout restart deployment -n resident resident
+    $COPY_UTIL secret resident-oidc-onboarder-key esignet resident
+    kubectl -n $NS set env --keys=mosip-esignet-misp-key --from secret/esignet-misp-onboarder-key deployment/esignet-config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+    kubectl -n $NS set env --keys=resident-oidc-clientid --from secret/resident-oidc-onboarder-key deployment/esignet-config-server --prefix=SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_
+    kubectl -n $NS rollout restart deploy esignet-config-server
+    kubectl -n $NS get deploy esignet-config-server -o name | xargs -n1 -t kubectl -n $NS rollout status
+    kubectl -n $NS rollout restart deployment esignet
+    kubectl -n resident rollout restart deployment resident
     echo eSignet MISP License Key and Resident OIDC Client ID updated successfully.
 
     echo Reports are moved to S3 under onboarder bucket
