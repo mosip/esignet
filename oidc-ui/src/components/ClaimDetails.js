@@ -342,8 +342,8 @@ const ClaimDetails = ({
                           </div>
 
                           <div className="divide-y">
-                            {claimScope?.values?.map((item) => (
-                              <ul className="list-disc marker:text-[#B9B9B9] ml-4 !border-0">
+                            {claimScope?.values?.map((item, index) => (
+                              <ul key={`claim-${index}`} className="list-disc marker:text-[#B9B9B9] ml-4 !border-0">
                                 <li key={item} className="mb-1">
                                   <div className="claimsGrid">
                                     <div className="flex justify-start relative items-center mb-1 mt-1">
