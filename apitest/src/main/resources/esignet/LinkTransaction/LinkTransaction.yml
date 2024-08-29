@@ -1,6 +1,7 @@
 LinkTransaction:
    ESignet_LinkTransaction_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -16,6 +17,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -31,6 +33,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Consent_uin_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction consent UIN User2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -47,6 +50,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Consent_Vid_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction consent VID User2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -63,6 +67,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Consent_uin_SameClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction consent UIN with same claim and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -79,6 +84,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Consent_Vid_SameClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction consent VID with same claim and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -95,6 +101,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with invalid requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -116,6 +123,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_RequestTime_PastValue_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with past value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -137,6 +145,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_RequestTime_FutureValue_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with future value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -158,6 +167,7 @@ LinkTransaction:
 
    ESignet_Link_Transaction_Absent_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction without requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -179,6 +189,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Space_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with only space in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -200,6 +211,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Empty_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with empty value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -221,6 +233,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Invalid_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with invalid linkCode
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -242,6 +255,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Missing_val_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction without linkCode
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -263,6 +277,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Expired_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with expired linkCode
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -284,6 +299,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Empty_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with empty value in linkCode
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -305,6 +321,7 @@ LinkTransaction:
 
    ESignet_LinkTransaction_Null_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: link transaction with Null in linkCode
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

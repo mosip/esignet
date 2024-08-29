@@ -1,6 +1,7 @@
 GenerateLinkCode:
    ESignet_GenerateLinkCode_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -16,6 +17,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -31,6 +33,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Consent_uin_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code consent UIN user2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -47,6 +50,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Consent_Vid_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code consent VID user2 with all valid details 
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -63,6 +67,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Consent_uin_SameClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code consent UIN with same claim details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -79,6 +84,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Consent_Vid_SameClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code consent VID with same claim details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -95,6 +101,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with invalid requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -115,6 +122,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Past_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with past requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -135,6 +143,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Future_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with future requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -155,6 +164,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Missing_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code without requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -175,6 +185,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Space_As_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with only space in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -195,6 +206,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Invalid_transactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with invalid transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -215,6 +227,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Expired_transactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with expired transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -235,6 +248,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Missing_transactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code without transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -255,6 +269,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Empty_transactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with empty transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -275,6 +290,7 @@ GenerateLinkCode:
 
    ESignet_GenerateLinkCode_Null_transactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-code
+      description: Generate link code with Null in transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

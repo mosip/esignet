@@ -1,6 +1,7 @@
 CreateOIDCClient:
    Esignet_CreateOIDCClient_all_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -22,6 +23,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client NonAuth all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -43,6 +45,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_Misp_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client Misp valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -64,6 +67,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_Auth_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client Auth false valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -85,6 +89,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_Auth_S2_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client Auth S2 valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -110,6 +115,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_InValid_logoUri_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with invalid logoUri
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -134,6 +140,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_InValid_Partner_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with invalid partner
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -159,6 +166,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_with_null_oidc_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with null oidc
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -184,6 +192,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_with_null_policy_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with null policy
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -209,6 +218,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_with_invalid_policy_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with invalid policy
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -234,6 +244,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_inValid_authPartnerId_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with invalid authpartnerId
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -259,6 +270,7 @@ CreateOIDCClient:
 
    Esignet_CreateOIDCClient_blank_authPartnerId_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client blank authpartnerId
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -283,6 +295,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_with_maxm_char_logouri_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with maximum character in logouri
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -307,6 +320,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_without_redirecturi_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client without redirecturi
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -329,6 +343,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_with_invalid_clientAuthMethods_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with invalid clientAuthMethods
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -352,6 +367,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_with_empty_grantTypes_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with empty grantTypes
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -375,6 +391,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_with_null_grantTypes_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with null grantTypes
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -398,6 +415,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_with_invalid_grantTypes_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with invalid grantTypes
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -421,6 +439,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_same_publickey_sid:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with same publicKey
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient
@@ -445,6 +464,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_max_authPartnerId_Neg:
       endPoint: /v1/partnermanager/oidc/client
+      description: Create OIDC client with exceeding maximum limit in authpartnerId
       role: partner
       restMethod: post
       inputTemplate: esignet/OidcClient/OIDCClient

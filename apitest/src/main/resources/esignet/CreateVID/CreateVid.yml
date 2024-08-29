@@ -1,6 +1,7 @@
 CreateVID:
   ESignetIdR_Generate_Perpetual_VID_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual VID with valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -18,6 +19,7 @@ CreateVID:
 
   ESignetIdR_Generate_Temporary_VID_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate temporary VID valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -35,6 +37,7 @@ CreateVID:
 
   ESignetIdR_Generate_Onetimeuse_VID_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate Onetimeuse VID valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -52,6 +55,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual2_VID_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual2 VID valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -69,6 +73,7 @@ CreateVID:
 
   ESignetIdR_Generate_Temporary2_VID_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate temporary2 VID valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -86,6 +91,7 @@ CreateVID:
 
   ESignetIdR_Generate_Onetimeuse2_VID_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate Onetimeuse2 VID valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -103,6 +109,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual_VID_Kyc_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perepetual VID Kyc valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -120,6 +127,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual_VID_LinkedSce_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual VID linked scenario valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -137,6 +145,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual VID invalid scenario valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -154,6 +163,7 @@ CreateVID:
 
   ESignetIdR_Generate_Temporary_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate temporary VID invalid scenaraio valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -171,6 +181,7 @@ CreateVID:
 
   ESignetIdR_Generate_Onetimeuse_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate Onetimeuse VID invalid scen valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -188,6 +199,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual_VID_Consent_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual VID consent valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -205,6 +217,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual_VID_Linked_Consent_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual VID linked consent valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -222,6 +235,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual_VID_VCI_Valid_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual VID VCI valid details
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid
@@ -239,6 +253,7 @@ CreateVID:
 
   ESignetIdR_Generate_Perpetual_VID_VCI_Invalid_Scen_Smoke_sid:
       endPoint: /idrepository/v1/vid
+      description: Generate perpetual VID VCI invalid scen
       role: idrepo
       restMethod: post
       inputTemplate: esignet/CreateVID/createVid

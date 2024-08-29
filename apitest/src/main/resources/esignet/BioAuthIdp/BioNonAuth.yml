@@ -1,6 +1,7 @@
 BioNonAuth:
   ESignet_BioAuth_Biometric_Face_NonAuth_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      description: Face biometric with NonAuth and valid details UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -45,6 +46,7 @@ BioNonAuth:
 
   ESignet_BioAuth_Biometric_RingFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RingFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -88,6 +90,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftMiddleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -131,6 +134,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftLittleFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftLittleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -174,6 +178,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIndexFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightIndexFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -217,6 +222,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightRingFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightRingFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -260,6 +266,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightMiddleFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightMiddleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -303,6 +310,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightLittleFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightLittleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -346,6 +354,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftThumb_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftThumb biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -389,6 +398,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightThumb_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightThumb biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -432,6 +442,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIris_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightIris biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -475,6 +486,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftIris_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftIris biometric with NonAuth UIN
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -519,6 +531,7 @@ BioNonAuth:
 
   ESignet_BioNonAuth_Biometric_Face_NonAuth_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      description: Face biometric with NonAuth and valid details VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -563,6 +576,7 @@ BioNonAuth:
 
   ESignet_BioAuth_Biometric_RingFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RingFinger biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -606,6 +620,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftMiddleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -649,6 +664,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftLittleFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftLittleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -692,6 +708,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIndexFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightIndexFinger biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -735,6 +752,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightRingFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightRingFinger biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -778,6 +796,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightMiddleFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightMiddleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -821,6 +840,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightLittleFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightLittleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -864,6 +884,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftThumb_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftThumb biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -907,6 +928,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightThumb_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightThumb biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -950,6 +972,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIris_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: RightIris biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -993,6 +1016,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftIris_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      description: LeftIris biometric with NonAuth VID
       role: resident
       restMethod: post
       validityCheckRequired: true

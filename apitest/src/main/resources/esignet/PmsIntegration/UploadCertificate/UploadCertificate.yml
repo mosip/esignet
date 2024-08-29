@@ -1,6 +1,7 @@
 uploadCACert:
    Esignet_UploadCACertificate_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -15,6 +16,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -30,6 +32,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Misp_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Misp valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -44,6 +47,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Misp_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Misp valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -59,6 +63,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Kyc_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Kyc with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -73,6 +78,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Kyc_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Kyc with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -88,6 +94,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_NonAuth_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate NonAuth with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -102,6 +109,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_NonAuth_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate NonAuth all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -117,6 +125,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Misp_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Misp False valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -131,6 +140,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Misp_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Misp false valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -146,6 +156,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Auth_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Auth false valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -160,6 +171,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Auth_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Auth false valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -175,6 +187,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Misp_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Misp S2 valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -189,6 +202,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Misp_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Misp S2 valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -204,6 +218,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Auth_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Auth S2 valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate
@@ -218,6 +233,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Auth_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      description: upload CACertificate Auth S2 valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/UploadCertificate/uploadCertificate

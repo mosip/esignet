@@ -1,6 +1,7 @@
 GenerateTokenLinkedConsent:
    ESignet_GenerateToken_LinkedConsent_uin_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      description: Generate Token linkedConsent UIN with all valid details
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -20,6 +21,7 @@ GenerateTokenLinkedConsent:
 
    ESignet_GenerateToken_LinkedConsent_Vid_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      description: Generate Token linkedConsent VID with all valid details
       role: resident
       restMethod: post
       validityCheckRequired: true

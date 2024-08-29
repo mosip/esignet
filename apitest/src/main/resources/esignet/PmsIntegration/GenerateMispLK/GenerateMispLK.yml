@@ -1,6 +1,7 @@
 GenerateMispLK:
    Esignet_GenerateMispLK_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/misps
+      description: Generate MispLk all valid details
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -16,6 +17,7 @@ GenerateMispLK:
 
    Esignet_GenerateMispLK_Misp_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/misps
+      description: Generate MispLk Misp false valid details
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -31,6 +33,7 @@ GenerateMispLK:
 
    Esignet_GenerateMispLK_Misp_S2_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/misps
+      description: Generate MispLk Misp S2 valid details
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post

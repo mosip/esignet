@@ -1,6 +1,7 @@
 GenerateTokenVCIVid:
    ESignet_GenerateTokenVCI_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: Generate Token for VCI with all valid details VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -21,6 +22,7 @@ GenerateTokenVCIVid:
 
    ESignet_GenerateTokenVCI_Vid_1stLang_Valid_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: Generate Token for VCI with all valid details using 1st mandatory language VID
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -41,6 +43,7 @@ GenerateTokenVCIVid:
 
    ESignet_GenerateTokenVCI_Vid_2ndLang_Valid_Smoke_sid:
       endPoint: /v1/esignet/oauth/v2/token
+      description: Generate Token for VCI with all valid details using 2nd mandatory language VID
       role: resident
       restMethod: post
       validityCheckRequired: true

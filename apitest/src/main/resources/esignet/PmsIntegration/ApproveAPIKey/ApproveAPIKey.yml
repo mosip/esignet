@@ -1,6 +1,7 @@
 ApproveAPIKey:
    Esignet_ApproveRejectPartnerAPIKeyReq_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      description: Approve or Reject partner Api key request all valid details
       role: partner
       restMethod: put
       inputTemplate: esignet/PmsIntegration/ApproveAPIKey/approveAPIKey
@@ -16,6 +17,7 @@ ApproveAPIKey:
 
    Esignet_ApproveRejectPartnerAPIKeyReq_Misp_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      description: Approve or Reject partner Api key request Misp valid details
       role: partner
       restMethod: put
       inputTemplate: esignet/PmsIntegration/ApproveAPIKey/approveAPIKey
@@ -31,6 +33,7 @@ ApproveAPIKey:
 
    Esignet_ApproveRejectPartnerAPIKeyReq_Kyc_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      description: Approve or Reject partner Api key request Kyc all valid details
       role: partner
       restMethod: put
       inputTemplate: esignet/PmsIntegration/ApproveAPIKey/approveAPIKey
@@ -46,6 +49,7 @@ ApproveAPIKey:
 
    Esignet_ApproveRejectPartnerAPIKeyReq_NonAuth_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      description: Approve or Reject partner Api key request NonAuth all valid details
       role: partner
       restMethod: put
       inputTemplate: esignet/PmsIntegration/ApproveAPIKey/approveAPIKey
@@ -61,6 +65,7 @@ ApproveAPIKey:
 
    Esignet_ApproveRejectPartnerAPIKeyReq_Misp_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      description: Approve or Reject partner Api key request Misp false valid details
       role: partner
       restMethod: put
       inputTemplate: esignet/PmsIntegration/ApproveAPIKey/approveAPIKey
@@ -76,6 +81,7 @@ ApproveAPIKey:
 
    Esignet_ApproveRejectPartnerAPIKeyReq_Auth_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      description: Approve or Reject partner Api key request Auth false valid details
       role: partner
       restMethod: put
       inputTemplate: esignet/PmsIntegration/ApproveAPIKey/approveAPIKey

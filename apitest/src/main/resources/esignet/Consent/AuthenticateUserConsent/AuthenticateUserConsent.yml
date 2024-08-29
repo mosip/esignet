@@ -1,6 +1,7 @@
 AuthenticateUserConsent:
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent with otp and valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -35,6 +36,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Claim2_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent with otp for claim2 valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -69,6 +71,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent with otp and valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -103,6 +106,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Claim2_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent with otp for claim2 valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -137,6 +141,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent Otp with invalid transactionId UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -176,6 +181,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Invalid_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent Otp with invalid individualId UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -215,6 +221,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent Otp with invalid transactionId VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -254,6 +261,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Invalid_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent Otp with invalid individualId VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -293,6 +301,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_User2_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent Otp for User2 with valid details UIN
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -327,6 +336,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_User2_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent Otp for User2 with valid details UIN
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

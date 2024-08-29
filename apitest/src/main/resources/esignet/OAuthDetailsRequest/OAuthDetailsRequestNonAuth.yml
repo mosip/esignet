@@ -1,6 +1,7 @@
 OAuthDetailsRequestNonAuth:
    ESignet_OAuthDetailsRequest_NonAuth_Otp_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth Otp and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -25,6 +26,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_Otp_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth Otp and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -49,6 +51,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_BioFace_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth BioFace and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -73,6 +76,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_BioFace_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth BioFace and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -97,6 +101,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RingFinger_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RingFinger and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -121,6 +126,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RingFinger_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RingFinger and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -145,6 +151,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftMiddleFingerr_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftMiddleFinger and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -169,6 +176,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftMiddleFingerr_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftMiddleFinger and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -193,6 +201,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftLittleFinger_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftLittleFinger and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -217,6 +226,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftLittleFinger_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftLittleFinger and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -241,6 +251,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightIndexFinger_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightIndexFinger and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -265,6 +276,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightIndexFinger_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightIndexFinger and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -289,6 +301,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightRingFinger_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightRingFinger and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -313,6 +326,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightRingFinger_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightRingFinger and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -337,6 +351,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightMiddleFinger_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightMiddleFinger and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -361,6 +376,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightMiddleFinger_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightMiddleFinger and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -385,6 +401,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightLittleFinger_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightLittleFinger and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -409,6 +426,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightLittleFinger_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightLittleFinger and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -433,6 +451,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftThumb_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftThumb and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -457,6 +476,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftThumb_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftThumb and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -481,6 +501,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightThumb_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightThumb and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -505,6 +526,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightThumb_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightThumb and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -529,6 +551,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightIris_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightIris and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -553,6 +576,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_RightIris_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth RightIris and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -577,6 +601,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftIris_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftIris and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -601,6 +626,7 @@ OAuthDetailsRequestNonAuth:
 
    ESignet_OAuthDetailsRequest_NonAuth_LeftIris_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with NonAuth LeftIris and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
