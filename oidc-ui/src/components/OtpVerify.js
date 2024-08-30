@@ -124,13 +124,15 @@ export default function OtpVerify({
       let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
 
       let idvid = fields[0].prefix + vid + fields[0].postfix;
+      let tempCaptchaToken = captchaToken;
+      setCaptchaToken(null);
 
       setStatus({ state: states.LOADING, msg: "sending_otp_msg" });
       const sendOtpResponse = await post_SendOtp(
         transactionId,
         idvid,
         otpChannels,
-        captchaToken
+        tempCaptchaToken
       );
       setStatus({ state: states.LOADED, msg: "" });
 
