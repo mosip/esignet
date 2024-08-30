@@ -15,6 +15,7 @@ import PinInput from "react-pin-input";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -26,10 +27,9 @@ export default function OtpVerify({
   openIDConnectService,
   i18nKeyPrefix1 = "otp",
   i18nKeyPrefix2 = "errors",
-  captcha
 }) {
 
-  const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
+  const { t: t1, i18n } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
   const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
 
   const inputCustomClass =
@@ -65,6 +65,24 @@ export default function OtpVerify({
   const [otpSentMobile, setOtpSentMobile] = useState("");
   const [errorBanner, setErrorBanner] = useState(null);
 
+  const captchaSiteKey = 
+    (openIDConnectService.getEsignetConfiguration(configurationKeys.captchaSiteKey) ??
+      process.env.REACT_APP_CAPTCHA_SITE_KEY);
+
+  const captchaEnableComponents =
+    openIDConnectService.getEsignetConfiguration(configurationKeys.captchaEnableComponents) ??
+    process.env.REACT_APP_CAPTCHA_ENABLE;
+
+  const captchaEnableComponentsList = captchaEnableComponents
+    .split(",")
+    .map((x) => x.trim().toLowerCase());
+
+  const [showCaptcha, setShowCaptcha] = useState(
+    captchaEnableComponentsList.indexOf("send-otp") !== -1
+  );
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const _reCaptchaRef = useRef(null);
+
   let pin = useRef();
 
   const navigate = useNavigate();
@@ -83,6 +101,19 @@ export default function OtpVerify({
     sendOTP();
   };
 
+  /**
+ * Reset the captcha widget
+ * & its token value
+ */
+  const resetCaptcha = () => {
+    _reCaptchaRef.current?.reset();
+    setCaptchaToken(null);
+  }
+
+  const handleCaptchaChange = (value) => {
+    setCaptchaToken(value);
+  };
+
   const sendOTP = async () => {
     try {
       setErrorBanner(null);
@@ -91,14 +122,15 @@ export default function OtpVerify({
 
       let transactionId = openIDConnectService.getTransactionId();
       let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
-      
+
       let idvid = fields[0].prefix + vid + fields[0].postfix;
 
       setStatus({ state: states.LOADING, msg: "sending_otp_msg" });
       const sendOtpResponse = await post_SendOtp(
         transactionId,
         idvid,
-        otpChannels
+        otpChannels,
+        captchaToken
       );
       setStatus({ state: states.LOADED, msg: "" });
 
@@ -140,11 +172,24 @@ export default function OtpVerify({
   };
 
   useEffect(() => {
+    let loadComponent = async () => {
+      i18n.on("languageChanged", function (lng) {
+        if (showCaptcha) {
+          //to rerender recaptcha widget on language change
+          setShowCaptcha(false);
+          setTimeout(() => {
+            setShowCaptcha(true);
+          }, 1);
+        }
+      });
+    };
+
     setShowTimer(false);
     setShowResendOtp(false);
     setErrorBanner(null);
     setOtpSentMobile(otpResponse.maskedMobile);
     setOtpSentEmail(otpResponse.maskedEmail);
+    loadComponent();
 
     startTimer();
   }, []);
@@ -166,6 +211,7 @@ export default function OtpVerify({
         clearInterval(interval);
         setShowTimer(false);
         setShowResendOtp(true);
+        resetCaptcha();
       }
     }, 1000);
     setTimer(interval);
@@ -207,8 +253,7 @@ export default function OtpVerify({
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
         idvid,
-        challengeList,
-        captcha
+        challengeList
       );
       setStatus({ state: states.LOADED, msg: "" });
 
@@ -253,6 +298,19 @@ export default function OtpVerify({
       setStatus({ state: states.ERROR, msg: "" });
     }
   };
+
+  let styles = {
+    width: "40px",
+    height: "40px",
+    margin: "0 5px",
+    border: "",
+    borderBottom: "2px solid #0284c7",
+    color: "#0284c7"
+  };
+
+  if (window.screen.availWidth <= 375) {
+    styles = { ...styles, width: "2em" }
+  }
 
   const onCloseHandle = () => {
     setErrorBanner(null);
@@ -302,6 +360,9 @@ export default function OtpVerify({
             }}
             type="numeric"
             inputMode="number"
+            style={{ padding: "5px 0px" }}
+            inputStyle={styles}
+            inputFocusStyle={{ borderBottom: "2px solid #075985" }}
             onComplete={(value, index) => {
               //TO handle case when user pastes OTP
               setOtpValue(value);
@@ -340,6 +401,17 @@ export default function OtpVerify({
           )}
         </div>
 
+        {showCaptcha && showResendOtp && (
+          <div className="flex justify-center mt-5 mb-5">
+            <ReCAPTCHA
+              hl={i18n.language}
+              ref={_reCaptchaRef}
+              onChange={handleCaptchaChange}
+              sitekey={captchaSiteKey}
+            />
+          </div>
+        )}
+
         <FormAction
           disabled={otpValue.length !== otpLength}
           type={buttonTypes.submit}
@@ -357,6 +429,7 @@ export default function OtpVerify({
             text={t1("resend_otp")}
             handleClick={handleSendOtp}
             id="resend_otp"
+            disabled={showCaptcha && captchaToken === null}
           />
         )}
       </form>
