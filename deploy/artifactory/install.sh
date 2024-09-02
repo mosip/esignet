@@ -18,7 +18,7 @@ function installing_artifactory() {
   helm repo update
 
   echo Installing artifactory
-  helm -n $NS install esignet-artifactory mosip/artifactory --version $CHART_VERSION
+  helm -n $NS install esignet-artifactory mosip/artifactory --set image.repository=mosipqa/esignet-artifactory --set image.tag=develop --version $CHART_VERSION
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
