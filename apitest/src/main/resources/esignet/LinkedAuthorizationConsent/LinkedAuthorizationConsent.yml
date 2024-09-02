@@ -1,6 +1,7 @@
 LinkedAuthorizationConsent:
    ESignet_LinkedAuthorizationConsent_Consent_uin_SameClaim_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      description: Linked authorization consent with same claim UIN
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -19,6 +20,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_Vid_SameClaim_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      description: Linked authorization consent with same claim VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -37,6 +39,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_uin_User2_Neg:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      description: Linked authorization consent with User2 UIN
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -59,6 +62,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_Vid_User2_Neg:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      description: Linked authorization consent with User2 VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -81,6 +85,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -97,6 +102,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -113,6 +119,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with invalid requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -133,6 +140,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Past_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with past value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -153,6 +161,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Future_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with future value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -173,6 +182,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Space_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with only space in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -193,6 +203,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Empty_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with empty value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -213,6 +224,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with invalid transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -233,6 +245,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent without transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -253,6 +266,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with empty transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -273,6 +287,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Space_Val_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with space in transactionId
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -293,6 +308,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_AcceptedClaims_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with invalid accepted claims
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -314,6 +330,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Null_AcceptedClaims_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with Null in accepted claims
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -335,6 +352,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_permittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with invalid accepted claims
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -357,6 +375,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Null_permittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      description: Linked authorization consent with Null in permittedAuthorizeScopes
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

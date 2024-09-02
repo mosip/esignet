@@ -86,9 +86,9 @@
   "Form": {
     "sign_in_with_details": "விவரங்களுடன் உள்நுழைய",
     "login": "உள்நுழைய",
-    "policyNumber": "காப்பீடு எண் உள்ளிடுக",
-    "fullName": "முழு பெயரை உள்ளிடுக",
-    "dob": "பிறந்த தேதியை உள்ளிடுக",
+    "policyNumber_label_text": "காப்பீடு எண் உள்ளிடுக",
+    "fullName_label_text": "முழு பெயரை உள்ளிடுக",
+    "dob_label_text": "பிறந்த தேதியை உள்ளிடுக",
     "policyNumber_placeholder": "காப்பீடு எண்",
     "fullName_placeholder": "முழு பெயர்",
     "dob_placeholder": "பிறந்த தேதி"
@@ -226,6 +226,9 @@
     "consent_details_rejected": "நாங்கள் வருந்துகிறோம்! ஒப்புதல் பகிரப்படாததால் உங்கள் உள்நுழைவு தோல்வியடைந்தது."
   },
   "errors": {
+    "invalid_policyNumber": "தவறான கொள்கை எண்",
+    "invalid_fullName": "தவறான முழு பெயர்",
+    "invalid_dob": "தவறான பிறந்த தேதி",
     "navigate_option": "கீழே உள்ள விருப்பங்களைப் பயன்படுத்தி வழிசெலுத்த முயற்சிக்கவும்.",
     "page_not_exist": "அச்சச்சோ! நீங்கள் தேடும் பக்கம் இல்லை.",
     "something_went_wrong": "ஏதோ தவறு நடந்துவிட்டது!",

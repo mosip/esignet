@@ -1,6 +1,7 @@
 GetOidcUserInfoConsent:
    ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info consent with claim2 and valid details UIN
       role: resident
       restMethod: get
       validityCheckRequired: true
@@ -13,6 +14,7 @@ GetOidcUserInfoConsent:
       
    ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info consent with claim2 and valid details VID
       role: resident
       restMethod: get
       validityCheckRequired: true
@@ -25,6 +27,7 @@ GetOidcUserInfoConsent:
 
    ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info consent with all valid details UIN
       role: resident
       restMethod: get
       validityCheckRequired: true
@@ -37,6 +40,7 @@ GetOidcUserInfoConsent:
       
    ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info consent with all valid details VID
       role: resident
       restMethod: get
       validityCheckRequired: true

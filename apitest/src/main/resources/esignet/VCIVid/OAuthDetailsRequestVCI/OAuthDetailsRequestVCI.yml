@@ -1,6 +1,7 @@
 OAuthDetailsRequestVCIVid:
    ESignet_OAuthDetailsRequest_VCI_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -27,6 +28,7 @@ OAuthDetailsRequestVCIVid:
 
    ESignet_OAuthDetailsRequest_VCI_Vid_1stLang_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with 1st mandatory language and all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -53,6 +55,7 @@ OAuthDetailsRequestVCIVid:
 
    ESignet_OAuthDetailsRequest_VCI_Vid_2ndLang_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v2/oauth-details
+      description: Oauthdetails request for VCI with 2nd mandatory language and all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

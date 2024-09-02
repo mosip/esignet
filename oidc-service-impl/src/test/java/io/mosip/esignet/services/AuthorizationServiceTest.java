@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.SendOtpDto;
+import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
@@ -83,6 +85,10 @@ public class AuthorizationServiceTest {
     @Mock
     HttpServletRequest httpServletRequest;
 
+
+    @InjectMocks
+    AuthorizationHelperService authorizationHelperService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -93,12 +99,9 @@ public class AuthorizationServiceTest {
         claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
         claims.put("email", Arrays.asList("email","email_verified"));
         claims.put("phone", Arrays.asList("phone_number","phone_number_verified"));
-        AuthorizationHelperService authorizationHelperService = new AuthorizationHelperService();
         ReflectionTestUtils.setField(authorizationHelperService, "credentialScopes", Arrays.asList("sample_ldp_vc"));
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("resident-service"));
-        ReflectionTestUtils.setField(authorizationHelperService, "authenticationContextClassRefUtil", authenticationContextClassRefUtil);
-        ReflectionTestUtils.setField(authorizationHelperService, "authenticationWrapper", authenticationWrapper);
-        ReflectionTestUtils.setField(authorizationHelperService, "auditWrapper", auditWrapper);
+        ReflectionTestUtils.setField(authorizationHelperService,"captchaRequired",Arrays.asList("pwd"));
         
         ReflectionTestUtils.setField(authorizationServiceImpl, "claims", claims);
         ReflectionTestUtils.setField(authorizationServiceImpl, "objectMapper", new ObjectMapper());
@@ -1151,6 +1154,21 @@ public class AuthorizationServiceTest {
     }
 
     @Test
+    public void getAuthCode_withInValidTransactionId_thenFail() {
+        AuthCodeRequest authCodeRequest = new AuthCodeRequest();
+        authCodeRequest.setTransactionId("987654321");
+        authCodeRequest.setAcceptedClaims(Arrays.asList("fullName"));
+        authCodeRequest.setPermittedAuthorizeScopes(Arrays.asList("test-scope"));
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
+        try{
+            authorizationServiceImpl.getAuthCode(authCodeRequest);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertEquals("invalid_transaction",e.getErrorCode());
+        }
+    }
+
+    @Test
     public void getConsentDetails_withValidTransaction_thenPass(){
         OIDCTransaction transaction=new OIDCTransaction();
         Claims resolvedClaims = new Claims();
@@ -1174,6 +1192,83 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.getClaimDetails("transactionId");
         }catch (InvalidTransactionException ex){
             Assert.assertEquals(ex.getErrorCode(),ErrorConstants.INVALID_TRANSACTION);
+        }
+    }
+
+    @Test
+    public void testSendOtp_ValidRequest_thenPass() throws Exception {
+        OtpRequest otpRequest = new OtpRequest();
+        otpRequest.setCaptchaToken("captchaToken");
+        otpRequest.setTransactionId("transactionId");
+        otpRequest.setIndividualId("individualId");
+        ArrayList<String> otpChannels=new ArrayList<>();
+        otpRequest.setOtpChannels(otpChannels);
+
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setTransactionId("transactionId");
+        transaction.setIndividualIdHash("individualIdHash");
+        transaction.setRelyingPartyId("relyingPartyId");
+        transaction.setClientId("clientId");
+        transaction.setAuthTransactionId("transactionId");
+        when(cacheUtilService.getPreAuthTransaction(Mockito.anyString())).thenReturn(transaction);
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(Mockito.anyString(), Mockito.anyString())).thenReturn(transaction);
+        when(cacheUtilService.isIndividualIdBlocked(Mockito.anyString())).thenReturn(false);
+
+        SendOtpResult sendOtpResult = new SendOtpResult();
+        sendOtpResult.setTransactionId("transactionId");
+        sendOtpResult.setMaskedEmail("maskedEmail");
+        sendOtpResult.setMaskedMobile("maskedMobile");
+
+        SendOtpDto sendOtpDto=new SendOtpDto();
+        sendOtpDto.setTransactionId("transactionId");
+        sendOtpDto.setIndividualId("individualId");
+        ArrayList<String> otpChannel=new ArrayList<>();
+        sendOtpDto.setOtpChannels(otpChannel);
+
+        Mockito.when(authenticationWrapper.sendOtp("relyingPartyId","clientId",sendOtpDto)).thenReturn(sendOtpResult);
+        OtpResponse otpResponse = authorizationServiceImpl.sendOtp(otpRequest);
+        Assert.assertNotNull(otpResponse);
+        Assert.assertEquals("transactionId", otpResponse.getTransactionId());
+        Assert.assertEquals("maskedEmail", otpResponse.getMaskedEmail());
+        Assert.assertEquals("maskedMobile", otpResponse.getMaskedMobile());
+    }
+
+    @Test
+    public void sendOtp_whenIndividualIdBlocked_thenFail() throws Exception {
+        OtpRequest otpRequest = new OtpRequest();
+        otpRequest.setCaptchaToken("captchaToken");
+        otpRequest.setTransactionId("transactionId");
+        otpRequest.setIndividualId("individualId");
+        ArrayList<String> otpChannels=new ArrayList<>();
+        otpRequest.setOtpChannels(otpChannels);
+
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setTransactionId("transactionId");
+        transaction.setIndividualIdHash("individualIdHash");
+        transaction.setRelyingPartyId("relyingPartyId");
+        transaction.setClientId("clientId");
+        transaction.setAuthTransactionId("transactionId");
+        when(cacheUtilService.getPreAuthTransaction(Mockito.anyString())).thenReturn(transaction);
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(Mockito.anyString(), Mockito.anyString())).thenReturn(transaction);
+        when(cacheUtilService.isIndividualIdBlocked(Mockito.anyString())).thenReturn(true);
+        try {
+            authorizationServiceImpl.sendOtp(otpRequest);
+        }catch(EsignetException e)
+        {
+            Assert.assertEquals(ErrorConstants.INDIVIDUAL_ID_BLOCKED,e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void sendOtp_invalidTransactionId_thenFail() throws Exception {
+        OtpRequest otpRequest = new OtpRequest();
+        otpRequest.setTransactionId("invalidTransactionId");
+        when(cacheUtilService.getPreAuthTransaction("invalidTransactionId")).thenReturn(null);
+        try{
+            authorizationServiceImpl.sendOtp(otpRequest);
+            Assert.fail();
+        }catch(EsignetException e){
+            Assert.assertEquals("invalid_transaction",e.getErrorCode());
         }
     }
 

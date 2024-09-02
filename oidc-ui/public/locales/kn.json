@@ -86,9 +86,9 @@
   "Form": {
     "sign_in_with_details": "ವಿವರಗಳೊಡನೆ ಸೈನ್ ಇನ್ ಮಾಡಿ",
     "login": "ಲಾಗಿನ್",
-    "policyNumber": "ಪಾಲಿಸಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
-    "fullName": "ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ",
-    "dob": "ಹುಟ್ಟಿದ ದಿನಾಂಕವನ್ನು ನಮೂದಿಸಿ",
+    "policyNumber_label_text": "ಪಾಲಿಸಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
+    "fullName_label_text": "ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ",
+    "dob_label_text": "ಹುಟ್ಟಿದ ದಿನಾಂಕವನ್ನು ನಮೂದಿಸಿ",
     "policyNumber_placeholder": "ಪಾಲಿಸಿ ಸಂಖ್ಯೆ",
     "fullName_placeholder": "ಪೂರ್ಣ ಹೆಸರು",
     "dob_placeholder": "ಹುಟ್ಟಿದ ದಿನಾಂಕ"
@@ -226,6 +226,9 @@
     "consent_details_rejected": "ನಮ್ಮನ್ನು ಕ್ಷಮಿಸಿ! ಸಮ್ಮತಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳದ ಕಾರಣ ನಿಮ್ಮ ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ."
   },
   "errors": {
+    "invalid_policyNumber": "ಅಮಾನ್ಯ ನೀತಿ ಸಂಖ್ಯೆ",
+    "invalid_fullName": "ಅಮಾನ್ಯ ಪೂರ್ಣ ಹೆಸರು",
+    "invalid_dob": "ಅಮಾನ್ಯ ಜನ್ಮ ದಿನಾಂಕ",
     "navigate_option": "ದಯವಿಟ್ಟು ಕೆಳಗಿನ ಆಯ್ಕೆಗಳನ್ನು ಬಳಸಿಕೊಂಡು ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಪ್ರಯತ್ನಿಸಿ.",
     "page_not_exist": "ಅಯ್ಯೋ! ನೀವು ಹುಡುಕುತ್ತಿರುವ ಪುಟವು ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ.",
     "something_went_wrong": "ಏನೋ ತಪ್ಪಾಗಿದೆ!",

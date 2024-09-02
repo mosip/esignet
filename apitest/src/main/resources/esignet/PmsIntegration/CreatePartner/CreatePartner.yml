@@ -1,6 +1,7 @@
 createPartnerSelfRegistration:
    Esignet_PartnerSelfRegistration_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
@@ -22,6 +23,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Misp_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration Misp valid details 
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
@@ -43,6 +45,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Kyc_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration Kyc valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
@@ -64,6 +67,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration NonAuth all valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
@@ -85,6 +89,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Misp_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration Misp false valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
@@ -106,6 +111,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Auth_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration Auth false valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
@@ -127,6 +133,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Misp_S2_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration Misp S2 valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
@@ -148,6 +155,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Auth_S2_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
+      description: PartnerSelfRegistration Auth S2 valid details
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner

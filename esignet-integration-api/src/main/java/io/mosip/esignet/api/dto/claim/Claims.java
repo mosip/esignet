@@ -13,6 +13,7 @@ import java.io.Serializable;
 @Data
 public class Claims implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private Map<String, ClaimDetail> userinfo;
     private Map<String, ClaimDetail> id_token;
 }

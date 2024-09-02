@@ -1,6 +1,7 @@
 LinkTransactionConsent:
    ESignet_LinkTransaction_Consent_uin_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: Link transaction consent UIN with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -17,6 +18,7 @@ LinkTransactionConsent:
 
    ESignet_LinkTransaction_Consent_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: Link transaction consent VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -33,6 +35,7 @@ LinkTransactionConsent:
 
    ESignet_LinkTransaction_Consent_uin_EmptyClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
+      description: Link transaction consent UIN with empty claim
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

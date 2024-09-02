@@ -1,6 +1,7 @@
 AuthorizationCodeVCIVid:
    ESignet_AuthorizationCode_VCI_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code request for VCI with all valid details VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -17,6 +18,7 @@ AuthorizationCodeVCIVid:
 
    ESignet_AuthorizationCode_VCI_Vid_All_1stLang_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code request for VCI with all valid details using 1st mandatory language VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -33,6 +35,7 @@ AuthorizationCodeVCIVid:
 
    ESignet_AuthorizationCode_VCI_Vid_All_2ndLang_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      description: Authorization code request for VCI with all valid details using 2nd mandatory language VID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

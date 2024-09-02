@@ -1,6 +1,7 @@
 OAuthDetailsRequestConsent:
    ESignet_OAuthDetailsRequest_Consent_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request for consent with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -25,6 +26,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Claim2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request for consent with claim2 and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -49,6 +51,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Invalid_Scen_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request for consent with invalid scen
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -73,6 +76,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request for consent with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -97,6 +101,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_Claim2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request for consent with claim2 and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -121,6 +126,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request for user2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -145,6 +151,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request for user2 with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

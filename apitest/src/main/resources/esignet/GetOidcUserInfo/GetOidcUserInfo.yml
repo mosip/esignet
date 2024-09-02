@@ -1,6 +1,7 @@
 GetOidcUserInfo:
    ESignet_GetOidcUserInfo_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info with all valid details UIN
       role: resident
       restMethod: get
       validityCheckRequired: true
@@ -13,6 +14,7 @@ GetOidcUserInfo:
 
    ESignet_GetOidcUserInfo_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info with all valid details VID
       role: resident
       restMethod: get
       validityCheckRequired: true
@@ -25,6 +27,7 @@ GetOidcUserInfo:
 
    ESignet_GetOidcUserInfo_uin_IdpAccessToken_StatusCode_Invalid_Token_Neg:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info with invalid token UIN
       role: resident
       restMethod: get
       validityCheckRequired: true
@@ -37,6 +40,7 @@ GetOidcUserInfo:
       
    ESignet_GetOidcUserInfo_Vid_IdpAccessToken_StatusCode_Invalid_Token_Neg:
       endPoint: /v1/esignet/oidc/userinfo
+      description: Get OIDC user info with invalid token VID
       role: resident
       restMethod: get
       validityCheckRequired: true

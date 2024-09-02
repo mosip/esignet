@@ -1,6 +1,7 @@
 SendBindingOtp:
    ESignet_SendBindingOtp_uin_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN with all valid details
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
@@ -21,6 +22,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for VID with valid details
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
@@ -41,6 +43,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Email_Valid_Smoke_sid:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp to email for UIN with valid details
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
@@ -61,6 +64,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Phone_Valid_Smoke_sid:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp to phone for UIN with valid details
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
@@ -81,6 +85,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN with invalid requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -104,6 +109,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Past_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN with past requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -127,6 +133,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Future_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN with future requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -150,6 +157,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Missing_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN without requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -173,6 +181,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Space_As_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN with space in requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -196,6 +205,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_invalid_individual_id_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN with invalid individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -219,6 +229,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Invalid_Case_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN with invalid case in individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -242,6 +253,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_NR_Email_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp for UIN NR email for individualId
       role: mobileauth
       validityCheckRequired: true
       checkErrorsOnlyInResponse: true
@@ -262,6 +274,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_NR_Phone_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp UIN NR phone for individualId
       role: mobileauth
       validityCheckRequired: true
       checkErrorsOnlyInResponse: true
@@ -282,6 +295,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Missing_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp UIN without individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -305,6 +319,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Empty_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp UIN with empty individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -328,6 +343,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Missing_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp UIN without OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -351,6 +367,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Empty_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp UIN with empty OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -374,6 +391,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Invalid_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp UIN with invalid OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -397,6 +415,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_uin_Space_Sep_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp UIN with space separated OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -420,6 +439,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with invalid requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -443,6 +463,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Past_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with past requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -466,6 +487,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Future_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with future requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -489,6 +511,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Missing_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID without requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -512,6 +535,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Space_As_RequestTime_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with only space in requestTime
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -535,6 +559,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_invalid_individual_id_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with invalid individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -558,6 +583,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Invalid_Case_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with invalid case in individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -581,6 +607,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Missing_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID without individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -604,6 +631,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Empty_IndividualId_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with empty individualId
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -627,6 +655,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Missing_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID without OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -650,6 +679,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Empty_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with empty OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -673,6 +703,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Invalid_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with invalid OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post
@@ -696,6 +727,7 @@ SendBindingOtp:
 
    ESignet_SendBindingOtp_Vid_Space_Sep_OtpChannels_Neg:
       endPoint: /v1/esignet/binding/binding-otp
+      description: Send binding Otp VID with space separated OtpChannels
       role: mobileauth
       validityCheckRequired: true
       restMethod: post

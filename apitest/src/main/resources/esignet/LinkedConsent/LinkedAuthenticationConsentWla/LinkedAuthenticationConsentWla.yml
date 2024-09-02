@@ -1,6 +1,7 @@
 LinkedAuthenticationConsentWla:
    ESignet_LinkedAuthenticationWla_Consentuin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      description: LinkedAuthenticationWla consent UIN SCert with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -52,6 +53,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_ConsentVid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      description: LinkedAuthenticationWla consent VID SCert with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
@@ -103,6 +105,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_EmptyClaim_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      description: LinkedAuthenticationWla consent UIN with empty claim
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post

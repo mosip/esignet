@@ -86,9 +86,9 @@
   "Form": {
     "sign_in_with_details": "ចូលទៅកាន់គណនីរបស់អ្នកជាមួយព័ត៌មាន",
     "login": "ចូលគណនី",
-    "policyNumber": "បញ្ចូលលេខកូដបញ្ជា",
-    "fullName": "បញ្ចូលឈ្មោះពេញ",
-    "dob": "បញ្ចូលថ្ងៃខែឆ្នាំកំណើត",
+    "policyNumber_label_text": "បញ្ចូលលេខកូដបញ្ជា",
+    "fullName_label_text": "បញ្ចូលឈ្មោះពេញ",
+    "dob_label_text": "បញ្ចូលថ្ងៃខែឆ្នាំកំណើត",
     "policyNumber_placeholder": "លេខកូដបញ្ជា",
     "fullName_placeholder": "ឈ្មោះពេញ",
     "dob_placeholder": "ថ្ងៃខែឆ្នាំកំណើត"
@@ -226,6 +226,9 @@
     "consent_details_rejected": "យើង​សុំទោស! ការចូលរបស់អ្នកមិនបានជោគជ័យទេ ដោយសារការយល់ព្រមមិនត្រូវបានចែករំលែក។"
   },
   "errors": {
+    "invalid_policyNumber": "លេខគោលនយោបាយមិនត្រឹមត្រូវ",
+    "invalid_fullName": "ឈ្មោះពេញមិនត្រឹមត្រូវ",
+    "invalid_dob": "ថ្ងៃខែឆ្នាំកំណើតមិនត្រឹមត្រូវ",
     "navigate_option": "សូមព្យាយាមរុករកដោយប្រើជម្រើសខាងក្រោម។",
     "page_not_exist": "អូ! ទំព័រដែលអ្នកកំពុងស្វែងរកមិនមានទេ។",
     "something_went_wrong": "មាន​អ្វីមួយ​មិន​ប្រក្រតី!",

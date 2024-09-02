@@ -1,6 +1,7 @@
 VerifyChallengeNegTC:
    ESignet_VerifyChallengeNegTC_STransId_Missing_CSRF_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge without CSRF token
       role: resident
       restMethod: post
       allowedErrorCodes: 403
@@ -31,6 +32,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_TransactionId_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with invalid transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -65,6 +67,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_TransactionId_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge without transactionId
       role: resident
       restMethod: post
       allowedErrorCodes: 400
@@ -100,6 +103,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Expired_TransactionId_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with expired transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -134,6 +138,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_DiffUser_TransactionId_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with different user's transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -168,6 +173,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_RequestTime_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with empty requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -202,6 +208,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpaceVal_RequestTime_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with only space in requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -236,6 +243,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_RequestTime_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with invalid value in requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -270,6 +278,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_Num_RequestTime_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with invalid number in requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -304,6 +313,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_Format_RequestTime_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with invalid format in requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -338,6 +348,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_Request_Body_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with empty request body
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_identifier,invalid_challenge_info
@@ -373,6 +384,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_ReqBody_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge without request body
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTCWOReqBody
@@ -403,6 +415,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge without identifier 
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -437,6 +450,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_ChallengeInfo_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge without challengeInfo
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTCWOChallengeInfo
@@ -471,6 +485,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with empty identifier
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -505,6 +520,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpaceVal_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with only space in identifier
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -539,6 +555,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpecialChar_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with special characters in identifier
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -573,6 +590,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Alphabet_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with alphabets in identifier
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -607,6 +625,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_AllZero_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all zero's in identifier
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -641,6 +660,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_DiffUser_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with different user's identifier
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -675,6 +695,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Registered_User_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with already registered identifier
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -709,6 +730,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_ChallengeInfo_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with empty challengeInfo
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_challenge,invalid_challenge_format
@@ -744,6 +766,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge without format
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -778,6 +801,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge without challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -812,6 +836,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with empty challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -846,6 +871,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpaceVal_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with only space in challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -880,6 +906,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_ExtraDigit_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with extra digit in challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -914,6 +941,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_LessDigit_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with less digit in challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -948,6 +976,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with invalid value in challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -982,6 +1011,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Alphabet_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with alphabet in challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1016,6 +1046,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_AlphaNum_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with alpha-numeric in challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1050,6 +1081,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpecialChar_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with special character in challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1084,6 +1116,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Diff_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with different challenge
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1118,6 +1151,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with empty format
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1152,6 +1186,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpaceVal_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with only space in format
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1186,6 +1221,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with invalid format
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1220,6 +1256,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Numeric_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with numeric in format
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1254,6 +1291,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_RandomVal_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with random value in format
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1288,6 +1326,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpecialChar_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with special character in format
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1322,6 +1361,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Valid_Smoke_Pos:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all valid values
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1352,6 +1392,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_2:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all valid values
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1382,6 +1423,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_3:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all valid values
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1412,6 +1454,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_4:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all valid values
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1442,6 +1485,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_5:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all valid values
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1472,6 +1516,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_6:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all valid values
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1502,6 +1547,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_7:
       endPoint: /v1/signup/registration/verify-challenge
+      description: Verify challenge with all valid values
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC

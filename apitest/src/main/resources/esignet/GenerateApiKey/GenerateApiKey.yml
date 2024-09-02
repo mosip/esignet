@@ -1,6 +1,7 @@
 GenerateApiKey:
    ESignet_GenerateApiKey_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$/generate/apikey
+      description: Generate Api key with valid details
       role: esignetpartner
       checkErrorsOnlyInResponse: true
       restMethod: patch
@@ -16,6 +17,7 @@ GenerateApiKey:
 
    ESignet_GenerateApiKeyKyc_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$/generate/apikey
+      description: Generate Api key Kyc valid details
       role: esignetpartnerkyc
       checkErrorsOnlyInResponse: true
       restMethod: patch
