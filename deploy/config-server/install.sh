@@ -22,7 +22,7 @@ CHART_VERSION=0.0.1-develop
     kubectl label ns $NS istio-injection=enabled --overwrite
     helm repo update
 
-    COPY_UTIL=./copy_cm_func.sh
+    COPY_UTIL=../copy_cm_func.sh
     $COPY_UTIL configmap keycloak-host keycloak $NS
 
     $COPY_UTIL secret keycloak keycloak $NS
