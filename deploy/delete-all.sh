@@ -11,15 +11,16 @@ function Deleting_All() {
   ROOT_DIR=`pwd`
   SOFTHSM_NS=softhsm
 
-  helm -n $SOFTHSM_NS delete softhsm-esignet
+  helm -n $SOFTHSM_NS delete esignet-softhsm
 
   declare -a module=("oidc-ui"
                      "esignet"
+                     "captcha"
                      "redis"
                      "config-server"
                      "artifactory"
                      "kafka"
-                     "iam"
+                     "keycloak"
                      "postgres")
 
   echo Installing esignet services
