@@ -5,6 +5,8 @@
  */
 package io.mosip.esignet.services;
 
+import io.mosip.esignet.core.dto.ApiRateLimit;
+import org.apiguardian.api.API;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +45,7 @@ public class CacheUtilServiceTest {
 		transaction.setIndividualId("4258935620");
 
         Mockito.when(cache.get("123456789", OIDCTransaction.class)).thenReturn(transaction);
+		Mockito.when(cache.get("123456789", ApiRateLimit.class)).thenReturn(new ApiRateLimit());
         Mockito.when(cacheManager.getCache(Mockito.anyString())).thenReturn(cache);
         
         Assert.assertEquals(cacheUtilService.setTransaction("123456789", transaction), transaction);
@@ -66,6 +69,17 @@ public class CacheUtilServiceTest {
 
         cacheUtilService.removeAuthCodeGeneratedTransaction("68392");
         Assert.assertNotNull(cacheUtilService.updateTransactionAndEvictLinkCode("123456789", "68392", transaction));
+
+		Assert.assertNotNull(cacheUtilService.setHaltedTransaction("123456789", transaction));
+		cacheUtilService.removeHaltedTransaction("123456789");
+
+		Assert.assertNotNull(cacheUtilService.saveApiRateLimit("api-rate-limit-id", new ApiRateLimit()));
+		Assert.assertNotNull(cacheUtilService.blockIndividualId("individualIdHash"));
+
+		Assert.assertNotNull(cacheUtilService.updateIndividualIdHashInPreAuthCache("123456789","individualIdHash"));
+		Assert.assertNotNull(cacheUtilService.getHaltedTransaction("123456789"));
+		Assert.assertNotNull(cacheUtilService.getApiRateLimitTransaction("123456789"));
+		Assert.assertFalse(cacheUtilService.isIndividualIdBlocked("individualIdHash"));
 	}
 	
 	@Test

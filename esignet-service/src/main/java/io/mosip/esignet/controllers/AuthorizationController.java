@@ -35,20 +35,12 @@ public class AuthorizationController {
     @Autowired
     AuditPlugin auditWrapper;
 
-    /**
-     * @deprecated
-     * This method is no longer acceptable to get oauth detail response
-     * <p> Use {@link AuthorizationController#getOauthDetailsV2(RequestWrapper<OAuthDetailRequest>)} </p>
-     *
-     * @param requestWrapper
-     * @return
-     * @throws EsignetException
-     */
-    @Deprecated()
+
+    @Deprecated
     @PostMapping("/oauth-details")
     public ResponseWrapper<OAuthDetailResponse> getOauthDetails(@Valid @RequestBody RequestWrapper<OAuthDetailRequest>
                                                                             requestWrapper) throws EsignetException {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<OAuthDetailResponse> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.getOauthDetails(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -59,10 +51,11 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
+    @Deprecated
     @PostMapping("/v2/oauth-details")
     public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV2(@Valid @RequestBody RequestWrapper<OAuthDetailRequestV2>
                                                                         requestWrapper) throws EsignetException {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<OAuthDetailResponseV2> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.getOauthDetailsV2(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -76,7 +69,7 @@ public class AuthorizationController {
     @PostMapping("/send-otp")
     public ResponseWrapper<OtpResponse> sendOtp(@Valid @RequestBody RequestWrapper<OtpRequest> requestWrapper)
             throws EsignetException {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<OtpResponse> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.sendOtp(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -87,10 +80,11 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
+    @Deprecated
     @PostMapping("/authenticate")
     public ResponseWrapper<AuthResponse> authenticateEndUser(@Valid @RequestBody RequestWrapper<AuthRequest>
                                                                         requestWrapper) throws EsignetException {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<AuthResponse> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.authenticateUser(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -104,7 +98,7 @@ public class AuthorizationController {
     @PostMapping("/auth-code")
     public ResponseWrapper<AuthCodeResponse> getAuthorizationCode(@Valid @RequestBody RequestWrapper<AuthCodeRequest>
                                                                               requestWrapper) throws EsignetException {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<AuthCodeResponse> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.getAuthCode(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -115,6 +109,7 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
+    @Deprecated
     @PostMapping("/v2/authenticate")
     public ResponseWrapper<AuthResponseV2> authenticateEndUserV2(@Valid @RequestBody RequestWrapper<AuthRequest>
                                                                        requestWrapper) throws EsignetException {
@@ -148,7 +143,7 @@ public class AuthorizationController {
     @PostMapping("/v3/oauth-details")
     public ResponseWrapper<OAuthDetailResponseV2> getOauthDetailsV3(@Valid @RequestBody RequestWrapper<OAuthDetailRequestV3>
                                                                             requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<OAuthDetailResponseV2> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.getOauthDetailsV3(requestWrapper.getRequest(),httpServletRequest));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -159,10 +154,24 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
+    @GetMapping("/claim-details")
+    public ResponseWrapper<ClaimDetailResponse> getClaimDetails(@Valid @NotBlank(message = INVALID_TRANSACTION)
+                                                                @RequestHeader("oauth-details-key") String transactionId) {
+        ResponseWrapper<ClaimDetailResponse> responseWrapper = new ResponseWrapper<>();
+        try {
+            responseWrapper.setResponse(authorizationService.getClaimDetails(transactionId));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.CLAIM_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
     @PostMapping("/prepare-signup-redirect")
     public ResponseWrapper<SignupRedirectResponse> prepareSignupRedirect(@Valid @RequestBody RequestWrapper<SignupRedirectRequest> requestWrapper,
                                                                          HttpServletResponse response) {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<SignupRedirectResponse> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.prepareSignupRedirect(requestWrapper.getRequest(), response));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
@@ -173,28 +182,14 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
-    @GetMapping("/claim-details")
-    public ResponseWrapper<ClaimDetailResponse> getClaimDetails(@Valid @NotBlank(message = INVALID_TRANSACTION)
-                                                                    @RequestHeader("oauth-details-key") String transactionId) {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        try {
-            responseWrapper.setResponse(authorizationService.getClaimDetails(transactionId));
-            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
-        } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(transactionId), ex);
-            throw ex;
-        }
-        return responseWrapper;
-    }
-
     @PostMapping("/resume")
     public ResponseWrapper<ResumeResponse> resumeHaltedTransaction(@Valid @RequestBody RequestWrapper<ResumeRequest> requestWrapper) {
-        ResponseWrapper responseWrapper = new ResponseWrapper();
+        ResponseWrapper<ResumeResponse> responseWrapper = new ResponseWrapper<>();
         try {
             responseWrapper.setResponse(authorizationService.resumeHaltedTransaction(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.CONSENT_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
+            auditWrapper.logAudit(Action.RESUME, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
             throw ex;
         }
         return responseWrapper;

@@ -11,7 +11,6 @@ import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
 import io.mosip.esignet.api.dto.VerifiedKycExchangeDto;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -38,8 +37,8 @@ import org.springframework.util.StringUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
 import static io.mosip.esignet.core.constants.Constants.*;
@@ -258,9 +257,14 @@ public class OAuthServiceImpl implements OAuthService {
 
             if(!CollectionUtils.isEmpty(transaction.getAcceptedClaims()) && transaction.getRequestedClaims().getUserinfo() != null) {
                 for(String claim : transaction.getAcceptedClaims()) {
-                    ClaimDetail claimDetail = transaction.getRequestedClaims().getUserinfo().get(claim);
-                    if(claimDetail != null && claimDetail.getVerification()!=null) {
-                        kycExchangeDto.getAcceptedVerifiedClaims().put(claim, claimDetail.getVerification());
+                    List<Map<String, Object>> claimDetails = transaction.getRequestedClaims().getUserinfo().get(claim);
+
+                    List<Map<String, Object>> result = claimDetails == null ? null : claimDetails.stream()
+                            .filter( m -> m.get("verification") != null)
+                            .map( m -> (Map<String, Object>)m.get("verification"))
+                            .collect(Collectors.toList());
+                    if(result != null) {
+                        kycExchangeDto.getAcceptedVerifiedClaims().put(claim, result);
                     }
                 }
             }

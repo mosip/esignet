@@ -6,10 +6,10 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
@@ -46,6 +46,7 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Slf4j
 @Component
 public class ConsentHelperService {
+
     @Autowired
     private ConsentService consentService;
 
@@ -58,6 +59,9 @@ public class ConsentHelperService {
     @Autowired
     private AuditPlugin auditWrapper;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private final String ACCEPTED_CLAIMS="accepted_claims";
 
     private final String PERMITTED_AUTHORIZED_SCOPES="permitted_authorized_scopes";
@@ -66,7 +70,6 @@ public class ConsentHelperService {
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(transaction.getClientId());
         userConsentRequest.setPsuToken(transaction.getPartnerSpecificUserToken());
-        Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
 
         if(CollectionUtils.isEmpty(transaction.getVoluntaryClaims())
                 && CollectionUtils.isEmpty(transaction.getEssentialClaims())
@@ -74,15 +77,14 @@ public class ConsentHelperService {
             transaction.setConsentAction(ConsentAction.NOCAPTURE);
             transaction.setAcceptedClaims(List.of());
             transaction.setPermittedScopes(List.of());
-        } else {
-            ConsentAction consentAction = consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction, consent.get(), linked);
+            return;
+        }
 
-            transaction.setConsentAction(consentAction);
-
-            if (consentAction.equals(ConsentAction.NOCAPTURE)) {
-                transaction.setAcceptedClaims(consent.get().getAcceptedClaims()); //NOSONAR consent is already evaluated to be not null
-                transaction.setPermittedScopes(consent.get().getPermittedScopes()); //NOSONAR consent is already evaluated to be not null
-            }
+        Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
+        transaction.setConsentAction(consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction, consent.get(), linked));
+        if (ConsentAction.NOCAPTURE.equals(transaction.getConsentAction()) && consent.isPresent()) {
+            transaction.setAcceptedClaims(consent.get().getAcceptedClaims());
+            transaction.setPermittedScopes(consent.get().getPermittedScopes());
         }
     }
 
@@ -102,11 +104,14 @@ public class ConsentHelperService {
             userConsent.setPsuToken(transaction.getPartnerSpecificUserToken());
             Claims claims = transaction.getRequestedClaims();
             List<String> acceptedClaims = transaction.getAcceptedClaims();
-            Claims normalizedClaims = new Claims();
-            normalizedClaims.setUserinfo(normalizeClaims(claims.getUserinfo()));
-            normalizedClaims.setId_token(normalizeClaims(claims.getId_token()));
+            Map<String, Object> normalizedClaims = new HashMap<>();
+            normalizedClaims.put("userinfo", normalizeUserInfoClaims(claims.getUserinfo()));
+            normalizedClaims.put("id_token", normalizeIdTokenClaims(claims.getId_token()));
 
-            userConsent.setClaims(normalizedClaims);
+            Claims consentedClaims = new Claims();
+            consentedClaims.setUserinfo(normalizeUserInfoClaims(claims.getUserinfo()));
+            consentedClaims.setId_token(normalizeIdTokenClaims(claims.getId_token()));
+            userConsent.setClaims(consentedClaims);
             userConsent.setSignature(signature);
             List<String> permittedScopes = transaction.getPermittedScopes();
             List<String> requestedAuthorizeScopes = transaction.getRequestedAuthorizeScopes();
@@ -127,71 +132,54 @@ public class ConsentHelperService {
         }
     }
 
-
-    public Map<String, ClaimDetail> normalizeClaims(Map<String, ClaimDetail> claims){
+    public Map<String, List<Map<String, Object>>> normalizeUserInfoClaims(Map<String, List<Map<String, Object>>> claims){
         return claims.entrySet().stream().collect(
                 Collectors.toMap(
                         Map.Entry::getKey,
-                        entry -> {
-                            ClaimDetail claimDetail = entry.getValue();
-                            return claimDetail == null ? new ClaimDetail() : claimDetail;
-                        }
+                        entry -> entry.getValue() == null ? new ArrayList<>() : entry.getValue()
                 )
         );
     }
 
-    public String hashUserConsent(Claims claims,Map<String, Boolean> authorizeScopes) throws JsonProcessingException {
-
-        Map<String,Object> claimsAndAuthorizeScopes = new LinkedHashMap<>();
-
-        List<Map.Entry<String, ClaimDetail>> entryList;
-        Map<String, ClaimDetail> sortedMap = new LinkedHashMap<>();
-        if(claims.getUserinfo()!=null){
-            entryList = new ArrayList<>(claims.getUserinfo().entrySet());
-            sortClaims(entryList, sortedMap);
-
-        }
-        //Now for sorting  id_token
-        if(claims.getId_token()!=null)
-        {
-            entryList = new ArrayList<>(claims.getId_token().entrySet());
-            sortClaims(entryList, sortedMap);
-
-        }
-        //Now for authorizeScopes
-        Map<String,Boolean> sortedAuthorzeScopeMap=new LinkedHashMap<>();
-
-        List<Map.Entry<String,Boolean>>authorizeScopesList = new ArrayList<>(authorizeScopes.entrySet());
-        authorizeScopesList.sort(new Comparator<Map.Entry<String, Boolean>>() {
-            public int compare(Map.Entry<String, Boolean> o1, Map.Entry<String, Boolean> o2) {
-                return o1.getKey().compareTo(o2.getKey());
-            }
-        });
-        for (Map.Entry<String, Boolean> entry : authorizeScopesList) {
-            sortedAuthorzeScopeMap.put(entry.getKey(), entry.getValue());
-        }
-        claimsAndAuthorizeScopes.put("claims",sortedMap);
-        claimsAndAuthorizeScopes.put("authorizeScopes",sortedAuthorzeScopeMap);
-        String claimsAndAuthorizeScopesAsString = claimsAndAuthorizeScopes.toString().trim().replace(" ","");
-        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, claimsAndAuthorizeScopesAsString);
+    public Map<String, Map<String, Object>> normalizeIdTokenClaims(Map<String, Map<String, Object>> claims){
+        return claims.entrySet().stream().collect(
+                Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue() == null ? new HashMap<>() : entry.getValue()
+                )
+        );
     }
 
-    private static void sortClaims(List<Map.Entry<String, ClaimDetail>> entryList, Map<String, ClaimDetail> sortedMap) {
-        entryList.sort(new Comparator<>() {
-            public int compare(Map.Entry<String, ClaimDetail> o1, Map.Entry<String, ClaimDetail> o2) {
-                return o1.getKey().compareTo(o2.getKey());
-            }
-        });
-        for (Map.Entry<String, ClaimDetail> entry : entryList) {
-            sortedMap.put(entry.getKey(), sortClaimDetail(entry.getValue()));
+    private Object sortObject(Object object) {
+        if(object instanceof Map) {
+            Map<String, Object> sortedMap = new TreeMap<>(String::compareToIgnoreCase);
+            ((Map<?, ?>) object).forEach((key, value) -> sortedMap.put((String) key, sortObject(value)));
+            return sortedMap;
         }
+        else if(object instanceof List) {
+            List<Object> list = new ArrayList<>((List<?>) object);
+            if (!list.isEmpty() && list.get(0) instanceof String) {
+                Collections.sort(list, (a, b) -> {
+                    String strA = a != null ? a.toString() : "";
+                    String strB = b != null ? b.toString() : "";
+                    return strA.compareToIgnoreCase(strB);
+                });
+            }
+            for (int i = 0; i < list.size(); i++) {
+                list.set(i, sortObject(list.get(i)));
+            }
+            return list;
+        }
+        return object;
     }
 
-    private static ClaimDetail sortClaimDetail(ClaimDetail claimDetail){
-        if(claimDetail!= null && claimDetail.getValues() != null) {
-            Arrays.sort(claimDetail.getValues());
-        }
-        return claimDetail;
+    public String hashUserConsent(Map<String, Object> claims, Map<String, Boolean> authorizeScopes) throws JsonProcessingException {
+        Map<String, Object> claimsAndAuthorizeScopes = new LinkedHashMap<>();
+        claimsAndAuthorizeScopes.put("claims", claims);
+        claimsAndAuthorizeScopes.put("authorizeScopes", authorizeScopes);
+
+        Object sortedObject = sortObject(claimsAndAuthorizeScopes);
+        return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, objectMapper.writeValueAsString(sortedObject));
     }
 
     private ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail, boolean linked) {
@@ -207,9 +195,9 @@ public class ConsentHelperService {
             // defaulting the essential boolean flag as false
             Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
                     .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
-            Claims normalizedClaims = new Claims();
-            normalizedClaims.setUserinfo(normalizeClaims(transaction.getRequestedClaims().getUserinfo()));
-            normalizedClaims.setId_token(normalizeClaims(transaction.getRequestedClaims().getId_token()));
+            Map<String, Object> normalizedClaims = new HashMap<>();
+            normalizedClaims.put("userinfo", normalizeUserInfoClaims(transaction.getRequestedClaims().getUserinfo()));
+            normalizedClaims.put("id_token", normalizeIdTokenClaims(transaction.getRequestedClaims().getId_token()));
             hash = hashUserConsent(normalizedClaims, authorizeScopes);
         } catch (JsonProcessingException e) {
             log.error("Failed to hash the user consent", e);

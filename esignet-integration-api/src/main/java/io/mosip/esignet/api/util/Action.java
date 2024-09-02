@@ -31,7 +31,8 @@ public enum Action {
     SEND_BINDING_OTP("key-binding"),
     KEY_BINDING("key-binding"),
     VC_ISSUANCE("vci-service"),
-    CONSENT_DETAILS("esignet-service");
+    CLAIM_DETAILS("esignet-service"),
+    RESUME("esignet-service");
 
     String module;
 

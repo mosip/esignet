@@ -373,6 +373,22 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(Mockito.any())).thenReturn(oauthDetailResponseV2);
+        mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenReturn(oauthDetailResponseV2);
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
@@ -400,6 +416,14 @@ public class AuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REQUEST))
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("requestTime: invalid_request"));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REQUEST))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("requestTime: invalid_request"));
     }
 
     @Test
@@ -418,6 +442,13 @@ public class AuthorizationControllerTest {
         wrapper.setRequest(oauthDetailRequest);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REDIRECT_URI));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -450,6 +481,13 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenReturn(oauthDetailResponseV2);
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
@@ -470,6 +508,13 @@ public class AuthorizationControllerTest {
         wrapper.setRequest(oauthDetailRequest);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PKCE_CHALLENGE));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -501,6 +546,13 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD));
     }
 
 
@@ -521,6 +573,13 @@ public class AuthorizationControllerTest {
         wrapper.setRequest(oauthDetailRequest);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_DISPLAY));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -550,6 +609,13 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PROMPT));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PROMPT));
     }
 
     @Test
@@ -569,6 +635,13 @@ public class AuthorizationControllerTest {
         wrapper.setRequest(oauthDetailRequest);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_RESPONSE_TYPE));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -601,6 +674,13 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenReturn(oauthDetailResponseV2);
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
@@ -620,6 +700,13 @@ public class AuthorizationControllerTest {
         wrapper.setRequest(oauthDetailRequest);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_SCOPE));
+
+        mockMvc.perform(post("/authorization/v3/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -652,6 +739,13 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenReturn(oauthDetailResponseV2);
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
@@ -679,6 +773,13 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenReturn(oauthDetailResponseV2);
+        mockMvc.perform(post("/authorization/v3/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
@@ -699,9 +800,16 @@ public class AuthorizationControllerTest {
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
         oauthDetailResponseV2.setTransactionId("qwertyId");
-        when(authorizationService.getOauthDetailsV2( oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
+        when(authorizationService.getOauthDetailsV2(oauthDetailRequest)).thenReturn(oauthDetailResponseV2);
 
         mockMvc.perform(post("/authorization/v2/oauth-details")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
+
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenReturn(oauthDetailResponseV2);
+        mockMvc.perform(post("/authorization/v3/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -758,7 +866,20 @@ public class AuthorizationControllerTest {
         AuthResponseV2 authResponseV2 = new AuthResponseV2();
         authResponseV2.setTransactionId("quewertyId");
         when(authorizationService.authenticateUserV2(authRequest)).thenReturn(authResponseV2);
+
         mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value("quewertyId"));
+
+        AuthRequestV2 authRequestV2 = new AuthRequestV2();
+        authRequestV2.setIndividualId("1234567890");
+        authRequestV2.setTransactionId("quewertyId");
+        authRequestV2.setChallengeList(authChallengeList);
+        wrapper.setRequest(authRequestV2);
+        when(authorizationService.authenticateUserV3(Mockito.any(), Mockito.any())).thenReturn(authResponseV2);
+        mockMvc.perform(post("/authorization/v3/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -795,6 +916,14 @@ public class AuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REQUEST))
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("requestTime: invalid_request"));
+
+        mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_REQUEST))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("requestTime: invalid_request"));
     }
 
     @Test
@@ -818,6 +947,13 @@ public class AuthorizationControllerTest {
         wrapper.setRequest(authRequest);
         when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
         mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge_format"));
+
+        mockMvc.perform(post("/authorization/v3/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -849,6 +985,11 @@ public class AuthorizationControllerTest {
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -877,6 +1018,13 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
+
+        mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
     }
 
     @Test
@@ -900,6 +1048,13 @@ public class AuthorizationControllerTest {
         wrapper.setRequest(authRequest);
         when(authorizationService.authenticateUserV2(authRequest)).thenReturn(new AuthResponseV2());
         mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value("invalid_challenge"));
+
+        mockMvc.perform(post("/authorization/v3/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -936,6 +1091,14 @@ public class AuthorizationControllerTest {
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
         Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+
+        mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+        responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -969,6 +1132,14 @@ public class AuthorizationControllerTest {
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
         Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+
+        mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+        responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -1000,6 +1171,13 @@ public class AuthorizationControllerTest {
         Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 
+        mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+        responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -1030,6 +1208,14 @@ public class AuthorizationControllerTest {
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
         Assert.assertTrue(responseWrapper.getErrors().size() == 1);
         Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+
+        mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+        responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
+        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -1058,6 +1244,14 @@ public class AuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID))
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("request.transactionId: invalid_transaction_id"));
+
+        mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.transactionId: invalid_transaction_id"));
     }
 
     @Test
@@ -1078,6 +1272,54 @@ public class AuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_LIST))
                 .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList: invalid_no_of_challenges"));
+
+        mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_CHALLENGE_LIST))
+                .andExpect(jsonPath("$.errors[0].errorMessage").value("request.challengeList: invalid_no_of_challenges"));
+    }
+
+    @Test
+    public void authenticateEndUser_throwsException_thenReturnErrorResponse() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setIndividualId("1234567890");
+        authRequest.setTransactionId("1234567890");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("1234567890");
+        authChallenge.setAuthFactorType("PWD");
+        authChallenge.setFormat("alpha-numeric");
+        authRequest.setChallengeList(Arrays.asList(authChallenge));
+
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequest);
+
+        when(authorizationService.authenticateUserV2(authRequest)).thenThrow(new EsignetException());
+
+        mockMvc.perform(post("/authorization/v2/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(UNKNOWN_ERROR));
+
+        AuthRequestV2 authRequestV2 = new AuthRequestV2();
+        authRequestV2.setIndividualId("1234567890");
+        authRequestV2.setTransactionId("1234567890");
+        authRequestV2.setChallengeList(Arrays.asList(authChallenge));
+        wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(authRequestV2);
+        when(authorizationService.authenticateUserV3(Mockito.any(), Mockito.any())).thenThrow(new EsignetException());
+        mockMvc.perform(post("/authorization/v3/authenticate")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(UNKNOWN_ERROR));
     }
 
 
@@ -1171,7 +1413,36 @@ public class AuthorizationControllerTest {
               .andExpect(status().isOk())
               .andExpect(jsonPath("$.response.idToken").value("idToken"))
               .andExpect(jsonPath("$.errors").isEmpty());
-     }
+    }
+
+    @Test
+    public void prepareSignupRedirect_OnException_thenErrorResponse() throws Exception {
+        SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
+        signupRedirectRequest.setTransactionId("TransactionId");
+        signupRedirectRequest.setPathFragment("Path Fragment");
+
+        RequestWrapper<Object> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(signupRedirectRequest);
+
+        when(authorizationService.prepareSignupRedirect(Mockito.any(SignupRedirectRequest.class), Mockito.any(HttpServletResponse.class)))
+                .thenThrow(new EsignetException());
+        mockMvc.perform(post("/authorization/prepare-signup-redirect")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(UNKNOWN_ERROR));
+
+        when(authorizationService.prepareSignupRedirect(Mockito.any(SignupRedirectRequest.class), Mockito.any(HttpServletResponse.class)))
+                .thenThrow(new NullPointerException());
+        mockMvc.perform(post("/authorization/prepare-signup-redirect")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(UNKNOWN_ERROR));
+    }
     
     @Test
     public void prepareSignupRedirect_withInvalidTransactionId_thenFail() throws Exception {
@@ -1192,7 +1463,6 @@ public class AuthorizationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_TRANSACTION_ID));
-                ;
        }
     
     @Test
@@ -1221,7 +1491,7 @@ public class AuthorizationControllerTest {
   
 
     @Test
-    public void getClaimDetails_withValidDetails_thenSuccessResposne() throws Exception {
+    public void getClaimDetails_withValidDetails_thenSuccessResponse() throws Exception {
 
         ClaimDetailResponse claimDetailResponse = new ClaimDetailResponse();
         claimDetailResponse.setConsentAction(ConsentAction.CAPTURE);
@@ -1234,6 +1504,64 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isEmpty())
                 .andExpect(jsonPath("$.response.consentAction").value("CAPTURE"));
+    }
+
+    @Test
+    public void getClaimDetails_OnException_thenErrorResponse() throws Exception {
+        when(authorizationService.getClaimDetails("transactionId")).thenThrow(new InvalidTransactionException());
+
+        mockMvc.perform(get("/authorization/claim-details").header("oauth-details-key", "transactionId"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_TRANSACTION));
+
+        when(authorizationService.getClaimDetails("test-transactionId")).thenThrow(new EsignetException());
+
+        mockMvc.perform(get("/authorization/claim-details").header("oauth-details-key", "test-transactionId"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(UNKNOWN_ERROR));
+    }
+
+    @Test
+    public void resumeHaltedTransaction_withValidDetails_thenSuccessResponse() throws Exception {
+        ResumeRequest resumeRequest = new ResumeRequest();
+        resumeRequest.setTransactionId("123131231");
+        resumeRequest.setWithError(false);
+
+        RequestWrapper<Object> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(resumeRequest);
+
+        ResumeResponse resumeResponse = new ResumeResponse();
+        resumeResponse.setStatus("status");
+        when(authorizationService.resumeHaltedTransaction(resumeRequest)).thenReturn(resumeResponse);
+
+        mockMvc.perform(post("/authorization/resume")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.status").value("status"));
+    }
+
+    @Test
+    public void resumeHaltedTransaction_OnException_thenErrorResponse() throws Exception {
+        ResumeRequest resumeRequest = new ResumeRequest();
+        resumeRequest.setTransactionId("123131231");
+        resumeRequest.setWithError(false);
+
+        RequestWrapper<Object> wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        wrapper.setRequest(resumeRequest);
+
+        when(authorizationService.resumeHaltedTransaction(Mockito.any())).thenThrow(new InvalidTransactionException());
+
+        mockMvc.perform(post("/authorization/resume")
+                        .content(objectMapper.writeValueAsString(wrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_TRANSACTION));
     }
 
 }

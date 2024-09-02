@@ -6,14 +6,15 @@
 package io.mosip.esignet.services;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.*;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.api.util.FilterCriteriaMatcher;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
@@ -26,8 +27,6 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import io.mosip.esignet.core.util.LinkCodeQueue;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +41,6 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static org.mockito.ArgumentMatchers.*;
@@ -78,15 +76,29 @@ public class LinkedAuthorizationServiceTest {
     @Mock
     ConsentHelperService consentHelperService;
 
+    @Mock
+    ClaimsHelperService claimsHelperService;
+
+    @Mock
+    FilterCriteriaMatcher filterCriteriaMatcher;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ReflectionTestUtils.setField(filterCriteriaMatcher, "objectMapper", objectMapper);
+
+        ReflectionTestUtils.setField(claimsHelperService, "objectMapper", objectMapper);
+        ReflectionTestUtils.setField(claimsHelperService, "filterCriteriaMatcher", filterCriteriaMatcher);
+
         AuthorizationHelperService authorizationHelperService = new AuthorizationHelperService();
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("resident-service"));
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationContextClassRefUtil", authenticationContextClassRefUtil);
         ReflectionTestUtils.setField(authorizationHelperService, "authenticationWrapper", authenticationWrapper);
         ReflectionTestUtils.setField(authorizationHelperService, "auditWrapper", auditWrapper);
         ReflectionTestUtils.setField(authorizationHelperService, "cacheUtilService", cacheUtilService);
+        ReflectionTestUtils.setField(authorizationHelperService, "claimsHelperService", claimsHelperService);
 
         ReflectionTestUtils.setField(linkedAuthorizationService, "authorizationHelperService", authorizationHelperService);
         ReflectionTestUtils.setField(linkedAuthorizationService, "linkCodeExpiryInSeconds", 60);
@@ -198,15 +210,16 @@ public class LinkedAuthorizationServiceTest {
     public void linkTransaction_withValidInput_thenPass() {
         String transactionId = "transaction-id";
         Claims claims = new Claims();
-        ClaimDetail claimDetail = new ClaimDetail();
-        claimDetail.setValues(new String[]{"mosip:idp:acr:static-code"});
-        Map<String, ClaimDetail> map = new HashMap<>();
+        Map<String, Object> claimDetail = new HashMap<>();
+        claimDetail.put("values", new String[]{"mosip:idp:acr:static-code"});
+        Map<String, Map<String, Object>> map = new HashMap<>();
         map.put(ACR, claimDetail);
         claims.setId_token(map);
-        Map<String, ClaimDetail> userinfoMap = new HashMap<>();
-        userinfoMap.put("name", new ClaimDetail());
-        userinfoMap.get("name").setEssential(true);
-        userinfoMap.put("phone_number", new ClaimDetail());
+        Map<String, List<Map<String, Object>>> userinfoMap = new HashMap<>();
+        Map<String, Object> nameClaimDetail = new HashMap<>();
+        nameClaimDetail.put("essential", true);
+        userinfoMap.put("name", Arrays.asList(nameClaimDetail));
+        userinfoMap.put("phone_number", Arrays.asList(new HashMap<>()));
         claims.setUserinfo(userinfoMap);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setClientId("client-id");
@@ -222,7 +235,7 @@ public class LinkedAuthorizationServiceTest {
         clientDetail.setLogoUri("https://test-client-portal/logo.png");
         when(clientManagementService.getClientDetails(oidcTransaction.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.setLinkedTransaction(transactionId, oidcTransaction)).thenReturn(oidcTransaction);
-        when(authenticationContextClassRefUtil.getAuthFactors(claimDetail.getValues())).thenReturn(new ArrayList<>());
+        when(authenticationContextClassRefUtil.getAuthFactors((String[]) claimDetail.get("values"))).thenReturn(new ArrayList<>());
 
         LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
         linkTransactionRequest.setLinkCode("link-code");
@@ -265,15 +278,16 @@ public class LinkedAuthorizationServiceTest {
     public void linkTransactionV2_withValidInput_thenPass() {
         String transactionId = "transaction-id";
         Claims claims = new Claims();
-        ClaimDetail claimDetail = new ClaimDetail();
-        claimDetail.setValues(new String[]{"mosip:idp:acr:static-code"});
-        Map<String, ClaimDetail> map = new HashMap<>();
+        Map<String, Object> claimDetail = new HashMap<>();
+        claimDetail.put("values", new String[]{"mosip:idp:acr:static-code"});
+        Map<String, Map<String, Object>> map = new HashMap<>();
         map.put(ACR, claimDetail);
         claims.setId_token(map);
-        Map<String, ClaimDetail> userinfoMap = new HashMap<>();
-        userinfoMap.put("name", new ClaimDetail());
-        userinfoMap.get("name").setEssential(true);
-        userinfoMap.put("phone_number", new ClaimDetail());
+        Map<String, List<Map<String, Object>>> userinfoMap = new HashMap<>();
+        Map<String, Object> nameClaimDetail = new HashMap<>();
+        nameClaimDetail.put("essential", true);
+        userinfoMap.put("name", Arrays.asList(nameClaimDetail));
+        userinfoMap.put("phone_number", Arrays.asList(new HashMap<>()));
         claims.setUserinfo(userinfoMap);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setClientId("client-id");
@@ -289,7 +303,7 @@ public class LinkedAuthorizationServiceTest {
         clientDetail.setLogoUri("https://test-client-portal/logo.png");
         when(clientManagementService.getClientDetails(oidcTransaction.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.setLinkedTransaction(transactionId, oidcTransaction)).thenReturn(oidcTransaction);
-        when(authenticationContextClassRefUtil.getAuthFactors(claimDetail.getValues())).thenReturn(new ArrayList<>());
+        when(authenticationContextClassRefUtil.getAuthFactors((String[]) claimDetail.get("values"))).thenReturn(new ArrayList<>());
 
         LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
         linkTransactionRequest.setLinkCode("link-code");
@@ -630,8 +644,10 @@ public class LinkedAuthorizationServiceTest {
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        Map<String, ClaimDetail> idClaims = new HashMap<>();
-        idClaims.put(ACR, new ClaimDetail(null, acrs, false));
+        Map<String, Map<String, Object>> idClaims = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
+        map.put("values", acrs);
+        idClaims.put(ACR, map);
         Claims requestedClaims = new Claims();
         requestedClaims.setId_token(idClaims);
         oidcTransaction.setRequestedClaims(requestedClaims);

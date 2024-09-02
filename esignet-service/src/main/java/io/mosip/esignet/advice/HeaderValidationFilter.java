@@ -10,7 +10,6 @@ import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_REQUEST;
 
@@ -62,6 +59,14 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
 
     @Autowired
     private MessageSource messageSource;
+
+    private static final Map<String, Integer> APICODE_MAP = new HashMap<>();
+
+    static {
+        APICODE_MAP.put("send-otp", 1);
+        APICODE_MAP.put("authenticate", 2);
+        APICODE_MAP.put("claim-details", 3);
+    }
 
 
     @Override
@@ -120,11 +125,11 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
     }
 
     private void validateApiRateLimits(String path, String transactionId, String individualIdHash) {
-        int apiCode = path.endsWith("send-otp") ? 1 : path.endsWith("authenticate")? 2 : 3;
+        String[] parts = path.split("/");
 
         ApiRateLimit apiRateLimit = null;
         try {
-            switch (apiCode) {
+            switch (APICODE_MAP.getOrDefault(parts[parts.length-1], 0)) {
                 case 1:
                     apiRateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
                     apiRateLimit = checkRateLimit(1, apiRateLimit, sendOtpAttempts, sendOtpInvocationGapInSeconds, individualIdHash);
@@ -132,6 +137,10 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
                 case 2:
                     apiRateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
                     apiRateLimit = checkRateLimit(2, apiRateLimit, authenticateAttempts, authenticateInvocationGapInSeconds, individualIdHash);
+                    break;
+                case 3:
+                    apiRateLimit = cacheUtilService.getApiRateLimitTransaction(transactionId);
+                    apiRateLimit = checkRateLimit(3, apiRateLimit, 1, 0, individualIdHash);
                     break;
             }
         } finally {

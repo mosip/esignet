@@ -1,6 +1,15 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
@@ -23,6 +32,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
@@ -36,28 +46,15 @@ public class TokenServiceTest {
     @Mock
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
-    private String testKey = "{\n" +
-            "    \"p\": \"2dpXAH1LB25KbcYxFfOktFi0-XTmyvOB1BoByJs-JjVDrgTKVLDbXiqW8xf-GcBBB5TyN7dN6dX66RJvF0-6jsXpq3t7keCnUAe4-yLCCOeivYVVVRw9phx7tC5gflguRBts3GDy3h4RvQViQU6iMdXEAU7h5rut_-zR-fxFZpk\",\n" +
-            "    \"kty\": \"RSA\",\n" +
-            "    \"q\": \"oIXJf5p24VkS_L9wNd1Op5TLV-TS3koL5rd7rNhyg7SymZnE1Xym8yGqwfLSRTCZVxSu0NIIo5OLCNxLPBQ9Qm5DAY4Tim-Je1bNrEXgwiX-7I8_7oWypfuNLc_fIuUaMbkIzKov33uD5xkT_Kxp_SLUOnL5KrPfBbFJYGwb_Y8\",\n" +
-            "    \"d\": \"e2tQ1fYvISJjCdp76RjC5XbR6U2hOajC79J7Y6SqLhkCEqjwAk_VhyCz5IembiJwUZ2y-8B9OxEUdspXcBSWY2kgzXtWNT-wxIRZfiRUDCWvwdNDe95ozoOziDOVN-y0i_brb7YOjRwsOyaaRVs5VfjKb3cb3eJLY-JRM5pMAKdxv6hKxczZ8epLGS9djRbkMqdetXuAhI5t7amtZ2D9szUHlCd998kh-10f8yULOyBccGOswauGMfhQzitFj0LRR3VTho6UsVQRaVhEjbuMKnf981je-gL8iGZe80lf8uaKXhb8vja3iTBqmfT4SOFaM3SeAt0UZkZaBKsssDTHwQ\",\n" +
-            "    \"e\": \"AQAB\",\n" +
-            "    \"use\": \"sig\",\n" +
-            "    \"qi\": \"Z5UeoXdXK4FTVIiQiJecGWWgIbyGGM5EFB4wQdTpspk8bBFwI3-k24_xCRonCyMjATZzcYhTlUteraaei6WmisKRL-ugsS2g-sYzQFXQ5o4zEp74rB3kIGCbIK1a0x05jRFk-PCEBScypHNzk4IhuBLFId_SiQFICYq6GGVGj-0\",\n" +
-            "    \"dp\": \"auubSbU0rsf1pZzhGHoE-zKSV-CFKVSMArJk77Upsozv06esOha3A6d5gIPlBXRzNipnGutPRRXtWJjghxttX4dJIQ2w3y7YTxILOs6bVs2A9O1MrUH4C9_s4sjkOP5Ebs7bBepbKKKvaAsNZyoVtsnIsi-p9ZllU7dCcyPaV_k\",\n" +
-            "    \"alg\": \"RS256\",\n" +
-            "    \"dq\": \"L5X5md5Mh5lES7DkrtMgUgWGElQ_Pq5swMR74U15BRo4J9ixxSfixgig-kXll6VEj9AN0tGwxe0jNkk39GN7lYniSz-3Az71Xp7o8bz1WBizbaU5qpfv0cy0mXQaDdok3cCgnyuEbZfMDmIczra95NDCYWFcBBC2eJWJzw-9bHk\",\n" +
-            "    \"n\": \"iJpQSIajCvz1AI9bGhT6MuuboJr_dfgz_NdkCVbA6CpntZ14tRmTqs2aBhpMovIkF6Y7Az-7W-jBTze68GavFRQ8Epdn4ucbDGMekaOOjgYsaIlno1A_AVnieqTMdl31jrTAiwxtPcSVlp-23UfQwi8TUXpMfqbbI5kW3uXDfAjSLBTa16XStOD93ONNFKPzmdlr2SfL7ppZAUnVMeXHEnVms5EygqANoSF39jQ8SOlGb-_8BYapw2AVaa_hDg3aEWzduAckwJGmyByiR_fndVfSWtNKLp1m3K17dyaepYGWT3V7esPJuPSMa2IAMqvnrBlfXOhu2qDtqVXu30yEdw\"\n" +
-            "}";
+    private static final RSAKey RSA_JWK;
 
-    private String publidKey = "{\n" +
-            "    \"kty\": \"RSA\",\n" +
-            "    \"e\": \"AQAB\",\n" +
-            "    \"use\": \"sig\",\n" +
-            "    \"alg\": \"RS256\",\n" +
-            "    \"n\": \"iJpQSIajCvz1AI9bGhT6MuuboJr_dfgz_NdkCVbA6CpntZ14tRmTqs2aBhpMovIkF6Y7Az-7W-jBTze68GavFRQ8Epdn4ucbDGMekaOOjgYsaIlno1A_AVnieqTMdl31jrTAiwxtPcSVlp-23UfQwi8TUXpMfqbbI5kW3uXDfAjSLBTa16XStOD93ONNFKPzmdlr2SfL7ppZAUnVMeXHEnVms5EygqANoSF39jQ8SOlGb-_8BYapw2AVaa_hDg3aEWzduAckwJGmyByiR_fndVfSWtNKLp1m3K17dyaepYGWT3V7esPJuPSMa2IAMqvnrBlfXOhu2qDtqVXu30yEdw\"\n" +
-            "}";
-
+    static {
+        try {
+            RSA_JWK = new RSAKeyGenerator(2048).generate();
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Before
     public void setup() {
@@ -76,11 +73,22 @@ public class TokenServiceTest {
         transaction.setAHash("access-token-hash");
         transaction.setProvidedAuthFactors(new HashSet<>());
         Mockito.when(authenticationContextClassRefUtil.getACRs(Mockito.any())).thenReturn(Arrays.asList("generated-code", "static-code"));
+
         String token = tokenService.getIDToken(transaction);
         Assert.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
         Assert.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
+        Assert.assertEquals(transaction.getAuthTimeInSeconds(), jsonObject.getLong(AUTH_TIME));
+        Assert.assertEquals(transaction.getNonce(), jsonObject.get(NONCE));
+        Assert.assertEquals("generated-code static-code", jsonObject.get(ACR));
+        Assert.assertEquals("test-issuer", jsonObject.get(ISS));
+
+        token = tokenService.getIDToken("subject", "audience",30, transaction);
+        Assert.assertNotNull(token);
+        jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        Assert.assertEquals("audience", jsonObject.get(AUD));
+        Assert.assertEquals("subject", jsonObject.get(SUB));
         Assert.assertEquals(transaction.getAuthTimeInSeconds(), jsonObject.getLong(AUTH_TIME));
         Assert.assertEquals(transaction.getNonce(), jsonObject.get(NONCE));
         Assert.assertEquals("generated-code static-code", jsonObject.get(ACR));
@@ -121,27 +129,42 @@ public class TokenServiceTest {
 
     @Test(expected = EsignetException.class)
     public void verifyClientAssertionToken_withNullAssertion_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", publidKey, null,"audience");
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null,"audience");
     }
 
     @Test(expected = InvalidRequestException.class)
     public void verifyClientAssertionToken_withInvalidToken_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", publidKey, "client-assertion","audience");
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "client-assertion","audience");
     }
 
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withNullToken_thenFail() {
-        tokenService.verifyAccessToken("client-id", publidKey, null);
+        tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null);
     }
 
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withInvalidToken_thenFail() {
-        tokenService.verifyAccessToken("client-id", publidKey, "access_token");
+        tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "access_token");
+    }
+
+    @Test
+    public void verifyAccessToken_withValidToken_thenPass() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("alice")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis()))
+                .issuer("test-issuer")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+        tokenService.verifyAccessToken("audience", "alice", jwt.serialize());
     }
     
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withInvalidDataToken_thenFail() {
-        tokenService.verifyAccessToken("client-id", publidKey, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJhZWxkdW5nIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.qH7Zj_m3kY69kxhaQXTa-ivIpytKXXjZc1ZSmapZnGE");
+        tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJhZWxkdW5nIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.qH7Zj_m3kY69kxhaQXTa-ivIpytKXXjZc1ZSmapZnGE");
     }
 
     @Test(expected = NotAuthenticatedException.class)
@@ -152,6 +175,38 @@ public class TokenServiceTest {
     @Test(expected = NotAuthenticatedException.class)
     public void verifyTokenHint_withInvalidToken_thenFail() {
         tokenService.verifyIdToken("id_token_hint","client-id");
+    }
+
+    @Test
+    public void verifyTokenHint_withValidToken_thenPass() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("alice")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis()))
+                .issuer("test-issuer")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        tokenService.verifyIdToken(jwt.serialize(),"audience");
+
+        JWTClaimsSet claimsSetWithoutExp = new JWTClaimsSet.Builder()
+                .subject("alice")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .issuer("test-issuer")
+                .build();
+        jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSetWithoutExp);
+        jwt.sign(signer);
+        try {
+            tokenService.verifyIdToken(jwt.serialize(),"audience");
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals("invalid_token", e.getErrorCode());
+        }
     }
 
     private SignatureService getSignatureService() {
