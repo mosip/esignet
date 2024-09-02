@@ -9,7 +9,7 @@ fi
 function deleting_postgres() {
   NS=esignet
   while true; do
-      read -p "CAUTION: PVC, PV will get deleted. If your PV is not in 'Retain' mode all data will be lost. Are you sure ? Y/n ?" yn
+      read -p "CAUTION: PVC, PV will get deleted. If your PV is not in 'Retain' mode all Postgres data will be lost. Are you sure ? Y/n ?" yn
       if [ $yn = "Y" ]
         then
           helm -n $NS delete esignet-postgres

@@ -12,6 +12,7 @@ function deleting_keycloak() {
       read -p "Are you sure you want to delete Keyclaok? This is DANGEROUS! (Y/n) " yn
       if [ $yn = "Y" ]
         then
+          helm -n $NS delete keycloak
           helm -n $NS delete esignet-keycloak-init
           break
         else

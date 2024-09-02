@@ -10,10 +10,11 @@ metadata:
   namespace: esignet
 data:
   mosip-version: develop
-  mosip-api-host: api.soil-esignet.mosip.net
-  mosip-iam-external-host: iam.soil-esignet.mosip.net
-  mosip-api-internal-host: api-internal.soil-esignet.mosip.net
-  mosip-kafka-host: kafka.soil-esignet.mosip.net
+  mosip-api-host: api.sandbox.xyz.net
+  mosip-iam-external-host: iam.sandbox.xyz.net
+  mosip-api-internal-host: api-internal.sandbox.xyz.net
+  mosip-kafka-host: kafka.sandbox.xyz.net
   mosip-esignet-host: esignet.sandobox.xyz.net
-  mosip-postgres-host: esignet-postgres.soil-esignet.mosip.net
-  mosip-minio-host: minio.soil-esignet.mosip.net
+  mosip-postgres-host: esignet-postgres.sandbox.xyz.net
+  mosip-minio-host: minio.sandbox.xyz.net
+  mosip-signup-host: signup.sandbox.xyz.net
