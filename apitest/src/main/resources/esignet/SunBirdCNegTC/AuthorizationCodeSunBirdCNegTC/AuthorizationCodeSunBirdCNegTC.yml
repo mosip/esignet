@@ -1,6 +1,7 @@
 AuthorizationCodeSunBirdCNegTC:
    ESignet_AuthorizationCode_SunBirdCNegTC_Diff_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with different scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -18,6 +19,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Diff_Scope2_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with multiple different scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -35,6 +37,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Comma_Separated_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with comma separated scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -52,6 +55,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Missing_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with missing scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -69,6 +73,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Empty_Scope_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with an empty scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -91,6 +96,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_SpaceVal_Scope_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with space value in scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -113,6 +119,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Invalid_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with invalid scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -130,6 +137,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Null_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with null value in scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -147,6 +155,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      description: To Authenticate the user for SunBirdC with all valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

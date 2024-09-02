@@ -1,6 +1,7 @@
 DeletePolicySunBirdR:
    ESignet_SunBirdR_DeletePolicy_NOAUTH_Valid_Smoke:
       endPoint: $SUNBIRDBASEURL$/api/v1/Insurance/{insuranceid}
+      description: To delete policy for SunBirdR with no authorization
       role: resident
       restMethod: delete
       checkErrorsOnlyInResponse: true

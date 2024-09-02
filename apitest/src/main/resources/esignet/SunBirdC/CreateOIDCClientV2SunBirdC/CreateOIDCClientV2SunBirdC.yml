@@ -1,6 +1,7 @@
 CreateOIDCClientV2SunBirdC:
    ESignet_CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/client-mgmt/oauth-client
+      description: To create OIDCClientV2 for SunbirdC with all valid data
       role: partner
       restMethod: post
       inputTemplate: esignet/SunBirdC/CreateOIDCClientV2SunBirdC/CreateOIDCClientV2SunBirdC
