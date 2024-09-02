@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -157,7 +158,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
         }
         apiRateLimit.increment(apiCode);
         if(apiRateLimit.getCount().get(apiCode) > attemptsLimit) {
-            blockIndividualId(individualIdHash);
+            blockIndividualId(apiCode,individualIdHash);
             throw new EsignetException(ErrorConstants.NO_ATTEMPTS_LEFT);
         }
 
@@ -176,9 +177,16 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
         return apiRateLimit;
     }
 
-    private void blockIndividualId(String individualIdHash) {
-        if(individualIdHash != null) {
-            cacheUtilService.blockIndividualId(individualIdHash);
+    //It is not required to block individualId for requesting claim-details more than once
+    private void blockIndividualId(int apiCode, String individualIdHash) {
+        switch (apiCode) {
+            case 1:
+            case 2:
+                if(individualIdHash != null) {
+                    cacheUtilService.blockIndividualId(individualIdHash);
+                }
+                break;
+            case 3: break;
         }
     }
 
