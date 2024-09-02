@@ -15,7 +15,7 @@ onboarding:
     - name: esignet
       enabled: true
     - name: resident-oidc
-      enabled: true
+      enabled: false
     - name: demo-oidc
       enabled: false
     - name: mimoto-keybinding

@@ -11,8 +11,8 @@ function deleting_onboarder() {
   while true; do
       read -p "Are you sure you want to delete all partner-onboarder ?(Y/n) " yn
       if [ $yn = "Y" ]; then
-        echo Deleting esignet-resident-oidc-partner-onboarder helm
-        helm -n $NS delete esignet-resident-oidc-partner-onboarder
+        echo Deleting partner-onboarder helm
+        helm -n $NS delete partner-onboarder
         break
       fi
   done
