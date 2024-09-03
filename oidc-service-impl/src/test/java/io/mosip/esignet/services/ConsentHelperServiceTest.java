@@ -5,12 +5,12 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.util.Base64URL;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
@@ -27,12 +27,15 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.jose4j.keys.X509Util;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -44,7 +47,6 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.ArrayList;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -107,6 +109,11 @@ public class ConsentHelperServiceTest {
         }
     }
 
+    @Before
+    public void setup()  {
+        ReflectionTestUtils.setField(consentHelperService,"objectMapper", new ObjectMapper());
+    }
+
     @Test
     public void addUserConsent_withValidLinkedTransaction_thenPass() throws Exception {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
@@ -117,12 +124,19 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setConsentAction(ConsentAction.CAPTURE);
 
         Claims claims = new Claims();
-        Map<String, ClaimDetail> userinfo = new HashMap<>();
-        Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoNameClaimDetail = new ClaimDetail("name", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("token", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("name", userinfoNameClaimDetail);
-        id_token.put("idTokenKey", idTokenClaimDetail);
+        Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
+        Map<String, Map<String, Object>> id_token = new HashMap<>();
+
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put("essential", true);
+        nameMap.put("value", "name");
+        nameMap.put("values", new String[]{"value1a", "value1b"});
+        Map<String, Object> idTokenMap = new HashMap<>();
+        idTokenMap.put("essential", false);
+        idTokenMap.put("value", "token");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
+        userinfo.put("name", Arrays.asList(nameMap));
+        id_token.put("idTokenKey", idTokenMap);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
@@ -142,7 +156,7 @@ public class ConsentHelperServiceTest {
         consentHelperService.updateUserConsent(oidcTransaction, signature);
         UserConsent userConsent = new UserConsent();
         userConsent.setAuthorizationScopes(Map.of("openid",false,"profile",false,"email",false));
-        userConsent.setHash("uDMR7oP9Gnh0mzhmB8C44rwVpPz_vVwO_lWyfaGMius");
+        userConsent.setHash("S91aCTTZ1NpJxXSvWf-wpW2xBjykRF77W3p0eHjmN1k");
         userConsent.setClaims(claims);
         userConsent.setAcceptedClaims(List.of("email","gender","name"));
 
@@ -167,12 +181,18 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setConsentAction(ConsentAction.CAPTURE);
 
         Claims claims = new Claims();
-        Map<String, ClaimDetail> userinfo = new HashMap<>();
-        Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoClaimDetail = new ClaimDetail("value1", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("value2", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("userinfoKey", userinfoClaimDetail);
-        id_token.put("idTokenKey", idTokenClaimDetail);
+        Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
+        Map<String, Map<String, Object>> id_token = new HashMap<>();
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put("essential", true);
+        nameMap.put("value", "value1");
+        nameMap.put("values", new String[]{"value1a", "value1b"});
+        Map<String, Object> idTokenMap = new HashMap<>();
+        idTokenMap.put("essential", false);
+        idTokenMap.put("value", "value2");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
+        userinfo.put("userinfoKey", Arrays.asList(nameMap));
+        id_token.put("idTokenKey", idTokenMap);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
@@ -182,7 +202,7 @@ public class ConsentHelperServiceTest {
 
         consentHelperService.updateUserConsent(oidcTransaction, "");
         UserConsent userConsent = new UserConsent();
-        userConsent.setHash("9zZ7-MRGzfit5Xr0Qlnsh9hTquqUTeerUo7P3TDE7hI");
+        userConsent.setHash("N54bQaclZC0w91p-z6CY6hynD7GIOypYGVgTthMQxyo");
         userConsent.setClaims(claims);
         userConsent.setAuthorizationScopes(Map.of());
         userConsent.setAcceptedClaims(List.of("name","email"));
@@ -223,13 +243,19 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setIndividualId("individualId");
 
         Claims claims = new Claims();
-        Map<String, ClaimDetail> userinfo = new HashMap<>();
-        Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoNameClaimDetail = new ClaimDetail("name", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("token", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("name", userinfoNameClaimDetail);
+        Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
+        Map<String, Map<String, Object>> id_token = new HashMap<>();
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put("essential", true);
+        nameMap.put("value", "name");
+        nameMap.put("values", new String[]{"value1a", "value1b"});
+        Map<String, Object> idTokenMap = new HashMap<>();
+        idTokenMap.put("essential", false);
+        idTokenMap.put("value", "token");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
+        userinfo.put("name", Arrays.asList(nameMap));
         userinfo.put("email",null);
-        id_token.put("idTokenKey", idTokenClaimDetail);
+        id_token.put("idTokenKey", idTokenMap);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
@@ -243,10 +269,13 @@ public class ConsentHelperServiceTest {
         consentDetail.setClientId("123");
         consentDetail.setSignature("signature");
         consentDetail.setAuthorizationScopes(Map.of("openid",false,"profile",false));
-        consentDetail.setClaims(claims);
-        Claims normalizedClaims = new Claims();
-        normalizedClaims.setUserinfo(consentHelperService.normalizeClaims(claims.getUserinfo()));
-        normalizedClaims.setId_token(consentHelperService.normalizeClaims(claims.getId_token()));
+        Claims consentedClaims = new Claims();
+        consentedClaims.setUserinfo(claims.getUserinfo());
+        consentedClaims.setId_token(claims.getId_token());
+        consentDetail.setClaims(consentedClaims);
+        Map<String, Object> normalizedClaims = new HashMap<>();
+        normalizedClaims.put("userinfo", consentHelperService.normalizeUserInfoClaims(claims.getUserinfo()));
+        normalizedClaims.put("id_token", consentHelperService.normalizeIdTokenClaims(claims.getId_token()));
         String hashCode =consentHelperService.hashUserConsent(normalizedClaims,consentDetail.getAuthorizationScopes());
         consentDetail.setHash(hashCode);
 
@@ -291,13 +320,19 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setEssentialClaims(List.of("name"));
         oidcTransaction.setVoluntaryClaims(List.of("email"));
         Claims claims = new Claims();
-        Map<String, ClaimDetail> userinfo = new HashMap<>();
-        Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoNameClaimDetail = new ClaimDetail("name", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("token", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("name", userinfoNameClaimDetail);
+        Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
+        Map<String, Map<String, Object>> id_token = new HashMap<>();
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put("essential", true);
+        nameMap.put("value", "name");
+        nameMap.put("values", new String[]{"value1a", "value1b"});
+        Map<String, Object> idTokenMap = new HashMap<>();
+        idTokenMap.put("essential", false);
+        idTokenMap.put("value", "token");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
+        userinfo.put("name", Arrays.asList(nameMap));
         userinfo.put("email",null);
-        id_token.put("idTokenKey", idTokenClaimDetail);
+        id_token.put("idTokenKey", idTokenMap);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
@@ -312,19 +347,28 @@ public class ConsentHelperServiceTest {
         consentDetail.setSignature("signature");
         consentDetail.setAuthorizationScopes(Map.of("openid",true,"profile",true));
 
-        Claims consentClaims = new Claims();
+        Map<String, Object> consentClaims = new HashMap<>();
         userinfo = new HashMap<>();
         id_token = new HashMap<>();
-        userinfoNameClaimDetail = new ClaimDetail("gender", new String[]{"value1a", "value1b"}, false);
-        idTokenClaimDetail = new ClaimDetail("token", new String[]{"value1a", "value2b"}, false);
-        userinfo.put("gender", userinfoNameClaimDetail);
+        Map<String, Object> genderMap = new HashMap<>();
+        nameMap.put("essential", false);
+        nameMap.put("value", "gender");
+        nameMap.put("values", new String[]{"value1a", "value1b"});
+        Map<String, Object> consentedIdTokenMap = new HashMap<>();
+        idTokenMap.put("essential", false);
+        idTokenMap.put("value", "token");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
+        userinfo.put("gender", Arrays.asList(genderMap));
         userinfo.put("email",null);
-        id_token.put("idTokenKey", idTokenClaimDetail);
-        consentClaims.setUserinfo(userinfo);
-        consentClaims.setId_token(id_token);
+        id_token.put("idTokenKey", consentedIdTokenMap);
+        consentClaims.put("userinfo", userinfo);
+        consentClaims.put("id_token", id_token);
 
-        consentDetail.setClaims(consentClaims);
-        String hashCode =consentHelperService.hashUserConsent(consentClaims,consentDetail.getAuthorizationScopes());
+
+        consentDetail.setClaims(new Claims());
+        consentDetail.getClaims().setUserinfo(userinfo);
+        consentDetail.getClaims().setId_token(id_token);
+        String hashCode = consentHelperService.hashUserConsent(consentClaims,consentDetail.getAuthorizationScopes());
         consentDetail.setHash(hashCode);
 
         consentDetail.setAcceptedClaims(Arrays.asList("email","gender","name"));
@@ -386,13 +430,19 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setIndividualId("individualId");
 
         Claims claims = new Claims();
-        Map<String, ClaimDetail> userinfo = new HashMap<>();
-        Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoNameClaimDetail = new ClaimDetail("name", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("token", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("name", userinfoNameClaimDetail);
+        Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
+        Map<String, Map<String, Object>> id_token = new HashMap<>();
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put("essential", true);
+        nameMap.put("value", "name");
+        nameMap.put("values", new String[]{"value1a", "value1b"});
+        Map<String, Object> idTokenMap = new HashMap<>();
+        idTokenMap.put("essential", false);
+        idTokenMap.put("value", "token");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
+        userinfo.put("name", Arrays.asList(nameMap));
         userinfo.put("email",null);
-        id_token.put("idTokenKey", idTokenClaimDetail);
+        id_token.put("idTokenKey", idTokenMap);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
@@ -406,11 +456,14 @@ public class ConsentHelperServiceTest {
         consentDetail.setClientId("123");
         consentDetail.setSignature("signature");
         consentDetail.setAuthorizationScopes(Map.of("openid",false,"profile",false));
+        Map<String, Object> consentedClaims = new HashMap<>();
+        consentedClaims.put("userinfo", claims.getUserinfo());
+        consentedClaims.put("id_token", claims.getId_token());
         consentDetail.setClaims(claims);
-        Claims normalizedClaims = new Claims();
-        normalizedClaims.setUserinfo(consentHelperService.normalizeClaims(claims.getUserinfo()));
-        normalizedClaims.setId_token(consentHelperService.normalizeClaims(claims.getId_token()));
-        String hashCode =consentHelperService.hashUserConsent(normalizedClaims,consentDetail.getAuthorizationScopes());
+        Map<String, Object>  normalizedClaims = new HashMap<>();
+        normalizedClaims.put("userinfo", consentHelperService.normalizeUserInfoClaims(claims.getUserinfo()));
+        normalizedClaims.put("id_token", consentHelperService.normalizeIdTokenClaims(claims.getId_token()));
+        String hashCode = consentHelperService.hashUserConsent(normalizedClaims,consentDetail.getAuthorizationScopes());
         consentDetail.setHash(hashCode);
 
         consentDetail.setAcceptedClaims(Arrays.asList("email","gender","name"));

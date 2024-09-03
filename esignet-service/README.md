@@ -17,9 +17,7 @@ Both mock plugin and the MOSIP IDA plugin supports only scoped based VC issuance
 2. Mock plugin implementations and the MOSIP specific plugin implementations are available.
 3. Check the below URL for more details:
 
- > https://github.com/mosip/esignet-mock-services/tree/master/mock-esignet-integration-impl
-
- > https://github.com/mosip/id-authentication/tree/master/authentication/esignet-integration-impl
+ > https://github.com/mosip/esignet-plugins/tree/master
 
  > https://github.com/mosip/digital-credential-plugins
 
@@ -103,6 +101,19 @@ Linked transactions
 | token           | userinfo  (k: accessTokenHash)                                                                          | authcodegenerated (k: codeHash, v: OIDCTransaction), consented (k: linkedTransactionId, v: OIDCTransaction), linkedcode (k: linkCodeHash, v: LinkTransactionMetadata) |                                   |
 | userinfo |                                                                                                         |                                                                                                                                                                     |
 
+
+Identity verification transaction
+
+| Endpoint                               | Cache                                                | Evict                                                |
+|----------------------------------------|------------------------------------------------------|------------------------------------------------------|
+| oauthDetails                           | preauth (k: transactionId, v: OIDCTransaction)       |                                                      |
+| authenticate                           | authenticated (k: transactionId, v: OIDCTransaction) | preauth (k: transactionId, v: OIDCTransaction)       |
+| claim-details(limited to 1 invocation) | authenticated (k: transactionId, v: OIDCTransaction) |                                                      |
+| prepare-signup-redirect                | halted (k: transactionId, v: OIDCTransaction)        | authenticated (k: transactionId, v: OIDCTransaction) |
+| resume                                 | authenticated (k: transactionId, v: OIDCTransaction) | halted (k: transactionId, v: OIDCTransaction)        |
+| authCode                               | authcodegenerated (k: codeHash, v: OIDCTransaction)  | authenticated (k: transactionId, v: OIDCTransaction) |
+| token                                  | userinfo   (k: accessTokenHash, v: OIDCTransaction)  | authcodegenerated  (k: codeHash, v: OIDCTransaction) |
+| userinfo                               |                                                      |                                                      |
 
 
 ## Databases

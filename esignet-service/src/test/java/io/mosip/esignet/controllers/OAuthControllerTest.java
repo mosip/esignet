@@ -168,4 +168,18 @@ public class OAuthControllerTest {
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    public void getOAuthDiscoveryInfo_thenPass() throws Exception {
+
+        Map<String, Object> discoveryInfo = new HashMap<>();
+        discoveryInfo.put("key", "value");
+        Mockito.when(oAuthServiceImpl.getOAuthServerDiscoveryInfo()).thenReturn(discoveryInfo);
+
+        mockMvc.perform(get("/oauth/.well-known/oauth-authorization-server")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("{\"key\":\"value\"}"))
+                .andExpect(header().string("Content-Type", "application/json"));
+    }
 }

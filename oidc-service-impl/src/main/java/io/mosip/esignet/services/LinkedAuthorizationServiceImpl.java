@@ -66,6 +66,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Autowired
     private ConsentHelperService consentHelperService;
 
+    @Autowired
+    private ClaimsHelperService claimsHelperService;
+
     @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
 
@@ -166,7 +169,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
         linkTransactionResponse.setLinkTransactionId(linkedTransactionId);
         linkTransactionResponse.setAuthFactors(authenticationContextClassRefUtil.getAuthFactors(
-                transaction.getRequestedClaims().getId_token().get(ACR).getValues()));
+                (String[]) transaction.getRequestedClaims().getId_token().get(ACR).get("values")));
         linkTransactionResponse.setEssentialClaims(transaction.getEssentialClaims());
         linkTransactionResponse.setVoluntaryClaims(transaction.getVoluntaryClaims());
         linkTransactionResponse.setAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
@@ -339,7 +342,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
 
     private void validateConsent(OIDCTransaction transaction, List<String> acceptedClaims, List<String> permittedScopes) {
-        authorizationHelperService.validateAcceptedClaims(transaction, acceptedClaims);
+        claimsHelperService.validateAcceptedClaims(transaction, acceptedClaims);
         authorizationHelperService.validatePermittedScopes(transaction, permittedScopes);
     }
 }

@@ -22,4 +22,5 @@ public class FilterCriteria implements Serializable {
     private static final long serialVersionUID = 1L;
     private String value;
     private List<String> values;
+    private Integer max_age;
 }

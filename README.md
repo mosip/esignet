@@ -5,6 +5,8 @@
 This repository contains the implementation of 
 * Authorization Code flow of OAuth 2.0. Supports all the mandatory features of OIDC (Open ID Connect) specification.
 * VC Issuance Flow, supports only [wallet initiated flow](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0-12.html#name-authorization-code-flow)
+* Proof key code exchange support added. Mandatory for VCI flow.
+* Supports basic mandatory features of OpenId Connect for identity assurance specification.
 
 e-Signet repository contains following:
 
@@ -16,7 +18,8 @@ e-Signet repository contains following:
 6. binding-service-impl - key and individualId binding service implementation classes.
 7. consent-service-impl - Service to manage user consent per client. 
 8. vci-service-impl - Credential issuance service implementation classes.
-9. db_scripts - Contains all the db scripts required to setup or upgrade the DB for esignet module.
+9. db_scripts - Contains all the db scripts required to do fresh setup of esignet module.
+10. db_upgrade_scripts - Contains all the db scripts required to upgrade the DB for esignet module.
 
 ## Databases
 Refer to [SQL scripts](db_scripts).

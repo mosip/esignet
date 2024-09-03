@@ -25,11 +25,13 @@ import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -84,6 +86,19 @@ public class AuthorizationHelperServiceTest {
     private HttpServletRequest httpServletRequest;
 
     ObjectMapper objectMapper=new ObjectMapper();
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        Map<String, List<String>> claims = new HashMap<>();
+        claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
+        claims.put("email", Arrays.asList("email", "email_verified"));
+        claims.put("phone", Arrays.asList("phone_number", "phone_number_verified"));
+        ClaimsHelperService claimsHelperService = new ClaimsHelperService();
+        ReflectionTestUtils.setField(claimsHelperService, "claims", claims);
+        ReflectionTestUtils.setField(claimsHelperService, "objectMapper", objectMapper);
+        ReflectionTestUtils.setField(authorizationHelperService, "claimsHelperService", claimsHelperService);
+    }
     
     @Test
     public void validateSendOtpCaptchaToken_withEmptyToken_thenFail() {
@@ -194,23 +209,6 @@ public class AuthorizationHelperServiceTest {
     }
 
     @Test
-    public void getClaimNames_test() {
-        Claims resolvedClaims = new Claims();
-        Map<String, ClaimDetail> userinfoClaims = new HashMap<>();
-        userinfoClaims.put("name", new ClaimDetail(null, null, true));
-        userinfoClaims.put("birthdate", new ClaimDetail(null, null, true));
-        userinfoClaims.put("address", new ClaimDetail(null, null, false));
-        userinfoClaims.put("gender", null);
-        resolvedClaims.setUserinfo(userinfoClaims);
-        Map<String, List> result = authorizationHelperService.getClaimNames(resolvedClaims);
-        Assert.assertNotNull(result);
-        Assert.assertNotNull(result.get(ESSENTIAL));
-        Assert.assertTrue(result.get(ESSENTIAL).containsAll(Arrays.asList("name", "birthdate")));
-        Assert.assertNotNull(result.get(VOLUNTARY));
-        Assert.assertTrue(result.get(VOLUNTARY).containsAll(Arrays.asList("address", "gender")));
-    }
-
-    @Test
     public void getAuthorizeScopes_test() {
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("history.read", "uin.update"));
         List<String> result = authorizationHelperService.getAuthorizeScopes("openid uin.update history read");
@@ -307,127 +305,6 @@ public class AuthorizationHelperServiceTest {
     }
 
     @Test
-    public void validateAcceptedClaims_withEmptyAcceptedClaims_thenPass() {
-        authorizationHelperService.validateAcceptedClaims(new OIDCTransaction(), new ArrayList<>());
-    }
-
-    @Test
-    public void validateAcceptedClaims_withNullRequestedClaims_thenFail() {
-
-        try {
-            authorizationHelperService.validateAcceptedClaims(
-                    new OIDCTransaction(), Arrays.asList("name", "gender")
-            );
-            Assert.fail();
-        } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
-        }
-    }
-    @Test
-    public void validateAcceptedClaims_withEmptyRequestedClaims_thenFail() {
-        Claims resolvedClaims = new Claims();
-        resolvedClaims.setUserinfo(new HashMap<>());
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
-        try {
-            authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "gender"));
-            Assert.fail();
-        } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
-        }
-    }
-
-    @Test
-    public void validateAcceptedClaims_withInvalidAcceptedClaims_thenFail() {
-        Claims resolvedClaims = new Claims();
-        resolvedClaims.setUserinfo(new HashMap<>());
-        Map<String, ClaimDetail> userinfoClaims = new HashMap<>();
-        userinfoClaims.put("name", new ClaimDetail(null, null, true));
-        userinfoClaims.put("birthdate", new ClaimDetail(null, null, true));
-        userinfoClaims.put("address", new ClaimDetail(null, null, false));
-        userinfoClaims.put("gender", null);
-        resolvedClaims.setUserinfo(userinfoClaims);
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
-        try {
-            authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("email", "phone_number"));
-            Assert.fail();
-        } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
-        }
-    }
-
-    @Test
-    public void validateAcceptedClaims_withValidAcceptedEssentialClaims_thenPass() {
-        Claims resolvedClaims = new Claims();
-        resolvedClaims.setUserinfo(new HashMap<>());
-        Map<String, ClaimDetail> userinfoClaims = new HashMap<>();
-        userinfoClaims.put("name", new ClaimDetail(null, null, true));
-        userinfoClaims.put("birthdate", new ClaimDetail(null, null, true));
-        userinfoClaims.put("address", new ClaimDetail(null, null, false));
-        userinfoClaims.put("gender", null);
-        resolvedClaims.setUserinfo(userinfoClaims);
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
-        authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "birthdate"));
-    }
-
-    @Test
-    public void validateAcceptedClaims_withAllOptionalClaimsNotAccepted_thenPass() {
-        Claims resolvedClaims = new Claims();
-        resolvedClaims.setUserinfo(new HashMap<>());
-        Map<String, ClaimDetail> userinfoClaims = new HashMap<>();
-        userinfoClaims.put("name", new ClaimDetail(null, null, false));
-        userinfoClaims.put("birthdate", new ClaimDetail(null, null, false));
-        userinfoClaims.put("address", new ClaimDetail(null, null, false));
-        userinfoClaims.put("gender", null);
-        resolvedClaims.setUserinfo(userinfoClaims);
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
-        authorizationHelperService.validateAcceptedClaims(oidcTransaction, List.of());
-    }
-
-    @Test
-    public void validateAcceptedClaims_withSomeValidAcceptedEssentialClaims_thenFail() {
-        Claims resolvedClaims = new Claims();
-        resolvedClaims.setUserinfo(new HashMap<>());
-        Map<String, ClaimDetail> userinfoClaims = new HashMap<>();
-        userinfoClaims.put("name", new ClaimDetail(null, null, true));
-        userinfoClaims.put("birthdate", new ClaimDetail(null, null, true));
-        userinfoClaims.put("address", new ClaimDetail(null, null, false));
-        userinfoClaims.put("gender", null);
-        resolvedClaims.setUserinfo(userinfoClaims);
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
-        try {
-            authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "address"));
-            Assert.fail();
-        } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
-        }
-    }
-
-    @Test
-    public void validateAcceptedClaims_withAllOptionalClaims_thenFail() {
-        Claims resolvedClaims = new Claims();
-        resolvedClaims.setUserinfo(new HashMap<>());
-        Map<String, ClaimDetail> userinfoClaims = new HashMap<>();
-        userinfoClaims.put("name", new ClaimDetail(null, null, false));
-        userinfoClaims.put("birthdate", new ClaimDetail(null, null, false));
-        userinfoClaims.put("address", new ClaimDetail(null, null, false));
-        userinfoClaims.put("gender", null);
-        resolvedClaims.setUserinfo(userinfoClaims);
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
-        try {
-            authorizationHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("email", "phone_number"));
-            Assert.fail();
-        } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
-        }
-    }
-
-    @Test
     public void validateAuthorizeScopes_withEmptyAcceptedScopes_thenPass() {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         authorizationHelperService.validatePermittedScopes(oidcTransaction, Arrays.asList());
@@ -516,9 +393,9 @@ public class AuthorizationHelperServiceTest {
     public void getProvidedAuthFactors_withValidInput_thenPass() {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setId_token(new HashMap<>());
-        ClaimDetail claimDetail = new ClaimDetail();
-        claimDetail.setValues(new String [] {"generated-code", "static-code"});
-        resolvedClaims.getId_token().put(ACR, claimDetail);
+        Map<String, Object> map = new HashMap<>();
+        map.put("values", new String [] {"generated-code", "static-code"});
+        resolvedClaims.getId_token().put(ACR, map);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setRequestedClaims(resolvedClaims);
 
@@ -545,9 +422,9 @@ public class AuthorizationHelperServiceTest {
     public void getProvidedAuthFactors_withAuthFactorMismatch_thenFail() {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setId_token(new HashMap<>());
-        ClaimDetail claimDetail = new ClaimDetail();
-        claimDetail.setValues(new String [] {"generated-code", "static-code"});
-        resolvedClaims.getId_token().put(ACR, claimDetail);
+        Map<String, Object> map = new HashMap<>();
+        map.put("values", new String [] {"generated-code", "static-code"});
+        resolvedClaims.getId_token().put(ACR, map);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setRequestedClaims(resolvedClaims);
 

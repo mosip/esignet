@@ -6,7 +6,6 @@
 package io.mosip.esignet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.UserConsent;
@@ -30,10 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
 import static org.mockito.Mockito.doNothing;
@@ -69,7 +65,7 @@ public class ConsentServiceImplTest {
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setId(UUID.randomUUID());
         consentDetail.setClientId("1234");
-        consentDetail.setClaims("{\"userinfo\":{\"given_name\":{\"essential\":true},\"phone_number\":null,\"email\":{\"essential\":true},\"picture\":{\"essential\":false},\"gender\":{\"essential\":false}},\"id_token\":{}}");
+        consentDetail.setClaims("{\"userinfo\":{\"given_name\":[{\"essential\":true}],\"phone_number\":null,\"email\":[{\"essential\":true}],\"picture\":[{\"essential\":false}],\"gender\":[{\"essential\":false}]},\"id_token\":{}}");
         consentDetail.setCreatedtimes(LocalDateTime.now());
         consentDetail.setPsuToken("psuValue");
         consentDetail.setExpiredtimes(LocalDateTime.now());
@@ -128,12 +124,20 @@ public class ConsentServiceImplTest {
     public void saveUserConsent_withValidDetails_thenPass() throws Exception{
         Claims claims = new Claims();
 
-        Map<String, ClaimDetail> userinfo = new HashMap<>();
-        Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoClaimDetail = new ClaimDetail("value1", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("value2", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("userinfoKey", userinfoClaimDetail);
-        id_token.put("idTokenKey", idTokenClaimDetail);
+        Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
+        Map<String, Map<String, Object>> id_token = new HashMap<>();
+        Map<String, Object> userinfoMap = new HashMap<>();
+        Map<String, Object> idTokenMap = new HashMap<>();
+        userinfoMap.put("value","value1" );
+        userinfoMap.put("values", new String[]{"value1a", "value1b"});
+        userinfoMap.put("essential", true);
+
+        idTokenMap.put("value","value2" );
+        idTokenMap.put("values",  new String[]{"value2a", "value2b"});
+        idTokenMap.put("essential", false);
+
+        userinfo.put("userinfoKey", Arrays.asList(userinfoMap));
+        id_token.put("idTokenKey", idTokenMap);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
@@ -151,7 +155,7 @@ public class ConsentServiceImplTest {
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setId(UUID.randomUUID());
         consentDetail.setClientId("1234");
-        consentDetail.setClaims("{\"userinfo\":{\"given_name\":{\"essential\":true},\"phone_number\":null,\"email\":{\"essential\":true},\"picture\":{\"essential\":false},\"gender\":{\"essential\":false}},\"id_token\":{}}");
+        consentDetail.setClaims("{\"userinfo\":{\"given_name\":[{\"essential\":true}],\"phone_number\":null,\"email\":[{\"essential\":true}],\"picture\":[{\"essential\":false}],\"gender\":[{\"essential\":false}]},\"id_token\":{}}");
         consentDetail.setCreatedtimes(LocalDateTime.now());
         consentDetail.setPsuToken("psuValue");
         consentDetail.setExpiredtimes(LocalDateTime.now());
@@ -169,12 +173,21 @@ public class ConsentServiceImplTest {
     public void saveUserConsent_WhenConsentIsAlreadyPresent_withValidDetails_thenPass() throws Exception{
         Claims claims = new Claims();
 
-        Map<String, ClaimDetail> userinfo = new HashMap<>();
-        Map<String, ClaimDetail> id_token = new HashMap<>();
-        ClaimDetail userinfoClaimDetail = new ClaimDetail("value1", new String[]{"value1a", "value1b"}, true);
-        ClaimDetail idTokenClaimDetail = new ClaimDetail("value2", new String[]{"value2a", "value2b"}, false);
-        userinfo.put("userinfoKey", userinfoClaimDetail);
-        id_token.put("idTokenKey", idTokenClaimDetail);
+        Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
+        Map<String, Map<String, Object>> id_token = new HashMap<>();
+
+        Map<String, Object> userinfoMap = new HashMap<>();
+        Map<String, Object> idTokenMap = new HashMap<>();
+        userinfoMap.put("value","value1" );
+        userinfoMap.put("values", new String[]{"value1a", "value1b"});
+        userinfoMap.put("essential", true);
+
+        idTokenMap.put("value","value2" );
+        idTokenMap.put("values",  new String[]{"value2a", "value2b"});
+        idTokenMap.put("essential", false);
+
+        userinfo.put("userinfoKey", Arrays.asList(userinfoMap));
+        id_token.put("idTokenKey", idTokenMap);
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
@@ -192,7 +205,7 @@ public class ConsentServiceImplTest {
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setId(UUID.randomUUID());
         consentDetail.setClientId("1234");
-        consentDetail.setClaims("{\"userinfo\":{\"given_name\":{\"essential\":true},\"phone_number\":null,\"email\":{\"essential\":true},\"picture\":{\"essential\":false},\"gender\":{\"essential\":false}},\"id_token\":{}}");
+        consentDetail.setClaims("{\"userinfo\":{\"given_name\":[{\"essential\":true}],\"phone_number\":null,\"email\":[{\"essential\":true}],\"picture\":[{\"essential\":false}],\"gender\":[{\"essential\":false}]},\"id_token\":{}}");
         consentDetail.setCreatedtimes(LocalDateTime.now());
         consentDetail.setPsuToken("psuValue");
         consentDetail.setExpiredtimes(LocalDateTime.now());

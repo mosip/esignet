@@ -17,7 +17,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ClaimDetail extends VerifiedClaimDetail implements Serializable {
+public class ClaimDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private String value;
@@ -26,11 +26,5 @@ public class ClaimDetail extends VerifiedClaimDetail implements Serializable {
 
     @Purpose
     private String purpose;
-
-    public ClaimDetail(String value, String[] values, boolean essential) {
-        this.value = value;
-        this.values = values;
-        this.essential = essential;
-    }
 
 }

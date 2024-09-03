@@ -10,14 +10,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import io.mosip.esignet.api.dto.*;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
-import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
@@ -29,6 +28,7 @@ import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -88,6 +88,9 @@ public class AuthorizationHelperService {
 
     @Autowired
     private CaptchaHelper captchaHelper;
+
+    @Autowired
+    private ClaimsHelperService claimsHelperService;
 
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
@@ -171,21 +174,6 @@ public class AuthorizationHelperService {
         }
     }
 
-    protected Map<String, List> getClaimNames(Claims resolvedClaims) {
-        List<String> essentialClaims = new ArrayList<>();
-        List<String> voluntaryClaims = new ArrayList<>();
-        for(Map.Entry<String, ClaimDetail> claim : resolvedClaims.getUserinfo().entrySet()) {
-            if(claim.getValue() != null && claim.getValue().isEssential())
-                essentialClaims.add(claim.getKey());
-            else
-                voluntaryClaims.add(claim.getKey());
-        }
-        Map<String, List> result = new HashMap<>();
-        result.put(ESSENTIAL, essentialClaims);
-        result.put(VOLUNTARY, voluntaryClaims);
-        return result;
-    }
-
     protected List<String> getAuthorizeScopes(String requestedScopes) {
         String[] scopes = IdentityProviderUtil.splitAndTrimValue(requestedScopes, SPACE);
         return Arrays.stream(scopes)
@@ -207,7 +195,7 @@ public class AuthorizationHelperService {
         try {
             KycAuthDto kycAuthDto = new KycAuthDto(transaction.getAuthTransactionId(), individualId, challengeList);
             kycAuthResult = authenticationWrapper.doKycAuth(transaction.getRelyingPartyId(), transaction.getClientId(),
-                    isVerifiedClaimRequested(transaction), kycAuthDto);
+                    claimsHelperService.isVerifiedClaimRequested(transaction), kycAuthDto);
         } catch (KycAuthException e) {
             log.error("KYC auth failed for transaction : {}", transactionId, e);
             throw new EsignetException(e.getErrorCode());
@@ -262,40 +250,6 @@ public class AuthorizationHelperService {
         throw new EsignetException(AUTH_FAILED);
     }
 
-    /**
-     * This method is used to validate the requested claims against the accepted claims
-     * <ul>
-     *     <li>Checks Performed</li>
-     *     <ul>
-     *         <li>accepted Claims should be subset of requested claims</li>
-     *         <li>essential Claims should be a subset of accepted claims</li>
-     *     </ul>
-     * </ul>
-     *
-     * @param transaction object containg OIDC transaction details
-     * @param acceptedClaims list of accepted claims
-     * @throws EsignetException
-     *
-     */
-    protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws EsignetException {
-        Map<String, ClaimDetail> userinfo = Optional.ofNullable(transaction.getRequestedClaims())
-                .map(Claims::getUserinfo)
-                .orElse(Collections.emptyMap());
-
-        List<String> essentialClaims = userinfo.entrySet().stream()
-                .filter(e -> Optional.ofNullable(e.getValue()).map(ClaimDetail::isEssential).orElse(false))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        Set<String> allRequestedClaims = userinfo.keySet();
-        Set<String> acceptedClaimsSet = new HashSet<>(Optional.ofNullable(acceptedClaims).orElse(Collections.emptyList()));
-
-        if (essentialClaims.stream().anyMatch(c -> !acceptedClaimsSet.contains(c))
-                || !allRequestedClaims.containsAll(acceptedClaimsSet)) {
-            throw new EsignetException(INVALID_ACCEPTED_CLAIM);
-        }
-    }
-
     protected void validatePermittedScopes(OIDCTransaction transaction, List<String> permittedScopes) throws EsignetException {
         if(CollectionUtils.isEmpty(permittedScopes))
             return;
@@ -333,7 +287,7 @@ public class AuthorizationHelperService {
 
     protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(OIDCTransaction transaction, List<AuthChallenge> challengeList) throws EsignetException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
-                transaction.getRequestedClaims().getId_token().get(ACR).getValues());
+                (String[]) transaction.getRequestedClaims().getId_token().get(ACR).get("values"));
         List<String> providedAuthFactors = challengeList.stream()
                 .map(AuthChallenge::getAuthFactorType)
                 .collect(Collectors.toList());
@@ -438,11 +392,20 @@ public class AuthorizationHelperService {
         throw new EsignetException(NO_UNIQUE_ALIAS);
     }
 
-    private boolean isVerifiedClaimRequested(OIDCTransaction transaction) {
-        return transaction.getRequestedClaims().getUserinfo() != null &&
-                transaction.getRequestedClaims().getUserinfo()
-                .entrySet()
-                .stream()
-                .anyMatch( entry -> entry.getValue() != null && entry.getValue().getVerification() != null);
+    protected String validateAndGetSubject(String clientId, String idTokenHint) {
+        try {
+            String[] jwtParts = idTokenHint.split("\\.");
+            if (jwtParts.length == 3) {
+                String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
+                JSONObject payloadJson = new JSONObject(payload);
+                String audience = payloadJson.getString(TokenService.AUD);
+                if(!signupIDTokenAudience.equals(audience) && signupIDTokenAudience.equals(clientId))
+                    throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                return payloadJson.getString(TokenService.SUB);
+            }
+        } catch (Exception e) {
+            log.error("Failed to parse the given IDTokenHint as JWT", e);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
     }
 }

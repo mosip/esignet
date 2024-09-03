@@ -5,11 +5,8 @@
  */
 package io.mosip.esignet.api.dto;
 
-import io.mosip.esignet.api.util.ErrorConstants;
 import io.mosip.esignet.api.validator.AuthChallengeFactorFormat;
 import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 
 @Data
 @AuthChallengeFactorFormat
