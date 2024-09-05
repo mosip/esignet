@@ -128,9 +128,9 @@ public class ValidatorTest {
     public void authChallengeFactorFormatValidator_withKBIAuthFactor_thenPass() {
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"objectMapper",new ObjectMapper());
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"idField","individualId");
-        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","")
-                ,Map.of("id","fullName","type","","format","","regex","")
-                , Map.of("id","dateOfBirth","type","date","format","yyyy-MM-dd","regex",""));
+        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","^\\d+$")
+                ,Map.of("id","fullName","type","","format","","regex","^[\\p{L} .'-]+$")
+                , Map.of("id","dateOfBirth","type","date","format","yyyy-MM-dd","regex","^(\\\\d{4})-(\\\\d{2})-(\\\\d{2})$"));
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldDetailList", fieldDetailList);
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("KBI");
@@ -147,9 +147,9 @@ public class ValidatorTest {
     public void authChallengeFactorFormatValidator_withInvalidKBIChallenge_thenFail() {
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"objectMapper",new ObjectMapper());
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"idField","individualId");
-        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","")
-                ,Map.of("id","fullName","type","","format","","regex","")
-                , Map.of("id","dateOfBirth","type","date","format","yyyy-MM-dd","regex",""));
+        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","^\\d+$")
+                ,Map.of("id","fullName","type","","format","","regex","^[\\p{L} .'-]+$")
+                , Map.of("id","dateOfBirth","type","date","format","yyyy-MM-dd","regex","^(\\\\d{4})-(\\\\d{2})-(\\\\d{2})$"));
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldDetailList", fieldDetailList);
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("KBI");
@@ -166,9 +166,9 @@ public class ValidatorTest {
     public void authChallengeFactorFormatValidator_withKBIInvalidRegex_thenFail() {
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"objectMapper",new ObjectMapper());
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"idField","individualId");
-        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","")
-                ,Map.of("id","fullName","type","text","format","","regex","")
-                , Map.of("id","dob","type","text","format","yyyy-MM-dd","regex",""));
+        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","^\\d+$")
+                ,Map.of("id","fullName","type","text","format","","regex","^\\d+$")
+                , Map.of("id","dob","type","text","format","yyyy-MM-dd","regex","^\\d+$"));
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldDetailList", fieldDetailList);
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("KBI");
@@ -185,9 +185,9 @@ public class ValidatorTest {
     public void authChallengeFactorFormatValidator_withEmptyName_thenFail() {
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"objectMapper",new ObjectMapper());
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"idField","individualId");
-        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","")
-                ,Map.of("id","fullName","type","text","format","","regex","")
-                , Map.of("id","dob","type","text","format","yyyy-MM-dd","regex",""));
+        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","^\\d+$")
+                ,Map.of("id","fullName","type","text","format","","regex","^[\\p{L} .'-]+$")
+                , Map.of("id","dob","type","text","format","yyyy-MM-dd","regex","^(\\\\d{4})-(\\\\d{2})-(\\\\d{2})$"));
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldDetailList", fieldDetailList);
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("KBI");
@@ -204,9 +204,9 @@ public class ValidatorTest {
     public void authChallengeFactorFormatValidator_withMaximumLength_thenFail1() {
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"objectMapper",new ObjectMapper());
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator,"idField","individualId");
-        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","")
-                ,Map.of("id","fullName","type","text","format","","regex","","maxLength","10")
-                , Map.of("id","dob","type","text","format","yyyy-MM-dd","regex",""));
+        List<Map<String,String>> fieldDetailList = List.of(Map.of("id","individualId","type","text","format","string","regex","^\\d+$")
+                ,Map.of("id","fullName","type","text","format","","regex","^[\\p{L} .'-]+$","maxLength","10")
+                , Map.of("id","dob","type","text","format","yyyy-MM-dd","regex","^(\\\\d{4})-(\\\\d{2})-(\\\\d{2})$"));
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldDetailList", fieldDetailList);
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("KBI");
