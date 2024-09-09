@@ -10,12 +10,25 @@ function initialize_db() {
   NS=esignet
   CHART_VERSION=0.0.1-develop
   helm repo update
+
   while true; do
-      read -p "CAUTION: all existing data for mosip_esignet will be lost. Are you sure?(Y/n)" yn
+      read -p "Please confirm once values-init.yaml is updated correctly with tag, postgres host, and password details. (Y/n): " ans
+      if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
+          break
+      elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
+          exit
+      else
+          echo "Please provide a correct option (Y or N)"
+      fi
+  done
+
+  while true; do
+      read -p "CAUTION: all existing data if any for mosip_esignet will be lost. Are you sure?(Y/n)" yn
       if [ $yn = "Y" ]
         then
-          echo Removing existing mosip_esignet installation
+          echo Removing existing mosip_esignet installation and secret
           helm -n $NS delete esignet-postgres-init || true
+          kubectl delete secret db-common-secrets -n $NS || true
           echo Initializing DB
           helm -n $NS install esignet-postgres-init mosip/postgres-init --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
           break
