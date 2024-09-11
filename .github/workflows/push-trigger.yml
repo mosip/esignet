@@ -84,7 +84,25 @@ jobs:
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
+  build-oidc-ui:
+    uses: mosip/kattu/.github/workflows/npm-build.yml@master
+    with:
+      SERVICE_LOCATION: ./oidc-ui
+      BUILD_ARTIFACT: oidc-ui
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+  sonar-analysis:
+    needs: build-oidc-ui
+    if: "${{ github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/npm-sonar-analysis.yml@master
+    with:
+      SERVICE_LOCATION: oidc-ui
+      SONAR_URL: 'https://sonarcloud.io'
+      PROJECT_KEY: "mosip_${{ github.event.repository.name }}"
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
   build-dockers-oidc-ui:
     strategy:
       matrix:
