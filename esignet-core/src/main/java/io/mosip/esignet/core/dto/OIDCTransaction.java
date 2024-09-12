@@ -7,7 +7,6 @@ package io.mosip.esignet.core.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.mosip.esignet.api.dto.claim.Claims;
-import io.mosip.esignet.api.dto.claim.VerificationDetail;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.Data;
@@ -68,6 +67,6 @@ public class OIDCTransaction implements Serializable {
     List<String> requestedCredentialScopes;
 
     boolean isInternalAuthSuccess;
-    Map<String, List<VerificationDetail>> claimMetadata;
+    Map<String, List<JsonNode>> claimMetadata;
     Map<String, JsonNode> requestedClaimDetails;
 }

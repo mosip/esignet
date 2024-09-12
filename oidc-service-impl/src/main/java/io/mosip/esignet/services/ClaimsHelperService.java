@@ -158,7 +158,7 @@ public class ClaimsHelperService {
 
 
     protected ClaimStatus getClaimStatus(String claim, List<Map<String, Object>> claimDetails, Map<String,
-            List<VerificationDetail>> storedVerificationMetadata) {
+            List<JsonNode>> storedVerificationMetadata) {
         if(storedVerificationMetadata == null || storedVerificationMetadata.isEmpty())
             return new ClaimStatus(claim, false, false);
 
@@ -167,7 +167,7 @@ public class ClaimsHelperService {
             return new ClaimStatus(claim, false, storedVerificationMetadata.containsKey(claim));
 
         log.info("Request to fetch verification metadata for {} with filter criteria : {}", claim, claimDetails);
-        List<VerificationDetail> storedVerificationDetails = storedVerificationMetadata.get(claim);
+        List<JsonNode> storedVerificationDetails = storedVerificationMetadata.get(claim);
 
         //if the claim key is present but the value is null or empty then it is considered to be available, and not verified
         if(storedVerificationDetails == null)
@@ -183,15 +183,16 @@ public class ClaimsHelperService {
         return new ClaimStatus(claim, verified, true);
     }
 
-    private boolean applyFilterOnStoredVerificationMetadata(VerificationDetail storedVerificationDetail,
+    //TODO Add matcher for assurance_process and evidence
+    private boolean applyFilterOnStoredVerificationMetadata(JsonNode storedVerificationDetail,
                                                             List<Map<String, Object>> requestedClaimDetails) {
         return requestedClaimDetails.stream()
-                .anyMatch( m -> filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "trust_framework", storedVerificationDetail.getTrust_framework()) &&
-                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "time", storedVerificationDetail.getTime()) &&
-                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "verification_process", storedVerificationDetail.getVerification_process()) &&
-                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "assurance_level", storedVerificationDetail.getAssurance_level()) &&
-                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), storedVerificationDetail.getAssurance_process()) &&
-                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), storedVerificationDetail.getEvidence()) );
+                .anyMatch( m -> filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "trust_framework", storedVerificationDetail) &&
+                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "time", storedVerificationDetail) &&
+                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "verification_process", storedVerificationDetail) &&
+                        filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), "assurance_level", storedVerificationDetail));
+                        //filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), storedVerificationDetail.getAssurance_process()) &&
+                        //filterCriteriaMatcher.doMatch((Map<String, Object>)m.get("verification"), storedVerificationDetail.getEvidence()) );
     }
 
 

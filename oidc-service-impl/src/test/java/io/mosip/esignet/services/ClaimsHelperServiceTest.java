@@ -8,9 +8,9 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
-import io.mosip.esignet.api.dto.claim.VerificationDetail;
 import io.mosip.esignet.api.util.FilterCriteriaMatcher;
 import io.mosip.esignet.core.dto.ClaimStatus;
 import io.mosip.esignet.core.dto.ClientDetail;
@@ -318,7 +318,7 @@ public class ClaimsHelperServiceTest {
         Assert.assertFalse(nameClaimStatus.isAvailable());
         Assert.assertFalse(nameClaimStatus.isVerified());
 
-        Map<String, List<VerificationDetail>> storedVerificationMetadata = new HashMap<>();
+        Map<String, List<JsonNode>> storedVerificationMetadata = new HashMap<>();
         storedVerificationMetadata.put("gender", null);
         storedVerificationMetadata.put("email", Arrays.asList());
         ClaimStatus genderClaimStatus = claimsHelperService.getClaimStatus("gender", claims.getUserinfo().get("gender"), storedVerificationMetadata);
@@ -335,13 +335,13 @@ public class ClaimsHelperServiceTest {
 
     @Test
     public void getClaimStatus_withValidClaims_thenPass() throws JsonProcessingException {
-        Map<String, List<VerificationDetail>> storedVerificationMetadata = new HashMap<>();
-        VerificationDetail verificationDetailA = new VerificationDetail();
-        verificationDetailA.setTrust_framework("GOI");
-        verificationDetailA.setTime(IdentityProviderUtil.getUTCDateTime());
-        VerificationDetail verificationDetailB = new VerificationDetail();
-        verificationDetailB.setTrust_framework("GOK");
-        verificationDetailB.setTime(IdentityProviderUtil.getUTCDateTime());
+        Map<String, List<JsonNode>> storedVerificationMetadata = new HashMap<>();
+        ObjectNode verificationDetailA = objectMapper.createObjectNode();
+        verificationDetailA.put("trust_framework", "GOI");
+        verificationDetailA.put("time",IdentityProviderUtil.getUTCDateTime());
+        ObjectNode verificationDetailB = objectMapper.createObjectNode();
+        verificationDetailB.put("trust_framework", "GOK");
+        verificationDetailB.put("time",IdentityProviderUtil.getUTCDateTime());
         storedVerificationMetadata.put("name", Arrays.asList(verificationDetailA, verificationDetailB));
         storedVerificationMetadata.put("gender", Arrays.asList());
 
@@ -388,13 +388,13 @@ public class ClaimsHelperServiceTest {
 
     @Test
     public void getClaimStatus_withDifferentStoredClaimMetadata_thenPass() throws JsonProcessingException {
-        Map<String, List<VerificationDetail>> storedVerificationMetadata = new HashMap<>();
-        VerificationDetail verificationDetailA = new VerificationDetail();
-        verificationDetailA.setTrust_framework("GOI");
-        verificationDetailA.setTime(IdentityProviderUtil.getUTCDateTime());
-        VerificationDetail verificationDetailB = new VerificationDetail();
-        verificationDetailB.setTrust_framework("GOK");
-        verificationDetailB.setTime(IdentityProviderUtil.getUTCDateTime());
+        Map<String, List<JsonNode>> storedVerificationMetadata = new HashMap<>();
+        ObjectNode verificationDetailA = objectMapper.createObjectNode();
+        verificationDetailA.put("trust_framework","GOI");
+        verificationDetailA.put("time",IdentityProviderUtil.getUTCDateTime());
+        ObjectNode verificationDetailB = objectMapper.createObjectNode();
+        verificationDetailB.put("trust_framework","GOK");
+        verificationDetailB.put("time",IdentityProviderUtil.getUTCDateTime());
         storedVerificationMetadata.put("name", Arrays.asList(verificationDetailA, verificationDetailB));
         storedVerificationMetadata.put("gender", Arrays.asList());
 
