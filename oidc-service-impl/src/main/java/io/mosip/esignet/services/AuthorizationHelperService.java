@@ -287,7 +287,7 @@ public class AuthorizationHelperService {
 
     protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(OIDCTransaction transaction, List<AuthChallenge> challengeList) throws EsignetException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
-                (String[]) transaction.getRequestedClaims().getId_token().get(ACR).get("values"));
+                (String[]) transaction.getResolvedClaims().getId_token().get(ACR).get("values"));
         List<String> providedAuthFactors = challengeList.stream()
                 .map(AuthChallenge::getAuthFactorType)
                 .collect(Collectors.toList());

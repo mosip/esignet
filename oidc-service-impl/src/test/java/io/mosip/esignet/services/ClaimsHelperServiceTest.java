@@ -100,7 +100,7 @@ public class ClaimsHelperServiceTest {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setUserinfo(new HashMap<>());
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "gender"));
             Assert.fail();
@@ -124,7 +124,7 @@ public class ClaimsHelperServiceTest {
         userinfoClaims.put("gender", null);
         resolvedClaims.setUserinfo(userinfoClaims);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("email", "phone_number"));
             Assert.fail();
@@ -148,7 +148,7 @@ public class ClaimsHelperServiceTest {
         userinfoClaims.put("gender", null);
         resolvedClaims.setUserinfo(userinfoClaims);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "birthdate"));
     }
 
@@ -167,7 +167,7 @@ public class ClaimsHelperServiceTest {
         userinfoClaims.put("gender", null);
         resolvedClaims.setUserinfo(userinfoClaims);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         claimsHelperService.validateAcceptedClaims(oidcTransaction, List.of());
     }
 
@@ -186,7 +186,7 @@ public class ClaimsHelperServiceTest {
         userinfoClaims.put("gender", null);
         resolvedClaims.setUserinfo(userinfoClaims);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         oidcTransaction.setEssentialClaims(Arrays.asList("name", "birthdate"));
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "address"));
@@ -211,7 +211,7 @@ public class ClaimsHelperServiceTest {
         userinfoClaims.put("gender", null);
         resolvedClaims.setUserinfo(userinfoClaims);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("email", "phone_number"));
             Assert.fail();
@@ -221,7 +221,7 @@ public class ClaimsHelperServiceTest {
     }
 
     @Test
-    public void getRequestedClaims_withoutOpenidScope_thenFail() {
+    public void resolveRequestedClaims_withoutOpenidScope_thenFail() {
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
 
         ClaimsV2 claimsV2 = new ClaimsV2();
@@ -232,7 +232,7 @@ public class ClaimsHelperServiceTest {
         oAuthDetailRequest.setClaims(claimsV2);
 
         try {
-            claimsHelperService.getRequestedClaims(oAuthDetailRequest, new ClientDetail());
+            claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, new ClientDetail());
             Assert.fail();
         } catch (EsignetException e) {
             Assert.assertEquals(INVALID_SCOPE, e.getErrorCode());
@@ -240,7 +240,7 @@ public class ClaimsHelperServiceTest {
     }
 
     @Test
-    public void getRequestedClaims_withValidVerifiedClaims_thenPass() throws JsonProcessingException {
+    public void resolveRequestedClaims_withValidVerifiedClaims_thenPass() throws JsonProcessingException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setClaims(Arrays.asList("name", "gender"));
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
@@ -254,7 +254,7 @@ public class ClaimsHelperServiceTest {
 
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
-        Claims claims = claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+        Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
         Assert.assertNotNull(claims);
         Assert.assertEquals(2, claims.getUserinfo().size());
         Assert.assertTrue(claims.getUserinfo().containsKey("name"));
@@ -266,7 +266,7 @@ public class ClaimsHelperServiceTest {
     }
 
     @Test
-    public void getRequestedClaims_withValidVerifiedClaimList_thenPass() throws JsonProcessingException {
+    public void resolveRequestedClaims_withValidVerifiedClaimList_thenPass() throws JsonProcessingException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setClaims(Arrays.asList("name", "gender", "email"));
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
@@ -281,7 +281,7 @@ public class ClaimsHelperServiceTest {
 
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
-        Claims claims = claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+        Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
         Assert.assertNotNull(claims);
         Assert.assertEquals(3, claims.getUserinfo().size());
         Assert.assertTrue(claims.getUserinfo().containsKey("name"));
@@ -310,7 +310,7 @@ public class ClaimsHelperServiceTest {
 
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
-        Claims claims = claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+        Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         ClaimStatus nameClaimStatus = claimsHelperService.getClaimStatus("name", claims.getUserinfo().get("name"), null);
         Assert.assertNotNull(nameClaimStatus);
@@ -359,7 +359,7 @@ public class ClaimsHelperServiceTest {
 
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
-        Claims claims = claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+        Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         ClaimStatus nameClaimStatus = claimsHelperService.getClaimStatus("name", claims.getUserinfo().get("name"), storedVerificationMetadata);
         Assert.assertNotNull(nameClaimStatus);
@@ -412,7 +412,7 @@ public class ClaimsHelperServiceTest {
 
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
-        Claims claims = claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+        Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         ClaimStatus nameClaimStatus = claimsHelperService.getClaimStatus("name", claims.getUserinfo().get("name"), storedVerificationMetadata);
         Assert.assertNotNull(nameClaimStatus);
@@ -437,10 +437,10 @@ public class ClaimsHelperServiceTest {
 
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
-        Claims claims = claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+        Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
         Assert.assertTrue(claimsHelperService.isVerifiedClaimRequested(oidcTransaction));
     }
 
@@ -458,15 +458,15 @@ public class ClaimsHelperServiceTest {
 
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
-        Claims claims = claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+        Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
         Assert.assertFalse(claimsHelperService.isVerifiedClaimRequested(oidcTransaction));
     }
 
     @Test
-    public void getRequestedClaims_withInvalidVerifiedClaims_thenFail() throws JsonProcessingException {
+    public void resolveRequestedClaims_withInvalidVerifiedClaims_thenFail() throws JsonProcessingException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setClaims(Arrays.asList("name", "gender", "email"));
         OAuthDetailRequest oAuthDetailRequest = new OAuthDetailRequest();
@@ -481,7 +481,7 @@ public class ClaimsHelperServiceTest {
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
         try {
-            claimsHelperService.getRequestedClaims(oAuthDetailRequest, clientDetail);
+            claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
             Assert.fail();
         } catch (EsignetException e) {
             Assert.assertEquals(INVALID_VERIFICATION, e.getErrorCode());
