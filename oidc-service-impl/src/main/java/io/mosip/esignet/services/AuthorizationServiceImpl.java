@@ -272,12 +272,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         List<ClaimStatus> list = new ArrayList<>();
 
         log.debug("Get claims status based on stored claim metadata : {}", transaction.getClaimMetadata());
-        for(Map.Entry<String, List<Map<String, Object>>> entry : transaction.getRequestedClaims().getUserinfo().entrySet()) {
+        for(Map.Entry<String, List<Map<String, Object>>> entry : transaction.getResolvedClaims().getUserinfo().entrySet()) {
             list.add(claimsHelperService.getClaimStatus(entry.getKey(), entry.getValue(), transaction.getClaimMetadata()));
         }
 
         //Profile update is mandated only if any essential verified claim is requested
-        boolean isEssentialVerifiedClaimRequested = transaction.getRequestedClaims().getUserinfo()
+        boolean isEssentialVerifiedClaimRequested = transaction.getResolvedClaims().getUserinfo()
                 .entrySet()
                 .stream()
                 .anyMatch( entry -> entry.getValue().stream()
@@ -399,7 +399,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
 
         //Resolve the final set of claims based on registered and request parameter.
-        Claims resolvedClaims = claimsHelperService.getRequestedClaims(oauthDetailReqDto, clientDetailDto);
+        Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
         resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(),
                 oauthDetailReqDto.getAcrValues(),
@@ -427,7 +427,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
         oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
         oidcTransaction.setClientId(clientDetailDto.getId());
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         oidcTransaction.setRequestedAuthorizeScopes(oAuthDetailResponse.getAuthorizeScopes());
         oidcTransaction.setNonce(oauthDetailReqDto.getNonce());
         oidcTransaction.setState(oauthDetailReqDto.getState());
@@ -438,6 +438,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setServerNonce(UUID.randomUUID().toString());
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         oidcTransaction.setInternalAuthSuccess(false);
+        oidcTransaction.setRequestedClaimDetails(oauthDetailReqDto.getClaims()!=null? oauthDetailReqDto.getClaims().getUserinfo() : null);
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 

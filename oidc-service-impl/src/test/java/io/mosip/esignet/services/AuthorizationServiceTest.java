@@ -1346,7 +1346,7 @@ public class AuthorizationServiceTest {
         nameMap.put("essential", true);
     	userinfo.put("fullName", Arrays.asList(nameMap));
 		requestedClaims.setUserinfo(userinfo);
-		transaction.setRequestedClaims(requestedClaims);
+		transaction.setResolvedClaims(requestedClaims);
 		Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 		Mockito.when(cacheUtilService.setAuthCodeGeneratedTransaction(Mockito.anyString(), Mockito.any())).thenReturn(transaction);
 		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getNonce(), "test-nonce");
@@ -1378,7 +1378,7 @@ public class AuthorizationServiceTest {
         map.put("verification", new HashMap<>());
         resolvedClaims.getUserinfo().put("name", Arrays.asList(map));
 
-        transaction.setRequestedClaims(resolvedClaims);
+        transaction.setResolvedClaims(resolvedClaims);
         transaction.setEssentialClaims(List.of("name", "email"));
         transaction.setVoluntaryClaims(List.of("phone_number"));
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
@@ -1484,7 +1484,7 @@ public class AuthorizationServiceTest {
         idClaims.put(ACR, map);
         Claims requestedClaims = new Claims();
         requestedClaims.setId_token(idClaims);
-        oidcTransaction.setRequestedClaims(requestedClaims);
+        oidcTransaction.setResolvedClaims(requestedClaims);
         oidcTransaction.setClientId("test-client");
         oidcTransaction.setRelyingPartyId("test-rp-client");
         return oidcTransaction;

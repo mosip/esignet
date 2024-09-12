@@ -34,7 +34,6 @@ import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_ACCEPTED_CL
 @Component
 public class ClaimsHelperService {
 
-    private static final String VERIFIED_CLAIMS = "verified_claims";
 
     @Value("#{${mosip.esignet.openid.scope.claims}}")
     private Map<String, List<String>> claims;
@@ -61,7 +60,7 @@ public class ClaimsHelperService {
     }
 
 
-    protected Claims getRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)
+    protected Claims resolveRequestedClaims(OAuthDetailRequest oauthDetailRequest, ClientDetail clientDetailDto)
             throws EsignetException {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setUserinfo(new HashMap<>());
@@ -119,8 +118,8 @@ public class ClaimsHelperService {
     }
 
     protected boolean isVerifiedClaimRequested(OIDCTransaction transaction) {
-        return transaction.getRequestedClaims().getUserinfo() != null &&
-                transaction.getRequestedClaims().getUserinfo()
+        return transaction.getResolvedClaims().getUserinfo() != null &&
+                transaction.getResolvedClaims().getUserinfo()
                         .entrySet()
                         .stream()
                         .anyMatch( entry -> entry.getValue().stream().anyMatch( m-> m.get("verification") != null));
@@ -142,7 +141,7 @@ public class ClaimsHelperService {
      *
      */
     protected void validateAcceptedClaims(OIDCTransaction transaction, List<String> acceptedClaims) throws EsignetException {
-        Map<String, List<Map<String,Object>>> userinfo = Optional.ofNullable(transaction.getRequestedClaims())
+        Map<String, List<Map<String,Object>>> userinfo = Optional.ofNullable(transaction.getResolvedClaims())
                 .map(Claims::getUserinfo)
                 .orElse(Collections.emptyMap());
 

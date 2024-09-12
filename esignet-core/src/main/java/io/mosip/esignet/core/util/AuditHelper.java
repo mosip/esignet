@@ -32,7 +32,7 @@ public class AuditHelper {
         if(transaction != null) {
             auditDTO.setRelyingPartyId(transaction.getRelyingPartyId());
             auditDTO.setClientId(transaction.getClientId());
-            auditDTO.setRequestedClaims(transaction.getRequestedClaims());
+            auditDTO.setRequestedClaims(transaction.getResolvedClaims());
             auditDTO.setRequestedAuthorizeScopes(transaction.getRequestedAuthorizeScopes());
             auditDTO.setRedirectUri(transaction.getRedirectUri());
             auditDTO.setClaimsLocales(transaction.getClaimsLocales());

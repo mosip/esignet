@@ -50,4 +50,5 @@ public class Constants {
     public static final String SERVER_NONCE_SEPARATOR = "~###~";
     public static final String RESUMED = "RESUMED";
     public static final String RESUME_NOT_APPLICABLE = "RESUME_NOT_APPLICABLE";
+    public static final String VERIFIED_CLAIMS = "verified_claims";
 }

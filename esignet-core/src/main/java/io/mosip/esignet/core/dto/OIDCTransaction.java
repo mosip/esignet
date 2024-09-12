@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.claim.VerificationDetail;
 import io.mosip.esignet.api.util.ConsentAction;
@@ -26,7 +27,7 @@ public class OIDCTransaction implements Serializable {
     String clientId;
     String relyingPartyId;
     String redirectUri;
-    Claims requestedClaims;
+    Claims resolvedClaims;
     List<String> essentialClaims;
     List<String> voluntaryClaims;
     List<String> requestedAuthorizeScopes;
@@ -68,4 +69,5 @@ public class OIDCTransaction implements Serializable {
 
     boolean isInternalAuthSuccess;
     Map<String, List<VerificationDetail>> claimMetadata;
+    Map<String, JsonNode> requestedClaimDetails;
 }

@@ -102,7 +102,7 @@ public class ConsentHelperService {
             UserConsent userConsent = new UserConsent();
             userConsent.setClientId(transaction.getClientId());
             userConsent.setPsuToken(transaction.getPartnerSpecificUserToken());
-            Claims claims = transaction.getRequestedClaims();
+            Claims claims = transaction.getResolvedClaims();
             List<String> acceptedClaims = transaction.getAcceptedClaims();
             Map<String, Object> normalizedClaims = new HashMap<>();
             normalizedClaims.put("userinfo", normalizeUserInfoClaims(claims.getUserinfo()));
@@ -196,8 +196,8 @@ public class ConsentHelperService {
             Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
                     .collect(Collectors.toMap(Function.identity(), s->false)) : Collections.emptyMap();
             Map<String, Object> normalizedClaims = new HashMap<>();
-            normalizedClaims.put("userinfo", normalizeUserInfoClaims(transaction.getRequestedClaims().getUserinfo()));
-            normalizedClaims.put("id_token", normalizeIdTokenClaims(transaction.getRequestedClaims().getId_token()));
+            normalizedClaims.put("userinfo", normalizeUserInfoClaims(transaction.getResolvedClaims().getUserinfo()));
+            normalizedClaims.put("id_token", normalizeIdTokenClaims(transaction.getResolvedClaims().getId_token()));
             hash = hashUserConsent(normalizedClaims, authorizeScopes);
         } catch (JsonProcessingException e) {
             log.error("Failed to hash the user consent", e);

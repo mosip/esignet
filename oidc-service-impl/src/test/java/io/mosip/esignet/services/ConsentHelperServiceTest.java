@@ -143,7 +143,7 @@ public class ConsentHelperServiceTest {
         oidcTransaction.setAcceptedClaims(Arrays.asList("name","email","gender"));
         oidcTransaction.setPermittedScopes(Arrays.asList("openid","profile","email"));
         oidcTransaction.setRequestedAuthorizeScopes(Arrays.asList("openid","profile","email"));
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
 
         List<String> acceptedClaims =oidcTransaction.getAcceptedClaims();
         List<String> permittedScopes =oidcTransaction.getPermittedScopes();
@@ -196,7 +196,7 @@ public class ConsentHelperServiceTest {
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
 
         Mockito.when(consentService.saveUserConsent(Mockito.any())).thenReturn(new ConsentDetail());
 
@@ -259,7 +259,7 @@ public class ConsentHelperServiceTest {
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
 
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(oidcTransaction.getClientId());
@@ -336,7 +336,7 @@ public class ConsentHelperServiceTest {
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
 
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(oidcTransaction.getClientId());
@@ -446,7 +446,7 @@ public class ConsentHelperServiceTest {
         claims.setUserinfo(userinfo);
         claims.setId_token(id_token);
 
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
 
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId(oidcTransaction.getClientId());

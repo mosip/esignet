@@ -223,7 +223,7 @@ public class LinkedAuthorizationServiceTest {
         claims.setUserinfo(userinfoMap);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setClientId("client-id");
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
 
         LinkTransactionMetadata linkTransactionMetadata = new LinkTransactionMetadata(transactionId, null);
         Mockito.when(cacheUtilService.getLinkCodeGenerated(Mockito.anyString())).thenReturn(linkTransactionMetadata);
@@ -291,7 +291,7 @@ public class LinkedAuthorizationServiceTest {
         claims.setUserinfo(userinfoMap);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setClientId("client-id");
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
 
         LinkTransactionMetadata linkTransactionMetadata = new LinkTransactionMetadata(transactionId, null);
         Mockito.when(cacheUtilService.getLinkCodeGenerated(Mockito.anyString())).thenReturn(linkTransactionMetadata);
@@ -650,7 +650,7 @@ public class LinkedAuthorizationServiceTest {
         idClaims.put(ACR, map);
         Claims requestedClaims = new Claims();
         requestedClaims.setId_token(idClaims);
-        oidcTransaction.setRequestedClaims(requestedClaims);
+        oidcTransaction.setResolvedClaims(requestedClaims);
         oidcTransaction.setClientId("test-client");
         oidcTransaction.setRelyingPartyId("test-rp-client");
         return oidcTransaction;
