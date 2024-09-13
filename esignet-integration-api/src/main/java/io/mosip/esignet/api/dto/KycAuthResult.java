@@ -5,7 +5,7 @@
  */
 package io.mosip.esignet.api.dto;
 
-import io.mosip.esignet.api.dto.claim.VerificationDetail;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,7 @@ public class KycAuthResult {
 
     private String kycToken;
     private String partnerSpecificUserToken;
-    private Map<String, List<VerificationDetail>> claimsMetadata;
+    private Map<String, List<JsonNode>> claimsMetadata;
 
     public KycAuthResult(String kycToken, String partnerSpecificUserToken) {
         this.kycToken = kycToken;
