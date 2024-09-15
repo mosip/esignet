@@ -34,11 +34,6 @@ public class AuthContextClassRefUtilTest {
     AuthenticationContextClassRefUtil authenticationContextClassRefUtil = new AuthenticationContextClassRefUtil();
     ObjectMapper mapper = new ObjectMapper();
 
-    @Mock
-    RestTemplate restTemplate;
-    
-    @Mock
-    ObjectMapper objectMapper;
     
     private static final String amr_acr_mapping = "{\n" +
             "  \"amr\" : {\n" +
@@ -84,28 +79,6 @@ public class AuthContextClassRefUtilTest {
     
     @Test
     public void getAuthFactors_withValidAcr() throws EsignetException {
-        List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.
-                getAuthFactors(new String[] {"mosip:idp:acr:linked-wallet"});
-
-        Assert.assertNotNull(authFactors);
-        Assert.assertTrue(authFactors.size() == 1);
-
-        List<AuthenticationFactor> firstAuthFactor = authFactors.get(0);
-        Assert.assertNotNull(firstAuthFactor);
-        Assert.assertTrue(firstAuthFactor.size() == 1);
-        Assert.assertTrue(firstAuthFactor.get(0).getType().equals("INJI"));
-        Assert.assertTrue(firstAuthFactor.get(0).getCount() == 0);
-        Assert.assertNull(firstAuthFactor.get(0).getSubTypes());
-    }
-
-    @Test
-    public void getAuthFactors_withEmptyMappingJson() throws EsignetException {
-    	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingJson", null);
-    	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "mappingFileUrl", "https://test-url");
-    	ReflectionTestUtils.setField(authenticationContextClassRefUtil, "restTemplate", restTemplate);
-    	
-    	Mockito.when(restTemplate.getForObject(Mockito.anyString(), Mockito.any())).thenReturn(amr_acr_mapping);
-    	
         List<List<AuthenticationFactor>> authFactors = authenticationContextClassRefUtil.
                 getAuthFactors(new String[] {"mosip:idp:acr:linked-wallet"});
 

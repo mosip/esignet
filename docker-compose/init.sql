@@ -219,5 +219,19 @@ CREATE TABLE mockidentitysystem.mock_identity(
     CONSTRAINT pk_mock_id_code PRIMARY KEY (individual_id)
 );
 
+CREATE TABLE mockidentitysystem.verified_claim(
+    id VARCHAR(100) NOT NULL,
+	individual_id VARCHAR(36) NOT NULL,
+	claim VARCHAR NOT NULL,
+	trust_framework VARCHAR NOT NULL,
+	detail VARCHAR,
+	cr_by character varying(256) NOT NULL,
+    cr_dtimes timestamp NOT NULL,
+    upd_by character varying(256),
+    upd_dtimes timestamp,
+    is_active boolean DEFAULT TRUE,
+    CONSTRAINT pk_verified_claim_id PRIMARY KEY (id)
+);
+
 INSERT INTO mockidentitysystem.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('ROOT', 2920, 1125, 'NA', true, 'mosipadmin', now());
 INSERT INTO mockidentitysystem.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('MOCK_AUTHENTICATION_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());

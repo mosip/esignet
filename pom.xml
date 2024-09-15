@@ -109,7 +109,6 @@
         <module>client-management-service-impl</module>
         <module>oidc-service-impl</module>
 		<module>consent-service-impl</module>
-		<module>vci-service-impl</module>
     </modules>
 
 	<profiles>

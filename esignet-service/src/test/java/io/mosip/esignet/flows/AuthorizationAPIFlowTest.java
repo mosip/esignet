@@ -80,9 +80,6 @@ public class AuthorizationAPIFlowTest {
     ObjectMapper objectMapper;
 
     @Autowired
-    RestTemplate restTemplate;
-
-    @Autowired
     private ClientDetailRepository clientDetailRepository;
 
     @Autowired
@@ -100,13 +97,9 @@ public class AuthorizationAPIFlowTest {
     @Autowired
     AuditPlugin auditWrapper;
 
-    @Value("${mosip.esignet.amr-acr-mapping-file-url}")
-    private String mappingFileUrl;
-
     @Value("${mosip.esignet.mock.authenticator.policy-repo}")
     private String policyDir;
 
-    private MockRestServiceServer mockRestServiceServer;
     private String clientId = "healthservicev1";
     private String state = "er345agrR3T";
     private String nonce = "23424234TY";
@@ -115,26 +108,6 @@ public class AuthorizationAPIFlowTest {
     private JWK clientJWK = TestUtil.generateJWK_RSA();
     private boolean created = false;
 
-
-    @Before
-    public void init() throws Exception {
-        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
-        mockRestServiceServer.expect(requestTo(mappingFileUrl))
-                .andRespond(withSuccess("{\n" +
-                        "  \"amr\" : {\n" +
-                        "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
-                        "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
-                        "    \"WFA\" :  [{ \"type\": \"WFA\" }],\n" +
-                        "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
-                        "  },\n" +
-                        "  \"acr_amr\" : {\n" +
-                        "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
-                        "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
-                        "    \"mosip:idp:acr:linked-wallet\" : [ \"WFA\" ],\n" +
-                        "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
-                        "  }\n" +
-                        "}",  MediaType.APPLICATION_JSON_UTF8));
-    }
 
     @Test
     public void invalidClientId_thenFail() throws Exception {
