@@ -24,6 +24,12 @@
 		<jackson.databind>2.12.0</jackson.databind>
 		<fasterxml.jackson.module.jsr310.version>2.12.0</fasterxml.jackson.module.jsr310.version>
 		<fasterxml.jackson.module.afterburner.version>2.12.0</fasterxml.jackson.module.afterburner.version>
+
+		<esignet-plugins.location>target/esignet-plugins</esignet-plugins.location>
+		<esignet-mock-plugin.version>1.3.0-SNAPSHOT</esignet-mock-plugin.version>
+		<esignet-mock-plugin.fileName>esignet-mock-plugin.jar</esignet-mock-plugin.fileName>
+		<mosip-identity-plugin.version>1.3.0-SNAPSHOT</mosip-identity-plugin.version>
+		<mosip-identity-plugin.fileName>mosip-identity-plugin.jar</mosip-identity-plugin.fileName>
 	</properties>
 	
 	<dependencies>
@@ -71,11 +77,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.mosip.esignet</groupId>
-			<artifactId>vci-service-impl</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
@@ -110,6 +111,43 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>io.mosip.esignet</groupId>
+							<artifactId>mosip-identity-plugin</artifactId>
+							<version>${mosip-identity-plugin.version}</version>
+							<outputDirectory>${esignet-plugins.location}</outputDirectory>
+							<destFileName>${mosip-identity-plugin.fileName}</destFileName>
+							<type>jar</type>
+						</artifactItem>
+						<artifactItem>
+							<groupId>io.mosip.esignet</groupId>
+							<artifactId>mock-plugin</artifactId>
+							<version>${esignet-mock-plugin.version}</version>
+							<outputDirectory>${esignet-plugins.location}</outputDirectory>
+							<destFileName>${esignet-mock-plugin.fileName}</destFileName>
+							<type>jar</type>
+						</artifactItem>
+					</artifactItems>
+					<overWriteReleases>true</overWriteReleases>
+					<overWriteSnapshots>true</overWriteSnapshots>
+					<overWriteIfNewer>true</overWriteIfNewer>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

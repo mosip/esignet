@@ -11,7 +11,6 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
-import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
@@ -20,19 +19,16 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
-import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -75,12 +71,6 @@ public class AuthorizationControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
-
-    @MockBean
-    ParsedAccessToken parsedAccessToken;
-
-    @MockBean
-    VCICacheService vciCacheService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 

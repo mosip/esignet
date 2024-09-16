@@ -3,8 +3,6 @@ package io.mosip.esignet.controllers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
-import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +28,6 @@ public class CsrfControllerTest {
 
 	@MockBean
 	CacheUtilService cacheUtilService;
-
-	@MockBean
-	ParsedAccessToken parsedAccessToken;
-
-	@MockBean
-	VCICacheService vciCacheService;
 
 	ObjectMapper objectMapper = new ObjectMapper();
 
