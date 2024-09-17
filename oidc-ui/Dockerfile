@@ -1,6 +1,6 @@
 FROM node:12.18.4-alpine as build_esignet_ui
 
-ARG sign_in_with_esignet_plugin_url=https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip
+ARG sign_in_with_esignet_plugin_url='https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip'
 ENV SIGN_IN_WITH_ESIGNET_PLUGIN_URL=$sign_in_with_esignet_plugin_url
 
 # Set a build-time environment variable (replace YOUR_ENV_VARIABLE_NAME with the desired variable name)
