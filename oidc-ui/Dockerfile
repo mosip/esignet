@@ -1,8 +1,5 @@
 FROM node:12.18.4-alpine as build_esignet_ui
 
-ARG sign_in_with_esignet_plugin_url='https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip'
-ENV SIGN_IN_WITH_ESIGNET_PLUGIN_URL=$sign_in_with_esignet_plugin_url
-
 # Set a build-time environment variable (replace YOUR_ENV_VARIABLE_NAME with the desired variable name)
 ARG oidcUIPublicUrl
 ARG uiDefaultTheme
@@ -103,7 +100,7 @@ RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env \
     && echo "DEFAULT_FEVICON=$DEFAULT_FEVICON" >> ${work_dir}/env.env env \
     && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env \
     && echo "DEFAULT_ID_PROVIDER_NAME=$DEFAULT_ID_PROVIDER_NAME" >> ${work_dir}/env.env \
-    && wget --no-check-certificate --no-cache --no-cookies ${SIGN_IN_WITH_ESIGNET_PLUGIN_URL} -O ${plugins_path}/temp/sign-in-button-plugin.zip
+    && wget --no-check-certificate --no-cache --no-cookies https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip -O ${plugins_path}/temp/sign-in-button-plugin.zip
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
