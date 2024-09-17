@@ -56,10 +56,14 @@ ARG container_user_uid=1001
 ARG container_user_gid=1001
 
 # can be passed during Docker build as build time environment for artifactory URL
-ARG artifactory_url
+ARG i18n_url
+ARG theme_url
+ARG images_url
 
 # environment variable to pass artifactory url, at docker runtime
-ENV artifactory_url_env=${artifactory_url}
+ENV i18n_url_env=${i18n_url}
+ENV theme_url_env=${theme_url}
+ENV images_url_env=${images_url}
 
 ENV nginx_dir=/usr/share/nginx
 
