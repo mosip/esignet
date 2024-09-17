@@ -103,7 +103,7 @@ RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env \
     && echo "DEFAULT_FEVICON=$DEFAULT_FEVICON" >> ${work_dir}/env.env env \
     && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env \
     && echo "DEFAULT_ID_PROVIDER_NAME=$DEFAULT_ID_PROVIDER_NAME" >> ${work_dir}/env.env \
-    && wget --no-check-certificate --no-cache --no-cookies ${sign_in_with_esignet_plugin_url} -O ${plugins_path}/temp/sign-in-button-plugin.zip
+    && wget --no-check-certificate --no-cache --no-cookies ${SIGN_IN_WITH_ESIGNET_PLUGIN_URL} -O ${plugins_path}/temp/sign-in-button-plugin.zip
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
