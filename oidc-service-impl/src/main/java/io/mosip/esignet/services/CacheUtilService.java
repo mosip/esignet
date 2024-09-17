@@ -190,4 +190,8 @@ public class CacheUtilService {
         String idHash = cacheManager.getCache(Constants.BLOCKED_CACHE).get(individualIdHash, String.class); //NOSONAR getCache() will not be returning null here.
         return idHash != null;
     }
+
+    public String getSharedIDVResult(String transactionId) {
+        return cacheManager.getCache(Constants.SHARED_IDV_RESULT).get(transactionId, String.class); //NOSONAR getCache() will not be returning null here.
+    }
 }

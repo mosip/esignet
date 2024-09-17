@@ -325,18 +325,19 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new InvalidTransactionException();
         }
 
+        String status = cacheUtilService.getSharedIDVResult(resumeRequest.getTransactionId());
         ResumeResponse resumeResponse = new ResumeResponse();
-        if(resumeRequest.isWithError()) {
-            cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
-            resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
+        if("COMPLETED".equalsIgnoreCase(status)) {
+            //move the transaction to "authenticated" cache
+            cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
+            resumeResponse.setStatus(Constants.RESUMED);
+            auditWrapper.logAudit(Action.RESUME, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(resumeRequest.getTransactionId(),
+                    oidcTransaction), null);
             return resumeResponse;
         }
 
-        //move the transaction to "authenticated" cache
-        cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
-        resumeResponse.setStatus(Constants.RESUMED);
-        auditWrapper.logAudit(Action.RESUME, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(resumeRequest.getTransactionId(),
-                oidcTransaction), null);
+        cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
+        resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
         return resumeResponse;
     }
 
@@ -370,6 +371,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         else {
             kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
                     authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+            authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         }
 
         //cache tokens on successful response
@@ -380,8 +382,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
-
-        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
 
         if(checkConsentAction) {
             consentHelperService.processConsent(transaction, false);
@@ -435,7 +435,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        oidcTransaction.setServerNonce(UUID.randomUUID().toString());
+        oidcTransaction.setServerNonce(IdentityProviderUtil.createTransactionId(null));
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         oidcTransaction.setInternalAuthSuccess(false);
         oidcTransaction.setRequestedClaimDetails(oauthDetailReqDto.getClaims()!=null? oauthDetailReqDto.getClaims().getUserinfo() : null);

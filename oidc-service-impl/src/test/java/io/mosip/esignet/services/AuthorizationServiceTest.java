@@ -1296,6 +1296,7 @@ public class AuthorizationServiceTest {
         resumeRequest.setWithError(false);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
+        when(cacheUtilService.getSharedIDVResult(transactionId)).thenReturn("COMPLETED");
         ResumeResponse result = authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
         Assert.assertEquals(Constants.RESUMED, result.getStatus());
     }
@@ -1320,7 +1321,7 @@ public class AuthorizationServiceTest {
         resumeRequest.setWithError(true);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
-
+        when(cacheUtilService.getSharedIDVResult(transactionId)).thenReturn(null);
         ResumeResponse result = authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
         Assert.assertEquals(Constants.RESUME_NOT_APPLICABLE, result.getStatus());
     }
