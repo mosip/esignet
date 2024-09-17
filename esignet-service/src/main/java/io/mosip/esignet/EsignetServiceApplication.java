@@ -8,10 +8,8 @@ package io.mosip.esignet;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-@EnableKafka
 @EnableAsync
 @EnableCaching
 @SpringBootApplication(scanBasePackages = "io.mosip.esignet," +

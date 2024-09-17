@@ -46,7 +46,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -104,13 +103,9 @@ public class AuthCodeFlowTest {
     @Autowired
     AuditPlugin auditWrapper;
 
-    @Value("${mosip.esignet.amr-acr-mapping-file-url}")
-    private String mappingFileUrl;
-
     @Value("${mosip.esignet.mock.authenticator.policy-repo}")
     private String policyDir;
 
-    private MockRestServiceServer mockRestServiceServer;
     private String clientId = "service-oidc-client";
     private String state = "er345agrR3T";
     private String nonce = "23424234TY";
@@ -123,24 +118,6 @@ public class AuthCodeFlowTest {
 
     @Before
     public void init() throws Exception {
-        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
-        mockRestServiceServer.expect(requestTo(mappingFileUrl))
-                .andRespond(withSuccess("{\n" +
-                        "  \"amr\" : {\n" +
-                        "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
-                        "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
-                        "    \"Wallet\" :  [{ \"type\": \"WALLET\" }],\n" +
-                        "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
-                        "  },\n" +
-                        "  \"acr_amr\" : {\n" +
-                        "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
-                        "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
-                        "    \"mosip:idp:acr:linked-wallet\" : [ \"Wallet\" ],\n" +
-                        "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
-                        "  }\n" +
-                        "}",  MediaType.APPLICATION_JSON_UTF8));
-
-
         createOIDCClient(clientId, clientJWK.toPublicJWK(), replyingPartyId);
         log.info("Successfully create OIDC Client {}", clientId);
     }

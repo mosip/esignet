@@ -98,7 +98,7 @@
     "dont_have_wallet": "Don't Have {{walletName}}?",
     "download_now": "Download Now",
     "link_code_status": "Link Code Status",
-    "failed": "Failed",
+    "failed": "Unable to login. Please scan QR code and try again.",
     "refresh": "Refresh QR Code",
     "open_wallet_app": "Open {{walletName}} App"
   },
@@ -458,7 +458,7 @@
       "send_otp_failed": "Unable to send OTP. Please try again.",
       "send_otp_failed_msg": "Unable to send OTP. Please try again.",
       "invalid_otp_channel": "Invalid OTP Channel Provided.",
-      "auth_failed": "Wrong OTP entered. Please enter valid OTP.",
+      "auth_failed": "OTP authentication failed. Please try again.",
       "IDA-MLC-018": "IPlease Enter Valid UIN."
     },
     "biometrics": {
@@ -479,34 +479,34 @@
       "IDA-BIA-016": "Quality check could not be performed due to a technical issue. Please try again later or contact support for assistance.",
       "IDA-BIA-017": "Unable to perform biometric match due to a technical issue. Please try again later or contact support if the problem persists.",
       "IDA-BIA-018": "Unable to Process the Request due to a Technical Issue",
-      "auth_failed": "Biometric data not found in the system. Please check your entry and try again. If the issue persists, contact support for assistance.",
-      "IDA-MLC-018": "Invalid UIN/VID. Please enter a valid UIN/VID."
+      "auth_failed": "Biometric authentication failed. Please try again.",
+      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID."
     },
     "pin": {
-      "invalid_pin": "Invalid Pin",
-      "auth_failed": "Incorrect pin. Please try again.",
-      "IDA-MLC-018": "Invalid UIN/VID. Please enter a valid UIN/VID."
+      "invalid_pin": "The PIN you entered is incorrect. Please check and enter the valid PIN.",
+      "auth_failed": "PIN authentication failed. Please try again.",
+      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID."
     },
     "wallet": {
-      "failed_to_link": "Failed to Link",
-      "qr_code_expired": "QR Code Expired",
+      "failed_to_link": "Failed to link wallet. Please try scanning the QR code again.",
+      "qr_code_expired": "QR code has expired. Please request a new QR code and try scanning again.",
       "invalid_qrcode_config": "Invalid QRCode configuration. Please report to the site admin.",
       "link_code_refresh_failed": "Failed to Load",
-      "auth_failed": "Wallet local authentication failed. Please try again.",
-      "IDA-MLC-018": "Invalid UIN/VID. Please enter a valid UIN/VID."
+      "auth_failed": "Wallet authentication failed. Please try again.",
+      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID."
     },
     "password": {
-      "auth_failed": "Incorrect username or password. Please try again.",
-      "password_error_msg": "Invalid Password",
-      "IDA-MLC-018": "Invalid username. Please enter a valid username.",
-      "IDA-PSD-001": "Incorrect username or password. Please try again.",
-      "IDA-PSD-002": "Incorrect username or password. Please try again."
+      "auth_failed": "Username or password is not valid. Please enter valid credentials.",
+      "password_error_msg": "The password you entered is not valid. Please enter valid password.",
+      "IDA-MLC-018": "The username you entered is not valid. Please enter valid username.",
+      "IDA-PSD-001": "Username or password is not valid. Please enter valid credentials.",
+      "IDA-PSD-002": "Username or password is not valid. Please enter valid credentials."
     },
     "kba": {
-      "auth_failed": "Login failed, please enter correct credentials"
+      "auth_failed": "Login unsuccessful. Please check your credentials and try again."
     },
     "kbi": {
-      "auth_failed": "Login failed, please enter correct credentials"
+      "auth_failed": "Login unsuccessful. Please check your credentials and try again."
     },
     "statusCodeHeader": {
       "400": "Bad Request",
