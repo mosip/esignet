@@ -18,12 +18,6 @@ ARG active_profile
 # can be passed during Docker build as build time environment for config server URL
 ARG spring_config_url
 
-# can be passed during Docker build as build time environment for glowroot
-ARG is_glowroot
-
-# can be passed during Docker build as build time environment for artifactory URL
-ARG artifactory_url
-
 # can be passed during Docker build as build time environment for hsm client zip file path
 ARG hsm_client_zip_url
 
@@ -38,12 +32,6 @@ ENV spring_config_label_env=${spring_config_label}
 
 # environment variable to pass spring configuration url, at docker runtime
 ENV spring_config_url_env=${spring_config_url}
-
-# environment variable to pass glowroot, at docker runtime
-ENV is_glowroot_env=${is_glowroot}
-
-# environment variable to pass artifactory url, at docker runtime
-ENV artifactory_url_env=${artifactory_url}
 
 # environment variable to pass esignet_plugins url(may be zip or jar), at docker runtime
 ENV esignet_plugin_url_env=${esignet_plugin_url}
@@ -68,7 +56,7 @@ ARG container_user_gid=1001
 
 ARG hsm_local_dir=hsm-client
 
-ENV hsm_local_dir_name=${hsm_local_dir}
+ENV hsm_local_dir_env=${hsm_local_dir}
 
 ENV amr_acr_mapping_file_path_env=/home/mosip/amr_acr_mapping.json
 

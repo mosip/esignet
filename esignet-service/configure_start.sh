@@ -20,11 +20,9 @@ if [[ -n "$hsm_client_zip_url_env" ]]; then
     echo "Download the client from $hsm_client_zip_url_env"
     wget -q --show-progress "$hsm_client_zip_url_env" -O client.zip
     echo "Downloaded $hsm_client_zip_url_env"
-    DIR_NAME=$hsm_local_dir_name
-else
-    DIR_NAME=$hsm_local_dir
 fi
 
+DIR_NAME=$hsm_local_dir_env
 FILE_NAME="client.zip"
 
 
