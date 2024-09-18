@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #Downloads the zip/jar esignet adapters
-if [[ -n "$esignet_plugin_url_env" ]]; then
-  plugin_zip_filename=$(basename "$esignet_plugin_url_env")
-  wget -q "${esignet_plugin_url_env}" -O "${plugins_path_env}"/"${plugin_zip_filename}"
+if [[ -n "$plugin_url_env" ]]; then
+  plugin_zip_filename=$(basename "$plugin_url_env")
+  wget -q "${plugin_url_env}" -O "${plugins_path_env}"/"${plugin_zip_filename}"
   if file "${plugins_path_env}"/"${plugin_zip_filename}" | grep -q "Zip archive"; then
     echo "Downloaded plugins file is a zip archive. Unzipping the ${plugin_zip_filename}"
     unzip "${plugins_path_env}"/"${plugin_zip_filename}" -d "${plugins_path_env}"
