@@ -27,10 +27,6 @@
 ```
 ./initialise-prereq.sh
 ```
-### Install config-server
-```
-./config-server/install.sh
-```
 ### Install esignet, oidc and captcha service
 ```
 ./install-esignet.sh
