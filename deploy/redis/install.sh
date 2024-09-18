@@ -24,6 +24,9 @@ function installing_redis() {
   helm -n $NS install redis bitnami/redis --wait --version $CHART_VERSION
 
   echo Installed redis service
+
+  kubectl apply -f redis-config.yaml
+
   return 0
 }
 

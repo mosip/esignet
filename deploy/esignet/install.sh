@@ -22,6 +22,7 @@ function installing_esignet() {
 
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
+  $COPY_UTIL configmap redis-config redis $NS
 
   while true; do
     read -p "Is Prometheus Service Monitor Operator deployed in the k8s cluster? (y/n): " response
