@@ -52,7 +52,7 @@ service:
 
 image:
   registry: docker.io
-  repository: mosipqa/esignet
+  repository: mosipdev/esignet
   tag: develop
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -246,14 +246,16 @@ extraEnvVars: []
 ##
 extraEnvVarsCM:
   - esignet-global
-  - esignet-config-server-share
-  - esignet-artifactory-share
   - esignet-softhsm-share
-
+  - redis-config
+  - postgres-config
 ## Secret with extra environment variables
 ##
 extraEnvVarsSecret:
-
+  - db-common-secrets
+  - esignet-captcha
+  - keycloak-client-secrets
+  - esignet-misp-onboarder-key
 ## Extra volumes to add to the deployment
 ##
 extraVolumes: []
