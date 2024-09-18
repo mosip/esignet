@@ -1,0 +1,15 @@
+apiVersion: k8s.nginx.org/v1alpha1
+kind: TransportServer
+metadata:
+  name: postgres 
+  namespace: postgres
+spec:
+  listener:
+    name: postgres
+    protocol: TCP
+  upstreams:
+  - name: postgres
+    service: postgres-postgresql
+    port: 5432
+  action:
+    pass: postgres
