@@ -27,8 +27,4 @@ jobs:
   verify-keycloak-init:
     uses: mosip/kattu/.github/workflows/verify-keycloak-init.yml@master
     with: 
-<<<<<<< HEAD
-      kc_values_file_path: helm/esignet/keycloak-init-values.yaml
-=======
       kc_values_file_path: deploy/esignet/keycloak-init-values.yaml
->>>>>>> [MOSIP-32901] updated kycloak init check workflows
