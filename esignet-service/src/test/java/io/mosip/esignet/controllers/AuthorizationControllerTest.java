@@ -5,8 +5,12 @@
  */
 package io.mosip.esignet.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.dto.*;
@@ -28,10 +32,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -44,6 +51,7 @@ import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -72,15 +80,55 @@ public class AuthorizationControllerTest {
     @MockBean
     CacheUtilService cacheUtilService;
 
+
+    @MockBean
+    RestTemplate restTemplate;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
+    Map<String, JsonNode> userinfoMap;
+
+    Map<String, ClaimDetail> idTokenMap;
+
+    ClaimDetail claimDetail;
+
+    ClaimsV2 claimsV2;
+
+    private final String claimSchema="{\"$id\":\"https://bitbucket.org/openid/ekyc-ida/raw/master/schema/verified_claims_request.json\",\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"$defs\":{\"check_details\":{\"type\":\"array\",\"prefixItems\":[{\"check_id\":{\"type\":\"string\"},\"check_method\":{\"type\":\"string\"},\"organization\":{\"type\":\"string\"},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}]},\"claims_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"additionalProperties\":{\"anyOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3}}}]},\"minProperties\":1}]},\"constrainable_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3},\"value\":{\"type\":\"string\"},\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"minItems\":1}}}]},\"datetime_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"max_age\":{\"type\":\"integer\",\"minimum\":0},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3}}}]},\"document_details\":{\"type\":\"object\",\"properties\":{\"type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"date_of_expiry\":{\"$ref\":\"#/$defs/datetime_element\"},\"date_of_issuance\":{\"$ref\":\"#/$defs/datetime_element\"},\"document_number\":{\"$ref\":\"#/$defs/simple_element\"},\"issuer\":{\"type\":\"object\",\"properties\":{\"country\":{\"$ref\":\"#/$defs/simple_element\"},\"country_code\":{\"$ref\":\"#/$defs/simple_element\"},\"formatted\":{\"$ref\":\"#/$defs/simple_element\"},\"jurisdiction\":{\"$ref\":\"#/$defs/simple_element\"},\"locality\":{\"$ref\":\"#/$defs/simple_element\"},\"name\":{\"$ref\":\"#/$defs/simple_element\"},\"postal_code\":{\"$ref\":\"#/$defs/simple_element\"},\"region\":{\"$ref\":\"#/$defs/simple_element\"},\"street_address\":{\"$ref\":\"#/$defs/simple_element\"}}},\"personal_number\":{\"$ref\":\"#/$defs/simple_element\"},\"serial_number\":{\"$ref\":\"#/$defs/simple_element\"}}},\"evidence\":{\"type\":\"object\",\"required\":[\"type\"],\"properties\":{\"type\":{\"type\":\"object\",\"properties\":{\"value\":{\"enum\":[\"document\",\"electronic_record\",\"vouch\",\"electronic_signature\"]}}},\"attachments\":{\"$ref\":\"#/$defs/simple_element\"}},\"allOf\":[{\"if\":{\"properties\":{\"type\":{\"value\":\"electronic_signature\"}}},\"then\":{\"properties\":{\"created_at\":{\"$ref\":\"#/$defs/datetime_element\"},\"issuer\":{\"$ref\":\"#/$defs/simple_element\"},\"serial_number\":{\"$ref\":\"#/$defs/simple_element\"},\"signature_type\":{\"$ref\":\"#/$defs/simple_element\"}}},\"else\":true},{\"if\":{\"properties\":{\"type\":{\"value\":\"document\"}}},\"then\":{\"properties\":{\"check_details\":{\"$ref\":\"#/$defs/check_details\"},\"document_details\":{\"$ref\":\"#/$defs/document_details\"},\"method\":{\"$ref\":\"#/$defs/constrainable_element\"},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}},\"else\":true},{\"if\":{\"properties\":{\"type\":{\"value\":\"electronic_record\"}}},\"then\":{\"properties\":{\"check_details\":{\"$ref\":\"#/$defs/check_details\"},\"record\":{\"type\":\"object\",\"properties\":{\"type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"created_at\":{\"$ref\":\"#/$defs/datetime_element\"},\"date_of_expiry\":{\"$ref\":\"#/$defs/datetime_element\"},\"derived_claims\":{\"$ref\":\"#/$defs/claims_element\"},\"source\":{\"type\":\"object\",\"properties\":{\"country\":{\"$ref\":\"#/$defs/simple_element\"},\"country_code\":{\"$ref\":\"#/$defs/simple_element\"},\"formatted\":{\"$ref\":\"#/$defs/simple_element\"},\"locality\":{\"$ref\":\"#/$defs/simple_element\"},\"name\":{\"$ref\":\"#/$defs/simple_element\"},\"postal_code\":{\"$ref\":\"#/$defs/simple_element\"},\"region\":{\"$ref\":\"#/$defs/simple_element\"},\"street_address\":{\"$ref\":\"#/$defs/simple_element\"}}}}},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}},\"else\":true},{\"if\":{\"properties\":{\"type\":{\"value\":\"vouch\"}}},\"then\":{\"properties\":{\"attestation\":{\"type\":\"object\",\"properties\":{\"type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"date_of_expiry\":{\"$ref\":\"#/$defs/datetime_element\"},\"date_of_issuance\":{\"$ref\":\"#/$defs/datetime_element\"},\"derived_claims\":{\"$ref\":\"#/$defs/claims_element\"},\"reference_number\":{\"$ref\":\"#/$defs/simple_element\"},\"voucher\":{\"type\":\"object\",\"properties\":{\"birthdate\":{\"$ref\":\"#/$defs/datetime_element\"},\"country\":{\"$ref\":\"#/$defs/simple_element\"},\"formatted\":{\"$ref\":\"#/$defs/simple_element\"},\"locality\":{\"$ref\":\"#/$defs/simple_element\"},\"name\":{\"$ref\":\"#/$defs/simple_element\"},\"occupation\":{\"$ref\":\"#/$defs/simple_element\"},\"organization\":{\"$ref\":\"#/$defs/simple_element\"},\"postal_code\":{\"$ref\":\"#/$defs/simple_element\"},\"region\":{\"$ref\":\"#/$defs/simple_element\"},\"street_address\":{\"$ref\":\"#/$defs/simple_element\"}}}}},\"check_details\":{\"$ref\":\"#/$defs/check_details\"},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}},\"else\":true}]},\"simple_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3}}}]},\"verified_claims\":{\"oneOf\":[{\"type\":\"array\",\"items\":{\"anyOf\":[{\"$ref\":\"#/$defs/verified_claims_def\"}]}},{\"$ref\":\"#/$defs/verified_claims_def\"}]},\"verified_claims_def\":{\"type\":\"object\",\"required\":[\"verification\",\"claims\"],\"additionalProperties\":false,\"properties\":{\"claims\":{\"$ref\":\"#/$defs/claims_element\"},\"verification\":{\"type\":\"object\",\"required\":[\"trust_framework\"],\"additionalProperties\":true,\"properties\":{\"assurance_level\":{\"$ref\":\"#/$defs/constrainable_element\"},\"assurance_process\":{\"type\":\"object\",\"properties\":{\"assurance_details\":{\"type\":\"array\",\"items\":{\"oneOf\":[{\"assurance_classification\":{\"$ref\":\"#/$defs/constrainable_element\"},\"assurance_type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"evidence_ref\":{\"type\":\"object\",\"required\":[\"txn\"],\"additionalProperties\":true,\"properties\":{\"evidence_classification\":{\"$ref\":\"#/$defs/constrainable_element\"},\"evidence_metadata\":{\"$ref\":\"#/$defs/constrainable_element\"},\"txn\":{\"$ref\":\"#/$defs/constrainable_element\"}}}}]},\"minItems\":1},\"policy\":{\"$ref\":\"#/$defs/constrainable_element\"},\"procedure\":{\"$ref\":\"#/$defs/constrainable_element\"}}},\"evidence\":{\"type\":\"array\",\"items\":{\"oneOf\":[{\"$ref\":\"#/$defs/evidence\"}]},\"minItems\":1},\"time\":{\"$ref\":\"#/$defs/datetime_element\"},\"trust_framework\":{\"$ref\":\"#/$defs/constrainable_element\"},\"verification_process\":{\"$ref\":\"#/$defs/simple_element\"}}}}}},\"properties\":{\"id_token\":{\"type\":\"object\",\"additionalProperties\":true,\"properties\":{\"verified_claims\":{\"$ref\":\"#/$defs/verified_claims\"}}},\"userinfo\":{\"type\":\"object\",\"additionalProperties\":true,\"properties\":{\"verified_claims\":{\"$ref\":\"#/$defs/verified_claims\"}}}}}";
+
     @Before
-    public void init() throws EsignetException {
+    public void init() throws EsignetException, JsonProcessingException {
         HashSet<String> acrValues = new HashSet<>();
         acrValues.add("mosip:idp:acr:static-code");
         acrValues.add("mosip:idp:acr:biometrics");
         acrValues.add("mosip:idp:acr:linked-wallet");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
+
+
+        String address="{\"essential\":true}";
+        String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":\"xyz\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"abc\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
+
+        JsonNode addressNode = objectMapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = objectMapper.readValue(verifiedClaims, JsonNode.class);
+
+        userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+        idTokenMap = new HashMap<>();
+
+
+        claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+
+        idTokenMap.put("some_claim", claimDetail);
+        claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(idTokenMap);
+
+        ResponseEntity<String> schemaResponse = mock(ResponseEntity.class);
+        when(restTemplate.getForEntity(Mockito.anyString(), Mockito.eq(String.class))).thenReturn(schemaResponse);
+        when(schemaResponse.getStatusCode()).thenReturn(HttpStatus.OK);
+        when(schemaResponse.getBody()).thenReturn(claimSchema);
+
     }
 
 
@@ -121,6 +169,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -145,10 +194,12 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
+
 
         OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
@@ -172,6 +223,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -196,6 +248,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("touch");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -220,6 +273,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("none");
         oauthDetailRequest.setResponseType("implicit");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -244,6 +298,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -271,6 +326,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -295,6 +351,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -322,6 +379,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -349,6 +407,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -392,6 +451,7 @@ public class AuthorizationControllerTest {
 
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
 
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         requestTime = requestTime.plusMinutes(10);
@@ -426,6 +486,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -457,6 +518,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -492,6 +554,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setCodeChallenge("123");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -525,6 +588,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setCodeChallenge("123");
         oauthDetailRequest.setCodeChallengeMethod("S123");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -557,6 +621,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -588,6 +653,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("touch");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -619,6 +685,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("none");
         oauthDetailRequest.setResponseType("implicit");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -650,6 +717,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -684,6 +752,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -715,6 +784,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -749,6 +819,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -783,6 +854,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
