@@ -56,10 +56,10 @@ metadata:
   labels:
     app: postgres
 data:
-  POSTGRES_HOST: "{postgres_host}"
-  POSTGRES_PORT: "{postgres_port}"
-  DB_USER: "{db_user}"
-  DB_NAME: "{db_name}"
+  database-host: "{postgres_host}"
+  database-port: "{postgres_port}"
+  database-username: "{db_user}"
+  database-name: "{db_name}"
 """
     yaml_file = f"{configmap_name}.yaml"
     with open(yaml_file, "w") as file:
