@@ -55,7 +55,7 @@ This script prompts the user for a password, encodes it in Base64, and generates
 
 1. Run the script:
 ```
-python3 generate-secret.py
+python3 generate-secret-cm.py
 ```
 2. Enter the password when prompted.
 3. The script will create a ``db-common-secrets.yaml`` and ``postgres-postgresql.yaml``file in the same directory, containing the encoded password as a secret.
