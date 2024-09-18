@@ -23,6 +23,7 @@ ARG hsm_client_zip_url
 
 # can be passed during Docker build as build time environment for plugin name
 ARG plugin_name
+ARG plugin_url
 
 # environment variable to pass active profile such as DEV, QA etc at docker runtime
 ENV active_profile_env=${active_profile}
@@ -34,7 +35,7 @@ ENV spring_config_label_env=${spring_config_label}
 ENV spring_config_url_env=${spring_config_url}
 
 # environment variable to pass esignet_plugins url(may be zip or jar), at docker runtime
-ENV esignet_plugin_url_env=${esignet_plugin_url}
+ENV plugin_url_env=${plugin_url}
 
 # environment variable to pass hsm client zip file path, at docker runtime
 ENV hsm_client_zip_url_env=${hsm_client_zip_url}
