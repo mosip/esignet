@@ -461,5 +461,5 @@ istio:
 enable_insecure: false
 springConfigNameEnv:
 activeProfileEnv:
-pluginNameEnv: esignet-mock-plugin.jar 
+pluginNameEnv: esignet-mock-plugin.jar
 pluginUrlEnv:
