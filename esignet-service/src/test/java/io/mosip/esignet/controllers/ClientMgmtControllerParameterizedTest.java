@@ -64,9 +64,6 @@ public class ClientMgmtControllerParameterizedTest {
     @InjectMocks
     ClientManagementServiceImpl clientManagementService;
 
-    @Value("${mosip.esignet.amr-acr-mapping-file-url}")
-    private String mappingFileUrl;
-
     @Autowired
     RestTemplate  restTemplate;
 
@@ -75,8 +72,6 @@ public class ClientMgmtControllerParameterizedTest {
     private TestContextManager testContextManager;
 
     ObjectMapper objectMapper = new ObjectMapper();
-
-    private MockRestServiceServer mockRestServiceServer;
 
     private static Map<String, Object> jwk = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
 
@@ -220,23 +215,6 @@ public class ClientMgmtControllerParameterizedTest {
         this.testContextManager = new TestContextManager(getClass());
         this.testContextManager.prepareTestInstance(this);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-
-        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
-        mockRestServiceServer.expect(requestTo(mappingFileUrl))
-                .andRespond(withSuccess("{\n" +
-                        "  \"amr\" : {\n" +
-                        "    \"PIN\" :  [{ \"type\": \"PIN\" }],\n" +
-                        "    \"OTP\" :  [{ \"type\": \"OTP\" }],\n" +
-                        "    \"Wallet\" :  [{ \"type\": \"WALLET\" }],\n" +
-                        "    \"L1-bio-device\" :  [{ \"type\": \"BIO\", \"count\": 1 }]\n" +
-                        "  },\n" +
-                        "  \"acr_amr\" : {\n" +
-                        "    \"mosip:idp:acr:static-code\" : [\"PIN\"],\n" +
-                        "    \"mosip:idp:acr:generated-code\" : [\"OTP\"],\n" +
-                        "    \"mosip:idp:acr:linked-wallet\" : [ \"Wallet\" ],\n" +
-                        "    \"mosip:idp:acr:biometrics\" : [ \"L1-bio-device\" ]\n" +
-                        "  }\n" +
-                        "}",  MediaType.APPLICATION_JSON_UTF8));
     }
 
     @Test

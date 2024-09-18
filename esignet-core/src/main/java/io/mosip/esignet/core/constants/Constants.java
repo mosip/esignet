@@ -26,6 +26,8 @@ public class Constants {
     public static final String HALTED_CACHE = "halted";
     public static final String RATE_LIMIT_CACHE = "apiratelimit";
     public static final String BLOCKED_CACHE = "blocked";
+    public static final String SHARED_IDV_RESULT = "shared_idv_result";
+
 
 
     public static final String ROOT_KEY = "ROOT";
@@ -50,4 +52,5 @@ public class Constants {
     public static final String SERVER_NONCE_SEPARATOR = "~###~";
     public static final String RESUMED = "RESUMED";
     public static final String RESUME_NOT_APPLICABLE = "RESUME_NOT_APPLICABLE";
+    public static final String VERIFIED_CLAIMS = "verified_claims";
 }

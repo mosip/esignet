@@ -7,6 +7,7 @@ package io.mosip.esignet.core.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -16,12 +17,19 @@ import javax.validation.constraints.NotNull;
 @Component
 public class KafkaHelperService {
 
-    @Autowired
+    @Value("${kafka.enabled}")
+    private boolean kafkaEnabled;
+
+    @Autowired(required = false)
     private KafkaTemplate<String,String> kafkaTemplate;
 
     public void publish(@NotNull String topic, @NotNull String message) {
-        kafkaTemplate.send(topic, message);
-        log.info("Published message to topic : {}", topic);
+        if(kafkaEnabled) {
+            kafkaTemplate.send(topic, message);
+            log.info("Published message to topic : {}", topic);
+        }
+        else
+            log.warn("Kafka disabled NOT Publishing message to topic : {}", topic);
     }
 
 }

@@ -146,7 +146,7 @@ public class AuthorizationHelperService {
         LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
     }
 
-    @KafkaListener(id = "link-status-consumer", autoStartup = "true", topics = "${mosip.esignet.kafka.linked-session.topic}")
+    @KafkaListener(id = "link-status-consumer", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-session.topic}")
     public void consumeLinkStatus(String linkCodeHash) {
         DeferredResult deferredResult = LINK_STATUS_DEFERRED_RESULT_MAP.get(linkCodeHash);
         if(deferredResult != null) {
@@ -156,7 +156,7 @@ public class AuthorizationHelperService {
         }
     }
 
-    @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "true", topics = "${mosip.esignet.kafka.linked-auth-code.topic}")
+    @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-auth-code.topic}")
     public void consumeLinkAuthCodeStatus(String linkTransactionId) {
         DeferredResult deferredResult = LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.get(linkTransactionId);
         if(deferredResult != null) {
@@ -287,7 +287,7 @@ public class AuthorizationHelperService {
 
     protected Set<List<AuthenticationFactor>> getProvidedAuthFactors(OIDCTransaction transaction, List<AuthChallenge> challengeList) throws EsignetException {
         List<List<AuthenticationFactor>> resolvedAuthFactors = authenticationContextClassRefUtil.getAuthFactors(
-                (String[]) transaction.getRequestedClaims().getId_token().get(ACR).get("values"));
+                (String[]) transaction.getResolvedClaims().getId_token().get(ACR).get("values"));
         List<String> providedAuthFactors = challengeList.stream()
                 .map(AuthChallenge::getAuthFactorType)
                 .collect(Collectors.toList());

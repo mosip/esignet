@@ -15,16 +15,13 @@ import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.spi.KeyBindingService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
-import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -70,12 +67,6 @@ public class KeyBindingControllerTest {
 
 	@MockBean
 	Authenticator authenticationWrapper;
-
-	@MockBean
-	ParsedAccessToken parsedAccessToken;
-
-	@MockBean
-	VCICacheService vciCacheService;
 
 	@MockBean
 	AuditPlugin auditPlugin;

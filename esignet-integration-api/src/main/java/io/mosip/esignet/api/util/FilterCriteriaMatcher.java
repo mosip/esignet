@@ -5,9 +5,8 @@
  */
 package io.mosip.esignet.api.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.esignet.api.dto.claim.AssuranceProcess;
-import io.mosip.esignet.api.dto.claim.Evidence;
 import io.mosip.esignet.api.dto.claim.FilterCriteria;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -30,43 +28,22 @@ public class FilterCriteriaMatcher {
     private ObjectMapper objectMapper;
 
 
-    public boolean doMatch(Map<String, Object> verificationFilter, String key, String value) {
+    public boolean doMatch(Map<String, Object> verificationFilter, String key, JsonNode storedVerificationDetail) {
         if(verificationFilter.get(key) == null)
             return true;
 
+        String storedValue = storedVerificationDetail.hasNonNull(key) ? storedVerificationDetail.get(key).asText() : null;
+        if(storedValue == null)
+            return false;
+
         FilterCriteria filterCriteria = objectMapper.convertValue(verificationFilter.get(key), FilterCriteria.class);
         if(filterCriteria.getValue() != null)
-            return filterCriteria.getValue().equals(value);
+            return filterCriteria.getValue().equals(storedValue);
         if(filterCriteria.getValues() != null)
-            return filterCriteria.getValues().contains(value);
+            return filterCriteria.getValues().contains(storedValue);
         if(filterCriteria.getMax_age() != null && filterCriteria.getMax_age() > 0) {
-            return doAgeMatch(value, filterCriteria.getMax_age());
+            return doAgeMatch(storedValue, filterCriteria.getMax_age());
         }
-        return false;
-    }
-
-    public boolean doMatch(Map<String, Object> verificationFilter, AssuranceProcess assuranceProcess) {
-        if(verificationFilter.get("assurance_process") == null)
-            return true;
-
-        if(assuranceProcess == null)
-            return false;
-
-        Map<String, Object> assuranceProcessFilter = (Map<String, Object>) verificationFilter.get("assurance_process");
-
-        //TODO Add matcher for others
-        return doMatch(assuranceProcessFilter, "policy", assuranceProcess.getPolicy()) &&
-                doMatch(assuranceProcessFilter, "procedure", assuranceProcess.getProcedure());
-    }
-
-    public boolean doMatch(Map<String, Object> verificationFilter, List<Evidence> evidences) {
-        if(verificationFilter.get("evidence") == null)
-            return true;
-
-        if(evidences == null || evidences.isEmpty())
-            return false;
-
-        //TODO
         return false;
     }
 

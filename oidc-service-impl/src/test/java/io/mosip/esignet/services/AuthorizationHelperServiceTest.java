@@ -8,7 +8,6 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.*;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.exception.SendOtpException;
@@ -225,7 +224,7 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
-        oidcTransaction.setRequestedClaims(new Claims());
+        oidcTransaction.setResolvedClaims(new Claims());
         KycAuthResult kycAuthResult = new KycAuthResult();
         kycAuthResult.setKycToken("kyc-token");
         kycAuthResult.setPartnerSpecificUserToken("psut");
@@ -245,7 +244,7 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
-        oidcTransaction.setRequestedClaims(new Claims());
+        oidcTransaction.setResolvedClaims(new Claims());
 
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(null);
         try {
@@ -294,7 +293,7 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
-        oidcTransaction.setRequestedClaims(new Claims());
+        oidcTransaction.setResolvedClaims(new Claims());
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenThrow(KycAuthException.class);
         try{
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
@@ -397,7 +396,7 @@ public class AuthorizationHelperServiceTest {
         map.put("values", new String [] {"generated-code", "static-code"});
         resolvedClaims.getId_token().put(ACR, map);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
 
         List<AuthChallenge> challengeList = new ArrayList<>();
         AuthChallenge authChallenge = new AuthChallenge();
@@ -426,7 +425,7 @@ public class AuthorizationHelperServiceTest {
         map.put("values", new String [] {"generated-code", "static-code"});
         resolvedClaims.getId_token().put(ACR, map);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
 
         List<AuthChallenge> challengeList = new ArrayList<>();
         AuthChallenge authChallenge = new AuthChallenge();

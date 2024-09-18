@@ -2,9 +2,9 @@
   "amr" : {
     "PIN" :  [{ "type": "PIN" }],
     "OTP" :  [{ "type": "OTP" }],
-    "Wallet" :  [{ "type": "WALLET" }],
+    "Wallet" :  [{ "type": "WLA" }],
     "L1-bio-device" :  [{ "type": "BIO", "count": 1 }],
-    "Knowledge" :  [{ "type": "KBA" }],
+    "Knowledge" :  [{ "type": "KBI" }],
     "Password" :  [{ "type": "PWD" }],
     "ID-token" :  [{ "type": "IDT" }]
   },

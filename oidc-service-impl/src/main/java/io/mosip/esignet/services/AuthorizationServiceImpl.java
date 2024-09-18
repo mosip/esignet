@@ -272,12 +272,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         List<ClaimStatus> list = new ArrayList<>();
 
         log.debug("Get claims status based on stored claim metadata : {}", transaction.getClaimMetadata());
-        for(Map.Entry<String, List<Map<String, Object>>> entry : transaction.getRequestedClaims().getUserinfo().entrySet()) {
+        for(Map.Entry<String, List<Map<String, Object>>> entry : transaction.getResolvedClaims().getUserinfo().entrySet()) {
             list.add(claimsHelperService.getClaimStatus(entry.getKey(), entry.getValue(), transaction.getClaimMetadata()));
         }
 
         //Profile update is mandated only if any essential verified claim is requested
-        boolean isEssentialVerifiedClaimRequested = transaction.getRequestedClaims().getUserinfo()
+        boolean isEssentialVerifiedClaimRequested = transaction.getResolvedClaims().getUserinfo()
                 .entrySet()
                 .stream()
                 .anyMatch( entry -> entry.getValue().stream()
@@ -325,18 +325,19 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new InvalidTransactionException();
         }
 
+        String status = cacheUtilService.getSharedIDVResult(resumeRequest.getTransactionId());
         ResumeResponse resumeResponse = new ResumeResponse();
-        if(resumeRequest.isWithError()) {
-            cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
-            resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
+        if("COMPLETED".equalsIgnoreCase(status)) {
+            //move the transaction to "authenticated" cache
+            cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
+            resumeResponse.setStatus(Constants.RESUMED);
+            auditWrapper.logAudit(Action.RESUME, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(resumeRequest.getTransactionId(),
+                    oidcTransaction), null);
             return resumeResponse;
         }
 
-        //move the transaction to "authenticated" cache
-        cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
-        resumeResponse.setStatus(Constants.RESUMED);
-        auditWrapper.logAudit(Action.RESUME, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(resumeRequest.getTransactionId(),
-                oidcTransaction), null);
+        cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
+        resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
         return resumeResponse;
     }
 
@@ -370,6 +371,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         else {
             kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
                     authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+            authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         }
 
         //cache tokens on successful response
@@ -380,8 +382,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
-
-        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
 
         if(checkConsentAction) {
             consentHelperService.processConsent(transaction, false);
@@ -399,7 +399,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
 
         //Resolve the final set of claims based on registered and request parameter.
-        Claims resolvedClaims = claimsHelperService.getRequestedClaims(oauthDetailReqDto, clientDetailDto);
+        Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
         resolvedClaims.getId_token().put(ACR, resolveACRClaim(clientDetailDto.getAcrValues(),
                 oauthDetailReqDto.getAcrValues(),
@@ -427,7 +427,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setRedirectUri(oauthDetailReqDto.getRedirectUri());
         oidcTransaction.setRelyingPartyId(clientDetailDto.getRpId());
         oidcTransaction.setClientId(clientDetailDto.getId());
-        oidcTransaction.setRequestedClaims(resolvedClaims);
+        oidcTransaction.setResolvedClaims(resolvedClaims);
         oidcTransaction.setRequestedAuthorizeScopes(oAuthDetailResponse.getAuthorizeScopes());
         oidcTransaction.setNonce(oauthDetailReqDto.getNonce());
         oidcTransaction.setState(oauthDetailReqDto.getState());
@@ -435,9 +435,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        oidcTransaction.setServerNonce(UUID.randomUUID().toString());
+        oidcTransaction.setServerNonce(IdentityProviderUtil.createTransactionId(null));
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         oidcTransaction.setInternalAuthSuccess(false);
+        oidcTransaction.setRequestedClaimDetails(oauthDetailReqDto.getClaims()!=null? oauthDetailReqDto.getClaims().getUserinfo() : null);
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 

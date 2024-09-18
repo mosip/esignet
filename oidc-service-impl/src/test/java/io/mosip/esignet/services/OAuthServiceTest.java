@@ -5,6 +5,9 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
 import io.mosip.esignet.api.dto.claim.Claims;
@@ -23,6 +26,7 @@ import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -69,6 +73,13 @@ public class OAuthServiceTest {
 
     @Mock
     private SecurityHelperService securityHelperService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Before
+    public void setup() {
+        ReflectionTestUtils.setField(oAuthService, "objectMapper", objectMapper);
+    }
 
     @Test
     public void getTokens_withValidRequest_thenPass() throws KycExchangeException {
@@ -146,7 +157,7 @@ public class OAuthServiceTest {
     }
 
     @Test
-    public void getTokens_withValidVerifiedClaimRequest_thenPass() throws KycExchangeException {
+    public void getTokens_withValidVerifiedClaimRequest_thenPass() throws KycExchangeException, JsonProcessingException {
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
@@ -170,7 +181,71 @@ public class OAuthServiceTest {
         map.put("verification", new HashMap<>());
         ((Map)map.get("verification")).put("trust_framework", null);
         claims.getUserinfo().put("name", Arrays.asList(map));
-        oidcTransaction.setRequestedClaims(claims);
+        oidcTransaction.setResolvedClaims(claims);
+
+        Map<String, JsonNode> requestedClaimDetail = new HashMap<>();
+        requestedClaimDetail.put("name", null);
+        requestedClaimDetail.put("email", objectMapper.readTree("{\"essential\":false}"));
+        requestedClaimDetail.put("phone_number", objectMapper.readTree("{\"essential\":true}"));
+        requestedClaimDetail.put("verified_claims", objectMapper.readTree("{\"verification\":{\"trust_framework\":null}, \"claims\":{\"email\":{\"essential\":true},\"address\":{\"essential\":true}}}"));
+        oidcTransaction.setRequestedClaimDetails(requestedClaimDetail);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(authenticationWrapper.doVerifiedKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
+        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
+        Assert.assertNotNull(tokenResponse);
+        Assert.assertNotNull(tokenResponse.getId_token());
+        Assert.assertNotNull(tokenResponse.getAccess_token());
+        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+    }
+
+    @Test
+    public void getTokens_withListOfVerifiedClaimRequest_thenPass() throws KycExchangeException, JsonProcessingException {
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setAcceptedClaims(Arrays.asList("name", "email"));
+
+        Claims claims = new Claims();
+        claims.setUserinfo(new HashMap<>());
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+        map.put("verification", new HashMap<>());
+        ((Map)map.get("verification")).put("trust_framework", null);
+        claims.getUserinfo().put("name", Arrays.asList(map));
+        oidcTransaction.setResolvedClaims(claims);
+
+        Map<String, JsonNode> requestedClaimDetail = new HashMap<>();
+        requestedClaimDetail.put("name", null);
+        requestedClaimDetail.put("email", objectMapper.readTree("{\"essential\":false}"));
+        requestedClaimDetail.put("phone_number", objectMapper.readTree("{\"essential\":true}"));
+        requestedClaimDetail.put("verified_claims", objectMapper.readTree("[{\"verification\":{\"trust_framework\":null}, \"claims\":{\"email\":{\"essential\":true},\"address\":{\"essential\":true}}}," +
+                "{\"verification\":{\"trust_framework\":\"Test\"}, \"claims\":{\"phone_number\":{\"essential\":true},\"name\":{\"essential\":true}}}," +
+                "{\"verification\":{\"trust_framework\":\"Test\"}}," +
+                "{\"verification\":{\"trust_framework\":\"Test\"}, \"claims\":{\"phone_number\":{\"essential\":true},\"address\":{\"essential\":true}}}]"));
+        oidcTransaction.setRequestedClaimDetails(requestedClaimDetail);
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));

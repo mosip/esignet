@@ -9,13 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
-import io.mosip.esignet.core.dto.vci.ParsedAccessToken;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
-import io.mosip.esignet.vci.services.VCICacheService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -51,12 +49,6 @@ public class OAuthControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
-
-    @MockBean
-    ParsedAccessToken parsedAccessToken;
-
-    @MockBean
-    VCICacheService vciCacheService;
 
     @MockBean
     AuthorizationHelperService authorizationHelperService;

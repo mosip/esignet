@@ -12,7 +12,7 @@
     "allow": "يسمح",
     "continue": "يكمل",
     "resident-service": "خدمة المقيمين",
-    "name": "اسم",
+    "name": "الاسم الكامل",
     "given_name": "اسم",
     "middle_name": "الاسم الوسطى",
     "preferred_username": "اسم المستخدم المفضل",
@@ -30,6 +30,7 @@
     "phone": "هاتف",
     "phone_number": "رقم الهاتف",
     "phone_number_verified": "رقم الهاتف",
+    "registration_type": "نوع التسجيل",
     "required": "مطلوب",
     "profile": "الملف الشخصي",
     "authorize_scope_tooltip": "يسمح لمزود الخدمة بالوصول إلى هذه الخدمات المحمية نيابة عنك",
@@ -74,22 +75,22 @@
   "password": {
     "sign_in_with_password": "تسجيل الدخول باستخدام كلمة المرور",
     "remember_me": "تذكرنى",
-    "login": "تسجيل الدخول",
+    "login": "يكمل",
     "uin_label_text": "رقم التعريف الفريد/المعرف",
     "password_label_text": "كلمة المرور",
     "uin_placeholder": "أدخل رقم UIN أو VID الخاص بك",
-    "password_placeholder": "أدخل كلمة المرور",
+    "password_placeholder": "كلمة المرور",
     "forgot_password": "هل نسيت كلمة السر؟",
     "reset_password": "إعادة تعيين كلمة المرور"
   },
   "Form": {
-    "sign_in_with_details": "تسجيل الدخول بالتفاصيل",
+    "sign_in_with_details": "تسجيل الدخول باستخدام التفاصيل",
     "login": "تسجيل الدخول",
-    "policyNumber_label_text": "ادخل رقم الوثيقة",
-    "fullName_label_text": "ادخل الاسم",
-    "dob_label_text": "ادخل تاريخ الميلاد",
+    "policyNumber_label_text": "أدخل رقم الوثيقة",
+    "fullName_label_text": "أدخل الاسم الكامل",
+    "dob_label_text": "أدخل تاريخ الميلاد",
     "policyNumber_placeholder": "رقم الوثيقة",
-    "fullName_placeholder": "الاسم",
+    "fullName_placeholder": "الاسم الكامل",
     "dob_placeholder": "تاريخ الميلاد"
   },
   "LoginQRCode": {
@@ -142,7 +143,7 @@
     "wellknown_api": ".wellknown API"
   },
   "header": {
-    "login_heading": "تسجيل الدخول",
+    "login_heading": "تسجيل الدخول باستخدام eSignet",
     "login_subheading": "الرجاء إدخال اسم المستخدم وكلمة المرور المسجلين لديك",
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
@@ -159,6 +160,7 @@
       "biometrics_login": "يرجى إدخال UIN/VID الخاص بك والتحقق باستخدام جهاز القياس الحيوي",
       "pin_login": "الرجاء إدخال UIN/VID وPIN",
       "password_login": "الرجاء إدخال UIN/VID وكلمة المرور",
+      "kba_login": "يرجى ملء التفاصيل أدناه",
       "kbi_login": "يرجى ملء التفاصيل أدناه",
       "wallet_login": "يرجى مسح رمز الاستجابة السريعة أدناه لتسجيل الدخول"
     }
@@ -205,6 +207,9 @@
     "email": "عنوان البريد الإلكتروني",
     "phone": "هاتف",
     "phone_number": "رقم التليفون",
+    "updated_at": "تم التحديث في",
+    "phone_number_verified": "رقم الهاتف",
+    "registration_type": "نوع التسجيل",
     "header": "انتباه",
     "sub-header": "يطلب {{clientName}} الوصول إلى المعلومات أدناه للمضي قدمًا. لكن القليل من التفاصيل غير متوفرة حاليًا",
     "verified": "تم التحقق",
@@ -337,8 +342,8 @@
     "captcha_validator_not_found": "فشل في العثور على مثيل Captcha Valitator ، يرجى التحقق من ClassPath.",
     "invalid_captcha": "وجدت captcha غير صالحة.",
     "invalid_auth_factor_type_or_challenge_format": "نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
-    "invalid_auth_factor_type_format": "نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
-    "invalid_challenge_length": "اعتراض غير صالح ، تم انتهاك قيد الحد الأدنى أو الحد الأقصى للطول.",
+    "invalid_auth_factor_type_format" :"نوع عامل المصادقة غير صالح أو تنسيق التحدي.",
+    "invalid_challenge_length" : "اعتراض غير صالح ، تم انتهاك قيد الحد الأدنى أو الحد الأقصى للطول.",
     "unsupported_pkce_challenge_method": "طريقة تبادل التحدي الرئيسية إثبات غير مدعوم.",
     "invalid_pkce_challenge": "تحدي مفتاح إثبات غير صالح.",
     "invalid_pkce_code_verifier": "دليل مفتاح إثبات غير صالح.",
@@ -357,6 +362,8 @@
     "proof_invalid_aud": "قيمة غير صالحة في مطالبة Aud Payload.",
     "proof_invalid_iat": "قيمة غير صالحة في مطالبة حمولة IAT.",
     "proof_invalid_nonce": "قيمة غير صالحة في مطالبة PHAILLOLL NONCE.",
+    "no_attempts_left": "تم الوصول إلى الحد الأقصى لمحاولات المصادقة. الرجاء معاودة المحاولة في وقت لاحق.",
+    "individual_id_blocked": "تم حظر المستخدم مؤقتًا. من فضلك حاول مرة أخرى بعد بعض من الوقت.",
     "invalid_state_response": "حالة غير صالحة",
     "authCode_missing": "رمز المصادقة مفقود",
     "failed_to_validate_captcha": "فشل التحقق من صحة كلمة التحقق",
@@ -452,7 +459,7 @@
       "send_otp_failed_msg": "فشل إرسال OTP",
       "invalid_otp_channel": "تم توفير قناة OTP غير صالحة.",
       "auth_failed": "كلمة مرور لمرة واحدة غير صحيحة. حاول مرة اخرى",
-      "IDA-MLC-018": "كلمة مرور لمرة واحدة غير صحيحة. حاول مرة اخرى"
+      "IDA-MLC-018": "معرف المستخدم غير صالح (UIN/VID). يرجى إدخال معرف مستخدم صالح (UIN/VID)."
     },
     "biometrics": {
       "IDA-BIA-001": "البيانات البيومترية غير متطابقة",
@@ -473,12 +480,12 @@
       "IDA-BIA-017": "غير قادر على أداء المطابقة البيومترية بسبب مشكلة فنية",
       "IDA-BIA-018": "غير قادر على معالجة الطلب بسبب مشكلة فنية",
       "auth_failed": "البيانات البيومترية غير متوفرة. حاول مرة اخرى",
-      "IDA-MLC-018": "البيانات البيومترية غير متوفرة. حاول مرة اخرى"
+      "IDA-MLC-018": "معرف المستخدم غير صالح (UIN/VID). يرجى إدخال معرف مستخدم صالح (UIN/VID)."
     },
     "pin": {
       "invalid_pin": "رقم التعريف الشخصي غير صالح",
       "auth_failed": "دبوس غير صحيح. حاول مرة اخرى",
-      "IDA-MLC-018": "دبوس غير صحيح. حاول مرة اخرى"
+      "IDA-MLC-018": "معرف المستخدم غير صالح (UIN/VID). يرجى إدخال معرف مستخدم صالح (UIN/VID)."
     },
     "wallet": {
       "failed_to_link": "فشل الارتباط",
@@ -486,12 +493,17 @@
       "invalid_qrcode_config": "تكوين QRCode غير صالح. يرجى إبلاغ مدير الموقع.",
       "link_code_refresh_failed": "فشل في التحميل",
       "auth_failed": "فشلت المصادقة المحلية للمحفظة. حاول مرة اخرى",
-      "IDA-MLC-018": "فشلت المصادقة المحلية للمحفظة. حاول مرة اخرى"
+      "IDA-MLC-018": "معرف المستخدم غير صالح (UIN/VID). يرجى إدخال معرف مستخدم صالح (UIN/VID)."
     },
     "password": {
       "auth_failed": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة اخرى.",
       "password_error_msg": "رمز مرور خاطئ",
-      "IDA-MLC-018": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة اخرى."
+      "IDA-MLC-018": "اسم غير صالح. يرجى إدخال اسم صالح.",
+      "IDA-PSD-001": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة اخرى.",
+      "IDA-PSD-002": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة اخرى."
+    },
+    "kba": {
+      "auth_failed": "فشل تسجيل الدخول، يرجى ادخال بيانات الاعتماد الصحيحة"
     },
     "kbi": {
       "auth_failed": "فشل تسجيل الدخول، يرجى ادخال بيانات الاعتماد الصحيحة"
