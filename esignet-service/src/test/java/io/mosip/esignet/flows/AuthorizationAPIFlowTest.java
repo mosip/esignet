@@ -39,11 +39,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
@@ -61,6 +65,8 @@ import java.util.*;
 
 import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -97,6 +103,9 @@ public class AuthorizationAPIFlowTest {
     @Autowired
     AuditPlugin auditWrapper;
 
+    @MockBean
+    RestTemplate restTemplate;
+
     @Value("${mosip.esignet.mock.authenticator.policy-repo}")
     private String policyDir;
 
@@ -107,6 +116,8 @@ public class AuthorizationAPIFlowTest {
     private String redirectionUrl = "http://health-services.com/userprofile";
     private JWK clientJWK = TestUtil.generateJWK_RSA();
     private boolean created = false;
+
+    private final String claimSchema="{\"userinfo\":{\"address\":{\"essential\":true},\"verified_claims\":[{\"verification\":{\"trust_framework\":{\"value\":\"income-tax\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"k\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]},\"id_token\":{}}";
 
 
     @Test
@@ -436,12 +447,38 @@ public class AuthorizationAPIFlowTest {
         oAuthDetailRequest.setState(state);
         ClaimsV2 claims = new ClaimsV2();
         claims.setUserinfo(new HashMap<>());
+        claims.setId_token(new HashMap<>());
         claims.getUserinfo().put("email", getClaimDetail(null, null, true));
         oAuthDetailRequest.setClaims(claims);
 
         RequestWrapper<OAuthDetailRequest> request = new RequestWrapper<>();
         request.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         request.setRequest(oAuthDetailRequest);
+
+        String address="{\"essential\":true}";
+        String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":null}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
+
+        JsonNode addressNode = objectMapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = objectMapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
+
+
+        ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+
+        idTokenMap.put("some_claim", claimDetail);
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(idTokenMap);
+
+        ResponseEntity<String> schemaResponse = mock(ResponseEntity.class);
+        when(restTemplate.getForEntity(Mockito.anyString(), Mockito.eq(String.class))).thenReturn(schemaResponse);
+        when(schemaResponse.getStatusCode()).thenReturn(HttpStatus.OK);
+        when(schemaResponse.getBody()).thenReturn(claimSchema);
+
 
         MvcResult result = mockMvc.perform(post("/authorization/oauth-details")
                         .param("nonce", nonce).param("state", state)

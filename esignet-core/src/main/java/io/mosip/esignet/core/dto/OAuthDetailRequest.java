@@ -72,7 +72,7 @@ public class OAuthDetailRequest {
      * names of the individual Claims being requested as the member names.
      */
     @Valid
-    //ClaimSchema(message = ErrorConstants.INVALID_CLAIMS_SCHEMA)
+    @ClaimSchema(message = ErrorConstants.INVALID_CLAIMS_SCHEMA)
     private ClaimsV2 claims;
 
     /**
