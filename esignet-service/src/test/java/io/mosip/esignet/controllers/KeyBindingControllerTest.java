@@ -12,6 +12,7 @@ import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.*;
@@ -70,6 +71,9 @@ public class KeyBindingControllerTest {
 
 	@MockBean
 	AuditPlugin auditPlugin;
+
+	@MockBean
+	LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
 
 	@Test
 	public void sendBindingOtp_withValidRequest_thenPass() throws Exception {

@@ -29,7 +29,7 @@ import java.util.Map;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Profile(value = {"!test"})
+//@Profile(value = {"!test"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired

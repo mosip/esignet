@@ -69,7 +69,7 @@ ARG loader_path=${work_dir}/additional_jars/
 
 ARG plugins_path=${work_dir}/plugins
 
-ARG plugins_path_env=${plugins_path}
+ENV plugins_path_env=${plugins_path}
 
 ENV loader_path_env=${loader_path}
 
