@@ -1,6 +1,6 @@
 ## Overview
 
-This is the docker-compose setup to run esignet UI and esignet-service with mock identity system. This is not for production use.
+This is the docker compose setup to run esignet UI and esignet-service with mock identity system. This is not for production use.
 
 ## I am a developer, how to setup dependent services to edit and test esignet-service?
 
@@ -20,12 +20,11 @@ This is the docker-compose setup to run esignet UI and esignet-service with mock
 6. Add a user in the mock-identity-system.
 7. Now the setup is completely ready to start the OIDC flow. [Refer eSignet user guides](https://docs.esignet.io/end-user-guide) for more information.
 
-
-`Note: To know more about the relying party onboard and query parameters used in the eSignet authorize URL [refer eSignet docs](https://docs.esignet.io/integration/relying-party)`
+`Note: To know more about the relying party onboard and query parameters used in the eSignet authorize URL `[refer eSignet docs](https://docs.esignet.io/integration/relying-party)
 
 ## How to add user identity in the mock-identity-system?
 
-Import files under [postman-collection](../postman-collection) folder into your postman. And invoke requests under `User Mgmt/Mock` folder in postman.
+1. Import files under [postman-collection](../postman-collection) folder into your postman. And invoke requests under `User Mgmt/Mock` folder in postman.
 
 
 

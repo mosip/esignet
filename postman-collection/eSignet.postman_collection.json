@@ -1,107 +1,322 @@
 {
 	"info": {
-		"_postman_id": "1ba33baa-0552-4a90-ab94-3f8304bf20e6",
-		"name": "e-Signet Collection MOSIP IDA",
+		"_postman_id": "702e0fb0-606d-452f-b160-b9bbf6cbe31f",
+		"name": "eSignet",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30559009"
+		"_exporter_id": "20579541",
+		"_collection_link": "https://mosip-idp.postman.co/workspace/MOSIP-Team-Workspace~76ac5ada-d630-4817-8d7b-25f499b093d4/collection/20579541-702e0fb0-606d-452f-b160-b9bbf6cbe31f?action=share&source=collection_link&creator=20579541"
 	},
 	"item": [
 		{
 			"name": "OIDC Client Mgmt",
 			"item": [
 				{
-					"name": "PMS Authentication - ClienID Secret",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"id\": \"string\",\r\n  \"version\": \"string\",\r\n  \"requesttime\": \"2022-06-10T06:38:13.334Z\",\r\n  \"metadata\": {},\r\n  \"request\": {\r\n    \"clientId\": \"mosip-pms-client\",\r\n    \"secretKey\": \"Ap9z87pRXFBDIVqb\",\r\n    \"appId\": \"partner\"\r\n  }\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+					"name": "MOSIP",
+					"item": [
+						{
+							"name": "MOSIP PMS Authentication",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"var data = jsonData.response.token;",
+											"console.log(data);",
+											"pm.environment.set(\"authtoken\",data);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
 								}
-							}
-						},
-						"url": {
-							"raw": "{{internalUrl}}/authmanager/authenticate/clientidsecretkey",
-							"host": [
-								"{{internalUrl}}"
 							],
-							"path": [
-								"authmanager",
-								"authenticate",
-								"clientidsecretkey"
-							]
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": \"string\",\r\n  \"version\": \"string\",\r\n  \"requesttime\": \"{{$isoTimestamp}}\",\r\n  \"metadata\": {},\r\n  \"request\": {\r\n    \"appId\": \"partner\",\r\n    \"clientId\": \"mosip-pms-client\",\r\n    \"secretKey\": \"{{mosip_pms_client_secret}}\"\r\n  }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{internal_url}}/v1/authmanager/authenticate/clientidsecretkey",
+									"host": [
+										"{{internal_url}}"
+									],
+									"path": [
+										"v1",
+										"authmanager",
+										"authenticate",
+										"clientidsecretkey"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create OIDC Client in MOSIP",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"",
+											"eval(pm.globals.get('pmlib_code'))",
+											"keyPair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+											"jwkPrivateKey = pmlib.rs.KEYUTIL.getJWK(keyPair.prvKeyObj);",
+											"jwkPublicKey  = pmlib.rs.KEYUTIL.getJWK(keyPair.pubKeyObj);",
+											"jwkPublicKey[\"alg\"] = \"RS256\";",
+											"jwkPublicKey[\"use\"] = \"sig\";",
+											"",
+											"pm.environment.set(\"client_public_key\", JSON.stringify(jwkPublicKey))",
+											"pm.environment.set(\"client_private_key\", JSON.stringify(jwkPrivateKey));"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"var clientId = jsonData.response.clientId;",
+											"console.log(clientId);",
+											"pm.environment.set(\"client_id\",clientId);",
+											"pm.environment.set(\"partner_api_key\",clientId);",
+											"",
+											"pm.test(\"Validate status\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": \"string\",\r\n  \"version\": \"string\",\r\n  \"requesttime\": \"{{$isoTimestamp}}\",\r\n  \"metadata\": {},\r\n  \"request\": {\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"policyId\": \"26123\",\r\n    \"publicKey\": {{client_public_key}},\r\n    \"authPartnerId\": {{relaying_party_id}},\r\n    \"logoUri\": \"{{$randomImageUrl}}\",\r\n    \"redirectUris\": [\r\n      \"{{redirection_url}}\"\r\n    ],\r\n    \"grantTypes\": [\r\n      \"authorization_code\"\r\n    ],\r\n    \"clientAuthMethods\": [\r\n      \"private_key_jwt\"\r\n    ]\r\n  }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{internal_url}}/v1/partnermanager/oidc/client",
+									"host": [
+										"{{internal_url}}"
+									],
+									"path": [
+										"v1",
+										"partnermanager",
+										"oidc",
+										"client"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
-					"name": "Create OIDC Client PMS",
-					"event": [
+					"name": "Mock",
+					"item": [
 						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"",
-									"eval(pm.globals.get('pmlib_code'))",
-									"keyPair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
-									"jwkPrivateKey = pmlib.rs.KEYUTIL.getJWK(keyPair.prvKeyObj);",
-									"jwkPublicKey  = pmlib.rs.KEYUTIL.getJWK(keyPair.pubKeyObj);",
-									"jwkPublicKey[\"alg\"] = \"RS256\";",
-									"jwkPublicKey[\"use\"] = \"sig\";",
-									"",
-									"pm.environment.set(\"client_public_key\", JSON.stringify(jwkPublicKey))",
-									"pm.environment.set(\"client_private_key\", JSON.stringify(jwkPrivateKey));"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = JSON.parse(responseBody);",
-									"var clientId = jsonData.response.clientId;",
-									"console.log(clientId);",
-									"pm.environment.set(\"clientId\",clientId);",
-									"pm.environment.set(\"partner_api_key\",clientId);",
-									"",
-									"pm.test(\"Validate status\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.response.status).to.eql(\"ACTIVE\");",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"id\": \"string\",\r\n  \"version\": \"string\",\r\n  \"requesttime\": \"2022-12-28T12:23:24.448Z\",\r\n  \"metadata\": {},\r\n  \"request\": {\r\n    \"name\": \"casia\",\r\n    \"policyId\": \"26123\",\r\n    \"publicKey\": {{client_public_key}},\r\n    \"authPartnerId\": {{relayingPartyId}},\r\n    \"logoUri\": \"https://casia.qa-triad.mosip.net/images/doctor_logo.png\",\r\n    \"redirectUris\": [\r\n      \"{{redirectionUrl}}\"\r\n    ],\r\n    \"grantTypes\": [\r\n      \"authorization_code\"\r\n    ],\r\n    \"clientAuthMethods\": [\r\n      \"private_key_jwt\"\r\n    ]\r\n  }\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"name": "Get CSRF token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+											"pm.environment.set(\"csrf_token\", token);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
 								}
-							}
-						},
-						"url": {
-							"raw": "{{internalUrl}}/partnermanager/oidc/client",
-							"host": [
-								"{{internalUrl}}"
 							],
-							"path": [
-								"partnermanager",
-								"oidc",
-								"client"
-							]
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/v1/esignet/csrf/token",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"v1",
+										"esignet",
+										"csrf",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create OIDC client",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"eval(pm.environment.get('pmlib_code'))",
+											"kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+											"privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.prvKeyObj);",
+											"publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.pubKeyObj);",
+											"",
+											"// Get the public key in PEM format",
+											"const publicKeyPem = pmlib.rs.KEYUTIL.getPEM(kp.pubKeyObj, \"PKCS8PUB\");",
+											"// Convert the PEM format to a simple Base64 string (removing PEM headers)",
+											"const publicKeyBase64 = publicKeyPem.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\\n/g, '');",
+											"pm.environment.set(\"client_id\", publicKeyBase64.substring(2, 50));",
+											"",
+											"// Log the result to Postman's console (option);",
+											"pm.environment.set(\"client_private_key\", JSON.stringify(privateKey_jwk));",
+											"pm.environment.set(\"client_public_key\", JSON.stringify(publicKey_jwk));"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-XSRF-TOKEN",
+										"value": "{{csrf_token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"publicKey\": {{client_public_key}},\n        \"relyingPartyId\": \"mock-relying-party-id\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n             \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://loclahost:3000/**\",\n             \"http://loclahost:5000/registration/*\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/v1/esignet/client-mgmt/oidc-client",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"v1",
+										"esignet",
+										"client-mgmt",
+										"oidc-client"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update OIDC client",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-XSRF-TOKEN",
+										"value": "{{csrf_token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://loclahost:3000/**\",\n             \"http://loclahost:5000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/v1/esignet/client-mgmt/oidc-client/{{client_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"v1",
+										"esignet",
+										"client-mgmt",
+										"oidc-client",
+										"{{client_id}}"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
+				}
+			]
+		},
+		{
+			"name": "User Mgmt",
+			"item": [
+				{
+					"name": "Mock",
+					"item": [
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\":  {\"individualId\":\"{{individual_id}}\",\"pin\":\"545411\",\"email\":\"siddhartha.km@gmail.com\",\"phone\":\"+919427357934\",\"fullName\":[{\"language\":\"fra\",\"value\":\"Siddharth K Mansour\"},{\"language\":\"ara\",\"value\":\"تتگلدكنسَزقهِقِفل دسييسيكدكنوڤو\"},{\"language\":\"eng\",\"value\":\"Siddharth K Mansour\"}],\"gender\":[{\"language\":\"eng\",\"value\":\"Male\"},{\"language\":\"fra\",\"value\":\"Mâle\"},{\"language\":\"ara\",\"value\":\"ذكر\"}],\"dateOfBirth\":\"1987/11/25\",\"streetAddress\":[{\"language\":\"fra\",\"value\":\"yuān⥍\"},{\"language\":\"ara\",\"value\":\"$لُنگᆑ\"},{\"language\":\"eng\",\"value\":\"Slung\"}],\"locality\":[{\"language\":\"fra\",\"value\":\"yuān 2\"},{\"language\":\"ara\",\"value\":\"يَُانꉛ⥍\"},{\"language\":\"eng\",\"value\":\"yuan wee\"}],\"region\":[{\"language\":\"fra\",\"value\":\"yuān 3\"},{\"language\":\"ara\",\"value\":\"$لُنگᆑ\"},{\"language\":\"eng\",\"value\":\"yuan wee 3\"}],\"postalCode\":\"45009\",\"country\":[{\"language\":\"fra\",\"value\":\"CMâttye\"},{\"language\":\"ara\",\"value\":\"دسييسيكدك\"},{\"language\":\"eng\",\"value\":\"Cmattey\"}],\"encodedPhoto\":\"data:image/jpeg;base64,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\"}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{mock_identity_system_url}}/v1/mock-identity-system/identity",
+									"host": [
+										"{{mock_identity_system_url}}"
+									],
+									"path": [
+										"v1",
+										"mock-identity-system",
+										"identity"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -118,7 +333,8 @@
 									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -138,11 +354,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/csrf/token",
+							"raw": "{{url}}/v1/esignet/csrf/token",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"csrf",
 								"token"
 							]
@@ -186,7 +404,8 @@
 									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -200,7 +419,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -208,12 +427,15 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/oauth-details",
+							"raw": "{{url}}/v1/esignet/authorization/v3/oauth-details",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
+								"v3",
 								"oauth-details"
 							]
 						}
@@ -248,11 +470,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/send-otp",
+							"raw": "{{url}}/v1/esignet/authorization/send-otp",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"send-otp"
 							]
@@ -270,7 +494,8 @@
 									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -279,7 +504,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -309,83 +535,16 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/v2/authenticate",
+							"raw": "{{url}}/v1/esignet/authorization/v3/authenticate",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
-								"v2",
+								"v3",
 								"authenticate"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Prepare Signup Redirect",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"var id_token = jsonData.idToken;",
-									"pm.expect(id_token).not.equals(null);",
-									"",
-									"var jwt_parts = id_token.split('.'); // header.payload.signature",
-									"var jwt_payload = JSON.parse(atob(jwt_parts[1]));",
-									"var secret = pm.cookies.get(jwt_payload.sub)",
-									"pm.environment.set(jwt_payload.sub, secret);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}"
-							},
-							{
-								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}"
-							},
-							{
-								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"pathFragment\": \"path-fragment\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/authorization/prepare-signup-redirect",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"authorization",
-								"prepare-signup-redirect"
 							]
 						}
 					},
@@ -407,7 +566,8 @@
 									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -432,7 +592,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": {{accepted_claims}},\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -440,11 +600,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/auth-code",
+							"raw": "{{url}}/v1/esignet/authorization/auth-code",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"auth-code"
 							]
@@ -459,7 +621,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
+									"eval(pm.environment.get('pmlib_code'))",
 									"",
 									"// Set headers for JWT",
 									"var header = {\t",
@@ -468,12 +630,13 @@
 									"",
 									"const private_key_jwk = JSON.parse(pm.environment.get(\"client_private_key\"));",
 									"",
-									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('client_id'), pm.environment.get('audience'), exp = 60,  \"RS256\");",
 									"",
 									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -491,13 +654,20 @@
 									"    pm.environment.set(\"access_token\", jsonData.access_token);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "urlencoded",
 							"urlencoded": [
@@ -508,12 +678,12 @@
 								},
 								{
 									"key": "client_id",
-									"value": "{{clientId}}",
+									"value": "{{client_id}}",
 									"type": "text"
 								},
 								{
 									"key": "redirect_uri",
-									"value": "{{redirectionUrl}}",
+									"value": "{{redirection_url}}",
 									"type": "text"
 								},
 								{
@@ -534,12 +704,15 @@
 							]
 						},
 						"url": {
-							"raw": "{{url}}/oauth/token",
+							"raw": "{{url}}/v1/esignet/oauth/v2/token",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"oauth",
+								"v2",
 								"token"
 							]
 						}
@@ -553,35 +726,20 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"console.log(pm.environment.get(\"access_token\"));"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
-									"",
-									"const private_key_jwk = {",
-									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
-									"\t\"kty\": \"RSA\",",
-									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
-									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
-									"\t\"e\": \"AQAB\",",
-									"\t\"use\": \"sig\",",
-									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
-									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
-									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
-									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
-									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
-									"}",
-									"",
-									"",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -599,11 +757,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/oidc/userinfo",
+							"raw": "{{url}}/v1/esignet/oidc/userinfo",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"oidc",
 								"userinfo"
 							]
@@ -626,7 +786,8 @@
 									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -646,11 +807,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/csrf/token",
+							"raw": "{{url}}/v1/esignet/csrf/token",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"csrf",
 								"token"
 							]
@@ -671,7 +834,8 @@
 									"    pm.environment.set(\"binding_transaction_id\", jsonData.response.transactionId);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -680,11 +844,11 @@
 						"header": [
 							{
 								"key": "X-XSRF-TOKEN",
-								"value": "42843ec0-df92-4129-aa83-c7441533d090"
+								"value": "{{csrf_token}}"
 							},
 							{
 								"key": "PARTNER-ID",
-								"value": "{{relayingPartyId}}"
+								"value": "{{relying_party_id}}"
 							},
 							{
 								"key": "PARTNER-API-KEY",
@@ -701,11 +865,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/binding/binding-otp",
+							"raw": "{{url}}/v1/esignet/binding/binding-otp",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"binding",
 								"binding-otp"
 							]
@@ -725,14 +891,15 @@
 									"console.log(cert);",
 									"pm.environment.set(\"bind_certificate\",cert);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
+									"eval(pm.environment.get('pmlib_code'))",
 									"keyPair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
 									"jwkPrivateKey = pmlib.rs.KEYUTIL.getJWK(keyPair.prvKeyObj);",
 									"jwkPublicKey  = pmlib.rs.KEYUTIL.getJWK(keyPair.pubKeyObj, nokid = true);",
@@ -742,7 +909,8 @@
 									"pm.environment.set(\"binding_public_key\", JSON.stringify(jwkPublicKey))",
 									"pm.environment.set(\"binding_private_key\", JSON.stringify(jwkPrivateKey));"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -751,7 +919,7 @@
 						"header": [
 							{
 								"key": "PARTNER-ID",
-								"value": "{{relayingPartyId}}"
+								"value": "{{relying_party_id}}"
 							},
 							{
 								"key": "PARTNER-API-KEY",
@@ -768,11 +936,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/binding/wallet-binding",
+							"raw": "{{url}}/v1/esignet/binding/wallet-binding",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"binding",
 								"wallet-binding"
 							]
@@ -816,7 +986,8 @@
 									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -830,7 +1001,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:linked-wallet\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -838,12 +1009,15 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/oauth-details",
+							"raw": "{{url}}/v1/esignet/authorization/v3/oauth-details",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
+								"v3",
 								"oauth-details"
 							]
 						}
@@ -863,7 +1037,8 @@
 									"    pm.environment.set(\"link_code\", jsonData.response.linkCode);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -893,11 +1068,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/linked-authorization/link-code",
+							"raw": "{{url}}/v1/esignet/linked-authorization/link-code",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"linked-authorization",
 								"link-code"
 							]
@@ -918,7 +1095,8 @@
 									"    pm.environment.set(\"linkTransactionId\", jsonData.response.linkTransactionId);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -940,11 +1118,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/linked-authorization/link-transaction",
+							"raw": "{{url}}/v1/esignet/linked-authorization/link-transaction",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"linked-authorization",
 								"link-transaction"
 							]
@@ -972,11 +1152,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/linked-authorization/link-status",
+							"raw": "{{url}}/v1/esignet/linked-authorization/link-status",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"linked-authorization",
 								"link-status"
 							]
@@ -991,7 +1173,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
+									"eval(pm.environment.get('pmlib_code'))",
 									"",
 									"//sign token",
 									"const private_key_jwk = JSON.parse(pm.environment.get(\"binding_private_key\"));",
@@ -1005,7 +1187,7 @@
 									"};",
 									"",
 									"const signed_jwt = pmlib.jwtSign(private_key_jwk, {",
-									"    \"aud\" : pm.environment.get('wla_aud'),",
+									"    \"aud\" : pm.environment.get('wla_audience'),",
 									"\t\"sub\": pm.environment.get('individual_id'),",
 									"    \"iss\" : \"postman-inji\"",
 									"}, header, exp=600, alg = \"RS256\")",
@@ -1013,7 +1195,8 @@
 									"pm.collectionVariables.set(\"wla_challenge\",signed_jwt);",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1035,11 +1218,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/linked-authorization/v2/authenticate",
+							"raw": "{{url}}/v1/esignet/linked-authorization/v2/authenticate",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"linked-authorization",
 								"v2",
 								"authenticate"
@@ -1049,13 +1234,13 @@
 					"response": []
 				},
 				{
-					"name": "Link Consent Request (wallet) - V2",
+					"name": "Link Consent Request (wallet)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'));",
+									"eval(pm.environment.get('pmlib_code'));",
 									"",
 									"const private_key_jwk = JSON.parse(pm.environment.get(\"binding_private_key\"));",
 									"var certificate = eval(pm.environment.get('bind_certificate'));",
@@ -1067,11 +1252,11 @@
 									"\t\"alg\": \"RS256\"",
 									"};",
 									"var payload = {}",
-									"var acceptedClaims = pm.environment.get('acceptedClaims');",
+									"var acceptedClaims = pm.environment.get('accepted_claims');",
 									"if(acceptedClaims != undefined && Array.isArray(acceptedClaims)){",
 									"    payload[\"acceptedClaims\"] = acceptedClaims.sort()",
 									"}",
-									"var permittedAuthorizedScopes = eval(pm.environment.get('permittedAuthorizedScopes'));",
+									"var permittedAuthorizedScopes = eval(pm.environment.get('permitted_authorized_scopes'));",
 									"if(permittedAuthorizedScopes != undefined && Array.isArray(permittedAuthorizedScopes)){",
 									"    payload[\"permittedAuthorizedScopes\"] = permittedAuthorizedScopes.sort()",
 									"}",
@@ -1082,7 +1267,8 @@
 									"var detachedSignature = parts[0] + \".\" + parts[2];",
 									"pm.environment.set(\"detachedSignature\",  detachedSignature);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1095,7 +1281,8 @@
 									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1112,7 +1299,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": {{acceptedClaims}},\n        \"signature\": \"{{detachedSignature}}\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": {{accepted_claims}},\n        \"signature\": \"{{detachedSignature}}\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1120,11 +1307,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/linked-authorization/v2/consent",
+							"raw": "{{url}}/v1/esignet/linked-authorization/v2/consent",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"linked-authorization",
 								"v2",
 								"consent"
@@ -1146,7 +1335,8 @@
 									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1168,11 +1358,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/linked-authorization/link-auth-code",
+							"raw": "{{url}}/v1/esignet/linked-authorization/link-auth-code",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"linked-authorization",
 								"link-auth-code"
 							]
@@ -1187,7 +1379,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
+									"eval(pm.environment.get('pmlib_code'))",
 									"",
 									"// Set headers for JWT",
 									"var header = {\t",
@@ -1196,12 +1388,13 @@
 									"",
 									"const private_key_jwk = JSON.parse(pm.environment.get(\"client_private_key\"));",
 									"",
-									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('client_id'), pm.environment.get('audience'), exp = 60,  \"RS256\");",
 									"",
 									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1219,7 +1412,8 @@
 									"    pm.environment.set(\"access_token\", jsonData.access_token);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1236,12 +1430,12 @@
 								},
 								{
 									"key": "client_id",
-									"value": "{{clientId}}",
+									"value": "{{client_id}}",
 									"type": "text"
 								},
 								{
 									"key": "redirect_uri",
-									"value": "{{redirectionUrl}}",
+									"value": "{{redirection_url}}",
 									"type": "text"
 								},
 								{
@@ -1262,12 +1456,15 @@
 							]
 						},
 						"url": {
-							"raw": "{{url}}/oauth/token",
+							"raw": "{{url}}/v1/esignet/oauth/v2/token",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"oauth",
+								"v2",
 								"token"
 							]
 						}
@@ -1281,35 +1478,20 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"console.log(pm.environment.get(\"access_token\"));"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
-									"",
-									"const private_key_jwk = {",
-									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
-									"\t\"kty\": \"RSA\",",
-									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
-									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
-									"\t\"e\": \"AQAB\",",
-									"\t\"use\": \"sig\",",
-									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
-									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
-									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
-									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
-									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
-									"}",
-									"",
-									"",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1327,584 +1509,15 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/oidc/userinfo",
+							"raw": "{{url}}/v1/esignet/oidc/userinfo",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"oidc",
 								"userinfo"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "VCI",
-			"item": [
-				{
-					"name": "Get CSRF token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/csrf/token",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"csrf",
-								"token"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Authorize / OAuthdetails request V2",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var btoa = require('btoa');",
-									"",
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
-									"",
-									"pm.test(\"Validate transactionId\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.response.transactionId).not.equals(null);",
-									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
-									"});",
-									"",
-									"pm.test(\"Validate auth factors\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));",
-									"});",
-									"",
-									"pm.test(\"set oauth-details-hash\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
-									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
-									"    // Remove padding characters",
-									"    base64Encoded = base64Encoded.replace(/=+$/, '');",
-									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding",
-									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');",
-									"    console.log(\"base64Encoded : \" + base64Encoded);",
-									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
-									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
-									"",
-									"const pkce = pmlib.pkceChallenge();",
-									"pm.collectionVariables.set(\"codeChallenge\",pkce.code_challenge);",
-									"pm.collectionVariables.set(\"codeChallengeMethod\",pkce.code_challenge_method);",
-									"pm.collectionVariables.set(\"codeVerifier\",pkce.code_verifier);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"mosip_identity_vc_ldp\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"codeChallenge\" : \"{{codeChallenge}}\",\n        \"codeChallengeMethod\" : \"{{codeChallengeMethod}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/authorization/v2/oauth-details",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"authorization",
-								"v2",
-								"oauth-details"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Send OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}"
-							},
-							{
-								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}"
-							},
-							{
-								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/authorization/send-otp",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"authorization",
-								"send-otp"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Authenticate User V2",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}"
-							},
-							{
-								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}"
-							},
-							{
-								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/authorization/authenticate",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"authorization",
-								"authenticate"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Authorization Code",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
-									"",
-									"pm.test(\"Validate code\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.response.code).not.equals(null);",
-									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"followRedirects": false
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}"
-							},
-							{
-								"key": "oauth-details-key",
-								"value": "{{oauth_details_key}}"
-							},
-							{
-								"key": "oauth-details-hash",
-								"value": "{{oauth_details_hash}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/authorization/auth-code",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"authorization",
-								"auth-code"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Tokens V2",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
-									"",
-									"// Set headers for JWT",
-									"var header = {\t",
-									"\t\"alg\": \"RS256\"",
-									"};",
-									"",
-									"const private_key_jwk = JSON.parse(pm.environment.get(\"client_private_key\")); ",
-									"//sign token",
-									"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
-									"//generated private and public keys are stored in the postman environment ",
-									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
-									"",
-									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Validate Id-token\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.id_token).not.equals(null);",
-									"});",
-									"",
-									"pm.test(\"Validate access-token\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.access_token).not.equals(null);",
-									"    pm.environment.set(\"access_token\", jsonData.access_token);",
-									"",
-									"    var jwt_parts = pm.environment.get('access_token').split('.'); // header.payload.signature",
-									"    var jwt_payload = JSON.parse(atob(jwt_parts[1]));",
-									"    pm.environment.set(\"c_nonce\", jwt_payload.c_nonce);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "code",
-									"value": "{{code}}",
-									"type": "text"
-								},
-								{
-									"key": "client_id",
-									"value": "{{clientId}}",
-									"type": "text"
-								},
-								{
-									"key": "redirect_uri",
-									"value": "{{redirectionUrl}}",
-									"type": "text"
-								},
-								{
-									"key": "grant_type",
-									"value": "authorization_code",
-									"type": "text"
-								},
-								{
-									"key": "client_assertion_type",
-									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-									"type": "text"
-								},
-								{
-									"key": "client_assertion",
-									"value": "{{client_assertion}}",
-									"type": "text"
-								},
-								{
-									"key": "code_verifier",
-									"value": "{{codeVerifier}}",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{url}}/oauth/v2/token",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"oauth",
-								"v2",
-								"token"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Credential",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
-									"keyPair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
-									"jwkPrivateKey = pmlib.rs.KEYUTIL.getJWK(keyPair.prvKeyObj);",
-									"jwkPublicKey  = pmlib.rs.KEYUTIL.getJWK(keyPair.pubKeyObj);",
-									"jwkPublicKey[\"alg\"] = \"RS256\";",
-									"jwkPublicKey[\"use\"] = \"sig\";",
-									"",
-									"pm.environment.set(\"holder_public_key\", JSON.stringify(jwkPublicKey))",
-									"pm.environment.set(\"holder_private_key\", JSON.stringify(jwkPrivateKey));",
-									"",
-									"// Set headers for JWT",
-									"var header = {\t",
-									"\t\"alg\": \"RS256\",",
-									"    \"typ\" : \"openid4vci-proof+jwt\",",
-									"    \"jwk\" : JSON.parse(pm.environment.get(\"holder_public_key\"))",
-									"};",
-									"",
-									"",
-									"console.log(\"Getting c_nonce >> \" +  pm.environment.get('c_nonce'));",
-									"",
-									"const signed_jwt = pmlib.jwtSign(JSON.parse(pm.environment.get(\"holder_private_key\")), {",
-									"    \"aud\" : pm.environment.get('vci_aud'),",
-									"\t\"nonce\": pm.environment.get('c_nonce'),",
-									"    \"iss\" : pm.environment.get('clientId'),",
-									"}, header, exp=600, alg = \"RS256\")",
-									"",
-									"pm.collectionVariables.set(\"proof_jwt\",signed_jwt);",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Validate c_nonce\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if(jsonData.c_nonce != null) {",
-									"        pm.environment.set(\"c_nonce\", jsonData.c_nonce);",
-									"        console.log(\"setting c_nonce\");",
-									"    }    ",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"format\": \"ldp_vc\",\n    \"credential_definition\" : { \"type\" : [\"VerifiableCredential\", \"MOSIPVerifiableCredential\"], \"@context\" : [\"https://www.w3.org/2018/credentials/v1\"]},\n    \"proof\": {\n        \"proof_type\": \"jwt\",\n        \"jwt\": \"{{proof_jwt}}\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}/vci/credential",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"vci",
-								"credential"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Well-known endpoints",
-			"item": [
-				{
-					"name": "JWKS",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}/oauth/.well-known/jwks.json",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"oauth",
-								".well-known",
-								"jwks.json"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Openid-configuration",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}/oidc/.well-known/openid-configuration",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"oidc",
-								".well-known",
-								"openid-configuration"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "OAuth-configuration",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}/oauth/.well-known/oauth-authorization-server",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"oauth",
-								".well-known",
-								"oauth-authorization-server"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "VC issuer metadata",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}/vci/.well-known/openid-credential-issuer",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"vci",
-								".well-known",
-								"openid-credential-issuer"
 							]
 						}
 					},
@@ -1925,7 +1538,8 @@
 									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1945,11 +1559,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/csrf/token",
+							"raw": "{{url}}/v1/esignet/csrf/token",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"csrf",
 								"token"
 							]
@@ -2009,7 +1625,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{clientId}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirectionUrl}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code mosip:idp:acr:linked-wallet mosip:idp:acr:biometrics\",\n        \"claims\": {{claimsV3}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"uiLocales\": \"en-US\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"claims\": {{claims_v3}},\n        \"nonce\" : \"{{nonce}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2017,11 +1633,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/v3/oauth-details",
+							"raw": "{{url}}/v1/esignet/authorization/v3/oauth-details",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"v3",
 								"oauth-details"
@@ -2058,11 +1676,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/send-otp",
+							"raw": "{{url}}/v1/esignet/authorization/send-otp",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"send-otp"
 							]
@@ -2080,7 +1700,8 @@
 									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2089,7 +1710,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2119,11 +1741,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/v3/authenticate",
+							"raw": "{{url}}/v1/esignet/authorization/v3/authenticate",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"v3",
 								"authenticate"
@@ -2166,11 +1790,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/claim-details",
+							"raw": "{{url}}/v1/esignet/authorization/claim-details",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"claim-details"
 							]
@@ -2188,7 +1814,9 @@
 									"var jsonData = pm.response.json();",
 									"var id_token = jsonData.response.idToken;",
 									"pm.expect(id_token).not.equals(null);",
-									"pm.environment.set(\"IDTOKENHINT\", id_token);"
+									"",
+									"//Use id_token_hint to start new OIDC flow",
+									"pm.globals.set(\"id_token_hint\", id_token); "
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2231,11 +1859,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/prepare-signup-redirect",
+							"raw": "{{url}}/v1/esignet/authorization/prepare-signup-redirect",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"prepare-signup-redirect"
 							]
@@ -2266,7 +1896,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"requestTime\": \"{{$isoTimestamp}}\",\r\n    \"request\": {\r\n        \"transactionId\": \"{{transaction_id}}\",\r\n        \"withError\": false\r\n    }\r\n}",
+							"raw": "{\r\n    \"requestTime\": \"{{$isoTimestamp}}\",\r\n    \"request\": {\r\n        \"transactionId\": \"{{transaction_id}}\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2274,11 +1904,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/resume",
+							"raw": "{{url}}/v1/esignet/authorization/resume",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"resume"
 							]
@@ -2338,7 +1970,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [\"email\", \"phone_number\"],\n        \"permittedAuthorizeScopes\" : []\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": {{accepted_claims}},\n        \"permittedAuthorizeScopes\" : {{permitted_authorized_scopes}}\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2346,11 +1978,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/authorization/auth-code",
+							"raw": "{{url}}/v1/esignet/authorization/auth-code",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"authorization",
 								"auth-code"
 							]
@@ -2365,7 +1999,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
+									"eval(pm.environment.get('pmlib_code'))",
 									"",
 									"// Set headers for JWT",
 									"var header = {\t",
@@ -2376,12 +2010,13 @@
 									"//sign token",
 									"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
 									"//generated private and public keys are stored in the postman environment ",
-									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"privateKey_jwk\")), pm.environment.get('clientId'), pm.environment.get('aud'), exp = 60,  \"RS256\");",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"client_private_key\")), pm.environment.get('clientId'), pm.environment.get('audience'), exp = 60,  \"RS256\");",
 									"",
 									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2399,7 +2034,8 @@
 									"    pm.environment.set(\"access_token\", jsonData.access_token);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2416,12 +2052,12 @@
 								},
 								{
 									"key": "client_id",
-									"value": "{{clientId}}",
+									"value": "{{client_id}}",
 									"type": "text"
 								},
 								{
 									"key": "redirect_uri",
-									"value": "{{redirectionUrl}}",
+									"value": "{{redirection_url}}",
 									"type": "text"
 								},
 								{
@@ -2447,11 +2083,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{url}}/oauth/v2/token",
+							"raw": "{{url}}/v1/esignet/oauth/v2/token",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"oauth",
 								"v2",
 								"token"
@@ -2467,35 +2105,20 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"console.log(pm.environment.get(\"access_token\"));"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'))",
-									"",
-									"const private_key_jwk = {",
-									"\t\"p\": \"0-40ISxXDmC8SVrudg1e7vQskyWlohadm83RAkUyH6S4h1aTPrNwLVn9WANnyRTqupD1Fr8mYZ7f9nZ2MkMj45UV8uiIjQZr3crMq0YGkzt_LvwhLduWOJ_z9_9zZNHckXei4G8QQFJQYb3TNdGsVVSwff68SSoen8oqvkbkAJs\",",
-									"\t\"kty\": \"RSA\",",
-									"\t\"q\": \"6as88odcbP2MDT9lkahK2z4QIH25zsa_UdLgAtLwDVpekXfJNOQvuqNY1Gw3Jws6uPDLGcEK42MyeOdCFqklFTvDJlJXMFvgWrmGbCUMvJL-rFyO-kCTGnFBX60ozdJbjfBt3E3QYx3G907Ziuu9o0azey1DJtq_zKwearE-xTs\",",
-									"\t\"d\": \"BgdeiCZbr5qZ4haShg9uQinZRYPSUTYc_58YgvQ0WkPKm5fINOgOJPvimdKYBt8OtIWbhojTyn0TKrGPPAqFZCnGY16HkCUN31MbluD2wxYz6SPpZ1zsmP8PbQUVozjEFeLpiTN6nubw_skS_9GGrl1CPb25wTPlZtI3uQ5IiPL_YD5j_w5_J7tejAaRbhlJj48ZDa4CR8BkaUi2QaQmLoyiO_1O-U-Nf17-t1C6zFFKKHQx2lNltE1xFQoHB4WuBA2GnP5LgNFJSLv0p95gQK37nP0TTcuiZVlvFcmbGI_ilWlxRKJUD3mZR6nz25X4SapUWswnrnm7JtUA_UGVGw\",",
-									"\t\"e\": \"AQAB\",",
-									"\t\"use\": \"sig\",",
-									"\t\"kid\": \"1bbdc9de-c24f-4801-b6b3-691ac07641af\",",
-									"\t\"qi\": \"pmL_G7T4OF_pr2RCzkkupi1dCbwRX39bMEIs3uirvkoPR5CENvuvsXQ0Oias3taxzLa4nG5JVXHkyOIX8UsK1NFrzZPRKbfNX3h5EAnl3I7cZMtoYJLnawUqaNTukOmDChPlKx1fVjUwsyNn5HSAnmBiaOmm_RHo36tPhgaPUtE\",",
-									"\t\"dp\": \"e3b2X60ZOoMYrhOPgK7hc4xEu6TfDcLnJvGMpinxvYWVCyNgvNKEs6cNdMznFbpd1TrFze6mSZDpIQh6a2W57sfX9Z-Kjb4D8T5IZi9xfSzYN2MjYTfgGDT3SK9FZqLsQMLV3LJXYWGS-p5AAcaZA01HVN-miWlEVgrNQ_TAt6k\",",
-									"\t\"dq\": \"Yg-BqUoTCI4y6xBS4JieqXlXLTt18YfInF8BsU2yffgRvbxmTPMB8LJCQgsT7iexQhGTOkCgACMN-F0ciAP90vZchEWD34B_G7PF7LZzrOOHSvAg9HaLBUrII424lP-VenCOuihRrna9m-WUN8-MquutwKCTEMg2O39z2FR_wic\",",
-									"\t\"n\": \"wXGQA574CU-WTWPILd4S3_1sJf0Yof0kwMeNctXc1thQo70Ljfn9f4igpRe7f8qNs_W6dLuLWemFhGJBQBQ7vvickECKNJfo_EzSD_yyPCg7k_AGbTWTkuoObHrpilwJGyKVSkOIujH_FqHIVkwkVXjWc25Lsb8Gq4nAHNQEqqgaYPLEi5evCR6S0FzcXTPuRh9zH-cM0Onjv4orrfYpEr61HcRp5MXL55b7yBoIYlXD8NfalcgdrWzp4VZHvQ8yT9G5eaf27XUn6ZBeBf7VnELcKFTyw1pK2wqoOxRBc8Y1wO6rEy8PlCU6wD-mbIzcjG1wUfnbgvJOM4A5G41quQ\"",
-									"}",
-									"",
-									"",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2513,13 +2136,83 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/oidc/userinfo",
+							"raw": "{{url}}/v1/esignet/oidc/userinfo",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
+								"v1",
+								"esignet",
 								"oidc",
 								"userinfo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Well-known endpoints",
+			"item": [
+				{
+					"name": "JWKS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/.well-known/jwks.json",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								".well-known",
+								"jwks.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Openid-configuration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/esignet/oidc/.well-known/openid-configuration",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oidc",
+								".well-known",
+								"openid-configuration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OAuth-configuration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/.well-known/oauth-authorization-server",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								".well-known",
+								"oauth-authorization-server"
 							]
 						}
 					},
