@@ -23,8 +23,8 @@ function initialize_db() {
   done
 
   while true; do
-      read -p "CAUTION: all existing data if any for mosip_esignet will be lost. Are you sure?(Y/n)" yn
-      if [ $yn = "Y" ]
+      read -p "CAUTION: all existing data if any for mosip_esignet will be lost. Are you sure? (Y/n)" yn
+      if [ $yn = "Y" ] || [ $yn = "y" ];
         then
           echo Removing existing mosip_esignet installation and secret
           helm -n $NS delete esignet-postgres-init || true
@@ -32,7 +32,11 @@ function initialize_db() {
           echo Initializing DB
           helm -n $NS install esignet-postgres-init mosip/postgres-init --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
           break
-        else
+      elif [ "$yn" = "N" ] || [ "$yn" = "n" ]; then
+          echo "Skipping postgres initialisation as per your input"
+          break
+      else
+          echo "Incorrect Input"
           break
       fi
   done

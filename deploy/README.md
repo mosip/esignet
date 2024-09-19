@@ -24,9 +24,11 @@
 ./install-prereq.sh
 ```
 ### Initialise pre-requisites
-```
-./initialise-prereq.sh
-```
+* Update values file for postgres init [here](postgres/init_values.yaml).
+* Execute `initialise-prereq.sh` script to initialise postgres and keycloak and set esignet captcha.
+  ```
+  ./initialise-prereq.sh
+  ```
 ### Install esignet, oidc and captcha service
 ```
 ./install-esignet.sh
