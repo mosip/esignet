@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=0.0.1-develop
+CHART_VERSION=0.0.1-test
 
 echo Create $NS namespace
 kubectl create ns $NS
@@ -20,7 +20,6 @@ function installing_oidc-ui() {
   helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
-  $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
 
   ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
 

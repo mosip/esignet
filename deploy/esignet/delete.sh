@@ -10,7 +10,7 @@ function Deleting_esignet() {
   NS=esignet
   while true; do
       read -p "Are you sure you want to delete all esignet helm charts?(Y/n) " yn
-      if [ $yn = "Y" ]
+      if [[ $yn = "Y" ]] || [[ $yn = "y" ]];
         then
           helm -n $NS delete esignet
           break
