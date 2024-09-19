@@ -49,6 +49,7 @@ function installing_postgres() {
   echo Installing gateways and virtual services
   POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
   helm -n $NS install istio-addons chart/istio-addons --set postgresHost=$POSTGRES_HOST --wait
+  kubectl apply -f postgres-config.yaml
   return 0
 }
 
@@ -60,7 +61,7 @@ while true; do
         break
     elif [ "$answer" = "N" ] || [ "$answer" = "n" ]; then
         echo "Skipping Postgres installation. Running generate_secret.py to create Postgres secrets..."
-        python3 generate-secret.py  # Ensure that Python and the script are available in the environment
+        python3 generate-secret-cm.py  # Ensure that Python and the script are available in the environment
         echo "Secrets generated. Exiting script."
         exit 0  # Exit the script after generating secrets
     else

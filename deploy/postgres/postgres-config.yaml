@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: esignet
+  labels:
+    app: postgres
+data:
+  database-host: "postgres.esignet"
+  database-port: "5432"
+  database-username: "esignetuser"
+  database-name: "mosip_esignet"

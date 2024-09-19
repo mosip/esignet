@@ -51,7 +51,7 @@ service:
 
 image:
   registry: docker.io
-  repository: mosipqa/oidc-ui
+  repository: mosipdev/oidc-ui
   tag: develop
 
   ## Specify a imagePullPolicy
@@ -246,14 +246,11 @@ extraEnvVars: []
 ##
 extraEnvVarsCM:
   - esignet-global
-  - esignet-config-server-share
-  - esignet-artifactory-share
-  - esignet-softhsm-share
   - oidc-ui
 
 ## Secret with extra environment variables
 ##
-extraEnvVarsSecret:
+extraEnvVarsSecret: []
 
 ## Extra volumes to add to the deployment
 ##

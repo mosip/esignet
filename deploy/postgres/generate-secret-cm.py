@@ -40,7 +40,40 @@ data:
         print(f"Creating new secret '{secret_name}'...")
         os.system(f"kubectl create -f {yaml_file} --save-config")
 
-# Check if the 'esignet' namespace exists
+# Function to check if a ConfigMap already exists
+def configmap_exists(configmap_name, namespace):
+    result = os.system(f"kubectl get configmap {configmap_name} -n {namespace} > /dev/null 2>&1")
+    return result == 0
+
+# Function to create or update a ConfigMap
+def create_or_update_configmap(configmap_name, namespace, postgres_host, postgres_port, db_user, db_name):
+    yaml_content = f"""
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {configmap_name}
+  namespace: {namespace}
+  labels:
+    app: postgres
+data:
+  database-host: "{postgres_host}"
+  database-port: "{postgres_port}"
+  database-username: "{db_user}"
+  database-name: "{db_name}"
+"""
+    yaml_file = f"{configmap_name}.yaml"
+    with open(yaml_file, "w") as file:
+        file.write(yaml_content)
+    print(f"'{configmap_name}' ConfigMap YAML written to {yaml_file}.")
+
+    if configmap_exists(configmap_name, namespace):
+        print(f"Updating existing ConfigMap '{configmap_name}'...")
+        os.system(f"kubectl apply -f {yaml_file}")
+    else:
+        print(f"Creating new ConfigMap '{configmap_name}'...")
+        os.system(f"kubectl create -f {yaml_file} --save-config")
+
+# Main script logic
 namespace = "esignet"
 check_namespace(namespace)
 
@@ -71,3 +104,23 @@ else:
     print(f"Creating secret '{postgres_secret_name}'...")
     postgres_password = input("Enter postgres user password: ")
     create_or_update_secret(postgres_secret_name, namespace, "postgres-password", postgres_password)
+
+# Handle ConfigMap creation for PostgreSQL
+configmap_name = "postgres-config"
+if configmap_exists(configmap_name, namespace):
+    overwrite = input(f"ConfigMap '{configmap_name}' already exists in namespace '{namespace}'. Overwrite? (y/n): ")
+    if overwrite.lower() == 'y':
+        postgres_host = input("Enter PostgreSQL host: ")
+        postgres_port = input("Enter PostgreSQL port: ")
+        db_user = input("Enter DB user: ")
+        db_name = input("Enter DB name: ")
+        create_or_update_configmap(configmap_name, namespace, postgres_host, postgres_port, db_user, db_name)
+    else:
+        print(f"Skipping creation of '{configmap_name}' ConfigMap.")
+else:
+    print(f"Creating ConfigMap '{configmap_name}'...")
+    postgres_host = input("Enter PostgreSQL host: ")
+    postgres_port = input("Enter PostgreSQL port: ")
+    db_user = input("Enter DB user: ")
+    db_name = input("Enter DB name: ")
+    create_or_update_configmap(configmap_name, namespace, postgres_host, postgres_port, db_user, db_name)

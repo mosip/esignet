@@ -48,10 +48,8 @@ function installing_Prerequisites() {
   helm -n "$SOFTHSM_NS" install esignet-softhsm mosip/softhsm -f softhsm-values.yaml --version "$SOFTHSM_CHART_VERSION" --wait
   echo "Installed Softhsm for esignet"
 
-  declare -a modules=("artifactory" "postgres" "keycloak" "kafka" "redis" "minio")
+  declare -a modules=("postgres" "keycloak" "kafka" "redis" "minio")
   declare -A prompts=(
-    ["artifactory"]="Do you want to deploy artifactory?"
-    ["postgres"]="Do you want to deploy a new PostgreSQL instance?"
     ["keycloak"]="Do you want to deploy keycloak in the keycloak namespace?"
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace?"
   )
@@ -59,10 +57,9 @@ function installing_Prerequisites() {
   echo "Installing prerequisite services"
 
   for module in "${modules[@]}"; do
-    if [ "$module" == "redis" ]; then
+    if [ "$module" == "redis" ] || [ "$module" == "postgres" ]; then
       cd "$ROOT_DIR/$module"
       ./install.sh
-
     elif [ "$module" == "minio" ]; then
       read -p "Is MOSIP used as Identity Provider? (y/n): " ans
       if [[ "$ans" != "y" && "$ans" != "Y" && "$ans" != "n" && "$ans" != "N" ]]; then
