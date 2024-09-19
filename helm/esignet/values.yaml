@@ -240,7 +240,21 @@ updateStrategy:
 ##   - name: FOO
 ##     value: "bar"
 ##
-extraEnvVars: []
+extraEnvVars: |
+  - name: KEYCLOAK_EXTERNAL_URL
+    valueFrom:
+      configMapKeyRef:
+        name: keycloak-host
+        key: keycloak-external-url
+  - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: esignet-captcha
+        key: esignet-captcha-site-key
+  - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
+    value: esignet
+  - name: IDA_AUTHENTICATOR_ENV
+    value: Staging
 
 ## ConfigMap with extra environment variables that used
 ##
@@ -249,6 +263,7 @@ extraEnvVarsCM:
   - esignet-softhsm-share
   - redis-config
   - postgres-config
+  - keycloak-host
 ## Secret with extra environment variables
 ##
 extraEnvVarsSecret:
@@ -256,6 +271,7 @@ extraEnvVarsSecret:
   - esignet-captcha
   - keycloak-client-secrets
   - esignet-misp-onboarder-key
+  - esignet-softhsm
 ## Extra volumes to add to the deployment
 ##
 extraVolumes: []
