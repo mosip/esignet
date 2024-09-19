@@ -255,21 +255,79 @@ extraEnvVars: |
     value: esignet
   - name: IDA_AUTHENTICATOR_ENV
     value: Staging
+  - name: REDIS_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: redis-config
+        key: redis-host
+  - name: REDIS_PORT
+    valueFrom:
+      configMapKeyRef:
+        name: redis-config
+        key: redis-port
+  - name: REDIS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: redis
+        key: redis-password
+  - name: DATABASE_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-host
+  - name: DATABASE_PORT
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-port
+  - name: DATABASE_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-name
+  - name: DATABASE_USERNAME
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-username
+  - name: DB_DBUSER_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-common-secrets
+        key: db-dbuser-password
+  - name: SOFTHSM_ESIGNET_SECURITY_PIN
+    valueFrom:
+      secretKeyRef:
+        name: esignet-softhsm
+        key: security-pin
+  - name: MOSIP_ESIGNET_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-esignet-host
+  - name: MOSIP_SIGNUP_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-signup-host
+  - name: MOSIP_IDA_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-client-secrets
+        key: mosip_ida_client_secret
+  - name: MOSIP_ESIGNET_MISP_KEY
+    valueFrom:
+      secretKeyRef:
+        name: esignet-misp-onboarder-key
+        key: mosip-esignet-misp-key
 
 ## ConfigMap with extra environment variables that used
 ##
 extraEnvVarsCM:
-  - esignet-global
   - esignet-softhsm-share
-  - redis-config
-  - postgres-config
 ## Secret with extra environment variables
 ##
-extraEnvVarsSecret:
-  - db-common-secrets
-  - keycloak-client-secrets
-  - esignet-misp-onboarder-key
-  - esignet-softhsm
+extraEnvVarsSecret: []
 ## Extra volumes to add to the deployment
 ##
 extraVolumes: []

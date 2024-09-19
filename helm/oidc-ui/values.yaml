@@ -245,7 +245,6 @@ extraEnvVars: []
 ## ConfigMap with extra environment variables
 ##
 extraEnvVarsCM:
-  - esignet-global
   - oidc-ui
 
 ## Secret with extra environment variables
