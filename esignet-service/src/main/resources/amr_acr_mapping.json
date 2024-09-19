@@ -14,6 +14,7 @@
     "mosip:idp:acr:linked-wallet" : [ "Wallet" ],
     "mosip:idp:acr:biometrics" : [ "L1-bio-device" ],
     "mosip:idp:acr:knowledge" : [ "Knowledge" ],
+    "mosip:idp:acr:password" : [ "Password" ],
     "mosip:idp:acr:id-token" : [ "ID-token" ]
   }
 }
