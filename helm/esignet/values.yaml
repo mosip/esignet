@@ -263,12 +263,10 @@ extraEnvVarsCM:
   - esignet-softhsm-share
   - redis-config
   - postgres-config
-  - keycloak-host
 ## Secret with extra environment variables
 ##
 extraEnvVarsSecret:
   - db-common-secrets
-  - esignet-captcha
   - keycloak-client-secrets
   - esignet-misp-onboarder-key
   - esignet-softhsm
