@@ -11,11 +11,11 @@ One can [import](https://learning.postman.com/docs/getting-started/importing-and
 
 To test eSignet with Mock identity system:
 
-[esignet-with-mock.postman_environment.json](esignet-with-mock.postman_environment.json)
+[esignet-with-mock.postman_environment.json](eSignet-with-mock.postman_environment.json)
 
 To test eSignet integrated with MOSIP IDA:
 
-[esignet-with-MOSIP.postman_environment.json](esignet-with-MOSIP.postman_environment.json)
+[esignet-with-MOSIP.postman_environment.json](eSignet-with-MOSIP.postman_environment.json)
 
 ## Prerequisites for testing with MOSIP IDA Flow
 For the client creation in the above flow the user is expected to have the following details handy
