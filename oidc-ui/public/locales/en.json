@@ -459,7 +459,7 @@
       "send_otp_failed_msg": "Unable to send OTP. Please try again.",
       "invalid_otp_channel": "Invalid OTP Channel Provided.",
       "auth_failed": "OTP authentication failed. Please try again.",
-      "IDA-MLC-018": "IPlease Enter Valid UIN."
+      "IDA-MLC-018": "Please Enter Valid UIN."
     },
     "biometrics": {
       "IDA-BIA-001": "Biometric data did not match. Please try again.",
