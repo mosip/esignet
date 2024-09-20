@@ -335,10 +335,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                     oidcTransaction), null);
             return resumeResponse;
         }
-
         cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
-        resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
-        return resumeResponse;
+        throw new EsignetException(ErrorConstants.RESUME_NOT_APPLICABLE);
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate

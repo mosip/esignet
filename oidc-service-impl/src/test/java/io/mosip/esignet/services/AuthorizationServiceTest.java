@@ -1314,16 +1314,19 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void resumeHaltedTransaction_withResumeNotApplicable_thenPass() {
+    public void resumeHaltedTransaction_withStatusAsNotCompleted_thenFail() {
         String transactionId = "transactionId";
         ResumeRequest resumeRequest = new ResumeRequest();
         resumeRequest.setTransactionId(transactionId);
         resumeRequest.setWithError(true);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
-        when(cacheUtilService.getSharedIDVResult(transactionId)).thenReturn(null);
-        ResumeResponse result = authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
-        Assert.assertEquals(Constants.RESUME_NOT_APPLICABLE, result.getStatus());
+        when(cacheUtilService.getSharedIDVResult(transactionId)).thenReturn("FAILED");
+        try{
+            authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
+        }catch (EsignetException ex){
+            Assert.assertEquals(ErrorConstants.RESUME_NOT_APPLICABLE,ex.getErrorCode());
+        }
     }
 
     @Test

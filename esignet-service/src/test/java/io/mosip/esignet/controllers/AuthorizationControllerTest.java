@@ -1531,7 +1531,7 @@ public class AuthorizationControllerTest {
         resumeResponse.setStatus("status");
         when(authorizationService.resumeHaltedTransaction(resumeRequest)).thenReturn(resumeResponse);
 
-        mockMvc.perform(post("/authorization/resume")
+        mockMvc.perform(post("/authorization/complete")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1550,7 +1550,7 @@ public class AuthorizationControllerTest {
 
         when(authorizationService.resumeHaltedTransaction(Mockito.any())).thenThrow(new InvalidTransactionException());
 
-        mockMvc.perform(post("/authorization/resume")
+        mockMvc.perform(post("/authorization/complete")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

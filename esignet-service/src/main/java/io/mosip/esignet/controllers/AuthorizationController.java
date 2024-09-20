@@ -182,7 +182,7 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
-    @PostMapping("/resume")
+    @PostMapping("/complete")
     public ResponseWrapper<ResumeResponse> resumeHaltedTransaction(@Valid @RequestBody RequestWrapper<ResumeRequest> requestWrapper) {
         ResponseWrapper<ResumeResponse> responseWrapper = new ResponseWrapper<>();
         try {
