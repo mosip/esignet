@@ -14,7 +14,7 @@ helm repo add mosip https://mosip.github.io/mosip-helm
 helm repo update
 
 echo "checking if PMS & mpartner_default_auth client is created already"
-IAMHOST_URL=$(kubectl get cm global -o jsonpath={.data.mosip-iam-external-host})
+
 PMS_CLIENT_SECRET_KEY='mosip_pms_client_secret'
 PMS_CLIENT_SECRET_VALUE=$( kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$PMS_CLIENT_SECRET_KEY} | base64 -d )
 MPARTNER_DEFAULT_AUTH_SECRET_KEY='mpartner_default_auth_secret'
@@ -36,8 +36,8 @@ helm -n $NS install esignet-keycloak-init mosip/keycloak-init \
 --set clientSecrets[1].secret="$MPARTNER_DEFAULT_AUTH_SECRET_VALUE" \
 --version $CHART_VERSION
 
-MPARTNER_DEFAULT_AUTH_SECRET_VALUE=$( kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$MPARTNER_DEFAULT_AUTH_SECRET_KEY} )
-PMS_CLIENT_SECRET_VALUE=$( kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$PMS_CLIENT_SECRET_KEY} )
+MPARTNER_DEFAULT_AUTH_SECRET_VALUE=$( kubectl -n $NS get secrets keycloak-client-secrets -o jsonpath={.data.$MPARTNER_DEFAULT_AUTH_SECRET_KEY} )
+PMS_CLIENT_SECRET_VALUE=$( kubectl -n $NS get secrets keycloak-client-secrets -o jsonpath={.data.$PMS_CLIENT_SECRET_KEY} )
 
 kubectl -n keycloak get secret keycloak-client-secrets -o json | jq ".data[\"$PMS_CLIENT_SECRET_KEY\"]=\"$PMS_CLIENT_SECRET_VALUE\"" | jq ".data[\"$MPARTNER_DEFAULT_AUTH_SECRET_KEY\"]=\"$MPARTNER_DEFAULT_AUTH_SECRET_VALUE\"" | kubectl apply -f -
 kubectl -n config-server get secret keycloak-client-secrets -o json | jq ".data[\"$PMS_CLIENT_SECRET_KEY\"]=\"$PMS_CLIENT_SECRET_VALUE\"" | jq ".data[\"$MPARTNER_DEFAULT_AUTH_SECRET_KEY\"]=\"$MPARTNER_DEFAULT_AUTH_SECRET_VALUE\"" | kubectl apply -f -
