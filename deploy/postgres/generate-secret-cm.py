@@ -32,7 +32,6 @@ data:
     with open(yaml_file, "w") as file:
         file.write(yaml_content)
     print(f"'{secret_name}' secret YAML written to {yaml_file}.")
-    
     if secret_exists(secret_name, namespace):
         print(f"Updating existing secret '{secret_name}'...")
         os.system(f"kubectl apply -f {yaml_file}")
@@ -106,7 +105,7 @@ else:
     create_or_update_secret(postgres_secret_name, namespace, "postgres-password", postgres_password)
 
 # Handle ConfigMap creation for PostgreSQL
-configmap_name = "postgres-config"
+configmap_name = "esignet-postgres-config"
 if configmap_exists(configmap_name, namespace):
     overwrite = input(f"ConfigMap '{configmap_name}' already exists in namespace '{namespace}'. Overwrite? (y/n): ")
     if overwrite.lower() == 'y':
@@ -121,6 +120,6 @@ else:
     print(f"Creating ConfigMap '{configmap_name}'...")
     postgres_host = input("Enter PostgreSQL host: ")
     postgres_port = input("Enter PostgreSQL port: ")
-    db_user = input("Enter DB user: ")
-    db_name = input("Enter DB name: ")
+    db_user = "esignetuser"
+    db_name = "mosip_esignet"
     create_or_update_configmap(configmap_name, namespace, postgres_host, postgres_port, db_user, db_name)
