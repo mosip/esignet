@@ -12,7 +12,7 @@ function initialize_db() {
   helm repo update
 
   while true; do
-      read -p "Please confirm once values-init.yaml is updated correctly with tag, postgres host, and password details. (Y/n): " ans
+      read -p "Please confirm with "Y" once values-init.yaml is updated correctly with tag, postgres host, and password details else "N" to exit installation: " ans
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
