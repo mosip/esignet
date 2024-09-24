@@ -9,7 +9,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -31,7 +30,6 @@ import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.BioDataUtility;
 import io.mosip.testrig.apirig.utils.ConfigManager;
-import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
 import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
@@ -44,11 +42,7 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 	public Response response = null;
 	public boolean isInternal = false;
 
-	@Autowired
-	private EncryptionDecrptionUtil encryptDecryptUtil;
-	
-	@Autowired
-	private BioDataUtility bioDataUtil;
+	private BioDataUtility bioDataUtil = new BioDataUtility();
 	
 	@BeforeClass
 	public static void setLogLevel() {
