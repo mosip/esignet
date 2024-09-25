@@ -1,5 +1,5 @@
 #!/bin/bash
-# Restart the deployment
+# Restarts the kafka services
 ## Usage: ./restart.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

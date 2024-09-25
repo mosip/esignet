@@ -1,9 +1,9 @@
 #!/bin/bash
-# Uninstalls all captcha helm charts
+# Uninstalls captcha validation server
 function deleting_captcha() {
   while true; do
       read -p "Are you sure you want to delete captcha helm charts?(Y/n) " yn
-      if [ $yn = "Y" ]
+      if [[ $yn = "Y" ]] || [[ $yn = "y" ]]
         then
           helm -n captcha delete captcha
           break

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs postgres inside the cluster
+# Installs postgres server in K8 cluster in esignet namespace
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to initialize the DB. 
+# Script to initialize the Esignet DB in postgres server.
 ## Usage: ./init_db.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

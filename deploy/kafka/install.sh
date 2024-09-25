@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs kafka
+# Installs kafka helm chart by bitnami
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

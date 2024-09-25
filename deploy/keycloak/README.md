@@ -53,7 +53,7 @@ TODO: The keycloak docker version in `values.yaml` is an older version as the ve
 ## Keycloak Init
 To populate base data of MOSIP, run Keycloak Init job:
 ```
-$ ./keycloak_init.sh <kubeconfig file for mosip cluster>
+$ ./keycloak-init.sh <kubeconfig file for mosip cluster>
 ```
 ## EXPORT 
 

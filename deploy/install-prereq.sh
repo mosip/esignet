@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Installs prerequisite services
+# Installs prerequisite services for Esignet
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ]; then
@@ -28,7 +28,7 @@ function prompt_for_deployment() {
   fi
 }
 
-function installing_Prerequisites() {
+function installing_prerequisites() {
 
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
@@ -48,7 +48,7 @@ function installing_Prerequisites() {
   helm -n "$SOFTHSM_NS" install esignet-softhsm mosip/softhsm -f softhsm-values.yaml --version "$SOFTHSM_CHART_VERSION" --wait
   echo "Installed Softhsm for esignet"
 
-  declare -a modules=("postgres" "keycloak" "kafka" "redis" "minio")
+  declare -a modules=("postgres" "keycloak" "kafka" "redis")
   declare -A prompts=(
     ["keycloak"]="Do you want to deploy keycloak in the keycloak namespace?"
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace?"
@@ -60,22 +60,6 @@ function installing_Prerequisites() {
     if [ "$module" == "redis" ] || [ "$module" == "postgres" ]; then
       cd "$ROOT_DIR/$module"
       ./install.sh
-    elif [ "$module" == "minio" ]; then
-      read -p "Is MOSIP used as Identity Provider? (y/n): " ans
-      if [[ "$ans" != "y" && "$ans" != "Y" && "$ans" != "n" && "$ans" != "N" ]]; then
-        echo "Incorrect input. Please enter 'y' or 'n'."
-        exit 1
-      fi
-      if [[ "$ans" == "y" || "$ans" == "Y" ]]; then
-        cd "$ROOT_DIR/$module"
-        ./install.sh
-        ./cred.sh
-      else
-        echo "Skipping Minio deployment as MOSIP is not used as Identity Provider"
-      fi
-
-    else
-      prompt_for_deployment "$module" "${prompts[$module]}"
     fi
   done
   echo "All prerequisite services deployed successfully."
@@ -90,4 +74,4 @@ set -o errtrace  ## Trace ERR through 'time command' and other functions
 set -o pipefail  ## Trace ERR through pipes
 
 # Calling the function to start installing prerequisites
-installing_Prerequisites
+installing_prerequisites

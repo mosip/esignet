@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# deletes esignet services in correct order
+# deletes esignet services in defined order.
 ## Usage: ./delete-all.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
@@ -16,14 +16,8 @@ function Deleting_All() {
   declare -a module=("oidc-ui"
                      "esignet"
                      "captcha"
-                     "redis"
-                     "config-server"
-                     "artifactory"
-                     "kafka"
-                     "keycloak"
-                     "postgres")
-
-  echo Installing esignet services
+                    )
+  echo Deleting esignet services
 
   for i in "${module[@]}"
   do

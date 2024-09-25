@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Initialises prerequisite services
+# Initialises prerequisite services for Esignet
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs oidc-ui helm charts
+# Installs oidc-ui helm chart
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

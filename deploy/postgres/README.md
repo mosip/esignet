@@ -17,7 +17,7 @@ docker run -it --rm postgres psql -h <hostname pointing to load balancer> -U pos
 * Review `init_values.yaml` for  which DBs you would like to initialize.
 * Run init postgres helm chart to create necessary DB, users, roles etc:
 ```sh
-./init_db.sh
+./postgres-init.sh
 ```
 Be aware of version of helm chart corresponding to mosip version.
 

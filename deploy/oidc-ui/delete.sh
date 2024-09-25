@@ -1,5 +1,5 @@
 #!/bin/bash
-# Uninstalls oidc-ui helm charts
+# Uninstalls oidc-ui helm chart
 ## Usage: ./delete.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
