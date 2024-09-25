@@ -1,5 +1,6 @@
 #!/bin/bash
 ## Point config to your cluster on which you are installing IAM.
+## Install keycloak server.
 ## "Usage: ./install.sh [kube_config_file]"
 
 if [ $# -ge 1 ]; then

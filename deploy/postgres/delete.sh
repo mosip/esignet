@@ -1,5 +1,5 @@
 #!/bin/bash
-# Uninstalls all postgres resources
+# Uninstalls all postgres resources along with server from esignet namespace  in k8 cluster.
 ## Usage: ./delete.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

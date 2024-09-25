@@ -27,19 +27,7 @@ The project requires JDK 11.
     ```
     $ mvn clean install -Dgpg.skip=true
     ```
-### Delete
-* Run `delete-all.sh` to remove esignet services.
-  ```
-  cd helm
-  ./delete-all.sh
-  ```
-
-### Restart
-* Run `restart-all.sh` to restart esignet services.
-  ```
-  cd helm
-  ./restart-all.sh
-  ```
+## [Deployment in K8 cluster](deploy/README.md)
 ## Onboard esignet
 * Run onboarder's [install.sh](partner-onboarder) script.
 

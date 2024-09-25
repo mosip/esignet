@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to initialize the DB.
+# Script to upgrade esignet DB.
 ## Usage: ./postgres-upgrade.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

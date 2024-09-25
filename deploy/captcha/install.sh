@@ -1,6 +1,5 @@
 #!/bin/bash
-# Creates configmap and secrets for Prereg Captcha
-# Creates configmap and secrets for resident Captcha
+## Installing captcha validation server.
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

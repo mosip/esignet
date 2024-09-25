@@ -1,5 +1,5 @@
 #!/bin/bash
-# Uninstalls Keycloak
+## Deletes keycloak helm chart
 ## Usage: ./delete.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

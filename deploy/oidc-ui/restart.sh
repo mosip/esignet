@@ -1,5 +1,5 @@
 #!/bin/bash
-# Restart the oidc-ui services
+# Restarts the oidc-ui service
 
 
 if [ $# -ge 1 ] ; then

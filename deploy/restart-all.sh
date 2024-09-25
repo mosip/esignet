@@ -10,13 +10,10 @@ fi
 function Restarting_All() {
   ROOT_DIR=`pwd`
 
-  declare -a module=("postgres"
-                      "artifactory"
-                      "config-server"
-                      "redis"
-                      "esignet"
-                      "captcha"
-                      "oidc-ui")
+  declare -a module=("esignet"
+                     "captcha"
+                     "oidc-ui"
+                    )
 
   echo restarting esignet services
 

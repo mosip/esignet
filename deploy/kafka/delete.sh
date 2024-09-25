@@ -1,5 +1,5 @@
 #!/bin/bash
-# Uninstalls kafka
+## Deletes  kafka helm chart
 ## Usage: ./delete.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
