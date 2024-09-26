@@ -4,7 +4,7 @@ This is the docker compose setup to run esignet UI and esignet-service with mock
 
 ## I am a developer, how to setup dependent services to edit and test esignet-service?
 
-1. Run `docker-compose up -f dependent-docker-compose.yml` to start all the dependent services.
+1. Run `docker compose --file dependent-docker-compose.yml up` to start all the dependent services.
 2. Go to command line for the project root directory and run `mvn clean install -Dgpg.skip=true -DskipTests=true`
 3. Add [esignet-mock-plugin.jar](../esignet-service/target/esignet-plugins/esignet-mock-plugin.jar) to esignet-service classpath in your IDE.
 4. Start the [EsignetServiceApplication.java](../esignet-service/src/main/java/io/mosip/esignet/EsignetServiceApplication.java) from your IDE.

@@ -92,7 +92,7 @@ RUN apt-get -y update \
 && chown -R ${container_user}:${container_user} /home/${container_user}
 
 # copy all files under target/esignet-plugins to the plugins folder
-COPY ./target/esignet-mock-plugin.jar ./target/mosip-identity-plugin.jar ${plugins_path}
+COPY ./target/*-plugin.jar ./target/esignet-plugins/*-plugin.jar ${plugins_path}
 COPY ./src/main/resources/amr_acr_mapping.json ${work_dir}/amr_acr_mapping.json
 
 # select container user for all tasks
