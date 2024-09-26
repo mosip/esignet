@@ -160,6 +160,11 @@ export default function Authorize({ authService }) {
             } else {
               setStatus(states.LOADED);
             }
+          } else {
+            setStatus(states.LOADED);
+            setOAuthDetailResponse(null);
+            setError(oAuthDetailsResponse.errors[0].errorCode);
+            setStatus(states.ERROR);
           }
         };
 
