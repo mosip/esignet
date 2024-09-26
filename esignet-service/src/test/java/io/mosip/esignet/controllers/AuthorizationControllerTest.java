@@ -104,23 +104,22 @@ public class AuthorizationControllerTest {
         acrValues.add("mosip:idp:acr:linked-wallet");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
 
-
         String address="{\"essential\":true}";
-        String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":\"xyz\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"abc\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
+        String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":1}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
 
         JsonNode addressNode = objectMapper.readValue(address, JsonNode.class);
         JsonNode verifiedClaimNode = objectMapper.readValue(verifiedClaims, JsonNode.class);
 
-        userinfoMap = new HashMap<>();
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
         userinfoMap.put("address", addressNode);
         userinfoMap.put("verified_claims", verifiedClaimNode);
-        idTokenMap = new HashMap<>();
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
 
 
-        claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+        ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
 
         idTokenMap.put("some_claim", claimDetail);
-        claimsV2 = new ClaimsV2();
+        ClaimsV2 claimsV2 = new ClaimsV2();
         claimsV2.setUserinfo(userinfoMap);
         claimsV2.setId_token(idTokenMap);
 

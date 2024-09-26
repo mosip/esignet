@@ -11,14 +11,19 @@ import io.mosip.esignet.core.exception.EsignetException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -35,6 +40,9 @@ public class ClaimSchemaValidator implements ConstraintValidator<ClaimSchema, Cl
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
 
     @Override
@@ -55,17 +63,24 @@ public class ClaimSchemaValidator implements ConstraintValidator<ClaimSchema, Cl
         if (cachedSchema == null) {
             synchronized (this) {
                 if (cachedSchema == null) {
-                    ResponseEntity<String> schemaResponse = restTemplate.getForEntity(schemaUrl, String.class);
-                    if (!schemaResponse.getStatusCode().is2xxSuccessful() || schemaResponse.getBody() == null) {
-                        throw new EsignetException("Failed to retrieve schema");
-                    }
-                    String schemaContent = schemaResponse.getBody();
+                    String schemaResponse = getResource(schemaUrl);
                     JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-                    cachedSchema = jsonSchemaFactory.getSchema(new ByteArrayInputStream(schemaContent.getBytes(StandardCharsets.UTF_8)));
+                    cachedSchema = jsonSchemaFactory.getSchema(new ByteArrayInputStream(schemaResponse.getBytes(StandardCharsets.UTF_8)));
                 }
             }
         }
         return cachedSchema;
+    }
+
+    private String getResource(String url) {
+        Resource resource = resourceLoader.getResource(url);
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            log.error("Failed to parse data: {}", url, e);
+        }
+        throw new EsignetException("invalid_configuration");
     }
 }
 
