@@ -1874,7 +1874,7 @@
 					"response": []
 				},
 				{
-					"name": "Resume Halted Transaction",
+					"name": "Complete the verification process & Resume Halted Transaction",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -1904,7 +1904,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/v1/esignet/authorization/resume",
+							"raw": "{{url}}/v1/esignet/authorization/complete",
 							"host": [
 								"{{url}}"
 							],
@@ -1912,7 +1912,7 @@
 								"v1",
 								"esignet",
 								"authorization",
-								"resume"
+								"complete"
 							]
 						}
 					},
@@ -2010,7 +2010,7 @@
 									"//sign token",
 									"//Note: Key pair is generated in \"Create OIDC client\" pre-requests script",
 									"//generated private and public keys are stored in the postman environment ",
-									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"client_private_key\")), pm.environment.get('clientId'), pm.environment.get('audience'), exp = 60,  \"RS256\");",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(JSON.parse(pm.environment.get(\"client_private_key\")), pm.environment.get('client_id'), pm.environment.get('audience'), exp = 60,  \"RS256\");",
 									"",
 									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
 									""

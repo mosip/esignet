@@ -56,3 +56,5 @@ services:
       - SIGN_IN_WITH_ESIGNET_PLUGIN_URL=https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - esignet
