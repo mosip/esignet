@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.core.constants.Constants.SERVER_NONCE_SEPARATOR;
+import static io.mosip.esignet.core.constants.Constants.VERIFICATION_COMPLETE;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -1289,43 +1290,40 @@ public class AuthorizationServiceTest {
 
 
     @Test
-    public void resumeHaltedTransaction_withValidTransactionId_thenPass() {
+    public void completeSignupRedirect_withValidTransactionId_thenPass() {
         String transactionId = "validTransactionId";
-        ResumeRequest resumeRequest = new ResumeRequest();
-        resumeRequest.setTransactionId(transactionId);
-        resumeRequest.setWithError(false);
+        CompleteSignupRedirectRequest completeSignupRedirectRequest = new CompleteSignupRedirectRequest();
+        completeSignupRedirectRequest.setTransactionId(transactionId);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setVerificationStatus(VERIFICATION_COMPLETE);
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
-        when(cacheUtilService.getSharedIDVResult(transactionId)).thenReturn("COMPLETED");
-        ResumeResponse result = authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
-        Assert.assertEquals(Constants.RESUMED, result.getStatus());
+        CompleteSignupRedirectResponse result = authorizationServiceImpl.completeSignupRedirect(completeSignupRedirectRequest);
+        Assert.assertEquals(Constants.VERIFICATION_COMPLETE, result.getStatus());
     }
 
     @Test
-    public void resumeHaltedTransaction_withInvalidTransactionId_thenFail() {
+    public void completeSignupRedirect_withInvalidTransactionId_thenFail() {
         String transactionId = "invalidTransactionId";
-        ResumeRequest resumeRequest = new ResumeRequest();
-        resumeRequest.setTransactionId(transactionId);
-        resumeRequest.setWithError(false);
+        CompleteSignupRedirectRequest completeSignupRedirectRequest = new CompleteSignupRedirectRequest();
+        completeSignupRedirectRequest.setTransactionId(transactionId);
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(null);
         assertThrows(InvalidTransactionException.class, () -> {
-            authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
+            authorizationServiceImpl.completeSignupRedirect(completeSignupRedirectRequest);
         });
     }
 
     @Test
-    public void resumeHaltedTransaction_withStatusAsNotCompleted_thenFail() {
+    public void completeSignupRedirect_withStatusAsNotCompleted_thenFail() {
         String transactionId = "transactionId";
-        ResumeRequest resumeRequest = new ResumeRequest();
-        resumeRequest.setTransactionId(transactionId);
-        resumeRequest.setWithError(true);
+        CompleteSignupRedirectRequest completeSignupRedirectRequest = new CompleteSignupRedirectRequest();
+        completeSignupRedirectRequest.setTransactionId(transactionId);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setVerificationStatus("FAILED");
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
-        when(cacheUtilService.getSharedIDVResult(transactionId)).thenReturn("FAILED");
         try{
-            authorizationServiceImpl.resumeHaltedTransaction(resumeRequest);
+            authorizationServiceImpl.completeSignupRedirect(completeSignupRedirectRequest);
         }catch (EsignetException ex){
-            Assert.assertEquals(ErrorConstants.RESUME_NOT_APPLICABLE,ex.getErrorCode());
+            Assert.assertEquals(ErrorConstants.VERIFICATION_INCOMPLETE,ex.getErrorCode());
         }
     }
 

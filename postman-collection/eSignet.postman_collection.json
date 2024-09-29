@@ -563,7 +563,7 @@
 									"pm.test(\"Validate code\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.code).not.equals(null);",
-									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"    pm.environment.set(\"code\", jsonData.response.code);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1278,7 +1278,7 @@
 									"pm.test(\"Validate code\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.code).not.equals(null);",
-									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"    pm.environment.set(\"code\", jsonData.response.code);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1332,7 +1332,7 @@
 									"pm.test(\"Validate code\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.code).not.equals(null);",
-									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
+									"    pm.environment.set(\"code\", jsonData.response.code);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1904,7 +1904,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/v1/esignet/authorization/complete",
+							"raw": "{{url}}/v1/esignet/authorization/complete-signup-redirect",
 							"host": [
 								"{{url}}"
 							],
@@ -1912,7 +1912,7 @@
 								"v1",
 								"esignet",
 								"authorization",
-								"complete"
+								"complete-signup-redirect"
 							]
 						}
 					},

@@ -1,6 +1,6 @@
 services:
   database:
-    image: 'postgres:latest'
+    image: 'postgres:bookworm'
     ports:
       - 5455:5432
     environment:
