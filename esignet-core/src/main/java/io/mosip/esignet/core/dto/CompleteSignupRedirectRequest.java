@@ -6,10 +6,8 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class ResumeRequest {
+public class CompleteSignupRedirectRequest {
 
     @NotBlank(message = ErrorConstants.INVALID_TRANSACTION_ID)
     private String transactionId;
-
-    private boolean withError;
 }

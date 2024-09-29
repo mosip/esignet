@@ -182,14 +182,14 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
-    @PostMapping("/complete")
-    public ResponseWrapper<ResumeResponse> resumeHaltedTransaction(@Valid @RequestBody RequestWrapper<ResumeRequest> requestWrapper) {
-        ResponseWrapper<ResumeResponse> responseWrapper = new ResponseWrapper<>();
+    @PostMapping("/complete-signup-redirect")
+    public ResponseWrapper<CompleteSignupRedirectResponse> completeSignupRedirect(@Valid @RequestBody RequestWrapper<CompleteSignupRedirectRequest> requestWrapper) {
+        ResponseWrapper<CompleteSignupRedirectResponse> responseWrapper = new ResponseWrapper<>();
         try {
-            responseWrapper.setResponse(authorizationService.resumeHaltedTransaction(requestWrapper.getRequest()));
+            responseWrapper.setResponse(authorizationService.completeSignupRedirect(requestWrapper.getRequest()));
             responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
         } catch (EsignetException ex) {
-            auditWrapper.logAudit(Action.RESUME, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
+            auditWrapper.logAudit(Action.COMPLETE_SIGNUP_REDIRECT, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getTransactionId()), ex);
             throw ex;
         }
         return responseWrapper;

@@ -319,24 +319,24 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 
     @Override
-    public ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest) {
-        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(resumeRequest.getTransactionId());
+    public CompleteSignupRedirectResponse completeSignupRedirect(CompleteSignupRedirectRequest completeSignupRedirectRequest) {
+        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(completeSignupRedirectRequest.getTransactionId());
         if(oidcTransaction == null) {
             throw new InvalidTransactionException();
         }
 
-        String status = cacheUtilService.getSharedIDVResult(resumeRequest.getTransactionId());
-        ResumeResponse resumeResponse = new ResumeResponse();
-        if("COMPLETED".equalsIgnoreCase(status)) {
+        CompleteSignupRedirectResponse completeSignupRedirectResponse = new CompleteSignupRedirectResponse();
+        if(Constants.VERIFICATION_COMPLETE.equals(oidcTransaction.getVerificationStatus())) {
             //move the transaction to "authenticated" cache
-            cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
-            resumeResponse.setStatus(Constants.RESUMED);
-            auditWrapper.logAudit(Action.RESUME, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(resumeRequest.getTransactionId(),
+            cacheUtilService.setAuthenticatedTransaction(completeSignupRedirectRequest.getTransactionId(), oidcTransaction);
+            completeSignupRedirectResponse.setStatus(Constants.VERIFICATION_COMPLETE);
+            auditWrapper.logAudit(Action.COMPLETE_SIGNUP_REDIRECT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(completeSignupRedirectRequest.getTransactionId(),
                     oidcTransaction), null);
-            return resumeResponse;
+            return completeSignupRedirectResponse;
         }
-        cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
-        throw new EsignetException(ErrorConstants.RESUME_NOT_APPLICABLE);
+        cacheUtilService.removeHaltedTransaction(completeSignupRedirectRequest.getTransactionId());
+        throw new EsignetException(oidcTransaction.getVerificationErrorCode() == null ? ErrorConstants.VERIFICATION_INCOMPLETE :
+                oidcTransaction.getVerificationErrorCode());
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate

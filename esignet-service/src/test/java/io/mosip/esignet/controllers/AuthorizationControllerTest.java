@@ -1518,20 +1518,19 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void resumeHaltedTransaction_withValidDetails_thenSuccessResponse() throws Exception {
-        ResumeRequest resumeRequest = new ResumeRequest();
-        resumeRequest.setTransactionId("123131231");
-        resumeRequest.setWithError(false);
+    public void completeSignupRedirect_withValidDetails_thenSuccessResponse() throws Exception {
+        CompleteSignupRedirectRequest completeSignupRedirectRequest = new CompleteSignupRedirectRequest();
+        completeSignupRedirectRequest.setTransactionId("123131231");
 
         RequestWrapper<Object> wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-        wrapper.setRequest(resumeRequest);
+        wrapper.setRequest(completeSignupRedirectRequest);
 
-        ResumeResponse resumeResponse = new ResumeResponse();
-        resumeResponse.setStatus("status");
-        when(authorizationService.resumeHaltedTransaction(resumeRequest)).thenReturn(resumeResponse);
+        CompleteSignupRedirectResponse completeSignupRedirectResponse = new CompleteSignupRedirectResponse();
+        completeSignupRedirectResponse.setStatus("status");
+        when(authorizationService.completeSignupRedirect(completeSignupRedirectRequest)).thenReturn(completeSignupRedirectResponse);
 
-        mockMvc.perform(post("/authorization/complete")
+        mockMvc.perform(post("/authorization/complete-signup-redirect")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1539,18 +1538,17 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void resumeHaltedTransaction_OnException_thenErrorResponse() throws Exception {
-        ResumeRequest resumeRequest = new ResumeRequest();
-        resumeRequest.setTransactionId("123131231");
-        resumeRequest.setWithError(false);
+    public void completeSignupRedirect_OnException_thenErrorResponse() throws Exception {
+        CompleteSignupRedirectRequest completeSignupRedirectRequest = new CompleteSignupRedirectRequest();
+        completeSignupRedirectRequest.setTransactionId("123131231");
 
         RequestWrapper<Object> wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-        wrapper.setRequest(resumeRequest);
+        wrapper.setRequest(completeSignupRedirectRequest);
 
-        when(authorizationService.resumeHaltedTransaction(Mockito.any())).thenThrow(new InvalidTransactionException());
+        when(authorizationService.completeSignupRedirect(Mockito.any())).thenThrow(new InvalidTransactionException());
 
-        mockMvc.perform(post("/authorization/complete")
+        mockMvc.perform(post("/authorization/complete-signup-redirect")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
