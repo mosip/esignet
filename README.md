@@ -15,7 +15,7 @@ This repository contains limited OpenId protocol implementation with:
 
 ![esignet-architecture-overview.png](docs/esignet-architecture-overview.png)
 
-Note: Kindly refer [eSignet signup repository](https://github.com/mosip/esignet-signup) for more details on eSignet signup module.
+`Note: Kindly refer `[eSignet signup repository](https://github.com/mosip/esignet-signup)` for more details on eSignet signup module.`
 
 eSignet repository contains following:
 
@@ -33,6 +33,8 @@ eSignet repository contains following:
 12. db_scripts - Folder contains all the db scripts required to do fresh setup of eSignet module.
 13. db_upgrade_scripts - Folder contains all the db scripts required to upgrade the DB for eSignet module.
 14. docs - Folder contains API documentation and readme doc images.
+
+`NOTE: All the Verifiable Credential Issuance endpoints are moved to Inji Certify(Inji stack). Refer` [Inji Certify repository](https://github.com/mosip/inji-certify)` for more information.`
 
 ## Databases
 Refer to [SQL scripts](db_scripts).
