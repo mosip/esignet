@@ -1,6 +1,6 @@
 services:
   database:
-    image: 'postgres:latest'
+    image: 'postgres:bookworm'
     ports:
       - 5455:5432
     environment:
@@ -10,7 +10,7 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
-    image: redis:latest
+    image: redis:6.0
     container_name: redis-server
     ports:
       - "6379:6379"

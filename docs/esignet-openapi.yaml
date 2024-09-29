@@ -3,7 +3,7 @@ x-stoplight:
   id: brrez13r7qzhu
 info:
   version: '1.0'
-  title: e-Signet
+  title: eSignet
   summary: Open ID Connect based identity provider for large scale authentication
   description: |-
     This API document details on the below categories of endpoints
@@ -13,7 +13,6 @@ info:
     <li> UI - All endpoints used by the UI application </li>
     <li> Wallet - All endpoints used by the Wallet application </li>
     <li> Wallet Backend - All endpoints used by the wallet backend service </li>
-    <li> VCI Service - All endpoints used by VC Issuance flow</li>
     </ul>
 
     <b>Abbreviations:</b></br></br>
@@ -26,7 +25,7 @@ info:
     VID - Virtual Identifier</br>
     PSUT - Partner(Relying Party) Specific User Token</br>
     VC - Verifiable Credential</br>
-    VCI - Verifiable Credential Issuance      
+    VCI - Verifiable Credential Issuance
   contact:
     name: MOSIP Team
     email: info@mosip.io
@@ -1020,6 +1019,11 @@ paths:
           description: 'A method that was used to derive code challenge, This will be required if code_challenge is provided.'
           schema:
             type: string
+        - schema:
+            type: string
+          in: query
+          description: ID Token previously issued by the Authorization Server being passed as a hint about the End-User's current or past authenticated session with the Client.
+          name: id_token_hint
       responses:
         '200':
           description: |-
@@ -1285,12 +1289,20 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - requestTime
+                - request
               properties:
                 requestTime:
                   type: string
                   pattern: ''
                 request:
                   type: object
+                  required:
+                    - scope
+                    - responseType
+                    - clientId
+                    - redirectUri
                   properties:
                     scope:
                       type: string
@@ -1338,14 +1350,7 @@ paths:
                     codeChallengeMethod:
                       const: S256
                       description: A method that was used to derive code challenge.
-                  required:
-                    - scope
-                    - responseType
-                    - clientId
-                    - redirectUri
-              required:
-                - requestTime
-                - request
+                      type: string
             examples:
               example-1:
                 value:
@@ -1491,6 +1496,258 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
         id: stphc8pf72gcj
+  /authorization/v3/oauth-details:
+    post:
+      tags:
+        - UI
+      summary: OAuth Details Endpoint V3
+      description: |
+        OAuth details request is raised from the UI JS application on page load.
+
+        OAuth details endpoint validates the provided request parameters and resolves the required authentication factors. Combination of resolved authentication factors and the consent details are sent back as response with a unique transactionId.
+
+        The transcationId in the response is used to identify/maintain the end user pre-auth session. This pre-auth session has timeout (configurable in Idp service).
+
+        All the query params passed to /authorize API MUST be sent to /oauth-details endpoint. All these parameters will be validated in IdP before returning success response.
+
+        1. Validates the clientId.
+        2. validates redirectUri is one of the redirectUri during client create/update.
+        3. validates display,responseType,prompts values are part of supported values in Idp properties.
+        4. scope / acrValues / claims / locales / claim_locales - unknown values are ignored. Only valid values are considered.
+        5. scopes like profile, email and phone are allowed only if "openid" is also part of the requested scope.
+        6. Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
+        7. claims considered only if part of registered claims.
+        8. ACR in claims request parameter is given the first priority over acr_values query parameter. if none of them are part of the registered acrs, registered ACRs are only considered to derive the auth factors.
+        9. Verified claims in the 'claims' request parameter is supported only if the 'verified_claims_supported' flag is enabled.
+        10. Unknown or supported claims in the verified_claims parameter are ignored. 
+        11. idTokenHint is optional, if provided then it MUST be a valid JWT. 'sub' claim in the idTokenHint JWT payload must match the cookie name(set on the domain).If the cookie is not found with same name as of 'sub' claim, then the error is thrown.
+      operationId: post-oauth-details-v3
+      parameters:
+        - name: X-XSRF-TOKEN
+          in: header
+          description: CSRF token as set in cookie key 'XSRF-TOKEN'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  pattern: ''
+                request:
+                  type: object
+                  required:
+                    - scope
+                    - responseType
+                    - clientId
+                    - redirectUri
+                  properties:
+                    scope:
+                      type: string
+                      description: Specifies what access privileges are being requested for Access Tokens. The scopes associated with Access Tokens determine what resources will be available when they are used to access OAuth 2.0 protected endpoints. OpenID Connect requests MUST contain the OpenID scope value.
+                    responseType:
+                      type: string
+                      description: 'Value that determines the authorization processing flow to be used. When using the Authorization Code Flow, this value is code.'
+                    clientId:
+                      type: string
+                      description: OAuth 2.0 Client Identifier valid at the Authorization Server
+                    redirectUri:
+                      type: string
+                      description: Redirection URI to which the response will be sent. This URI MUST exactly match one of the Redirection URI values for the Client pre-registered
+                    state:
+                      type: string
+                      description: client state value echoed.
+                    nonce:
+                      type: string
+                      description: Client's nonce value echoed.
+                    display:
+                      type: string
+                      description: ASCII string value that specifies how the Authorization Server displays the authentication and consent user interface pages to the End-User.
+                    prompt:
+                      type: string
+                      description: 'Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for re-authentication and consent.'
+                    acrValues:
+                      type: string
+                      description: |-
+                        Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
+                        if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                    claims:
+                      $ref: '#/components/schemas/Claim'
+                    maxAge:
+                      type: number
+                      description: 'Maximum Authentication Age. Specifies the allowable elapsed time in seconds since the last time the End-User was actively authenticated by the OP. If the elapsed time is greater than this value, the OP MUST attempt to actively re-authenticate the End-User. (The max_age request parameter corresponds to the OpenID 2.0 PAPE [OpenID.PAPE] max_auth_age request parameter.) When max_age is used, the ID Token returned MUST include an auth_time Claim Value.'
+                    claimsLocales:
+                      type: string
+                      description: 'End-User''s preferred languages and scripts for Claims being returned, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.'
+                    uiLocales:
+                      type: string
+                      description: 'End-User''s preferred languages and scripts for the user interface, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. For instance, the value "fr-CA fr en" represents a preference for French as spoken in Canada, then French (without a region designation), followed by English (without a region designation). An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.'
+                    codeChallenge:
+                      type: string
+                      description: 'A challenge derived from the code verifier, to be verified against later.'
+                    codeChallengeMethod:
+                      const: S256
+                      description: A method that was used to derive code challenge.
+                      type: string
+                    id_token_hint:
+                      type: string
+                      x-stoplight:
+                        id: x4y3fsuxr5crn
+                      description: ID Token previously issued by the Authorization Server being passed as a hint about the End-User's current or past authenticated session with the Client.
+            examples:
+              example-1:
+                value:
+                  requestTime: '2022-09-22T08:01:10.000Z'
+                  request:
+                    clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                    scope: openid profile
+                    responseType: code
+                    redirectUri: 'https://fastlane.com/homepage'
+                    display: popup
+                    prompt: login
+                    acrValues: 'mosip:idp:acr:generated-code'
+                    claims:
+                      userinfo:
+                        name:
+                          essential: true
+                        phone_number:
+                          essential: true
+                        email:
+                          essential: false
+                        address:
+                          essential: true
+                      id_token: {}
+                    nonce: 973eieljzng
+                    state: eree2311
+                    claimsLocales: en
+                    codeChallenge: UK95aVX_y3R44DF3hssd3wATvtZmO_WejE0P33-pwTs
+                    codeChallengeMethod: S256
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                  response:
+                    type: object
+                    required:
+                      - transactionId
+                      - authFactors
+                      - essentialClaims
+                    properties:
+                      transactionId:
+                        type: string
+                        description: This value is passed through unmodified from the /oauth-details request to the /auth-code request.
+                      authFactors:
+                        type: array
+                        description: |-
+                          Auth factors defines the authentication screens displayed in IDP frontend.
+                          More than one authFactor may be resolved or combination of auth factors.
+                          Precedence of authFactors is based on its order
+                        items:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/AuthFactor'
+                      essentialClaims:
+                        type: array
+                        description: Array holds all the requested essential claims.
+                        items:
+                          type: string
+                      voluntaryClaims:
+                        type: array
+                        description: Array holds all the requested optional claims.
+                        items:
+                          type: string
+                      authorizeScopes:
+                        type: array
+                        description: Scopes to be permitted by the end user.
+                        items:
+                          type: string
+                      configs:
+                        type: object
+                        description: UI configuration key-value pairs.
+                      clientName:
+                        type: object
+                        description: |-
+                          OIDC client name in different languages where language is the key and client name
+                          is the value. Default name is passed in @none key.
+                      logoUrl:
+                        type: string
+                        description: Registered OIDC client logo URL.
+                      credentialScopes:
+                        type: array
+                        description: List of valid credential scopes requested
+                        items:
+                          type: string
+                  errors:
+                    type:
+                      - array
+                      - 'null'
+                    description: List of errors in case of request validation / processing failure in Idp server.
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_client_id
+                            - invalid_redirect_uri
+                            - invalid_scope
+                            - no_acr_registered
+                            - invalid_response_type
+                            - invalid_display
+                            - invalid_prompt
+                            - unsupported_pkce_challenge_method
+                            - invalid_pkce_challenge
+                            - invalid_request
+                            - invalid_id_token_hint
+                        errorMessage:
+                          type: string
+              examples:
+                example-1:
+                  value:
+                    value:
+                      responseTime: '2022-09-22T08:03:45.287Z'
+                      response:
+                        transactionId: vKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                        clientName:
+                          eng: Fastlane e-Sim Service
+                          fra: Service e-Sim de Fastlane
+                          ara: خدمة فاست لين e-SIM
+                        logoUrl: 'https://fastlane.com/logo.png'
+                        authFactors:
+                          - - type: OTP
+                              count: 0
+                              subTypes: null
+                        authorizeScopes: []
+                        credentialScopes: []
+                        essentialClaims:
+                          - name
+                          - address
+                        voluntaryClaims:
+                          - email
+                          - phone_number
+                        configs:
+                          sbi.env: Staging
+                          sbi.threshold.face: 40
+                          sbi.threshold.finger: 40
+                          sbi.threshold.iris: 40
+                      errors: null
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-stoplight:
+        id: stphc8pf72g3j
   /authorization/send-otp:
     post:
       tags:
@@ -3334,6 +3591,351 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
         id: wygk6uuclzisk
+  /authorization/claim-details:
+    get:
+      tags:
+        - UI
+      summary: Fetch claim details endpoint
+      description: |
+        **Prerequisites:**
+        1. Request should have valid authenticated transaction id in the header `oauth-details-key`
+
+        **Validations:**
+        1. validate the transaction ID in the header.
+
+        Once the end user is successfully authenticated, GET consent-details endpoint is invoked to get details about the claims and consent action.
+
+
+        **Background:**
+        During kyc-auth, integrated ID system should return the list of claim details for the authenticated end user.
+        We have introduced new method in the `Authenticator` plugin. new kycAuth method will be invoked only when verified claims are requested by the relying party.
+        Claims details returned during the kcy-auth is cached in the `OIDCTransaction` to give out during GET consent-details call.
+      operationId: get-consent-details
+      parameters:
+        - name: oauth-details-hash
+          in: header
+          description: Base64 encoded SHA-256 hash of the oauth-details endpoint response.
+          required: true
+          schema:
+            type: string
+        - name: oauth-details-key
+          in: header
+          description: Transaction ID
+          required: true
+          schema:
+            type: string
+        - name: X-XSRF-TOKEN
+          in: header
+          description: CSRF token as set in cookie key 'XSRF-TOKEN'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - responseTime
+                properties:
+                  responseTime:
+                    type: string
+                    format: date-time
+                  response:
+                    type: object
+                    required:
+                      - transactionId
+                      - consentAction
+                      - claimStatus
+                      - profileUpdateRequired
+                    properties:
+                      transactionId:
+                        type: string
+                        description: This is the same transactionId sent in the oauth-details response.
+                      consentAction:
+                        type: string
+                        enum:
+                          - CAPTURE
+                          - NOCAPTURE
+                        description: |
+                          This field indicates the need to capture user consent or not
+                      claimStatus:
+                        type: array
+                        x-stoplight:
+                          id: oif0199dpk9ab
+                        description: List of resolved claims among the requested claims with their availability and verification status.
+                        items:
+                          $ref: '#/components/schemas/ClaimStatus'
+                          x-stoplight:
+                            id: mhd9b2hzvhopg
+                      profileUpdateRequired:
+                        type: boolean
+                        x-stoplight:
+                          id: 3lhkxb4duct19
+                        description: 'If true, then some or all of the essential claims are either not available or not verified. Otherwise this field is set to false'
+                  errors:
+                    type: array
+                    description: List of Errors in case of request validation / processing failure in eSignet server.
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_transaction
+                            - unknown_error
+                            - invalid_request
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      transactionId: EKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+                      consentAction: CAPTURE
+                      profileUpdateRequired: true
+                      claimStatus:
+                        - claim: address
+                          available: true
+                          verified: false
+                        - claim: name
+                          available: true
+                          verified: false
+                    errors: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-stoplight:
+        id: Rtu111tudafOR
+    parameters: []
+  /authorization/prepare-signup-redirect:
+    post:
+      summary: Prepare signup redirect endpoint
+      tags:
+        - UI
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    x-stoplight:
+                      id: ye5m4j1782j67
+                    format: date-time
+                  response:
+                    type: object
+                    required:
+                      - transactionId
+                      - idToken
+                    properties:
+                      transactionId:
+                        type: string
+                        description: This is the same transactionId sent in the oauth-details response.
+                      idToken:
+                        type: string
+                        description: |
+                          This field holds the ID token generated for signup service
+                        x-stoplight:
+                          id: qc6p9txqz9v7l
+                  errors:
+                    type: array
+                    description: List of Errors in case of request validation / processing failure in eSignet server.
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_transaction
+                            - unknown_error
+                            - invalid_request
+                            - invalid_transaction_id
+                        errorMessage:
+                          type: string
+          headers:
+            set-cookie:
+              schema:
+                type: string
+              description: uuid=encoded-json
+      operationId: post-authorization-prepare-signup-redirect
+      x-stoplight:
+        id: 8bfv2zmvn8sls
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: oauth-details-hash
+          description: Base64 encoded SHA-256 hash of the oauth-details endpoint response.
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: oauth-details-key
+          description: Transaction ID
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: X-XSRF-TOKEN
+          description: CSRF token as set in cookie key 'XSRF-TOKEN'
+          required: true
+      description: |-
+        **Prerequisite**: 
+        1. User should be authenticated to invoke prepare-signup-redirect endpoint.
+        2. signup-service should be registered as OAUTH client with esignet. And the signup-service's OAuth client id should be configured in this property `mosip.esignet.signup-id-token-audience` and the expire time of the generated ID token depends on below property `mosip.esignet.signup-id-token-expire-seconds`.
+
+
+        **Validations:**
+        1. Validates the input transactionID.
+        2. Validates if the transaction requires profile update.
+
+
+        When this endpoint is invoked, generates the ID-token for "singup-service". and sets the cookie header is also set with cookie name as UUID same as the subject of the ID token ( eg: "d898375b-c883-4408-a9e3-f629f15c1298") and the cookie value is a encoded json: 
+          `{"code" :"secret code to match with the server", "path-fragment": "path to resume after profile update"}`
+
+        ID token payload is as below
+         `{ "iss": "https://esignet.dev.mosip.net", "iat": 1715047546, "exp": 1746583546, "aud": "signup-service-client-id", "sub": "d898375b-c883-4408-a9e3-f629f15c1298" }`
+
+         **Note**: Cookie created expire time should be equal to the expire time if generated ID token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  x-stoplight:
+                    id: 0kmss6uxxb5t2
+                  format: date-time
+                request:
+                  type: object
+                  x-stoplight:
+                    id: mmd6h6vi7ampp
+                  required:
+                    - transactionId
+                    - pathFragment
+                  properties:
+                    transactionId:
+                      type: string
+                      x-stoplight:
+                        id: t5ue5f4l5hhi5
+                      description: Authenticated OIDC transaction ID.
+                    pathFragment:
+                      type: string
+                      x-stoplight:
+                        id: vb5bzzhuc87ho
+                      description: Path fragment to resume back the OIDC flow after completing the KYC process in signup portal.
+    parameters: []
+  /authorization/complete-signup-redirect:
+    parameters: []
+    post:
+      tags:
+        - UI
+      summary: Complete Signup verification and Resume halted transaction Endpoint
+      description: This endpoint resumes the halted OIDC transactions halted and marks the completion of the identify verification process.
+      operationId: post-complete-signup-redirect
+      parameters:
+        - name: oauth-details-hash
+          in: header
+          description: Base64 encoded SHA-256 hash of the oauth-details endpoint response.
+          required: true
+          schema:
+            type: string
+        - name: oauth-details-key
+          in: header
+          description: Transaction Id
+          required: true
+          schema:
+            type: string
+        - name: X-XSRF-TOKEN
+          in: header
+          description: CSRF token as set in cookie key 'XSRF-TOKEN'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  format: date-time
+                request:
+                  type: object
+                  required:
+                    - transactionId
+                  properties:
+                    transactionId:
+                      type: string
+                      description: oauth-details transactionId is used until the /token call.
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:10.000Z'
+                  request:
+                    transactionId: vKb8cVbq9PX_yt46_hX0xlBJNExl9cnYtL8kGRxU5OM
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                  response:
+                    type: object
+                    description: 'Successful message, or null if failed to deliver OTP.'
+                    properties:
+                      status:
+                        x-stoplight:
+                          id: hnn4m8lfunl6d
+                        enum:
+                          - VERIFICATION_COMPLETE
+                  errors:
+                    type: array
+                    description: 'List of Errors in case of request validation / processing failure in Idp server. if failure from IDA, the same error is relayed in this response.'
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_transaction
+                            - invalid_transaction_id
+                            - verification_incomplete
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: string
+                    response:
+                      status: VERIFICATION_COMPLETE
+                    errors:
+                      - errorCode: invalid_transaction
+                        errorMessage: string
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-stoplight:
+        id: s59k6nihfltli
   /oauth/token:
     post:
       tags:
@@ -3714,146 +4316,6 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
         id: 6ro1i3ag7h424
-  /vci/credential:
-    post:
-      tags:
-        - VCI
-      summary: VC Issuance endpoint
-      description: 'Once the access token is received via the token endpoint, Wallet should invoke this endpoint to get the verifiable credential.'
-      operationId: post-vci-credential
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                format:
-                  type: string
-                  enum:
-                    - ldp_vc
-                    - jwt_vc_json
-                    - jwt_vc_json-ld
-                  description: Format of the Credential to be issued.
-                proof:
-                  $ref: '#/components/schemas/CredentialProof'
-                credential_definition:
-                  $ref: '#/components/schemas/CredentialDefinition'
-                  description: |-
-                    JSON object containing (and isolating) the detailed description of the credential type.
-                         * This object MUST be processed using full JSON-LD processing.
-                         If it consists of the following sub claims:
-                         * @context: REQUIRED. JSON array
-              required:
-                - format
-                - proof
-                - credential_definition
-            examples:
-              Example 1:
-                value:
-                  format: ldp_vc
-                  credential_definition:
-                    type:
-                      - VerifiableCredential
-                      - SampleVerifiableCredential_ldp
-                    '@context':
-                      - 'https://www.w3.org/2018/credentials/v1'
-                  proof:
-                    proof_type: jwt
-                    jwt: eyJ0eXAiOiJvcGVuaWQ0dmNpLXByb29mK2p3dCIsImFsZyI6IlJTMjU2IiwiandrIjp7Imt0eSI6IlJTQSIsIm4iOiJtYzdzbWdHd0N6ZzZ5WENoM2ZYc3hTc2ROZlFzM3BTZGdZZUstdnpnYWZCQkNBTnZ2YWxqeUJ2YTlYZzA5YWhLMG9KV0hZY2p3Rm5QeU5uX0dkSjJValZPRlJDbllZNWZvejUxbmt0NUJod2l1V1IteWpZN2NZaXI5MjAySlI2RldaNExpamVVNm54WUVrbnFxZ1B6LXZmU0pSa2M5b2t6VEJ4LW9qb0FaOWJTaUJqMm9XNzVsWkhrMlBoU0NkTDNtQzUyaVRkUWpra2NFNHY0ZVpzWVBrZVROSmlmWE1sQ1J3Mlg0X1N6d2N3YkNNWUJqWlhRUFJ1OXdudEJqd0NUOGZTaDJjZVlCdUs4YlViQXBLelhDSGotUnAwZHMyMDdtbEFhcnRlRURhMS1qbW5ZYWxxS2lfQ2tzU1ZuNEQyMThXOWZHSElYcEJlSXBTWjlHc3hHdXciLCJlIjoiQVFBQiIsImtpZCI6IkY1R0hPai1STHF0S19TSUtabmx4ckpoTFN4MFAyVlZsNFVzTXpuT1ByNW8iLCJhbGciOiJSUzI1NiIsInVzZSI6InNpZyJ9fQ.eyJpYXQiOjE2OTg2NDY2NDMsIm5iZiI6MTY5ODY0NjY0MywiZXhwIjoxNjk4NjQ3MjQ4LCJqdGkiOiJPR0J3RjRCNGNsSWJzWUxGT3ZWM2IiLCJhdWQiOiJodHRwczovL2VzaWduZXQtbW9jay5jb2xsYWIubW9zaXAubmV0L3YxL2VzaWduZXQiLCJub25jZSI6IllXZUluR2MwdVljcHQ1TlZLcTVYIiwiaXNzIjoiODhWanQzNGM1VHd6MW9KIn0.MMVBHdIpvmRwBw4-MY6LaE4p-k5NwCRcwktKCK3MvNiJ5LNqx_Z4lJ23x359IxFtpMNbH0xnC0ajU-mYLJRJ7WsbKWemENmHp3e7nRDzDlDufu92vzh_dmHvxmcxQQKEEr_xH5c8vypUANsAbg8Ltas6eoe5jFoSrS-Oi4TNplw8aoS4cdH16ezEdb1RtluSKi5tajM9eS2reREj3sFXyVphxIxCUD6VbwuvByPPOWhSVf4bW_pCAoztiRJ9Fc_WXR7XLTIn3i46QczopaBIp8xPwEbBE_cl3Lo9etA0oLOxnRz6bzk5sa-ZtvVnsW4vOusy3mzSjVe10oHxWgw2CQ
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  format:
-                    type: string
-                    description: JSON string denoting the format of the issued Credential.
-                  credential:
-                    description: 'Contains issued Credential. MUST be present when acceptance_token is not returned. MAY be a JSON string or a JSON object, depending on the Credential format.'
-                    oneOf:
-                      - type: object
-                      - type: string
-                required:
-                  - format
-                  - credential
-              examples:
-                Example 1:
-                  value:
-                    format: ldp_vc
-                    credential:
-                      issuanceDate: '2023-10-30T06:17:28.025Z'
-                      credentialSubject:
-                        gender: Male
-                        name: John Doe
-                        id: 'did:jwk:eyJrdHkiOiJSU0EiLCJlIjoiQVFBQiIsInVzZSI6InNpZyIsImtpZCI6IkY1R0hPai1STHF0S19TSUtabmx4ckpoTFN4MFAyVlZsNFVzTXpuT1ByNW8iLCJhbGciOiJSUzI1NiIsIm4iOiJtYzdzbWdHd0N6ZzZ5WENoM2ZYc3hTc2ROZlFzM3BTZGdZZUstdnpnYWZCQkNBTnZ2YWxqeUJ2YTlYZzA5YWhLMG9KV0hZY2p3Rm5QeU5uX0dkSjJValZPRlJDbllZNWZvejUxbmt0NUJod2l1V1IteWpZN2NZaXI5MjAySlI2RldaNExpamVVNm54WUVrbnFxZ1B6LXZmU0pSa2M5b2t6VEJ4LW9qb0FaOWJTaUJqMm9XNzVsWkhrMlBoU0NkTDNtQzUyaVRkUWpra2NFNHY0ZVpzWVBrZVROSmlmWE1sQ1J3Mlg0X1N6d2N3YkNNWUJqWlhRUFJ1OXdudEJqd0NUOGZTaDJjZVlCdUs4YlViQXBLelhDSGotUnAwZHMyMDdtbEFhcnRlRURhMS1qbW5ZYWxxS2lfQ2tzU1ZuNEQyMThXOWZHSElYcEJlSXBTWjlHc3hHdXcifQ=='
-                        email: john.doe@mail.com
-                      id: 'urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5'
-                      proof:
-                        type: RsaSignature2018
-                        created: '2023-10-30T06:17:28Z'
-                        proofPurpose: assertionMethod
-                        verificationMethod: 'https://esignet-mock.collab.mosip.net/v1/esignet/oauth/.well-known/jwks.json'
-                        jws: eyJ4NWMiOlsiTUlJRHZUQ0NBcVdnQXdJQkFnSUk1VHhveEYydjhRQXdEUVlKS29aSWh2Y05BUUVMQlFBd2R6RUxNQWtHQTFVRUJoTUNTVTR4Q3pBSkJnTlZCQWdNQWt0Qk1SSXdFQVlEVlFRSERBbENRVTVIUVV4UFVrVXhEVEFMQmdOVkJBb01CRWxKVkVJeEdqQVlCZ05WQkFzTUVVMVBVMGxRTFZSRlEwZ3RRMFZPVkVWU01Sd3dHZ1lEVlFRRERCTjNkM2N1Ylc5emFYQXVhVzhnS0ZKUFQxUXBNQjRYRFRJek1ETXlOVEV3TWpFeE1Wb1hEVEkyTURNeU5ERXdNakV4TVZvd2Z6RUxNQWtHQTFVRUJoTUNTVTR4Q3pBSkJnTlZCQWdNQWt0Qk1SSXdFQVlEVlFRSERBbENRVTVIUVV4UFVrVXhEVEFMQmdOVkJBb01CRWxKVkVJeEdqQVlCZ05WQkFzTUVVMVBVMGxRTFZSRlEwZ3RRMFZPVkVWU01TUXdJZ1lEVlFRRERCdDNkM2N1Ylc5emFYQXVhVzhnS0U5SlJFTmZVMFZTVmtsRFJTa3dnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDeGJpYUt3M082dlI0SHczaExDc3FiQ1czRkc4UEthQ0RabDZNTUlEblVlbCtJa1FDMmxscTgrWlRMcmE3S1ViT294UHVxVzhwNDFmdVRqSlNzK0x3aEpRV3J2S2htbDB5THRSVkJCOUVTR2l5NVFYaWNSODBxVWRScjN3eVhRZkJGTFFEN1lRb1l4MUZMTUxaR21IYmd2N3Rnc3hxY2k1NEFjTTZmb1BXaUd0Z2NZbjJRenRsbTRjZ3FuWVNmcThDc3dtZ3o5N052ckxDRXF3bFhRZkpGQVZlRFF2SXFxNk00dkNkcXFLaldtNjlRVjlCUXUrczdCYkpFbUtGRDVtRTRhdWFwWW4zbWZLeXJWaGFGUGpFUW5iMHA0V3dGR3YzYTROTEFPRXVqVkJlVjUzZjJmdUZqSUxzZnBMK3MzRERRYUlYbEJKa3p3dWdjdWZ5Z1MzRm5BZ01CQUFHalJUQkRNQklHQTFVZEV3RUIvd1FJTUFZQkFmOENBUUV3SFFZRFZSME9CQllFRkg4dXN2ME52ekZHaWx4Sko2dExBYkVLSUJMQk1BNEdBMVVkRHdFQi93UUVBd0lDaERBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQWQ2ZVJmTzFZbHN2YXRMSktWZGVNcStzclhlYjNTblZJM0ZQSWlQa3d2STNsM1pmUVQ1ZzE0NWc2ajEzQisvOFZUNGFWZXBDZU5PbWNIczc3Y2g0OWxIUmg4anF3UXlqUFBsc1NmcW5Kd0JGUmRvNStkRnB5elZNeFdDUzBFRWJqb3RkZ2pvci9YaVVoRmFGMkhkZThyeHNnZWNmaUFZZS9nWnFZZjYzOFRxRi9RTnFCaTRhbitGQmNtT0FDalR6THE5Z01tSnJYa2h3V3V5dm5Sc0hKM2g2ZXd0b0RMN2gycm5QK2hBT1o3ckd1SEhDaVVXayt6eUcxdjdKT0NwSUJ2TEJyalpVbzNDRmxacEs3NERkbHBSVU1nK3JvcVdDNnFkTmZuemc5dFZBb1ZlVy9uUHAweit1QUtmb2w2NENlRUJmUmsrUXV2SmRyKzhCL1JaOHp4QT09Il0sIng1dCNTMjU2IjoiZkxnNTQ5dGFabmViUGZ6OTVlRzhyZXZuX2lSU2luMTFKZGxteFhOaUE5RSIsImtpZCI6IktPX21UcF9zVDB6bEZFVWRfblR0aGZvOXRFOVNfbUZCcno5MXBmN3lEUUEiLCJhbGciOiJSUzI1NiJ9..pZkf21YoT2mqzYlEJy9fkBartMTvEMMOUZPXw4-HIc6DeDUTqAMcRSkEfP1_ozvBE1ukxzqM2_IYpdQCVbYXEsCQLAXUmDQTfbdf8GImWBkRV7hXpCAJCN14A69trZCLvsW0jhIkIoSwPSszGk4MZ9rW7fBRpG9kbCF4nWajP5nRsPdC6tSckHWlHAWus0IhsYhSh85y2VYtBHTZ9g_NaB5S2pSp4MR_BBFdlpSfrgoepr7D9EY1hhU-b8vbjve9QnGSesqfPXUOKMwNA5UZ7tUYStWX8y9-19wwC3e_FjKhnKXMZrlAhCOLSL5O81r3ZWI3bpfOufHFZIZ7_gdvnQ
-                      type:
-                        - VerifiableCredential
-                        - Person
-                      '@context':
-                        - 'https://www.w3.org/2018/credentials/v1'
-                        - 'https://schema.org/'
-                      issuer: 'did:example:123456789'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    enum:
-                      - invalid_vc_format
-                      - invalid_proof
-                      - invalid_request
-                      - unknown_error
-                      - invalid_scope
-                      - proof_header_invalid_key
-                      - vc_issuance_failed
-                      - unsupported_credential_format
-                      - unsupported_credential_type
-                      - proof_invalid_nonce
-                      - not_implemented
-                  error_description:
-                    type: string
-                  c_nonce:
-                    type: string
-                    description: This will have the value only when the error is "proof_invalid_nonce".
-                  c_nonce_expires_in:
-                    type: integer
-                    description: This will have the value only when the error is "proof_invalid_nonce".
-                required:
-                  - error
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    const: invalid_token
-                  error_description:
-                    type: string
-                required:
-                  - error
-      security:
-        - Authorization-access_token: []
-      servers:
-        - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: uzj55r4abstbh
   /binding/binding-otp:
     post:
       tags:
@@ -4098,7 +4560,7 @@ paths:
       tags:
         - OIDC
       summary: JSON Web Key Set Endpoint
-      description: Endpoint to fetch all the public keys of the e-Signet server. Returns public key set in the JWKS format.
+      description: Endpoint to fetch all the public keys of the eSignet server. Returns public key set in the JWKS format.
       operationId: get-certs
       responses:
         '200':
@@ -4286,6 +4748,39 @@ paths:
                     type: array
                     items:
                       const: RS256
+                  verified_claims_supported:
+                    type: boolean
+                    description: 'Boolean value indicating support for verified_claims, i.e., the OpenID Connect for Identity Assurance extension.'
+                  claims_in_verified_claims_supported:
+                    type: array
+                    description: JSON array containing all Claims supported within verified_claims. Claims that are not present in this array MUST NOT be returned within the verified_claims object.
+                    items:
+                      type: string
+                  trust_frameworks_supported:
+                    type: array
+                    description: JSON array containing all supported trust frameworks.
+                    items:
+                      type: string
+                  evidence_supported:
+                    type: array
+                    description: JSON array containing all types of identity evidence the OP uses.
+                    items:
+                      type: string
+                  documents_supported:
+                    type: array
+                    description: JSON array containing all identity document types utilized by the OP for identity verification.
+                    items:
+                      type: string
+                  attachments_supported:
+                    type: array
+                    description: JSON array containing all attachment types supported by the OP. Possible values are external and embedded.
+                    items:
+                      type: string
+                  digest_algorithms_supported:
+                    type: array
+                    description: JSON array containing all supported digest algorithms which can be used as alg property within the digest object of external attachments.
+                    items:
+                      type: string
               examples:
                 Example 1:
                   value:
@@ -4341,96 +4836,6 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
         id: lmo16h00dfu9w
-  /.well-known/openid-credential-issuer:
-    get:
-      tags:
-        - OIDC
-      summary: VC Issuer metadata Endpoint
-      description: |-
-        Open endpoint to provide VC issuer's metadata
-
-        **Reference**: https://openid.bitbucket.io/connect/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata
-      operationId: get-.well-known-openid-credential-issuer
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  credential_issuer:
-                    type: string
-                    description: 'The Credential Issuer''s identifier,'
-                  credential_endpoint:
-                    type: string
-                    description: URL of the Credential Issuer's Credential Endpoint
-                  credentials_supported:
-                    type: array
-                    description: ' JSON array containing a list of JSON objects, each of them representing metadata about a separate credential type that the Credential Issuer can issue. '
-                    items:
-                      type: object
-                      properties:
-                        format:
-                          type: string
-                        scope:
-                          type: string
-                        cryptographic_binding_methods_supported:
-                          type: string
-                        proof_types_supported:
-                          type: string
-                        display:
-                          type: array
-                  display:
-                    type: array
-                    description: ' An array of objects, where each object contains display properties of a Credential Issuer for a certain language'
-                    items:
-                      type: object
-                required:
-                  - credential_issuer
-                  - credential_endpoint
-                  - credentials_supported
-                  - display
-              examples:
-                Example 1:
-                  value:
-                    credential_issuer: 'https://esignet.collab.mosip.net'
-                    credential_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/vci/credential'
-                    credentials_supported:
-                      - format: ldp_vc
-                        id: SampleVerifiableCredential_ldp
-                        scope: sample_vc_ldp
-                        cryptographic_binding_methods_supported: 'did:jwk'
-                        cryptographic_suites_supported:
-                          - RsaSignature2018
-                        proof_types_supported: jwt
-                        credential_definition:
-                          type:
-                            - VerifiableCredential
-                          credentialSubject:
-                            name:
-                              display:
-                                - name: Given Name
-                                  locale: en
-                            age:
-                              display:
-                                - name: Age
-                                  locale: en
-                        display:
-                          - name: Sample Verifiable Credential by e-Signet
-                            locale: en
-                            logo:
-                              url: 'https://esignet.collab.mosip.net/logo.png'
-                              alt_text: a square logo of a MOSIP
-                            background_color: '#12107c'
-                            text_color: '#FFFFFF'
-                    display:
-                      - name: MOSIP
-                        locale: en
-      servers:
-        - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: zz4ldgn033v4v
   /oauth/introspect:
     get:
       tags:
@@ -4532,7 +4937,9 @@ components:
       description: |
         The userinfo and id_token members of the claims request both are JSON object. if null, Indicates that this Claim is being requested as Voluntary Claim.
 
-        Note: Unknown claim names either in userinfo or id_token are ignored.
+        **Note:** Unknown claim names either in userinfo or id_token are ignored.
+      x-stoplight:
+        id: hgny5fmmpiwsg
       properties:
         userinfo:
           type: object
@@ -4557,6 +4964,14 @@ components:
               $ref: '#/components/schemas/ClaimDetail'
             individual_id:
               $ref: '#/components/schemas/ClaimDetail'
+            verified_claims:
+              type: array
+              x-stoplight:
+                id: hv9p69214uhf2
+              items:
+                $ref: '#/components/schemas/VerifiedClaimDetail'
+                x-stoplight:
+                  id: 15ypbmicw15jx
         id_token:
           type: object
           properties:
@@ -4564,15 +4979,11 @@ components:
               $ref: '#/components/schemas/ClaimDetail'
             acrs:
               $ref: '#/components/schemas/ClaimDetail'
-        locales:
-          type: array
-          items:
-            type: string
-      x-stoplight:
-        id: hgny5fmmpiwsg
     ClaimDetail:
       type: object
       title: ClaimDetail
+      x-stoplight:
+        id: b1gdl2i51ubba
       properties:
         essential:
           type: boolean
@@ -4589,8 +5000,13 @@ components:
           description: 'Requests that the Claim be returned with one of a set of values, with the values appearing in order of preference.'
           items:
             type: string
-      x-stoplight:
-        id: b1gdl2i51ubba
+        purpose:
+          type: string
+          x-stoplight:
+            id: 09xoyys6jceae
+          description: Reason for requesting claim.
+          minLength: 3
+          maxLength: 300
     AuthFactor:
       type: object
       title: AuthFactor
@@ -4620,6 +5036,12 @@ components:
       type: object
       title: AuthChallenge
       description: Model to take any type of challenge from the end user as part of authenticate request.
+      x-stoplight:
+        id: 7jq6fwka3vzhb
+      required:
+        - authFactorType
+        - challenge
+        - format
       properties:
         authFactorType:
           type: string
@@ -4630,6 +5052,7 @@ components:
             - WLA
             - PWD
             - KBI
+            - IDT
           description: Defines the type of auth challenge. It should be same as authfactor.type (oauth-details response).
         challenge:
           type: string
@@ -4643,12 +5066,6 @@ components:
             - number
             - base64url-encoded-json
           description: Format of the challenge provided.
-      required:
-        - authFactorType
-        - challenge
-        - format
-      x-stoplight:
-        id: 7jq6fwka3vzhb
     CredentialProof:
       type: object
       title: CredentialProof
@@ -4692,3 +5109,456 @@ components:
         - type
       x-stoplight:
         id: ezs7iae5jlgln
+    ClaimStatus:
+      title: ClaimStatus
+      x-stoplight:
+        id: vs8sddewhp5u8
+      type: object
+      description: Resolved claims among the RP requested claims with their availability and verification status.
+      required:
+        - claim
+        - available
+        - verified
+      properties:
+        claim:
+          type: string
+          x-stoplight:
+            id: v8q85klte4k2w
+          description: Claim name.
+        available:
+          type: boolean
+          x-stoplight:
+            id: 1nijvjx7r3t0w
+          description: True if the claim is available for the user account.
+        verified:
+          type: boolean
+          x-stoplight:
+            id: 8z1n64eu4tc1f
+          description: True only if the claim is available and verified by atleast one trust framework. And also the verification process completed before the requested max_age.
+        purpose:
+          type: string
+          x-stoplight:
+            id: lkp89wz5vzwr2
+          description: Purpose of the claim as provided in the authorize request by the relying party
+    VerifiedClaimDetail:
+      title: VerifiedClaimDetail
+      x-stoplight:
+        id: 43qa5nmghhig5
+      type: object
+      description: |-
+        Verified claim detail that can be requested by the RP
+
+        **How should OP beahve when requested verified claims cannot be fulfilled? **
+        Refer : https://openid.net/specs/openid-connect-4-identity-assurance-1_0.html#section-6.5
+
+
+        ** Sample requests: **
+        The RP MUST set fields one step deeper into the structure if it wants to obtain evidence. One or more entries in the evidence array are used as filter criteria and templates for all entries in the result array.
+
+        If multiple entries are present in evidence, these filters are linked by a logical OR.
+
+        Eg: The following example shows that the RP wants to obtain an attestation based on the German Anti Money Laundering Law (trust framework de_aml) and limited to End-Users who were identified in a bank branch in person (physical in person proofing - method pipp) using either an idcard or a passport.
+
+        {
+          "userinfo": {
+            "verified_claims": {
+              "verification": {
+                "trust_framework": {
+                  "value": "de_aml"
+                },
+                "evidence": [
+                  {
+                    "type": {
+                      "value": "document"
+                    },
+                    "method": {
+                      "value": "pipp"
+                    },
+                    "document_details": {
+                      "type": {
+                        "values": [
+                          "idcard",
+                          "passport"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "claims": {
+                "given_name": null,
+                "birthdate": null
+              }
+            }
+          }
+        }
+
+
+        The following is an example of a request for Claims where the verification process of the data is not allowed to be older than 63113852 seconds:
+
+        {
+          "userinfo": {
+            "verified_claims": {
+              "verification": {
+                "trust_framework": {
+                  "value": "jp_aml"
+                },
+                "time": {
+                  "max_age": 63113852
+                }
+              },
+              "claims": {
+                "given_name": null,
+                "birthdate": null
+              }
+            }
+          }
+        }
+
+
+        **NOTE:** eKYC working group has documented some of the predefined values  for trust frameworks, documents, methods, validation methods or verification methods in the below wikipage.
+        https://bitbucket.org/openid/ekyc-ida/wiki/identifiers
+        Values is NOT restricted to list in the wiki page, This is left to adopters of the technical specification, e.g., implementers, identity schemes, or jurisdictions.
+      required:
+        - verification
+        - claims
+      properties:
+        verification:
+          type: object
+          x-stoplight:
+            id: 0p4yvay9n1kxc
+          description: Object that contains data about the verification process.
+          required:
+            - trust_framework
+          properties:
+            trust_framework:
+              $ref: '#/components/schemas/FilterCriteria'
+              x-stoplight:
+                id: gcros2a8f4lxr
+              description: 'String determining the trust framework governing the identity verification process of the OP. An example value is eidas, which denotes a notified eID system under eIDAS '
+            time:
+              type: object
+              x-stoplight:
+                id: a1y7epmxba1w5
+              description: 'Date time when the identity verification process is completed. '
+              properties:
+                max_age:
+                  type: integer
+                  x-stoplight:
+                    id: y0j56rtgtnscw
+                  description: Number value only applicable to Claims that contain dates or timestamps. It defines the maximum time (in seconds) to be allowed to elapse since the value of the date/timestamp up to the point in time of the request.
+            assurance_level:
+              $ref: '#/components/schemas/FilterCriteria'
+              x-stoplight:
+                id: e9w8ta6wqgkai
+              description: |-
+                String determining the assurance level associated with the End-User Claims in the respective verified_claims. The value range depends on the respective trust_framework value.
+
+                For example, the trust framework eidas can have the identity assurance levels low, substantial and high.
+            evidence:
+              type: array
+              x-stoplight:
+                id: tyg6zddjj1kqn
+              description: 'JSON array containing information about the evidence the OP used to verify the End-User''s identity as separate JSON objects. Every object contains the property type which determines the type of the evidence. '
+              items:
+                x-stoplight:
+                  id: l7oe5pu3cvxx8
+                type: object
+                required:
+                  - type
+                properties:
+                  type:
+                    type: object
+                    x-stoplight:
+                      id: va3ctpg5755pi
+                    description: The value defines the type of the evidence.
+                    properties:
+                      value:
+                        x-stoplight:
+                          id: pfa4rkymsjxrg
+                        enum:
+                          - document
+                          - electronic_record
+                          - vouch
+                          - electronic_signature
+                  method:
+                    $ref: '#/components/schemas/FilterCriteria'
+                    x-stoplight:
+                      id: 4m1hvww6d4gnc
+                    description: The method used to validate the document and verify the person is the owner of it.
+                  time:
+                    type: object
+                    x-stoplight:
+                      id: z4dktuoe6kiux
+                    properties:
+                      max_age:
+                        type: integer
+                        x-stoplight:
+                          id: nbjzzkvvemdjf
+                  verification_method:
+                    type: object
+                    x-stoplight:
+                      id: 16etedvsvpkv7
+                    properties:
+                      type:
+                        $ref: '#/components/schemas/FilterCriteria'
+                        x-stoplight:
+                          id: jscciizlg7uf6
+                  check_details:
+                    type: array
+                    x-stoplight:
+                      id: 5q6luh9khretn
+                    description: |2-
+
+
+
+
+
+
+
+
+
+
+                       JSON array representing the checks done in relation to the evidence. When present this array MUST have at least one member. This is applicable only for below evidence types:
+                       1. document
+                       2. electronic_record
+                       3. vouch
+                    items:
+                      $ref: '#/components/schemas/EvidenceCheckDetail'
+                      x-stoplight:
+                        id: 6n1fv8kuv77mx
+                  document_details:
+                    type: object
+                    x-stoplight:
+                      id: r6fvhast33dys
+                    description: ' JSON object representing the document used to perform the identity verification.'
+                    required:
+                      - type
+                    properties:
+                      type:
+                        $ref: '#/components/schemas/FilterCriteria'
+                        x-stoplight:
+                          id: sakbs0r95tafk
+                      document_number:
+                        type: string
+                        x-stoplight:
+                          id: arcqb0lrkoosa
+                      date_of_issuance:
+                        type: object
+                        x-stoplight:
+                          id: pslya7hdgxhlc
+                        properties:
+                          max_age:
+                            type: number
+                            x-stoplight:
+                              id: 1oenvxpjnf5gw
+                      date_of_expiry:
+                        type: object
+                        x-stoplight:
+                          id: e6qkjwvk2pzwu
+                        properties:
+                          max_age:
+                            type: number
+                            x-stoplight:
+                              id: 82er6gon40ego
+                      issuer:
+                        $ref: '#/components/schemas/EvidenceIssuer'
+                        x-stoplight:
+                          id: pkoj6hufcua2e
+                  attestation:
+                    type: string
+                    x-stoplight:
+                      id: 0itl6t5pm567h
+                    description: Represents the attestation that is the basis of the vouch. Applicable only when evidence type is `vouch`
+                  signature_type:
+                    $ref: '#/components/schemas/FilterCriteria'
+                    x-stoplight:
+                      id: q7czpfhq252hx
+                    description: Applicable when evidence type is `electronic_signature`. String denoting the type of signature used as evidence. The value range might be restricted by the respective trust framework.
+                  issuer:
+                    $ref: '#/components/schemas/FilterCriteria'
+                    x-stoplight:
+                      id: 84dozda2ulyba
+                    description: Applicable when evidence type is `electronic_signature`.String denoting the certification authority that issued the signer's certificate.
+                  serial_number:
+                    type: string
+                    x-stoplight:
+                      id: isycr5qez9g92
+                    description: Applicable when evidence type is `electronic_signature`.String containing the serial number of the certificate used to sign.
+                  created_at:
+                    type: object
+                    x-stoplight:
+                      id: 1cd9oehznrvzb
+                    description: Applicable when evidence type is `electronic_signature`. The time the signature was created
+                    properties:
+                      max_age:
+                        type: number
+                        x-stoplight:
+                          id: hohtnxky11gon
+                  record:
+                    $ref: '#/components/schemas/ElectronicRecord'
+                    x-stoplight:
+                      id: 1n1fhhi6tviyl
+                    description: |-
+                      Applicable when the evidence type is `electronic_record`
+                      object representing the record used to perform the identity verification.
+        claims:
+          type: object
+          x-stoplight:
+            id: 28jhv2raf2jvs
+          description: Object that is the container for the Verified Claims about the End-User.
+          properties:
+            name:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: wf28zzg23ot6k
+            email:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: qbvq1021aj5co
+            phone_number:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: kia24gddr7x4f
+            birthDate:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: 2qhojqimhh30o
+            address:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: 9glxctd41qha9
+            given_name:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: f0t2dh3t1tq2u
+            gender:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: neefygyrp53y7
+            profile_photo:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: nlr9b6e1t2a0q
+    EvidenceCheckDetail:
+      title: EvidenceCheckDetail
+      x-stoplight:
+        id: n7ner5gwl8rzf
+      type: object
+      description: |-
+        Object representing the checks done in relation to the evidence.
+
+        The eKYC and Identity Assurance Working Group maintains a wiki page
+      required:
+        - check_method
+      properties:
+        check_method:
+          type: string
+          x-stoplight:
+            id: 4126zn3cgys2x
+          description: 'String representing the check done, this includes processes such as checking the authenticity of the document, or verifying the user''s biometric against an identity document.'
+        organization:
+          type: string
+          x-stoplight:
+            id: nyope33fgcfhw
+          description: String denoting the legal entity that performed the check. This SHOULD be included if the OP did not perform the check itself.
+        txn:
+          type: string
+          x-stoplight:
+            id: 8f3iuc2p4n00x
+          description: Identifier referring to the identity verification transaction.
+        time:
+          type: object
+          x-stoplight:
+            id: 3zxijsb5y1r1m
+          properties:
+            max_age:
+              type: number
+              x-stoplight:
+                id: zgmtczhmyuevp
+              description: when the check was completed.
+    FilterCriteria:
+      title: FilterCriteria
+      x-stoplight:
+        id: enmdhvn8sjsg9
+      type: object
+      description: Value or values used to filter the verified claims. if provided in the values parameter its a logical OR condition.
+      properties:
+        value:
+          type: string
+          x-stoplight:
+            id: jjhci731oeh17
+        values:
+          type: array
+          x-stoplight:
+            id: cutrh4azzqe5g
+          items:
+            x-stoplight:
+              id: e62l9ek9qjcwb
+            type: string
+    EvidenceIssuer:
+      title: EvidenceIssuer
+      x-stoplight:
+        id: cs2jghno7hu8d
+      type: object
+      description: ' JSON object containing information about the issuer of this document.'
+      properties:
+        name:
+          type: string
+          x-stoplight:
+            id: 8vn2u1ygayf23
+          description: Designation of the issuer of the document.
+        country:
+          type: string
+          x-stoplight:
+            id: v9uqjvs18sash
+          description: String denoting the country or supranational organization that issued the document.
+        country_code:
+          type: string
+          x-stoplight:
+            id: bhbrve82cwf8t
+          description: 'String denoting the country or supranational organization that issued the document as ISO 3166/ICAO 3-letter codes [ICAO-Doc9303], e.g., "USA" or "JPN". 2-letter ICAO codes MAY be used in some circumstances for compatibility reasons.'
+        jurisdiction:
+          type: string
+          x-stoplight:
+            id: 1vmpmmd5w2bqm
+          description: 'String containing the name of the region(s)/state(s)/province(s)/municipality(ies) that issuer has jurisdiction over '
+    ElectronicRecord:
+      title: ElectronicRecord
+      x-stoplight:
+        id: sma63x9gvcoi3
+      type: object
+      description: 'JSON object representing the record used to perform the identity verification. It consists of the following properties:'
+      properties:
+        type:
+          $ref: '#/components/schemas/FilterCriteria'
+          x-stoplight:
+            id: 5fxslmmpxsaps
+          description: 'String denoting the type of electronic record. '
+        personal_number:
+          type: string
+          x-stoplight:
+            id: ka93nqnawpip4
+          description: 'String representing an identifier that is assigned to the End-User and is not limited to being used in one record, for example a national identification number, personal identity number, citizen number, social security number, driver number, account number, customer number, licensee number, etc.'
+        created_at:
+          type: object
+          x-stoplight:
+            id: wscjw3gpoophf
+          properties:
+            max_age:
+              type: number
+              x-stoplight:
+                id: z5nkrvp5n7kbj
+        date_of_expiry:
+          type: object
+          x-stoplight:
+            id: 34fz8pvnwebhc
+          properties:
+            max_age:
+              type: number
+              x-stoplight:
+                id: oqz5k5ft6jwjl
+        source:
+          $ref: '#/components/schemas/EvidenceIssuer'
+          x-stoplight:
+            id: yq1ybrzyy1u9s
