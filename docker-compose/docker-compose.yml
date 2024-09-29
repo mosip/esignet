@@ -24,9 +24,7 @@ services:
       - database
 
   esignet:
-    build:
-      context: ../esignet-service
-      dockerfile: Dockerfile
+    image: 'mosipdev/esignet:develop'
     user: root
     ports: 
       - 8088:8088
