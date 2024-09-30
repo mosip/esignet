@@ -30,8 +30,8 @@
 		<esignet-mock-plugin.fileName>esignet-mock-plugin.jar</esignet-mock-plugin.fileName>
 		<mosip-identity-plugin.version>1.3.0-SNAPSHOT</mosip-identity-plugin.version>
 		<mosip-identity-plugin.fileName>mosip-identity-plugin.jar</mosip-identity-plugin.fileName>
-		<esignet-digital-credential-wrapper.version>0.2.1-SNAPSHOT</esignet-digital-credential-wrapper.version>
-		<esignet-digital-credential-wrapper.fileName>sunbird-rc-esignet-integration-impl.jar</esignet-digital-credential-wrapper.fileName>
+		<esignet-digital-credential-wrapper.version>0.2.0</esignet-digital-credential-wrapper.version>
+		<esignet-digital-credential-wrapper.fileName>sunbird-rc-esignet-plugin.jar</esignet-digital-credential-wrapper.fileName>
 	</properties>
 	
 	<dependencies>
