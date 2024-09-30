@@ -277,11 +277,11 @@ class authService {
     return response.data;
   };
 
-  resume = async (transactionId, withError, oAuthDetailsHash) => {
+  resume = async (transactionId, oAuthDetailsHash) => {
     const requestTime = new Date().toISOString();
     const request = {
       requestTime,
-      request: { transactionId, withError },
+      request: { transactionId },
     };
 
     const oauthDetailsHash =
