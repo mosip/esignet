@@ -91,7 +91,6 @@ export default function ConsentPage() {
         } else {
           const { errors } = await authServices.resume(
             transactionId,
-            params.has("error"),
             oAuthDetailsHash
           );
 
