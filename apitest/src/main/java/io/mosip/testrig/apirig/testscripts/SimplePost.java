@@ -93,20 +93,13 @@ public class SimplePost extends AdminTestUtil implements ITest {
 		}
 
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
 
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
-		if (testCaseName.contains("CreateIdSchema")) {
-			inputJson = modifyIdSchemaInputJson(inputJson);
-		}
-
-		if (inputJson.contains("&quot;")) {
-			inputJson = inputJson.replace("&quot;", "\"");
-		}
 
 		if (inputJson.contains("$PHONENUMBERFROMREGEXFORSIGNUP$")) {
 			String phoneNumber = getPhoneNumber();
@@ -159,6 +152,8 @@ public class SimplePost extends AdminTestUtil implements ITest {
 
 		else {
 			String tempUrl = ConfigManager.getEsignetBaseUrl();
+			if (testCaseDTO.getEndPoint().contains("/signup/"))
+				tempUrl = ConfigManager.getSignupBaseUrl();
 			if (testCaseName.contains("ESignet_")) {
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC")) {
 					if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))

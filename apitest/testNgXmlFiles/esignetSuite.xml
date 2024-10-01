@@ -7,11 +7,19 @@
 	<listeners>
 		<listener class-name="io.mosip.testrig.apirig.report.EmailableReport"/>
 	</listeners>
+	
+	<test name="AddIdentityMock">
+		<parameter name="ymlFile"
+			value="esignet/AddIdentityMock/AddIdentity.yml" />
+			<parameter name="prerequisite" value="Yes" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.AddIdentity" />
+		</classes>
+	</test>
 		
-<!--	<test name ="SignUpSettings">
+	<test name ="SignUpSettings">
 		<parameter name ="ymlFile"
 			value= "esignet/SignUpSettings/SignUpSettings.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
 		</classes>
@@ -19,7 +27,6 @@
 	<test name ="GenerateChallenge">
 		<parameter name ="ymlFile"
 			value= "esignet/GenerateChallenge/GenerateChallenge.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -27,7 +34,6 @@
 	<test name ="VerifyChallenge">
 		<parameter name ="ymlFile"
 			value= "esignet/VerifyChallenge/VerifyChallenge.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -35,7 +41,6 @@
 	<test name ="RegisterUser">
 		<parameter name ="ymlFile"
 			value= "esignet/RegisterUser/RegisterUser.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -43,7 +48,6 @@
 	<test name ="GetRegistrationStatus">
 		<parameter name ="ymlFile"
 			value= "esignet/GetRegistrationStatus/GetRegistrationStatus.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
 		</classes>
@@ -51,7 +55,6 @@
 	<test name ="GenerateChallengeForResetPassword">
 		<parameter name ="ymlFile"
 			value= "esignet/GenerateChallengeForResetPassword/GenerateChallengeForResetPassword.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -59,7 +62,6 @@
 	<test name ="VerifyChallengeForResetPassword">
 		<parameter name ="ymlFile"
 			value= "esignet/VerifyChallengeForResetPassword/VerifyChallengeForResetPassword.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -67,7 +69,6 @@
 	<test name ="ResetPassword">
 		<parameter name ="ymlFile"
 			value= "esignet/ResetPassword/ResetPassword.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -75,7 +76,6 @@
 	<test name ="GetRegistrationStatusForResetPassword">
 		<parameter name ="ymlFile"
 			value= "esignet/GetRegistrationStatusForResetPassword/GetRegistrationStatusForResetPassword.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
 		</classes>
@@ -83,7 +83,6 @@
 	<test name ="GenerateChallengeNegTC">
 		<parameter name ="ymlFile"
 			value= "esignet/GenerateChallengeNegTC/GenerateChallengeNegTC.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -91,7 +90,6 @@
 	<test name ="VerifyChallengeNegTC">
 		<parameter name ="ymlFile"
 			value= "esignet/VerifyChallengeNegTC/VerifyChallengeNegTC.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
@@ -99,7 +97,6 @@
 	<test name ="RegisterUserNegTC">
 		<parameter name ="ymlFile"
 			value= "esignet/RegisterUserNegTC/RegisterUserNegTC.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -107,7 +104,6 @@
 	<test name ="GetRegistrationStatusNegTC">
 		<parameter name ="ymlFile"
 			value= "esignet/GetRegistrationStatusNegTC/GetRegistrationStatusNegTC.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
 		</classes>
@@ -115,7 +111,6 @@
 	<test name ="GenerateChallengeForResetPasswordNegTC">
 		<parameter name ="ymlFile"
 			value= "esignet/GenerateChallengeForResetPasswordNegTC/GenerateChallengeForResetPasswordNegTC.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
@@ -123,7 +118,6 @@
 	<test name ="VerifyChallengeForResetPasswordNegTC">
 		<parameter name ="ymlFile"
 			value= "esignet/VerifyChallengeForResetPasswordNegTC/VerifyChallengeForResetPasswordNegTC.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
@@ -131,11 +125,10 @@
 	<test name ="ResetPasswordNegTC">
 		<parameter name ="ymlFile"
 			value= "esignet/ResetPasswordNegTC/ResetPasswordNegTC.yml" />
-			<parameter name="prerequisite" value="Yes" />
 	<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
-	</test>-->
+	</test>
 	<test name="AddIdentity">
 		<parameter name="ymlFile"
 			value="esignet/AddIdentity/AddIdentity.yml" />
@@ -294,6 +287,15 @@
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
 		</classes>
 	</test>
+	
+	<test name="OIDCClientV2">
+		<parameter name="ymlFile"
+			value="esignet/OIDCClientV2/OIDCClientV2.yml" />
+			<parameter name="idKeyName"	value="clientId" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
 
 	<test name="GenerateVID">
 		<parameter name="ymlFile"
@@ -304,22 +306,14 @@
 			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
-	<test name="CreateVID">
-		<parameter name="ymlFile" value="esignet/CreateVID/CreateVid.yml" />
-		<parameter name="idKeyName" value="VID" />
-		<parameter name="prerequisite" value="Yes" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-<!--	<test name="KycBioAuth">
+	<test name="KycBioAuth">
 		<parameter name="ymlFile" value="esignet/KycBioAuth/KycBioAuth.yml" />
 		<parameter name="isInternal" value="false" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.KycAuth" />
 		</classes>
-	</test>-->
+	</test>
 	<test name="SendBindingOtp">
 		<parameter name="ymlFile"
 			value="esignet/SendBindingOtp/SendBindingOtp.yml" />
@@ -743,7 +737,7 @@
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
 		</classes>
 	</test>
-<!--	<test name="OAuthDetailsRequestPassword">
+	<test name="OAuthDetailsRequestPassword">
 		<parameter name="ymlFile"
 			value="esignet/OAuthDetailsRequestPassword/OAuthDetailsRequestPassword.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
@@ -795,7 +789,7 @@
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
-	</test>-->
+	</test>
 	<test name="CreateOIDCClient">
 		<parameter name="ymlFile"
 			value="esignet/CreateOIDCClient/CreateOIDCClient.yml" />
@@ -1012,4 +1006,90 @@
 			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test> -->
+	
+	<!-- Start of Sign up L2 phase test cases -->
+<!--	<test name="OAuthDetailsRequestV3">
+		<parameter name="ymlFile"
+			value="esignet/OAuthDetailsRequestV3/OAuthDetailsRequest.yml" />
+		<parameter name="idKeyName"	value="transactionId,encodedResp" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="AuthenticateUserV3">
+		<parameter name="ymlFile"
+			value="esignet/AuthenticateUserV3/AuthenticateUser.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="ClaimDetails">
+		<parameter name="ymlFile"
+			value="esignet/ClaimDetails/ClaimDetails.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="PrepareSignupRedirect">
+		<parameter name="ymlFile"
+			value="esignet/PrepareSignupRedirect/PrepareSignupRedirect.yml" />
+		<parameter name="idKeyName"	value="idToken" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="SignupAuthorize">
+		<parameter name="ymlFile"
+			value="esignet/SignupAuthorize/SignupAuthorize.yml" />
+		<parameter name="idKeyName"	value="transactionId,encodedResp" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="IDTAuthentication">
+		<parameter name="ymlFile"
+			value="esignet/IDTAuthentication/IDTAuthentication.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="SignupAuthorizeCode">
+		<parameter name="ymlFile"
+			value="esignet/SignupAuthorizeCode/SignupAuthorizeCode.yml" />
+		<parameter name="idKeyName"	value="code" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="InitiateIdVerification">
+		<parameter name="ymlFile"
+			value="esignet/InitiateIdVerification/InitiateIdVerification.yml" />
+		<parameter name="idKeyName"	value="id" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="GetIdVerifier">
+		<parameter name="ymlFile"
+			value="esignet/GetIdVerifier/GetIdVerifier.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="GetSlot">
+		<parameter name="ymlFile"
+			value="esignet/GetSlot/GetSlot.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+		</classes>
+	</test>
+    <test name="PrepareSignupRedirectNeg">
+	    <parameter name="ymlFile"
+			value="esignet/PrepareSignupRedirectNeg/PrepareSignupRedirectNeg.yml" />
+		<parameter name="idKeyName"	value="idToken" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>-->
+	<!-- End of Sign up L2 phase test cases -->
 </suite>

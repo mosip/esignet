@@ -1,6 +1,8 @@
 package io.mosip.testrig.apirig.testscripts;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -90,22 +92,17 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
 		}
-
+		
+		
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+			
+			
+			
+			
+			
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
-			}
-		}
-
-		if (BaseTestCase.isTargetEnvLTS()) {
-			if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.RESIDENT)
-					&& (BaseTestCase.currentModule.equals("esignet")
-							&& testCaseName.startsWith("ESignetRes_Generate"))) {
-				throw new SkipException("Generating VID using IdRepo API. Hence skipping this test case");
-//				qa115 - f
-//				cam   - t t
-//				dev	  - t f
 			}
 		}
 		testCaseName = isTestCaseValidForExecution(testCaseDTO);
@@ -145,6 +142,9 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 					throw new SkipException("esignet is not deployed hence skipping the testcase");
 				}
 				String tempUrl = ConfigManager.getEsignetBaseUrl();
+				
+				if (testCaseDTO.getEndPoint().contains("/signup/"))
+					tempUrl = ConfigManager.getSignupBaseUrl();
 				otpResponse = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + sendOtpEndPoint,
 						getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate), COOKIENAME,
 						testCaseDTO.getTestCaseName());
@@ -208,6 +208,8 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 				throw new SkipException("esignet is not deployed hence skipping the testcase");
 			}
 			String tempUrl = ConfigManager.getEsignetBaseUrl();
+			if (testCaseDTO.getEndPoint().contains("/signup/"))
+				tempUrl = ConfigManager.getSignupBaseUrl();
 			if (testCaseName.startsWith("ESignet_VerifyChallengeNegTC_")
 					|| testCaseName.startsWith("ESignet_VerifyChallengeForResetPasswordNegTC_")) {
 				response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
@@ -257,14 +259,15 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 	@AfterClass(alwaysRun = true)
 	public void waittime() {
 		try {
-			if (!testCaseName.contains(GlobalConstants.ESIGNET_)) {
-				long delayTime = Long.parseLong(properties.getProperty("Delaytime"));
-				if (!BaseTestCase.isTargetEnvLTS())
-					delayTime = Long.parseLong(properties.getProperty("uinGenDelayTime"))
-							* Long.parseLong(properties.getProperty("uinGenMaxLoopCount"));
-				logger.info("waiting for " + delayTime + " mili secs after VID Generation In RESIDENT SERVICES");
-				Thread.sleep(delayTime);
+			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("mockauthenticationservice") == false) {
+				if (!testCaseName.contains(GlobalConstants.ESIGNET_)) {
+					long delayTime = Long.parseLong(properties.getProperty("Delaytime"));
+					logger.info("waiting for " + delayTime + " mili secs after VID Generation In RESIDENT SERVICES");
+					Thread.sleep(delayTime);
+				}
 			}
+
 		} catch (Exception e) {
 			logger.error("Exception : " + e.getMessage());
 			Thread.currentThread().interrupt();

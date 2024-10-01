@@ -238,10 +238,10 @@ AuthenticateUserSunBirdCNegTC:
       description: To Authenticate the user for SunBirdC with invalid authFactorType
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_challenge_length
+      allowedErrorCodes: invalid_challenge_length,
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBCdCNegTC/AuthenticateUserSunBirdCNegTC
+      inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",

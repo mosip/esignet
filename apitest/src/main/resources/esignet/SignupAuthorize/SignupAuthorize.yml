@@ -1,0 +1,24 @@
+SignupAuthorize:
+   ESignet_SignupAuthorize_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorize/SignupAuthorize
+      outputTemplate: esignet/SignupAuthorize/SignupAuthorizeResult
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirect_AuthToken_Xsrf_STransId_uin_Otp_Valid_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirect_AuthToken_Xsrf_STransId_uin_Otp_Valid_Smoke_sid_idToken$"
+}'
+      output: '{
+       
+}'
