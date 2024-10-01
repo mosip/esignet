@@ -28,6 +28,8 @@ import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
 import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
+import io.mosip.testrig.apirig.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.JWKKeyUtil;
 import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
@@ -64,59 +66,71 @@ public class MosipTestRunner {
 			for (String envName : envMap.keySet()) {
 				LOGGER.info(String.format("ENV %s = %s%n", envName, envMap.get(envName)));
 			}
+			BaseTestCase.setRunContext(getRunType(), jarUrl);
+
 			ExtractResource.removeOldMosipTestTestResource();
-			if (checkRunType().equalsIgnoreCase("JAR")) {
+			if (getRunType().equalsIgnoreCase("JAR")) {
 				ExtractResource.extractCommonResourceFromJar();
 			} else {
 				ExtractResource.copyCommonResources();
 			}
-			ConfigManager.init();
-			BaseTestCase.suiteSetup();
+			EsignetConfigManager.init();
+			BaseTestCase.suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
 			setLogLevels();
 
-			// For now we are not doing health check for qa-115.
-			if (BaseTestCase.isTargetEnvLTS()) {
-				HealthChecker healthcheck = new HealthChecker();
-				healthcheck.setCurrentRunningModule(BaseTestCase.currentModule);
-				Thread trigger = new Thread(healthcheck);
-				trigger.start();
-			}
-			KeycloakUserManager.removeUser();
-			KeycloakUserManager.createUsers();
-			KeycloakUserManager.closeKeycloakInstance();
+//			HealthChecker healthcheck = new HealthChecker();
+//			healthcheck.setCurrentRunningModule(BaseTestCase.currentModule);
+			
+			//TODO: Implement this
+			// healthcheck.setAcutatorList(getAcutuatorListFromHealthCheckfile())
+			
+			
+//			Thread trigger = new Thread(healthcheck);
+//			trigger.start();
+			
 
-			List<String> localLanguageList = new ArrayList<>(BaseTestCase.getLanguageList());
-			AdminTestUtil.getLocationData();
+			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == false
+					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbird") == false) {				
+				KeycloakUserManager.removeUser();
+				KeycloakUserManager.createUsers();
+				KeycloakUserManager.closeKeycloakInstance();
 
-			String partnerKeyURL = "";
-			String updatedPartnerKeyURL = "";
-			String ekycPartnerKeyURL = "";
+				List<String> localLanguageList = new ArrayList<>(BaseTestCase.getLanguageList());
+				AdminTestUtil.getLocationData();
+				
+				
+				String partnerKeyURL = "";
+				String updatedPartnerKeyURL = "";
+				String ekycPartnerKeyURL = "";
 
-			PartnerRegistration.deleteCertificates();
-			CertificateGenerationUtil.getThumbprints();
-			AdminTestUtil.createAndPublishPolicy();
-			AdminTestUtil.createEditAndPublishPolicy();
-			partnerKeyURL = PartnerRegistration.generateAndGetPartnerKeyUrl();
-			updatedPartnerKeyURL = PartnerRegistration.generateAndGetUpdatedPartnerKeyUrl();
+				PartnerRegistration.deleteCertificates();
+				CertificateGenerationUtil.getThumbprints();
+				AdminTestUtil.createAndPublishPolicy();
+				AdminTestUtil.createEditAndPublishPolicy();
+				partnerKeyURL = PartnerRegistration.generateAndGetPartnerKeyUrl();
+				updatedPartnerKeyURL = PartnerRegistration.generateAndGetUpdatedPartnerKeyUrl();
 
-			AdminTestUtil.createAndPublishPolicyForKyc();
-			ekycPartnerKeyURL = PartnerRegistration.generateAndGetEkycPartnerKeyUrl();
+				AdminTestUtil.createAndPublishPolicyForKyc();
+				ekycPartnerKeyURL = PartnerRegistration.generateAndGetEkycPartnerKeyUrl();
 
-			BiometricDataProvider.generateBiometricTestData("Registration");
+				BiometricDataProvider.generateBiometricTestData("Registration");
 
-			if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty())
-				LOGGER.error("partnerKeyURL is null");
-			else
+				if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty())
+					LOGGER.error("partnerKeyURL is null");
+				else
+					startTestRunner();
+			} else {
 				startTestRunner();
+			}
+
 		} catch (Exception e) {
 			LOGGER.error("Exception " + e.getMessage());
 		}
 
-		MockSMTPListener.bTerminate = true;
+		OTPListener.bTerminate = true;
 
-		if (BaseTestCase.isTargetEnvLTS())
-			HealthChecker.bTerminate = true;
+		HealthChecker.bTerminate = true;
 
 		System.exit(0);
 
@@ -144,7 +158,7 @@ public class MosipTestRunner {
 		List<String> modulesToRun = BaseTestCase.listOfModules;
 		String os = System.getProperty("os.name");
 		LOGGER.info(os);
-		if (checkRunType().contains("IDE") || os.toLowerCase().contains("windows")) {
+		if (getRunType().contains("IDE") || os.toLowerCase().contains("windows")) {
 			homeDir = new File(System.getProperty("user.dir") + "/testNgXmlFiles");
 			LOGGER.info("IDE :" + homeDir);
 		} else {
@@ -192,9 +206,9 @@ public class MosipTestRunner {
 		}
 
 		String path = null;
-		if (checkRunType().equalsIgnoreCase("JAR")) {
+		if (getRunType().equalsIgnoreCase("JAR")) {
 			path = new File(jarUrl).getParentFile().getAbsolutePath() + "/MosipTestResource/MosipTemporaryTestResource";
-		} else if (checkRunType().equalsIgnoreCase("IDE")) {
+		} else if (getRunType().equalsIgnoreCase("IDE")) {
 			path = new File(MosipTestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath()
 					+ "/MosipTestResource/MosipTemporaryTestResource";
 			if (path.contains(GlobalConstants.TESTCLASSES))
@@ -313,7 +327,7 @@ public class MosipTestRunner {
 	 * 
 	 * @return
 	 */
-	public static String checkRunType() {
+	public static String getRunType() {
 		if (MosipTestRunner.class.getResource("MosipTestRunner.class").getPath().contains(".jar"))
 			return "JAR";
 		else

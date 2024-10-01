@@ -252,6 +252,7 @@ AuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: IDA-OTA-005,invalid_transaction
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
       outputTemplate: esignet/error
       input: '{
@@ -612,6 +613,7 @@ AuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: IDA-MLC-009,invalid_individual_id
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
       outputTemplate: esignet/error
       input: '{
@@ -732,6 +734,7 @@ AuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: IDA-MLC-009,invalid_individual_id
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
       outputTemplate: esignet/error
       input: '{
@@ -770,7 +773,7 @@ AuthenticateUser:
       description: Authenticate user with invalid AuthFactorType UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_challenge_length
+      allowedErrorCodes: invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
@@ -795,7 +798,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_auth_factor_type",
       "errorMessage": "$IGNORE$"
     }
   ],
@@ -917,7 +920,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_auth_factor_type",
       "errorMessage": "$IGNORE$"
     }
   ],
@@ -933,7 +936,7 @@ AuthenticateUser:
       description: Authenticate user with different AuthFactorType UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_challenge_length
+      allowedErrorCodes: invalid_challenge_length,invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
@@ -976,6 +979,7 @@ AuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: invalid_challenge,invalid_challenge_length
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
       outputTemplate: esignet/error
       input: '{
@@ -998,7 +1002,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_challenge",
       "errorMessage": "$IGNORE$"
     }
   ],
@@ -1120,7 +1124,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_challenge",
       "errorMessage": "$IGNORE$"
     }
   ],
@@ -1138,6 +1142,7 @@ AuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: IDA-OTA-004,auth_failed
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
       outputTemplate: esignet/error
       input: '{

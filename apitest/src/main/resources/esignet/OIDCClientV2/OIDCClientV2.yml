@@ -1,0 +1,93 @@
+OIDCClientV2:
+   ESignet_CreateOIDCClient_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/client-mgmt/oauth-client
+      description: To create OIDC Client V2 with all valid data
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OIDCClientV2/OIDCClientV2
+      outputTemplate: esignet/OIDCClientV2/OIDCClientV2Result
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMIDFOROIDCCLIENT$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$OIDCJWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt",
+      	"keyLang1": "$1STLANG$",
+      	"clientNameLang": "MOSIP OIDC Client"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+    	"status": "ACTIVE"
+}'
+
+   ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid:
+      endPoint: /v1/esignet/client-mgmt/oauth-client
+      description: To create OIDC Client V2 with all valid data
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OIDCClientV2/OIDCClientV2
+      outputTemplate: esignet/OIDCClientV2/OIDCClientV2Result
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMIDFOROIDCCLIENT$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$OIDCJWKKEY3$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt",
+      	"keyLang1": "$1STLANG$",
+      	"clientNameLang": "MOSIP OIDC Client"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+    	"status": "ACTIVE"
+}'
+
+   ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/client-mgmt/oauth-client
+      description: To create OIDC Client V2 with all valid data
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OIDCClientV2/OIDCClientV2
+      outputTemplate: esignet/OIDCClientV2/OIDCClientV2Result
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$RANDOMIDFOROIDCCLIENT$",
+      	"clientName": "MOSIP OIDC Client",
+      	"logoUri": "https://health-services.com/logo.png",
+      	"relyingPartyId": "Bharathi-Inc",
+      	"redirectUris": "$IDPREDIRECTURI$",
+      	"publicKey": "$JWKKEY$",
+      	"userClaims1": "name",
+      	"userClaims2": "email",
+      	"userClaims3": "gender",
+      	"userClaims4": "phone_number",
+      	"userClaims5": "birthdate",
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      	"grantTypes": "authorization_code",
+      	"clientAuthMethods": "private_key_jwt",
+      	"keyLang1": "$1STLANG$",
+      	"clientNameLang": "MOSIP OIDC Client"
+}'
+      output: '{
+        "clientId": "$IGNORE$",
+    	"status": "ACTIVE"
+}'

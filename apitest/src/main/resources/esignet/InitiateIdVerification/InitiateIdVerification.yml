@@ -1,0 +1,16 @@
+InitiateIdVerification:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_uin_all_Valid_Smoke_Sid:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerification/InitiateIdVerification
+      outputTemplate: esignet/InitiateIdVerification/InitiateIdVerificationResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCode_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+       
+}'

@@ -329,6 +329,7 @@ SendOtp:
       role: resident
       restMethod: post
       validityCheckRequired: true
+      allowedErrorCodes: IDA-MLC-009,invalid_individual_id
       inputTemplate: esignet/SendOtp/SendOtp
       outputTemplate: esignet/error
       input: '{
@@ -401,6 +402,7 @@ SendOtp:
       role: resident
       restMethod: post
       validityCheckRequired: true
+      allowedErrorCodes: IDA-MLC-009,invalid_individual_id
       inputTemplate: esignet/SendOtp/SendOtp
       outputTemplate: esignet/error
       input: '{

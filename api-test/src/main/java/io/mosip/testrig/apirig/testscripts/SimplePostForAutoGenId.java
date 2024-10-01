@@ -94,21 +94,9 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
 		}
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
-			}
-		}
-
-		if (BaseTestCase.isTargetEnvLTS()) {
-			if (!ConfigManager.isInServiceNotDeployedList(GlobalConstants.RESIDENT)) {
-				if ((BaseTestCase.currentModule.equals("esignet") && testCaseName.startsWith("ESignetIdR_Generate"))) {
-					throw new SkipException(
-							GlobalConstants.VID_GENERATED_USING_RESIDENT_API_SO_FEATURE_NOT_SUPPORTED_OR_NEEDED_MESSAGE);
-//					qa115 - f
-//					cam   - t f
-//					dev	  - t 
-				}
 			}
 		}
 

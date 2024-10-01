@@ -93,15 +93,15 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		}
 
 		if (testCaseDTO.getTestCaseName().contains("uin") || testCaseDTO.getTestCaseName().contains("UIN")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("UIN")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("uin")) {
 				throw new SkipException(GlobalConstants.UIN_FEATURE_NOT_SUPPORTED);
 			}
 		}
 
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
@@ -174,16 +174,16 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 			String ActualOPJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
 
 			if (testCaseDTO.getTestCaseName().contains("uin") || testCaseDTO.getTestCaseName().contains("UIN")) {
-				if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("UIN")
-						|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("uin")) {
+				if (BaseTestCase.getSupportedIdTypesValue().contains("UIN")
+						|| BaseTestCase.getSupportedIdTypesValue().contains("uin")) {
 					ActualOPJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
 				} else {
 					ActualOPJson = AdminTestUtil.getRequestJson("config/errorUINIdp.json").toString();
 				}
 			} else {
 				if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-					if (BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-							|| BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+					if (BaseTestCase.getSupportedIdTypesValue().contains("VID")
+							|| BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 						ActualOPJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
 					} else {
 						ActualOPJson = AdminTestUtil.getRequestJson("config/errorUINIdp.json").toString();

@@ -1,7 +1,6 @@
 SignUpSettings:
    ESignet_SignUpSettings_Valid_smoke_Pos:
       endPoint: /v1/signup/settings
-      description: To get the configurations required by the signup UI
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
