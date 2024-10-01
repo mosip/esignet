@@ -21,6 +21,8 @@ MPARTNER_DEFAULT_AUTH_SECRET_KEY='mpartner_default_auth_secret'
 MPARTNER_DEFAULT_AUTH_SECRET_VALUE=$(kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$MPARTNER_DEFAULT_AUTH_SECRET_KEY} | base64 -d)
 IDA_CLIENT_SECRET_KEY='mosip_ida_client_secret'
 IDA_CLIENT_SECRET_VALUE=$(kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$IDA_CLIENT_SECRET_KEY} | base64 -d)
+DEPLOYMENT_CLIENT_SECRET_KEY='mosip_deployment_client_secret'
+DEPLOYMENT_CLIENT_SECRET_VALUE=$(kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$DEPLOYMENT_CLIENT_SECRET_VALUE} | base64 -d)
 
 echo "Copying keycloak configmaps and secret"
 $COPY_UTIL configmap keycloak-host keycloak $NS
@@ -38,11 +40,14 @@ helm -n $NS install esignet-keycloak-init mosip/keycloak-init \
   --set clientSecrets[1].secret="$MPARTNER_DEFAULT_AUTH_SECRET_VALUE" \
   --set clientSecrets[2].name="$IDA_CLIENT_SECRET_KEY" \
   --set clientSecrets[2].secret="$IDA_CLIENT_SECRET_VALUE" \
+  --set clientSecrets[3].name="$DEPLOYMENT_CLIENT_SECRET_KEY" \
+  --set clientSecrets[3].secret="$DEPLOYMENT_CLIENT_SECRET_VALUE" \
   --version $CHART_VERSION --wait --wait-for-jobs
 
 MPARTNER_DEFAULT_AUTH_SECRET_VALUE=$(kubectl -n $NS get secrets keycloak-client-secrets -o jsonpath={.data.$MPARTNER_DEFAULT_AUTH_SECRET_KEY})
 PMS_CLIENT_SECRET_VALUE=$(kubectl -n $NS get secrets keycloak-client-secrets -o jsonpath={.data.$PMS_CLIENT_SECRET_KEY})
 IDA_CLIENT_SECRET_VALUE=$(kubectl -n $NS get secrets keycloak-client-secrets -o jsonpath={.data.$IDA_CLIENT_SECRET_KEY})
+DEPLOYMENT_CLIENT_SECRET_VALUE=$(kubectl -n $NS get secrets keycloak-client-secrets -o jsonpath={.data.$DEPLOYMENT_CLIENT_SECRET_KEY})
 
 # Check if the secret exists
 if kubectl get secret keycloak-client-secrets -n keycloak >/dev/null 2>&1; then
@@ -51,6 +56,7 @@ if kubectl get secret keycloak-client-secrets -n keycloak >/dev/null 2>&1; then
   jq ".data[\"$PMS_CLIENT_SECRET_KEY\"]=\"$PMS_CLIENT_SECRET_VALUE\"" |
   jq ".data[\"$MPARTNER_DEFAULT_AUTH_SECRET_KEY\"]=\"$MPARTNER_DEFAULT_AUTH_SECRET_VALUE\"" |
   jq ".data[\"$IDA_CLIENT_SECRET_KEY\"]=\"$IDA_CLIENT_SECRET_VALUE\"" |
+  jq ".data[\"$DEPLOYMENT_CLIENT_SECRET_KEY\"]=\"$DEPLOYMENT_CLIENT_SECRET_VALUE\"" |
   kubectl apply -f -
 else
   echo "Secret 'keycloak-client-secrets' does not exist. Copying the secret to the keycloak namespace."

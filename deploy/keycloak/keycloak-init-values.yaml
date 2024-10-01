@@ -43,6 +43,8 @@ keycloak:
         #   "user": ""
       roles:
         - PARTNER_ADMIN
+        - offline_access
+        - uma_authorization
         - PUBLISH_OIDC_CLIENT_CREATED_GENERAL
         - PUBLISH_OIDC_CLIENT_UPDATED_GENERAL
         - PUBLISH_APIKEY_APPROVED_GENERAL
@@ -155,3 +157,10 @@ keycloak:
             - ID_AUTHENTICATION
             - SUBSCRIBE_OIDC_CLIENT_CREATED_GENERAL
             - SUBSCRIBE_OIDC_CLIENT_UPDATED_GENERAL
+        - name: mosip-deployment-client
+          saroles:
+            - ID_AUTHENTICATION
+            - GLOBAL_ADMIN
+            - PARTNER_ADMIN
+            - uma_authorization
+            - offline_access
