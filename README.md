@@ -28,37 +28,15 @@ The project requires JDK 11.
     $ mvn clean install -Dgpg.skip=true
     ```
 ## [Deployment in K8 cluster](deploy/README.md)
-## Onboard esignet
-* Run onboarder's [install.sh](partner-onboarder) script.
 
-### Configurational steps after onboarding is completed.
-*  Below mentioned onboarding steps are added after 1.2.0.1-b3
-   *  Onboarding the default esignet partner
-   *  Onboarding the default resident-oidc partner
-
-###1. Onboarding the default esignet partner
-*  After successfull partner onboarder run for esignet , download html reports from `onboarder` bucket of object store .
-*  Get `licensekey` from  response body of  request `create-the-MISP-license-key-for-partner` from the report **_e-signet.html_**
-*  Update & commit  value of  `mosip.esignet.misp.license.key`  parameter with `licensekey` value from last step in **esignet-default.properties** .
-*  Restart  esignet pod.
-
-###2.Onboarding the default resident-oidc partner
-*  After successfull partner onboarder run for resident-oidc , download html reports from `onboarder` bucket of object store .
-*  Get `clientId` from  response body of  request `create-oidc-client` from the report **_resident-oidc.html_** .
-*  Update & commit  value of  `mosip.iam.module.clientID`  parameter with `clientId` value from last step in **resident-default.properties** .
-*  Restart resident pod.
-
+## Partner onboarding
+* Perform Partner onboarding for esignet MISP partner using [steps](partner-onboarder/README.md) only if mosip-identity plugin is used.
 ## Run eSignet (for developers)
-To simplify running eSignet in local for developers we have added [Docker Compose Setup](docker-compose/README.md). 
-This docker-compose includes eSignet service and UI along with mock-identity-system to test the local deployment. 
-
-  
+* To simplify running eSignet in local for developers we have added [Docker Compose Setup](docker-compose/README.md). 
+* This docker-compose includes eSignet service and UI along with mock-identity-system to test the local deployment. 
 ## APIs
 API documentation is available [here](docs/esignet-openapi.yaml).
-
 ## Documentation
 eSignet documentation is available [here](https://docs.esignet.io/).
-
 ## License
 This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
-
