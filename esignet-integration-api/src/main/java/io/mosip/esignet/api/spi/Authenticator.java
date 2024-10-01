@@ -71,8 +71,10 @@ public interface Authenticator {
      * @return
      * @throws KycAuthException
      */
-    KycAuthResult doKycAuth(String relyingPartyId, String clientId, boolean claimsMetadataRequired, KycAuthDto kycAuthDto)
-            throws KycAuthException;
+    default KycAuthResult doKycAuth(String relyingPartyId, String clientId, boolean claimsMetadataRequired, KycAuthDto kycAuthDto)
+            throws KycAuthException {
+        return doKycAuth(relyingPartyId, clientId, kycAuthDto);
+    }
 
     /**
      * Providioned to return verified userinfo based on the provided verification requirement
@@ -82,6 +84,8 @@ public interface Authenticator {
      * @return
      * @throws KycExchangeException
      */
-    KycExchangeResult doVerifiedKycExchange(String relyingPartyId, String clientId, VerifiedKycExchangeDto kycExchangeDto)
-            throws KycExchangeException;
+    default KycExchangeResult doVerifiedKycExchange(String relyingPartyId, String clientId, VerifiedKycExchangeDto kycExchangeDto)
+            throws KycExchangeException {
+        return doKycExchange(relyingPartyId, clientId, kycExchangeDto);
+    }
 }

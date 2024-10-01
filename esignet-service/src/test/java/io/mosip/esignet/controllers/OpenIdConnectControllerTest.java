@@ -6,6 +6,7 @@
 package io.mosip.esignet.controllers;
 
 import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.OpenIdConnectService;
 import io.mosip.esignet.core.spi.TokenService;
@@ -52,6 +53,9 @@ public class OpenIdConnectControllerTest {
 
     @MockBean
     AuditPlugin auditWrapper;
+
+    @MockBean
+    LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
 
 
     @Test

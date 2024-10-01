@@ -1,6 +1,6 @@
 services:
   database:
-    image: 'postgres:latest'
+    image: 'postgres:bookworm'
     ports:
       - 5455:5432
     environment:
@@ -24,9 +24,7 @@ services:
       - database
 
   esignet:
-    build:
-      context: ../esignet-service
-      dockerfile: Dockerfile
+    image: 'mosipdev/esignet:develop'
     user: root
     ports: 
       - 8088:8088
@@ -37,9 +35,24 @@ services:
       - KAFKA_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_esignet?currentSchema=esignet
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_CACHE_TYPE=simple
-      - MOCK_IDENTITY_SYSTEM_DOMAIN_URL=http://mock-identity-system:8082
+      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
     depends_on:
       - database
+      - mock-identity-system
+
+  esignet-ui:
+    build:
+      context: ../oidc-ui
+      dockerfile: Dockerfile
+    user: root
+    ports:
+      - 3000:3000
+    environment:
+      - container_user=mosip
+      - DEFAULT_WELLKNOWN=%5B%7B%22name%22%3A%22OpenID%20Configuration%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-configuration%22%7D%2C%7B%22name%22%3A%22Jwks%20Json%22%2C%22value%22%3A%22%2F.well-known%2Fjwks.json%22%7D%2C%7B%22name%22%3A%22Authorization%20Server%22%2C%22value%22%3A%22%2F.well-known%2Foauth-authorization-server%22%7D%5D
+      - SIGN_IN_WITH_ESIGNET_PLUGIN_URL=https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - esignet

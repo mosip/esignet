@@ -7,6 +7,7 @@ package io.mosip.esignet.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -52,6 +53,9 @@ public class OAuthControllerTest {
 
     @MockBean
     AuthorizationHelperService authorizationHelperService;
+
+    @MockBean
+    LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
 
     @Test
     public void getAllJwks_thenPass() throws Exception {

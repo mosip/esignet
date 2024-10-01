@@ -7,7 +7,7 @@ export const AUTHCODE = "/authorization/auth-code";
 export const CSRF = "/csrf/token";
 export const CLAIM_DETAILS = "/authorization/claim-details";
 export const PREPARE_SIGNUP_REDIRECT = "/authorization/prepare-signup-redirect";
-export const RESUME = "/authorization/resume";
+export const RESUME = "/authorization/complete-signup-redirect";
 
 // Config endpoint
 export const CONFIG = "/theme/config.json";

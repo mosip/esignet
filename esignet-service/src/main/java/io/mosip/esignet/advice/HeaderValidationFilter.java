@@ -195,7 +195,7 @@ public class HeaderValidationFilter extends OncePerRequestFilter {
                 requestUri.endsWith("claim-details")) {
             return cacheUtilService.getAuthenticatedTransaction(transactionId);
         }
-        if(requestUri.endsWith("resume")) {
+        if(requestUri.endsWith("complete-signup-redirect")) {
             return cacheUtilService.getHaltedTransaction(transactionId);
         }
         return cacheUtilService.getPreAuthTransaction(transactionId);

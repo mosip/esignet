@@ -29,7 +29,7 @@ public class FilterCriteriaMatcher {
 
 
     public boolean doMatch(Map<String, Object> verificationFilter, String key, JsonNode storedVerificationDetail) {
-        if(verificationFilter.get(key) == null)
+        if(verificationFilter.get(key) == null) //With data minimalism approach, we do not check if value is present in the storedVerificationDetail
             return true;
 
         String storedValue = storedVerificationDetail.hasNonNull(key) ? storedVerificationDetail.get(key).asText() : null;
