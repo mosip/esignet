@@ -28,7 +28,7 @@ import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.EsignetConfigManager;
 import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
@@ -44,7 +44,7 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 
 	@BeforeClass
 	public static void setLogLevel() {
-		if (ConfigManager.IsDebugEnabled())
+		if (EsignetConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -133,17 +133,17 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 
 		else {
 			if (testCaseName.contains("ESignet_")) {
-				String tempUrl = ConfigManager.getEsignetBaseUrl();
+				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 				if (testCaseDTO.getEndPoint().contains("/signup/"))
-					tempUrl = ConfigManager.getSignupBaseUrl();
+					tempUrl = EsignetConfigManager.getSignupBaseUrl();
 				
 				if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$") && testCaseName.contains("SunBirdR")) {
 
-					if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))
+					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
-					if (ConfigManager.getSunBirdBaseURL() != null && !ConfigManager.getSunBirdBaseURL().isBlank())
-						tempUrl = ConfigManager.getSunBirdBaseURL();
+					if (EsignetConfigManager.getSunBirdBaseURL() != null && !EsignetConfigManager.getSunBirdBaseURL().isBlank())
+						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
 						//Once sunbird registry is pointing to specific env, remove the above line and uncomment below line
 						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));

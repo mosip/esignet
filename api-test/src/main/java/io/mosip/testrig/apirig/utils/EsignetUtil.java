@@ -59,7 +59,7 @@ public class EsignetUtil extends AdminTestUtil {
 					logger.info(eachJson.getJSONObject(GlobalConstants.PROPERTIES));
 					value = eachJson.getJSONObject(GlobalConstants.PROPERTIES).getJSONObject(key)
 							.get(GlobalConstants.VALUE).toString();
-					if (ConfigManager.IsDebugEnabled())
+					if (EsignetConfigManager.IsDebugEnabled())
 						logger.info("Actuator: " + url + " key: " + key + " value: " + value);
 					break;
 				}
