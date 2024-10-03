@@ -37,13 +37,8 @@ $ ./install.sh
   kubectl --kubeconfig /home/mosipuser/.kube/dmzcluster.config -n default scale --replicas= deploy consolidator-websub-service websub-service
   ```
 * Restart the websub dependent services:
-  * Kernel syncdata service
-  * IDREPO services
-  * IDA services
-  * PMS services
-  * RESIDENT services
-  * PRINT service
-  * Regproc notification service
+  * Esignet service
+  * Signup service
 
 #### Restore
 
