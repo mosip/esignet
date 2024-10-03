@@ -50,6 +50,6 @@ public class Constants {
     public static final String S256 = "S256";
 
     public static final String SERVER_NONCE_SEPARATOR = "~###~";
-    public static final String VERIFICATION_COMPLETE = "verification_complete";
+    public static final String VERIFICATION_COMPLETE = "COMPLETED";
     public static final String VERIFIED_CLAIMS = "verified_claims";
 }
