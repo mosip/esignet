@@ -1,8 +1,6 @@
 package io.mosip.testrig.apirig.testscripts;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +27,7 @@ import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.EsignetConfigManager;
 import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
@@ -45,7 +43,7 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 
 	@BeforeClass
 	public static void setLogLevel() {
-		if (ConfigManager.IsDebugEnabled())
+		if (EsignetConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
@@ -138,13 +136,13 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 		int currLoopCount = 0;
 		while (currLoopCount < maxLoopCount) {
 			if (testCaseName.contains(GlobalConstants.ESIGNET_)) {
-				if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 					throw new SkipException("esignet is not deployed hence skipping the testcase");
 				}
-				String tempUrl = ConfigManager.getEsignetBaseUrl();
+				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 				
 				if (testCaseDTO.getEndPoint().contains("/signup/"))
-					tempUrl = ConfigManager.getSignupBaseUrl();
+					tempUrl = EsignetConfigManager.getSignupBaseUrl();
 				otpResponse = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + sendOtpEndPoint,
 						getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate), COOKIENAME,
 						testCaseDTO.getTestCaseName());
@@ -204,12 +202,12 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 		}
 
 		if (testCaseName.contains(GlobalConstants.ESIGNET_)) {
-			if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+			if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 				throw new SkipException("esignet is not deployed hence skipping the testcase");
 			}
-			String tempUrl = ConfigManager.getEsignetBaseUrl();
+			String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 			if (testCaseDTO.getEndPoint().contains("/signup/"))
-				tempUrl = ConfigManager.getSignupBaseUrl();
+				tempUrl = EsignetConfigManager.getSignupBaseUrl();
 			if (testCaseName.startsWith("ESignet_VerifyChallengeNegTC_")
 					|| testCaseName.startsWith("ESignet_VerifyChallengeForResetPasswordNegTC_")) {
 				response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),

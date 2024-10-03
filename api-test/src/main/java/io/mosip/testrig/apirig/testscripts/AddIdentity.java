@@ -30,7 +30,7 @@ import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
-import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.EsignetConfigManager;
 import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
@@ -56,7 +56,7 @@ public class AddIdentity extends AdminTestUtil implements ITest {
 
 	@BeforeClass
 	public static void setLogLevel() {
-		if (ConfigManager.IsDebugEnabled())
+		if (EsignetConfigManager.IsDebugEnabled())
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
