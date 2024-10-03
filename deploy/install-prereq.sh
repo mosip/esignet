@@ -48,7 +48,7 @@ function installing_prerequisites() {
   helm -n "$SOFTHSM_NS" install esignet-softhsm mosip/softhsm -f softhsm-values.yaml --version "$SOFTHSM_CHART_VERSION" --wait
   echo "Installed Softhsm for esignet"
 
-  declare -a modules=("postgres" "keycloak" "kafka" "redis")
+  declare -a modules=("istio-gateway" "postgres" "keycloak" "kafka" "redis")
   declare -A prompts=(
     ["keycloak"]="Do you want to deploy keycloak in the keycloak namespace?"
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace?"
@@ -57,7 +57,7 @@ function installing_prerequisites() {
   echo "Installing prerequisite services"
 
   for module in "${modules[@]}"; do
-    if [ "$module" == "redis" ] || [ "$module" == "postgres" ]; then
+    if [ "$module" == "istio-gateway" ] || [ "$module" == "redis" ] || [ "$module" == "postgres" ]; then
       cd "$ROOT_DIR/$module"
       ./install.sh
     fi
