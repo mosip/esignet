@@ -96,12 +96,18 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 		}
 
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
 
+		if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
+				&& testCaseName.contains("SunBirdC")) {
+			if (ConfigManager.isInServiceNotDeployedList("sunbirdrc"))
+				throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
+		}
+		
 		if (ConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new SkipException("esignet is not deployed hence skipping the testcase");
 		}
@@ -139,6 +145,7 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 				String tempUrl = ConfigManager.getEsignetBaseUrl();
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
 						&& testCaseName.contains("SunBirdC")) {
+
 					if (ConfigManager.getEsignetMockBaseURL() != null
 							&& !ConfigManager.getEsignetMockBaseURL().isBlank())
 						tempUrl = ApplnURI.replace("api-internal.", ConfigManager.getEsignetMockBaseURL());

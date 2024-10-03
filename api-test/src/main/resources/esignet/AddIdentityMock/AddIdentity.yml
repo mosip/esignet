@@ -1,0 +1,418 @@
+AddIdentity:
+   ESignet_AddIdentity_Valid_Parameters_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Parameters_Sce2_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Invalid_Scen_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with invalid scenario
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Params_BindOtp_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Params_WOPhone_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with valid parameter and without phone number
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Params_WOEmail_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with valid parameter and without Email
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Vid_Generation_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity Vid generation
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Vid_2_Generation_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity Vid generation
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Linked_Sce_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_User2_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity linked consent user2
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_Vid_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity linked consent Vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Linked_Consent_User2_Vid_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity linked consent user2 Vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_BioAuth_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with BioAuth
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_KycAuth_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with KycAuth
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Consent_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Consent_Vid_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity consent Vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_uin_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with valid parameters VCI UIN
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_uin_Inv_Scen_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with valid parameters VCI UIN invalid scenario
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_Vid_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with valid parameters VCI Vid
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Valid_Params_VCI_Vid_Inv_Scen_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with valid parameters VCI Vid invalid scenario
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+
+   ESignet_AddIdentity_Password_Auth_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with password authentication
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'

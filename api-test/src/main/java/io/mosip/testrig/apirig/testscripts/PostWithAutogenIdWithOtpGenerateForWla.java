@@ -87,8 +87,8 @@ public class PostWithAutogenIdWithOtpGenerateForWla extends AdminTestUtil implem
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
 		}
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}

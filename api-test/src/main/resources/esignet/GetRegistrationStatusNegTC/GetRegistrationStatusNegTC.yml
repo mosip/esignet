@@ -1,7 +1,6 @@
 GetRegistrationStatusNegTC:
    ESignet_GetRegistrationStatusNegTC_without_TransactionID:
       endPoint: /v1/signup/registration/status
-      description: Get registration status without transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
@@ -19,7 +18,6 @@ GetRegistrationStatusNegTC:
 }'
    ESignet_GetRegistrationStatusNegTC_with_invalid_TransactionID:
       endPoint: /v1/signup/registration/status
-      description: Get registration status with invalid transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
@@ -37,7 +35,6 @@ GetRegistrationStatusNegTC:
 }'
    ESignet_GetRegistrationStatusNegTC_with_invalid_TransactionID:
       endPoint: /v1/signup/registration/status
-      description: Get registration status with invalid transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
@@ -55,7 +52,6 @@ GetRegistrationStatusNegTC:
 }'
    ESignet_GetRegistrationStatusNegTC_with_expired_TransactionID_wait:
       endPoint: /v1/signup/registration/status
-      description: Get registration status with expired transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus

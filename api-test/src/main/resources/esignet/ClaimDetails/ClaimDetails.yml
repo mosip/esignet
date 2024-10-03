@@ -1,0 +1,15 @@
+ClaimDetails:
+   ESignet_ClaimDetails_AuthToken_Xsrf_uin_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/claim-details
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetails/ClaimDetails
+      outputTemplate: esignet/ClaimDetails/ClaimDetailsResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$"
+    }'
+      output: '{
+}'

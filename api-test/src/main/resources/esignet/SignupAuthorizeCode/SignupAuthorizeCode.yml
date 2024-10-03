@@ -1,0 +1,19 @@
+SignupAuthorizeCode:
+   ESignet_SignupAuthorizeCode_AuthToken_Xsrf_uin_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeCode/SignupAuthorizeCode
+      outputTemplate: esignet/SignupAuthorizeCode/SignupAuthorizeCodeResult
+      input: '{
+        "encodedHash": "$ID:SignupAuthorize_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirect_AuthToken_Xsrf_STransId_uin_Otp_Valid_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:SignupAuthorize_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{channel: "email"},{channel: "phone_number"}]
+}'
+      output: '{
+       
+}'

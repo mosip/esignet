@@ -91,8 +91,8 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 		}
 
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValueFromActuator().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValueFromActuator().contains("vid")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
@@ -134,6 +134,8 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 		else {
 			if (testCaseName.contains("ESignet_")) {
 				String tempUrl = ConfigManager.getEsignetBaseUrl();
+				if (testCaseDTO.getEndPoint().contains("/signup/"))
+					tempUrl = ConfigManager.getSignupBaseUrl();
 				
 				if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$") && testCaseName.contains("SunBirdR")) {
 

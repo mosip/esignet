@@ -1,7 +1,6 @@
 RegisterUserNegTC:
    ESignet_RegisterUserNegTC_Missing_CSRF_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user without CSRF token
       role: resident
       restMethod: post
       allowedErrorCodes: 403
@@ -22,7 +21,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_without_headerTransactionID:
       endPoint: /v1/signup/registration/register
-      description: Register user without transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -47,7 +45,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_invalid_headerTransactionID:
       endPoint: /v1/signup/registration/register
-      description: Register user with invalid transactionId
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -72,7 +69,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_empty_requestTime:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -97,7 +93,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC__with_empty_string_requestTime:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty string in requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -122,7 +117,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_invalid_requestTime:
       endPoint: /v1/signup/registration/register
-      description: Register user with invalid requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -147,7 +141,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_number_as_requestTime:
       endPoint: /v1/signup/registration/register
-      description: Register user with numbers in requestTime
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -172,7 +165,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_invalid_requestTime_format:
       endPoint: /v1/signup/registration/register
-      description: Register user with invalid requestTime format
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -197,7 +189,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_without_request_Object:
       endPoint: /v1/signup/registration/register
-      description: Register user without request object
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_password,invalid_consent,invalid_username,invalid_phone_number,unsupported_language
@@ -223,7 +214,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_username:
       endPoint: /v1/signup/registration/register
-      description: Register user without username
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -248,7 +238,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_password:
       endPoint: /v1/signup/registration/register
-      description: Register user without password
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -273,7 +262,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_CONSENT:
       endPoint: /v1/signup/registration/register
-      description: Register user without consent
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -298,7 +286,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_userInfo:
       endPoint: /v1/signup/registration/register
-      description: Register user without userInfo
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_username,invalid_fullname,invalid_phone_number
@@ -324,7 +311,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_EMPTY_username:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty username
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -349,7 +335,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_EMPTY_string_username:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty string in username
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -374,7 +359,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_name_username:
       endPoint: /v1/signup/registration/register
-      description: Register user with different name in username
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -399,7 +383,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_country_code_in_username:
       endPoint: /v1/signup/registration/register
-      description: Register user without country code in username
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -424,7 +407,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_spaces_in_username:
       endPoint: /v1/signup/registration/register
-      description: Register user with only space in username
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -449,7 +431,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_spaces_in_username_and_after_plus:
       endPoint: /v1/signup/registration/register
-      description: Register user with space in username after plus
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -474,7 +455,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_country_code:
       endPoint: /v1/signup/registration/register
-      description: Register user with different country code
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -497,11 +477,11 @@ RegisterUserNegTC:
     }
   ]
 }'
-   ESignet_RegisterUserNegTC_WITH_more_then_9digit_number:
+   ESignet_RegisterUserNegTC_WITH_more_than_9digit_number:
       endPoint: /v1/signup/registration/register
-      description: Register user with more then 9 digit number
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -524,9 +504,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_less_then_8digit_number:
       endPoint: /v1/signup/registration/register
-      description: Register user with less then 8 digit number
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -549,7 +529,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_all_zero_in_phone:
       endPoint: /v1/signup/registration/register
-      description: Register user with all zero in phone number
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -574,7 +553,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_starting_zero_in_phone:
       endPoint: /v1/signup/registration/register
-      description: Register user with starting zero in phone number
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -599,7 +577,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_alphanumeric_in_phone:
       endPoint: /v1/signup/registration/register
-      description: Register user with alphanumeric in phone number
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -624,7 +601,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_special_char_in_phone:
       endPoint: /v1/signup/registration/register
-      description: Register user with special character in phone number
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -649,7 +625,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_only_alphabet_in_phone:
       endPoint: /v1/signup/registration/register
-      description: Register user with only alphabet in phone number
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -674,7 +649,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_only_alphabet_in_phone:
       endPoint: /v1/signup/registration/register
-      description: Register user with only alphabet in phone number
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -699,7 +673,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_spaces_in_password:
       endPoint: /v1/signup/registration/register
-      description: Register user with space in password
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -724,7 +697,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout__special_character_in_password:
       endPoint: /v1/signup/registration/register
-      description: Register user with special character in password
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -749,7 +721,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_more_then_20_digit_in_password:
       endPoint: /v1/signup/registration/register
-      description: Register user with more then 20 digit in password
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -774,7 +745,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_empty_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty consent
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_consent,invalid_consent
@@ -800,7 +770,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_empty_string_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty string in consent
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_consent,invalid_consent
@@ -826,7 +795,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_disagree_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with consent as disagree
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -851,7 +819,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_alpha_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with different alphabet in consent
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -876,7 +843,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_ONLY_Special_char_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with only special character in consent
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -901,7 +867,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_ONLY_number_in_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with only number in consent
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -926,7 +891,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_alpha_numeric_in_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with alphanumeric in consent
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -951,7 +915,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_agree_in_consent:
       endPoint: /v1/signup/registration/register
-      description: Register user with consent as agree
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -976,7 +939,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_empty_user_info:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty userInfo
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_phone_number
@@ -1002,7 +964,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_fullName:
       endPoint: /v1/signup/registration/register
-      description: Register user without fullName
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1027,9 +988,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_phone:
       endPoint: /v1/signup/registration/register
-      description: Register user without phone number
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1053,7 +1014,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_WITHout_preferredLang:
       endPoint: /v1/signup/registration/register
-      description: Register user without preferred language
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1071,14 +1031,13 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unsupported_language",
+      "errorCode": "invalid_preferredlang",
       "errorMessage": "$IGNORE$"
     }
   ]
 }'
    ESignet_RegisterUserNegTC_WITH_empty_array_fullName:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty array in fullName
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1103,9 +1062,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH__phone_empty:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty phone number
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1128,9 +1087,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH__phone_empty_string:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty string in phone number
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone_number,invalid_phone
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1153,9 +1112,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_phone_empty_string:
       endPoint: /v1/signup/registration/register
-      description: Register user with different phone number
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1178,9 +1137,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_country_code:
       endPoint: /v1/signup/registration/register
-      description: Register user without country code
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1203,9 +1162,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_plus_country_code:
       endPoint: /v1/signup/registration/register
-      description: Register user without plus in country code
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1228,9 +1187,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_by_different_country_code:
       endPoint: /v1/signup/registration/register
-      description: Register user with different country code
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1253,7 +1212,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_starts_with_zero:
       endPoint: /v1/signup/registration/register
-      description: Register user with phone that starts with zero
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_value,invalid_phone_number,invalid_value
@@ -1279,9 +1237,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_starts_with_zero:
       endPoint: /v1/signup/registration/register
-      description: Register user with phone number that starts with zero
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1304,10 +1262,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_with_all_zero:
       endPoint: /v1/signup/registration/register
-      description: Register user with all zero's in phone number
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_value,invalid_phone_number
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1330,10 +1287,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_with_special_char:
       endPoint: /v1/signup/registration/register
-      description: Register user with special character in phone number
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_value,invalid_phone_number
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1356,9 +1312,9 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_with_alpha_numeric:
       endPoint: /v1/signup/registration/register
-      description: Register user with alphanumeric in phone number
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_phone,invalid_phone_number
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1381,7 +1337,6 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_empty_preferredLang:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty preferred language
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1399,14 +1354,13 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unsupported_language",
+      "errorCode": "invalid_preferredlang",
       "errorMessage": "$IGNORE$"
     }
   ]
 }'
    ESignet_RegisterUserNegTC_with_empty_string_preferredLang:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty string in preferred language
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1424,14 +1378,13 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unsupported_language",
+      "errorCode": "invalid_preferredlang",
       "errorMessage": "$IGNORE$"
     }
   ]
 }'
    ESignet_RegisterUserNegTC_with_invalid_preferredLang:
       endPoint: /v1/signup/registration/register
-      description: Register user with phone number that starts with zero
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1449,14 +1402,13 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unsupported_language",
+      "errorCode": "invalid_preferredlang",
       "errorMessage": "$IGNORE$"
     }
   ]
 }'
    ESignet_RegisterUserNegTC_with_unsupported_preferredLang:
       endPoint: /v1/signup/registration/register
-      description: Register user with unsupported preferred language
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1474,7 +1426,7 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unsupported_language",
+      "errorCode": "invalid_preferredlang",
       "errorMessage": "$IGNORE$"
     }
   ]
@@ -1482,7 +1434,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_Language_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with language only in Name field
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_value
@@ -1508,9 +1459,9 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with only value in Name field
       role: resident
       restMethod: post
+      allowedErrorCodes: invalid_fullname,invalid_value
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1526,17 +1477,16 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unknown_error"
+      "errorCode": "invalid_language"
     }
   ]
 }'
 
    ESignet_RegisterUserNegTC_Invalid_Value_On_Language_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with invalid value in language field
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_fullname,unsupported_language
+      allowedErrorCodes: invalid_fullname,unsupported_language,invalid_firstname
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1552,17 +1502,16 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unsupported_language"
+      "errorCode": "invalid_language"
     }
   ]
 }'
 
    ESignet_RegisterUserNegTC_Empty_Value_On_Language_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty value in language field
       role: resident
       restMethod: post
-      allowedErrorCodes: unsupported_language,invalid_fullname
+      allowedErrorCodes: unsupported_language,invalid_fullname,invalid_firstname
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1578,17 +1527,16 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "unsupported_language"
+      "errorCode": "invalid_language"
     }
   ]
 }'
 
    ESignet_RegisterUserNegTC_Empty_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with empty value in Name field
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_value,invalid_fullname
+      allowedErrorCodes: invalid_value,invalid_fullname,invalid_firstname
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/error
       input: '{
@@ -1611,7 +1559,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Space_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with space in value under Name field
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_value
@@ -1630,14 +1577,13 @@ RegisterUserNegTC:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_value"
+      "errorCode": "invalid_fullname"
     }
   ]
 }'
 
    ESignet_RegisterUserNegTC_SName_Valid_smoke_Pos:
       endPoint: /v1/signup/registration/register
-      description: Register user with all valid details
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1658,7 +1604,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Valid_smoke_2nd_time_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with all valid details second time
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1684,7 +1629,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_with_khm_preferredLang:
       endPoint: /v1/signup/registration/register
-      description: Register user with khm as preferred language
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1705,7 +1649,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_1st_Lang_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with first language in Name field
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1726,7 +1669,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_SpecialChar_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with only special character in Name field
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1751,7 +1693,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_Num_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with only number in value under Name field
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1776,7 +1717,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_AlphaNum_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with alphanumeric in value under Name field
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1801,7 +1741,6 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Exceeding_Limit_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
-      description: Register user with exceeding limit value under Name field
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser

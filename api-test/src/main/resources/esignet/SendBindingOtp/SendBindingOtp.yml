@@ -208,6 +208,7 @@ SendBindingOtp:
       description: Send binding Otp for UIN with invalid individualId
       role: mobileauth
       validityCheckRequired: true
+      allowedErrorCodes: IDA-MLC-009,invalid_individual_id
       restMethod: post
       inputTemplate: esignet/SendBindingOtp/SendBindingOtp
       outputTemplate: esignet/error
@@ -232,6 +233,7 @@ SendBindingOtp:
       description: Send binding Otp for UIN with invalid case in individualId
       role: mobileauth
       validityCheckRequired: true
+      allowedErrorCodes: IDA-MLC-009,invalid_individual_id
       restMethod: post
       inputTemplate: esignet/SendBindingOtp/SendBindingOtp
       outputTemplate: esignet/error
