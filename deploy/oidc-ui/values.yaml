@@ -1,0 +1,58 @@
+## Uncomment required parms added with single '#' when needed.
+#image:
+#  registry: docker.io
+#  repository: mosipdev/oidc-ui
+#  tag: develop
+
+#extraEnvVars: []
+
+## ConfigMap with extra environment variables
+##
+#extraEnvVarsCM:
+#  - oidc-ui
+
+## Secret with extra environment variables
+##
+#extraEnvVarsSecret: []
+
+## Extra volumes to add to the deployment
+##
+#extraVolumes: []
+
+## Extra volume mounts to add to the container
+##
+#extraVolumeMounts: []
+
+#oidc_ui:
+#  oidc_ui_port: '3000'
+#  oidc_service_host: 'esignet.esignet'
+#  i18n_url_env: ''
+#  theme_url_env: ''
+#  images_url_env: ''
+#  configmaps:
+#    oidc-ui:
+#      REACT_APP_API_BASE_URL: 'http://esignet.esignet/v1/esignet'
+#      REACT_APP_SBI_DOMAIN_URI: 'http://esignet.$NS'
+#      OIDC_UI_PUBLIC_URL: ''
+#      SIGN_IN_WITH_ESIGNET_PLUGIN_URL: ''                                                                                                  
+#      DEFAULT_WELLKNOWN: '%5B%7B%22name%22%3A%22OpenID%20Configuration%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-configuration%22%7D%2C%7>
+#      DEFAULT_THEME: ''
+#      DEFAULT_LANG: 'en'
+#      DEFAULT_FEVICON: 'favicon.ico'
+#      DEFAULT_TITLE: 'eSignet'
+#      DEFAULT_ID_PROVIDER_NAME: 'eSignet'
+#      DEFAULT_FONT_URL: ''
+## OIDC UI swagger should have only internal access. Hence linked to internal gateway
+## We create a gateway for esignet specific URL(s) listed under `hosts`
+#istio:
+#  enabled: true
+#  ingressController:
+#    name: ingressgateway
+#  gateways:
+#    - name: oidc-ui-gateway
+#      protocol: HTTP
+#      portName: http
+#      port: 80
+#  hosts:
+#    - esignet.sandbox.xyz.net
+#  prefix: /

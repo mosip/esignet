@@ -1,22 +1,36 @@
+image:
+  registry: docker.io
+  repository: mosipdev/partner-onboarder
+  tag: develop
+
 onboarding:
   modules:
-    - name: ida
-      enabled: false
-    - name: print
-      enabled: false
-    - name: abis
-      enabled: false
-    - name: resident
-      enabled: false
-    - name: mobileid
-      enabled: false
-    - name: digitalcard
-      enabled: false
     - name: esignet
       enabled: true
-    - name: resident-oidc
-      enabled: true
-    - name: demo-oidc
-      enabled: false
-    - name: mimoto-keybinding
-      enabled: false
+#  configmaps:
+#    s3:
+#      s3-host: 'http://minio.minio:9000'
+#      s3-user-key: 'admin'
+#      s3-region: ''
+#    onboarder-namespace:
+#      ns_mimoto: mimoto
+#      ns_esignet: esignet
+#      ns_signup: signup
+#  secrets:
+#     s3:
+#      s3-user-secret: 'password'
+#  volumes:
+#    reports:
+#      name: onboarder-reports
+#      storageClass: nfs-client
+#      accessModes:
+#        - ReadWriteMany
+#      size: 10Mi
+#      existingClaim:
+#      # Dir where config and keys are written inside container
+#      mountDir: /home/mosip/reports
+#      nfs:
+#        path: "/srv/nfs/sandbox/onboarding"  # Dir within the nfs server where config repo is cloned/maintained locally.
+#        server: "nfs-server"  # Ip address of nfs server.
+#  variables:
+#    push_reports_to_s3: true

@@ -93,6 +93,18 @@ spec:
               value: {{ .Values.container_user }}
             - name: JDK_JAVA_OPTIONS
               value: {{ .Values.additionalResources.javaOpts }}
+            {{- if .Values.oidc_ui.i18n_url_env }}
+            - name: i18n_url_env
+              value: {{ .Values.oidc_ui.i18n_url_env }}
+            {{- end }}
+            {{- if .Values.oidc_ui.theme_url_env }}
+            - name: theme_url_env
+              value: {{ .Values.oidc_ui.theme_url_env }}
+            {{- end }}
+            {{- if .Values.oidc_ui.images_url_env }}
+            - name: images_url_env
+              value: {{ .Values.oidc_ui.images_url_env }}
+            {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
