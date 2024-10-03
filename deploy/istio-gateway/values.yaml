@@ -1,0 +1,11 @@
+gateway:
+  internal:
+    enabled: true
+    host: api-internal.sandbox.xyz.net
+  public:
+    enabled: true
+    host: api.sandbox.xyz.net
+proxyProtocol:
+  enabled: true
+authPolicy:
+  denySwagger: true
