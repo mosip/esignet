@@ -16,7 +16,7 @@ function initialize_db() {
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
-          exit
+          exit 1
       else
           echo "Please provide a correct option (Y or N)"
       fi

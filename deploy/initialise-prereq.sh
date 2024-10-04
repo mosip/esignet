@@ -48,11 +48,22 @@ function initialising_Prerequisites() {
   echo Please enter the recaptcha admin secret key for domain $ESIGNET_HOST
   read ESECRET_KEY
 
-  echo Setting up captcha secrets
-  kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
+while true; do
+  read -p "Do you want to continue configuring Captcha secrets for esignet ? (y/n) : " ans
+    if [ $ans='Y' ] || [ $ans='y' ]; then
+      echo "Please create captcha site and secret key for esignet domain: esignet.sandbox.xyz.net"
+      echo "Setting up captcha secrets"
+      kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
 
-  echo Setting up dummy values for esignet misp license key
-  kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
+      echo Setting up dummy values for esignet misp license key
+      kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
+    elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
+      exit 1
+    else
+      echo "Please provide a correct option (Y or N)"
+    fi
+done
+
 
   echo "All prerequisite services initialised successfully."
   return 0
