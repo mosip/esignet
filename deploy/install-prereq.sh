@@ -8,8 +8,6 @@ if [ $# -ge 1 ]; then
 fi
 
 ROOT_DIR=$(pwd)
-SOFTHSM_NS=softhsm
-SOFTHSM_CHART_VERSION=12.0.1
 
 function prompt_for_deployment() {
   local module_name=$1
@@ -30,36 +28,26 @@ function prompt_for_deployment() {
 
 function installing_prerequisites() {
 
-  helm repo add mosip https://mosip.github.io/mosip-helm
-  helm repo update
-
-  # Create esignet, softhsm namespace if not present
-  kubectl create ns esignet || true
-  kubectl create ns "$SOFTHSM_NS" || true
-
   # Apply esignet-global config-map
-  kubectl apply -f esignet-global-cm.yaml
+  echo "Creating esignet-global configmap in esignet namespace"
+  kubectl -n esignet apply -f esignet-global-cm.yaml
 
-  echo "Istio label"
-  kubectl label ns "$SOFTHSM_NS" istio-injection=enabled --overwrite
-
-  # Deploy Softhsm for Esignet.
-  echo "Installing Softhsm for esignet"
-  helm -n "$SOFTHSM_NS" install esignet-softhsm mosip/softhsm -f softhsm-values.yaml --version "$SOFTHSM_CHART_VERSION" --wait
-  echo "Installed Softhsm for esignet"
-
-  declare -a modules=("istio-gateway" "postgres" "keycloak" "kafka" "redis")
+  declare -a modules=("istio-gateway" "postgres" "keycloak" "kafka" "redis" "softhsm")
   declare -A prompts=(
-    ["keycloak"]="Do you want to deploy keycloak in the keycloak namespace?"
-    ["kafka"]="Do you want to deploy Kafka in the kafka namespace?"
+    ["softhsm"]="Do you want to install softhsm for esignet service in softhsm namespace? Opt "n" in case it already exists in Softhsm namespace: "
+    ["keycloak"]="Do you want to deploy keycloak in the keycloak namespace? Opt "n" in case it already exists in keycloak namespace : "
+    ["kafka"]="Do you want to deploy Kafka in the kafka namespace? Opt "n" in case it already exists in kafka namespace : "
+    ["redis"]="Do you want to deploy redis in Redis namespace? Opt "n" in case it already exists in Redis namespace : "
   )
 
   echo "Installing prerequisite services"
 
   for module in "${modules[@]}"; do
-    if [ "$module" == "istio-gateway" ] || [ "$module" == "redis" ] || [ "$module" == "postgres" ]; then
+    if [ "$module" == "istio-gateway" ] || [ "$module" == "postgres" ]; then
       cd "$ROOT_DIR/$module"
       ./install.sh
+    elif  [[ -n "${prompts[$module]}" ]]; then
+      prompt_for_deployment "$module" "${prompts[$module]}"
     fi
   done
   echo "All prerequisite services deployed successfully."
