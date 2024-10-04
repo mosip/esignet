@@ -77,7 +77,7 @@ startupProbe:
   httpGet:
     path: /v1/esignet/actuator/health
     port: 8088
-  initialDelaySeconds: 0
+  initialDelaySeconds: 240
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 30
@@ -88,7 +88,7 @@ livenessProbe:
   httpGet:
     path: /v1/esignet/actuator/health
     port: 8088
-  initialDelaySeconds: 20
+  initialDelaySeconds: 260
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 6
@@ -99,7 +99,7 @@ readinessProbe:
   httpGet:
     path: /v1/esignet/actuator/health
     port: 8088
-  initialDelaySeconds: 0
+  initialDelaySeconds: 240
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 6
