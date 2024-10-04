@@ -273,22 +273,22 @@ extraEnvVars: |
   - name: DATABASE_HOST
     valueFrom:
       configMapKeyRef:
-        name: postgres-config
+        name: esignet-postgres-config
         key: database-host
   - name: DATABASE_PORT
     valueFrom:
       configMapKeyRef:
-        name: postgres-config
+        name: esignet-postgres-config
         key: database-port
   - name: DATABASE_NAME
     valueFrom:
       configMapKeyRef:
-        name: postgres-config
+        name: esignet-postgres-config
         key: database-name
   - name: DATABASE_USERNAME
     valueFrom:
       configMapKeyRef:
-        name: postgres-config
+        name: esignet-postgres-config
         key: database-username
   - name: DB_DBUSER_PASSWORD
     valueFrom:
