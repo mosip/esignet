@@ -6,15 +6,30 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=esignet
-CHART_VERSION=1.5.0-develop
-
-ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
-
 echo Create $NS namespace
 kubectl create ns $NS
 
 function installing_esignet() {
+
+  while true; do
+      read -p "Do you want to continue installing esignet services? (y/n): "
+      if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
+          break
+      elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
+          exit 1
+      else
+          echo "Please provide a correct option (Y or N)"
+      fi
+  done
+
+
+  NS=esignet
+  CHART_VERSION=1.5.0-develop
+
+  ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
+
+  echo Create $NS namespace
+  kubectl create ns $NS || true
 
   echo Istio label
   helm repo add mosip https://mosip.github.io/mosip-helm

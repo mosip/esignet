@@ -13,6 +13,24 @@ echo Create $NS namespace
 kubectl create ns $NS
 
 function installing_captcha() {
+
+  while true; do
+      read -p "Do you want to continue installing captcha validation service? (y/n): "
+      if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
+          break
+      elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
+          exit 1
+      else
+          echo "Please provide a correct option (Y or N)"
+      fi
+  done
+
+  NS=captcha
+  CHART_VERSION=0.1.0-develop
+
+  echo Create $NS namespace
+  kubectl create ns $NS
+
   echo Istio label
 
   kubectl label ns $NS istio-injection=disabled --overwrite
