@@ -37,13 +37,12 @@ function installing_prerequisites() {
     ["softhsm"]="Do you want to install softhsm for esignet service in softhsm namespace? Opt "n" in case it already exists in Softhsm namespace: "
     ["keycloak"]="Do you want to deploy keycloak in the keycloak namespace? Opt "n" in case it already exists in keycloak namespace : "
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace? Opt "n" in case it already exists in kafka namespace : "
-    ["redis"]="Do you want to deploy redis in Redis namespace? Opt "n" in case it already exists in Redis namespace : "
   )
 
   echo "Installing prerequisite services"
 
   for module in "${modules[@]}"; do
-    if [ "$module" == "istio-gateway" ] || [ "$module" == "postgres" ]; then
+    if [ "$module" == "istio-gateway" ] || [ "$module" == "postgres" ] || [ "$module" == "redis" ]; then
       cd "$ROOT_DIR/$module"
       ./install.sh
     elif  [[ -n "${prompts[$module]}" ]]; then

@@ -25,7 +25,6 @@
       * __Monitoring__ : Setup monitoring consisting elasticsearch, kibana, grafana using [steps](https://github.com/mosip/k8s-infra/tree/v1.2.0.2/monitoring).
 ### Install Pre-requisites
 * `esignet-global` configmap: For eSignet K8's env, `esignet-global` configmap in `esignet` namespace contains Domain related information. Follow below steps to add domain details for `esignet-global` configmap.
-  * Make sure kubeconfig file is already set and k8 cluster is accessible and kubectl is installed.
   * Copy `esignet-global-cm.yaml.sample` to `esignet-global-cm.yaml`.
   * Update the domain names in `esignet-global-cm.yaml` correctly for your environment.
 * Install pre-requisites
