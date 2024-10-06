@@ -62,10 +62,6 @@
             <enabled>false</enabled>
             </snapshots>
         </repository>
-		<repository>
-			<id>danubetech-maven-public</id>
-			<url>https://repo.danubetech.com/repository/maven-public/</url>
-		</repository>
     </repositories>
 
 	<distributionManagement>
