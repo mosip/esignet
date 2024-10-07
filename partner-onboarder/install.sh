@@ -113,7 +113,7 @@ function installing_onboarder() {
       -f values.yaml \
       --version $CHART_VERSION \
       --wait --wait-for-jobs
-    echo "Partner onboarded successfully and reports are moved to S3 or NFS"
+    echo "Partner onboarder executed and reports are moved to S3 or NFS please check the same to make sure partner was onboarded sucessfully."
     kubectl rollout restart deployment -n esignet esignet
     echo eSignet MISP License Key updated successfully to eSignet.
     return 0
