@@ -21,7 +21,7 @@ if [ "$flag" = "n" ]; then
 fi
 
 NS=esignet
-CHART_VERSION=1.5.0-ES-develop
+CHART_VERSION=1.5.0-es-develop
 
 echo Create $NS namespace
 kubectl create ns $NS || true
