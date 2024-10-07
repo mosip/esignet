@@ -114,6 +114,8 @@ function installing_onboarder() {
       --version $CHART_VERSION \
       --wait --wait-for-jobs
     echo "Partner onboarded successfully and reports are moved to S3 or NFS"
+    kubectl rollout restart deployment -n esignet esignet
+    echo eSignet MISP License Key updated successfully to eSignet.
     return 0
   fi
 }
