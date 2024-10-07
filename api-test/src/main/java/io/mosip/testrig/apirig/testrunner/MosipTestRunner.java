@@ -73,6 +73,7 @@ public class MosipTestRunner {
 			} else {
 				ExtractResource.copyCommonResources();
 			}
+			AdminTestUtil.init();
 			EsignetConfigManager.init();
 			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
