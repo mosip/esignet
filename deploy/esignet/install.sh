@@ -12,7 +12,7 @@ kubectl create ns $NS
 function installing_esignet() {
 
   while true; do
-      read -p "Do you want to continue installing esignet services? (y/n): "
+      read -p "Do you want to continue installing esignet services? (y/n): " ans
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
