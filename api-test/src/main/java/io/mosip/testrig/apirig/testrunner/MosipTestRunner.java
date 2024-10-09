@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.testng.TestNG;
@@ -24,10 +25,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.apirig.dbaccess.DBManager;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.AuthTestsUtil;
 import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
-import io.mosip.testrig.apirig.utils.ConfigManager;
-import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
 import io.mosip.testrig.apirig.utils.EsignetConfigManager;
 import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
@@ -60,7 +60,6 @@ public class MosipTestRunner {
 	public static void main(String[] arg) {
 
 		try {
-
 			Map<String, String> envMap = System.getenv();
 			LOGGER.info("** ------------- Get ALL ENV varibales --------------------------------------------- **");
 			for (String envName : envMap.keySet()) {
@@ -74,8 +73,9 @@ public class MosipTestRunner {
 			} else {
 				ExtractResource.copyCommonResources();
 			}
+			AdminTestUtil.init();
 			EsignetConfigManager.init();
-			BaseTestCase.suiteSetup(getRunType());
+			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
 			setLogLevels();
 
@@ -127,13 +127,40 @@ public class MosipTestRunner {
 		} catch (Exception e) {
 			LOGGER.error("Exception " + e.getMessage());
 		}
-
 		OTPListener.bTerminate = true;
 
 		HealthChecker.bTerminate = true;
 
 		System.exit(0);
 
+	}
+	
+	public static void suiteSetup(String runType) {
+		if (EsignetConfigManager.IsDebugEnabled())
+			LOGGER.setLevel(Level.ALL);
+		else
+			LOGGER.info("Test Framework for Mosip api Initialized");
+		BaseTestCase.initialize();
+		LOGGER.info("Done with BeforeSuite and test case setup! su TEST EXECUTION!\n\n");
+
+		if (!runType.equalsIgnoreCase("JAR")) {
+			AuthTestsUtil.removeOldMosipTempTestResource();
+		}
+		BaseTestCase.currentModule = GlobalConstants.ESIGNET;
+		BaseTestCase.certsForModule = GlobalConstants.ESIGNET;
+		DBManager.executeDBQueries(EsignetConfigManager.getKMDbUrl(), EsignetConfigManager.getKMDbUser(),
+				EsignetConfigManager.getKMDbPass(), EsignetConfigManager.getKMDbSchema(),
+				getGlobalResourcePath() + "/" + "config/keyManagerDataDeleteQueriesForEsignet.txt");
+		DBManager.executeDBQueries(EsignetConfigManager.getIdaDbUrl(), EsignetConfigManager.getIdaDbUser(),
+				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getIdaDbSchema(),
+				getGlobalResourcePath() + "/" + "config/idaDeleteQueriesForEsignet.txt");
+		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
+				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
+				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
+		BaseTestCase.setReportName(GlobalConstants.ESIGNET);
+		AdminTestUtil.initiateesignetTest();
+		BaseTestCase.otpListener = new OTPListener();
+		BaseTestCase.otpListener.run();
 	}
 
 	private static void setLogLevels() {
@@ -155,7 +182,6 @@ public class MosipTestRunner {
 		File homeDir = null;
 		TestNG runner = new TestNG();
 		List<String> suitefiles = new ArrayList<>();
-		List<String> modulesToRun = BaseTestCase.listOfModules;
 		String os = System.getProperty("os.name");
 		LOGGER.info(os);
 		if (getRunType().contains("IDE") || os.toLowerCase().contains("windows")) {
@@ -167,12 +193,8 @@ public class MosipTestRunner {
 			LOGGER.info("ELSE :" + homeDir);
 		}
 		for (File file : homeDir.listFiles()) {
-			for (String fileName : modulesToRun) {
-				if (file.getName().toLowerCase().contains(fileName)) {
-					suitefiles.add(file.getAbsolutePath());
-				} else if (fileName.equals("all") && file.getName().toLowerCase().contains("testng")) {
-					suitefiles.add(file.getAbsolutePath());
-				}
+			if (file.getName().toLowerCase().contains(GlobalConstants.ESIGNET)) {
+				suitefiles.add(file.getAbsolutePath());
 			}
 		}
 		runner.setTestSuites(suitefiles);
@@ -180,25 +202,6 @@ public class MosipTestRunner {
 		runner.setOutputDirectory("testng-report");
 		runner.run();
 	}
-
-	/**
-	 * The method to return class loader resource path
-	 * 
-	 * @return String
-	 * @throws IOException
-	 */
-	/*
-	 * public static String getGlobalResourcePath() { if
-	 * (checkRunType().equalsIgnoreCase("JAR")) { return new
-	 * File(jarUrl).getParentFile().getAbsolutePath() +
-	 * "/MosipTestResource/MosipTemporaryTestResource"; } else if
-	 * (checkRunType().equalsIgnoreCase("IDE")) { String path = new
-	 * File(MosipTestRunner.class.getClassLoader().getResource("").getPath()).
-	 * getAbsolutePath() + "/MosipTestResource/MosipTemporaryTestResource"; if
-	 * (path.contains(GlobalConstants.TESTCLASSES)) path =
-	 * path.replace(GlobalConstants.TESTCLASSES, "classes"); return path; } return
-	 * "Global Resource File Path Not Found"; }
-	 */
 
 	public static String getGlobalResourcePath() {
 		if (cachedPath != null) {
@@ -225,15 +228,6 @@ public class MosipTestRunner {
 
 	public static String getResourcePath() {
 		return getGlobalResourcePath();
-//		if (checkRunType().equalsIgnoreCase("JAR")) {
-//			return new File(jarUrl).getParentFile().getAbsolutePath();
-//		} else if (checkRunType().equalsIgnoreCase("IDE")) {
-//			String path = new File(MosipTestRunner.class.getClassLoader().getResource("").getPath()).getAbsolutePath();
-//			if (path.contains(GlobalConstants.TESTCLASSES))
-//				path = path.replace(GlobalConstants.TESTCLASSES, "classes");
-//			return path;
-//		}
-//		return "Global Resource File Path Not Found";
 	}
 
 	public static String generatePulicKey() {
