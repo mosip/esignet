@@ -29,6 +29,11 @@ public class EsignetUtil extends AdminTestUtil {
 			plugin = getValueFromEsignetActuator("classpath:/application-default.properties",
 					"mosip.esignet.integration.authenticator");
 		}
+		
+		if (plugin == null || plugin.isBlank() == true) {
+			plugin = getValueFromEsignetActuator("mosip-config/esignet",
+					"mosip.esignet.integration.authenticator");
+		}
 
 		return plugin;
 	}
@@ -101,11 +106,23 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("idaauthenticatorimpl")) {
-			// Let run test cases eSignet & MOSIP  API calls   --- both UIN and VID
+			// Let run test cases eSignet & MOSIP API calls --- both UIN and VID
+
+			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN", "VID"));
+
+			String endpoint = testCaseDTO.getEndPoint();
+			if (endpoint.contains("/v1/signup/") == true || endpoint.contains("/mock-identity-system/") == true
+					|| ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
+							|| testCaseName.equals("ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid")
+							|| testCaseName.equals("ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid"))
+							&& endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
+
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
 			String individualBiometrics = individualBiometricsArray.getString(0);
-			
+
 			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
 					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke"))
 					&& (!isElementPresent(new JSONArray(schemaRequiredField), individualBiometrics))) {
