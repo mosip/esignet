@@ -371,6 +371,7 @@ export default function OtpVerify({
             }}
             autoSelect={true}
             ref={(n) => (pin = n)}
+            secret
           />
         </div>
 
