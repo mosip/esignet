@@ -99,9 +99,9 @@ public class EsignetUtil extends AdminTestUtil {
 					&& endpoint.contains("$GETENDPOINTFROMWELLKNOWN$") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
-			if ((testCaseName.contains("_KycBioAuth_") || testCaseName
-					.contains("_BioAuth_")
-					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke"))) {
+			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
+					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke")
+					|| testCaseName.contains("ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
