@@ -42,21 +42,36 @@ function initialising_Prerequisites() {
       prompt_for_initialisation "$module" "${prompts[$module]}"
   done
 
-  ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
-  echo Please enter the recaptcha admin site key for domain $ESIGNET_HOST
-  read ESITE_KEY
-  echo Please enter the recaptcha admin secret key for domain $ESIGNET_HOST
-  read ESECRET_KEY
-
 while true; do
   read -p "Do you want to continue configuring Captcha secrets for esignet ? (y/n) : " ans
     if [ $ans='Y' ] || [ $ans='y' ]; then
       echo "Please create captcha site and secret key for esignet domain: esignet.sandbox.xyz.net"
+
+      ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
+      echo Please enter the recaptcha admin site key for domain $ESIGNET_HOST
+      read ESITE_KEY
+      echo Please enter the recaptcha admin secret key for domain $ESIGNET_HOST
+      read ESECRET_KEY
+
       echo "Setting up captcha secrets"
       kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
+      echo "Captcha secrets for esignet configured sucessfully"
 
-      echo Setting up dummy values for esignet misp license key
-      kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
+      ./copy_cm_func.sh secret esignet-captcha $NS captcha
+
+      # Check if the second environment variable exists
+      ENV_VAR_EXISTS=$(kubectl -n captcha get deployment captcha -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name=='MOSIP_CAPTCHA_SECRET_ESIGNET')].name}")
+
+      if [[ -z "$ENV_VAR_EXISTS" ]]; then
+          # If the environment variable does not exist, add it
+          echo "Environment variable 'MOSIP_CAPTCHA_SECRET_ESIGNET' does not exist. Adding it..."
+          kubectl patch deployment -n captcha captcha --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+      else
+          # If the environment variable exists, update it
+          echo "Environment variable 'MOSIP_CAPTCHA_SECRET_ESIGNET' exists. Updating it..."
+          kubectl patch deployment -n captcha captcha --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env[?(@.name==\"MOSIP_CAPTCHA_SECRET_ESIGNET\")]", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+      fi
+
     elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
       exit 1
     else
@@ -64,6 +79,8 @@ while true; do
     fi
 done
 
+  echo "Setting up dummy values for esignet misp license key"
+  kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
 
   echo "All prerequisite services initialised successfully."
   return 0

@@ -9,13 +9,10 @@ fi
 NS=captcha
 CHART_VERSION=0.1.0-develop
 
-echo Create $NS namespace
-kubectl create ns $NS
-
 function installing_captcha() {
 
   while true; do
-      read -p "Do you want to continue installing captcha validation service? (y/n): "
+      read -p "Do you want to continue installing captcha validation service? (y/n): " ans
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
@@ -29,7 +26,7 @@ function installing_captcha() {
   CHART_VERSION=0.1.0-develop
 
   echo Create $NS namespace
-  kubectl create ns $NS
+  kubectl create ns $NS || true
 
   echo Istio label
 
