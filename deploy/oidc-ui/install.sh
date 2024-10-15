@@ -9,7 +9,7 @@ fi
 function installing_oidc-ui() {
 
   while true; do
-      read -p "Do you want to continue installing OIDC ui? (y/n) :"
+      read -p "Do you want to continue installing OIDC ui? (y/n) :" ans
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
