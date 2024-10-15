@@ -17,6 +17,7 @@ kubectl create ns $NS
 function installing_esignet() {
 
   echo Istio label
+  kubectl label ns $NS istio-injection=enabled --overwrite
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
 
