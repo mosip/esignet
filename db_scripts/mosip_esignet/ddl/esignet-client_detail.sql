@@ -29,8 +29,7 @@ CREATE TABLE client_detail(
 	status character varying(20) NOT NULL,
 	cr_dtimes timestamp NOT NULL,
 	upd_dtimes timestamp,
-	CONSTRAINT pk_clntdtl_id PRIMARY KEY (id),
-	CONSTRAINT uk_clntdtl_key UNIQUE (public_key)
+	CONSTRAINT pk_clntdtl_id PRIMARY KEY (id)
 );
 
 CREATE UNIQUE INDEX unique_n_value ON client_detail ((public_key->>'n'));
