@@ -65,11 +65,11 @@ while true; do
       if [[ -z "$ENV_VAR_EXISTS" ]]; then
           # If the environment variable does not exist, add it
           echo "Environment variable 'MOSIP_ESIGNET_CAPTCHA_SECRET_KEY' does not exist. Adding it..."
-          kubectl patch deployment -n captcha captcha --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "MOSIP_ESIGNET_CAPTCHA_SECRET_KEY", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+          kubectl patch deployment -n captcha captcha --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
       else
           # If the environment variable exists, update it
           echo "Environment variable 'MOSIP_ESIGNET_CAPTCHA_SECRET_KEY' exists. Updating it..."
-          kubectl patch deployment -n captcha captcha --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env[?(@.name==\"MOSIP_ESIGNET_CAPTCHA_SECRET_KEY\")]", "value": {"name": "MOSIP_ESIGNET_CAPTCHA_SECRET_KEY", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+          kubectl patch deployment -n captcha captcha --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env[?(@.name==\"MOSIP_CAPTCHA_SECRET_ESIGNET\")]", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
       fi
 
     elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
