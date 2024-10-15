@@ -1008,7 +1008,7 @@
 	</test> -->
 	
 	<!-- Start of Sign up L2 phase test cases -->
-<!--	<test name="OAuthDetailsRequestV3">
+	<test name="OAuthDetailsRequestV3">
 		<parameter name="ymlFile"
 			value="esignet/OAuthDetailsRequestV3/OAuthDetailsRequest.yml" />
 		<parameter name="idKeyName"	value="transactionId,encodedResp" />
@@ -1090,6 +1090,6 @@
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
-	</test>-->
+	</test>
 	<!-- End of Sign up L2 phase test cases -->
 </suite>
