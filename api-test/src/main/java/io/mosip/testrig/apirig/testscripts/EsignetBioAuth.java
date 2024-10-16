@@ -145,9 +145,8 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 
 			JSONObject encryptedIdentityReqObject = new JSONObject(encryptedIdentityReq);
 
-			JSONObject objIdentityRequest = encryptedIdentityReqObject.getJSONObject(GlobalConstants.IDENTITYREQUEST);
-			logger.info(objIdentityRequest);
-			JSONArray arrayBiometrics = objIdentityRequest.getJSONArray(GlobalConstants.BIOMETRICS);
+			logger.info(encryptedIdentityReqObject);
+			JSONArray arrayBiometrics = encryptedIdentityReqObject.getJSONArray(GlobalConstants.BIOMETRICS);
 
 			String bioData = arrayBiometrics.toString();
 			logger.info(bioData);
