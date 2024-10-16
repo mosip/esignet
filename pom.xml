@@ -44,18 +44,6 @@
         </developers>
 
     <repositories>
-		<repository>
-			<id>gcs-maven-central-mirror</id>
-			<name>GCS Maven Central mirror</name>
-			<url>
-				https://maven-central.storage-download.googleapis.com/maven2/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
         <repository>
             <id>ossrh</id>
             <name>CentralRepository</name>
