@@ -5,21 +5,9 @@
  */
 package io.mosip.esignet;
 
-import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-
-import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.time.LocalDateTime;
-import java.util.*;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.esignet.api.dto.AuthChallenge;
@@ -28,10 +16,13 @@ import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
-import io.mosip.esignet.entity.PublicKeyRegistry;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.ApiRateLimit;
+import io.mosip.esignet.core.dto.BindingOtpRequest;
+import io.mosip.esignet.core.dto.BindingOtpResponse;
+import io.mosip.esignet.core.dto.WalletBindingRequest;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.CacheUtilService;
 import io.mosip.esignet.services.KeyBindingHelperService;
@@ -47,15 +38,21 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.jwk.JWK;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.LocalDateTime;
+import java.util.*;
 
-import javax.servlet.ServletException;
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
