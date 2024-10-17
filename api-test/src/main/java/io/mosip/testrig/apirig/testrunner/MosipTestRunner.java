@@ -159,7 +159,6 @@ public class MosipTestRunner {
 		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
 				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
 				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
-//		BaseTestCase.setReportName(GlobalConstants.ESIGNET);
 		AdminTestUtil.initiateesignetTest();
 		BaseTestCase.otpListener = new OTPListener();
 		BaseTestCase.otpListener.run();
@@ -203,7 +202,7 @@ public class MosipTestRunner {
 					// if the prerequisite total skipped/failed count is greater than zero
 
 					if (EmailableReport.getFailedCount() > 0 || EmailableReport.getSkippedCount() > 0) {
-						skipAll = true;
+//						skipAll = true;
 					}
 
 					BaseTestCase.setReportName(GlobalConstants.ESIGNET);
