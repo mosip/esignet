@@ -79,14 +79,13 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 
 	}
-	public static final String PRE_REQUISITE_FAILED_MESSAGE = "pre requisite failed. Hence skipping the testcase";
 	
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
 		String testCaseName = testCaseDTO.getTestCaseName();
 		
 		
 		if (MosipTestRunner.skipAll == true) {
-			throw new SkipException(PRE_REQUISITE_FAILED_MESSAGE);
+			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
 		}
 		
 		
