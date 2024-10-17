@@ -13,6 +13,7 @@ import org.testng.SkipException;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.restassured.response.Response;
 
 public class EsignetUtil extends AdminTestUtil {
@@ -78,9 +79,15 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 
 	}
+	public static final String PRE_REQUISITE_FAILED_MESSAGE = "pre requisite failed. Hence skipping the testcase";
 	
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
 		String testCaseName = testCaseDTO.getTestCaseName();
+		
+		
+		if (MosipTestRunner.skipAll == true) {
+			throw new SkipException(PRE_REQUISITE_FAILED_MESSAGE);
+		}
 		
 		
 		if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice")) {
