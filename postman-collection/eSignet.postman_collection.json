@@ -192,7 +192,8 @@
 											"const publicKeyPem = pmlib.rs.KEYUTIL.getPEM(kp.pubKeyObj, \"PKCS8PUB\");",
 											"// Convert the PEM format to a simple Base64 string (removing PEM headers)",
 											"const publicKeyBase64 = publicKeyPem.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\\n/g, '');",
-											"pm.environment.set(\"client_id\", publicKeyBase64.substring(2, 50));",
+											"let updatedStr = publicKeyBase64.replace(/\\//g, \"_\");",
+											"pm.environment.set(\"client_id\", updatedStr.substring(2, 50));",
 											"",
 											"// Log the result to Postman's console (option);",
 											"pm.environment.set(\"client_private_key\", JSON.stringify(privateKey_jwk));",
@@ -255,7 +256,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://loclahost:3000/**\",\n             \"http://loclahost:5000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://loclahost:3000/**\",\n             \"http://loclahost:5000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:static-code\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1092,7 +1093,7 @@
 									"pm.test(\"Validate linkTransactionId\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.linkTransactionId).not.equals(null);",
-									"    pm.environment.set(\"linkTransactionId\", jsonData.response.linkTransactionId);",
+									"    pm.environment.set(\"link_transaction_id\", jsonData.response.linkTransactionId);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1210,7 +1211,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{link_transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"WLA\",\n                \"challenge\" : \"{{wla_challenge}}\",\n                \"format\" : \"jwt\"\n            }\n        ]\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1278,7 +1279,7 @@
 									"pm.test(\"Validate code\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.code).not.equals(null);",
-									"    pm.environment.set(\"code\", jsonData.response.code);",
+									"    pm.collectionVariables.set(\"code\", jsonData.response.code);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1299,7 +1300,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{linkTransactionId}}\",\n        \"acceptedClaims\": {{accepted_claims}},\n        \"signature\": \"{{detachedSignature}}\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"linkedTransactionId\": \"{{link_transaction_id}}\",\n        \"acceptedClaims\": {{accepted_claims}},\n        \"signature\": \"{{detachedSignature}}\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1874,7 +1875,7 @@
 					"response": []
 				},
 				{
-					"name": "Complete the verification process & Resume Halted Transaction",
+					"name": "Complete Signup Redirect",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -1970,7 +1971,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": {{accepted_claims}},\n        \"permittedAuthorizeScopes\" : {{permitted_authorized_scopes}}\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [\"name\",\"phone_number\"],\n        \"permittedAuthorizeScopes\" : {{permitted_authorized_scopes}}\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

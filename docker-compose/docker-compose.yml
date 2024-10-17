@@ -20,11 +20,12 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - MOSIP_MOCK_IDA_KYC_TRANSACTION_TIMEOUT_SECS=900
     depends_on:
       - database
 
   esignet:
-    image: mosipdev/esignet:release-1.5.x
+    image: 'mosipdev/esignet:release-1.5.x'
     user: root
     ports: 
       - 8088:8088
