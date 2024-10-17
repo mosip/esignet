@@ -277,12 +277,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
 
         //Profile update is mandated only if any essential verified claim is requested
-        boolean isEssentialVerifiedClaimRequested = transaction.getResolvedClaims().getUserinfo()
+        boolean unverifiedEssentialClaimsExists = transaction.getResolvedClaims().getUserinfo()
                 .entrySet()
                 .stream()
                 .anyMatch( entry -> entry.getValue().stream()
-                        .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") != null ));
-        claimDetailResponse.setProfileUpdateRequired(isEssentialVerifiedClaimRequested);
+                        .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
+                                transaction.getClaimMetadata().getOrDefault(entry.getKey(), Collections.EMPTY_LIST).isEmpty() ));
+        claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 
         auditWrapper.logAudit(Action.CLAIM_DETAILS, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, transaction), null);
