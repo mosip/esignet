@@ -18,8 +18,10 @@ import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
@@ -54,6 +56,15 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	@Autowired
 	private KeyBindingHelperService keyBindingHelperService;
 
+	@Autowired
+	private CaptchaHelper captchaHelper;
+
+	@Autowired
+	private CacheUtilService cacheUtilService;
+
+	@Value("${mosip.esignet.send-otp.attempts:3}")
+	private int sendOtpAttempts;
+
 	@Value("${mosip.esignet.binding.encrypt-binding-id:true}")
 	private boolean encryptBindingId;
 
@@ -62,6 +73,10 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws EsignetException {
 		log.debug("sendBindingOtp :: Request headers >> {}", requestHeaders);
 		SendOtpResult sendOtpResult;
+
+		validateApiRateLimits(bindingOtpRequest.getIndividualId());
+		captchaHelper.validateCaptchaToken(bindingOtpRequest.getCaptcha(), "binding-otp");
+
 		try {
 			sendOtpResult = keyBindingWrapper.sendBindingOtp(bindingOtpRequest.getIndividualId(),
 					bindingOtpRequest.getOtpChannels(), requestHeaders);
@@ -79,6 +94,39 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
 		otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
 		return otpResponse;
+	}
+
+	/**
+	 * Validates rate limit based on individual id
+	 * @param individualId {@link BindingOtpRequest individualId}
+	 */
+	public void validateApiRateLimits(String individualId) {
+		ApiRateLimit apiRateLimit = null;
+		try {
+			apiRateLimit = cacheUtilService.getApiRateLimitTransaction(individualId);
+			apiRateLimit = checkRateLimit(apiRateLimit, sendOtpAttempts);
+		} finally {
+			if(apiRateLimit != null) {
+				cacheUtilService.saveApiRateLimit(individualId, apiRateLimit);
+			}
+		}
+	}
+
+	/**
+	 * Returns api rate limit object or throws exception when max attempt is reached.
+	 * @param apiRateLimit {@link ApiRateLimit}
+	 * @param attemptsLimit number of allowed attempts for binding otp request
+	 * @return apiRateLimit {@link ApiRateLimit}
+	 */
+	public ApiRateLimit checkRateLimit(ApiRateLimit apiRateLimit, int attemptsLimit) {
+		if(apiRateLimit == null) {
+			apiRateLimit = new ApiRateLimit();
+		}
+		apiRateLimit.increment(1);
+		if(apiRateLimit.getCount().get(1) > attemptsLimit) {
+			throw new EsignetException(ErrorConstants.NO_ATTEMPTS_LEFT);
+		}
+		return apiRateLimit;
 	}
 
 	private void validateChallengeListAuthFormat(List<AuthChallenge> challengeList){

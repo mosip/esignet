@@ -5,21 +5,9 @@
  */
 package io.mosip.esignet;
 
-import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.time.LocalDateTime;
-import java.util.*;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.esignet.api.dto.AuthChallenge;
@@ -28,11 +16,15 @@ import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
-import io.mosip.esignet.entity.PublicKeyRegistry;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.ApiRateLimit;
+import io.mosip.esignet.core.dto.BindingOtpRequest;
+import io.mosip.esignet.core.dto.BindingOtpResponse;
+import io.mosip.esignet.core.dto.WalletBindingRequest;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
+import io.mosip.esignet.services.CacheUtilService;
 import io.mosip.esignet.services.KeyBindingHelperService;
 import io.mosip.esignet.services.KeyBindingServiceImpl;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
@@ -48,8 +40,19 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.jwk.JWK;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
@@ -63,6 +66,9 @@ public class KeyBindingServiceTest {
 
 	@Mock
 	KeyBindingHelperService keyBindingHelperService;
+
+	@Mock
+	private CacheUtilService cacheUtilService;
 
 	@Mock
 	KeyBinder mockKeyBindingWrapperService;
@@ -90,6 +96,7 @@ public class KeyBindingServiceTest {
 		ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
 
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
+		cacheUtilService = mock(CacheUtilService.class);
 	}
 
 	@Test
@@ -112,6 +119,19 @@ public class KeyBindingServiceTest {
 		BindingOtpRequest otpRequest = new BindingOtpRequest();
 		otpRequest.setIndividualId("8267411571");
 		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+
+		Map<String, String> headers = new HashMap<>();
+		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
+
+		keyBindingService.sendBindingOtp(otpRequest, headers);
+	}
+
+	@Test(expected = EsignetException.class)
+	public void sendBindingOtp_withCaptcha_thenFail() throws SendOtpException {
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		otpRequest.setCaptcha("qwerty");
 
 		Map<String, String> headers = new HashMap<>();
 		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
@@ -367,5 +387,48 @@ public class KeyBindingServiceTest {
 			log.error("generateJWK_RSA failed", e);
 		}
 		return null;
+	}
+
+	@Test
+	public void validateApiRateLimits_withinApiRateLimit_thenPass() {
+		ReflectionTestUtils.setField(keyBindingService, "sendOtpAttempts", 3);
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		keyBindingService.validateApiRateLimits(otpRequest.getIndividualId());
+	}
+
+	@Test
+	public void checkRateLimit_ExceededApiRateLimit_thenFail() {
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+
+		ApiRateLimit apiRateLimit = new ApiRateLimit();
+		apiRateLimit.increment(1);
+		apiRateLimit.increment(1);
+		apiRateLimit.increment(1);
+
+		try {
+			keyBindingService.checkRateLimit(apiRateLimit,3);
+		} catch(EsignetException e) {
+			Assert.assertEquals(ErrorConstants.NO_ATTEMPTS_LEFT, e.getErrorCode());
+		}
+	}
+
+	@Test
+	public void checkRateLimit_validApiRateLimit_thenPass() {
+		BindingOtpRequest otpRequest = new BindingOtpRequest();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+
+		ApiRateLimit apiRateLimit = new ApiRateLimit();
+		apiRateLimit.increment(1);
+
+		try {
+			keyBindingService.checkRateLimit(apiRateLimit,3);
+		} catch(EsignetException e) {
+			Assert.assertEquals(ErrorConstants.NO_ATTEMPTS_LEFT, e.getErrorCode());
+		}
 	}
 }
