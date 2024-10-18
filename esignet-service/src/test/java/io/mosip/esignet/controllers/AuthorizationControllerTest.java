@@ -90,10 +90,6 @@ public class AuthorizationControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Map<String, JsonNode> userinfoMap;
-
-    Map<String, ClaimDetail> idTokenMap;
-
     ClaimDetail claimDetail;
 
     ClaimsV2 claimsV2;
@@ -120,7 +116,7 @@ public class AuthorizationControllerTest {
         Map<String, ClaimDetail> idTokenMap = new HashMap<>();
 
 
-        ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+        claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
 
         idTokenMap.put("some_claim", claimDetail);
         ClaimsV2 claimsV2 = new ClaimsV2();
