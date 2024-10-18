@@ -134,7 +134,13 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 					throw new SkipException("esignet is not deployed hence skipping the testcase");
 				}
-				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+				
+				String tempUrl = null;
+				if (testCaseDTO.getEndPoint().contains("/signup/")) {
+					tempUrl = EsignetConfigManager.getSignupBaseUrl();
+				} else {
+					tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+				}
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
 						&& testCaseName.contains("SunBirdC")) {
 					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
