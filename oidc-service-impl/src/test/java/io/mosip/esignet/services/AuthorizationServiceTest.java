@@ -19,6 +19,7 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.api.util.FilterCriteriaMatcher;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -102,9 +103,14 @@ public class AuthorizationServiceTest {
         claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
         claims.put("email", Arrays.asList("email","email_verified"));
         claims.put("phone", Arrays.asList("phone_number","phone_number_verified"));
+
+        FilterCriteriaMatcher filterCriteriaMatcher = new FilterCriteriaMatcher();
+        ReflectionTestUtils.setField(filterCriteriaMatcher,"objectMapper", new ObjectMapper());
+
         ClaimsHelperService claimsHelperService = new ClaimsHelperService();
         ReflectionTestUtils.setField(claimsHelperService,"claims", claims);
         ReflectionTestUtils.setField(claimsHelperService,"objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(claimsHelperService,"filterCriteriaMatcher", filterCriteriaMatcher);
 
         ReflectionTestUtils.setField(authorizationHelperService, "credentialScopes", Arrays.asList("sample_ldp_vc"));
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("resident-service"));
@@ -1371,24 +1377,67 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getClaimDetails_withValidTransaction_thenPass(){
+    public void getClaimDetails_withUnVerifiedClaimsRequest_thenPass(){
         OIDCTransaction transaction=new OIDCTransaction();
         Claims resolvedClaims = new Claims();
         resolvedClaims.setUserinfo(new HashMap<>());
         Map<String, Object> map = new HashMap<>();
         map.put("essential", true);
-        map.put("verification", new HashMap<>());
         resolvedClaims.getUserinfo().put("name", Arrays.asList(map));
-
         transaction.setResolvedClaims(resolvedClaims);
         transaction.setEssentialClaims(List.of("name", "email"));
         transaction.setVoluntaryClaims(List.of("phone_number"));
+
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        transaction.setClaimMetadata(claimMetadata);
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 
         ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
         Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
+        Assert.assertFalse(claimDetailResponse.isProfileUpdateRequired());
+    }
+
+    @Test
+    public void getClaimDetails_withVerifiedClaimsRequest_thenPass() throws JsonProcessingException {
+        OIDCTransaction transaction=new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+        Map<String, Object> requestedVerification = new HashMap<>();
+        requestedVerification.put("trust_framework", null);
+        map.put("verification", requestedVerification);
+        resolvedClaims.getUserinfo().put("name", Arrays.asList(map));
+        transaction.setResolvedClaims(resolvedClaims);
+        transaction.setEssentialClaims(List.of("name", "email"));
+        transaction.setVoluntaryClaims(List.of("phone_number"));
+
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        transaction.setClaimMetadata(claimMetadata);
+        transaction.setConsentAction(ConsentAction.CAPTURE);
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.CAPTURE);
+        Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().allMatch(cs -> !cs.isVerified() && !cs.isAvailable()));
+        Assert.assertTrue(claimDetailResponse.isProfileUpdateRequired());
+
+        Map<String, Object> emailMap = new HashMap<>();
+        emailMap.put("essential", true);
+        resolvedClaims.getUserinfo().put("email", Arrays.asList(emailMap));
+        Map<String, Object> phoneMap = new HashMap<>();
+        phoneMap.put("essential", false);
+        resolvedClaims.getUserinfo().put("phone_number", Arrays.asList(phoneMap));
+        claimMetadata.put("name", Arrays.asList(objectMapper.readTree("{\"verification\": {\"trust_framework\": \"XYZ TF\"}}")));
+        claimMetadata.put("phone_number", Arrays.asList());
+        claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("name") && cs.isVerified() && cs.isAvailable()));
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("email") && !cs.isVerified() && !cs.isAvailable()));
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("phone_number") && !cs.isVerified() && cs.isAvailable()));
+        Assert.assertFalse(claimDetailResponse.isProfileUpdateRequired());
     }
 
     @Test
