@@ -102,9 +102,9 @@ public interface AuthorizationService {
     ClaimDetailResponse getClaimDetails(String transactionId);
 
     /**
-     * Resume and get the status of resumed transaction
-     * @param resumeRequest
+     * Checks the status of identity verification process started after signup redirect
+     * @param completeSignupRedirectRequest
      * @return
      */
-    ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest);
+    CompleteSignupRedirectResponse completeSignupRedirect(CompleteSignupRedirectRequest completeSignupRedirectRequest);
 }

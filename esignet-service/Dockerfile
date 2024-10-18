@@ -18,17 +18,12 @@ ARG active_profile
 # can be passed during Docker build as build time environment for config server URL
 ARG spring_config_url
 
-# can be passed during Docker build as build time environment for glowroot
-ARG is_glowroot
-
-# can be passed during Docker build as build time environment for artifactory URL
-ARG artifactory_url
-
 # can be passed during Docker build as build time environment for hsm client zip file path
-ARG hsm_client_zip_path
+ARG hsm_client_zip_url
 
 # can be passed during Docker build as build time environment for plugin name
 ARG plugin_name
+ARG plugin_url
 
 # environment variable to pass active profile such as DEV, QA etc at docker runtime
 ENV active_profile_env=${active_profile}
@@ -39,17 +34,11 @@ ENV spring_config_label_env=${spring_config_label}
 # environment variable to pass spring configuration url, at docker runtime
 ENV spring_config_url_env=${spring_config_url}
 
-# environment variable to pass glowroot, at docker runtime
-ENV is_glowroot_env=${is_glowroot}
-
-# environment variable to pass artifactory url, at docker runtime
-ENV artifactory_url_env=${artifactory_url}
-
-# environment variable to pass esignet_wrapper url(may be zip or jar), at docker runtime
-ENV esignet_wrapper_url_env=${esignet_wrapper_url}
+# environment variable to pass esignet_plugins url(may be zip or jar), at docker runtime
+ENV plugin_url_env=${plugin_url}
 
 # environment variable to pass hsm client zip file path, at docker runtime
-ENV hsm_zip_file_path=${hsm_client_zip_path}
+ENV hsm_client_zip_url_env=${hsm_client_zip_url}
 
 # environment variable to pass plugin name to load, at docker runtime
 ENV plugin_name_env=${plugin_name}
@@ -68,7 +57,7 @@ ARG container_user_gid=1001
 
 ARG hsm_local_dir=hsm-client
 
-ENV hsm_local_dir_name=${hsm_local_dir}
+ENV hsm_local_dir_env=${hsm_local_dir}
 
 ENV amr_acr_mapping_file_path_env=/home/mosip/amr_acr_mapping.json
 
@@ -81,7 +70,7 @@ ARG loader_path=${work_dir}/additional_jars/
 
 ARG plugins_path=${work_dir}/plugins
 
-ARG plugins_path_env=${plugins_path}
+ENV plugins_path_env=${plugins_path}
 
 ENV loader_path_env=${loader_path}
 
@@ -103,7 +92,7 @@ RUN apt-get -y update \
 && chown -R ${container_user}:${container_user} /home/${container_user}
 
 # copy all files under target/esignet-plugins to the plugins folder
-COPY ./target/esignet-mock-plugin.jar ./target/mosip-identity-plugin.jar ${plugins_path}
+COPY ./target/*-plugin.jar ${plugins_path}
 COPY ./src/main/resources/amr_acr_mapping.json ${work_dir}/amr_acr_mapping.json
 
 # select container user for all tasks
@@ -113,12 +102,4 @@ EXPOSE 8088
 EXPOSE 9010
 
 ENTRYPOINT [ "./configure_start.sh" ]
-CMD if [ "$is_glowroot_env" = "present" ]; then \
-    wget -q --show-progress "${artifactory_url_env}"/artifactory/libs-release-local/io/mosip/testing/glowroot.zip ; \
-    unzip glowroot.zip ; \
-    rm -rf glowroot.zip ; \
-    sed -i 's/<service_name>/idp-service/g' glowroot/glowroot.properties ; \
-    java -jar -javaagent:glowroot/glowroot.jar -Dloader.path="${loader_path_env}" -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" esignet-service.jar ; \
-    else \
-    java -jar -Dloader.path="${loader_path_env}" -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" esignet-service.jar ; \
-    fi
+CMD java -jar -Dloader.path="${loader_path_env}" -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" esignet-service.jar

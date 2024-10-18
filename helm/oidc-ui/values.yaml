@@ -51,8 +51,8 @@ service:
 
 image:
   registry: docker.io
-  repository: mosipqa/oidc-ui
-  tag: 1.0.0
+  repository: mosipdev/oidc-ui
+  tag: develop
 
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -245,15 +245,11 @@ extraEnvVars: []
 ## ConfigMap with extra environment variables
 ##
 extraEnvVarsCM:
-  - global
-  - config-server-share
-  - artifactory-share
-  - softhsm-esignet-share
   - oidc-ui
 
 ## Secret with extra environment variables
 ##
-extraEnvVarsSecret:
+extraEnvVarsSecret: []
 
 ## Extra volumes to add to the deployment
 ##
@@ -420,12 +416,15 @@ metrics:
 oidc_ui:
   oidc_ui_port: '3000'
   oidc_service_host: 'esignet.esignet'
+  i18n_url_env: ''
+  theme_url_env: ''
+  images_url_env: ''
   configmaps:
     oidc-ui:
       REACT_APP_API_BASE_URL: 'http://esignet.esignet/v1/esignet'
       REACT_APP_SBI_DOMAIN_URI: 'http://esignet.$NS'
       OIDC_UI_PUBLIC_URL: ''
-      SIGN_IN_WITH_ESIGNET_PLUGIN_URL: 'http://artifactory.artifactory:80/artifactory/libs-release-local/mosip-plugins/sign-in-with-esignet.zip'
+      SIGN_IN_WITH_ESIGNET_PLUGIN_URL: ''
       DEFAULT_WELLKNOWN: '%5B%7B%22name%22%3A%22OpenID%20Configuration%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-configuration%22%7D%2C%7B%22name%22%3A%22Jwks%20Json%22%2C%22value%22%3A%22%2F.well-known%2Fjwks.json%22%7D%2C%7B%22name%22%3A%22Authorization%20Server%22%2C%22value%22%3A%22%2F.well-known%2Foauth-authorization-server%22%7D%2C%7B%22name%22%3A%22OpenID%20Credential%20Issuer%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-credential-issuer%22%7D%5D'
       DEFAULT_THEME: ''
       DEFAULT_LANG: 'en'

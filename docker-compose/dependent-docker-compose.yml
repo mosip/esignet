@@ -1,6 +1,6 @@
 services:
   database:
-    image: 'postgres:latest'
+    image: 'postgres:bookworm'
     ports:
       - 5455:5432
     environment:
@@ -10,14 +10,14 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
-    image: redis:latest
+    image: redis:6.0
     container_name: redis-server
     ports:
       - "6379:6379"
     restart: always
 
   mock-identity-system:
-    image: 'mosipdev/mock-identity-system:develop'
+    image: 'mosipdev/mock-identity-system:release-0.10.x'
     user: root
     ports:
       - 8082:8082
@@ -29,22 +29,3 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
     depends_on:
       - database
-
-  zookeeper:
-    image: wurstmeister/zookeeper
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-
-  kafka:
-    image: wurstmeister/kafka
-    container_name: kafka
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "esignet-linked:1:1,esignet-consented:1:1"

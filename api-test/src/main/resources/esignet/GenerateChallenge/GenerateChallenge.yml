@@ -1,0 +1,33 @@
+GenerateChallenge:
+   ESignet_GenerateChallenge_STransId_Valid_smoke_Pos:
+      endPoint: /v1/signup/registration/generate-challenge
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/GenerateChallenge/GenerateChallenge
+      outputTemplate: esignet/GenerateChallenge/GenerateChallengeResult
+      input: '{
+   "identifier": "$PHONENUMBERFROMREGEXFORSIGNUP$",
+   "captchaToken": "",
+   "purpose": "REGISTRATION",
+   "requestTime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"SUCCESS"
+}'
+
+   ESignet_GenerateChallenge_STransId_With_1stLang_Valid_smoke_Pos:
+      endPoint: /v1/signup/registration/generate-challenge
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/GenerateChallenge/GenerateChallenge
+      outputTemplate: esignet/GenerateChallenge/GenerateChallengeResult
+      input: '{
+   "identifier": "$PHONENUMBERFROMREGEXFORSIGNUP$",
+   "captchaToken": "",
+   "purpose": "REGISTRATION",
+   "requestTime": "$TIMESTAMP$",
+   "locale": "$1STLANG$"
+}'
+      output: '{
+  "status":"SUCCESS"
+}'

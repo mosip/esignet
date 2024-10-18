@@ -102,6 +102,14 @@ spec:
             - name: spring_config_name_env
               value: {{ .Values.springConfigNameEnv }}
             {{- end }}
+            {{- if .Values.pluginUrlEnv }}
+            - name: plugin_url_env
+              value: {{ .Values.pluginUrlEnv }}
+            {{- end }}
+            {{- if .Values.pluginNameEnv }}
+            - name: plugin_name_env
+              value: {{ .Values.pluginNameEnv }}
+            {{- end }}
             {{- if .Values.activeProfileEnv }}
             - name: active_profile_env
               value: {{ .Values.activeProfileEnv }}
@@ -117,8 +125,10 @@ spec:
             {{- end }}
             {{- end }}
             {{- if .Values.extraEnvVarsSecret }}
+            {{- range .Values.extraEnvVarsSecret }}
             - secretRef:
-                name: {{ include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsSecret "context" $) }}
+                name: {{ .  }}
+            {{- end }}
             {{- end }}
           ports:
             - name: spring-service

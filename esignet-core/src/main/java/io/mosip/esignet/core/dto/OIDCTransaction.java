@@ -69,4 +69,7 @@ public class OIDCTransaction implements Serializable {
     boolean isInternalAuthSuccess;
     Map<String, List<JsonNode>> claimMetadata;
     Map<String, JsonNode> requestedClaimDetails;
+
+    String verificationStatus;
+    String verificationErrorCode;
 }

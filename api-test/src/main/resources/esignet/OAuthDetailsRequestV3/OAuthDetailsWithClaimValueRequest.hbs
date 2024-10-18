@@ -1,0 +1,63 @@
+{
+    "requestTime": "{{requestTime}}",
+    "request": {
+        "clientId": "{{clientId}}",
+        "scope": "{{scope}}",
+        "responseType": "{{responseType}}",
+        "redirectUri": "{{redirectUri}}",
+        "display": "{{display}}",
+        "prompt": "{{prompt}}",
+        "acrValues": "{{acrValues}}",
+        "claims": {
+	    	"userinfo": {
+	        	"name": {
+	            	"essential": false
+	        	},
+	        	"phone_number": {
+	            	"essential": true
+	        	},
+	        	"verified_claims": [
+	            	{
+	                	"verification": {
+	                    	"trust_framework": {
+								"value": ["de_aml", "jp_aml"]
+							},
+							"assurance-level": {
+								"value": "high"
+								},
+	                    	"time": {
+								"max_age": 63113852
+							},
+							"evidence": [
+								{"type": { "value": "document" }},
+								{"method": { "value": "test" }}
+							]
+	                	},
+	                	"claims": {
+							"given_name": {
+								"value":["automation", "test"],
+								"purpose":"Name given by user",
+								"essential": true
+							},
+							"name": {
+								"value": "automation",
+								"values":["ab","cd"]
+							},
+							"phone_number": {
+								"value": "1234567890"
+							},
+	                    	"email": {
+	                        	"essential": true
+	                    	}
+	                	}
+	            	}
+	        	]
+	    	},
+	    	"id_token": {}
+		},
+        "nonce" : "{{nonce}}",
+        "state" : "{{state}}",
+        "claimsLocales" : "{{claimsLocales}}",
+        "uiLocales" : "{{uiLocales}}"
+    }
+}

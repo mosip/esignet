@@ -1,0 +1,35 @@
+{
+    "requestTime": "{{requestTime}}",
+    "request": {
+        "clientId": "{{clientId}}",
+        "clientName": "{{clientName}}",
+        "publicKey": {{publicKey}},
+        "relyingPartyId": "{{relyingPartyId}}",
+        "userClaims": [
+            "{{userClaims1}}",
+            "{{userClaims2}}",
+            "{{userClaims3}}",
+            "{{userClaims4}}",
+            "{{userClaims5}}"
+        ],
+        "authContextRefs": [
+		      {{#each authContextRefs}}
+		            "{{acrValues}}"
+		          {{#unless @last}},{{/unless}}
+		      	{{/each}}
+        ],
+        "logoUri": "{{logoUri}}",
+        "redirectUris": [
+          "{{redirectUris}}"
+  ],
+        "grantTypes": [
+            "{{grantTypes}}"
+        ],
+        "clientAuthMethods": [
+            "{{clientAuthMethods}}"
+        ],
+    	"clientNameLangMap": {
+		      "{{keyLang1}}": "{{clientNameLang}}"
+    	}
+    }
+}

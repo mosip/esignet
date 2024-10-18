@@ -277,12 +277,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
 
         //Profile update is mandated only if any essential verified claim is requested
-        boolean isEssentialVerifiedClaimRequested = transaction.getResolvedClaims().getUserinfo()
+        boolean unverifiedEssentialClaimsExist = transaction.getResolvedClaims().getUserinfo()
                 .entrySet()
                 .stream()
                 .anyMatch( entry -> entry.getValue().stream()
-                        .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") != null ));
-        claimDetailResponse.setProfileUpdateRequired(isEssentialVerifiedClaimRequested);
+                .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") == null ));
+        claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExist);
         claimDetailResponse.setClaimStatus(list);
 
         auditWrapper.logAudit(Action.CLAIM_DETAILS, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, transaction), null);
@@ -319,25 +319,24 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 
     @Override
-    public ResumeResponse resumeHaltedTransaction(ResumeRequest resumeRequest) {
-        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(resumeRequest.getTransactionId());
+    public CompleteSignupRedirectResponse completeSignupRedirect(CompleteSignupRedirectRequest completeSignupRedirectRequest) {
+        OIDCTransaction oidcTransaction = cacheUtilService.getHaltedTransaction(completeSignupRedirectRequest.getTransactionId());
         if(oidcTransaction == null) {
             throw new InvalidTransactionException();
         }
 
-        ResumeResponse resumeResponse = new ResumeResponse();
-        if(resumeRequest.isWithError()) {
-            cacheUtilService.removeHaltedTransaction(resumeRequest.getTransactionId());
-            resumeResponse.setStatus(Constants.RESUME_NOT_APPLICABLE);
-            return resumeResponse;
+        CompleteSignupRedirectResponse completeSignupRedirectResponse = new CompleteSignupRedirectResponse();
+        if(Constants.VERIFICATION_COMPLETE.equals(oidcTransaction.getVerificationStatus())) {
+            //move the transaction to "authenticated" cache
+            cacheUtilService.setAuthenticatedTransaction(completeSignupRedirectRequest.getTransactionId(), oidcTransaction);
+            completeSignupRedirectResponse.setStatus(Constants.VERIFICATION_COMPLETE);
+            auditWrapper.logAudit(Action.COMPLETE_SIGNUP_REDIRECT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(completeSignupRedirectRequest.getTransactionId(),
+                    oidcTransaction), null);
+            return completeSignupRedirectResponse;
         }
-
-        //move the transaction to "authenticated" cache
-        cacheUtilService.setAuthenticatedTransaction(resumeRequest.getTransactionId(), oidcTransaction);
-        resumeResponse.setStatus(Constants.RESUMED);
-        auditWrapper.logAudit(Action.RESUME, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(resumeRequest.getTransactionId(),
-                oidcTransaction), null);
-        return resumeResponse;
+        cacheUtilService.removeHaltedTransaction(completeSignupRedirectRequest.getTransactionId());
+        throw new EsignetException(oidcTransaction.getVerificationErrorCode() == null ? ErrorConstants.VERIFICATION_INCOMPLETE :
+                oidcTransaction.getVerificationErrorCode());
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate
@@ -370,6 +369,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         else {
             kycAuthResult = authorizationHelperService.delegateAuthenticateRequest(authRequest.getTransactionId(),
                     authRequest.getIndividualId(), authRequest.getChallengeList(), transaction);
+            authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
         }
 
         //cache tokens on successful response
@@ -380,8 +380,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         transaction.setProvidedAuthFactors(providedAuthFactors.stream().map(acrFactors -> acrFactors.stream()
                 .map(AuthenticationFactor::getType)
                 .collect(Collectors.toList())).collect(Collectors.toSet()));
-
-        authorizationHelperService.setIndividualId(authRequest.getIndividualId(), transaction);
 
         if(checkConsentAction) {
             consentHelperService.processConsent(transaction, false);
@@ -435,7 +433,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setAuthTransactionId(getAuthTransactionId(oAuthDetailResponse.getTransactionId()));
         oidcTransaction.setLinkCodeQueue(new LinkCodeQueue(2));
         oidcTransaction.setCurrentLinkCodeLimit(linkCodeLimitPerTransaction);
-        oidcTransaction.setServerNonce(UUID.randomUUID().toString());
+        oidcTransaction.setServerNonce(IdentityProviderUtil.createTransactionId(null));
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         oidcTransaction.setInternalAuthSuccess(false);
         oidcTransaction.setRequestedClaimDetails(oauthDetailReqDto.getClaims()!=null? oauthDetailReqDto.getClaims().getUserinfo() : null);

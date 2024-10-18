@@ -16,6 +16,7 @@ import java.util.List;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 
+import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import org.junit.Assert;
@@ -68,6 +69,9 @@ public class LinkedAuthorizationControllerTest {
     
     @MockBean
     AuditPlugin auditWrapper;
+
+    @MockBean
+    LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
 
     @Test
     public void generateLinkCode_withValidRequest_thenPass() throws Exception {
