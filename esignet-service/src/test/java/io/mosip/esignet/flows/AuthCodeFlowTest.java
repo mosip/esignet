@@ -21,8 +21,6 @@ import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
-import io.mosip.esignet.api.dto.claim.Claims;
-import io.mosip.esignet.api.dto.KycAuthDto;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
@@ -334,10 +332,6 @@ public class AuthCodeFlowTest {
         claimsV2.setUserinfo(userinfoMap);
         claimsV2.setId_token(idTokenMap);
 
-        ResponseEntity<String> schemaResponse = mock(ResponseEntity.class);
-        when(restTemplate.getForEntity(Mockito.anyString(), Mockito.eq(String.class))).thenReturn(schemaResponse);
-        when(schemaResponse.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(schemaResponse.getBody()).thenReturn(claimSchema);
 
         MvcResult result = mockMvc.perform(post("/authorization/oauth-details")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)

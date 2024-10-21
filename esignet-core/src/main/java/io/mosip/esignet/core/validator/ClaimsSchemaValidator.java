@@ -13,30 +13,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.web.client.RestTemplate;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Slf4j
-public class ClaimSchemaValidator implements ConstraintValidator<ClaimSchema, ClaimsV2> {
+public class ClaimsSchemaValidator implements ConstraintValidator<ClaimsSchema, ClaimsV2> {
 
 
-    @Value("${mosip.esignet.json.validation.schema.url}")
+    @Value("${mosip.esignet.claims.schema.url}")
     private String schemaUrl;
 
     private volatile JsonSchema cachedSchema;
-
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -78,7 +71,7 @@ public class ClaimSchemaValidator implements ConstraintValidator<ClaimSchema, Cl
                 new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (IOException e) {
-            log.error("Failed to parse data: {}", url, e);
+                log.error("Failed to parse data: {}", url, e);
         }
         throw new EsignetException("invalid_configuration");
     }

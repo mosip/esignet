@@ -14,11 +14,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = ClaimSchemaValidator.class)
+@Constraint(validatedBy = ClaimsSchemaValidator.class)
 @Documented
-public @interface ClaimSchema {
+public @interface ClaimsSchema {
 
-    String message() default ErrorConstants.INVALID_CLAIMS_SCHEMA;
+    String message() default ErrorConstants.INVALID_CLAIM;
 
     Class<?>[] groups() default {};
 

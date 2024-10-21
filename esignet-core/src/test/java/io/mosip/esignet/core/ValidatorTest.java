@@ -5,10 +5,8 @@
  */
 package io.mosip.esignet.core;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchemaFactory;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.Authenticator;
@@ -23,17 +21,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -43,18 +37,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.eq;
 
+
+@SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
 public class ValidatorTest {
 
 	@InjectMocks
-	ClaimSchemaValidator claimSchemaValidator;
+	ClaimsSchemaValidator claimSchemaValidator;
 
 	@Mock
 	AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -69,13 +60,11 @@ public class ValidatorTest {
 	@Mock
 	RestTemplate restTemplate;
 
-	@Mock
-	ResourceLoader resourceLoader;
 
-	@Mock
-	private JsonSchemaFactory jsonSchemaFactory;
+	ResourceLoader resourceLoader= new DefaultResourceLoader();
 
-	private final String claimSchema="{\"$id\":\"https://bitbucket.org/openid/ekyc-ida/raw/master/schema/verified_claims_request.json\",\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"$defs\":{\"check_details\":{\"type\":\"array\",\"prefixItems\":[{\"check_id\":{\"type\":\"string\"},\"check_method\":{\"type\":\"string\"},\"organization\":{\"type\":\"string\"},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}]},\"claims_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"additionalProperties\":{\"anyOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3},\"value\":{\"type\":\"string\",\"minLength\":3},\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"minItems\":1}}}]},\"minProperties\":1}]},\"constrainable_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3},\"value\":{\"type\":\"string\"},\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"minItems\":1}}}]},\"datetime_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"max_age\":{\"type\":\"integer\",\"minimum\":0},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3}}}]},\"document_details\":{\"type\":\"object\",\"properties\":{\"type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"date_of_expiry\":{\"$ref\":\"#/$defs/datetime_element\"},\"date_of_issuance\":{\"$ref\":\"#/$defs/datetime_element\"},\"document_number\":{\"$ref\":\"#/$defs/simple_element\"},\"issuer\":{\"type\":\"object\",\"properties\":{\"country\":{\"$ref\":\"#/$defs/simple_element\"},\"country_code\":{\"$ref\":\"#/$defs/simple_element\"},\"formatted\":{\"$ref\":\"#/$defs/simple_element\"},\"jurisdiction\":{\"$ref\":\"#/$defs/simple_element\"},\"locality\":{\"$ref\":\"#/$defs/simple_element\"},\"name\":{\"$ref\":\"#/$defs/simple_element\"},\"postal_code\":{\"$ref\":\"#/$defs/simple_element\"},\"region\":{\"$ref\":\"#/$defs/simple_element\"},\"street_address\":{\"$ref\":\"#/$defs/simple_element\"}}},\"personal_number\":{\"$ref\":\"#/$defs/simple_element\"},\"serial_number\":{\"$ref\":\"#/$defs/simple_element\"}}},\"evidence\":{\"type\":\"object\",\"required\":[\"type\"],\"properties\":{\"type\":{\"type\":\"object\",\"properties\":{\"value\":{\"enum\":[\"document\",\"electronic_record\",\"vouch\",\"electronic_signature\"]}}},\"attachments\":{\"$ref\":\"#/$defs/simple_element\"}},\"allOf\":[{\"if\":{\"properties\":{\"type\":{\"value\":\"electronic_signature\"}}},\"then\":{\"properties\":{\"created_at\":{\"$ref\":\"#/$defs/datetime_element\"},\"issuer\":{\"$ref\":\"#/$defs/simple_element\"},\"serial_number\":{\"$ref\":\"#/$defs/simple_element\"},\"signature_type\":{\"$ref\":\"#/$defs/simple_element\"}}},\"else\":true},{\"if\":{\"properties\":{\"type\":{\"value\":\"document\"}}},\"then\":{\"properties\":{\"check_details\":{\"$ref\":\"#/$defs/check_details\"},\"document_details\":{\"$ref\":\"#/$defs/document_details\"},\"method\":{\"$ref\":\"#/$defs/constrainable_element\"},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}},\"else\":true},{\"if\":{\"properties\":{\"type\":{\"value\":\"electronic_record\"}}},\"then\":{\"properties\":{\"check_details\":{\"$ref\":\"#/$defs/check_details\"},\"record\":{\"type\":\"object\",\"properties\":{\"type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"created_at\":{\"$ref\":\"#/$defs/datetime_element\"},\"date_of_expiry\":{\"$ref\":\"#/$defs/datetime_element\"},\"derived_claims\":{\"$ref\":\"#/$defs/claims_element\"},\"source\":{\"type\":\"object\",\"properties\":{\"country\":{\"$ref\":\"#/$defs/simple_element\"},\"country_code\":{\"$ref\":\"#/$defs/simple_element\"},\"formatted\":{\"$ref\":\"#/$defs/simple_element\"},\"locality\":{\"$ref\":\"#/$defs/simple_element\"},\"name\":{\"$ref\":\"#/$defs/simple_element\"},\"postal_code\":{\"$ref\":\"#/$defs/simple_element\"},\"region\":{\"$ref\":\"#/$defs/simple_element\"},\"street_address\":{\"$ref\":\"#/$defs/simple_element\"}}}}},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}},\"else\":true},{\"if\":{\"properties\":{\"type\":{\"value\":\"vouch\"}}},\"then\":{\"properties\":{\"attestation\":{\"type\":\"object\",\"properties\":{\"type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"date_of_expiry\":{\"$ref\":\"#/$defs/datetime_element\"},\"date_of_issuance\":{\"$ref\":\"#/$defs/datetime_element\"},\"derived_claims\":{\"$ref\":\"#/$defs/claims_element\"},\"reference_number\":{\"$ref\":\"#/$defs/simple_element\"},\"voucher\":{\"type\":\"object\",\"properties\":{\"birthdate\":{\"$ref\":\"#/$defs/datetime_element\"},\"country\":{\"$ref\":\"#/$defs/simple_element\"},\"formatted\":{\"$ref\":\"#/$defs/simple_element\"},\"locality\":{\"$ref\":\"#/$defs/simple_element\"},\"name\":{\"$ref\":\"#/$defs/simple_element\"},\"occupation\":{\"$ref\":\"#/$defs/simple_element\"},\"organization\":{\"$ref\":\"#/$defs/simple_element\"},\"postal_code\":{\"$ref\":\"#/$defs/simple_element\"},\"region\":{\"$ref\":\"#/$defs/simple_element\"},\"street_address\":{\"$ref\":\"#/$defs/simple_element\"}}}}},\"check_details\":{\"$ref\":\"#/$defs/check_details\"},\"time\":{\"$ref\":\"#/$defs/datetime_element\"}}},\"else\":true}]},\"simple_element\":{\"oneOf\":[{\"type\":\"null\"},{\"type\":\"object\",\"properties\":{\"essential\":{\"type\":\"boolean\"},\"purpose\":{\"type\":\"string\",\"maxLength\":300,\"minLength\":3}}}]},\"verified_claims\":{\"oneOf\":[{\"type\":\"array\",\"items\":{\"anyOf\":[{\"$ref\":\"#/$defs/verified_claims_def\"}]}},{\"$ref\":\"#/$defs/verified_claims_def\"}]},\"verified_claims_def\":{\"type\":\"object\",\"required\":[\"verification\",\"claims\"],\"additionalProperties\":false,\"properties\":{\"claims\":{\"$ref\":\"#/$defs/claims_element\"},\"verification\":{\"type\":\"object\",\"required\":[\"trust_framework\"],\"additionalProperties\":true,\"properties\":{\"assurance_level\":{\"$ref\":\"#/$defs/constrainable_element\"},\"assurance_process\":{\"type\":\"object\",\"properties\":{\"assurance_details\":{\"type\":\"array\",\"items\":{\"oneOf\":[{\"assurance_classification\":{\"$ref\":\"#/$defs/constrainable_element\"},\"assurance_type\":{\"$ref\":\"#/$defs/constrainable_element\"},\"evidence_ref\":{\"type\":\"object\",\"required\":[\"txn\"],\"additionalProperties\":true,\"properties\":{\"evidence_classification\":{\"$ref\":\"#/$defs/constrainable_element\"},\"evidence_metadata\":{\"$ref\":\"#/$defs/constrainable_element\"},\"txn\":{\"$ref\":\"#/$defs/constrainable_element\"}}}}]},\"minItems\":1},\"policy\":{\"$ref\":\"#/$defs/constrainable_element\"},\"procedure\":{\"$ref\":\"#/$defs/constrainable_element\"}}},\"evidence\":{\"type\":\"array\",\"items\":{\"oneOf\":[{\"$ref\":\"#/$defs/evidence\"}]},\"minItems\":1},\"time\":{\"$ref\":\"#/$defs/datetime_element\"},\"trust_framework\":{\"$ref\":\"#/$defs/constrainable_element\"},\"verification_process\":{\"$ref\":\"#/$defs/simple_element\"}}}}}},\"properties\":{\"id_token\":{\"type\":\"object\",\"additionalProperties\":true,\"properties\":{\"verified_claims\":{\"$ref\":\"#/$defs/verified_claims\"}}},\"userinfo\":{\"type\":\"object\",\"additionalProperties\":true,\"properties\":{\"verified_claims\":{\"$ref\":\"#/$defs/verified_claims\"}}}}}";
+	ObjectMapper mapper= new ObjectMapper();
+
 
 
 	private Map<String, Object> discoveryMap = new HashMap<>();
@@ -685,12 +674,11 @@ public class ValidatorTest {
 	// =============================ClaimSchemaValidator=============================//
 
 	@Test
-	public void test_ClaimSchemaValidator_withValidDetails_thenPass() throws IOException {
+	public void claimSchemaValidator_withValidDetails_thenPass() throws IOException {
 
-		ObjectMapper mapper = new ObjectMapper();
-
+		ReflectionTestUtils.setField(claimSchemaValidator,"resourceLoader",resourceLoader);
 		ReflectionTestUtils.setField(claimSchemaValidator,"objectMapper",mapper);
-		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","http://localhost:8080/claims/schema");
+		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:/verified_claims_request_schema_test.json");
 
 		String address="{\"essential\":true}";
 		String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":\"income-tax\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
@@ -704,27 +692,21 @@ public class ValidatorTest {
 		Map<String, ClaimDetail> idTokenMap = new HashMap<>();
 
 		ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
-
 		idTokenMap.put("some_claim", claimDetail);
 
 		ClaimsV2 claimsV2 = new ClaimsV2();
 		claimsV2.setUserinfo(userinfoMap);
 		claimsV2.setId_token(idTokenMap);
 
-		Resource resource = Mockito.mock(Resource.class);
-		Mockito.when(resourceLoader.getResource(Mockito.anyString())).thenReturn(resource);
-		Mockito.when(resource.getInputStream()).thenReturn(new ByteArrayInputStream(claimSchema.getBytes()));
-
 		Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
 	}
 
 	@Test
-	public void test_ClaimSchemaValidator_withTrustFrameWorkAsNull_thenFail() throws IOException {
+	public void claimSchemaValidator_withTrustFrameWorkAsNull_thenFail() throws IOException {
 
-		ObjectMapper mapper = new ObjectMapper();
-
+		ReflectionTestUtils.setField(claimSchemaValidator,"resourceLoader",resourceLoader);
 		ReflectionTestUtils.setField(claimSchemaValidator,"objectMapper",mapper);
-		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","http://localhost:8080/claims/schema");
+		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:/verified_claims_request_schema_test.json");
 
 		String address="{\"essential\":true}";
 		String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":null}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
@@ -736,8 +718,6 @@ public class ValidatorTest {
 		userinfoMap.put("address", addressNode);
 		userinfoMap.put("verified_claims", verifiedClaimNode);
 		Map<String, ClaimDetail> idTokenMap = new HashMap<>();
-
-
 		ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
 
 		idTokenMap.put("some_claim", claimDetail);
@@ -745,21 +725,16 @@ public class ValidatorTest {
 		claimsV2.setUserinfo(userinfoMap);
 		claimsV2.setId_token(idTokenMap);
 
-		Resource resource = Mockito.mock(Resource.class);
-		Mockito.when(resourceLoader.getResource(Mockito.anyString())).thenReturn(resource);
-		Mockito.when(resource.getInputStream()).thenReturn(new ByteArrayInputStream(claimSchema.getBytes()));
-
 		Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
 
 	}
 
 	@Test
-	public void test_ClaimSchemaValidator_withEssentialAsInteger_thenFail() throws IOException {
+	public void claimSchemaValidator_withEssentialAsNonBoolean_thenFail() throws IOException {
 
-		ObjectMapper mapper = new ObjectMapper();
-
+		ReflectionTestUtils.setField(claimSchemaValidator,"resourceLoader",resourceLoader);
 		ReflectionTestUtils.setField(claimSchemaValidator,"objectMapper",mapper);
-		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","http://localhost:8080/claims/schema");
+		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:/verified_claims_request_schema_test.json");
 
 		String address="{\"essential\":true}";
 		String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":1}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
@@ -772,7 +747,6 @@ public class ValidatorTest {
 		userinfoMap.put("verified_claims", verifiedClaimNode);
 		Map<String, ClaimDetail> idTokenMap = new HashMap<>();
 
-
 		ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
 
 		idTokenMap.put("some_claim", claimDetail);
@@ -780,21 +754,15 @@ public class ValidatorTest {
 		claimsV2.setUserinfo(userinfoMap);
 		claimsV2.setId_token(idTokenMap);
 
-		Resource resource = Mockito.mock(Resource.class);
-		Mockito.when(resourceLoader.getResource(Mockito.anyString())).thenReturn(resource);
-		Mockito.when(resource.getInputStream()).thenReturn(new ByteArrayInputStream(claimSchema.getBytes()));
-
 		Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
-
 	}
 
 	@Test
 	public void test_ClaimSchemaValidator_withInvalidValue_thenFail() throws IOException {
 
-		ObjectMapper mapper = new ObjectMapper();
-
+		ReflectionTestUtils.setField(claimSchemaValidator,"resourceLoader",resourceLoader);
 		ReflectionTestUtils.setField(claimSchemaValidator,"objectMapper",mapper);
-		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","http://localhost:8080/claims/schema");
+		ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:/verified_claims_request_schema_test.json");
 
 		String address="{\"essential\":true}";
 		String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":1}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kf\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
@@ -806,8 +774,6 @@ public class ValidatorTest {
 		userinfoMap.put("address", addressNode);
 		userinfoMap.put("verified_claims", verifiedClaimNode);
 		Map<String, ClaimDetail> idTokenMap = new HashMap<>();
-
-
 		ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
 
 		idTokenMap.put("some_claim", claimDetail);
@@ -815,11 +781,6 @@ public class ValidatorTest {
 		claimsV2.setUserinfo(userinfoMap);
 		claimsV2.setId_token(idTokenMap);
 
-		Resource resource = Mockito.mock(Resource.class);
-		Mockito.when(resourceLoader.getResource(Mockito.anyString())).thenReturn(resource);
-		Mockito.when(resource.getInputStream()).thenReturn(new ByteArrayInputStream(claimSchema.getBytes()));
-
 		Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
-
 	}
 }
