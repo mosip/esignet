@@ -230,7 +230,6 @@ public class MosipTestRunner {
 		} else {
 			LOGGER.error("No files found in directory: " + homeDir);
 		}
-
 	}
 
 	public static String getGlobalResourcePath() {
