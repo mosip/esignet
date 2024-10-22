@@ -53,13 +53,12 @@ public class ClaimsSchemaValidator implements ConstraintValidator<ClaimsSchema, 
     }
 
     private JsonSchema getCachedSchema() throws EsignetException {
-        if (cachedSchema == null) {
-            synchronized (this) {
-                if (cachedSchema == null) {
-                    String schemaResponse = getResource(schemaUrl);
-                    JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-                    cachedSchema = jsonSchemaFactory.getSchema(new ByteArrayInputStream(schemaResponse.getBytes(StandardCharsets.UTF_8)));
-                }
+        if(cachedSchema!=null ) return cachedSchema;
+        synchronized (this) {
+            if (cachedSchema == null) {
+                String schemaResponse = getResource(schemaUrl);
+                JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+                cachedSchema = jsonSchemaFactory.getSchema(new ByteArrayInputStream(schemaResponse.getBytes(StandardCharsets.UTF_8)));
             }
         }
         return cachedSchema;
