@@ -1,0 +1,352 @@
+InitiateIdVerification:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_authorizationCode:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$REMOVE$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_space_in_authorizationCode:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "   ",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_authorizationCode:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": null,
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidVal_in_authorizationCode:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "jkhuewrfkeuw8frhe876754@#",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "grant_exchange_failed",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NumVal_in_authorizationCode:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "5645767564534565677",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "grant_exchange_failed",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_authorizationCode:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_requestTime:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "  ",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NULL_in_requestTime:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": NULL,
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_requestTime:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_requestTime:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": null,
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidFormat_in_requestTime:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2023/11/03 11:03:29.296Z",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_state:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "$REMOVE$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_state:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "    "
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_state:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": ""
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_state:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": null
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_requestTime:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$REMOVE$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid:
+      endPoint: /v1/signup/identity-verification/initiate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationResultNegTC
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+       
+}'

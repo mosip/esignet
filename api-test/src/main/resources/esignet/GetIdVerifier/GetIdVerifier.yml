@@ -2,7 +2,7 @@ GetIdVerifier:
    ESignet_GetIdVerifier_STransId_uin_all_Valid_Smoke:
       endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
       role: resident
-      restMethod: post
+      restMethod: get
       checkErrorsOnlyInResponse: true
       inputTemplate: esignet/GetIdVerifier/GetIdVerifier
       outputTemplate: esignet/GetIdVerifier/GetIdVerifierResult

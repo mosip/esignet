@@ -1,0 +1,463 @@
+GetSlot:
+   ESignet_GetSlot_without_requestTime:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$REMOVE$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_EmptyVal_in_requestTime:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_space_in_requestTime:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "       ",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_invalidVal_in_requestTime:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "ggasv541265 ",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_numericVal_in_requestTime:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "67567541265",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_futureDate_in_requestTime:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "67567541265",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_invalidFormat_in_requestTime:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2024-10-03 04:10:22.360",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_Empty_verifierId:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_without_verifierId:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$REMOVE$",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_space_in_verifierId:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "    ",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_numVal_in_verifierId:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "545642516717",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_splChar_in_verifierId:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "^%&^%&^%",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_alphaNumVal_in_verifierId:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "abc67816",
+      	"consent": "AGREE"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_invalidVal_in_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "User agreed to consent12"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_null_in_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": null
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_without_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "$REMOVE$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_space_in_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "    "
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_numVal_in_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "6757625"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_splChar_in_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "%$%^^&%^&"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_alphaNumVal_in_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "652fdFF"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 
+   ESignet_GetSlot_with_ZeroVal_in_consent:
+      endPoint: /v1/signup/identity-verification/slot
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetSlotNegTC/GetSlotNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$",
+      	"consent": "00000000"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "consent_required",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+ 

@@ -7,7 +7,7 @@
 	<listeners>
 		<listener class-name="io.mosip.testrig.apirig.report.EmailableReport"/>
 	</listeners>
-	
+<!--	
 	<test name ="SignUpSettings">
 		<parameter name ="ymlFile"
 			value= "esignet/SignUpSettings/SignUpSettings.yml" />
@@ -763,7 +763,7 @@
 			<class name="io.mosip.testrig.apirig.testscripts.DeleteWithParam" />
 		</classes>
 	</test>
-
+-->
 <!-- Removed kyc delegated demo auth as it is not supported 
 	<test name="KycDemoAuth">
 		<parameter name="ymlFile" value="esignet/KycDemoAuth/KycDemoAuth.yml" />
@@ -898,13 +898,30 @@
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
 	</test>
-    <test name="PrepareSignupRedirectNeg">
-	    <parameter name="ymlFile"
-			value="esignet/PrepareSignupRedirectNeg/PrepareSignupRedirectNeg.yml" />
-		<parameter name="idKeyName"	value="idToken" />
+	<!-- End of Sign up L2 phase test cases -->
+	<!-- Start of Sign up L2 phase Negative test cases -->	
+	<test name="InitiateIdVerificationNegTC">
+		<parameter name="ymlFile"
+			value="esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC.yml" />
+		<parameter name="idKeyName"	value="id" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<!-- End of Sign up L2 phase test cases -->
+	<test name="GetIdVerifierNegTC">
+		<parameter name="ymlFile"
+			value="esignet/GetIdVerifierNegTC/GetIdVerifierNegTC.yml" />
+		<parameter name="idKeyName"	value="code" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="GetSlotNegTC">
+		<parameter name="ymlFile"
+			value="esignet/GetSlotNegTC/GetSlotNegTC.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+		</classes>
+	</test>
+	<!-- End of Sign up L2 phase Negative test cases -->
 </suite>
