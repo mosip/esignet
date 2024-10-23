@@ -1589,13 +1589,13 @@ RegisterUserNegTC:
       inputTemplate: esignet/RegisterUser/RegisterUser
       outputTemplate: esignet/RegisterUser/RegisterUserResult
       input: '{
-    "verifiedTransactionID": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_VTransactionID$",
-    "username": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_PHONE$",
+    "verifiedTransactionID": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_For_Authentication_VTransactionID$",
+    "username": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_For_Authentication_PHONE$",
     "password": "$PASSWORDFORAUTHENTICATION$",
     "consent": "AGREE",
     "fullName": "$FULLNAMETOREGISTERUSER$",
     "requestTime": "$TIMESTAMP$",
-    "phone": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_PHONE$",
+    "phone": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_For_Authentication_PHONE$",
     "preferredLang": "khm"
 }'
       output: '{
