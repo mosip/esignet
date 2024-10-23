@@ -1,0 +1,120 @@
+GetIdVerifier:
+   ESignet_GetIdVerifierNegTC_with_invalidVal_in_verifierId:
+      endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "7672836gvfbsvbna"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_GetIdVerifierNegTC_with_space_in_verifierId:
+      endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"verifierId": "     "
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_identity_verifier_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_GetIdVerifierNegTC_with_space_in_idvTransactionID:
+      endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"idvTransactionID": "    ",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_GetIdVerifierNegTC_with_null_in_idvTransactionID:
+      endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"idvTransactionID": null,
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_GetIdVerifierNegTC_with_EmptyVal_in_idvTransactionID:
+      endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"idvTransactionID": "",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_GetIdVerifierNegTC_with_missing_idvTransactionID:
+      endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"idvTransactionID": "$REMOVE$",
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
