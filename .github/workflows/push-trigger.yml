@@ -214,3 +214,22 @@ jobs:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  trivy-scan:
+     needs: 
+      - build-dockers
+      - build-dockers-oidc-ui
+      - build-dockers_apitest_esignet
+     
+     uses: mosip/kattu/.github/workflows/trivy.yml@develop
+     strategy:
+      matrix:
+       include:
+        - SERVICE_NAME: 'esignet'
+        - SERVICE_NAME: 'oidc-ui'
+        - SERVICE_NAME: 'apitest-esignet'
+
+     with:
+      service_name: ${{ matrix.SERVICE_NAME }}
+      version: $'{{ github.ref_name }}'
+
