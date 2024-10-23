@@ -186,7 +186,7 @@ AuthenticateUserConsent:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-	  allowedErrorCodes: IDA-MLC-009,invalid_individual_id,
+      allowedErrorCodes: IDA-MLC-009,invalid_individual_id,
       inputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsent
       outputTemplate: esignet/error
       input: '{

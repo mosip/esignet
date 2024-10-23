@@ -155,6 +155,9 @@ const ClaimDetails = ({
 
   useEffect(() => {
     getAllClaimDetails();
+    if (document.getElementById("language_dropdown") !== null) {
+      document.getElementById("language_dropdown").style.display = "none";
+    }
   }, []);
 
   const handleProceed = async () => {

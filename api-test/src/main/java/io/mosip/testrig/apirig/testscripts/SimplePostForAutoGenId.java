@@ -134,7 +134,13 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 					throw new SkipException("esignet is not deployed hence skipping the testcase");
 				}
-				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+				
+				String tempUrl = null;
+				if (testCaseDTO.getEndPoint().contains("/signup/")) {
+					tempUrl = EsignetConfigManager.getSignupBaseUrl();
+				} else {
+					tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+				}
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
 						&& testCaseName.contains("SunBirdC")) {
 					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
@@ -155,7 +161,7 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 				}
-				if (testCaseName.contains("_AuthorizationCode_")) {
+				if ((testCaseName.contains("_AuthorizationCode_")) || (testCaseName.contains("_AuthToken_Xsrf_"))) {
 					response = postRequestWithCookieAuthHeaderAndXsrfTokenForAutoGenId(
 							tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME, testCaseDTO.getTestCaseName(),
 							idKeyName);
