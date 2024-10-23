@@ -33,6 +33,7 @@
   ```
 ### Initialise pre-requisites
 * Update values file for postgres init [here](postgres/init_values.yaml).
+* Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/).
 * Execute `initialise-prereq.sh` script to initialise postgres and keycloak and set esignet captcha.
   ```
   ./initialise-prereq.sh

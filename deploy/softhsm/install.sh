@@ -6,8 +6,8 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=softhsm
-CHART_VERSION=12.0.1
+SOFTHSM_NS=softhsm
+SOFTHSM_CHART_VERSION=12.0.1
 
 function installing_softhsm() {
   echo Create $NS namespaces

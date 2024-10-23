@@ -8,6 +8,7 @@ if [ $# -ge 1 ]; then
 fi
 
 ROOT_DIR=$(pwd)
+kubectl create ns esignet || true
 
 function prompt_for_deployment() {
   local module_name=$1

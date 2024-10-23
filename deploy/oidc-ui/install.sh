@@ -23,7 +23,7 @@ function installing_oidc-ui() {
   CHART_VERSION=1.5.0-develop
 
   echo Create $NS namespace
-  kubectl create ns $NS
+  kubectl create ns $NS || true
 
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
