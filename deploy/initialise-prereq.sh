@@ -57,7 +57,7 @@ while true; do
       kubectl -n $NS create secret generic esignet-captcha --from-literal=esignet-captcha-site-key=$ESITE_KEY --from-literal=esignet-captcha-secret-key=$ESECRET_KEY --dry-run=client -o yaml | kubectl apply -f -
       echo "Captcha secrets for esignet configured sucessfully"
 
-      kubectl create ns captcha
+      kubectl create ns captcha || true
 
       ./copy_cm_func.sh secret esignet-captcha $NS captcha
 
