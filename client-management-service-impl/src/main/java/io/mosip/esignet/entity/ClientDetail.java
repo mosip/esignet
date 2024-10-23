@@ -45,7 +45,7 @@ public class ClientDetail {
     private String redirectUris;
 
     @NotBlank(message = INVALID_PUBLIC_KEY)
-    @Column(name = "public_key", columnDefinition = "TEXT")
+    @Column(name = "public_key", columnDefinition = "jsonb")
     private String publicKey;
 
     @NotBlank(message = INVALID_CLAIM)
