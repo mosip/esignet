@@ -29,11 +29,5 @@
 			<artifactId>esignet-core</artifactId>
 			<version>${esignet.core.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>io.mosip.esignet</groupId>
-            <artifactId>oidc-service-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>

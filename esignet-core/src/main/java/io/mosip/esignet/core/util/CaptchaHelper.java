@@ -37,11 +37,6 @@ public class CaptchaHelper {
 
     private List<String> captchaRequired;
 
-    public CaptchaHelper(RestTemplate restTemplate, String validatorUrl, String moduleName) {
-        this.restTemplate = restTemplate;
-        this.validatorUrl = validatorUrl;
-        this.moduleName = moduleName;
-    }
     public CaptchaHelper(RestTemplate restTemplate, String validatorUrl, String moduleName, List<String> captchaRequired) {
         this.restTemplate = restTemplate;
         this.validatorUrl = validatorUrl;

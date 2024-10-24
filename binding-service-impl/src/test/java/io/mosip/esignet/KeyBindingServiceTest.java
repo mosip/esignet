@@ -17,7 +17,6 @@ import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.dto.BindingOtpRequest;
 import io.mosip.esignet.core.dto.BindingOtpResponse;
 import io.mosip.esignet.core.dto.WalletBindingRequest;
@@ -131,7 +130,7 @@ public class KeyBindingServiceTest {
 		BindingOtpRequest otpRequest = new BindingOtpRequest();
 		otpRequest.setIndividualId("8267411571");
 		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-		otpRequest.setCaptcha("qwerty");
+		otpRequest.setCaptchaToken("qwerty");
 
 		Map<String, String> headers = new HashMap<>();
 		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
@@ -389,46 +388,4 @@ public class KeyBindingServiceTest {
 		return null;
 	}
 
-	@Test
-	public void validateApiRateLimits_withinApiRateLimit_thenPass() {
-		ReflectionTestUtils.setField(keyBindingService, "sendOtpAttempts", 3);
-		BindingOtpRequest otpRequest = new BindingOtpRequest();
-		otpRequest.setIndividualId("8267411571");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-		keyBindingService.validateApiRateLimits(otpRequest.getIndividualId());
-	}
-
-	@Test
-	public void checkRateLimit_ExceededApiRateLimit_thenFail() {
-		BindingOtpRequest otpRequest = new BindingOtpRequest();
-		otpRequest.setIndividualId("8267411571");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-
-		ApiRateLimit apiRateLimit = new ApiRateLimit();
-		apiRateLimit.increment(1);
-		apiRateLimit.increment(1);
-		apiRateLimit.increment(1);
-
-		try {
-			keyBindingService.checkRateLimit(apiRateLimit,3);
-		} catch(EsignetException e) {
-			Assert.assertEquals(ErrorConstants.NO_ATTEMPTS_LEFT, e.getErrorCode());
-		}
-	}
-
-	@Test
-	public void checkRateLimit_validApiRateLimit_thenPass() {
-		BindingOtpRequest otpRequest = new BindingOtpRequest();
-		otpRequest.setIndividualId("8267411571");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-
-		ApiRateLimit apiRateLimit = new ApiRateLimit();
-		apiRateLimit.increment(1);
-
-		try {
-			keyBindingService.checkRateLimit(apiRateLimit,3);
-		} catch(EsignetException e) {
-			Assert.assertEquals(ErrorConstants.NO_ATTEMPTS_LEFT, e.getErrorCode());
-		}
-	}
 }

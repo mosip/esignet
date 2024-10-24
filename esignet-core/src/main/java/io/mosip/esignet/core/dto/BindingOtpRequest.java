@@ -11,13 +11,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.OtpChannel;
 import lombok.Data;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BindingOtpRequest {
 
     @NotBlank(message = ErrorConstants.INVALID_IDENTIFIER)
@@ -27,5 +25,5 @@ public class BindingOtpRequest {
     @Size(min = 1, message = ErrorConstants.INVALID_OTP_CHANNEL)
     private List<@OtpChannel String> otpChannels;
 
-    private String captcha;
+    private String captchaToken;
 }

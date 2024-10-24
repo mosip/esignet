@@ -34,7 +34,7 @@ public class CaptchaHelperTest {
     @Before
     public void setUp() {
         captchaHelper = new CaptchaHelper(restTemplate, "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha",
-                "esignet");
+                "esignet", List.of("binding-otp"));
     }
 
     @Test
