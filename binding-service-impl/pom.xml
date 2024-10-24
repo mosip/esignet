@@ -29,5 +29,5 @@
 			<artifactId>esignet-core</artifactId>
 			<version>${esignet.core.version}</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 </project>

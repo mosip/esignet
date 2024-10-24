@@ -20,6 +20,7 @@ import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
@@ -54,6 +55,12 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	@Autowired
 	private KeyBindingHelperService keyBindingHelperService;
 
+	@Autowired
+	private CaptchaHelper captchaHelper;
+
+	@Value("${mosip.esignet.send-otp.attempts:3}")
+	private int sendOtpAttempts;
+
 	@Value("${mosip.esignet.binding.encrypt-binding-id:true}")
 	private boolean encryptBindingId;
 
@@ -62,6 +69,9 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws EsignetException {
 		log.debug("sendBindingOtp :: Request headers >> {}", requestHeaders);
 		SendOtpResult sendOtpResult;
+
+		captchaHelper.validateCaptchaToken(bindingOtpRequest.getCaptchaToken(), "binding-otp");
+
 		try {
 			sendOtpResult = keyBindingWrapper.sendBindingOtp(bindingOtpRequest.getIndividualId(),
 					bindingOtpRequest.getOtpChannels(), requestHeaders);
@@ -80,6 +90,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
 		return otpResponse;
 	}
+
 
 	private void validateChallengeListAuthFormat(List<AuthChallenge> challengeList){
 		if(!challengeList.stream().allMatch(challenge->keyBindingWrapper.getSupportedChallengeFormats(challenge.getAuthFactorType()).
