@@ -5,8 +5,12 @@
  */
 package io.mosip.esignet.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
@@ -27,12 +31,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -73,18 +80,52 @@ public class AuthorizationControllerTest {
     @MockBean
     CacheUtilService cacheUtilService;
 
+
+    @MockBean
+    RestTemplate restTemplate;
+
     @MockBean
     LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
 
+
+    @Value("${mosip.esignet.claims.schema.url}")
+    private String schemaUrl;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
+    ClaimDetail claimDetail;
+
+    ClaimsV2 claimsV2;
+
+
+
     @Before
-    public void init() throws EsignetException {
+    public void init() throws EsignetException, JsonProcessingException {
         HashSet<String> acrValues = new HashSet<>();
         acrValues.add("mosip:idp:acr:static-code");
         acrValues.add("mosip:idp:acr:biometrics");
         acrValues.add("mosip:idp:acr:linked-wallet");
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(acrValues);
+
+        String address="{\"essential\":true}";
+        String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":1}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
+
+        JsonNode addressNode = objectMapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = objectMapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
+
+
+        claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+
+        idTokenMap.put("some_claim", claimDetail);
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(idTokenMap);
+
     }
 
 
@@ -125,6 +166,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -149,10 +191,12 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
+
 
         OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
         oauthDetailResponse.setTransactionId("qwertyId");
@@ -176,6 +220,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -200,6 +245,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("touch");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -224,6 +270,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("none");
         oauthDetailRequest.setResponseType("implicit");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -248,6 +295,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -275,6 +323,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -299,6 +348,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -326,6 +376,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -353,6 +404,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -396,6 +448,7 @@ public class AuthorizationControllerTest {
 
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
 
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         requestTime = requestTime.plusMinutes(10);
@@ -430,6 +483,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -461,6 +515,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -496,6 +551,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setCodeChallenge("123");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -529,6 +585,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setCodeChallenge("123");
         oauthDetailRequest.setCodeChallengeMethod("S123");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -561,6 +618,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -592,6 +650,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("touch");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -623,6 +682,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("none");
         oauthDetailRequest.setResponseType("implicit");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -654,6 +714,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -688,6 +749,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -719,6 +781,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -753,6 +816,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
@@ -787,6 +851,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setPrompt("login");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
         ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
         RequestWrapper wrapper = new RequestWrapper<>();
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
