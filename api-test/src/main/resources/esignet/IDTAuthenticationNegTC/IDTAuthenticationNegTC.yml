@@ -1,0 +1,563 @@
+IDTAuthenticationNegTC:
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_empty_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_emptyString_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "  ",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_withoutTransactionId_request_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+        "transactionId": "$REMOVE$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_transactionIDReceivedFromOtherAPIOAuth_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_alreadyCompleted_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "wGSAtOrEoQ_x_AFvS_uwjIkruvVXVO5hOYhc7izVDyc",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_withoutAuthFromSendOTP_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_missing_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$REMOVE$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "abcdef",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_authFactorType_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "abcd",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_auth_factor_type"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_empty_authFactorType_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_auth_factor_type"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_missing_authFactorType_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "$REMOVE$",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_auth_factor_type"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_emptyString_authFactorType_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "  ",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_auth_factor_type"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_Empty_challenge_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : ""
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "unknown_error"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "2022-11-08T06:35:53",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_request"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_diffFormat_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_request"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_missing_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$REMOVE$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_request"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_empty_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_request"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_emptyString_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": " ",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_request"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalidValue_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "requestinvalid",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_request"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_numericString_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "123456789",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_request"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_without_request_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_withOnlyIndividualID_request_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$REMOVE$",
+      	"requestTime": "$REMOVE$",
+      	"pathFragmentCookie": "$REMOVE$",
+      	"pathFragmentCookieTransactionId": "$REMOVE$",
+      	"idtToken": "$REMOVE$",
+      	"transactionId": "$REMOVE$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "$REMOVE$",
+      	"challenge" : "$REMOVE$"
+}'
+      output: '{
+    "errors": [
+        {
+            "errorCode": "invalid_transaction"
+        }
+    ]
+}'
+   ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC
+      outputTemplate: esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTCResult
+      input: '{
+        "encodedHash": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"idtToken": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$",
+      	"transactionId": "$ID:SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid_transactionId$",
+      	"individualId": "$IDTINDIVIUALID$",
+      	"authFactorType" : "IDT",
+      	"challenge" : "$IDTCHALLENGE$"
+}'
+      output: '{
+       
+}'

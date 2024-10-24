@@ -1,0 +1,870 @@
+SignupAuthorizeNegTC:
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_clientId_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "reateOIDCClient_all_Valid_Smoke_sid_cl",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_clientId_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_clientId_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$REMOVE$",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_null_clientId_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "null",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_redirectUri_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_redirectUri_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "https://health-services.com",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_redirectUri_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$REMOVE$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_responseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_responseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "decode",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_responseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "$REMOVE$",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_null_responseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "null",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "email",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_withoutSpace_scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openidemailaddressphone",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_multipleSpacesInBetween_scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": " openid email address phone ",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "$REMOVE$",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_acrValues_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:static",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_acrValues_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_acrValues_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "$REMOVE$",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalidFormat_acrValues_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "abcd",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalidFormat_acrValues_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "abcd",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_uiLocales_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "abcd",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_uiLocales_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_uiLocales_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "$REMOVE$",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_otherLanguage_uiLocales_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "kn",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_state_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "$$@#fdhfdkl",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_state_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "$REMOVE$",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_exceedingRange_state_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "aa1hmnkz7ee0c1te988gw9bkos5pb4mi830uf6wrxj6hs80z07rmtwpzvjr9qjhgw8aw2rf9iljprvvxxh4y94je13gl4vr9vwaq358tnov5bh3likbef6elkqnqvnn4gu9fh1pzui2b459m0xfwjdsjlinll1s6kayk29d01i3vx1uagewcoc39ssxm4feyci06zoimd6ot3c0w3w8genv1d0hk4ni9ym1mjkwclffj5tfiglipy9sn5fyjqway9c6y",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_diffFormat_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "2022-11-07T06:51:30.195Z",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "2022-11-08T06:35:53",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$REMOVE$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_emptyString_requestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "  ",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
+      outputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTCResult
+      input: '{
+      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
+      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "mosip-signup-oauth-client",
+      	"scope": "openid",
+      	"responseType": "code",
+      	"redirectUri": "$SIGNUPREDIRECTURI$",
+      	"acrValues": "mosip:idp:acr:id-token",
+      	"state": "urlInfo1724138417665",
+      	"uiLocales": "en",
+      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
+}'
+      output: '{
+       
+}'

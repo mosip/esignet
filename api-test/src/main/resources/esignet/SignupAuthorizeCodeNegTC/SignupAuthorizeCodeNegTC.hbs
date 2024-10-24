@@ -1,0 +1,16 @@
+{
+    "encodedHash": "{{encodedHash}}",
+    "requestTime": "{{requestTime}}",
+    "pathFragmentCookie": "{{pathFragmentCookie}}",
+    "pathFragmentCookieTransactionId": "{{pathFragmentCookieTransactionId}}",
+    "request": {
+        "transactionId": "{{transactionId}}",
+        "permittedAuthorizeScopes": [],
+        "acceptedClaims" : [
+	      {{#each acceptedClaims}}
+	            "{{channel}}"
+	          {{#unless @last}},{{/unless}}
+	      	{{/each}}
+    	]
+    }
+}
