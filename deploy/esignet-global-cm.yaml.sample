@@ -10,7 +10,7 @@ metadata:
   namespace: esignet
 data:
   mosip-version: develop
-  imstallation-domain: sandbox.xyz.net
+  installation-domain: sandbox.xyz.net
   mosip-api-host: api.sandbox.xyz.net
   mosip-iam-external-host: iam.sandbox.xyz.net
   mosip-api-internal-host: api-internal.sandbox.xyz.net
