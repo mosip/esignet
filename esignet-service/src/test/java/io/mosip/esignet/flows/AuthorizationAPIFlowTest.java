@@ -93,9 +93,6 @@ public class AuthorizationAPIFlowTest {
     @Autowired
     AuditPlugin auditWrapper;
 
-    @MockBean
-    RestTemplate restTemplate;
-
     @Value("${mosip.esignet.mock.authenticator.policy-repo}")
     private String policyDir;
 

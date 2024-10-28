@@ -56,21 +56,20 @@ public class ClaimsSchemaValidator implements ConstraintValidator<ClaimsSchema, 
         if(cachedSchema!=null ) return cachedSchema;
         synchronized (this) {
             if (cachedSchema == null) {
-                String schemaResponse = getResource(schemaUrl);
+                InputStream schemaResponse = getResource(schemaUrl);
                 JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-                cachedSchema = jsonSchemaFactory.getSchema(new ByteArrayInputStream(schemaResponse.getBytes(StandardCharsets.UTF_8)));
+                cachedSchema = jsonSchemaFactory.getSchema(schemaResponse);
             }
         }
         return cachedSchema;
     }
 
-    private String getResource(String url) {
-        Resource resource = resourceLoader.getResource(url);
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        } catch (IOException e) {
-                log.error("Failed to parse data: {}", url, e);
+    private InputStream getResource(String url) {
+        try{
+            Resource resource = resourceLoader.getResource(url);
+            return resource.getInputStream();
+        }catch (IOException e){
+            log.error("Failed to parse data: {}", url, e);
         }
         throw new EsignetException("invalid_configuration");
     }
