@@ -85,7 +85,10 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 	@Test(dataProvider = "testcaselist")
 	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
 		testCaseName = testCaseDTO.getTestCaseName();
-		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
+		
+		if (BaseTestCase.currentModule.equals(GlobalConstants.MASTERDATA)== false) {
+			testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
+		}
 		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(
