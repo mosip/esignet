@@ -10,11 +10,11 @@ SOFTHSM_NS=softhsm
 SOFTHSM_CHART_VERSION=12.0.1
 
 function installing_softhsm() {
-  echo Create $NS namespaces
-  kubectl create ns $NS || true
+  echo Create $SOFTHSM_NS namespaces
+  kubectl create ns $SOFTHSM_NS || true
 
   echo Istio label
-  kubectl label ns $NS istio-injection=enabled --overwrite
+  kubectl label ns $SOFTHSM_NS istio-injection=enabled --overwrite
   helm repo update
 
   # Deploy Softhsm for Esignet.
