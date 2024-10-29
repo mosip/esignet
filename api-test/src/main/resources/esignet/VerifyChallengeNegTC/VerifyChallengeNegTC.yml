@@ -1529,3 +1529,33 @@ VerifyChallengeNegTC:
         "sendOtpResTemplate":"esignet/GenerateChallenge/GenerateChallengeResult"
     }
 }'
+
+   ESignet_VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_For_Authentication:
+      endPoint: /v1/signup/registration/verify-challenge
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
+      outputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTCResult
+      input: '{
+   "headerTransactionID": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_For_Authentication_TransactionID$",
+   "identifier": "$ID:VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_For_Authentication_PHONE$",
+   "challenge": "111111",
+   "format": "alpha-numeric",
+   "type": "OTP",
+   "requestTime": "$TIMESTAMP$",
+    "sendOtp":{
+    "identifier": "$PHONENUMBERFROMREGEXFORSIGNUP$",
+    "captchaToken": "",
+    "purpose": "REGISTRATION",
+    "requestTime": "$TIMESTAMP$",
+    "sendOtpReqTemplate": "esignet/GenerateChallenge/GenerateChallenge",
+    "sendOtpEndPoint": "/v1/signup/registration/generate-challenge"
+    }
+}'
+      output: '{
+    "status":"SUCCESS",
+    "sendOtpResp":{
+        "status":"SUCCESS",
+        "sendOtpResTemplate":"esignet/GenerateChallenge/GenerateChallengeResult"
+    }
+}'

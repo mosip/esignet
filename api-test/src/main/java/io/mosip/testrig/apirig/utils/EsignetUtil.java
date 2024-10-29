@@ -13,6 +13,7 @@ import org.testng.SkipException;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
 import io.restassured.response.Response;
 
 public class EsignetUtil extends AdminTestUtil {
@@ -27,6 +28,11 @@ public class EsignetUtil extends AdminTestUtil {
 
 		if (plugin == null || plugin.isBlank() == true) {
 			plugin = getValueFromEsignetActuator("classpath:/application-default.properties",
+					"mosip.esignet.integration.authenticator");
+		}
+		
+		if (plugin == null || plugin.isBlank() == true) {
+			plugin = getValueFromEsignetActuator("mosip-config/esignet",
 					"mosip.esignet.integration.authenticator");
 		}
 
@@ -78,6 +84,11 @@ public class EsignetUtil extends AdminTestUtil {
 		String testCaseName = testCaseDTO.getTestCaseName();
 		
 		
+		if (MosipTestRunner.skipAll == true) {
+			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
+		}
+		
+		
 		if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice")) {
 			
 			// TO DO - need to conform whether esignet distinguishes between UIN and VID. BAsed on that need to remove VID test case from YAML.
@@ -94,18 +105,30 @@ public class EsignetUtil extends AdminTestUtil {
 					&& endpoint.contains("$GETENDPOINTFROMWELLKNOWN$") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
-			if ((testCaseName.contains("_KycBioAuth_") || testCaseName
-					.contains("_BioAuth_")
-					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke"))) {
+			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
+					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke")
+					|| testCaseName.contains("ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("idaauthenticatorimpl")) {
-			// Let run test cases eSignet & MOSIP  API calls   --- both UIN and VID
+			// Let run test cases eSignet & MOSIP API calls --- both UIN and VID
+
+			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN", "VID"));
+
+			String endpoint = testCaseDTO.getEndPoint();
+			if (endpoint.contains("/v1/signup/") == true || endpoint.contains("/mock-identity-system/") == true
+					|| ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
+							|| testCaseName.equals("ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid")
+							|| testCaseName.equals("ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid"))
+							&& endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
+
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
 			String individualBiometrics = individualBiometricsArray.getString(0);
-			
+
 			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
 					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke"))
 					&& (!isElementPresent(new JSONArray(schemaRequiredField), individualBiometrics))) {

@@ -22,3 +22,27 @@ OAuthDetailsRequestV3:
       output: '{
        
 }'
+
+   ESignet_OAuthDetailsRequest_V3_WithClaimValues_AuthToken_Xsrf_uin_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/OAuthDetailsRequestV3/OAuthDetailsWithClaimValueRequest
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+       
+}'
