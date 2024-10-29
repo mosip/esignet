@@ -49,7 +49,7 @@ public class CaptchaHelperTest {
 
 
     @Test
-    public void validateCaptchaToken_withValidToken_thenFail() {
+    public void validateCaptchaToken_withInValidToken_thenFail() {
         ReflectionTestUtils.setField(captchaHelper, "captchaRequired", List.of("binding-otp"));
         try {
             captchaHelper.validateCaptchaToken("captcha-token", "binding-otp");
@@ -67,6 +67,18 @@ public class CaptchaHelperTest {
     public void validateCaptcha_withEmptyCaptchaToken_thenFail() {
         Assert.assertThrows(EsignetException.class,()->captchaHelper.validateCaptcha(""));
     }
+
+    @Test
+    public void validateCaptchaToken_withValidData_thenPass() {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setResponse("success");
+        ResponseEntity<ResponseWrapper> responseEntity = ResponseEntity.ok(responseWrapper);
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.eq(ResponseWrapper.class)))
+                .thenReturn(responseEntity);
+        boolean result = captchaHelper.validateCaptcha("captchaToken");
+        Assert.assertTrue(result);
+    }
+
 
     @Test
     public void validateCaptcha_withNullResponse_thenFail() {

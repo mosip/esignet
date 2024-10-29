@@ -21,9 +21,9 @@ import io.mosip.esignet.core.dto.BindingOtpRequest;
 import io.mosip.esignet.core.dto.BindingOtpResponse;
 import io.mosip.esignet.core.dto.WalletBindingRequest;
 import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
-import io.mosip.esignet.services.CacheUtilService;
 import io.mosip.esignet.services.KeyBindingHelperService;
 import io.mosip.esignet.services.KeyBindingServiceImpl;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
@@ -67,13 +67,13 @@ public class KeyBindingServiceTest {
 	KeyBindingHelperService keyBindingHelperService;
 
 	@Mock
-	private CacheUtilService cacheUtilService;
-
-	@Mock
 	KeyBinder mockKeyBindingWrapperService;
 
 	@Mock
 	KeymanagerUtil keymanagerUtil;
+
+	@Mock
+	CaptchaHelper captchaHelper;
 
 	private JWK clientJWK = generateJWK_RSA();
 
@@ -93,9 +93,8 @@ public class KeyBindingServiceTest {
 		ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
 		ReflectionTestUtils.setField(keyBindingHelperService, "publicKeyRegistryRepository", publicKeyRegistryRepository);
 		ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
-
+		ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
-		cacheUtilService = mock(CacheUtilService.class);
 	}
 
 	@Test
