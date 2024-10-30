@@ -21,8 +21,6 @@ import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
-import io.mosip.esignet.api.dto.claim.Claims;
-import io.mosip.esignet.api.dto.KycAuthDto;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
@@ -40,11 +38,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -63,6 +65,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -96,9 +100,6 @@ public class AuthCodeFlowTest {
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
-
-    @Autowired
-    RestTemplate restTemplate;
 
     @Autowired
     AuditPlugin auditWrapper;
@@ -298,12 +299,34 @@ public class AuthCodeFlowTest {
         oAuthDetailRequest.setState(state);
         ClaimsV2 claims = new ClaimsV2();
         claims.setUserinfo(new HashMap<>());
+        claims.setId_token(new HashMap<>());
         claims.getUserinfo().put("email", getClaimDetail(null, null, true));
         oAuthDetailRequest.setClaims(claims);
 
         RequestWrapper<OAuthDetailRequest> request = new RequestWrapper<>();
         request.setRequestTime(ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         request.setRequest(oAuthDetailRequest);
+
+
+        String address="{\"essential\":true}";
+        String verifiedClaims="[{\"verification\":{\"trust_framework\":{\"value\":null}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
+
+        JsonNode addressNode = objectMapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = objectMapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
+
+
+        ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+
+        idTokenMap.put("some_claim", claimDetail);
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(idTokenMap);
+
 
         MvcResult result = mockMvc.perform(post("/authorization/oauth-details")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
