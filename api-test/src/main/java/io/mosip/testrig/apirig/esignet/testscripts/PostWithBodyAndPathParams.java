@@ -1,4 +1,4 @@
-package io.mosip.testrig.apirig.testscripts;
+package io.mosip.testrig.apirig.esignet.testscripts;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -22,20 +22,23 @@ import org.testng.internal.TestResult;
 
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.EsignetConfigManager;
-import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.restassured.response.Response;
 
-public class DeleteWithParam extends AdminTestUtil implements ITest {
-	private static final Logger logger = Logger.getLogger(DeleteWithParam.class);
+public class PostWithBodyAndPathParams extends AdminTestUtil implements ITest {
+	private static final Logger logger = Logger.getLogger(PostWithBodyAndPathParams.class);
 	protected String testCaseName = "";
+	String pathParams = null;
+	String headers = null;
 	public Response response = null;
 
 	@BeforeClass
@@ -62,6 +65,8 @@ public class DeleteWithParam extends AdminTestUtil implements ITest {
 	@DataProvider(name = "testcaselist")
 	public Object[] getTestCaseList(ITestContext context) {
 		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
+		pathParams = context.getCurrentXmlTest().getLocalParameters().get("pathParams");
+		headers = context.getCurrentXmlTest().getLocalParameters().get("headers");
 		logger.info("Started executing yml: " + ymlFile);
 		return getYmlTestData(ymlFile);
 	}
@@ -79,21 +84,30 @@ public class DeleteWithParam extends AdminTestUtil implements ITest {
 	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
+		String[] templateFields = testCaseDTO.getTemplateFields();
+
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
 		}
-		String[] templateFields = testCaseDTO.getTemplateFields();
+		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
+			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
+					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
+				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
+			}
+		}
+
+		testCaseDTO = AdminTestUtil.filterHbs(testCaseDTO);
+		String inputJson = filterInputHbs(testCaseDTO);
+		String outputJson = filterOutputHbs(testCaseDTO);
 
 		if (testCaseDTO.getTemplateFields() != null && templateFields.length > 0) {
 			ArrayList<JSONObject> inputtestCases = AdminTestUtil.getInputTestCase(testCaseDTO);
 			ArrayList<JSONObject> outputtestcase = AdminTestUtil.getOutputTestCase(testCaseDTO);
-
 			for (int i = 0; i < languageList.size(); i++) {
-				response = deleteWithPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(),
+				response = postWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(),
 						getJsonFromTemplate(inputtestCases.get(i).toString(), testCaseDTO.getInputTemplate()),
-						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
 
 				Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(
 						response.asString(),
@@ -107,42 +121,46 @@ public class DeleteWithParam extends AdminTestUtil implements ITest {
 		}
 
 		else {
-
-			if (testCaseName.contains("ESignet_")) {
-				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
-					throw new SkipException("esignet is not deployed hence skipping the testcase");
-				}
-
-				String tempUrl = ApplnURI;
-
-				if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$") && testCaseName.contains("SunBirdR")) {
-
-					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
-						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
-
-					if (EsignetConfigManager.getSunBirdBaseURL() != null && !EsignetConfigManager.getSunBirdBaseURL().isBlank())
-						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
-						//Once sunbird registry is pointing to specific env, remove the above line and uncomment below line
-						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
-					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
-				}
-
-				response = deleteWithPathParamAndCookie(tempUrl + testCaseDTO.getEndPoint(),
-						getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
-						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
-
+			if (testCaseName.contains("Esignet_KycDemoAuth")) {
+				response = postWithPathParamsBodyHeaderAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson,
+						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
 			} else {
-				response = deleteWithPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(),
-						getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
-						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+				response = postWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+						testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
 			}
-			Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(
-					response.asString(), getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()),
-					testCaseDTO, response.getStatusCode());
+			Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil
+					.doJsonOutputValidation(response.asString(), outputJson, testCaseDTO, response.getStatusCode());
 			Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
+
 			if (!OutputValidationUtil.publishOutputResult(ouputValid))
 				throw new AdminTestException("Failed at output validation");
 		}
+
+	}
+
+	private String filterOutputHbs(TestCaseDTO testCaseDTO) {
+		String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
+
+		if (outputJson.contains(GlobalConstants.$1STLANG$))
+			outputJson = outputJson.replace(GlobalConstants.$1STLANG$, BaseTestCase.languageList.get(0));
+		if (outputJson.contains(GlobalConstants.$2STLANG$))
+			outputJson = outputJson.replace(GlobalConstants.$2STLANG$, BaseTestCase.languageList.get(1));
+		if (outputJson.contains(GlobalConstants.$3STLANG$))
+			outputJson = outputJson.replace(GlobalConstants.$3STLANG$, BaseTestCase.languageList.get(2));
+		return outputJson;
+	}
+
+	private String filterInputHbs(TestCaseDTO testCaseDTO) {
+		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+
+		if (inputJson.contains(GlobalConstants.$1STLANG$))
+			inputJson = inputJson.replace(GlobalConstants.$1STLANG$, BaseTestCase.languageList.get(0));
+		if (inputJson.contains(GlobalConstants.$2STLANG$))
+			inputJson = inputJson.replace(GlobalConstants.$2STLANG$, BaseTestCase.languageList.get(1));
+		if (inputJson.contains(GlobalConstants.$3STLANG$))
+			inputJson = inputJson.replace(GlobalConstants.$3STLANG$, BaseTestCase.languageList.get(2));
+
+		return inputJson;
 	}
 
 	/**

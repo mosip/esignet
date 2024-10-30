@@ -1,4 +1,4 @@
-package io.mosip.testrig.apirig.utils;
+package io.mosip.testrig.apirig.esignet.utils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,8 +12,12 @@ import org.json.JSONObject;
 import org.testng.SkipException;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.esignet.testrunner.MosipTestRunner;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.RestClient;
+import io.mosip.testrig.apirig.utils.SkipTestCaseHandler;
 import io.restassured.response.Response;
 
 public class EsignetUtil extends AdminTestUtil {

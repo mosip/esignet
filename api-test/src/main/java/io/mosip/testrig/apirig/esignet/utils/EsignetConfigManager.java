@@ -1,4 +1,4 @@
-package io.mosip.testrig.apirig.utils;
+package io.mosip.testrig.apirig.esignet.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import io.mosip.testrig.apirig.testrunner.MosipTestRunner;
+import io.mosip.testrig.apirig.esignet.testrunner.MosipTestRunner;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public class EsignetConfigManager extends ConfigManager{
 	private static final Logger LOGGER = Logger.getLogger(EsignetConfigManager.class);
