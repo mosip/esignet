@@ -129,8 +129,7 @@ public class MosipTestRunner {
 					startTestRunner();
 			} else {
 				BaseTestCase.isTargetEnvLatest = true;
-				BaseTestCase.languageList.add("eng");
-				BaseTestCase.languageList.add("khm");
+				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			}
 
