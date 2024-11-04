@@ -89,7 +89,18 @@ const ClaimDetails = ({
     } else if (label === "voluntary") {
       return (
         <div>
-          <p className="mb-1">{t1("voluntaryClaimsTooltip")}</p>
+          <p className="mb-1">
+            <span className="!font-semibold">{t1("voluntary_claims")}: </span>
+            {t1("voluntaryClaimsTooltip")}
+          </p>
+          <p className="mb-1">
+            <span className="!font-semibold">{t1("verified_claims")}: </span>
+            {t1("verifiedClaimTooltip")}
+          </p>
+          <p className="mb-1">
+            <span className="!font-semibold">{t1("unverified_claims")}: </span>
+            {t1("unverifiedClaimTooltip")}
+          </p>
         </div>
       );
     }
