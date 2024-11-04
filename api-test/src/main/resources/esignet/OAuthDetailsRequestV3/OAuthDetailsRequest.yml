@@ -7,7 +7,7 @@ OAuthDetailsRequestV3:
       inputTemplate: esignet/OAuthDetailsRequestV3/OAuthDetailsRequest
       input: '{
       	"requestTime": "$TIMESTAMP$",
-      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
       	"scope": "openid profile",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
@@ -31,7 +31,7 @@ OAuthDetailsRequestV3:
       inputTemplate: esignet/OAuthDetailsRequestV3/OAuthDetailsWithClaimValueRequest
       input: '{
       	"requestTime": "$TIMESTAMP$",
-      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
       	"scope": "openid profile",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",

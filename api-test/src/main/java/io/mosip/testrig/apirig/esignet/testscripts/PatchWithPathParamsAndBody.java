@@ -1,19 +1,16 @@
-package io.mosip.testrig.apirig.testscripts;
+package io.mosip.testrig.apirig.esignet.testscripts;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -23,23 +20,23 @@ import org.testng.internal.TestResult;
 
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.EsignetConfigManager;
-import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.restassured.response.Response;
 
-public class KycAuth extends AdminTestUtil implements ITest {
-	private static final Logger logger = Logger.getLogger(KycAuth.class);
+public class PatchWithPathParamsAndBody extends AdminTestUtil implements ITest {
+	private static final Logger logger = Logger.getLogger(PatchWithPathParamsAndBody.class);
 	protected String testCaseName = "";
+	String pathParams = null;
 	public Response response = null;
-	public boolean isInternal = false;
 
 	@BeforeClass
 	public static void setLogLevel() {
@@ -65,7 +62,7 @@ public class KycAuth extends AdminTestUtil implements ITest {
 	@DataProvider(name = "testcaselist")
 	public Object[] getTestCaseList(ITestContext context) {
 		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
-		isInternal = Boolean.parseBoolean(context.getCurrentXmlTest().getLocalParameters().get("isInternal"));
+		pathParams = context.getCurrentXmlTest().getLocalParameters().get("pathParams");
 		logger.info("Started executing yml: " + ymlFile);
 		return getYmlTestData(ymlFile);
 	}
@@ -80,19 +77,12 @@ public class KycAuth extends AdminTestUtil implements ITest {
 	 * @throws AdminTestException
 	 */
 	@Test(dataProvider = "testcaselist")
-	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
+	public void test(TestCaseDTO testCaseDTO) throws AdminTestException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
-		}
-
-		if (testCaseDTO.getTestCaseName().contains("uin") || testCaseDTO.getTestCaseName().contains("UIN")) {
-			if (!BaseTestCase.getSupportedIdTypesValue().contains("UIN")
-					&& !BaseTestCase.getSupportedIdTypesValue().contains("uin")) {
-				throw new SkipException(GlobalConstants.UIN_FEATURE_NOT_SUPPORTED);
-			}
 		}
 
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
@@ -101,50 +91,12 @@ public class KycAuth extends AdminTestUtil implements ITest {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
-		JSONObject request = new JSONObject(testCaseDTO.getInput());
-		String kycAuthEndPoint = null;
-		if (request.has(GlobalConstants.KYCAUTHENDPOINT)) {
-			kycAuthEndPoint = request.get(GlobalConstants.KYCAUTHENDPOINT).toString();
-			request.remove(GlobalConstants.KYCAUTHENDPOINT);
-		}
 
-		String requestString = buildIdentityRequest(request.toString());
+		testCaseDTO = AdminTestUtil.filterHbs(testCaseDTO);
+		String inputJson = filterInputHbs(testCaseDTO);
 
-		String input = getJsonFromTemplate(requestString, testCaseDTO.getInputTemplate());
-
-//		String url = ConfigManager.getAuthDemoServiceUrl();
-		
-		String url = "";
-
-		logger.info("******Post request Json to EndPointUrl: " + url + testCaseDTO.getEndPoint() + " *******");
-
-		Response authResponse = null;
-
-		authResponse = postWithBodyAndCookieWithText(url + testCaseDTO.getEndPoint(), input, COOKIENAME,
-				testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
-
-		String signature = authResponse.getHeader("signature");
-
-		logger.info(signature);
-
-		String authResBody = authResponse.getBody().asString();
-
-		logger.info(authResBody);
-
-		JSONObject responseBody = new JSONObject(authResponse.getBody().asString());
-
-		String requestJson = null;
-
-		HashMap<String, String> headers = new HashMap<>();
-		headers.put(SIGNATURE_HEADERNAME, signature);
-		String token = kernelAuthLib.getTokenByRole(testCaseDTO.getRole());
-		headers.put(COOKIENAME, token);
-
-		logger.info("******Post request Json to EndPointUrl: " + ApplnURI + testCaseDTO.getEndPoint() + " *******");
-
-		response = postRequestWithAuthHeaderAndSignatureForOtp(ApplnURI + kycAuthEndPoint, authResBody, COOKIENAME,
-				token, headers, testCaseDTO.getTestCaseName());
+		response = patchWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+				testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
 
 		Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(
 				response.asString(), getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()),
@@ -154,6 +106,19 @@ public class KycAuth extends AdminTestUtil implements ITest {
 		if (!OutputValidationUtil.publishOutputResult(ouputValid))
 			throw new AdminTestException("Failed at output validation");
 
+	}
+
+	private String filterInputHbs(TestCaseDTO testCaseDTO) {
+		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+
+		if (inputJson.contains(GlobalConstants.$1STLANG$))
+			inputJson = inputJson.replace(GlobalConstants.$1STLANG$, BaseTestCase.languageList.get(0));
+		if (inputJson.contains(GlobalConstants.$2STLANG$))
+			inputJson = inputJson.replace(GlobalConstants.$2STLANG$, BaseTestCase.languageList.get(1));
+		if (inputJson.contains(GlobalConstants.$3STLANG$))
+			inputJson = inputJson.replace(GlobalConstants.$3STLANG$, BaseTestCase.languageList.get(2));
+
+		return inputJson;
 	}
 
 	/**
@@ -174,11 +139,5 @@ public class KycAuth extends AdminTestUtil implements ITest {
 		} catch (Exception e) {
 			Reporter.log("Exception : " + e.getMessage());
 		}
-
-	}
-
-	@AfterClass
-	public static void authTestTearDown() {
-		return;
 	}
 }
