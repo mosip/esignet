@@ -66,12 +66,10 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 
 
 	@Override
-	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws EsignetException {
+	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders)
+			throws EsignetException {
 		log.debug("sendBindingOtp :: Request headers >> {}", requestHeaders);
 		SendOtpResult sendOtpResult;
-
-		captchaHelper.validateCaptchaToken(bindingOtpRequest.getCaptchaToken(), "binding-otp");
-
 		try {
 			sendOtpResult = keyBindingWrapper.sendBindingOtp(bindingOtpRequest.getIndividualId(),
 					bindingOtpRequest.getOtpChannels(), requestHeaders);
@@ -79,12 +77,30 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 			log.error("Failed to send binding otp: {}", e);
 			throw new EsignetException(e.getErrorCode());
 		}
+		return getBindingOtpResponse(sendOtpResult);
+	}
 
+	@Override
+	public BindingOtpResponse sendBindingOtpV2(BindingOtpRequestV2 bindingOtpRequestV2, Map<String, String> requestHeaders)
+			throws EsignetException {
+		captchaHelper.validateCaptchaToken(bindingOtpRequestV2.getCaptchaToken(), "binding-otp");
+		log.debug("sendBindingOtp :: Request headers >> {}", requestHeaders);
+		SendOtpResult sendOtpResult;
+		try {
+			sendOtpResult = keyBindingWrapper.sendBindingOtp(bindingOtpRequestV2.getIndividualId(),
+					bindingOtpRequestV2.getOtpChannels(), requestHeaders);
+		} catch (SendOtpException e) {
+			log.error("Failed to send binding otp: {}", e);
+			throw new EsignetException(e.getErrorCode());
+		}
+		return getBindingOtpResponse(sendOtpResult);
+	}
+
+	private BindingOtpResponse getBindingOtpResponse(SendOtpResult sendOtpResult) {
 		if (sendOtpResult == null) {
 			log.error("send-otp Failed wrapper returned null result!");
 			throw new EsignetException(SEND_OTP_FAILED);
 		}
-
 		BindingOtpResponse otpResponse = new BindingOtpResponse();
 		otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
 		otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());

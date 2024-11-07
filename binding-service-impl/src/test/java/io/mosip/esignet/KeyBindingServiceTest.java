@@ -18,6 +18,7 @@ import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.BindingOtpRequest;
+import io.mosip.esignet.core.dto.BindingOtpRequestV2;
 import io.mosip.esignet.core.dto.BindingOtpResponse;
 import io.mosip.esignet.core.dto.WalletBindingRequest;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -111,7 +112,8 @@ public class KeyBindingServiceTest {
 		BindingOtpResponse otpResponse = keyBindingService.sendBindingOtp(otpRequest, headers);
 		Assert.assertNotNull(otpResponse);
 	}
-	
+
+
 	@Test(expected = EsignetException.class)
 	public void sendBindingOtp_withInvalidRequest_thenFail() throws SendOtpException {
 		BindingOtpRequest otpRequest = new BindingOtpRequest();
@@ -124,9 +126,10 @@ public class KeyBindingServiceTest {
 		keyBindingService.sendBindingOtp(otpRequest, headers);
 	}
 
+
 	@Test(expected = EsignetException.class)
-	public void sendBindingOtp_withCaptcha_thenFail() throws SendOtpException {
-		BindingOtpRequest otpRequest = new BindingOtpRequest();
+	public void sendBindingOtpV2_withCaptcha_thenFail() throws SendOtpException {
+		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
 		otpRequest.setIndividualId("8267411571");
 		otpRequest.setOtpChannels(Arrays.asList("OTP"));
 		otpRequest.setCaptchaToken("qwerty");

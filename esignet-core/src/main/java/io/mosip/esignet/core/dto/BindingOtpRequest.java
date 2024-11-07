@@ -25,5 +25,4 @@ public class BindingOtpRequest {
     @Size(min = 1, message = ErrorConstants.INVALID_OTP_CHANNEL)
     private List<@OtpChannel String> otpChannels;
 
-    private String captchaToken;
 }
