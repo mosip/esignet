@@ -1,6 +1,7 @@
 OAuthDetailsRequestV3Neg:
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_RequestTime:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid RequestTime and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -31,6 +32,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Null_value_RequestTime:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null value RequestTime and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -60,6 +62,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_empty_RequestTime:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with empty RequestTime and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -89,6 +92,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_RequestTime:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in RequestTime and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -118,6 +122,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_missing_RequestTime:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing RequestTime and all valid data      
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -147,6 +152,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_ClientID:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid ClientID and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -176,6 +182,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Null_ClientID:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null ClientID and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -205,6 +212,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_empty_ClientID:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty ClientID and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -234,6 +242,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_ClientID:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in ClientID and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -263,6 +272,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_missing_ClientID:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description:  To get OAuthDetails with missing ClientID and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -292,6 +302,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_Scope:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description:  To get OAuthDetails with invalid scope and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -321,6 +332,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Null_Scope_value:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null scope value and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -350,6 +362,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_empty_Scope:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty scope and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -379,6 +392,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_Scope:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in scope and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -408,6 +422,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_missing_Scope:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing scope and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -437,6 +452,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_ResponseType:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid ResponseType and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -466,6 +482,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Null_ResponseType_value:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null ResponseType value and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -495,6 +512,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_empty_ResponseType:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty ResponseType and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -524,6 +542,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_ResponseType:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in ResponseType and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -553,6 +572,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_missing_ResponseType:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing ResponseType and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -582,6 +602,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_RedirectURI:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid RedirectURI and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -611,6 +632,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Null_RedirectURI_value:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null value in RedirectURI and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -640,6 +662,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_empty_RedirectURI:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty RedirectURI and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -669,6 +692,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_RedirectURI:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in RedirectURI and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -698,6 +722,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_missing_RedirectURI:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing RedirectURI and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -727,6 +752,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_Display:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid Display and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -756,6 +782,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_Prompt:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid Prompt and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -785,6 +812,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_acrValues:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid acrValues and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -814,6 +842,7 @@ OAuthDetailsRequestV3Neg:
    
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_nonce:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid nonce and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -843,6 +872,7 @@ OAuthDetailsRequestV3Neg:
  
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_state:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid state and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -872,6 +902,7 @@ OAuthDetailsRequestV3Neg:
  
    ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_uiLocales:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid uiLocales and all valid data
       role: resident
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
@@ -899,8 +930,10 @@ OAuthDetailsRequestV3Neg:
   ]
 }'
 
-   ESignet_OAuthDetailsRequest_V3_WithClaimValues_AuthToken_with_invalid_email_essential:
+   ESignet_OAuthDetailsRequest_V3_WithClaimValues_AuthToken_with_invalid_essential:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestNegTC_V3_01
+      description: To get OAuthDetails with invalid essential value in verified claims and all valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -939,6 +972,7 @@ OAuthDetailsRequestV3Neg:
 
    ESignet_OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with all valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

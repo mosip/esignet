@@ -1,6 +1,7 @@
 AuthenticateUserV3NegTC:
      ESignet_AuthenticateUserNegTC_V3_AuthToken_Xsrf__uin_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      description: To Authenticate user with all valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
