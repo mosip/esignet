@@ -1,6 +1,7 @@
 GenerateChallenge:
    ESignet_GenerateChallenge_STransId_Valid_smoke_Pos:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallenge_01
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -17,6 +18,7 @@ GenerateChallenge:
 
    ESignet_GenerateChallenge_STransId_With_1stLang_Valid_smoke_Pos:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallenge_02
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge

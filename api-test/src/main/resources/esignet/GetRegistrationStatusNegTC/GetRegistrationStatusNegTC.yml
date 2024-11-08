@@ -1,6 +1,7 @@
 GetRegistrationStatusNegTC:
    ESignet_GetRegistrationStatusNegTC_without_TransactionID:
       endPoint: /v1/signup/registration/status
+	  uniqueIdentifier: TC_ESignet_GetRegistrationStatusNegTC_01
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
@@ -18,6 +19,7 @@ GetRegistrationStatusNegTC:
 }'
    ESignet_GetRegistrationStatusNegTC_with_invalid_TransactionID:
       endPoint: /v1/signup/registration/status
+	  uniqueIdentifier: TC_ESignet_GetRegistrationStatusNegTC_02
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
@@ -35,6 +37,7 @@ GetRegistrationStatusNegTC:
 }'
    ESignet_GetRegistrationStatusNegTC_with_invalid_TransactionID:
       endPoint: /v1/signup/registration/status
+	  uniqueIdentifier: TC_ESignet_GetRegistrationStatusNegTC_03
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
@@ -52,6 +55,7 @@ GetRegistrationStatusNegTC:
 }'
    ESignet_GetRegistrationStatusNegTC_with_expired_TransactionID_wait:
       endPoint: /v1/signup/registration/status
+	  uniqueIdentifier: TC_ESignet_GetRegistrationStatusNegTC_04
       role: resident
       restMethod: post
       inputTemplate: esignet/GetRegistrationStatus/GetRegistrationStatus
