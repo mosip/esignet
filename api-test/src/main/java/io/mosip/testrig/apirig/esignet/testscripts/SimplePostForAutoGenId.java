@@ -1,8 +1,9 @@
-package io.mosip.testrig.apirig.testscripts;
+package io.mosip.testrig.apirig.esignet.testscripts;
 
 import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,23 +24,25 @@ import org.testng.internal.TestResult;
 
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
-import io.mosip.testrig.apirig.utils.EsignetConfigManager;
-import io.mosip.testrig.apirig.utils.EsignetUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.restassured.response.Response;
 
-public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implements ITest {
-	private static final Logger logger = Logger.getLogger(SimplePostForAutoGenIdForUrlEncoded.class);
+public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
+	private static final Logger logger = Logger.getLogger(SimplePostForAutoGenId.class);
 	protected String testCaseName = "";
 	public String idKeyName = null;
 	public Response response = null;
+	public boolean sendEsignetToken = false;
+	public boolean auditLogCheck = false;
 
 	@BeforeClass
 	public static void setLogLevel() {
@@ -65,6 +68,7 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 	@DataProvider(name = "testcaselist")
 	public Object[] getTestCaseList(ITestContext context) {
 		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
+		sendEsignetToken = context.getCurrentXmlTest().getLocalParameters().containsKey("sendEsignetToken");
 		idKeyName = context.getCurrentXmlTest().getLocalParameters().get("idKeyName");
 		logger.info("Started executing yml: " + ymlFile);
 		return getYmlTestData(ymlFile);
@@ -89,12 +93,6 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
 		}
-
-		if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdRC")) {
-			if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
-				throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
-		}
-
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
 			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
 					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
@@ -102,22 +100,17 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 			}
 		}
 
-		if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
-				&& testCaseName.contains("SunBirdC")) {
-			if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
-				throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
-		}
-		
-		if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
-			throw new SkipException("esignet is not deployed hence skipping the testcase");
-		}
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		String[] templateFields = testCaseDTO.getTemplateFields();
+		String inputJson = "";
 
-		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+		if (BaseTestCase.currentModule.equals(GlobalConstants.MASTERDATA)
+				&& testCaseName.startsWith("Esignet_CreateOIDCClient")) {
+			inputJson = testCaseDTO.getInput();
+		} else {
+			inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+		}
+
 		String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
-
-		String jsonInput = inputJsonKeyWordHandeler(inputJson, testCaseName);
 
 		if (testCaseDTO.getTemplateFields() != null && templateFields.length > 0) {
 			ArrayList<JSONObject> inputtestCases = AdminTestUtil.getInputTestCase(testCaseDTO);
@@ -142,35 +135,63 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 			}
 		} else {
 			if (testCaseName.contains("ESignet_")) {
-				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+					throw new SkipException("esignet is not deployed hence skipping the testcase");
+				}
+				
+				String tempUrl = null;
+				if (testCaseDTO.getEndPoint().contains("/signup/")) {
+					tempUrl = EsignetConfigManager.getSignupBaseUrl();
+				} else {
+					tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+				}
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
 						&& testCaseName.contains("SunBirdC")) {
+					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
+						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
 					if (EsignetConfigManager.getEsignetMockBaseURL() != null
 							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
 						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
-				}
-				String endPoint = tempUrl + testCaseDTO.getEndPoint();
-				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMRESIDENTACTUATOR$")
-						&& BaseTestCase.currentModule.equalsIgnoreCase("resident")) {
-					endPoint = getValueFromActuator("mosip-config/resident-default.properties",
-							"mosip.iam.token_endpoint");
-				}
-				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMWELLKNOWN$")
-						&& BaseTestCase.currentModule.equalsIgnoreCase("esignet")) {
-					endPoint = getValueFromEsignetWellKnownEndPoint("token_endpoint", EsignetConfigManager.getEsignetBaseUrl());
-				}
-				response = postWithBodyAndCookieForAutoGeneratedIdForUrlEncoded(endPoint, jsonInput,
-						testCaseDTO.getTestCaseName(), idKeyName);
+				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$") && testCaseName.contains("SunBirdR")) {
 
+					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
+						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
+
+					if (EsignetConfigManager.getSunBirdBaseURL() != null && !EsignetConfigManager.getSunBirdBaseURL().isBlank())
+						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
+						//Once sunbird registry is pointing to specific env, remove the above line and uncomment below line
+						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
+					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
+				}
+				if ((testCaseName.contains("_AuthorizationCode_")) || (testCaseName.contains("_AuthToken_Xsrf_"))) {
+					response = postRequestWithCookieAuthHeaderAndXsrfTokenForAutoGenId(
+							tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME, testCaseDTO.getTestCaseName(),
+							idKeyName);
+				} else {
+					response = postWithBodyAndBearerTokenForAutoGeneratedId(tempUrl + testCaseDTO.getEndPoint(),
+							inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
+				}
 			} else {
-				response = postWithBodyAndCookieForAutoGeneratedIdForUrlEncoded(ApplnURI + testCaseDTO.getEndPoint(),
-						jsonInput, testCaseDTO.getTestCaseName(), idKeyName);
+				response = postWithBodyAndCookieForAutoGeneratedId(ApplnURI + testCaseDTO.getEndPoint(), inputJson,
+						auditLogCheck, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName,
+						sendEsignetToken);
 			}
 
-			Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil
-					.doJsonOutputValidation(response.asString(), outputJson, testCaseDTO, response.getStatusCode());
+			Map<String, List<OutputValidationDto>> ouputValid = null;
+			if (testCaseName.contains("_StatusCode")) {
+
+				OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
+						testCaseDTO.getOutput());
+
+				ouputValid = new HashMap<>();
+				ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
+			} else {
+				ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
+						getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
+						response.getStatusCode());
+			}
 			Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
 			if (!OutputValidationUtil.publishOutputResult(ouputValid))
 				throw new AdminTestException("Failed at output validation");
