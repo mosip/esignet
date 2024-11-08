@@ -1,6 +1,7 @@
 SignUpSettings:
    ESignet_SignUpSettings_Valid_smoke_Pos:
       endPoint: /v1/signup/settings
+      uniqueIdentifier: TC_ESignet_SignUpSettings_01
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
