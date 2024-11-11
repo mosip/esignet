@@ -3,6 +3,8 @@ package io.mosip.testrig.apirig.esignet.utils;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.ws.rs.core.MediaType;
 
@@ -12,6 +14,7 @@ import org.json.JSONObject;
 import org.testng.SkipException;
 
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.esignet.testrunner.MosipTestRunner;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
@@ -33,8 +36,38 @@ public class EsignetUtil extends AdminTestUtil {
 			plugin = getValueFromEsignetActuator("classpath:/application-default.properties",
 					"mosip.esignet.integration.authenticator");
 		}
+		
+		if (plugin == null || plugin.isBlank() == true) {
+			plugin = getValueFromEsignetActuator("mosip-config/esignet",
+					"mosip.esignet.integration.authenticator");
+		}
 
 		return plugin;
+	}
+	
+	public static void getSupportedLanguage() {
+		String supportedLanguages = getValueFromSignupActuator("classpath:/application-default.properties",
+				"mosip.signup.supported-languages");
+
+		if (supportedLanguages != null && supportedLanguages.isBlank() == false) {
+			supportedLanguages = supportedLanguages.replace("{", "").replace("}", "").replace("'", "");
+
+			// Split the string by commas
+			String[] languages = supportedLanguages.split(",");
+
+			// Use a TreeSet to sort the languages
+			Set<String> sortedLanguages = new TreeSet<>();
+			for (String language : languages) {
+				sortedLanguages.add(language.trim()); // Trim to remove any extra spaces
+			}
+
+			// Add sorted languages to the languageList
+			BaseTestCase.languageList.addAll(sortedLanguages);
+
+			logger.info("languageList " + BaseTestCase.languageList);
+		} else {
+			logger.error("Language not found");
+		}
 	}
 	
 	private static final Map<String, String> actuatorValueCache = new HashMap<>();
@@ -78,8 +111,52 @@ public class EsignetUtil extends AdminTestUtil {
 
 	}
 	
+	public static JSONArray signupActuatorResponseArray = null;
+
+	public static String getValueFromSignupActuator(String section, String key) {
+		String url = EsignetConfigManager.getSignupBaseUrl() + EsignetConfigManager.getproperty("actuatorSignupEndpoint");
+		String actuatorCacheKey = url + section + key;
+		String value = actuatorValueCache.get(actuatorCacheKey);
+		if (value != null && !value.isEmpty())
+			return value;
+
+		try {
+			if (signupActuatorResponseArray == null) {
+				Response response = null;
+				JSONObject responseJson = null;
+				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+				responseJson = new JSONObject(response.getBody().asString());
+				signupActuatorResponseArray = responseJson.getJSONArray("propertySources");
+			}
+
+			for (int i = 0, size = signupActuatorResponseArray.length(); i < size; i++) {
+				JSONObject eachJson = signupActuatorResponseArray.getJSONObject(i);
+				if (eachJson.get("name").toString().contains(section)) {
+					logger.info(eachJson.getJSONObject(GlobalConstants.PROPERTIES));
+					value = eachJson.getJSONObject(GlobalConstants.PROPERTIES).getJSONObject(key)
+							.get(GlobalConstants.VALUE).toString();
+					if (EsignetConfigManager.IsDebugEnabled())
+						logger.info("Actuator: " + url + " key: " + key + " value: " + value);
+					break;
+				}
+			}
+			actuatorValueCache.put(actuatorCacheKey, value);
+
+			return value;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return value;
+		}
+
+	}
+	
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
 		String testCaseName = testCaseDTO.getTestCaseName();
+		
+		
+		if (MosipTestRunner.skipAll == true) {
+			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
+		}
 		
 		
 		if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice")) {
@@ -98,18 +175,30 @@ public class EsignetUtil extends AdminTestUtil {
 					&& endpoint.contains("$GETENDPOINTFROMWELLKNOWN$") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
-			if ((testCaseName.contains("_KycBioAuth_") || testCaseName
-					.contains("_BioAuth_")
-					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke"))) {
+			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
+					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke")
+					|| testCaseName.contains("ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("idaauthenticatorimpl")) {
-			// Let run test cases eSignet & MOSIP  API calls   --- both UIN and VID
+			// Let run test cases eSignet & MOSIP API calls --- both UIN and VID
+
+			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN", "VID"));
+
+			String endpoint = testCaseDTO.getEndPoint();
+			if (endpoint.contains("/v1/signup/") == true || endpoint.contains("/mock-identity-system/") == true
+					|| ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
+							|| testCaseName.equals("ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid")
+							|| testCaseName.equals("ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid"))
+							&& endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
+
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
 			String individualBiometrics = individualBiometricsArray.getString(0);
-			
+
 			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
 					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke"))
 					&& (!isElementPresent(new JSONArray(schemaRequiredField), individualBiometrics))) {
