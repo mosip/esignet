@@ -116,6 +116,23 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return response;
     }
 
+    private ClientDetailResponseV2 getClientDetailResponseV2(ClientDetail clientDetail) {
+        ClientDetailResponseV2 response = new ClientDetailResponseV2();
+        response.setId(clientDetail.getId());
+        response.setName(clientDetail.getName());
+        response.setRpId(clientDetail.getRpId());
+        response.setLogoUri(clientDetail.getLogoUri());
+        response.setRedirectUris(clientDetail.getRedirectUris());
+        response.setPublicKey(clientDetail.getPublicKey());
+        response.setClaims(clientDetail.getClaims());
+        response.setAcrValues(clientDetail.getAcrValues());
+        response.setStatus(clientDetail.getStatus());
+        response.setGrantTypes(clientDetail.getGrantTypes());
+        response.setClientAuthMethods(clientDetail.getClientAuthMethods());
+        response.setAdditionalConfig(clientDetail.getAdditionalConfig());
+        return response;
+    }
+
     private String getClientNameLanguageMapAsJsonString(Map<String, String> clientNameMap, String clientName) {
         clientNameMap.put(Constants.NONE_LANG_KEY, clientName);
         JSONObject clientNameObject = new JSONObject(clientNameMap);
@@ -185,6 +202,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         dto.setLogoUri(result.get().getLogoUri());
         dto.setStatus(result.get().getStatus());
         dto.setPublicKey(result.get().getPublicKey());
+        dto.setAdditionalConfig(result.get().getAdditionalConfig());
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
             if(result.get().getClaims() != null)
@@ -254,5 +272,61 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
         return getClientDetailResponse(clientDetail);
     }
+
+    @Override
+    public ClientDetailResponseV2 createClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV3.getClientId());
+        if (result.isPresent()) {
+            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateRequestV3);
+
+        String clientName = getClientNameLanguageMapAsJsonString(
+                clientDetailCreateRequestV3.getClientNameLangMap(),
+                clientDetailCreateRequestV3.getClientName()
+        );
+        clientDetail.setName(clientName);
+        clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
+
+        try {
+            clientDetail = clientDetailRepository.save(clientDetail);
+        } catch (ConstraintViolationException cve) {
+            log.error("Failed to create client details", cve);
+            throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
+        }
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.OAUTH_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequestV3.getClientId()), null);
+
+        return getClientDetailResponseV2(clientDetail);
+    }
+
+    @Override
+    public ClientDetailResponseV2 updateClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) throws EsignetException {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+        if (!result.isPresent()) {
+            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateRequestV3);
+
+        String clientName = getClientNameLanguageMapAsJsonString(
+                clientDetailUpdateRequestV3.getClientNameLangMap(),
+                clientDetailUpdateRequestV3.getClientName()
+        );
+        clientDetail.setName(clientName);
+        clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
+
+        clientDetail = clientDetailRepository.save(clientDetail);
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.OAUTH_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
+
+        return getClientDetailResponseV2(clientDetail);
+    }
+
 
 }

@@ -1,0 +1,14 @@
+package io.mosip.esignet.core.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Map;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ClientDetailUpdateRequestV3 extends ClientDetailUpdateRequestV2 {
+    private Map<String, Object> additionalConfig;
+}

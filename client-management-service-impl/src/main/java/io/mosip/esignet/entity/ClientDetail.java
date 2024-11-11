@@ -5,16 +5,19 @@
  */
 package io.mosip.esignet.entity;
 
+import io.mosip.esignet.core.util.ClientAdditionalConfigConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
@@ -73,4 +76,8 @@ public class ClientDetail {
 
     @Column(name = "upd_dtimes")
     private LocalDateTime updatedtimes;
+
+    @Convert(converter = ClientAdditionalConfigConverter.class)
+    @Column(name = "additional_config", columnDefinition = "jsonb")
+    private Map<String, Object> additionalConfig;
 }
