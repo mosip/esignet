@@ -1,6 +1,8 @@
 SignupAuthorizeNegTC:
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_clientId_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_01
+      description: Create consent details and unique transactionID with invalid client id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -29,6 +31,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_clientId_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_02
+      description: Create consent details and unique transactionID with empty client id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -57,6 +61,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_clientId_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_03
+      description: Create consent details and unique transactionID with missing client id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -85,6 +91,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_null_clientId_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_04
+      description: Create consent details and unique transactionID with null client id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -113,6 +121,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_05
+      description: Create consent details and unique transactionID with empty redirect URI - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -141,6 +151,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_06
+      description: Create consent details and unique transactionID with invalid redirect URI - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -169,6 +181,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_07
+      description: Create consent details and unique transactionID with missing redirect URI - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -197,6 +211,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_responseType_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_08
+      description: Create consent details and unique transactionID with empty response type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -225,6 +241,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_responseType_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_09
+      description: Create consent details and unique transactionID with invalid response type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -253,6 +271,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_responseType_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_10
+      description: Create consent details and unique transactionID with missing response type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -281,6 +301,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_null_responseType_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_11
+      description: Create consent details and unique transactionID with null response type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -309,6 +331,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_scope_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_12
+      description: Create consent details and unique transactionID with invalid scope - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -337,6 +361,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_withoutSpace_scope_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_13
+      description: Create consent details and unique transactionID without space in scope - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -365,6 +391,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_multipleSpacesInBetween_scope_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_14
+      description: Create consent details and unique transactionID with multiple spaces in between scope - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -387,6 +415,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_scope_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_15
+      description: Create consent details and unique transactionID with missing scope - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -415,6 +445,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_scope_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_16
+      description: Create consent details and unique transactionID with empty scope - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -443,6 +475,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_acrValues_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_17
+      description: Create consent details and unique transactionID with invalid acr values - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -465,6 +499,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_acrValues_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_18
+      description: Create consent details and unique transactionID with empty acr values - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -487,6 +523,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_acrValues_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_19
+      description: Create consent details and unique transactionID with missing acr values - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -509,28 +547,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalidFormat_acrValues_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
-      role: resident
-      restMethod: post
-      checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC
-      outputTemplate: esignet/error
-      input: '{
-      	"pathFragmentCookie": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_pathFragmentCookie$",
-      	"pathFragmentCookieTransactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$",
-      	"requestTime": "$TIMESTAMP$",
-      	"clientId": "mosip-signup-oauth-client",
-      	"scope": "openid",
-      	"responseType": "code",
-      	"redirectUri": "$SIGNUPREDIRECTURI$",
-      	"acrValues": "abcd",
-      	"state": "urlInfo1724138417665",
-      	"uiLocales": "en",
-      	"idTokenHint": "$ID:PrepareSignupRedirectNegTC_AuthToken_Xsrf_STransId_uin_Otp_Valid_posNeg_Smoke_sid_idToken$"
-}'
-      output: '{
-}'
-   ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalidFormat_acrValues_Neg:
-      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_20
+      description: Create consent details and unique transactionID with invalidformat acr values - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -553,6 +571,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_uiLocales_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_21
+      description: Create consent details and unique transactionID with invalid uilocales - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -575,6 +595,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_uiLocales_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_22
+      description: Create consent details and unique transactionID with empty uilocales - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -597,6 +619,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_uiLocales_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_23
+      description: Create consent details and unique transactionID with missing uilocales - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -619,6 +643,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_otherLanguage_uiLocales_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_24
+      description: Create consent details and unique transactionID with other language uilocales - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -641,6 +667,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_state_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_25
+      description: Create consent details and unique transactionID with invalid state - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -663,6 +691,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_state_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_26
+      description: Create consent details and unique transactionID with missing state - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -685,6 +715,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_exceedingRange_state_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_27
+      description: Create consent details and unique transactionID with exceeding range state - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -707,6 +739,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_empty_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_28
+      description: Create consent details and unique transactionID with empty request time - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -735,6 +769,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_diffFormat_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_29
+      description: Create consent details and unique transactionID with different format request time - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -763,6 +799,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_30
+      description: Create consent details and unique transactionID with invalid request time - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -791,6 +829,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_missing_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_31
+      description: Create consent details and unique transactionID with missing request time - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -819,6 +859,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_emptyString_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_32
+      description: Create consent details and unique transactionID with empty String as request time - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -847,6 +889,8 @@ SignupAuthorizeNegTC:
 }'
    ESignet_SignupAuthorizeNegTC_OAuthDetailsRequest_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeNegTC_33
+      description: Create consent details and unique transactionID with valid details - Success
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

@@ -1,6 +1,8 @@
 SignupAuthorizeCodeNegTC:
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_empty_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_01
+      description: Create authorization code with empty acceptedClaims - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -24,6 +26,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_missing_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_02
+      description: Create authorization code with missing acceptedClaims - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -47,6 +51,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_invalid_transactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_03
+      description: Create authorization code with invalid transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -70,6 +76,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_without_transactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_04
+      description: Create authorization code without transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -93,6 +101,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_alreadyCompleted_transactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_05
+      description: Create authorization code with already completed transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -116,6 +126,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_emptyString_transactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_06
+      description: Create authorization code with empty string transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -139,6 +151,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_empty_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_07
+      description: Create authorization code with empty requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -162,6 +176,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_diff_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_08
+      description: Create authorization code with different requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -185,6 +201,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_future_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_09
+      description: Create authorization code with future requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -208,6 +226,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_AuthToken_Xsrf_uin_invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_10
+      description: Create authorization code with invalid requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -231,6 +251,8 @@ SignupAuthorizeCodeNegTC:
 }'
    ESignet_SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_SignupAuthorizeCodeNegTC_11
+      description: Create authorization code with valid details - Success
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

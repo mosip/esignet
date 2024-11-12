@@ -1,6 +1,8 @@
 IDTAuthenticationNegTC:
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_empty_transactionId_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_01
+      description: Create transaction Id and consentAction with empty transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -26,6 +28,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_emptyString_transactionId_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_02
+      description: Create transaction Id and consentAction with emptyString transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -51,6 +55,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_withoutTransactionId_request_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_03
+      description: Create transaction Id and consentAction without transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -76,6 +82,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_transactionIDReceivedFromOtherAPIOAuth_transactionId_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_04
+      description: Create transaction Id and consentAction with transaction id from other API - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -101,6 +109,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_alreadyCompleted_transactionId_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_05
+      description: Create transaction Id and consentAction with already completed transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -126,6 +136,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_withoutAuthFromSendOTP_transactionId_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_06
+      description: Create transaction Id and consentAction withoutAuthFromSendOTP transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -151,6 +163,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_missing_transactionId_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_07
+      description: Create transaction Id and consentAction with missing transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -176,6 +190,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_transactionId_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_08
+      description: Create transaction Id and consentAction with invalid transaction id - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -201,6 +217,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_authFactorType_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_09
+      description: Create transaction Id and consentAction with invalid auth factor type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -226,6 +244,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_empty_authFactorType_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_10
+      description: Create transaction Id and consentAction with empty auth factor type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -251,6 +271,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_missing_authFactorType_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_11
+      description: Create transaction Id and consentAction with missing auth factor type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -276,6 +298,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_emptyString_authFactorType_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_12
+      description: Create transaction Id and consentAction with emptyString auth factor type - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -301,6 +325,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_Empty_challenge_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_13
+      description: Create transaction Id and consentAction with empty challenge - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -326,6 +352,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_14
+      description: Create transaction Id and consentAction with invalid requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -351,6 +379,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalid_diffFormat_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_15
+      description: Create transaction Id and consentAction with diff format requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -376,6 +406,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_missing_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_16
+      description: Create transaction Id and consentAction with missing requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -401,6 +433,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_empty_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_17
+      description: Create transaction Id and consentAction with empty requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -426,6 +460,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_emptyString_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_18
+      description: Create transaction Id and consentAction with emptyString requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -451,6 +487,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_invalidValue_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_19
+      description: Create transaction Id and consentAction with invalid Value as requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -476,6 +514,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_numericString_requestTime_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_20
+      description: Create transaction Id and consentAction with numericString as requestTime - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -501,6 +541,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_without_request_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_21
+      description: Create transaction Id and consentAction without request - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -517,6 +559,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_withOnlyIndividualID_request_Neg:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_22
+      description: Create transaction Id and consentAction with only individualId - Failure
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -542,6 +586,8 @@ IDTAuthenticationNegTC:
 }'
    ESignet_IDTAuthenticationNegTC_AuthToken_Xsrf_uin_all_Valid_PosNeg_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_IDTAuthenticationNegTC_23
+      description: Create transaction Id and consentAction with valid details - Success
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
