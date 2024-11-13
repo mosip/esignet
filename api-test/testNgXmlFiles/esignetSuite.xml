@@ -8,139 +8,26 @@
 		<listener class-name="io.mosip.testrig.apirig.report.EmailableReport"/>
 	</listeners>
 	
-	<test name ="SignUpSettings">
-		<parameter name ="ymlFile"
-			value= "esignet/SignUpSettings/SignUpSettings.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name ="GenerateChallenge">
-		<parameter name ="ymlFile"
-			value= "esignet/GenerateChallenge/GenerateChallenge.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="VerifyChallenge">
-		<parameter name ="ymlFile"
-			value= "esignet/VerifyChallenge/VerifyChallenge.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="RegisterUser">
-		<parameter name ="ymlFile"
-			value= "esignet/RegisterUser/RegisterUser.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="GetRegistrationStatus">
-		<parameter name ="ymlFile"
-			value= "esignet/GetRegistrationStatus/GetRegistrationStatus.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name ="GenerateChallengeForResetPassword">
-		<parameter name ="ymlFile"
-			value= "esignet/GenerateChallengeForResetPassword/GenerateChallengeForResetPassword.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="VerifyChallengeForResetPassword">
-		<parameter name ="ymlFile"
-			value= "esignet/VerifyChallengeForResetPassword/VerifyChallengeForResetPassword.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="ResetPassword">
-		<parameter name ="ymlFile"
-			value= "esignet/ResetPassword/ResetPassword.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="GetRegistrationStatusForResetPassword">
-		<parameter name ="ymlFile"
-			value= "esignet/GetRegistrationStatusForResetPassword/GetRegistrationStatusForResetPassword.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name ="GenerateChallengeNegTC">
-		<parameter name ="ymlFile"
-			value= "esignet/GenerateChallengeNegTC/GenerateChallengeNegTC.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="VerifyChallengeNegTC">
-		<parameter name ="ymlFile"
-			value= "esignet/VerifyChallengeNegTC/VerifyChallengeNegTC.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
-		</classes>
-	</test>
-	<test name ="RegisterUserNegTC">
-		<parameter name ="ymlFile"
-			value= "esignet/RegisterUserNegTC/RegisterUserNegTC.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="GetRegistrationStatusNegTC">
-		<parameter name ="ymlFile"
-			value= "esignet/GetRegistrationStatusNegTC/GetRegistrationStatusNegTC.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name ="GenerateChallengeForResetPasswordNegTC">
-		<parameter name ="ymlFile"
-			value= "esignet/GenerateChallengeForResetPasswordNegTC/GenerateChallengeForResetPasswordNegTC.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name ="VerifyChallengeForResetPasswordNegTC">
-		<parameter name ="ymlFile"
-			value= "esignet/VerifyChallengeForResetPasswordNegTC/VerifyChallengeForResetPasswordNegTC.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
-		</classes>
-	</test>
-	<test name ="ResetPasswordNegTC">
-		<parameter name ="ymlFile"
-			value= "esignet/ResetPasswordNegTC/ResetPasswordNegTC.yml" />
-	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	
 	<test name="OIDCClientV2">
 		<parameter name="ymlFile"
 			value="esignet/OIDCClientV2/OIDCClientV2.yml" />
 			<parameter name="idKeyName"	value="clientId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="SendBindingOtp">
 		<parameter name="ymlFile"
 			value="esignet/SendBindingOtp/SendBindingOtp.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="WalletBinding">
 		<parameter name="ymlFile"
 			value="esignet/WalletBinding/WalletBinding.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithBodyWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithBodyWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestLinkedConsent">
@@ -148,7 +35,7 @@
 			value="esignet/LinkedConsent/OAuthDetailsRequestLinkedConsent/OAuthDetailsRequestLinkedConsent.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateLinkCodeConsent">
@@ -156,7 +43,7 @@
 			value="esignet/LinkedConsent/GenerateLinkCodeConsent/GenerateLinkCodeConsent.yml" />
 			<parameter name="idKeyName"	value="linkCode" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="LinkTransactionConsent">
@@ -164,14 +51,14 @@
 			value="esignet/LinkedConsent/LinkTransactionConsent/LinkTransactionConsent.yml" />
 			<parameter name="idKeyName"	value="linkTransactionId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GetLinkStatusConsent">
 		<parameter name="ymlFile"
 			value="esignet/LinkedConsent/GetLinkStatusConsent/GetLinkStatusConsent.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="LinkedAuthenticationConsentWla">
@@ -179,14 +66,14 @@
 			value="esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWla.yml" />
 			<parameter name="idKeyName"	value="certificate" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerateForWla" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerateForWla" />
 		</classes>
 	</test>
 	<test name="LinkAuthorizationConsent">
 		<parameter name="ymlFile"
 			value="esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="LinkAuthorizationCodeConsent">
@@ -194,7 +81,7 @@
 			value="esignet/LinkedConsent/LinkAuthorizationCodeConsent/LinkAuthorizationCodeConsent.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenLinkedConsent">
@@ -202,14 +89,14 @@
 			value="esignet/LinkedConsent/GenerateTokenLinkedConsent/GenerateTokenLinkedConsent.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetOidcUserInfoLinkedConsent">
 		<parameter name="ymlFile"
 			value="esignet/LinkedConsent/GetOidcUserInfoLinkedConsent/GetOidcUserInfoLinkedConsent.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestLinked">
@@ -217,7 +104,7 @@
 			value="esignet/OAuthDetailsRequestLinked/OAuthDetailsRequest.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateLinkCode">
@@ -225,7 +112,7 @@
 			value="esignet/GenerateLinkCode/GenerateLinkCode.yml" />
 			<parameter name="idKeyName"	value="linkCode" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="LinkTransaction">
@@ -233,14 +120,14 @@
 			value="esignet/LinkTransaction/LinkTransaction.yml" />
 			<parameter name="idKeyName"	value="linkTransactionId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GetLinkStatus">
 		<parameter name="ymlFile"
 			value="esignet/GetLinkStatus/GetLinkStatus.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="LinkedAuthenticationWla">
@@ -248,14 +135,14 @@
 			value="esignet/LinkedAuthenticationWla/LinkedAuthenticationWla.yml" />
 			<parameter name="idKeyName"	value="certificate" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerateForWla" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerateForWla" />
 		</classes>
 	</test>
 	<test name="LinkedAuthorizationConsent">
 		<parameter name="ymlFile"
 			value="esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="LinkAuthorizationCode">
@@ -263,7 +150,7 @@
 			value="esignet/LinkAuthorizationCode/LinkAuthorizationCode.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenLinked">
@@ -271,14 +158,14 @@
 			value="esignet/GenerateTokenLinked/GenerateTokenLinked.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetOidcUserInfoLinked">
 		<parameter name="ymlFile"
 			value="esignet/GetOidcUserInfoLinked/GetOidcUserInfoLinked.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestNonAuth">
@@ -286,21 +173,21 @@
 			value="esignet/OAuthDetailsRequest/OAuthDetailsRequestNonAuth.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="BioNonAuth">
 		<parameter name="ymlFile" value="esignet/BioAuthIdp/BioNonAuth.yml" />
 		<parameter name="isInternal" value="false" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.EsignetBioAuth" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.EsignetBioAuth" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserNonAuth">
 		<parameter name="ymlFile"
 			value="esignet/AuthenticateUser/AuthenticateUserNonAuth.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestConsent">
@@ -308,14 +195,14 @@
 			value="esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsent.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserConsent">
 		<parameter name="ymlFile"
 			value="esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsent.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="AuthorizationCodeConsent">
@@ -323,7 +210,7 @@
 			value="esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenConsent">
@@ -331,14 +218,14 @@
 			value="esignet/Consent/GenerateTokenConsent/GenerateTokenConsent.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetOidcUserInfoConsent">
 		<parameter name="ymlFile"
 			value="esignet/Consent/GetOidcUserInfoConsent/GetOidcUserInfoConsent.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequest">
@@ -346,28 +233,28 @@
 			value="esignet/OAuthDetailsRequest/OAuthDetailsRequest.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="BioAuthIdp">
 		<parameter name="ymlFile" value="esignet/BioAuthIdp/BioAuthIdp.yml" />
 		<parameter name="isInternal" value="false" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.EsignetBioAuth" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.EsignetBioAuth" />
 		</classes>
 	</test>
 	<test name="SendOtp">
 		<parameter name="ymlFile"
 			value="esignet/SendOtp/SendOtp.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="AuthenticateUser">
 		<parameter name="ymlFile"
 			value="esignet/AuthenticateUser/AuthenticateUser.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="AuthorizationCode">
@@ -375,7 +262,7 @@
 			value="esignet/AuthorizationCode/AuthorizationCode.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateToken">
@@ -383,14 +270,14 @@
 			value="esignet/GenerateToken/GenerateToken.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetOidcUserInfo">
 		<parameter name="ymlFile"
 			value="esignet/GetOidcUserInfo/GetOidcUserInfo.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestVCI">
@@ -398,14 +285,14 @@
 			value="esignet/VCI/OAuthDetailsRequestVCI/OAuthDetailsRequestVCI.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserVCI">
 		<parameter name="ymlFile"
 			value="esignet/VCI/AuthenticateUserVCI/AuthenticateUserVCI.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="AuthorizationCodeVCI">
@@ -413,7 +300,7 @@
 			value="esignet/VCI/AuthorizationCodeVCI/AuthorizationCodeVCI.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenVCI">
@@ -421,14 +308,14 @@
 			value="esignet/VCI/GenerateTokenVCI/GenerateTokenVCI.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetCredential">
 		<parameter name="ymlFile"
 			value="esignet/VCI/GetCredential/GetCredential.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestVCIVid">
@@ -436,14 +323,14 @@
 			value="esignet/VCIVid/OAuthDetailsRequestVCI/OAuthDetailsRequestVCI.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserVCIVid">
 		<parameter name="ymlFile"
 			value="esignet/VCIVid/AuthenticateUserVCI/AuthenticateUserVCI.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="AuthorizationCodeVCIVid">
@@ -451,7 +338,7 @@
 			value="esignet/VCIVid/AuthorizationCodeVCI/AuthorizationCodeVCI.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenVCIVid">
@@ -459,14 +346,14 @@
 			value="esignet/VCIVid/GenerateTokenVCI/GenerateTokenVCI.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetCredentialVid">
 		<parameter name="ymlFile"
 			value="esignet/VCIVid/GetCredential/GetCredential.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestVCINegTC">
@@ -474,14 +361,14 @@
 			value="esignet/VCINegTC/OAuthDetailsRequestVCI/OAuthDetailsRequestVCI.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserVCINegTC">
 		<parameter name="ymlFile"
 			value="esignet/VCINegTC/AuthenticateUserVCI/AuthenticateUserVCI.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="AuthorizationCodeVCINegTC">
@@ -489,7 +376,7 @@
 			value="esignet/VCINegTC/AuthorizationCodeVCI/AuthorizationCodeVCI.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenVCINegTC">
@@ -497,14 +384,14 @@
 			value="esignet/VCINegTC/GenerateTokenVCI/GenerateTokenVCI.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetCredentialNegTC">
 		<parameter name="ymlFile"
 			value="esignet/VCINegTC/GetCredential/GetCredential.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestVCIVidNegTC">
@@ -512,14 +399,14 @@
 			value="esignet/VCIVidNegTC/OAuthDetailsRequestVCI/OAuthDetailsRequestVCI.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserVCIVidNegTC">
 		<parameter name="ymlFile"
 			value="esignet/VCIVidNegTC/AuthenticateUserVCI/AuthenticateUserVCI.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="AuthorizationCodeVCIVidNegTC">
@@ -527,7 +414,7 @@
 			value="esignet/VCIVidNegTC/AuthorizationCodeVCI/AuthorizationCodeVCI.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenVCIVidNegTC">
@@ -535,74 +422,21 @@
 			value="esignet/VCIVidNegTC/GenerateTokenVCI/GenerateTokenVCI.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetCredentialVidNegTC">
 		<parameter name="ymlFile"
 			value="esignet/VCIVidNegTC/GetCredential/GetCredential.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="WellKnownVCI">
 		<parameter name="ymlFile"
 			value="esignet/VCI/WellKnownVCI/WellKnownVCI.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name="OAuthDetailsRequestPassword">
-		<parameter name="ymlFile"
-			value="esignet/OAuthDetailsRequestPassword/OAuthDetailsRequestPassword.yml" />
-			<parameter name="idKeyName"	value="transactionId,encodedResp" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="AuthenticateUserPassword">
-		<parameter name="ymlFile"
-			value="esignet/AuthenticateUserPassword/AuthenticateUserPassword.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<test name="AuthorizationCodePassword">
-		<parameter name="ymlFile"
-			value="esignet/AuthorizationCodePassword/AuthorizationCodePassword.yml" />
-			<parameter name="idKeyName"	value="code" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="GenerateTokenPassword">
-		<parameter name="ymlFile"
-			value="esignet/GenerateTokenPassword/GenerateTokenPassword.yml" />
-			<parameter name="idKeyName"	value="access_token" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
-		</classes>
-	</test>
-	<test name="GetOidcUserInfoPassword">
-		<parameter name="ymlFile"
-			value="esignet/GetOidcUserInfoPassword/GetOidcUserInfoPassword.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name="OAuthDetailsRequestPasswordNegTC">
-		<parameter name="ymlFile"
-			value="esignet/OAuthDetailsRequestPasswordNegTC/OAuthDetailsRequestPasswordNegTC.yml" />
-			<parameter name="idKeyName"	value="transactionId,encodedResp" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="AuthenticateUserPasswordNegTC">
-		<parameter name="ymlFile"
-			value="esignet/AuthenticateUserPasswordNegTC/AuthenticateUserPasswordNegTC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="CreateOIDCClient">
@@ -610,7 +444,7 @@
 			value="esignet/CreateOIDCClient/CreateOIDCClient.yml" />
 			<parameter name="idKeyName"	value="clientId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test> 
 	<test name="UpdateOIDCClient">
@@ -618,7 +452,7 @@
 			value="esignet/UpdateOIDCClient/UpdateOIDCClient.yml" />
 		<parameter name="pathParams" value="clientId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PutWithPathParamsAndBody" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
 	<test name="CreateOIDCClientV2">
@@ -626,7 +460,7 @@
 			value="esignet/CreateOIDCClientV2/CreateOIDCClient.yml" />
 			<parameter name="idKeyName"	value="clientId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="UpdateOIDCClientV2">
@@ -634,7 +468,7 @@
 			value="esignet/UpdateOIDCClientV2/UpdateOIDCClient.yml" />
 		<parameter name="pathParams" value="clientId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PutWithPathParamsAndBody" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestV2">
@@ -642,7 +476,7 @@
 			value="esignet/OAuthDetailsRequestV2/OAuthDetailsRequest.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="CreatePolicySunBirdR">
@@ -651,7 +485,7 @@
 		<parameter name="idKeyName" value="osid" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GetPolicySunBirdR">
@@ -659,7 +493,7 @@
 			value="esignet/SunBirdR/GetPolicySunBirdR/GetPolicySunBirdR.yml" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="SearchPolicySunBirdR">
@@ -667,7 +501,7 @@
 			value="esignet/SunBirdR/SearchPolicySunBirdR/SearchPolicySunBirdR.yml" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="CreateOIDCClientV2SunBirdC">
@@ -675,7 +509,7 @@
 			value="esignet/SunBirdC/CreateOIDCClientV2SunBirdC/CreateOIDCClientV2SunBirdC.yml" />
 			<parameter name="idKeyName"	value="clientId" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestSunBirdC">
@@ -683,14 +517,14 @@
 			value="esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserSunBirdC">
 		<parameter name="ymlFile"
 			value="esignet/SunBirdC/AuthenticateUserSunBirdC/AuthenticateUserSunBirdC.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="AuthorizationCodeSunBirdC">
@@ -698,7 +532,7 @@
 			value="esignet/SunBirdC/AuthorizationCodeSunBirdC/AuthorizationCodeSunBirdC.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenSunBirdC">
@@ -706,14 +540,14 @@
 			value="esignet/SunBirdC/GenerateTokenSunBirdC/GenerateTokenSunBirdC.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetCredentialSunBirdC">
 		<parameter name="ymlFile"
 			value="esignet/SunBirdC/GetCredentialSunBirdC/GetCredentialSunBirdC.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="OAuthDetailsRequestSunBirdCNegTC">
@@ -721,14 +555,14 @@
 			value="esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC.yml" />
 			<parameter name="idKeyName"	value="transactionId,encodedResp" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="AuthenticateUserSunBirdCNegTC">
 		<parameter name="ymlFile"
 			value="esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="AuthorizationCodeSunBirdCNegTC">
@@ -736,7 +570,7 @@
 			value="esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC.yml" />
 			<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GenerateTokenSunBirdCNegTC">
@@ -744,14 +578,14 @@
 			value="esignet/SunBirdCNegTC/GenerateTokenSunBirdCNegTC/GenerateTokenSunBirdCNegTC.yml" />
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
 	<test name="GetCredentialSunBirdCNegTC">
 		<parameter name="ymlFile"
 			value="esignet/SunBirdCNegTC/GetCredentialSunBirdCNegTC/GetCredentialSunBirdCNegTC.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="DeletePolicySunBirdR">
@@ -760,7 +594,7 @@
 		<parameter name="pathParams" value="insuranceid" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.DeleteWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.DeleteWithParam" />
 		</classes>
 	</test>
 
@@ -769,56 +603,56 @@
 		<parameter name="ymlFile" value="esignet/KycDemoAuth/KycDemoAuth.yml" />
 		<parameter name="isInternal" value="false" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.KycAuth" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.KycAuth" />
 		</classes>
 	</test>
 	<test name="LinkedSendOtp">
 		<parameter name="ymlFile"
 			value="esignet/LinkedSendOtp/LinkedSendOtp.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="LinkedValidateBinding">
 		<parameter name="ymlFile"
 			value="esignet/LinkedValidateBinding/LinkedValidateBinding.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="IntrospectToken">
 		<parameter name="ymlFile"
 			value="esignet/IntrospectToken/IntrospectToken.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithQueryParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithQueryParam" />
 		</classes>
 	</test>
 	<test name="GetJSONWebKeySet">
 		<parameter name="ymlFile"
 			value="esignet/GetJSONWebKeySet/GetJSONWebKeySet.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="AuthorizationEndpoint">
 		<parameter name="ymlFile"
 			value="esignet/AuthorizationEndpoint/AuthorizationEndpoint.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithQueryParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithQueryParam" />
 		</classes>
 	</test>
  	<test name="ConfigurationEndpoint">
 		<parameter name="ymlFile"
 			value="esignet/ConfigurationEndpoint/ConfigurationEndpoint.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="LinkedAuthenticationOtp">
 		<parameter name="ymlFile"
 			value="esignet/LinkedAuthenticationOtp/LinkedAuthenticationOtp.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test> -->
 	
@@ -932,5 +766,4 @@
 		</classes>
 	</test>
 	<!-- End of Sign up L2 phase Negative test cases -->
-
 </suite>
