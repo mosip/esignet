@@ -101,7 +101,6 @@ public class KycAuth extends AdminTestUtil implements ITest {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		JSONObject request = new JSONObject(testCaseDTO.getInput());
 		String kycAuthEndPoint = null;
 		if (request.has(GlobalConstants.KYCAUTHENDPOINT)) {

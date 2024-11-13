@@ -84,7 +84,6 @@ public class SimplePost extends AdminTestUtil implements ITest {
 	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		auditLogCheck = testCaseDTO.isAuditLogCheck();
 		String[] templateFields = testCaseDTO.getTemplateFields();
 		if (HealthChecker.signalTerminateExecution) {

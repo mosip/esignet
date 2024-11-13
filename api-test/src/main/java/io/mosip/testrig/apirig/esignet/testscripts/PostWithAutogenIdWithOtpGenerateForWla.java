@@ -93,7 +93,6 @@ public class PostWithAutogenIdWithOtpGenerateForWla extends AdminTestUtil implem
 			}
 		}
 
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		JSONObject req = new JSONObject(testCaseDTO.getInput());
 		String otpRequest = null;
 		String sendOtpReqTemplate = null;

@@ -93,17 +93,11 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 		
 		
 		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			
-			
-			
-			
-			
 			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
 					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 
 		String inputJson = testCaseDTO.getInput().toString();
 		JSONObject req = new JSONObject(testCaseDTO.getInput());

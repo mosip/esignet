@@ -84,7 +84,6 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
@@ -149,9 +148,15 @@ public class GetWithParam extends AdminTestUtil implements ITest {
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 				}
 				
-				response = getWithPathParamAndCookie(tempUrl + testCaseDTO.getEndPoint(),
-						getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
-						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+				if (testCaseName.contains("_AuthToken_Xsrf_")) {
+					response = getRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
+							getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
+							testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+				} else {
+					response = getWithPathParamAndCookie(tempUrl + testCaseDTO.getEndPoint(),
+							getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
+							testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+				}
 			} else {
 				response = getWithPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(),
 						getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), auditLogCheck,

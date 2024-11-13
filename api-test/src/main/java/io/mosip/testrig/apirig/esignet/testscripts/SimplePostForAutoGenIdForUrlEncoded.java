@@ -111,7 +111,6 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 		if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new SkipException("esignet is not deployed hence skipping the testcase");
 		}
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
 		String[] templateFields = testCaseDTO.getTemplateFields();
 
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
