@@ -13,7 +13,7 @@
 			value="esignet/AddIdentityMock/AddIdentity.yml" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.AddIdentity" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.AddIdentity" />
 		</classes>
 	</test>
 	<test name="AddIdentity">
@@ -21,7 +21,7 @@
 			value="esignet/AddIdentity/AddIdentity.yml" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.AddIdentity" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.AddIdentity" />
 		</classes>
 	</test>
 	<test name="CreatePolicyGroup">
@@ -30,7 +30,7 @@
 		<parameter name="idKeyName" value="id,name" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	
@@ -40,7 +40,7 @@
 		<parameter name="idKeyName" value="id,name" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	
@@ -49,7 +49,7 @@
 			value="esignet/PmsIntegration/PublishPolicy/PublishPolicy.yml" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithOnlyPathParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithOnlyPathParam" />
 		</classes>
 	</test>
 	
@@ -59,7 +59,7 @@
 			<parameter name="idKeyName" value="partnerId" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	
@@ -68,7 +68,7 @@
 			value= "esignet/PmsIntegration/UploadCertificate/UploadCertificate.yml" />
 			<parameter name="prerequisite" value="Yes" />
 	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test> 
 	
@@ -78,7 +78,7 @@
 			<parameter name="idKeyName" value="signedCertificateData" />
 			<parameter name="prerequisite" value="Yes" />
 	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	
@@ -88,7 +88,7 @@
 			<parameter name="queryParams" value="partnerType,partnerName,keyFileNameByPartnerName,moduleName" />
 			<parameter name="prerequisite" value="Yes" />
 	<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithBodyAndQueryParamsForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithBodyAndQueryParamsForAutoGenId" />
 		</classes>
 	</test>
 	
@@ -98,7 +98,7 @@
 		<parameter name="idKeyName" value="mappingkey" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	
@@ -108,7 +108,7 @@
 		<parameter name="pathParams" value="mappingkey" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PutWithPathParamsAndBody" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
 	<test name="UpdatePolicy">
@@ -117,7 +117,7 @@
 		<parameter name="pathParams" value="policyId" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PutWithPathParamsAndBody" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
 	<test name="DeactivatePolicy">
@@ -126,7 +126,7 @@
 		<parameter name="pathParams" value="policygroupId,policyId" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PatchWithPathParamsAndBody" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PatchWithPathParamsAndBody" />
 		</classes>
 	</test>
 	<test name="GenerateMispLK">
@@ -135,7 +135,7 @@
 		<parameter name="idKeyName"	value="licenseKey" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	
@@ -145,7 +145,7 @@
 		<parameter name="idKeyName"	value="apiKey" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePatchForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePatchForAutoGenId" />
 		</classes>
 	</test>
 	<test name="OIDCClient">
@@ -154,7 +154,7 @@
 			<parameter name="idKeyName"	value="clientId" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="OIDCClientUpdate">
@@ -163,7 +163,7 @@
 		<parameter name="pathParams" value="clientId" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PutWithPathParamsAndBody" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
 	<test name="GetOidcClient">
@@ -171,7 +171,7 @@
 			value="esignet/GetOidcClient/GetOidcClient.yml" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 
@@ -181,7 +181,7 @@
 			<parameter name="idKeyName"	value="vid" />
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
 	<test name="KycBioAuth">
@@ -189,7 +189,7 @@
 		<parameter name="isInternal" value="false" />
 		<parameter name="prerequisite" value="Yes" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.KycAuth" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.KycAuth" />
 		</classes>
 	</test>
 </suite>
