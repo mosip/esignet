@@ -1,13 +1,15 @@
-GetIdVerifier:
-   ESignet_GetIdVerifierNegTC_with_invalidVal_in_verifierId:
+GetIdVerifierNegTC:
+   ESignet_GetIdVerifierNegTC_with_invalidVal_in_verifierId_Neg:
       endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      uniqueIdentifier: TC_ESignet_GetIdVerifierNegTC_01
+      description: To get the details of specific identity verifier with invalid value in verifierId
       role: resident
       restMethod: get
       checkErrorsOnlyInResponse: true
       inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
       outputTemplate: esignet/error
       input: '{
-      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg_idvTransactionID$",
       	"verifierId": "7672836gvfbsvbna"
 }'
       output: '{
@@ -19,15 +21,17 @@ GetIdVerifier:
   ]
 }'
 
-   ESignet_GetIdVerifierNegTC_with_space_in_verifierId:
+   ESignet_GetIdVerifierNegTC_with_space_in_verifierId_Neg:
       endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      uniqueIdentifier: TC_ESignet_GetIdVerifierNegTC_02
+      description: To get the details of specific identity verifier with only space in verifierId
       role: resident
       restMethod: get
       checkErrorsOnlyInResponse: true
       inputTemplate: esignet/GetIdVerifierNegTC/GetIdVerifierNegTC
       outputTemplate: esignet/error
       input: '{
-      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_idvTransactionID$",
+      	"idvTransactionID": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg_idvTransactionID$",
       	"verifierId": "     "
 }'
       output: '{
@@ -39,8 +43,10 @@ GetIdVerifier:
   ]
 }'
 
-   ESignet_GetIdVerifierNegTC_with_space_in_idvTransactionID:
+   ESignet_GetIdVerifierNegTC_with_space_in_idvTransactionID_Neg:
       endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      uniqueIdentifier: TC_ESignet_GetIdVerifierNegTC_03
+      description: To get the details of specific identity verifier with only space in verifierId
       role: resident
       restMethod: get
       checkErrorsOnlyInResponse: true
@@ -48,7 +54,7 @@ GetIdVerifier:
       outputTemplate: esignet/error
       input: '{
       	"idvTransactionID": "    ",
-      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg_id$"
 }'
       output: '{
       "errors": [
@@ -59,8 +65,10 @@ GetIdVerifier:
   ]
 }'
 
-   ESignet_GetIdVerifierNegTC_with_null_in_idvTransactionID:
+   ESignet_GetIdVerifierNegTC_with_null_in_idvTransactionID_Neg:
       endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      uniqueIdentifier: TC_ESignet_GetIdVerifierNegTC_04
+      description: To get the details of specific identity verifier with null in idvTransactionID
       role: resident
       restMethod: get
       checkErrorsOnlyInResponse: true
@@ -68,7 +76,7 @@ GetIdVerifier:
       outputTemplate: esignet/error
       input: '{
       	"idvTransactionID": null,
-      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg_id$"
 }'
       output: '{
       "errors": [
@@ -79,8 +87,10 @@ GetIdVerifier:
   ]
 }'
 
-   ESignet_GetIdVerifierNegTC_with_EmptyVal_in_idvTransactionID:
+   ESignet_GetIdVerifierNegTC_with_EmptyVal_in_idvTransactionID_Neg:
       endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      uniqueIdentifier: TC_ESignet_GetIdVerifierNegTC_05
+      description: To get the details of specific identity verifier with empty value in idvTransactionID
       role: resident
       restMethod: get
       checkErrorsOnlyInResponse: true
@@ -88,7 +98,7 @@ GetIdVerifier:
       outputTemplate: esignet/error
       input: '{
       	"idvTransactionID": "",
-      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg_id$"
 }'
       output: '{
       "errors": [
@@ -99,8 +109,10 @@ GetIdVerifier:
   ]
 }'
 
-   ESignet_GetIdVerifierNegTC_with_missing_idvTransactionID:
+   ESignet_GetIdVerifierNegTC_with_missing_idvTransactionID_Neg:
       endPoint: /v1/signup/identity-verification/identity-verifier/{verifierId}
+      uniqueIdentifier: TC_ESignet_GetIdVerifierNegTC_06
+      description: To get the details of specific identity verifier without idvTransactionID
       role: resident
       restMethod: get
       checkErrorsOnlyInResponse: true
@@ -108,7 +120,7 @@ GetIdVerifier:
       outputTemplate: esignet/error
       input: '{
       	"idvTransactionID": "$REMOVE$",
-      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_id$"
+      	"verifierId": "$ID:InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg_id$"
 }'
       output: '{
       "errors": [

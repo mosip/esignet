@@ -655,143 +655,13 @@
 		</classes>
 	</test> -->
 
-	<!-- Start of Sign up L2 phase test cases -->
-	<test name="OAuthDetailsRequestV3">
-		<parameter name="ymlFile"
-			value="esignet/OAuthDetailsRequestV3/OAuthDetailsRequest.yml" />
-		<parameter name="idKeyName"	value="transactionId,encodedResp" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="AuthenticateUserV3">
-		<parameter name="ymlFile"
-			value="esignet/AuthenticateUserV3/AuthenticateUser.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
-		</classes>
-	</test>
-	<test name="ClaimDetails">
-		<parameter name="ymlFile"
-			value="esignet/ClaimDetails/ClaimDetails.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name="PrepareSignupRedirect">
-		<parameter name="ymlFile"
-			value="esignet/PrepareSignupRedirect/PrepareSignupRedirect.yml" />
-		<parameter name="idKeyName"	value="idToken" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="SignupAuthorize">
-		<parameter name="ymlFile"
-			value="esignet/SignupAuthorize/SignupAuthorize.yml" />
-		<parameter name="idKeyName"	value="transactionId,encodedResp" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="IDTAuthentication">
-		<parameter name="ymlFile"
-			value="esignet/IDTAuthentication/IDTAuthentication.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="SignupAuthorizeCode">
-		<parameter name="ymlFile"
-			value="esignet/SignupAuthorizeCode/SignupAuthorizeCode.yml" />
-		<parameter name="idKeyName"	value="code" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="InitiateIdVerification">
-		<parameter name="ymlFile"
-			value="esignet/InitiateIdVerification/InitiateIdVerification.yml" />
-		<parameter name="idKeyName"	value="id" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="GetIdVerifier">
-		<parameter name="ymlFile"
-			value="esignet/GetIdVerifier/GetIdVerifier.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name="GetSlot">
-		<parameter name="ymlFile"
-			value="esignet/GetSlot/GetSlot.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
-		</classes>
-	</test>
-	<!-- End of Sign up L2 phase test cases -->
 	<!-- Start of Sign up L2 phase Negative test cases -->
-	<test name="OAuthDetailsRequestV3NegTC"> 
-		<parameter name="ymlFile"
-			value="esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC.yml" />
-		<parameter name="idKeyName"	value="transactionId,encodedResp" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="AuthenticateUserV3NegTC">
-		<parameter name="ymlFile"
-			value="esignet/AuthenticateUserV3NegTC/AuthenticateUserNegTC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
-		</classes>
-	</test>
-    <test name="ClaimDetailsNegTC">
-		<parameter name="ymlFile"
-			value="esignet/ClaimDetailsNegTC/ClaimDetailsNegTC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
-		</classes>
-	</test>
-	<test name="PrepareSignupRedirectNegTC">
-	    <parameter name="ymlFile"
-			value="esignet/PrepareSignupRedirectNegTC/PrepareSignupRedirectNegTC.yml" />
-		<parameter name="idKeyName"	value="idToken" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	 <test name="SignupAuthorizeNegTC">
-		<parameter name="ymlFile"
-			value="esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC.yml" />
-		<parameter name="idKeyName"	value="transactionId,encodedResp" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="IDTAuthenticationNegTC">
-		<parameter name="ymlFile"
-			value="esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="SignupAuthorizeCodeNegTC">
-		<parameter name="ymlFile"
-			value="esignet/SignupAuthorizeCodeNegTC/SignupAuthorizeCodeNegTC.yml" />
-		<parameter name="idKeyName"	value="code" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>	
 	<test name="InitiateIdVerificationNegTC">
 		<parameter name="ymlFile"
 			value="esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC.yml" />
 		<parameter name="idKeyName"	value="id" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<test name="GetIdVerifierNegTC">
@@ -799,14 +669,14 @@
 			value="esignet/GetIdVerifierNegTC/GetIdVerifierNegTC.yml" />
 		<parameter name="idKeyName"	value="code" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
 	<test name="GetSlotNegTC">
 		<parameter name="ymlFile"
 			value="esignet/GetSlotNegTC/GetSlotNegTC.yml" />
 		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<!-- End of Sign up L2 phase Negative test cases -->

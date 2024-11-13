@@ -1,6 +1,8 @@
-InitiateIdVerification:
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_authorizationCode:
+InitiateIdVerificationNegTC:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_authorizationCode_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_01
+      description: To start with Identity verification process with out authorization code, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -20,8 +22,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_space_in_authorizationCode:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_space_in_authorizationCode_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_02
+      description: To start with Identity verification process with only space in authorization code, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -41,8 +45,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_authorizationCode:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_authorizationCode_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_03
+      description: To start with Identity verification process with null in authorization code, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -62,8 +68,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidVal_in_authorizationCode:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidVal_in_authorizationCode_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_04
+      description: To start with Identity verification process with invalid value in authorization code, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -83,8 +91,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NumVal_in_authorizationCode:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NumVal_in_authorizationCode_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_05
+      description: To start with Identity verification process with numeric value in authorization code, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -104,8 +114,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_authorizationCode:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_authorizationCode_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_06
+      description: To start with Identity verification process with empty value in authorization code, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -125,8 +137,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_requestTime:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_requestTime_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_07
+      description: To start with Identity verification process with only space in requestTime, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -146,8 +160,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NULL_in_requestTime:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NULL_in_requestTime_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_08
+      description: To start with Identity verification process with NULL in requestTime, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -167,8 +183,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_requestTime:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_requestTime_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_09
+      description: To start with Identity verification process with empty value in requestTime, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -188,8 +206,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_requestTime:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_requestTime_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_10
+      description: To start with Identity verification process with null in requestTime, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -209,8 +229,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidFormat_in_requestTime:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidFormat_in_requestTime_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_11
+      description: To start with Identity verification process with invalidFormat in requestTime, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -230,8 +252,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_state:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_state_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_12
+      description: To start with Identity verification process with out state parameter, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -251,8 +275,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_state:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_state_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_13
+      description: To start with Identity verification process with only space in state parameter, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -272,8 +298,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_state:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_state_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_14
+      description: To start with Identity verification process with empty value in state parameter, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -293,8 +321,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_state:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_state_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_15
+      description: To start with Identity verification process with null value in state parameter, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -314,8 +344,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_requestTime:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_requestTime_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_16
+      description: To start with Identity verification process with out requestTime, Expecting error code in the response
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -335,8 +367,10 @@ InitiateIdVerification:
   ]
  }'
  
-   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg:
       endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_17
+      description: To start with Identity verification process with all valid details, Expecting success response by setting the cookie header as IDV_TRANSACTION_ID in the response with identity verification transaction ID
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
