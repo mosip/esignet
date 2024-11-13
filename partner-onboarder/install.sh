@@ -73,7 +73,7 @@ function installing_onboarder() {
             echo "NFS server not provided; EXITING."
             exit 1;
           fi
-          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/<sandbox>/onboarder/), make sure permission is 777 for the folder: " nfs_path
+          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/mosip/<sandbox>/onboarder/), make sure permission is 777 for the folder: " nfs_path
           if [[ -z $nfs_path ]]; then
             echo "NFS Path not provided; EXITING."
             exit 1;

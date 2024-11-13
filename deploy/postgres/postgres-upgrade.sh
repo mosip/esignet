@@ -26,7 +26,7 @@ read_user_input(){
     DEFAULT='';                               ## reset `DEFAULT` variable to empty string
 }
 function initialize_db() {
-  NS=esignet
+  NS=postgres
   CHART_VERSION=12.0.1
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
