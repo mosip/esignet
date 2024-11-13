@@ -1,4 +1,4 @@
 db-common-secrets.yaml
-esignet-postgres-postgresql.yaml
+postgres-postgresql.yaml
 postgres-host.yaml
 .*.swp

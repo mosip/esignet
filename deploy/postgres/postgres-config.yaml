@@ -8,6 +8,6 @@ metadata:
     app: postgres
 data:
   database-host: "postgres-postgresql"
-  database-port: "5434"
+  database-port: "5432"
   database-username: "esignet"
   database-name: "mosip_esignet"
