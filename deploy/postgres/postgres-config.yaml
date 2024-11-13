@@ -1,12 +1,13 @@
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: esignet-postgres-config
-  namespace: esignet
+  name: postgres-config
+  namespace: postgres
   labels:
     app: postgres
 data:
-  database-host: "esignet-postgres-postgresql"
-  database-port: "5432"
-  database-username: "esignetuser"
+  database-host: "postgres-postgresql"
+  database-port: "5434"
+  database-username: "esignet"
   database-name: "mosip_esignet"

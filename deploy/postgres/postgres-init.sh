@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 function initialize_db() {
-  NS=esignet
+  NS=postgres
   CHART_VERSION=0.0.1-develop
   helm repo update
 
@@ -27,13 +27,13 @@ function initialize_db() {
       if [ $yn = "Y" ] || [ $yn = "y" ];
         then
           echo Removing existing mosip_esignet installation and secret
-          helm -n $NS delete esignet-postgres-init || true
+          helm -n $NS delete postgres-init || true
           kubectl -n NS delete secret db-common-secrets  || true
           echo Initializing DB
-          helm -n $NS install esignet-postgres-init mosip/postgres-init --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
+          helm -n $NS install postgres-init mosip/postgres-init --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
           break
       elif [ "$yn" = "N" ] || [ "$yn" = "n" ]; then
-          echo "Skipping eSignet postgres DB initialisation as per your input"
+          echo "Skipping postgres DB initialisation as per your input"
           break
       else
           echo "Incorrect Input. Please choose again"
