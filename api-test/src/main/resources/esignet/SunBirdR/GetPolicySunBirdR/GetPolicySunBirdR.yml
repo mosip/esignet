@@ -1,5 +1,5 @@
 GetPolicySunBirdR:
-   ESignet_SunBirdR_DeletePolicy_NOAUTH_Valid_Smoke:
+   ESignet_SunBirdR_GetPolicy_NOAUTH_Valid_Smoke:
       endPoint: $SUNBIRDBASEURL$/api/v1/Insurance/{insuranceid}
       description: To delete policy for SunBirdR with no authorization
       role: resident
