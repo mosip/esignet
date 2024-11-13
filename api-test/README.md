@@ -86,7 +86,7 @@ To execute the tests, use the following steps:
 - **env.user**: The user of the environment where the tests will be executed.
 - **env.endpoint**: The environment where the application under test is deployed. Replace `<base_env>` with the actual environment hostname.
 - **env.testLevel**: Set this to `smoke` to run only smoke test cases, or `smokeAndRegression` to run both smoke and regression tests.
-- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `automationtests-1.2.0.1-SNAPSHOT-jar-with-dependencies.jar`.
+- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.5.0-SNAPSHOT-jar-with-dependencies.jar`.
 
 ## Build and Run
 
