@@ -55,7 +55,7 @@ function installing_postgres() {
     return 0
 }
 
-# Main script logic
+#Prompt the user if they want to install PostgreSQL
 while true; do
     read -p "Do you want to install default Postgres? (y/n): " answer
     if [ "$answer" = "Y" ] || [ "$answer" = "y" ]; then
