@@ -87,6 +87,8 @@ To execute the tests using Jar, use the following steps:
    
 # Using Eclipse IDE
 
+To execute the tests using Eclipse IDE, use the following steps:
+
 ## 1. **Install Eclipse (Latest Version)**
    - Download and install the latest version of Eclipse IDE from the [Eclipse Downloads](https://www.eclipse.org/downloads/).
 
