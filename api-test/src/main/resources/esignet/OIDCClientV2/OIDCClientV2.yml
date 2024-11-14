@@ -50,7 +50,7 @@ OIDCClientV2:
       	"userClaims3": "gender",
       	"userClaims4": "phone_number",
       	"userClaims5": "birthdate",
-      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      	"authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"},{acrValues: "mosip:idp:acr:password"},{acrValues: "mosip:idp:acr:linked-wallet"},{acrValues: "mosip:idp:acr:knowledge"},{acrValues: "mosip:idp:acr:id-token"}],
       	"grantTypes": "authorization_code",
       	"clientAuthMethods": "private_key_jwt",
       	"keyLang1": "$1STLANG$",
