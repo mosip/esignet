@@ -77,10 +77,10 @@ function installing_esignet() {
       read -p "Enter the plugin number: " plugin_no
         while true; do
           if [[ "$plugin_no" == "1" ]]; then
-            plugin_option="--set plugin_name_env=esignet-mock-plugin.jar"
+            plugin_option="--set pluginNameEnv=esignet-mock-plugin.jar"
             break
           elif [[ "$plugin_no" == "2" ]]; then
-            plugin_option="--set plugin_name_env=mosip-identity-plugin.jar"
+            plugin_option="--set pluginNameEnv=mosip-identity-plugin.jar"
             break
           else
             echo "please provide the correct plugin number (1 or 2)."
