@@ -57,7 +57,7 @@ Once the repository is cloned or downloaded, follow these steps to build and ins
 
 1. Navigate to the project directory:
    ```sh
-   cd apitest
+   cd api-test
    ```
 
 2. Build the project using Maven:
@@ -69,7 +69,11 @@ This will download the required dependencies and prepare the test suite for exec
 
 ## Execute Test Automation Suite
 
-To execute the tests, use the following steps:
+You can execute the test automation code using either of the following methods:
+
+### Using Jar
+
+To execute the tests using Jar, use the following steps:
 
 1. Navigate to the `target` directory where the JAR file is generated:
    ```sh
@@ -77,16 +81,64 @@ To execute the tests, use the following steps:
    ```
 
 2. Run the automation test suite JAR file:
-   ```sh
-   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.5.0-SNAPSHOT-jar-with-dependencies.jar
    ```
+   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.2.1-SNAPSHOT-jar-with-dependencies.jar
+   ```
+   
+# Using Eclipse IDE
+
+To execute the tests using Eclipse IDE, use the following steps:
+
+## 1. **Install Eclipse (Latest Version)**
+   - Download and install the latest version of Eclipse IDE from the [Eclipse Downloads](https://www.eclipse.org/downloads/).
+
+## 2. **Import the Maven Project**
+
+   After Eclipse is installed, follow these steps to import the Maven project:
+
+   - Open Eclipse IDE.
+   - Go to `File` > `Import`.
+   - In the **Import** wizard, select `Maven` > `Existing Maven Projects`, then click **Next**.
+   - Browse to the location where the `api-test` folder is saved (either from the cloned Git repository or downloaded zip).
+   - Select the folder, and Eclipse will automatically detect the Maven project. Click **Finish** to import the project.
+
+## 3. **Build the Project**
+
+   - Right-click on the project in the **Project Explorer** and select `Maven` > `Update Project`.
+   - This will download the required dependencies as defined in the `pom.xml` and ensure everything is correctly set up.
+
+## 4. **Run the Tests**
+
+   To execute the test automation suite, you need to configure the run parameters in Eclipse:
+
+   - Go to `Run` > `Run Configurations`.
+   - In the **Run Configurations** window, create a new configuration for your tests:
+     - Right-click on **Java Application** and select **New**.
+     - In the **Main** tab, select the project by browsing the location where the `api-test` folder is saved, and select the **Main class** as `io.mosip.testrig.apirig.esignet.testrunner.MosipTestRunner`.
+   - In the **Arguments** tab, add the necessary **VM arguments**:
+     - **VM Arguments**:
+       ```
+       -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression```
+
+## 5. **Run the Configuration**
+
+   - Once the configuration is set up, click **Run** to execute the test suite.
+   - The tests will run, and the results will be shown in the **Console** tab of Eclipse.
+
+   **Note**: You can also run in **Debug Mode** to troubleshoot issues by setting breakpoints in your code and choosing `Debug` instead of `Run`.
+
+## 6. **View Test Results**
+
+   - After the tests are executed, you can view the detailed results in the `api-test\testng-report` directory.
+
+
    
 ### Details of Arguments Used
 
-- **env.user**: The user of the environment where the tests will be executed.
-- **env.endpoint**: The environment where the application under test is deployed. Replace `<base_env>` with the actual environment hostname.
+- **env.user**: Replace `<env_name>` with the appropriate environment name (e.g., `dev`, `qa`, etc.).
+- **env.endpoint**: The environment where the application under test is deployed. Replace `<base_env>` with the correct base URL for the environment (e.g., `https://api-internal.<env_name>.mosip.net`).
 - **env.testLevel**: Set this to `smoke` to run only smoke test cases, or `smokeAndRegression` to run both smoke and regression tests.
-- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.5.0-SNAPSHOT-jar-with-dependencies.jar`.
+- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.2.1-SNAPSHOT-jar-with-dependencies.jar`.
 
 ## Build and Run
 
