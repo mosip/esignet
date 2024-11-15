@@ -1,0 +1,1007 @@
+OAuthDetailsRequestV3Neg:
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid RequestTime and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "apknktokd",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+        "uiLocales": "en-US",
+        "trust_framework": "jp_aml"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Null_value_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null value RequestTime and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": null,
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_empty_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with empty RequestTime and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in RequestTime and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": " ",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_missing_RequestTime_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing RequestTime and all valid data      
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$REMOVE$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "requestTime: invalid_request"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_ClientID_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid ClientID and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "jkjdangjfkdjnlkfkgjdsfnlkfjdkf",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "invalid_client_id"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Null_ClientID_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null ClientID and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": null,
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "request.clientId: invalid_client_id"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_empty_ClientID_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty ClientID and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": "",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "request.clientId: invalid_client_id"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_ClientID_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in ClientID and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": " ",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "request.clientId: invalid_client_id"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_missing_ClientID_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description:  To get OAuthDetails with missing ClientID and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$REMOVE$",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_client_id",
+      "errorMessage": "request.clientId: invalid_client_id"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_Scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description:  To get OAuthDetails with invalid scope and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "aegaegegadd",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "request.scope: invalid_scope"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Null_Scope_value_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null scope value and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": null,
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "request.scope: invalid_scope"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_empty_Scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty scope and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "request.scope: invalid_scope"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_Scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in scope and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": " ",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "request.scope: invalid_scope"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_missing_Scope_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing scope and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "$REMOVE$",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_scope",
+      "errorMessage": "request.scope: invalid_scope"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_ResponseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid ResponseType and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "tfyjii",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "request.responseType: invalid_response_type"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Null_ResponseType_value_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null ResponseType value and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": null,
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "request.responseType: invalid_response_type"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_empty_ResponseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty ResponseType and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "request.responseType: invalid_response_type"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_ResponseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in ResponseType and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": " ",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "request.responseType: invalid_response_type"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_missing_ResponseType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing ResponseType and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "$REMOVE$",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_response_type",
+      "errorMessage": "request.responseType: invalid_response_type"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_RedirectURI_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid RedirectURI and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "adaklfjfods",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "request.redirectUri: invalid_redirect_uri"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Null_RedirectURI_value_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with null value in RedirectURI and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": null,
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "request.redirectUri: invalid_redirect_uri"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_empty_RedirectURI_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with an empty RedirectURI and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": $TIMESTAMP$,
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "request.redirectUri: invalid_redirect_uri"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_Space_value_RedirectURI_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with space value in RedirectURI and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": " ",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "request.redirectUri: invalid_redirect_uri"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_missing_RedirectURI_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with missing RedirectURI and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$REMOVE$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_redirect_uri",
+      "errorMessage": "request.redirectUri: invalid_redirect_uri"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_Display_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid Display and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "ajodinvalidoaoi",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+        "errorCode": "invalid_display",
+        "errorMessage": "request.display: invalid_display"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_Prompt_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid Prompt and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "oaidnoadi",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_prompt",
+      "errorMessage": "request.prompt: invalid_prompt"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_acrValues_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid acrValues and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "malslinakjol",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_acr",
+      "errorMessage": "request.acr: invalid_acr"
+    }
+  ]
+}'
+   
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_nonce_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid nonce and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "aod;ofald",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_nonce",
+      "errorMessage": "request.nonce: invalid_nonce"
+    }
+  ]
+}'
+ 
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_state_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid state and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "aodfjlf",
+      	"claimsLocales": "en",
+      	"uiLocales": "en-US"
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "request.state: invalid_state"
+    }
+  ]
+}'
+ 
+   ESignet_OAuthDetailsRequestNegTC_V3_with_invalid_uiLocales_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with invalid uiLocales and all valid data
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+      	"claimsLocales": "en",
+      	"uiLocales": "adfa",
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_ui_locales",
+      "errorMessage": "request.ui_locales: invalid_ui_locales"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequest_V3_WithClaimValues_AuthToken_with_invalid_essential_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestNegTC_V3_01
+      description: To get OAuthDetails with invalid essential value in verified claims and all valid data
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsWithClaimValueRequestNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+        "claimsLocales": "en",
+        "uiLocales": "en-US",
+		"trust_framework": "de_aml",
+		"max_age": 63113852,
+		"given_name": ["automation", "test"],
+		"purpose": "Name given by user",
+		"name_value": "automation",
+		"name_values": ["ab","cd"],
+		"phone_number": "1234567890",
+		"essential": 10 
+}'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_essential",
+      "errorMessage": "request.invalid_essential: invalid_essential"
+    }
+  ]
+}'
+
+   ESignet_OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      description: To get OAuthDetails with all valid data
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/OAuthDetailsRequestV3/OAuthDetailsWithClaimValueRequest
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "0brnxh_duaXqCa-HW4kSeljeMp0qGOmqh4tm_zFKVgY",
+      	"scope": "openid profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+      	"prompt": "login",
+      	"acrValues": "mosip:idp:acr:generated-code",
+      	"nonce": "973eieljzng",
+      	"state": "urlInfo1724138417665",
+        "claimsLocales": "en",
+        "uiLocales": "en-US",
+		"trust_framework": ["de_aml","jp_aml"],
+		"assurance_level": "high",
+		"max_age": 63113852,
+		"evidence_type": "document",
+		"evidence_method": "test",
+		"given_name": ["automation", "test"],
+		"purpose": "Name given by user",
+		"name_value": "automation",
+		"name_values": ["ab","cd"],
+		"phone_number": "1234567890",
+		"email_essential": true 
+}'
+      output: '{
+       
+}'
