@@ -37,7 +37,7 @@ LinkedAuthorizationConsent:
 
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_uin_User2_Neg:
+   ESignet_LinkedAuthorizationConsent_Consent_uin_User2:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       description: Linked authorization consent with User2 UIN
       role: resident
@@ -45,7 +45,7 @@ LinkedAuthorizationConsent:
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
-      outputTemplate: esignet/error
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_User2_all_Valid_Smoke_sid_linkTransactionId$",
@@ -53,11 +53,6 @@ LinkedAuthorizationConsent:
       	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
 }'
       output: '{
-  "errors": [
-    {
-      "errorCode": "invalid_transaction"
-    }
-  ]
 }'
 
    ESignet_LinkedAuthorizationConsent_Consent_Vid_User2_Neg:
