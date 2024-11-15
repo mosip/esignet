@@ -732,16 +732,7 @@
 			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
 		</classes>
 	</test>
-    <test name="PrepareSignupRedirectNeg">
-	    <parameter name="ymlFile"
-			value="esignet/PrepareSignupRedirectNeg/PrepareSignupRedirectNeg.yml" />
-		<parameter name="idKeyName"	value="idToken" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
 	<!-- End of Sign up L2 phase test cases -->
-	
 	<!-- Start of Sign up L2 phase Negative test cases -->	
 	<test name="OAuthDetailsRequestV3NegTC"> 
 		<parameter name="ymlFile"
@@ -763,6 +754,37 @@
 			value="esignet/ClaimDetailsNegTC/ClaimDetailsNegTC.yml" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="PrepareSignupRedirectNegTC">
+	    <parameter name="ymlFile"
+			value="esignet/PrepareSignupRedirectNegTC/PrepareSignupRedirectNegTC.yml" />
+		<parameter name="idKeyName"	value="idToken" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	 <test name="SignupAuthorizeNegTC">
+		<parameter name="ymlFile"
+			value="esignet/SignupAuthorizeNegTC/SignupAuthorizeNegTC.yml" />
+		<parameter name="idKeyName"	value="transactionId,encodedResp" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="IDTAuthenticationNegTC">
+		<parameter name="ymlFile"
+			value="esignet/IDTAuthenticationNegTC/IDTAuthenticationNegTC.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="SignupAuthorizeCodeNegTC">
+		<parameter name="ymlFile"
+			value="esignet/SignupAuthorizeCodeNegTC/SignupAuthorizeCodeNegTC.yml" />
+		<parameter name="idKeyName"	value="code" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
 	<!-- End of Sign up L2 phase Negative test cases -->
