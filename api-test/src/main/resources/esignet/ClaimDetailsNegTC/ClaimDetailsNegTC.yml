@@ -1,0 +1,245 @@
+ClaimDetailsNegTC:
+     ESignet_ClaimDetailsNegTC_Invalid_EncodedHash_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_01
+      description: To get ClaimDetails with invalid EncodedHash and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "ggfhjkhgyydiytf",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$"
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Null_EncodedHash_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_02
+      description: To get ClaimDetails with null value in EncodedHash and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": null,
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$"
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Empty_EncodedHash_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_03
+      description: To get ClaimDetails with an empty EncodedHash and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$"
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Space_Val_EncodedHash_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_04
+      description: To get ClaimDetails with space value in EncodedHash and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": " ",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$"
+      }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Missing_EncodedHash_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_05
+      description: To get ClaimDetails with missing EncodedHash and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$REMOVE$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$"
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_invalid_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_06
+      description: To get ClaimDetails with invalid TransactionId and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"transactionId": "aojoidncpoailf"
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Null_Val_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_07
+      description: To get ClaimDetails with null value in TransactionId and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"transactionId": null
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Empty_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_08
+      description: To get ClaimDetails with an empty TransactionId and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"transactionId": ""
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Space_Val_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_09
+      description: To get ClaimDetails with space value in TransactionId and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"transactionId": " "
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+
+     ESignet_ClaimDetailsNegTC_Missing_TransactionId_Neg:
+      endPoint: /v1/esignet/authorization/claim-details
+      uniqueIdentifier: TC_ESignet_ClaimDetailsNegTC_V3_10
+      description: To get ClaimDetails with missing TransactionId and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"transactionId": "$REMOVE$"
+    }'
+      output: '{
+   "errors": [
+    {
+      "errorCode": "invalid_transaction",
+      "errorMessage": "invalid_transaction"
+    }
+  ]
+}'
+     ESignet_ClaimDetailsNegTC_AuthToken_Xsrf_uin_Valid_Smoke:
+      endPoint: /v1/esignet/authorization/claim-details
+      description: To get ClaimDetails with  and all valid data
+      role: resident
+      restMethod: get
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsNegTC
+      outputTemplate: esignet/ClaimDetailsNegTC/ClaimDetailsResultNegTC
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_encodedResp$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_transactionId$"
+    }'
+      output: '{
+}'

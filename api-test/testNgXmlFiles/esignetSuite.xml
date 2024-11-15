@@ -655,4 +655,115 @@
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test> -->
+	
+	<!-- Start of Sign up L2 phase test cases -->
+	<test name="OAuthDetailsRequestV3">
+		<parameter name="ymlFile"
+			value="esignet/OAuthDetailsRequestV3/OAuthDetailsRequest.yml" />
+		<parameter name="idKeyName"	value="transactionId,encodedResp" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="AuthenticateUserV3">
+		<parameter name="ymlFile"
+			value="esignet/AuthenticateUserV3/AuthenticateUser.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="ClaimDetails">
+		<parameter name="ymlFile"
+			value="esignet/ClaimDetails/ClaimDetails.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="PrepareSignupRedirect">
+		<parameter name="ymlFile"
+			value="esignet/PrepareSignupRedirect/PrepareSignupRedirect.yml" />
+		<parameter name="idKeyName"	value="idToken" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="SignupAuthorize">
+		<parameter name="ymlFile"
+			value="esignet/SignupAuthorize/SignupAuthorize.yml" />
+		<parameter name="idKeyName"	value="transactionId,encodedResp" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="IDTAuthentication">
+		<parameter name="ymlFile"
+			value="esignet/IDTAuthentication/IDTAuthentication.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="SignupAuthorizeCode">
+		<parameter name="ymlFile"
+			value="esignet/SignupAuthorizeCode/SignupAuthorizeCode.yml" />
+		<parameter name="idKeyName"	value="code" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="InitiateIdVerification">
+		<parameter name="ymlFile"
+			value="esignet/InitiateIdVerification/InitiateIdVerification.yml" />
+		<parameter name="idKeyName"	value="id" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="GetIdVerifier">
+		<parameter name="ymlFile"
+			value="esignet/GetIdVerifier/GetIdVerifier.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="GetSlot">
+		<parameter name="ymlFile"
+			value="esignet/GetSlot/GetSlot.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePost" />
+		</classes>
+	</test>
+    <test name="PrepareSignupRedirectNeg">
+	    <parameter name="ymlFile"
+			value="esignet/PrepareSignupRedirectNeg/PrepareSignupRedirectNeg.yml" />
+		<parameter name="idKeyName"	value="idToken" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<!-- End of Sign up L2 phase test cases -->
+	
+	<!-- Start of Sign up L2 phase Negative test cases -->	
+	<test name="OAuthDetailsRequestV3NegTC"> 
+		<parameter name="ymlFile"
+			value="esignet/OAuthDetailsRequestV3NegTC/OAuthDetailsRequestNegTC.yml" />
+		<parameter name="idKeyName"	value="transactionId,encodedResp" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="AuthenticateUserV3NegTC">
+		<parameter name="ymlFile"
+			value="esignet/AuthenticateUserV3NegTC/AuthenticateUserNegTC.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+    <test name="ClaimDetailsNegTC">
+		<parameter name="ymlFile"
+			value="esignet/ClaimDetailsNegTC/ClaimDetailsNegTC.yml" />
+		<classes>
+			<class name="io.mosip.testrig.apirig.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<!-- End of Sign up L2 phase Negative test cases -->
 </suite>
