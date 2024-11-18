@@ -1,0 +1,386 @@
+InitiateIdVerificationNegTC:
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_authorizationCode_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_01
+      description: To start with Identity verification process with out authorization code, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$REMOVE$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_space_in_authorizationCode_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_02
+      description: To start with Identity verification process with only space in authorization code, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "   ",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_authorizationCode_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_03
+      description: To start with Identity verification process with null in authorization code, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": null,
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidVal_in_authorizationCode_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_04
+      description: To start with Identity verification process with invalid value in authorization code, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "jkhuewrfkeuw8frhe876754@#",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "grant_exchange_failed",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NumVal_in_authorizationCode_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_05
+      description: To start with Identity verification process with numeric value in authorization code, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "5645767564534565677",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "grant_exchange_failed",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_authorizationCode_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_06
+      description: To start with Identity verification process with empty value in authorization code, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_authorization_code",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_requestTime_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_07
+      description: To start with Identity verification process with only space in requestTime, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "  ",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_NULL_in_requestTime_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_08
+      description: To start with Identity verification process with NULL in requestTime, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": NULL,
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_requestTime_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_09
+      description: To start with Identity verification process with empty value in requestTime, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_requestTime_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_10
+      description: To start with Identity verification process with null in requestTime, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": null,
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_invalidFormat_in_requestTime_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_11
+      description: To start with Identity verification process with invalidFormat in requestTime, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "2023/11/03 11:03:29.296Z",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_state_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_12
+      description: To start with Identity verification process with out state parameter, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "$REMOVE$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_spaceVal_in_state_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_13
+      description: To start with Identity verification process with only space in state parameter, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "    "
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_EmptyVal_in_state_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_14
+      description: To start with Identity verification process with empty value in state parameter, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": ""
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_null_in_state_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_15
+      description: To start with Identity verification process with null value in state parameter, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": null
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_state",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_with_missing_requestTime_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_16
+      description: To start with Identity verification process with out requestTime, Expecting error code in the response
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$REMOVE$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+ }'
+ 
+   ESignet_InitiateIdVerification_STransId_AuthToken_Xsrf_NegTC_Valid_Smoke_Sid_Neg:
+      endPoint: /v1/signup/identity-verification/initiate
+      uniqueIdentifier: TC_ESignet_InitiateIdVerificationNegTC_17
+      description: To start with Identity verification process with all valid details, Expecting success response by setting the cookie header as IDV_TRANSACTION_ID in the response with identity verification transaction ID
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationNegTC
+      outputTemplate: esignet/InitiateIdVerificationNegTC/InitiateIdVerificationResultNegTC
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"authorizationCode": "$ID:SignupAuthorizeCodeNegTC_Neg_AuthToken_Xsrf_uin_all_Valid_Smoke_sid_code$",
+      	"state": "urlInfo1724138417665"
+}'
+      output: '{
+       
+}'
