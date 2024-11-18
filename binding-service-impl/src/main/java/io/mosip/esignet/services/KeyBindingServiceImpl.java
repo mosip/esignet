@@ -77,26 +77,6 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 			log.error("Failed to send binding otp: {}", e);
 			throw new EsignetException(e.getErrorCode());
 		}
-		return getBindingOtpResponse(sendOtpResult);
-	}
-
-	@Override
-	public BindingOtpResponse sendBindingOtpV2(BindingOtpRequestV2 bindingOtpRequestV2, Map<String, String> requestHeaders)
-			throws EsignetException {
-		captchaHelper.validateCaptchaToken(bindingOtpRequestV2.getCaptchaToken(), "binding-otp");
-		log.debug("sendBindingOtp :: Request headers >> {}", requestHeaders);
-		SendOtpResult sendOtpResult;
-		try {
-			sendOtpResult = keyBindingWrapper.sendBindingOtp(bindingOtpRequestV2.getIndividualId(),
-					bindingOtpRequestV2.getOtpChannels(), requestHeaders);
-		} catch (SendOtpException e) {
-			log.error("Failed to send binding otp: {}", e);
-			throw new EsignetException(e.getErrorCode());
-		}
-		return getBindingOtpResponse(sendOtpResult);
-	}
-
-	private BindingOtpResponse getBindingOtpResponse(SendOtpResult sendOtpResult) {
 		if (sendOtpResult == null) {
 			log.error("send-otp Failed wrapper returned null result!");
 			throw new EsignetException(SEND_OTP_FAILED);
@@ -105,6 +85,18 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 		otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
 		otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
 		return otpResponse;
+	}
+
+	@Override
+	public BindingOtpResponse sendBindingOtpV2(BindingOtpRequestV2 bindingOtpRequestV2, Map<String, String> requestHeaders)
+			throws EsignetException {
+		captchaHelper.validateCaptchaToken(bindingOtpRequestV2.getCaptchaToken(), "binding-otp");
+
+		BindingOtpRequest bindingOtpRequest = new BindingOtpRequest();
+		bindingOtpRequest.setIndividualId(bindingOtpRequestV2.getIndividualId());
+		bindingOtpRequest.setOtpChannels(bindingOtpRequestV2.getOtpChannels());
+
+		return sendBindingOtp(bindingOtpRequest, requestHeaders);
 	}
 
 

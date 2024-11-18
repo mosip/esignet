@@ -4454,6 +4454,9 @@ paths:
                       description: Channels to which OTP should be delivered.
                       items:
                         type: string
+                    captchaToken:
+                      type: string
+                      description: 'Captcha token, if enabled.'
                   required:
                     - individualId
                     - otpChannels
@@ -4469,6 +4472,7 @@ paths:
                     otpChannels:
                       - sms
                       - email
+                    captchaToken: ALSKDJFURIEOQPZMKFURHFVBH
       responses:
         '200':
           description: OK
@@ -4500,6 +4504,7 @@ paths:
                             - unknown_error
                             - invalid_individual_id
                             - send_otp_failed
+                            - invalid_captcha
                         errorMessage:
                           type: string
                 required:
