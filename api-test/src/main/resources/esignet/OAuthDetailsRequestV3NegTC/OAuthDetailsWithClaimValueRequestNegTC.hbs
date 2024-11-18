@@ -1,0 +1,62 @@
+{
+    "requestTime": "{{requestTime}}",
+    "request": {
+        "clientId": "{{clientId}}",
+        "scope": "{{scope}}",
+        "responseType": "{{responseType}}",
+        "redirectUri": "{{redirectUri}}",
+        "display": "{{display}}",
+        "prompt": "{{prompt}}",
+        "acrValues": "{{acrValues}}",
+        "claims": {
+	    	"userinfo": {
+	        	"name": {
+	            	"essential": false
+	        	},
+	        	"phone_number": {
+	            	"essential": true
+	        	},
+	        	"verified_claims": [
+	            	{
+	                	"verification": {
+	                    	"trust_framework": {
+								"values": "{{trust_framework}}"
+							},
+							"assurance-level": {
+								"value": "high"
+								},
+	                    	"time": {
+								"max_age": "{{max_age}}"
+							},
+							"evidence": [
+								{"type": { "value": "document"}},
+								{"method": { "value": "test" }}
+							]
+	                	},
+	                	"claims": {
+							"given_name": {
+								"values":"manual",
+								"purpose":"{{purpose}}",
+								"essential": true
+							},
+							"name": {
+								"value": "{{name_value}}"
+							},
+							"phone_number": {
+								"value": "{{phone_number}}"
+							},
+	                    	"email": {
+	                        	"essential": {{essential}}
+	                    	}
+	                	}
+	            	}
+	        	]
+	    	},
+	    	"id_token": {}
+		},
+        "nonce" : "{{nonce}}",
+        "state" : "{{state}}",
+        "claimsLocales" : "{{claimsLocales}}",
+        "uiLocales" : "{{uiLocales}}"
+    }
+}
