@@ -96,13 +96,13 @@ function installing_apitestrig() {
  else
      echo "eSignet service is not deployed. hence will be skipping esignet related test-cases..."
  fi
-  read -p "Is values.yaml for onboarder chart set correctly as part of pre-requisites? (Y/n) : " yn;
+  read -p "Is values.yaml for apitestrig chart set correctly as part of pre-requisites? (Y/n) : " yn;
   if [[ $yn = "Y" ]] || [[ $yn = "y" ]] ; then
     NFS_OPTION=''
     S3_OPTION=''
     config_complete=false  # flag to check if S3 or NFS is configured
     while [ "$config_complete" = false ]; do
-      read -p "Do you have S3 details for storing Onboarder reports? (Y/n) : " ans
+      read -p "Do you have S3 details for storing apitestrig reports? (Y/n) : " ans
       if [[ "$ans" == "y" || "$ans" == "Y" ]]; then
         read -p "Please provide S3 host: " s3_host
         if [[ -z $s3_host ]]; then
@@ -114,6 +114,7 @@ function installing_apitestrig() {
           echo "S3 region should not contain spaces or special characters; EXITING;"
           exit 1;
         fi
+
         read -p "Please provide S3 access key: " s3_user_key
         if [[ -z $s3_user_key ]]; then
           echo "S3 access key not provided; EXITING;"
@@ -131,7 +132,7 @@ function installing_apitestrig() {
             echo "NFS server not provided; EXITING."
             exit 1;
           fi
-          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/<sandbox>/onboarder/), make sure permission is 777 for the folder: " nfs_path
+          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/<sandbox>/apitestrig/), make sure permission is 777 for the folder: " nfs_path
           if [[ -z $nfs_path ]]; then
             echo "NFS Path not provided; EXITING."
             exit 1;

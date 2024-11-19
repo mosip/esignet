@@ -9,5 +9,5 @@ metadata:
 data:
   database-host: "postgres-postgresql"
   database-port: "5432"
-  database-username: "esignet"
+  database-username: "esignetuser"
   database-name: "mosip_esignet"
