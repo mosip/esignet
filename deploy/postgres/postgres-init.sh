@@ -28,7 +28,7 @@ function initialize_db() {
         then
           echo Removing existing mosip_esignet installation and secret
           helm -n $NS delete esignet-postgres-init || true
-          kubectl -n NS delete secret db-common-secrets  || true
+          kubectl -n $NS delete secret db-common-secrets  || true
           echo Initializing DB
           helm -n $NS install esignet-postgres-init mosip/postgres-init --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
           break
