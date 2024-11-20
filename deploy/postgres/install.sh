@@ -45,7 +45,15 @@ function installing_postgres() {
 
   echo Installing  Postgres
   helm -n $NS install postgres bitnami/postgresql --version 13.1.5 -f values.yaml --wait
-  echo Installed Postgres
+  # Run the Python script to generate secrets and configmap
+  if [ -f generate-secret-cm.py ]; then
+      echo "Running generate_secret.py to create Postgres secrets and configmap..."
+      python3 generate-secret-cm.py || { echo "Failed to run generate_secret.py"; exit 1; }
+      echo "Secrets and configmap generated successfully."
+  else
+      echo "Error: generate-secret-cm.py not found. Ensure the script is in the current directory."
+      exit 1
+  fi
   echo Installing gateways and virtual services
   POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
   helm -n $NS install istio-addons chart/istio-addons --set postgresHost=$POSTGRES_HOST --wait
