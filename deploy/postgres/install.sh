@@ -55,15 +55,31 @@ function installing_postgres() {
 
 # Prompt the user if they want to install PostgreSQL
 while true; do
-    read -p "Do you want to install Postgres? Opt for 'n' if you have Postgres already installed. (y/n): " answer
+    read -p "Do you want to install default Postgres ? (y/n): " answer
     if [ "$answer" = "Y" ] || [ "$answer" = "y" ]; then
         echo "Continuing with Postgres server deployment..."
-        break
+        break  # Proceed with the installation
     elif [ "$answer" = "N" ] || [ "$answer" = "n" ]; then
-        echo "Skipping Postgres installation. Running generate_secret.py to create Postgres secrets..."
-        python3 generate-secret-cm.py  # Ensure that Python and the script are available in the environment
-        echo "Secrets generated. Exiting script."
-        exit 0  # Exit the script after generating secrets
+        # Prompt the user for further options
+        while true; do
+            echo "You opted not to install Postgres. What would you like to do next?"
+            echo "1. Skip Postgres server installation and configuration."
+            echo "2. Configure external Postgres details by generating secrets and configmap ."
+
+            read -p "Enter your choice (1/2): " option
+
+            if [ "$option" = "1" ]; then
+                echo "Skipping Postgres server installation and configuration in namespace."
+                exit 0  # Exit the script as the user chose to skip Postgres installation
+            elif [ "$option" = "2" ]; then
+                echo "Running generate_secret.py to create Postgres secrets and configmap..."
+                python3 generate-secret-cm.py  # Ensure Python and the script are available in the environment
+                echo "Secrets generated successfully."
+                exit 0  # Exit the script after generating secrets and configmap
+            else
+                echo "Not a correct option. Please try again or press Ctrl + C to exit."
+            fi
+        done
     else
         echo "Please provide a correct option (Y or N)"
     fi
