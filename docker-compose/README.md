@@ -26,7 +26,9 @@ and copy the downloaded jar under loader_path directory.
 3. Download the postman script from [here](../docs/postman-collections/esignet-with-mock-IDA.postman_collection.json)
 and its environment from [here](../docs/postman-collections/esignet-with-mock-IDA.postman_environment.json)
 
-4. Import the downloaded collection and environment into postman.
+4. Import the downloaded collection and environment into postman. We use "Postman-util-lib" for cryptographic functions in the postman. To install 
+"Postman-util-lib" javascript library download [this collection](https://raw.githubusercontent.com/joolfe/postman-util-lib/refs/heads/master/postman/PostmanUtilityLibv21.postman_collection.json) 
+and import into postman. Run the "Lib Install" request in the imported collection.
 
 5. To create an OIDC/OAuth client, run the below request from the postman collection "OIDC Client mgmt" folder
    * Get CSRF token
