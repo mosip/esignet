@@ -58,9 +58,6 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	@Autowired
 	private CaptchaHelper captchaHelper;
 
-	@Value("${mosip.esignet.send-otp.attempts:3}")
-	private int sendOtpAttempts;
-
 	@Value("${mosip.esignet.binding.encrypt-binding-id:true}")
 	private boolean encryptBindingId;
 
