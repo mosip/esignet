@@ -158,7 +158,7 @@ public class ClientManagementServiceTest {
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponseV2 clientDetailResponseV2 = clientManagementService.createClient(clientCreateV3ReqDto);
         Assert.assertNotNull(clientDetailResponseV2);
-        Assert.assertTrue(clientDetailResponseV2.getId().equals("mock_id_v1"));
+        Assert.assertTrue(clientDetailResponseV2.getClientId().equals("mock_id_v1"));
         Assert.assertTrue(clientDetailResponseV2.getStatus().equals("active"));
     }
 
@@ -289,7 +289,7 @@ public class ClientManagementServiceTest {
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponseV2 clientDetailResponseV2 = clientManagementService.updateClient("client_id_v1", updateV3Request);
         Assert.assertNotNull(clientDetailResponseV2);
-        Assert.assertTrue(clientDetailResponseV2.getId().equals("client_id_v1"));
+        Assert.assertTrue(clientDetailResponseV2.getClientId().equals("client_id_v1"));
         Assert.assertTrue(clientDetailResponseV2.getStatus().equals("inactive"));
     }
 

@@ -118,7 +118,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     private ClientDetailResponseV2 getClientDetailResponseV2(ClientDetail clientDetail) {
         ClientDetailResponseV2 response = new ClientDetailResponseV2();
-        response.setId(clientDetail.getId());
+        response.setClientId(clientDetail.getId());
         response.setName(clientDetail.getName());
         response.setRpId(clientDetail.getRpId());
         response.setLogoUri(clientDetail.getLogoUri());
@@ -221,20 +221,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequestV2.getClientId()")
     @Override
     public ClientDetailResponse createOAuthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV2.getClientId());
-        if (result.isPresent()) {
-            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
-            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
-        }
-
-        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateRequestV2);
-
-        String clientName = getClientNameLanguageMapAsJsonString(
-                clientDetailCreateRequestV2.getClientNameLangMap(),
-                clientDetailCreateRequestV2.getClientName()
-        );
-        clientDetail.setName(clientName);
-
+        ClientDetail clientDetail = createClientHelper(clientDetailCreateRequestV2);
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
         } catch (ConstraintViolationException cve) {
@@ -251,22 +238,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
     public ClientDetailResponse updateOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
-        if (!result.isPresent()) {
-            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
-        }
-
-        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateRequestV2);
-
-        String clientName = getClientNameLanguageMapAsJsonString(
-                clientDetailUpdateRequestV2.getClientNameLangMap(),
-                clientDetailUpdateRequestV2.getClientName()
-        );
-        clientDetail.setName(clientName);
-
+        ClientDetail clientDetail = updateClientHelper(clientId, clientDetailUpdateRequestV2);
         clientDetail = clientDetailRepository.save(clientDetail);
-
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OAUTH_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
@@ -275,21 +248,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Override
     public ClientDetailResponseV2 createClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV3.getClientId());
-        if (result.isPresent()) {
-            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
-            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
-        }
-
-        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateRequestV3);
-
-        String clientName = getClientNameLanguageMapAsJsonString(
-                clientDetailCreateRequestV3.getClientNameLangMap(),
-                clientDetailCreateRequestV3.getClientName()
-        );
-        clientDetail.setName(clientName);
+        ClientDetail clientDetail = createClientHelper(clientDetailCreateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
-
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
         } catch (ConstraintViolationException cve) {
@@ -305,21 +265,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Override
     public ClientDetailResponseV2 updateClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) throws EsignetException {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
-        if (!result.isPresent()) {
-            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
-        }
-
-        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateRequestV3);
-
-        String clientName = getClientNameLanguageMapAsJsonString(
-                clientDetailUpdateRequestV3.getClientNameLangMap(),
-                clientDetailUpdateRequestV3.getClientName()
-        );
-        clientDetail.setName(clientName);
+        ClientDetail clientDetail = updateClientHelper(clientId, clientDetailUpdateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
-
         clientDetail = clientDetailRepository.save(clientDetail);
 
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
@@ -328,5 +275,34 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return getClientDetailResponseV2(clientDetail);
     }
 
+    public ClientDetail createClientHelper(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV2.getClientId());
+        if (result.isPresent()) {
+            log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
+        }
+        ClientDetail clientDetail = buildClientDetailEntity(clientDetailCreateRequestV2);
+        String clientName = getClientNameLanguageMapAsJsonString(
+                clientDetailCreateRequestV2.getClientNameLangMap(),
+                clientDetailCreateRequestV2.getClientName()
+        );
+        clientDetail.setName(clientName);
+        return clientDetail;
+    }
+    public ClientDetail updateClientHelper(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+        if (!result.isPresent()) {
+            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = buildClientDetailEntity(result.get(), clientDetailUpdateRequestV2);
+        String clientName = getClientNameLanguageMapAsJsonString(
+                clientDetailUpdateRequestV2.getClientNameLangMap(),
+                clientDetailUpdateRequestV2.getClientName()
+        );
+        clientDetail.setName(clientName);
+        return clientDetail;
+    }
 
 }

@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ClientDetailResponseV2 {
-    private String id;
+public class ClientDetailResponseV2 extends ClientDetailResponse {
     private String name;
     private String rpId;
     private String logoUri;
@@ -17,7 +14,6 @@ public class ClientDetailResponseV2 {
     private String publicKey;
     private String claims;
     private String acrValues;
-    private String status;
     private String grantTypes;
     private String clientAuthMethods;
     private Map<String, Object> additionalConfig;
