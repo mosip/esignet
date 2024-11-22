@@ -88,12 +88,7 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	public BindingOtpResponse sendBindingOtpV2(BindingOtpRequestV2 bindingOtpRequestV2, Map<String, String> requestHeaders)
 			throws EsignetException {
 		captchaHelper.validateCaptchaToken(bindingOtpRequestV2.getCaptchaToken(), "binding-otp");
-
-		BindingOtpRequest bindingOtpRequest = new BindingOtpRequest();
-		bindingOtpRequest.setIndividualId(bindingOtpRequestV2.getIndividualId());
-		bindingOtpRequest.setOtpChannels(bindingOtpRequestV2.getOtpChannels());
-
-		return sendBindingOtp(bindingOtpRequest, requestHeaders);
+		return sendBindingOtp(bindingOtpRequestV2, requestHeaders);
 	}
 
 

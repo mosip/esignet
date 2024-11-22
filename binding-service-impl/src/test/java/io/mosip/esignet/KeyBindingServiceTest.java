@@ -128,7 +128,7 @@ public class KeyBindingServiceTest {
 
 
 	@Test(expected = EsignetException.class)
-	public void sendBindingOtpV2_withCaptcha_thenFail() throws SendOtpException {
+	public void sendBindingOtpV2_withInvalidCaptcha_thenFail() throws SendOtpException {
 		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
 		otpRequest.setIndividualId("8267411571");
 		otpRequest.setOtpChannels(Arrays.asList("OTP"));
