@@ -145,7 +145,6 @@ public class KeyBindingServiceTest {
 		otpRequest.setCaptchaToken("qwerty");
 
 		Map<String, String> headers = new HashMap<>();
-		Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
 
 		try {
 			keyBindingService.sendBindingOtpV2(otpRequest, headers);
