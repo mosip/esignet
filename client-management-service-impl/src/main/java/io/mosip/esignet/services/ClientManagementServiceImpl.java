@@ -218,10 +218,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return dto;
     }
 
-    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequestV2.getClientId()")
     @Override
     public ClientDetailResponse createOAuthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
-        ClientDetail clientDetail = createClientHelper(clientDetailCreateRequestV2);
+        ClientDetail clientDetail = buildClient(clientDetailCreateRequestV2);
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
         } catch (ConstraintViolationException cve) {
@@ -238,7 +237,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
     public ClientDetailResponse updateOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException {
-        ClientDetail clientDetail = updateClientHelper(clientId, clientDetailUpdateRequestV2);
+        ClientDetail clientDetail = buildClient(clientId, clientDetailUpdateRequestV2);
         clientDetail = clientDetailRepository.save(clientDetail);
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OAUTH_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
@@ -248,7 +247,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Override
     public ClientDetailResponseV2 createClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) throws EsignetException {
-        ClientDetail clientDetail = createClientHelper(clientDetailCreateRequestV3);
+        ClientDetail clientDetail = buildClient(clientDetailCreateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
@@ -263,9 +262,10 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return getClientDetailResponseV2(clientDetail);
     }
 
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
     public ClientDetailResponseV2 updateClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) throws EsignetException {
-        ClientDetail clientDetail = updateClientHelper(clientId, clientDetailUpdateRequestV3);
+        ClientDetail clientDetail = buildClient(clientId, clientDetailUpdateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
         clientDetail = clientDetailRepository.save(clientDetail);
 
@@ -275,7 +275,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return getClientDetailResponseV2(clientDetail);
     }
 
-    public ClientDetail createClientHelper(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) {
+    public ClientDetail buildClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV2.getClientId());
         if (result.isPresent()) {
             log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
@@ -289,7 +289,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setName(clientName);
         return clientDetail;
     }
-    public ClientDetail updateClientHelper(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) {
+
+    public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
             log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
