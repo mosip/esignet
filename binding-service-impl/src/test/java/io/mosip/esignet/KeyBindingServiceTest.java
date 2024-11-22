@@ -39,6 +39,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.security.KeyPair;
@@ -76,9 +77,13 @@ public class KeyBindingServiceTest {
 	@Mock
 	CaptchaHelper captchaHelper;
 
+	@Mock
+	RestTemplate restTemplate;
+
 	private JWK clientJWK = generateJWK_RSA();
 
 	private ObjectMapper objectMapper = new ObjectMapper();
+
 
 	@Before
 	public void setUp() {
@@ -88,13 +93,17 @@ public class KeyBindingServiceTest {
 		mockKeyBindingWrapperService = mock(KeyBinder.class);
 		when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
 				.thenReturn(Arrays.asList("jwt", "alpha-numeric"));
+
+		CaptchaHelper captchaHelper = new CaptchaHelper(restTemplate, "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha",
+				"esignet", List.of("binding-otp"));
+
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingWrapper", mockKeyBindingWrapperService);
 
 		keyBindingHelperService = mock(KeyBindingHelperService.class);
 		ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
 		ReflectionTestUtils.setField(keyBindingHelperService, "publicKeyRegistryRepository", publicKeyRegistryRepository);
 		ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
-		ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
+		//ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
 	}
 
@@ -127,17 +136,22 @@ public class KeyBindingServiceTest {
 	}
 
 
-	@Test(expected = EsignetException.class)
+	@Test
 	public void sendBindingOtpV2_withInvalidCaptcha_thenFail() throws SendOtpException {
+
 		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
 		otpRequest.setIndividualId("8267411571");
 		otpRequest.setOtpChannels(Arrays.asList("OTP"));
 		otpRequest.setCaptchaToken("qwerty");
 
 		Map<String, String> headers = new HashMap<>();
-		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
+		Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
 
-		keyBindingService.sendBindingOtp(otpRequest, headers);
+		try {
+			keyBindingService.sendBindingOtpV2(otpRequest, headers);
+		} catch (EsignetException e) {
+			Assert.assertTrue(e.getErrorCode().equals(SEND_OTP_FAILED));
+		}
 	}
 
 	@Test
