@@ -116,4 +116,34 @@ public class ClientManagementController {
         return response;
     }
 
+    @PostMapping(value = "/client-mgmt/client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseWrapper<ClientDetailResponseV2> createClientV2(@Valid @RequestBody RequestWrapper<ClientDetailCreateRequestV3> requestWrapper) {
+        ResponseWrapper<ClientDetailResponseV2> response = new ResponseWrapper<>();
+        try {
+            response.setResponse(clientManagementService.createClient(requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                    Action.OAUTH_CLIENT_CREATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
+        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        return response;
+    }
+
+
+    @PutMapping(value = "client-mgmt/client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseWrapper<ClientDetailResponseV2> updateClientV2(@Valid @PathVariable("client_id") String clientId,
+                                                                   @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequestV3> requestWrapper) {
+        ResponseWrapper<ClientDetailResponseV2> response = new ResponseWrapper<>();
+        try {
+            response.setResponse(clientManagementService.updateClient(clientId, requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                    Action.OAUTH_CLIENT_UPDATE, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
+            throw ex;
+        }
+        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        return response;
+    }
+
 }

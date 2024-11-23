@@ -14,6 +14,7 @@ import io.mosip.esignet.core.dto.OAuthDetailRequestV2;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.util.ClientAdditionalConfigValidatorTestData;
 import io.mosip.esignet.core.validator.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,6 +38,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import static org.mockito.Mockito.when;
 
 
@@ -782,5 +785,22 @@ public class ValidatorTest {
 		claimsV2.setId_token(idTokenMap);
 
 		Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+	}
+
+	// =============================ClientAdditionalConfigValidator=============================//
+
+	@Test
+	public void test_ClientAdditionalConfigValidator_withValidValue_thenPass() {
+		Map<String, Object> validAdditionalConfig = ClientAdditionalConfigValidatorTestData.getValidAdditionalConfig();
+		ClientAdditionalConfigValidator validator = new ClientAdditionalConfigValidator();
+		Assert.assertTrue(validator.isValid(validAdditionalConfig, null));
+	}
+
+	@Test
+	public void test_ClientAdditionalConfigValidator_withInvalidValue_thenFail() {
+		ClientAdditionalConfigValidator validator = new ClientAdditionalConfigValidator();
+		for(Map<String, Object> additionalConfig: ClientAdditionalConfigValidatorTestData.getInvalidAdditionalConfigs()) {
+			Assert.assertFalse(validator.isValid(additionalConfig, null));
+		}
 	}
 }
