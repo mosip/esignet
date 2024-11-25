@@ -16,7 +16,8 @@ function check_and_delete_secret() {
   if kubectl -n $secret_namespace get secret $secret_name > /dev/null 2>&1; then
       echo "Secret $secret_name exists in namespace $secret_namespace."
       while true; do
-          read -p "Do you want to delete secret $secret_name before installation? (Y/n): " yn
+  POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
+  helm -n $NS install istio-addons chart/istio-addons --set postg          read -p "Do you want to delete secret $secret_name before installation? (Y/n): " yn
           if [ "$yn" = "Y" ] || [ "$yn" = "y" ]; then
               echo "Deleting secret $secret_name..."
               kubectl -n $secret_namespace delete secret $secret_name || { echo "Failed to delete secret $secret_name"; exit 1; }
@@ -57,7 +58,6 @@ function installing_postgres() {
   echo Installing gateways and virtual services
   POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
   helm -n $NS install istio-addons chart/istio-addons --set postgresHost=$POSTGRES_HOST --wait
-  kubectl apply -f postgres-config.yaml
   return 0
 }
 
