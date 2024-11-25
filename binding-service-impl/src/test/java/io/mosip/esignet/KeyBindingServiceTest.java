@@ -74,7 +74,6 @@ public class KeyBindingServiceTest {
 	@Mock
 	KeymanagerUtil keymanagerUtil;
 
-	@Mock
 	CaptchaHelper captchaHelper;
 
 	@Mock
@@ -94,7 +93,7 @@ public class KeyBindingServiceTest {
 		when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
 				.thenReturn(Arrays.asList("jwt", "alpha-numeric"));
 
-		CaptchaHelper captchaHelper = new CaptchaHelper(restTemplate, "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha",
+		captchaHelper = new CaptchaHelper(restTemplate, "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha",
 				"esignet", List.of("binding-otp"));
 
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingWrapper", mockKeyBindingWrapperService);
@@ -103,7 +102,7 @@ public class KeyBindingServiceTest {
 		ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
 		ReflectionTestUtils.setField(keyBindingHelperService, "publicKeyRegistryRepository", publicKeyRegistryRepository);
 		ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
-		//ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
+		ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
 	}
 
@@ -149,7 +148,7 @@ public class KeyBindingServiceTest {
 		try {
 			keyBindingService.sendBindingOtpV2(otpRequest, headers);
 		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(SEND_OTP_FAILED));
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
 		}
 	}
 
