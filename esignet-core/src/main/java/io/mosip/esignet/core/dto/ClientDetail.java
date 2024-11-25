@@ -27,4 +27,5 @@ public class ClientDetail implements Serializable {
     private String status;
     private List<String> grantTypes;
     private List<String> clientAuthMethods;
+    private Map<String, Object> additionalConfig;
 }

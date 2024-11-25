@@ -10,4 +10,4 @@ spec:
   rules:
   - to:
     - operation:
-        paths: ["/v1/mock-identity-system/swagger-ui.html"]
+        paths: ["/mock-identity-system/swagger-ui.html"]

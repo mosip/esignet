@@ -11,6 +11,29 @@ import io.mosip.esignet.core.exception.EsignetException;
 public interface ClientManagementService {
 
     /**
+     * API to register relying party client version 3
+     *
+     * In this version there is a provision to provide additional configuration
+     * information for the client as a map
+     * @param clientDetailCreateRequestV3
+     * @return
+     * @throws EsignetException
+     */
+    ClientDetailResponseV2 createClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) throws EsignetException;
+
+    /**
+     * API to update registered relying party client version 3
+     *
+     * In this version there is a provision to provide additional configuration
+     * information for the client as a map
+     * @param clientId
+     * @param clientDetailUpdateRequestV3
+     * @return
+     * @throws EsignetException
+     */
+    ClientDetailResponseV2 updateClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) throws EsignetException;
+
+    /**
      * API to register relying party client
      * @param clientDetailCreateRequest
      * @return
