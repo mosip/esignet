@@ -153,6 +153,23 @@ public class KeyBindingServiceTest {
 	}
 
 	@Test
+	public void sendBindingOtpV2_withEmptyCaptcha_thenFail() throws SendOtpException {
+
+		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		otpRequest.setCaptchaToken("");
+
+		Map<String, String> headers = new HashMap<>();
+
+		try {
+			keyBindingService.sendBindingOtpV2(otpRequest, headers);
+		} catch (EsignetException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
+		}
+	}
+
+	@Test
 	public void sendBindingOtp_withNullResponseFromWrapper_thenFail() throws SendOtpException {
 		BindingOtpRequest otpRequest = new BindingOtpRequest();
 		otpRequest.setIndividualId("123456789");
