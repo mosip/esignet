@@ -240,12 +240,18 @@ updateStrategy:
 ##   - name: FOO
 ##     value: "bar"
 ##
+
+#Other Configurations...
+springkafkaConsumerGroupId: ""  # Placeholder for user input
+
 extraEnvVars: |
   - name: KEYCLOAK_EXTERNAL_URL
     valueFrom:
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
+  - name: SPRING_KAFKA_CONSUMER_GROUP_ID
+    value: {{ .Values.springkafkaConsumerGroupId | quote }}
   - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
     valueFrom:
       secretKeyRef:
