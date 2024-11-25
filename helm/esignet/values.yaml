@@ -241,7 +241,7 @@ updateStrategy:
 ##     value: "bar"
 ##
 
-#Other Configurations...
+# Other Configurations...
 springkafkaConsumerGroupId: ""  # Placeholder for user input
 
 extraEnvVars: |
