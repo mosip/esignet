@@ -27,6 +27,7 @@ CREATE TABLE client_detail(
 	grant_types character varying NOT NULL,
 	auth_methods character varying NOT NULL,
 	status character varying(20) NOT NULL,
+	additional_config jsonb,
 	cr_dtimes timestamp NOT NULL,
 	upd_dtimes timestamp,
 	CONSTRAINT pk_clntdtl_id PRIMARY KEY (id)
