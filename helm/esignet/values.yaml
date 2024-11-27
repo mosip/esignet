@@ -250,8 +250,6 @@ extraEnvVars: |
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  - name: SPRING_KAFKA_CONSUMER_GROUP_ID
-    value: {{ .Values.springkafkaConsumerGroupId | quote }}
   - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
     valueFrom:
       secretKeyRef:
