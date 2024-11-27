@@ -241,9 +241,6 @@ updateStrategy:
 ##     value: "bar"
 ##
 
-# Other Configurations...
-springkafkaConsumerGroupId: ""  # Placeholder for user input
-
 extraEnvVars: |
   - name: KEYCLOAK_EXTERNAL_URL
     valueFrom:
