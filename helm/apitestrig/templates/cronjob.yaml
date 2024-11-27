@@ -1,0 +1,119 @@
+{{- range $modulename, $module := $.Values.modules }}
+{{- if $module.enabled }}
+---
+apiVersion: {{ include "common.capabilities.cronjob.apiVersion" $ }}
+kind: CronJob
+metadata:
+  name: {{ template "apitestrig.cronjob" $ }}-{{ $modulename }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+    {{- if $.Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    {{- if $.Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1  # remove jobs which are successfully executed
+  failedJobsHistoryLimit: 1      # except 1 recent failed job, remove jobs which are not successfully executed
+  #schedule: '*/3 * * * *' # cron spec of time, here, 8 o'clock
+  schedule: {{ $.Values.crontime }}
+  jobTemplate:
+    spec:
+      backoffLimit: 0 # this has very low chance of failing, as all this does
+                      # is prompt kubernetes to schedule new replica set for
+      # the deployment
+      # activeDeadlineSeconds: 600 # timeout, makes most sense with
+      # "waiting for rollout" variant specified below
+      template:
+        spec:
+          # account configured above
+          restartPolicy: Never
+          serviceAccountName: {{ template "apitestrig.serviceAccountName" $ }}
+          initContainers:
+              {{- if $.Values.enable_insecure }}
+              {{- include "common.tplvalues.render" (dict "value" $.Values.initContainers "context" $) | nindent 12 }}
+              {{- end }}
+          containers:
+          - name: {{ template "apitestrig.serviceAccountName" $ }}-{{ $modulename }}
+            image: {{ $module.image.repository }}:{{ $module.image.tag }}
+            imagePullPolicy: {{ $module.image.pullPolicy }}
+            {{- if $.Values.lifecycleHooks }}
+            lifecycle: {{- include "common.tpvalues.render" (dict "value" $.Values.lifecycleHooks "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if $.Values.containerSecurityContext.enabled }}
+            securityContext: {{- omit $.Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+            {{- end }}
+            {{- if $.Values.command }}
+            command: {{- include "common.tplvalues.render" (dict "value" $.Values.command "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if $.Values.args }}
+            args: {{- include "common.tplvalues.render" (dict "value" $.Values.args "context" $) | nindent 12 }}
+            {{- end }}
+            env:
+                - name: container_user
+                  value: {{ $.Values.containerSecurityContext.runAsUser }}
+                - name: JDK_JAVA_OPTIONS
+                  value: {{ $.Values.additionalResources.javaOpts }}
+                - name: MODULES
+                  value: {{ $modulename }}
+                - name: push-reports-to-s3
+                  value: {{ quote $.Values.apitestrig.variables.push_reports_to_s3 }}
+              {{- if $.Values.extraEnvVars }}
+              {{- include "common.tpvalues.render" (dict "value" $.Values.extraEnvVars "context" $) | nindent 12 }}
+              {{- end }}
+            envFrom:
+              {{- if $.Values.extraEnvVarsCM }}
+                {{- range $.Values.extraEnvVarsCM }}
+                  - configMapRef:
+                        name: {{ . }}
+                {{- end }}
+                {{- end }}
+                {{- if $.Values.extraEnvVarsSecret }}
+                {{- range $.Values.extraEnvVarsSecret }}
+                  - secretRef:
+                        name: {{ . }}
+                {{- end }}
+                {{- end }}
+            ports:
+                - name: spring-service
+                  containerPort: {{ $.Values.springServicePort }}
+            volumeMounts:
+              {{- if $.Values.enable_insecure }}
+                - mountPath: /usr/local/openjdk-11/lib/security/cacerts
+                  name: cacerts
+                  subPath: cacerts
+              {{- end }}
+              {{- if $.Values.apitestrig.volumes }}
+              {{- range $volume_name, $volume_value :=  $.Values.apitestrig.volumes.configmaps }}
+                - name: {{ $volume_name }}
+                  mountPath: {{ $volume_value.volumeMounts.mountPath }}
+              {{- end }}
+              {{- end }}
+              {{- if eq $.Values.apitestrig.variables.push_reports_to_s3 "no" }}
+                - name: {{ $.Values.apitestrig.volumes.reports.name }}
+                  mountPath: /home/mosip/testrig/report
+              {{- end }}
+          volumes:
+          {{- if $.Values.enable_insecure }}
+          - name: cacerts
+            emptyDir: {}
+          {{- end }}
+          {{- if $.Values.apitestrig.volumes }}
+          {{- range $volume_name, $volume_value :=  $.Values.apitestrig.volumes.configmaps }}
+          - name: {{ $volume_name }}
+            configMap:
+              defaultMode: {{ $volume_value.defaultMode }}
+              name: {{ $volume_name }}
+          {{- end }}
+          {{- end }}
+          {{- if eq $.Values.apitestrig.variables.push_reports_to_s3 "no" }}
+          - name: {{ $.Values.apitestrig.volumes.reports.name }}
+            persistentVolumeClaim:
+              claimName: {{ $.Values.apitestrig.volumes.reports.name }}-{{ $.Release.Namespace }}-{{ $modulename }}-pvc
+          {{- end }}
+{{- end }}
+{{- end }}

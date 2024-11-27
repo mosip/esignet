@@ -6,7 +6,7 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=esignet
+NS=postgres
 
 # Function to check and delete secret if it exists
 function check_and_delete_secret() {
@@ -16,7 +16,8 @@ function check_and_delete_secret() {
   if kubectl -n $secret_namespace get secret $secret_name > /dev/null 2>&1; then
       echo "Secret $secret_name exists in namespace $secret_namespace."
       while true; do
-          read -p "Do you want to delete secret $secret_name before installation? (Y/n): " yn
+  POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
+  helm -n $NS install istio-addons chart/istio-addons --set postg          read -p "Do you want to delete secret $secret_name before installation? (Y/n): " yn
           if [ "$yn" = "Y" ] || [ "$yn" = "y" ]; then
               echo "Deleting secret $secret_name..."
               kubectl -n $secret_namespace delete secret $secret_name || { echo "Failed to delete secret $secret_name"; exit 1; }
@@ -35,7 +36,7 @@ function check_and_delete_secret() {
 
 function installing_postgres() {
   # Check and handle the existing secret
-  check_and_delete_secret "esignet-postgres-postgresql" $NS
+  check_and_delete_secret "postgres-postgresql" $NS
 
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm repo update
@@ -44,18 +45,25 @@ function installing_postgres() {
   kubectl label ns $NS istio-injection=enabled --overwrite
 
   echo Installing  Postgres
-  helm -n $NS install esignet-postgres bitnami/postgresql --version 13.1.5 -f values.yaml --wait
-  echo Installed Postgres
+  helm -n $NS install postgres bitnami/postgresql --version 13.1.5 -f values.yaml --wait
+  # Run the Python script to generate secrets and configmap
+  if [ -f generate-secret-cm.py ]; then
+      echo "Running generate_secret.py to create Postgres secrets and configmap..."
+      python3 generate-secret-cm.py || { echo "Failed to run generate_secret.py"; exit 1; }
+      echo "Secrets and configmap generated successfully."
+  else
+      echo "Error: generate-secret-cm.py not found. Ensure the script is in the current directory."
+      exit 1
+  fi
   echo Installing gateways and virtual services
   POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
   helm -n $NS install istio-addons chart/istio-addons --set postgresHost=$POSTGRES_HOST --wait
-  kubectl apply -f postgres-config.yaml
   return 0
 }
 
 # Prompt the user if they want to install PostgreSQL
 while true; do
-    read -p "Do you want to install default Postgres in esignet namespace? (y/n): " answer
+    read -p "Do you want to install default Postgres ? (y/n): " answer
     if [ "$answer" = "Y" ] || [ "$answer" = "y" ]; then
         echo "Continuing with Postgres server deployment..."
         break  # Proceed with the installation
@@ -63,13 +71,13 @@ while true; do
         # Prompt the user for further options
         while true; do
             echo "You opted not to install Postgres. What would you like to do next?"
-            echo "1. Skip Postgres server installation and configuration in esignet namespace."
-            echo "2. Configure external Postgres details by generating secrets and configmap in esignet namespace."
+            echo "1. Skip Postgres server installation and configuration."
+            echo "2. Configure external Postgres details by generating secrets and configmap ."
 
             read -p "Enter your choice (1/2): " option
 
             if [ "$option" = "1" ]; then
-                echo "Skipping Postgres server installation and configuration in esignet namespace."
+                echo "Skipping Postgres server installation and configuration in namespace."
                 exit 0  # Exit the script as the user chose to skip Postgres installation
             elif [ "$option" = "2" ]; then
                 echo "Running generate_secret.py to create Postgres secrets and configmap..."
@@ -84,6 +92,7 @@ while true; do
         echo "Please provide a correct option (Y or N)"
     fi
 done
+
 # set commands for error handling.
 set -e
 set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
