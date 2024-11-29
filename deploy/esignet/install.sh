@@ -37,6 +37,7 @@ function installing_esignet() {
 
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
+  $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
   $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
