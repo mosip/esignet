@@ -87,7 +87,6 @@ echo Installing eSignet with SPRING_KAFKA_CONSUMER_GROUP_ID="esignet-consumer-$N
 
   echo Installing esignet
   helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE $plugin_option \
-  --set springkafkaConsumerGroupId="esignet-consumer-$NS" \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
