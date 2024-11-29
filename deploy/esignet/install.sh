@@ -83,8 +83,6 @@ function installing_esignet() {
     fi
   done
 
-echo Installing eSignet with SPRING_KAFKA_CONSUMER_GROUP_ID="esignet-consumer-$NS"
-
   echo Installing esignet
   helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
