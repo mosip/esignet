@@ -33,7 +33,7 @@ function installing_prerequisites() {
   echo "Creating esignet-global configmap in esignet namespace"
   kubectl -n esignet apply -f esignet-global-cm.yaml
 
-  declare -a modules=("istio-gateway" "postgres" "keycloak" "kafka" "redis" "softhsm")
+  declare -a modules=("istio-gateway" "postgres" "keycloak" "kafka" "redis" "softhsm" "captcha")
   declare -A prompts=(
     ["softhsm"]="Do you want to install softhsm for esignet service in softhsm namespace? Opt "n" in case it already exists in Softhsm namespace: "
     ["keycloak"]="Do you want to deploy keycloak in the keycloak namespace? Opt "n" in case it already exists in keycloak namespace : "
@@ -43,7 +43,7 @@ function installing_prerequisites() {
   echo "Installing prerequisite services"
 
   for module in "${modules[@]}"; do
-    if [ "$module" == "istio-gateway" ] || [ "$module" == "postgres" ] || [ "$module" == "redis" ]; then
+    if [ "$module" == "istio-gateway" ] || [ "$module" == "postgres" ] || [ "$module" == "redis" ] || [ "$module" == "captcha" ]; then
       cd "$ROOT_DIR/$module"
       ./install.sh
     elif  [[ -n "${prompts[$module]}" ]]; then
