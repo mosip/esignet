@@ -240,6 +240,7 @@ updateStrategy:
 ##   - name: FOO
 ##     value: "bar"
 ##
+
 extraEnvVars: |
   - name: KEYCLOAK_EXTERNAL_URL
     valueFrom:
