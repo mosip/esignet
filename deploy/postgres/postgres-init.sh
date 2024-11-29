@@ -12,7 +12,7 @@ function initialize_db() {
   helm repo update
 
   while true; do
-      read -p "Please confirm with "Y" once values-init.yaml is updated correctly with tag, postgres host, and password details else "N" to exit installation: " ans
+      read -p "Please confirm with "Y" once init-values.yaml is updated correctly with tag, postgres host, and password details else "N" to exit installation: " ans
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
@@ -29,8 +29,9 @@ function initialize_db() {
           echo Removing existing mosip_esignet installation and secret
           helm -n $NS delete esignet-postgres-init || true
           kubectl -n $NS delete secret db-common-secrets  || true
+	  ../copy_cm_func.sh secret postgres-postgresql postgres $NS
           echo Initializing DB
-          helm -n $NS install esignet-postgres-init mosip/postgres-init --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
+          helm -n $NS install postgres-init mosip/postgres-init --set image.repository=mosipdev/postgres-init --set image.tag=develop --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
           break
       elif [ "$yn" = "N" ] || [ "$yn" = "n" ]; then
           echo "Skipping esignet postgres DB initialisation as per your input"

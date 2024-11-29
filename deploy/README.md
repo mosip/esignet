@@ -27,18 +27,18 @@
 * `esignet-global` configmap: For eSignet K8's env, `esignet-global` configmap in `esignet` namespace contains Domain related information. Follow below steps to add domain details for `esignet-global` configmap.
   * Copy `esignet-global-cm.yaml.sample` to `esignet-global-cm.yaml`.
   * Update the domain names in `esignet-global-cm.yaml` correctly for your environment.
+  * Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/) and set esignet captcha.
 * Install pre-requisites
   ```
   ./install-prereq.sh
   ```
 ### Initialise pre-requisites
 * Update values file for postgres init [here](postgres/init_values.yaml).
-* Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/).
-* Execute `initialise-prereq.sh` script to initialise postgres and keycloak and set esignet captcha.
+* Execute `initialise-prereq.sh` script to initialise postgres and keycloak.
   ```
   ./initialise-prereq.sh
   ```
-### Install esignet, oidc and captcha service
+### Install esignet and oidc
 ```
 ./install-esignet.sh
 ```
