@@ -124,7 +124,7 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		identityReqJson.remove("identityRequestEncUrl");
 		
 		if (identityReqJson.has("transactionId")) {
-			String oidcTransactionId = AdminTestUtil.getAuthTransactionId(identityReqJson.getString("transactionId"));
+			String oidcTransactionId = EsignetUtil.getAuthTransactionId(identityReqJson.getString("transactionId"));
 			if (oidcTransactionId != null && !oidcTransactionId.isBlank())
 				identityReqJson.put("transactionId", oidcTransactionId);
 		}
