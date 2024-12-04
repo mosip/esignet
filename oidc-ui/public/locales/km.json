@@ -61,7 +61,14 @@
     "Face": "មុខ",
     "Finger": "ម្រាមដៃ",
     "Iris": "អាយរីស",
-    "select_a_device": "ជ្រើសរើសឧបករណ៍"
+    "select_a_device": "ជ្រើសរើសឧបករណ៍",
+    "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
+    "mobile": "លេខទូរសព្ទ",
+    "nrc": "លេខសម្គាល់ NRC",
+    "vid": "វីឌី",
+    "email": "អ៊ីមែល",
+    "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "pin": {
     "sign_in_with_pin": "ចូលដោយប្រើកូដ PIN",
@@ -70,7 +77,14 @@
     "uin_label_text": "UIN/VID",
     "pin_label_text": "លេខសម្ងាត់",
     "uin_placeholder": "បញ្ចូល UIN ឬ VID របស់អ្នក។",
-    "pin_placeholder": "បញ្ចូលកូដ PIN"
+    "pin_placeholder": "បញ្ចូលកូដ PIN",
+    "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
+    "mobile": "លេខទូរសព្ទ",
+    "nrc": "លេខសម្គាល់ NRC",
+    "vid": "វីឌី",
+    "email": "អ៊ីមែល",
+    "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "password": {
     "sign_in_with_password": "ចូលដោយប្រើពាក្យសម្ងាត់",
@@ -81,7 +95,14 @@
     "uin_placeholder": "បញ្ចូល UIN ឬ VID របស់អ្នក។",
     "password_placeholder": "បញ្ចូលពាក្យសម្ងាត់",
     "forgot_password": "ភ្លេចលេខសម្ងាត់?",
-    "reset_password": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ"
+    "reset_password": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+    "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
+    "mobile": "លេខទូរសព្ទ",
+    "nrc": "លេខសម្គាល់ NRC",
+    "vid": "វីឌី",
+    "email": "អ៊ីមែល",
+    "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "Form": {
     "sign_in_with_details": "ចូលជាមួយព័ត៌មានលម្អិត",
@@ -91,7 +112,8 @@
     "dob_label_text": "បញ្ចូល DOB",
     "policyNumber_placeholder": "លេខគោលនយោបាយ",
     "fullName_placeholder": "ឈ្មោះពេញ",
-    "dob_placeholder": "DOB"
+    "dob_placeholder": "DOB",
+    "login_with_kbi": "ចូលជាមួយ KBI"
   },
   "LoginQRCode": {
     "scan_with_wallet": "ស្កេនជាមួយ {{walletName}} ដើម្បីចូល",
@@ -100,7 +122,8 @@
     "link_code_status": "ស្ថានភាពលេខកូដភ្ជាប់",
     "failed": "មិនអាចចូលបានទេ។ ",
     "refresh": "ផ្ទុកកូដ QR ឡើងវិញ",
-    "open_wallet_app": "បើក {{walletName}} កម្មវិធី"
+    "open_wallet_app": "បើក {{walletName}} កម្មវិធី",
+    "login_with_id": "ចូលដោយប្រើ {{currentID}}"
   },
   "otp": {
     "sign_in_with_otp": "ចូលជាមួយ OTP",
@@ -114,15 +137,24 @@
     "otp_placeholder": "១២៣៤",
     "mobile_number": "លេខទូរសព្ទ",
     "email_address": "អាសយដ្ឋានអ៊ីមែល",
-    "otp_sent_msg": "OTP ត្រូវបានផ្ញើទៅកាន់អ្នកដែលបានចុះឈ្មោះ {{otpChannels}}",
-    "resend_otp_counter": "ផ្ញើ OTP ឡើងវិញ {{min}}:{{sec}}",
+    "otp_sent_msg": "សូមបញ្ចូលលេខ {{otpLength}}-ខ្ទង់ OTP ដែលបានផ្ញើទៅ",
+    "resend_otp_counter": "អ្នកអាចផ្ញើ OTP ឡើងវិញ {{min}}:{{sec}}",
     "mobile_placeholder": "លេខទូរសព្ទ៖ {{mobileNumber}}",
     "email_placeholder": "អាសយដ្ឋានអ៊ីមែល៖ {{emailAddress}}",
-    "mobile_email_placeholder": "លេខទូរសព្ទ៖ {{mobileNumber}} និងអាសយដ្ឋានអ៊ីមែល៖ {{emailAddress}}"
+    "mobile_email_placeholder": "លេខទូរសព្ទ៖ {{mobileNumber}} និងអាសយដ្ឋានអ៊ីមែល៖ {{emailAddress}}",
+    "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
+    "mobile": "លេខទូរសព្ទ",
+    "nrc": "លេខសម្គាល់ NRC",
+    "vid": "វីឌី",
+    "email": "អ៊ីមែល",
+    "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល",
+    "enter_otp": "បញ្ចូល OTP",
+    "and": "និង"
   },
   "signInOption": {
     "login_option_heading": "ជ្រើសរើសរបៀបដែលអ្នកចង់ចូល៖",
-    "login_with": "ចូលជាមួយ {{option}}",
+    "login_with_id": "ចូលដោយប្រើ {{option}}",
     "PIN": "លេខសម្ងាត់",
     "Biometrics": "ជីវមាត្រ",
     "BIO": "ជីវមាត្រ",
@@ -143,7 +175,7 @@
     "wellknown_api": ".ល្បី API"
   },
   "header": {
-    "login_heading": "ចូល",
+    "login_heading": "ចូលជាមួយ eSignet",
     "login_subheading": "សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងពាក្យសម្ងាត់ដែលបានចុះឈ្មោះរបស់អ្នក។",
     "login_linkName": "ចុះឈ្មោះជាមុន",
     "more_ways_to_sign_in": "វិធីច្រើនទៀតដើម្បីចូល",
@@ -154,6 +186,7 @@
     "language": "ភាសា",
     "noAccount": "មិនមានគណនីមែនទេ?",
     "signup_for_unified_login": "ចុះឈ្មោះជាមួយការចូលបង្រួបបង្រួម",
+    "subheading": "{{clientName}} កំពុងស្នើសុំព័ត៌មានរបស់អ្នក។",
     "subheader_text": {
       "all_login_options": "សូមជ្រើសរើសជម្រើសចូល",
       "otp_login": "សូមបញ្ចូល UIN/VID របស់អ្នក។",
@@ -187,7 +220,8 @@
     "otp_info": "បញ្ចូល UIN/VID ដែលបានបង្កើតរបស់អ្នក។",
     "bio_info": "បញ្ចូល UIN/VID ដែលបានបង្កើតរបស់អ្នក។",
     "pin_info": "បញ្ចូល UIN/VID ដែលបានបង្កើតរបស់អ្នក។",
-    "username_info": "បញ្ចូល UIN/VID ដែលបានបង្កើតរបស់អ្នក។"
+    "username_info": "បញ្ចូល UIN/VID ដែលបានបង្កើតរបស់អ្នក។",
+    "caps_on": "Caps Lock ត្រូវបានបើក"
   },
   "consentDetails": {
     "essential_claims": "ការទាមទារសំខាន់ៗ",
@@ -228,6 +262,28 @@
     "popup_header": "យកចិត្តទុកដាក់!",
     "popup_body": "{{clientName}} ទាមទារ​ការ​ចូល​ដំណើរ​ការ​ដើម្បី​បន្ត​ទៀត តើ​អ្នក​នៅ​តែ​ចង់​ឈប់​បន្ត​ឬ?",
     "consent_details_rejected": "យើង​សុំទោស! "
+  },
+  "loginOptions": {
+    "buttons": {
+      "mobile": "លេខទូរសព្ទ",
+      "nrc": "លេខសម្គាល់ NRC",
+      "vid": "វីឌី",
+      "email": "អ៊ីមែល"
+    },
+    "input": {
+      "label": {
+        "mobile": "លេខទូរសព្ទ",
+        "nrc": "លេខសម្គាល់ NRC",
+        "vid": "វីឌី",
+        "email": "អ៊ីមែល"
+      },
+      "placeholder": {
+        "mobile": "បញ្ចូលលេខទូរស័ព្ទ",
+        "nrc": "បញ្ចូលលេខសម្គាល់ NRC",
+        "vid": "បញ្ចូល VID",
+        "email": "បញ្ចូលអ៊ីមែលនៅទីនេះ"
+      }
+    }
   },
   "errors": {
     "0": "ជោគជ័យ",

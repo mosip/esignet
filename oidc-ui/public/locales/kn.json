@@ -61,7 +61,14 @@
     "Face": "ಮುಖ",
     "Finger": "ಬೆರಳು",
     "Iris": "ಐರಿಸ್",
-    "select_a_device": "ಸಾಧನವನ್ನು ಆಯ್ಕೆಮಾಡಿ"
+    "select_a_device": "ಸಾಧನವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "invalid_input": "ದಯವಿಟ್ಟು ಮಾನ್ಯ {{id}} ನಮೂದಿಸಿ",
+    "mobile": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+    "nrc": "ಎನ್ಆರ್ಸಿ ಐಡಿ",
+    "vid": "ವಿಐಡಿ",
+    "email": "ಇಮೇಲ್",
+    "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "pin": {
     "sign_in_with_pin": "PIN ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
@@ -70,7 +77,14 @@
     "uin_label_text": "UIN/VID",
     "pin_label_text": "ಪಿನ್",
     "uin_placeholder": "ನಿಮ್ಮ UIN ಅಥವಾ VID ನಮೂದಿಸಿ",
-    "pin_placeholder": "ಪಿನ್ ನಮೂದಿಸಿ"
+    "pin_placeholder": "ಪಿನ್ ನಮೂದಿಸಿ",
+    "invalid_input": "ದಯವಿಟ್ಟು ಮಾನ್ಯ {{id}} ನಮೂದಿಸಿ",
+    "mobile": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+    "nrc": "ಎನ್ಆರ್ಸಿ ಐಡಿ",
+    "vid": "ವಿಐಡಿ",
+    "email": "ಇಮೇಲ್",
+    "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "password": {
     "sign_in_with_password": "ಪಾಸ್ವರ್ಡ್ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
@@ -81,7 +95,14 @@
     "uin_placeholder": "ನಿಮ್ಮ UIN ಅಥವಾ VID ನಮೂದಿಸಿ",
     "password_placeholder": "ಪಾಸ್ವರ್ಡ್ ನಮೂದಿಸಿ",
     "forgot_password": "ಪಾಸ್ವರ್ಡ್ ಮರೆತಿರುವಿರಾ?",
-    "reset_password": "ಪಾಸ್ವರ್ಡ್ ಮರುಹೊಂದಿಸಿ"
+    "reset_password": "ಪಾಸ್ವರ್ಡ್ ಮರುಹೊಂದಿಸಿ",
+    "invalid_input": "ದಯವಿಟ್ಟು ಮಾನ್ಯ {{id}} ನಮೂದಿಸಿ",
+    "mobile": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+    "nrc": "ಎನ್ಆರ್ಸಿ ಐಡಿ",
+    "vid": "ವಿಐಡಿ",
+    "email": "ಇಮೇಲ್",
+    "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "Form": {
     "sign_in_with_details": "ವಿವರಗಳೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
@@ -91,7 +112,8 @@
     "dob_label_text": "DOB ಅನ್ನು ನಮೂದಿಸಿ",
     "policyNumber_placeholder": "ನೀತಿ ಸಂಖ್ಯೆ",
     "fullName_placeholder": "ಪೂರ್ಣ ಹೆಸರು",
-    "dob_placeholder": "DOB"
+    "dob_placeholder": "DOB",
+    "login_with_kbi": "KBI ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ"
   },
   "LoginQRCode": {
     "scan_with_wallet": "ಇದರೊಂದಿಗೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ {{walletName}} ಲಾಗಿನ್ ಮಾಡಲು",
@@ -100,7 +122,8 @@
     "link_code_status": "ಲಿಂಕ್ ಕೋಡ್ ಸ್ಥಿತಿ",
     "failed": "ಲಾಗಿನ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ",
     "refresh": "QR ಕೋಡ್ ಅನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ",
-    "open_wallet_app": "ತೆರೆಯಿರಿ {{walletName}} ಅಪ್ಲಿಕೇಶನ್"
+    "open_wallet_app": "ತೆರೆಯಿರಿ {{walletName}} ಅಪ್ಲಿಕೇಶನ್",
+    "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ"
   },
   "otp": {
     "sign_in_with_otp": "OTP ಯೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
@@ -114,15 +137,24 @@
     "otp_placeholder": "1234",
     "mobile_number": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
     "email_address": "ಇಮೇಲ್ ವಿಳಾಸ",
-    "otp_sent_msg": "ನಿಮ್ಮ ನೋಂದಾಯಿತರಿಗೆ OTP ಕಳುಹಿಸಲಾಗಿದೆ {{otpChannels}}",
-    "resend_otp_counter": "OTP ಅನ್ನು ಮರುಕಳುಹಿಸಿ {{min}}:{{sec}}",
+    "otp_sent_msg": "ದಯವಿಟ್ಟು ಕಳುಹಿಸಲಾದ {{otpLength}}-ಅಂಕಿಯ OTP ಅನ್ನು ನಮೂದಿಸಿ",
+    "resend_otp_counter": "ನೀವು OTP ಅನ್ನು ಮತ್ತೆ ಕಳುಹಿಸಬಹುದು {{min}}:{{sec}}",
     "mobile_placeholder": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ: {{mobileNumber}}",
     "email_placeholder": "ಇಮೇಲ್ ವಿಳಾಸ: {{emailAddress}}",
-    "mobile_email_placeholder": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ: {{mobileNumber}} ಮತ್ತು ಇಮೇಲ್ ವಿಳಾಸ: {{emailAddress}}"
+    "mobile_email_placeholder": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ: {{mobileNumber}} ಮತ್ತು ಇಮೇಲ್ ವಿಳಾಸ: {{emailAddress}}",
+    "invalid_input": "ದಯವಿಟ್ಟು ಮಾನ್ಯ {{id}} ನಮೂದಿಸಿ",
+    "mobile": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+    "nrc": "ಎನ್ಆರ್ಸಿ ಐಡಿ",
+    "vid": "ವಿಐಡಿ",
+    "email": "ಇಮೇಲ್",
+    "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "enter_otp": "OTP ನಮೂದಿಸಿ",
+    "and": "ಮತ್ತು"
   },
   "signInOption": {
     "login_option_heading": "ನೀವು ಹೇಗೆ ಲಾಗಿನ್ ಮಾಡಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ಆರಿಸಿ:",
-    "login_with": "ಇದರೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ {{option}}",
+    "login_with_id": "{{option}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
     "PIN": "ಪಿನ್",
     "Biometrics": "ಬಯೋಮೆಟ್ರಿಕ್ಸ್",
     "BIO": "ಬಯೋಮೆಟ್ರಿಕ್ಸ್",
@@ -143,7 +175,7 @@
     "wellknown_api": "ಪ್ರಸಿದ್ಧ API"
   },
   "header": {
-    "login_heading": "ಲಾಗಿನ್ ಮಾಡಿ",
+    "login_heading": "eSignet ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
     "login_subheading": "ದಯವಿಟ್ಟು ನಿಮ್ಮ ನೋಂದಾಯಿತ ಬಳಕೆದಾರಹೆಸರು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ನಮೂದಿಸಿ",
     "login_linkName": "ಮುಂಚಿತವಾಗಿ ನೋಂದಾಯಿಸಿ",
     "more_ways_to_sign_in": "ಲಾಗಿನ್ ಮಾಡಲು ಹೆಚ್ಚಿನ ಮಾರ್ಗಗಳು",
@@ -154,6 +186,7 @@
     "language": "ಭಾಷೆ",
     "noAccount": "ಖಾತೆ ಇಲ್ಲವೇ?",
     "signup_for_unified_login": "ಏಕೀಕೃತ ಲಾಗಿನ್‌ನೊಂದಿಗೆ ಸೈನ್ ಅಪ್ ಮಾಡಿ",
+    "subheading": "{{clientName}} ನಿಮ್ಮ ಮಾಹಿತಿಯನ್ನು ಕೇಳುತ್ತಿದ್ದಾರೆ",
     "subheader_text": {
       "all_login_options": "ದಯವಿಟ್ಟು ಲಾಗಿನ್ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ",
       "otp_login": "ದಯವಿಟ್ಟು ನಿಮ್ಮ UIN/VID ಅನ್ನು ನಮೂದಿಸಿ",
@@ -187,7 +220,8 @@
     "otp_info": "ನೀವು ರಚಿಸಿದ UIN/VID ಅನ್ನು ನಮೂದಿಸಿ",
     "bio_info": "ನೀವು ರಚಿಸಿದ UIN/VID ಅನ್ನು ನಮೂದಿಸಿ",
     "pin_info": "ನೀವು ರಚಿಸಿದ UIN/VID ಅನ್ನು ನಮೂದಿಸಿ",
-    "username_info": "ನೀವು ರಚಿಸಿದ UIN/VID ಅನ್ನು ನಮೂದಿಸಿ"
+    "username_info": "ನೀವು ರಚಿಸಿದ UIN/VID ಅನ್ನು ನಮೂದಿಸಿ",
+    "caps_on": "ಕ್ಯಾಪ್ಸ್ ಲಾಕ್ ಆನ್ ಆಗಿದೆ"
   },
   "consentDetails": {
     "essential_claims": "ಅಗತ್ಯ ಹಕ್ಕುಗಳು",
@@ -228,6 +262,28 @@
     "popup_header": "ಗಮನ!",
     "popup_body": "{{clientName}} ಮತ್ತಷ್ಟು ಮುಂದುವರಿಯಲು ಪ್ರವೇಶದ ಅಗತ್ಯವಿದೆ, ನೀವು ಇನ್ನೂ ನಿಲ್ಲಿಸಲು ಬಯಸುವಿರಾ?",
     "consent_details_rejected": "ನಮ್ಮನ್ನು ಕ್ಷಮಿಸಿ! "
+  },
+  "loginOptions": {
+    "buttons": {
+      "mobile": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+      "nrc": "ಎನ್ಆರ್ಸಿ ಐಡಿ",
+      "vid": "ವಿಐಡಿ",
+      "email": "ಇಮೇಲ್"
+    },
+    "input": {
+      "label": {
+        "mobile": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+        "nrc": "ಎನ್ಆರ್ಸಿ ಐಡಿ",
+        "vid": "ವಿಐಡಿ",
+        "email": "ಇಮೇಲ್"
+      },
+      "placeholder": {
+        "mobile": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ",
+        "nrc": "ಎನ್ಆರ್ಸಿ ಐಡಿ ನಮೂದಿಸಿ",
+        "vid": "ವಿಐಡಿ ನಮೂದಿಸಿ",
+        "email": "ಇಲ್ಲಿ ಇಮೇಲ್ ನಮೂದಿಸಿ"
+      }
+    }
   },
   "errors": {
     "0": "ಯಶಸ್ಸು",
