@@ -39,7 +39,7 @@ public class ClientManagementController {
      * @return
      * @throws EsignetException
      * @deprecated This method is no longer acceptable to create oidc client
-     * <p> Use {@link ClientManagementController#createOAuthClient(RequestWrapper<ClientDetailCreateRequest>)} </p>
+     * <p> Use {@link ClientManagementController#createClientV2(RequestWrapper<ClientDetailCreateRequestV3>)} </p>
      */
     @Deprecated()
     @RequestMapping(value = "/client-mgmt/oidc-client", method = RequestMethod.POST,
@@ -63,7 +63,7 @@ public class ClientManagementController {
      * @return
      * @throws EsignetException
      * @deprecated This method is no longer acceptable to update oidc client
-     * <p> Use {@link ClientManagementController#updateOAuthClient(String, RequestWrapper<ClientDetailUpdateRequest>)} </p>
+     * <p> Use {@link ClientManagementController#updateClientV2(String, RequestWrapper<ClientDetailUpdateRequestV3>)} </p>
      */
     @Deprecated()
     @RequestMapping(value = "/client-mgmt/oidc-client/{client_id}", method = RequestMethod.PUT,
@@ -82,6 +82,14 @@ public class ClientManagementController {
         return response;
     }
 
+    /**
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     * @deprecated This method is no longer acceptable to create oidc client
+     * <p> Use {@link ClientManagementController#createClientV2(RequestWrapper<ClientDetailCreateRequestV3>)} </p>
+     */
+    @Deprecated
     @PostMapping(value = "/client-mgmt/oauth-client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseWrapper<ClientDetailResponse> createOAuthClient(@Valid @RequestBody RequestWrapper<ClientDetailCreateRequestV2> requestWrapper) throws Exception {
         ResponseWrapper response = new ResponseWrapper<ClientDetailResponse>();
@@ -96,7 +104,14 @@ public class ClientManagementController {
         return response;
     }
 
-
+    /**
+     * @param requestWrapper
+     * @return
+     * @throws EsignetException
+     * @deprecated This method is no longer acceptable to update oidc client
+     * <p> Use {@link ClientManagementController#updateClientV2(String, RequestWrapper<ClientDetailUpdateRequestV3>)} </p>
+     */
+    @Deprecated
     @PutMapping(value = "/client-mgmt/oauth-client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseWrapper<ClientDetailResponse> updateOAuthClient(@Valid @PathVariable("client_id") String clientId,
                                                                    @Valid @RequestBody RequestWrapper<ClientDetailUpdateRequestV2> requestWrapper) throws Exception {

@@ -1,52 +1,77 @@
 package io.mosip.esignet.core.validator;
 
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
+import io.mosip.esignet.core.exception.EsignetException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 
-@Component
+@Slf4j
 public class ClientAdditionalConfigValidator implements
-        ConstraintValidator<ClientAdditionalConfigConstraint, Map<String, Object>> {
+        ConstraintValidator<ClientAdditionalConfig, Map<String, Object>> {
 
-    private static final Set<String> VALID_RESPONSE_TYPES = Set.of("JWS", "JWE");
+    private String schemaUrl = "classpath:additional_config_request_schema.json";
+
+    private volatile JsonSchema cachedSchema;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
     @Override
-    public void initialize(ClientAdditionalConfigConstraint constraintAnnotation) {
+    public void initialize(ClientAdditionalConfig constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
     @Override
-    public boolean isValid(Map<String, Object> value, ConstraintValidatorContext context) {
-        if (value == null) {
+    public boolean isValid(Map<String, Object> additionalConfig, ConstraintValidatorContext context) {
+        if (additionalConfig == null) {
             return false;
         }
-
-        Object responseType = value.get("userinfo_response_type");
-        if (!(responseType instanceof String) ||
-                !VALID_RESPONSE_TYPES.contains(responseType.toString())) {
-            return false;
+        Set<ValidationMessage> errors = null;
+        try {
+            JsonNode jsonNode = objectMapper.valueToTree(additionalConfig);
+            errors = getCachedSchema().validate(jsonNode);
+            if (errors.isEmpty()) return true;
+        } catch (Exception e) {
+            log.error("Error validating additional_config schema: ", e);
         }
-
-        Object purpose = value.get("purpose");
-        if (!(purpose instanceof Map) || !isPurposeValid((Map<?, ?>) purpose)) {
-            return false;
-        }
-
-        if (!(value.get("signup_banner_required") instanceof Boolean)
-                || !(value.get("forgot_pwd_link_required") instanceof Boolean)
-                || !(value.get("consent_expire_in_days") instanceof Number)) {
-            return false;
-        }
-
-        return true;
+        log.error("Validation failed for additional_config ---> {}", errors);
+        return false;
     }
 
-    private boolean isPurposeValid(Map<?, ?> purpose) {
-        return purpose.get("type") instanceof String
-                && purpose.get("title") instanceof String
-                && purpose.get("subTitle") instanceof String;
+    private JsonSchema getCachedSchema() throws EsignetException {
+        if(cachedSchema!=null ) return cachedSchema;
+        synchronized (this) {
+            if (cachedSchema == null) {
+                InputStream schemaResponse = getResource(schemaUrl);
+                JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+                cachedSchema = jsonSchemaFactory.getSchema(schemaResponse);
+            }
+        }
+        return cachedSchema;
+    }
+
+    private InputStream getResource(String url) {
+        try {
+            Resource resource = resourceLoader.getResource(url);
+            return resource.getInputStream();
+        } catch (IOException e) {
+            log.error("Failed to parse data: {}", url, e);
+        }
+        throw new EsignetException("invalid_configuration");
     }
 }

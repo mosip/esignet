@@ -1,6 +1,6 @@
 package io.mosip.esignet.core.dto;
 
-import io.mosip.esignet.core.validator.ClientAdditionalConfigConstraint;
+import io.mosip.esignet.core.validator.ClientAdditionalConfig;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class ClientDetailCreateRequestV3 extends ClientDetailCreateRequestV2 {
 
-    @ClientAdditionalConfigConstraint
+    @ClientAdditionalConfig
     private Map<String, Object> additionalConfig;
 
     public ClientDetailCreateRequestV3(String clientId, String clientName, Map<String, Object> publicKey, String relyingPartyId,

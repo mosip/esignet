@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Constraint(validatedBy = ClientAdditionalConfigValidator.class)
 @Documented
-public @interface ClientAdditionalConfigConstraint {
+public @interface ClientAdditionalConfig {
     String message() default ErrorConstants.INVALID_ADDITIONAL_CONFIG;
 
     Class<?>[] groups() default {};

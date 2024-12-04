@@ -50,6 +50,9 @@ public class ValidatorTest {
     @InjectMocks
     ClaimsSchemaValidator claimSchemaValidator;
 
+    @InjectMocks
+    ClientAdditionalConfigValidator clientAdditionalConfigValidator;
+
     @Mock
     AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
@@ -792,15 +795,14 @@ public class ValidatorTest {
     @Test
     public void test_ClientAdditionalConfigValidator_withValidValue_thenPass() {
         Map<String, Object> validAdditionalConfig = ClientAdditionalConfigValidatorTestData.getValidAdditionalConfig();
-        ClientAdditionalConfigValidator validator = new ClientAdditionalConfigValidator();
-        Assert.assertTrue(validator.isValid(validAdditionalConfig, null));
+        Assert.assertTrue(clientAdditionalConfigValidator.isValid(validAdditionalConfig, null));
     }
 
     @Test
     public void test_ClientAdditionalConfigValidator_withInvalidValue_thenFail() {
-        ClientAdditionalConfigValidator validator = new ClientAdditionalConfigValidator();
+
         for (Map<String, Object> additionalConfig : ClientAdditionalConfigValidatorTestData.getInvalidAdditionalConfigs()) {
-            Assert.assertFalse(validator.isValid(additionalConfig, null));
+            Assert.assertFalse(clientAdditionalConfigValidator.isValid(additionalConfig, null));
         }
     }
 }
