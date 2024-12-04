@@ -1608,7 +1608,7 @@ WalletBinding:
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-	  allowedErrorCodes: binding_auth_failed,IDA-MLC-009
+      allowedErrorCodes: binding_auth_failed,IDA-MLC-009
       restMethod: post
       inputTemplate: esignet/WalletBinding/WalletBinding
       outputTemplate: esignet/error
