@@ -50,7 +50,27 @@ public class KeyBindingController {
         }
         return responseWrapper;
     }
-    
+
+
+    @PostMapping(value = "/v2/binding-otp", consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseWrapper<OtpResponse> sendBindingOtpV2(@Valid @RequestBody RequestWrapper<BindingOtpRequestV2> requestWrapper,
+                                                       @RequestHeader Map<String, String> headers)
+            throws EsignetException {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        try {
+            responseWrapper.setResponse(keyBindingService.sendBindingOtpV2(requestWrapper.getRequest(), headers));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+            auditPlugin.logAudit(Action.SEND_BINDING_OTP, ActionStatus.SUCCESS,
+                    AuditHelper.buildAuditDto("individualId", null), null);
+        } catch (EsignetException ex) {
+            auditPlugin.logAudit(Action.SEND_BINDING_OTP, ActionStatus.ERROR,
+                    AuditHelper.buildAuditDto("individualId", null), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
     @PostMapping(value = "wallet-binding", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseWrapper<WalletBindingResponse> bindWallet(@Valid @RequestBody RequestWrapper<WalletBindingRequest> requestWrapper,

@@ -11,16 +11,22 @@ import io.mosip.esignet.core.dto.RequestWrapper;
 import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.exception.EsignetException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CAPTCHA;
 
 @Slf4j
 public class CaptchaHelper {
@@ -29,11 +35,28 @@ public class CaptchaHelper {
     private String moduleName;
     private String validatorUrl;
 
-    public CaptchaHelper(RestTemplate restTemplate, String validatorUrl, String moduleName) {
+    private List<String> captchaRequired;
+
+    public CaptchaHelper(RestTemplate restTemplate, String validatorUrl, String moduleName, List<String> captchaRequired) {
         this.restTemplate = restTemplate;
         this.validatorUrl = validatorUrl;
         this.moduleName = moduleName;
+        this.captchaRequired = captchaRequired;
     }
+
+    public void validateCaptchaToken(String captchaToken, String authFactor) {
+        if(!captchaRequired.contains(authFactor)) {
+            log.warn("captcha validation is disabled for {} request!", authFactor);
+            return;
+        }
+        if(!StringUtils.hasText(captchaToken)) {
+            log.error("Captcha token is Null or Empty");
+            throw new EsignetException(INVALID_CAPTCHA);
+        }
+        if (!validateCaptcha(captchaToken))
+            throw new EsignetException(INVALID_CAPTCHA);
+    }
+
 
     public boolean validateCaptcha(String captchaToken) {
 
