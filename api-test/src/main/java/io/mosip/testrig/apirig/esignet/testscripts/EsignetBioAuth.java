@@ -133,20 +133,24 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		
 		identityRequest = getJsonFromTemplate(identityReqJson.toString(), identityRequestTemplate);
 		if (identityRequest.contains("$DOMAINURI$")) {
-			String domainUrl = ApplnURI.replace("api-internal", GlobalConstants.ESIGNET);
+			String domainUrl = EsignetConfigManager.getEsignetBaseUrl();
 			identityRequest = identityRequest.replace("$DOMAINURI$", domainUrl);
 		}
+		
+		logger.info("identityRequest = " + identityRequest);
 		String encryptedIdentityReq = null;
 		try {
 			encryptedIdentityReq = bioDataUtil.constractBioIdentityRequest(identityRequest,
 					getResourcePath() + properties.getProperty("bioValueEncryptionTemplate"), testCaseName, isInternal);
+			
+			logger.info("encryptedIdentityReq = " + encryptedIdentityReq);
 
 			if (encryptedIdentityReq == null)
 				throw new AdminTestException("bioDataUtil.constractBioIdentityRequest is null");
 
 			JSONObject encryptedIdentityReqObject = new JSONObject(encryptedIdentityReq);
 
-			logger.info(encryptedIdentityReqObject);
+			logger.info("encryptedIdentityReqObject = " + encryptedIdentityReqObject);
 			JSONArray arrayBiometrics = encryptedIdentityReqObject.getJSONArray(GlobalConstants.BIOMETRICS);
 
 			String bioData = arrayBiometrics.toString();
