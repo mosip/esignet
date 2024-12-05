@@ -61,7 +61,14 @@
     "Face": "وجه",
     "Finger": "إصبع",
     "Iris": "قزحية",
-    "select_a_device": "حدد جهازًا"
+    "select_a_device": "حدد جهازًا",
+    "invalid_input": "الرجاء إدخال {{id}} صالح",
+    "mobile": "رقم الهاتف المحمول",
+    "nrc": "معرف المجلس النرويجي للاجئين",
+    "vid": "فيد",
+    "email": "بريد إلكتروني",
+    "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "pin": {
     "sign_in_with_pin": "تسجيل الدخول باستخدام رقم التعريف الشخصي",
@@ -70,7 +77,14 @@
     "uin_label_text": "UIN/VID",
     "pin_label_text": "دبوس",
     "uin_placeholder": "أدخل رقم UIN أو VID الخاص بك",
-    "pin_placeholder": "أدخل رقم التعريف الشخصي"
+    "pin_placeholder": "أدخل رقم التعريف الشخصي",
+    "invalid_input": "الرجاء إدخال {{id}} صالح",
+    "mobile": "رقم الهاتف المحمول",
+    "nrc": "معرف المجلس النرويجي للاجئين",
+    "vid": "فيد",
+    "email": "بريد إلكتروني",
+    "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "password": {
     "sign_in_with_password": "تسجيل الدخول بكلمة المرور",
@@ -81,7 +95,14 @@
     "uin_placeholder": "أدخل رقم UIN أو VID الخاص بك",
     "password_placeholder": "أدخل كلمة المرور",
     "forgot_password": "هل نسيت كلمة السر؟",
-    "reset_password": "إعادة تعيين كلمة المرور"
+    "reset_password": "إعادة تعيين كلمة المرور",
+    "invalid_input": "الرجاء إدخال {{id}} صالح",
+    "mobile": "رقم الهاتف المحمول",
+    "nrc": "معرف المجلس النرويجي للاجئين",
+    "vid": "فيد",
+    "email": "بريد إلكتروني",
+    "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "Form": {
     "sign_in_with_details": "تسجيل الدخول بالتفاصيل",
@@ -91,7 +112,8 @@
     "dob_label_text": "أدخل تاريخ الميلاد",
     "policyNumber_placeholder": "رقم السياسة",
     "fullName_placeholder": "الاسم الكامل",
-    "dob_placeholder": "تاريخ الميلاد"
+    "dob_placeholder": "تاريخ الميلاد",
+    "login_with_kbi": "تسجيل الدخول مع KBI"
   },
   "LoginQRCode": {
     "scan_with_wallet": "مسح مع {{walletName}} لتسجيل الدخول",
@@ -100,7 +122,8 @@
     "link_code_status": "حالة رمز الارتباط",
     "failed": "غير قادر على تسجيل الدخول. ",
     "refresh": "تحديث رمز الاستجابة السريعة",
-    "open_wallet_app": "يفتح {{walletName}} برنامج"
+    "open_wallet_app": "يفتح {{walletName}} برنامج",
+    "login_with_id": "تسجيل الدخول باستخدام {{currentID}}"
   },
   "otp": {
     "sign_in_with_otp": "تسجيل الدخول باستخدام OTP",
@@ -114,15 +137,24 @@
     "otp_placeholder": "1234",
     "mobile_number": "رقم الهاتف المحمول",
     "email_address": "عنوان البريد الإلكتروني",
-    "otp_sent_msg": "تم إرسال OTP إلى المسجل الخاص بك {{otpChannels}}",
-    "resend_otp_counter": "إعادة إرسال OTP في {{min}}:{{sec}}",
+    "otp_sent_msg": "الرجاء إدخال {{otpLength}} المكون من رقم OTP المرسل إليه",
+    "resend_otp_counter": "يمكنك إعادة إرسال كلمة المرور لمرة واحدة (OTP) في {{min}}:{{sec}}",
     "mobile_placeholder": "رقم الهاتف المحمول: {{mobileNumber}}",
     "email_placeholder": "عنوان البريد الإلكتروني: {{emailAddress}}",
-    "mobile_email_placeholder": "رقم الهاتف المحمول: {{mobileNumber}} وعنوان البريد الإلكتروني: {{emailAddress}}"
+    "mobile_email_placeholder": "رقم الهاتف المحمول: {{mobileNumber}} وعنوان البريد الإلكتروني: {{emailAddress}}",
+    "invalid_input": "الرجاء إدخال {{id}} صالح",
+    "mobile": "رقم الهاتف المحمول",
+    "nrc": "معرف المجلس النرويجي للاجئين",
+    "vid": "فيد",
+    "email": "بريد إلكتروني",
+    "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "multiple_login_ids": "حدد خيار معرف تسجيل الدخول",
+    "enter_otp": "أدخل كلمة المرور لمرة واحدة",
+    "and": "و"
   },
   "signInOption": {
     "login_option_heading": "اختر الطريقة التي تريد تسجيل الدخول بها:",
-    "login_with": "تسجيل الدخول مع {{option}}",
+    "login_with_id": "تسجيل الدخول باستخدام {{option}}",
     "PIN": "دبوس",
     "Biometrics": "القياسات الحيوية",
     "BIO": "القياسات الحيوية",
@@ -143,7 +175,7 @@
     "wellknown_api": ".wellknown API"
   },
   "header": {
-    "login_heading": "تسجيل الدخول",
+    "login_heading": "تسجيل الدخول باستخدام eSignet",
     "login_subheading": "الرجاء إدخال اسم المستخدم وكلمة المرور المسجلين لديك",
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
@@ -154,6 +186,7 @@
     "language": "لغة",
     "noAccount": "ليس لديك حساب؟",
     "signup_for_unified_login": "قم بالتسجيل باستخدام تسجيل الدخول الموحد",
+    "subheading": "يطلب {{clientName}} معلوماتك",
     "subheader_text": {
       "all_login_options": "الرجاء اختيار خيار تسجيل الدخول",
       "otp_login": "الرجاء إدخال UIN/VID الخاص بك",
@@ -187,7 +220,8 @@
     "otp_info": "أدخل UIN/VID الذي تم إنشاؤه",
     "bio_info": "أدخل UIN/VID الذي تم إنشاؤه",
     "pin_info": "أدخل UIN/VID الذي تم إنشاؤه",
-    "username_info": "أدخل UIN/VID الذي تم إنشاؤه"
+    "username_info": "أدخل UIN/VID الذي تم إنشاؤه",
+    "caps_on": "مفتاح Caps Lock قيد التشغيل"
   },
   "consentDetails": {
     "essential_claims": "المطالبات الأساسية",
@@ -228,6 +262,28 @@
     "popup_header": "انتباه!",
     "popup_body": "{{clientName}} يتطلب الوصول من أجل المضي قدمًا، هل مازلت ترغب في التوقف؟",
     "consent_details_rejected": "آسفون! "
+  },
+  "loginOptions": {
+    "buttons": {
+      "mobile": "رقم الهاتف المحمول",
+      "nrc": "معرف المجلس النرويجي للاجئين",
+      "vid": "فيد",
+      "email": "بريد إلكتروني"
+    },
+    "input": {
+      "label": {
+        "mobile": "رقم الهاتف المحمول",
+        "nrc": "معرف المجلس النرويجي للاجئين",
+        "vid": "فيد",
+        "email": "بريد إلكتروني"
+      },
+      "placeholder": {
+        "mobile": "أدخل رقم الجوال",
+        "nrc": "أدخل معرف المجلس النرويجي للاجئين",
+        "vid": "أدخل فيد",
+        "email": "أدخل البريد الإلكتروني هنا"
+      }
+    }
   },
   "errors": {
     "0": "نجاح",

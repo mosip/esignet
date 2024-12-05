@@ -182,7 +182,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <span
-                  className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer text-[14px]"
+                  className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer"
                   aria-label="Customise options"
                   id="language_selection"
                 >

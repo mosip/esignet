@@ -1,13 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="28" height="19" viewBox="0 0 28 19">
-  <g id="Group_57959" data-name="Group 57959" transform="translate(-12 -15)">
-    <g id="Rectangle_4706" data-name="Rectangle 4706" transform="translate(12 15)" fill="#fff" stroke="#154b91" stroke-width="1">
-      <rect width="28" height="19" rx="4" stroke="none"/>
-      <rect x="0.5" y="0.5" width="27" height="18" rx="3.5" fill="none"/>
-    </g>
-    <g id="Group_57958" data-name="Group 57958" transform="translate(1)">
-      <circle id="Ellipse_749" data-name="Ellipse 749" cx="2.5" cy="2.5" r="2.5" transform="translate(16 22)" fill="#317fe3"/>
-      <circle id="Ellipse_750" data-name="Ellipse 750" cx="2.5" cy="2.5" r="2.5" transform="translate(22.5 22)" fill="#317fe3"/>
-      <circle id="Ellipse_751" data-name="Ellipse 751" cx="2.5" cy="2.5" r="2.5" transform="translate(29 22)" fill="#317fe3"/>
-    </g>
-  </g>
+<svg width="28" height="19" viewBox="0 0 28 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 0H4C1.79086 0 0 1.79086 0 4V15C0 17.2091 1.79086 19 4 19H24C26.2091 19 28 17.2091 28 15V4C28 1.79086 26.2091 0 24 0Z" fill="white"/>
+<path d="M24 0.5H4C2.067 0.5 0.5 2.067 0.5 4V15C0.5 16.933 2.067 18.5 4 18.5H24C25.933 18.5 27.5 16.933 27.5 15V4C27.5 2.067 25.933 0.5 24 0.5Z" stroke="#EB6F2D"/>
+<path d="M7.5 12C8.88071 12 10 10.8807 10 9.5C10 8.11929 8.88071 7 7.5 7C6.11929 7 5 8.11929 5 9.5C5 10.8807 6.11929 12 7.5 12Z" fill="#FB894C"/>
+<path d="M14 12C15.3807 12 16.5 10.8807 16.5 9.5C16.5 8.11929 15.3807 7 14 7C12.6193 7 11.5 8.11929 11.5 9.5C11.5 10.8807 12.6193 12 14 12Z" fill="#FB894C"/>
+<path d="M20.5 12C21.8807 12 23 10.8807 23 9.5C23 8.11929 21.8807 7 20.5 7C19.1193 7 18 8.11929 18 9.5C18 10.8807 19.1193 12 20.5 12Z" fill="#FB894C"/>
 </svg>
