@@ -1737,6 +1737,7 @@ AuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: invalid_challenge_length,invalid_auth_factor_type
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
       outputTemplate: esignet/error
       input: '{
@@ -1857,7 +1858,7 @@ AuthenticateUser:
       description: Authenticate user with Null in AuthFactorType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_challenge_length
+      allowedErrorCodes: invalid_challenge_length,invalid_auth_factor_type
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
@@ -1882,7 +1883,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_auth_factor_type",
       "errorMessage": "$IGNORE$"
     }
   ],
@@ -1898,7 +1899,7 @@ AuthenticateUser:
       description: Authenticate user with different AuthFactorType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_challenge_length,invalid_auth_factor_type_format
+      allowedErrorCodes: invalid_challenge_length,invalid_auth_factor_type_format,invalid_challenge_format
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
@@ -1963,7 +1964,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_challenge",
       "errorMessage": "$IGNORE$"
     }
   ],
@@ -2061,7 +2062,7 @@ AuthenticateUser:
       description: Authenticate user with Null in challenge VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_challenge_length
+      allowedErrorCodes: invalid_challenge_length,invalid_challenge
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
@@ -2086,7 +2087,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_challenge",
       "errorMessage": "$IGNORE$"
     }
   ],

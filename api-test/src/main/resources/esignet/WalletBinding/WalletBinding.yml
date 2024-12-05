@@ -289,7 +289,7 @@ WalletBinding:
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      allowedErrorCodes: binding_auth_failed,invalid_individual_id
+      allowedErrorCodes: binding_auth_failed,invalid_individual_id,IDA-MLC-009
       restMethod: post
       inputTemplate: esignet/WalletBinding/WalletBinding
       outputTemplate: esignet/error
@@ -317,8 +317,8 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "binding_auth_failed",
-      "errorMessage": "request.individualId: invalid_individual_id"
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
     }
   ],
         "sendOtpResp": {
@@ -378,7 +378,7 @@ WalletBinding:
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      allowedErrorCodes: binding_auth_failed,invalid_individual_id
+      allowedErrorCodes: binding_auth_failed,invalid_individual_id,IDA-MLC-009
       restMethod: post
       inputTemplate: esignet/WalletBinding/WalletBinding
       outputTemplate: esignet/error
@@ -406,8 +406,8 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "binding_auth_failed",
-      "errorMessage": "request.individualId: invalid_individual_id"
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
     }
   ],
         "sendOtpResp": {
@@ -1608,6 +1608,7 @@ WalletBinding:
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: binding_auth_failed,IDA-MLC-009
       restMethod: post
       inputTemplate: esignet/WalletBinding/WalletBinding
       outputTemplate: esignet/error
@@ -1635,8 +1636,8 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "binding_auth_failed",
-      "errorMessage": "request.individualId: invalid_individual_id"
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
     }
   ],
         "sendOtpResp": {
@@ -1696,6 +1697,7 @@ WalletBinding:
       role: mobileauth
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      allowedErrorCodes: binding_auth_failed,IDA-MLC-009
       restMethod: post
       inputTemplate: esignet/WalletBinding/WalletBinding
       outputTemplate: esignet/error
@@ -1723,8 +1725,8 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "binding_auth_failed",
-      "errorMessage": "request.individualId: invalid_individual_id"
+      "errorCode": "IDA-MLC-009",
+      "errorMessage": "$IGNORE$"
     }
   ],
         "sendOtpResp": {
@@ -1854,7 +1856,7 @@ WalletBinding:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_challenge_length"
+      "errorCode": "invalid_auth_factor_type"
     }
   ],
         "sendOtpResp": {
@@ -2031,7 +2033,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_challenge_length"
+      "errorCode": "invalid_challenge"
     }
   ],
         "sendOtpResp": {
@@ -2209,7 +2211,7 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_auth_factor_type_format"
+      "errorCode": "invalid_challenge_format"
     }
   ],
         "sendOtpResp": {
