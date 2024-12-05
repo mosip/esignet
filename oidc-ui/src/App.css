@@ -506,6 +506,7 @@ input[type="checkbox"]:hover {
 
 .password-google-reCaptcha {
   margin-top: var(--password-google-reCaptcha-margin-top) !important;
+  margin-bottom: var(--password-google-reCaptcha-margin-bottom) !important;
 }
 
 .errorInput {

@@ -89,7 +89,7 @@
   "password": {
     "sign_in_with_password": "Login with Password",
     "remember_me": "Remember Me",
-    "login": "Continue",
+    "login": "Login",
     "uin_label_text": "UIN/VID",
     "password_label_text": "Password",
     "uin_placeholder": "Enter Your UIN or VID",

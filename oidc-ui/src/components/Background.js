@@ -68,7 +68,7 @@ export default function Background({
             </h1>
           )}
         </div>
-        <div className="w-full flex mb-4 justify-center items-center">
+        <div className="w-full flex mb-4 justify-center items-center pb-2">
           {clientLogoPath && (
             <img
               className="object-contain client-logo-size client-logo-shadow rounded-[25px] border-[0.1px] border-white"

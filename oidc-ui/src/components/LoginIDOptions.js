@@ -39,7 +39,7 @@ const LoginIDOptions = (props) => {
         id: "vid",
         svg: "vid_icon",
         prefixes: "",
-        postfix: "@ID",
+        postfix: "",
         maxLength: "",
         regex: "",
       },

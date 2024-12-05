@@ -63,9 +63,9 @@
   --login-client-logo-image-height: 3.25rem;
   --login-client-logo-image-width: 3.25rem;
   --login-alternate-arrow: "\21CB";
-  --login-alternate-arrow-size: 3rem;
+  --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #000000;
-  --login-card-separator: linear-gradient(0deg, rgb(0,0,0,0.2) 0%, rgb(0,0,0,0.2) 100%);
+  --login-card-separator: linear-gradient(0deg, #FFFBF7 0%, #FFFFFF 100%);
   --login-card-separator-height: 1px;
   --footer-text-color: #898989;
   --footer-text-size: 14px;
@@ -75,6 +75,7 @@
   --forgot-password-width: max-content;
   --forgot-password-margin-top: 1rem;
   --password-google-reCaptcha-margin-top: 3rem;
+  --password-google-reCaptcha-margin-bottom: 1rem;
   --navbar-position: relative;
   --navbar-zIndex: 1;
   --navbar-box-shadow: 0px 2px 5px #0000001A;
@@ -197,6 +198,7 @@
   --forgot-password-width: max-content;
   --forgot-password-margin-top: 1rem;
   --password-google-reCaptcha-margin-top: 3rem;
+  --password-google-reCaptcha-margin-bottom: 1rem;
   --navbar-position: relative;
   --navbar-zIndex: 1;
   --navbar-box-shadow: 0px 2px 5px #0000001a;
@@ -327,6 +329,7 @@
   --forgot-password-width: max-content;
   --forgot-password-margin-top: 1rem;
   --password-google-reCaptcha-margin-top: 3rem;
+  --password-google-reCaptcha-margin-bottom: 1rem;
   --navbar-position: relative;
   --navbar-zIndex: 1;
   --navbar-box-shadow: 0px 2px 5px #0000001a;
