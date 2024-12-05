@@ -1,6 +1,7 @@
 GenerateChallengeNegTC:
    ESignet_GenerateChallengeNegTC_Missing_CSRF_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_01
       role: resident
       restMethod: post
       allowedErrorCodes: 403
@@ -17,6 +18,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Invalid_Locale_Lang_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_02
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallengeWithLocale
@@ -38,6 +40,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_without_requestTime:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_03
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -58,6 +61,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_without_requestTime:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_04
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -78,6 +82,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_without_requestTime_SPACE:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_05
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -98,6 +103,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_with_INVALID_requestTime:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_06
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -118,6 +124,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_with_Number_in_requestTime:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_07
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -138,6 +145,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_with_Invalid_requestTime_Format:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_08
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -158,6 +166,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_only_with_requestTime:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_09
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_purpose,invalid_identifier
@@ -179,6 +188,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_Empty_Request:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_10
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_request,invalid_identifier
@@ -200,6 +210,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_Only_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_11
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_request,invalid_purpose
@@ -221,6 +232,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_empty_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_12
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -241,6 +253,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_empty_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_13
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -261,6 +274,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_empty_string_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_14
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -281,6 +295,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_char_numbers_in_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_15
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -301,6 +316,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_char_alphabets_in_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_16
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -321,6 +337,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_all_zeros_in_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_17
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -341,6 +358,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_Without_CountryCode_in_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_18
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -361,6 +379,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_space_in_identifier:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_19
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -381,6 +400,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_With_space_in_identifier_field:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_20
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -401,6 +421,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_for_already_registered_mobile_number:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_21
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -416,6 +437,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_with_only_captcha_token:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_22
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_identifier,invalid_request
@@ -437,6 +459,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_with_Empty_captcha_token:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_23
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_request,invalid_identifier
@@ -458,6 +481,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_with_Empty_string_captcha_token:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_24
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_request,invalid_identifier
@@ -479,6 +503,7 @@ GenerateChallengeNegTC:
 }'
    ESignet_GenerateChallengeNegTC_with_invalid_captcha_token:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_25
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_request,invalid_identifier
@@ -501,6 +526,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Invalid_purpose_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_26
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -521,6 +547,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Empty_purpose_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_27
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -541,6 +568,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Null_purpose_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_28
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -561,6 +589,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Missing_purpose_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_29
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -581,6 +610,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_SpaceVal_purpose_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_30
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallenge/GenerateChallenge
@@ -601,6 +631,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Valid_Regenerate_Field1_Pos:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_31
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithRegenField
@@ -618,6 +649,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_STransId_Missing_Regenerate_Field_Pos:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_32
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithRegenField
@@ -635,6 +667,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_True_Regenerate_Field_Immediately_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_33
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithTransID
@@ -657,6 +690,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_True_Regenerate_Field_With_Expired_TransactionID_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_34
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithTransID
@@ -679,6 +713,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_True_Regenerate_Field_With_Invalid_TransactionID_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_35
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithTransID
@@ -701,6 +736,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Valid_Regenerate_Field_WO_TransactionID_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_36
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithRegenField
@@ -722,6 +758,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Invalid_Regenerate_Field2_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_37
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithRegenField
@@ -743,6 +780,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Empty_Regenerate_Field3_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_38
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithRegenField
@@ -760,6 +798,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_Null_Regenerate_Field3_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_39
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithRegenField
@@ -777,6 +816,7 @@ GenerateChallengeNegTC:
 
    ESignet_GenerateChallengeNegTC_SpaceVal_Regenerate_Field3_Neg:
       endPoint: /v1/signup/registration/generate-challenge
+      uniqueIdentifier: TC_ESignet_GenerateChallengeNegTC_40
       role: resident
       restMethod: post
       inputTemplate: esignet/GenerateChallengeNegTC/GenerateChallengeWithRegenField

@@ -1,6 +1,7 @@
 AuthorizationEndpoint:
    ESignet_AuthorizationEndpoint_StatusCode_all_Valid_Smoke:
       endPoint: /authorize
+	  uniqueIdentifier: TC_ESignet_AuthorizationEndpoint_01
       role: resident
       restMethod: get
       inputTemplate: esignet/AuthorizationEndpoint/AuthorizationEndpoint

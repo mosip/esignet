@@ -1,6 +1,7 @@
 RegisterUserNegTC:
    ESignet_RegisterUserNegTC_Missing_CSRF_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_01
       role: resident
       restMethod: post
       allowedErrorCodes: 403
@@ -21,6 +22,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_without_headerTransactionID:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_02
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -45,6 +47,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_invalid_headerTransactionID:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_03
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -69,6 +72,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_empty_requestTime:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_04
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -93,6 +97,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC__with_empty_string_requestTime:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_05
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -117,6 +122,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_invalid_requestTime:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_06
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -141,6 +147,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_number_as_requestTime:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_07
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -165,6 +172,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_invalid_requestTime_format:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_08
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -189,6 +197,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_without_request_Object:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_09
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_password,invalid_consent,invalid_username,invalid_phone_number,unsupported_language
@@ -214,6 +223,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_username:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_10
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -238,6 +248,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_password:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_11
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -262,6 +273,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_CONSENT:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_12
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -286,6 +298,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_userInfo:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_13
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_username,invalid_fullname,invalid_phone_number
@@ -311,6 +324,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_EMPTY_username:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_14
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -335,6 +349,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_EMPTY_string_username:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_15
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -359,6 +374,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_name_username:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_16
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -383,6 +399,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_country_code_in_username:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_17
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -407,6 +424,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_spaces_in_username:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_18
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -431,6 +449,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_spaces_in_username_and_after_plus:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_19
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -455,6 +474,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_country_code:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_20
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -479,6 +499,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_more_than_9digit_number:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_21
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -504,6 +525,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_less_then_8digit_number:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_22
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -529,6 +551,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_all_zero_in_phone:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_23
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -553,6 +576,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_starting_zero_in_phone:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_24
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -577,6 +601,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_alphanumeric_in_phone:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_25
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -601,6 +626,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_special_char_in_phone:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_26
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -625,6 +651,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_only_alphabet_in_phone:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_27
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -649,6 +676,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_only_alphabet_in_phone:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_28
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -673,6 +701,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_spaces_in_password:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_29
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -697,6 +726,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout__special_character_in_password:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_30
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -721,6 +751,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_more_then_20_digit_in_password:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_31
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -745,6 +776,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_empty_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_32
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_consent,invalid_consent
@@ -770,6 +802,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_empty_string_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_33
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_consent,invalid_consent
@@ -795,6 +828,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_disagree_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_34
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -819,6 +853,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_alpha_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_35
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -843,6 +878,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_ONLY_Special_char_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_36
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -867,6 +903,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_ONLY_number_in_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_37
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -891,6 +928,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_alpha_numeric_in_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_38
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -915,6 +953,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_agree_in_consent:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_39
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -939,6 +978,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_empty_user_info:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_40
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_phone_number
@@ -964,6 +1004,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_fullName:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_41
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -988,6 +1029,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_phone:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_42
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1014,6 +1056,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_WITHout_preferredLang:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_43
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1038,6 +1081,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_empty_array_fullName:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_44
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1062,6 +1106,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH__phone_empty:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_45
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1087,6 +1132,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH__phone_empty_string:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_46
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone_number,invalid_phone
@@ -1112,6 +1158,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITH_different_phone_empty_string:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_47
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1137,6 +1184,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_country_code:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_48
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1162,6 +1210,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_WITHout_plus_country_code:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_49
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1187,6 +1236,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_by_different_country_code:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_50
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1212,6 +1262,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_starts_with_zero:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_51
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_value,invalid_phone_number,invalid_value
@@ -1237,6 +1288,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_starts_with_zero:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_52
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1262,6 +1314,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_with_all_zero:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_53
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1287,6 +1340,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_with_special_char:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_54
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1312,6 +1366,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_phone_with_alpha_numeric:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_55
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_phone,invalid_phone_number
@@ -1337,6 +1392,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_empty_preferredLang:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_56
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1361,6 +1417,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_empty_string_preferredLang:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_57
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1385,6 +1442,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_invalid_preferredLang:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_58
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1409,6 +1467,7 @@ RegisterUserNegTC:
 }'
    ESignet_RegisterUserNegTC_with_unsupported_preferredLang:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_59
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1434,6 +1493,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_Language_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_60
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_value
@@ -1459,6 +1519,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_61
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_value
@@ -1484,6 +1545,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Invalid_Value_On_Language_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_62
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,unsupported_language,invalid_firstname
@@ -1509,6 +1571,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Empty_Value_On_Language_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_63
       role: resident
       restMethod: post
       allowedErrorCodes: unsupported_language,invalid_fullname,invalid_firstname
@@ -1534,6 +1597,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Empty_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_64
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_value,invalid_fullname,invalid_firstname
@@ -1559,6 +1623,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Space_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_65
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_fullname,invalid_value
@@ -1584,6 +1649,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_SName_Valid_smoke_Pos:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_66
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1604,6 +1670,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Valid_smoke_2nd_time_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_67
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1629,6 +1696,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_with_khm_preferredLang:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_68
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1649,6 +1717,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_1st_Lang_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_69
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1669,6 +1738,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_SpecialChar_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_70
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1693,6 +1763,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Only_Num_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_71
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1717,6 +1788,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_AlphaNum_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_72
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser
@@ -1741,6 +1813,7 @@ RegisterUserNegTC:
 
    ESignet_RegisterUserNegTC_Exceeding_Limit_Value_On_Name_Field_Neg:
       endPoint: /v1/signup/registration/register
+      uniqueIdentifier: TC_ESignet_RegisterUserNegTC_73
       role: resident
       restMethod: post
       inputTemplate: esignet/RegisterUser/RegisterUser

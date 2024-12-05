@@ -1,6 +1,7 @@
 UpdateOIDCClient:
    Esignet_UpdateOIDC_all_Valid_Smoke:
       endPoint: /v1/partnermanager/oidc/client/{clientId}
+      uniqueIdentifier: TC_ESignet_UpdateOIDC_01
       description: Update OIDC client with all valid details
       role: partner
       restMethod: put
@@ -21,8 +22,10 @@ UpdateOIDCClient:
         "status": "ACTIVE"
 }'
 
+
    Esignet_UpdateOIDC_Invalid_clientId_Neg:
       endPoint: /v1/partnermanager/oidc/client/{clientId}
+      uniqueIdentifier: TC_ESignet_UpdateOIDC_02
       description: Update OIDC client with invalid clientId
       role: partner
       restMethod: put

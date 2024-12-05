@@ -312,7 +312,7 @@ VerifyChallengeNegTC:
 }'
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_Format_RequestTime_Neg:
-      endPoint: /v1/signup/registration/verify-
+      endPoint: /v1/signup/registration/verify-challenge
       uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_10
       role: resident
       restMethod: post
@@ -384,7 +384,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_ReqBody_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_11
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_12
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTCWOReqBody
@@ -415,7 +415,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_12
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_13
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -450,7 +450,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_ChallengeInfo_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_13
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_14
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTCWOChallengeInfo
@@ -485,7 +485,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_14
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_15
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -520,7 +520,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpaceVal_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_15
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_16
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -555,7 +555,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpecialChar_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_16
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_17
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -590,7 +590,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Alphabet_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_17
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_18
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -625,7 +625,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_AllZero_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_18
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_19
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -660,7 +660,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_DiffUser_Identifier_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_19
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_20
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -695,7 +695,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Registered_User_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_20
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_21
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -730,7 +730,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_ChallengeInfo_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_21
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_22
       role: resident
       restMethod: post
       allowedErrorCodes: invalid_challenge,invalid_challenge_format
@@ -766,7 +766,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_22
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_23
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -801,7 +801,8 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Missing_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-	              role: resident
+	  uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_24
+	  role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
       outputTemplate: esignet/error
@@ -835,7 +836,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_24
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_25
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -870,7 +871,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpaceVal_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_25
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_26
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -905,7 +906,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_ExtraDigit_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_26
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_27
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -940,7 +941,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_LessDigit_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_27
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_28
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -975,7 +976,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_28
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_29
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1010,7 +1011,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Alphabet_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_29
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_30
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1045,7 +1046,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_AlphaNum_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_30
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_31
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1080,7 +1081,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpecialChar_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_31
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_32
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1115,7 +1116,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Diff_Challenge_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_32
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_33
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1150,7 +1151,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Empty_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_33
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_34
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1185,7 +1186,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpaceVal_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_34
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_35
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1220,7 +1221,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Invalid_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_35
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_36
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1255,7 +1256,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Numeric_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_36
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_37
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1290,7 +1291,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_RandomVal_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_37
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_38
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1325,7 +1326,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_SpecialChar_Format_Neg:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_38
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_39
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1360,7 +1361,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Valid_Smoke_Pos:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_39
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_40
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1391,7 +1392,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_2:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_40
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_41
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1421,8 +1422,8 @@ VerifyChallengeNegTC:
 }'
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_3:
-      endPoint: /v1/signup/registration/verify-challenge\
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_41
+      endPoint: /v1/signup/registration/verify-challenge
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_42
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1453,7 +1454,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_4:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_42
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_43
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1484,7 +1485,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_5:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_43
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_44
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1515,7 +1516,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_6:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_44
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_45
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1546,7 +1547,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_For_Pos_Sce_7:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_45
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_46
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC
@@ -1577,7 +1578,7 @@ VerifyChallengeNegTC:
 
    ESignet_VerifyChallengeNegTC_STransId_Valid_Smoke_Pos_For_Authentication:
       endPoint: /v1/signup/registration/verify-challenge
-      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_46
+      uniqueIdentifier: TC_ESignet_VerifyChallengeNegTC_47
       role: resident
       restMethod: post
       inputTemplate: esignet/VerifyChallengeNegTC/VerifyChallengeNegTC

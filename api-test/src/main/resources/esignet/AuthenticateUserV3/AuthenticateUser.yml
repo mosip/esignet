@@ -1,6 +1,7 @@
 AuthenticateUserV3:
    ESignet_AuthenticateUser_V3_AuthToken_Xsrf__uin_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
+	  uniqueIdentifier: TC_ESignet_AuthenticateUserV3_01
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

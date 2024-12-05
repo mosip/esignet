@@ -1,6 +1,7 @@
 ClaimDetails:
    ESignet_ClaimDetails_AuthToken_Xsrf_uin_Valid_Smoke:
       endPoint: /v1/esignet/authorization/claim-details
+	  uniqueIdentifier: TC_ESignet_ClaimDetails_01
       role: resident
       restMethod: get
       checkErrorsOnlyInResponse: true

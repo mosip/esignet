@@ -1,6 +1,7 @@
 ConfigurationEndpoint:
    ESignet_ConfigurationEndpoint_StatusCode_all_Valid_Smoke:
       endPoint: /v1/esignet/oidc/.well-known/openid-configuration
+	  uniqueIdentifier: TC_ESignet_ConfigurationEndpoint_01
       role: resident
       restMethod: get
       inputTemplate: esignet/ConfigurationEndpoint/ConfigurationEndpoint
