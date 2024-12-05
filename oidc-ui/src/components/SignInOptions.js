@@ -97,7 +97,7 @@ export default function SignInOptions({
         Object.keys(icons)?.length
       ) {
         setIconsMap(icons);
-      } else {
+      } else if (!icons){
         preloadIcons();
       }
     }
@@ -107,7 +107,15 @@ export default function SignInOptions({
     } else {
       setStatus({ state: states.LOADING, msg: "loading_msg" });
     }
-  }, [singinOptions, iconsMap]);
+  }, [singinOptions]);
+  
+  useEffect(() => {
+    if (iconsMap && Object.keys(iconsMap)?.length > 0) {
+      setStatus({ state: states.LOADED, msg: "" });
+    } else {
+      setStatus({ state: states.LOADING, msg: "loading_msg" });
+    }
+  }, [iconsMap]);
 
   useEffect(() => {
     setStatus({ state: states.LOADING, msg: "loading_msg" });
@@ -127,13 +135,13 @@ export default function SignInOptions({
     }
 
     setSinginOptions(loginOptions);
-    setShowMoreOptions(loginOptions.length > 4 && loginOptions.length !== 5);
+    setShowMoreOptions(loginOptions.length > 4);
     setStatus({ state: states.LOADED, msg: "" });
   }, []);
 
   return (
     <>
-      <h1 className="text-base leading-5 font-sans font-medium mb-1 mt-2">
+      <h1 className="text-base leading-5 font-sans font-medium my-2">
         {t("preferred_mode_of_login")}
       </h1>
 
@@ -146,7 +154,7 @@ export default function SignInOptions({
       {status.state === states.LOADED &&
         singinOptions &&
         Object.keys(iconsMap)?.length > 0 && (
-          <div className="grid grid-rows-7 w-full rounded">
+          <div className="grid grid-rows-4 w-full rounded">
             {singinOptions
               .slice(0, showMoreOptions ? 4 : undefined)
               .map((option, idx) => (

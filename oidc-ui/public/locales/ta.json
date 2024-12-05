@@ -89,7 +89,7 @@
   "password": {
     "sign_in_with_password": "கடவுச்சொல் மூலம் உள்நுழைக",
     "remember_me": "என்னை நினைவு செய்யுங்கள்",
-    "login": "தொடரவும்",
+    "login": "உள்நுழைக",
     "uin_label_text": "UIN/VID",
     "password_label_text": "கடவுச்சொல்",
     "uin_placeholder": "உங்கள் UIN அல்லது VID ஐ உள்ளிடவும்",

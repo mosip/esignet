@@ -89,7 +89,7 @@
   "password": {
     "sign_in_with_password": "تسجيل الدخول بكلمة المرور",
     "remember_me": "تذكرنى",
-    "login": "يكمل",
+    "login": "تسجيل الدخول",
     "uin_label_text": "UIN/VID",
     "password_label_text": "كلمة المرور",
     "uin_placeholder": "أدخل رقم UIN أو VID الخاص بك",

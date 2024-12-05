@@ -440,8 +440,8 @@ export default function Password({
                         ? currentLoginID.input_label
                         : t1(field.labelText)
                     }
-                    labelFor={"Password_" + currentLoginID.id}
-                    id={"Password_" + currentLoginID.id}
+                    labelFor={idx === 0 ? currentLoginID.id : "Password_" + currentLoginID.id}
+                    id={idx === 0 ? currentLoginID.id : "Password_" + currentLoginID.id}
                     name={
                       idx === 0 ? "Password_" + currentLoginID.id : "password"
                     }

@@ -89,7 +89,7 @@
   "password": {
     "sign_in_with_password": "पासवर्ड से लॉगिन करें",
     "remember_me": "मुझे याद करो",
-    "login": "जारी रखना",
+    "login": "लॉग इन करें",
     "uin_label_text": "यूआईएन/वीआईडी",
     "password_label_text": "पासवर्ड",
     "uin_placeholder": "अपना यूआईएन या वीआईडी ​​दर्ज करें",
