@@ -61,7 +61,14 @@
     "Face": "Face",
     "Finger": "Finger",
     "Iris": "Iris",
-    "select_a_device": "Select a Device"
+    "select_a_device": "Select a Device",
+    "invalid_input": "Please Enter Valid {{id}}",
+    "mobile": "Mobile Number",
+    "nrc": "NRC ID",
+    "vid": "VID",
+    "email": "Email",
+    "login_with_id": "Login with {{currentID}}",
+    "multiple_login_ids": "Select a Login ID Option"
   },
   "pin": {
     "sign_in_with_pin": "Login with PIN",
@@ -70,7 +77,14 @@
     "uin_label_text": "UIN/VID",
     "pin_label_text": "PIN",
     "uin_placeholder": "Enter Your UIN or VID",
-    "pin_placeholder": "Enter PIN"
+    "pin_placeholder": "Enter PIN",
+    "invalid_input": "Please Enter Valid {{id}}",
+    "mobile": "Mobile Number",
+    "nrc": "NRC ID",
+    "vid": "VID",
+    "email": "Email",
+    "login_with_id": "Login with {{currentID}}",
+    "multiple_login_ids": "Select a Login ID Option"
   },
   "password": {
     "sign_in_with_password": "Login with Password",
@@ -79,9 +93,16 @@
     "uin_label_text": "UIN/VID",
     "password_label_text": "Password",
     "uin_placeholder": "Enter Your UIN or VID",
-    "password_placeholder": "Enter password",
+    "password_placeholder": "Enter Password",
     "forgot_password": "Forgot Password?",
-    "reset_password": "Reset Password"
+    "reset_password": "Reset Password",
+    "invalid_input": "Please Enter Valid {{id}}",
+    "mobile": "Mobile Number",
+    "nrc": "NRC ID",
+    "vid": "VID",
+    "email": "Email",
+    "login_with_id": "Login with {{currentID}}",
+    "multiple_login_ids": "Select a Login ID Option"
   },
   "Form": {
     "sign_in_with_details": "Login with Details",
@@ -91,7 +112,8 @@
     "dob_label_text": "Enter DOB",
     "policyNumber_placeholder": "Policy Number",
     "fullName_placeholder": "Full Name",
-    "dob_placeholder": "DOB"
+    "dob_placeholder": "DOB",
+    "login_with_kbi": "Login with KBI"
   },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
@@ -100,7 +122,8 @@
     "link_code_status": "Link Code Status",
     "failed": "Unable to login. Please scan QR code and try again.",
     "refresh": "Refresh QR Code",
-    "open_wallet_app": "Open {{walletName}} App"
+    "open_wallet_app": "Open {{walletName}} App",
+    "login_with_id": "Login with {{currentID}}"
   },
   "otp": {
     "sign_in_with_otp": "Login with OTP",
@@ -114,15 +137,24 @@
     "otp_placeholder": "1234",
     "mobile_number": "Mobile Number",
     "email_address": "Email Address",
-    "otp_sent_msg": "OTP has been sent to your registered {{otpChannels}}",
-    "resend_otp_counter": "Resend OTP in {{min}}:{{sec}}",
+    "otp_sent_msg": "Please enter the {{otpLength}}-digit OTP sent to ",
+    "resend_otp_counter": "You can resend the OTP in {{min}}:{{sec}}",
     "mobile_placeholder": "Mobile Number: {{mobileNumber}}",
     "email_placeholder": "Email Address: {{emailAddress}}",
-    "mobile_email_placeholder": "Mobile Number: {{mobileNumber}} and Email Address: {{emailAddress}}"
+    "mobile_email_placeholder": "Mobile Number: {{mobileNumber}} and Email Address: {{emailAddress}}",
+    "invalid_input": "Please Enter Valid {{id}}",
+    "mobile": "Mobile Number",
+    "nrc": "NRC ID",
+    "vid": "VID",
+    "email": "Email",
+    "login_with_id": "Login with {{currentID}}",
+    "multiple_login_ids": "Select a Login ID Option",
+    "enter_otp": "Enter OTP",
+    "and": "and"
   },
   "signInOption": {
     "login_option_heading": "Choose How You Want to Login:",
-    "login_with": "Login with {{option}}",
+    "login_with_id": "Login with {{option}}",
     "PIN": "PIN",
     "Biometrics": "Biometrics",
     "BIO": "Biometrics",
@@ -134,7 +166,7 @@
     "more_ways_to_sign_in": "More ways to sign in",
     "or": "OR",
     "sign_in_with": "Verify using {{idProviderName}}",
-    "verify_using_national_id":"Verify using other National IDs",
+    "verify_using_national_id": "Verify using other National IDs",
     "register": "Register"
   },
   "esignetDetails": {
@@ -143,7 +175,7 @@
     "wellknown_api": ".wellknown API"
   },
   "header": {
-    "login_heading": "Login",
+    "login_heading": "Login with eSignet",
     "login_subheading": "Please enter your registered username and password",
     "login_linkName": "Preregister",
     "more_ways_to_sign_in": "More Ways to Login",
@@ -154,6 +186,7 @@
     "language": "Language",
     "noAccount": "Don't have an account?",
     "signup_for_unified_login": "Sign Up with Unified Login",
+    "subheading": "{{clientName}} is asking for your Information",
     "subheader_text": {
       "all_login_options": "Please choose the login option",
       "otp_login": "Please enter your UIN/VID",
@@ -187,7 +220,8 @@
     "otp_info": "Enter your generated UIN/VID",
     "bio_info": "Enter your generated UIN/VID",
     "pin_info": "Enter your generated UIN/VID",
-    "username_info": "Enter your generated UIN/VID"
+    "username_info": "Enter your generated UIN/VID",
+    "caps_on": "Caps lock is on"
   },
   "consentDetails": {
     "essential_claims": "Essential Claims",
@@ -229,6 +263,28 @@
     "popup_body": "{{clientName}} requires access in order to proceed further, do you still wish to discontinue?",
     "consent_details_rejected": "We’re sorry! Your login was unsuccessful as consent was not shared."
   },
+  "loginOptions": {
+    "buttons": {
+      "mobile": "Mobile Number",
+      "nrc": "NRC ID",
+      "vid": "VID",
+      "email": "Email"
+    },
+    "input": {
+      "label": {
+        "mobile": "Mobile Number",
+        "nrc": "NRC ID",
+        "vid": "VID",
+        "email": "Email"
+      },
+      "placeholder": {
+        "mobile": "Enter Mobile Number",
+        "nrc": "Enter NRC ID",
+        "vid": "Enter VID",
+        "email": "Enter Email Here"
+      }
+    }
+  },
   "errors": {
     "invalid_policyNumber": "Please Enter Valid Policy Number.",
     "invalid_fullName": "Please Enter Valid Name.",
@@ -237,8 +293,8 @@
     "page_not_exist": "Oops! The page you are looking for does not exist.",
     "something_went_wrong": "Something went wrong!",
     "experts_working": "Our team is working to resolve the issue.",
-    "username_not_valid": "Please Enter Valid Username.",
-    "password_not_valid": "Please Enter Valid Password.",
+    "username_not_valid": "Please Enter Valid Username",
+    "password_not_valid": "Please Enter Valid Password",
     "no_response_msg": "No response from Server. Please try again.",
     "no_devices_found_msg": "Device not found. Please check your connectivity and try again.",
     "link_code_status_failed": "Failed to Load",
@@ -342,8 +398,8 @@
     "captcha_validator_not_found": "Unable to validate captcha. Please try again.",
     "invalid_captcha": "The captcha you entered is incorrect. Please try again.",
     "invalid_auth_factor_type_or_challenge_format": "Invalid auth factor type or challenge format.",
-    "invalid_auth_factor_type_format" : "Invalid auth factor type or challenge format.",
-    "invalid_challenge_length" : "Invalid challenge, Min or Max length constraint violated.",
+    "invalid_auth_factor_type_format": "Invalid auth factor type or challenge format.",
+    "invalid_challenge_length": "Invalid challenge, Min or Max length constraint violated.",
     "unsupported_pkce_challenge_method": "Unsupported proof key challenge exchange method.",
     "invalid_pkce_challenge": "Invalid Proof key challenge.",
     "invalid_pkce_code_verifier": "Invalid proof key code verifier.",
@@ -363,7 +419,7 @@
     "proof_invalid_iat": "Invalid value in proof payload iat claim.",
     "proof_invalid_nonce": "Invalid value in proof payload nonce claim.",
     "no_attempts_left": "The limit for authentication attempts has been reached. Please try again later.",
-    "individual_id_blocked": "The user has been temporarily blocked. Please contact support for further assistance.", 
+    "individual_id_blocked": "The user has been temporarily blocked. Please contact support for further assistance.",
     "invalid_state_response": "Invalid state",
     "authCode_missing": "AuthCode Missing",
     "failed_to_validate_captcha": "Unable to validate captcha. Please try again.",

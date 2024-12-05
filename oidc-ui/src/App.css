@@ -392,6 +392,10 @@ input[type="checkbox"]:hover {
   width: var(--login-client-logo-image-width);
 }
 
+.client-logo-shadow {
+  box-shadow: var(--login-client-logo-image-shadow);
+}
+
 .alternate-arrow {
   font-size: var(--login-alternate-arrow-size);
 }
@@ -412,7 +416,6 @@ input[type="checkbox"]:hover {
 .error-banner {
   color: #d52929;
   background-color: #faefef;
-  height: 40px;
 }
 
 .error-banner-text {
@@ -430,7 +433,7 @@ input[type="checkbox"]:hover {
   display: flex;
   align-items: center;
   border: 1px solid #e5e7eb;
-  border-radius: 4px;
+  border-radius: 0.5rem;
   overflow: hidden;
 }
 
@@ -525,6 +528,48 @@ input[type="number"] {
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
+}
+
+.selected_login_id {
+  border-color: var(--selected_login_id_border_color);
+  color: var(--selected_login_id_color);
+}
+
+.login_id:hover {
+  border-color: var(--login_id_hover_border_color);
+  color: var(--login_id_hover_color);
+}
+
+.login_id:focus {
+  color: var(--selected_login_id_focus_color);
+  outline-color: var(--selected_login_id_focus_outline_color);
+}
+
+.qr-title {
+  color: var(--qr_code_title_color);
+}
+
+.resend_otp {
+  color: var(--resend_otp_button_color);
+
+  &:hover,
+  &:focus {
+    color: var(--resend_otp_button_color) !important;
+  }
+}
+
+#login-header {
+  font-family: "Roboto";
+  letter-spacing: 0.25px;
+  color: var(--login-header-text-color);
+}
+
+#login-subheader {
+  color: var(--login-subheader-text-color);
+}
+
+.caps_lock {
+  color: var(--caps-lock-text-color);
 }
 
 @media screen and (max-width: 767px) {

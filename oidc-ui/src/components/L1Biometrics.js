@@ -14,9 +14,11 @@ import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
 import ReCAPTCHA from "react-google-recaptcha";
+import LoginIDOptions from "./LoginIDOptions";
+import InputWithPrefix from "./InputWithPrefix";
 
 let fieldsState = {};
-const langConfig = await langConfigService.getEnLocaleConfiguration();  
+const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function L1Biometrics({
   param,
@@ -24,9 +26,8 @@ export default function L1Biometrics({
   openIDConnectService,
   backButtonDiv,
   i18nKeyPrefix1 = "l1Biometrics",
-  i18nKeyPrefix2 = "errors"
+  i18nKeyPrefix2 = "errors",
 }) {
-
   const { t: t1, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix1,
   });
@@ -46,7 +47,7 @@ export default function L1Biometrics({
   const { post_AuthenticateUser, buildRedirectParams } = authService;
 
   inputFields.forEach((field) => (fieldsState["sbi_" + field.id] = ""));
-  const [loginState, setLoginState] = useState(fieldsState);
+
   const [status, setStatus] = useState({
     state: states.LOADED,
     msg: "",
@@ -57,6 +58,21 @@ export default function L1Biometrics({
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
+
+  const [currentLoginID, setCurrentLoginID] = useState(null);
+  const [countryCode, setCountryCode] = useState(null);
+  const [individualId, setIndividualId] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [isValid, setIsValid] = useState(false);
+  const [isBtnDisabled, setIsBtnDisabled] = useState(true);
+  const [prevLanguage, setPrevLanguage] = useState(i18n.language);
+
+  const iso = require("iso-3166-1");
+  const countries = iso.all();
+
+  var loginIDs = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.loginIdOptions
+  );
 
   const captchaEnableComponents =
     openIDConnectService.getEsignetConfiguration(
@@ -83,9 +99,86 @@ export default function L1Biometrics({
 
   const authTxnIdLength = parseInt(authTxnIdLengthValue);
 
-  const handleInputChange = (e) => {
-    setLoginState({ ...loginState, [e.target.id]: e.target.value });
+  function getPropertiesForLoginID(loginID, label) {
+    const { prefixes, maxLength: outerMaxLength, regex: outerRegex } = loginID;
+
+    if (Array.isArray(prefixes) && prefixes.length > 0) {
+      const prefix = prefixes.find((prefix) => prefix.label === label);
+      if (prefix) {
+        return {
+          maxLength: prefix.maxLength || outerMaxLength || null,
+          regex: prefix.regex || outerRegex || null,
+        };
+      }
+    }
+
+    return {
+      maxLength: outerMaxLength || null,
+      regex: outerRegex || null,
+    };
+  }
+
+  const handleChange = (e) => {
+    setIsValid(true);
+    onCloseHandle();
+    const idProperties = getPropertiesForLoginID(
+      currentLoginID,
+      e.target.name.split("_")[1]
+    );
+    const maxLength = idProperties.maxLength;
+    const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
+    const trimmedValue = e.target.value.trim();
+
+    let newValue = regex
+      ? trimmedValue
+          .split("")
+          .filter((char) => regex.test(char))
+          .join("")
+      : trimmedValue;
+
+    setIndividualId(newValue); // Update state with the visible valid value
+
+    setIsBtnDisabled(
+      !(
+        (
+          (!maxLength && !regex) || // Case 1: No maxLength, no regex
+          (maxLength && !regex && newValue.length === parseInt(maxLength)) || // Case 2: maxLength only
+          (!maxLength && regex && regex.test(newValue)) || // Case 3: regex only
+          (maxLength &&
+            regex &&
+            newValue.length === parseInt(maxLength) &&
+            regex.test(newValue))
+        ) // Case 4: Both maxLength and regex
+      )
+    );
   };
+
+  const handleBlur = (e) => {
+    const idProperties = getPropertiesForLoginID(
+      currentLoginID,
+      e.target.name.split("_")[1]
+    );
+    const maxLength = idProperties.maxLength;
+    const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
+    setIsValid(
+      (!maxLength || e.target.value.trim().length === parseInt(maxLength)) &&
+        (!regex || regex.test(e.target.value.trim()))
+    );
+  };
+
+  useEffect(() => {
+    if (i18n.language === prevLanguage) {
+      setIndividualId(null);
+      setIsValid(false);
+      setIsBtnDisabled(true);
+      onCloseHandle();
+      if (currentLoginID && currentLoginID.prefixes) {
+        setSelectedCountry(currentLoginID.prefixes[0]);
+      }
+    } else {
+      setPrevLanguage(i18n.language);
+    }
+  }, [currentLoginID]);
 
   /* authenticate method after removing startCapture
    * which have capturing & authenticate as well
@@ -95,18 +188,27 @@ export default function L1Biometrics({
     setStatus({ state: states.LOADED, msg: "" });
     const { errorCode } = validateBiometricResponse(biometricResponse);
 
-    const vid = inputFields[0].prefix + loginState["sbi_mosip-vid"] + inputFields[0].postfix;
+    let prefix = currentLoginID.prefixes
+      ? typeof currentLoginID.prefixes === "object"
+        ? countryCode
+        : currentLoginID.prefixes
+      : "";
+    let id = individualId;
+    let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
+
+    let ID = prefix + id + postfix;
+
     if (errorCode === null) {
       try {
         await Authenticate(
           transactionId,
-          vid,
+          ID,
           openIDConnectService.encodeBase64(biometricResponse["biometrics"])
         );
       } catch (error) {
         setErrorBanner({
           errorCode: "authentication_failed_msg",
-          show: true
+          show: true,
         });
       }
     }
@@ -179,7 +281,7 @@ export default function L1Biometrics({
     setCaptchaToken(null);
   };
 
-  const Authenticate = async (transactionId, uin, bioValue) => {
+  const Authenticate = async (transactionId, id, bioValue) => {
     const challengeList = [
       {
         authFactorType: challengeTypes.bio,
@@ -195,7 +297,7 @@ export default function L1Biometrics({
 
     const authenticateResponse = await post_AuthenticateUser(
       transactionId,
-      uin,
+      id,
       challengeList,
       captchaToken
     );
@@ -205,22 +307,21 @@ export default function L1Biometrics({
     const { response, errors } = authenticateResponse;
 
     if (errors != null && errors.length > 0) {
-
-      let errorCodeCondition = langConfig.errors.biometrics[errors[0].errorCode] !== undefined && langConfig.errors.biometrics[errors[0].errorCode] !== null;
+      let errorCodeCondition =
+        langConfig.errors.biometrics[errors[0].errorCode] !== undefined &&
+        langConfig.errors.biometrics[errors[0].errorCode] !== null;
 
       if (errorCodeCondition) {
         setErrorBanner({
           errorCode: `biometrics.${errors[0].errorCode}`,
-          show: true
+          show: true,
         });
-      }
-      else if (errors[0].errorCode === "invalid_transaction") {
+      } else if (errors[0].errorCode === "invalid_transaction") {
         redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-      }
-      else {
+      } else {
         setErrorBanner({
           errorCode: `${errors[0].errorCode}`,
-          show: true
+          show: true,
         });
       }
       if (showCaptcha) {
@@ -246,7 +347,7 @@ export default function L1Biometrics({
 
   const getEsignetConfiguration = (key) => {
     return openIDConnectService.getEsignetConfiguration(configurationKeys[key]);
-  }
+  };
 
   useEffect(() => {
     let mosipProp = {
@@ -284,81 +385,116 @@ export default function L1Biometrics({
       return;
     }
     propChange({
-      disable: !loginState["sbi_mosip-vid"].length || inputError ||
-      (showCaptcha && captchaToken === null),
+      disable:
+        !individualId?.trim() ||
+        isBtnDisabled ||
+        (showCaptcha && captchaToken === null),
       onCapture: (e) => authenticateBiometricResponse(e),
     });
-  }, [loginState, inputError, captchaToken]);
+  }, [individualId, isBtnDisabled, captchaToken, countryCode]);
 
   const onCloseHandle = () => {
     setErrorBanner(null);
   };
 
-  const onBlurChange = (e, errors) => {
-    setInputError(errors.length === 0 ? null : errors);
-  }
-
   return (
     <>
-      <div className="grid grid-cols-8 items-center">
+      <div className="flex items-center">
         {backButtonDiv}
+        {currentLoginID && (
+          <div className="inline mx-2 font-semibold my-3">
+            {loginIDs && loginIDs.length > 1
+              ? t1("multiple_login_ids")
+              : `${t1("login_with_id", {
+                currentID: `${t1(currentLoginID.id)}`
+              })}`}
+          </div>
+        )}
       </div>
       {errorBanner !== null && (
-        <ErrorBanner
-          showBanner={errorBanner.show}
-          errorCode={t2(errorBanner.errorCode)}
-          onCloseHandle={onCloseHandle}
-        />
-      )}
-      <form className="relative mt-6 space-y-5">
-        <div className="-space-y-px">
-          {inputFields.map((field) => (
-            <InputWithImage
-              key={"sbi_" + field.id}
-              handleChange={handleInputChange}
-              blurChange={onBlurChange}
-              value={loginState["sbi_" + field.id]}
-              labelText={t1(field.labelText)}
-              labelFor={field.labelFor}
-              id={"sbi_" + field.id}
-              name={field.name}
-              type={field.type}
-              isRequired={field.isRequired}
-              placeholder={t1(field.placeholder)}
-              customClass={inputCustomClass}
-              imgPath="images/photo_scan.png"
-              tooltipMsg="vid_info"
-              prefix={field.prefix}
-              errorCode={field.errorCode}
-              maxLength={field.maxLength}
-              regex={field.regex}
-              icon={field.infoIcon}
-            />
-          ))}
+        <div className="mb-4">
+          <ErrorBanner
+            showBanner={errorBanner.show}
+            errorCode={t2(errorBanner.errorCode)}
+            onCloseHandle={onCloseHandle}
+          />
         </div>
-        
-        {showCaptcha && (
-          <div className="flex justify-center mt-5 mb-5">
-            <ReCAPTCHA
-              hl={i18n.language}
-              ref={_reCaptchaRef}
-              onChange={handleCaptchaChange}
-              sitekey={captchaSiteKey}
-            />
-          </div>
+      )}
+      <LoginIDOptions
+        currentLoginID={(value) => {
+          setCurrentLoginID(value);
+        }}
+      />
+      <form className="relative">
+        {currentLoginID && (
+          <>
+            <div className="mt-0">
+              {currentLoginID?.prefixes?.length > 0 ? (
+                <InputWithPrefix
+                  currentLoginID={currentLoginID}
+                  login="sbi"
+                  countryCode={(val) => {
+                    setCountryCode(val);
+                  }}
+                  selectedCountry={(val) => {
+                    setSelectedCountry(val);
+                  }}
+                  individualId={(val) => {
+                    setIndividualId(val);
+                  }}
+                  isBtnDisabled={(val) => {
+                    setIsBtnDisabled(val);
+                  }}
+                  i18nPrefix={i18nKeyPrefix1}
+                />
+              ) : (
+                inputFields.map((field) => (
+                  <InputWithImage
+                    key={"sbi_" + currentLoginID.id}
+                    handleChange={handleChange}
+                    blurChange={handleBlur}
+                    labelText={currentLoginID.input_label}
+                    labelFor={"sbi_" + currentLoginID.id}
+                    id={"sbi_" + currentLoginID.id}
+                    name={"sbi_" + currentLoginID.id}
+                    type={field.type}
+                    placeholder={currentLoginID.input_placeholder}
+                    customClass={inputCustomClass}
+                    isRequired={field.isRequired}
+                    tooltipMsg="vid_info"
+                    individualId={individualId}
+                    isInvalid={!isValid}
+                    value={individualId ?? ""}
+                    currenti18nPrefix={i18nKeyPrefix1}
+                  />
+                ))
+              )}
+            </div>
+
+            {showCaptcha && (
+              <div className="flex justify-center mt-5 mb-5">
+                <ReCAPTCHA
+                  hl={i18n.language}
+                  ref={_reCaptchaRef}
+                  onChange={handleCaptchaChange}
+                  sitekey={captchaSiteKey}
+                />
+              </div>
+            )}
+          </>
         )}
 
         {status.state === states.LOADING && errorBanner === null && (
-          <div>
+          <div className="my-2">
             <LoadingIndicator size="medium" message={status.msg} />
           </div>
         )}
 
-        <div id="secure-biometric-interface-integration"></div>
+        <div id="secure-biometric-interface-integration" className="my-2"></div>
 
         {status.state === states.AUTHENTICATING && errorBanner === null && (
           <div className="absolute bottom-0 left-0 bg-white bg-opacity-70 h-full w-full flex justify-center font-semibold">
-            <div className="flex items-center">
+            <div className="flex items-center my-2">
               <LoadingIndicator
                 size="medium"
                 message={status.msg}

@@ -6,9 +6,10 @@ export default function FormAction({
   text,
   disabled = false,
   id,
+  customClassName
 }) {
   const className =
-    "flex justify-center w-full font-medium rounded-lg text-sm px-5 py-2 text-center border border-2 ";
+    "flex justify-center w-full font-semibold rounded-lg px-5 py-3 text-center border border-2 ";
 
   return (
     <>
@@ -16,7 +17,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={className + " primary-button"}
+          className={className + " primary-button " + customClassName}
           onClick={handleClick}
           disabled={disabled}
           id={id}
@@ -28,7 +29,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={className + " primary-button"}
+          className={className + " primary-button " + customClassName}
           onSubmit={handleClick}
           disabled={disabled}
           id={id}
@@ -40,7 +41,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={className + " primary-button"}
+          className={className + " primary-button " + customClassName}
           onClick={handleClick}
           disabled={disabled}
           id={id}
@@ -53,7 +54,7 @@ export default function FormAction({
           type={type}
           value={type}
           className={
-            className + " secondary-button"
+            className + " secondary-button " + customClassName
           }
           onClick={handleClick}
           disabled={disabled}
@@ -67,7 +68,7 @@ export default function FormAction({
           type={type}
           value={type}
           className={
-            className + "secondary-button discontinue-button"
+            className + "secondary-button discontinue-button " + customClassName
           }
           onClick={handleClick}
           disabled={disabled}
