@@ -104,11 +104,11 @@ const InputWithPrefix = (props) => {
       e.target.name.split("_")[1]
     );
     const maxLength = idProperties.maxLength;
-    if (maxLength && e.target.value.trim().length === parseInt(maxLength)) {
-      setIsValid(true);
-    } else {
-      setIsValid(false);
-    }
+    const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
+    setIsValid(
+      (!maxLength || e.target.value.trim().length === parseInt(maxLength)) &&
+        (!regex || regex.test(e.target.value.trim()))
+    );
   };
 
   const handleCountryChange = (option) => {
