@@ -514,8 +514,9 @@ export default function LoginQRCode({
         {qr && (
           <>
             <p className="text-center mb-3 relative bottom-4 qr-title">
-              Scan the QR code with {walletDetail[walletConfigKeys.walletName]}{" "}
-              app
+              {t1("wallet_header", {
+                walletName: walletDetail[walletConfigKeys.walletName],
+              })}
             </p>
             <div className="w-full flex justify-center">
               <button

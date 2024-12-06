@@ -426,7 +426,7 @@ export default function OtpVerify({
             text={t1("resend_otp")}
             handleClick={handleSendOtp}
             id="resend_otp"
-            disabled={showCaptcha && captchaToken === null}
+            disabled={(showCaptcha && captchaToken === null) || !showResendOtp}
             customClassName={`!bg-white !border-none !p-0 !w-max !m-auto ${
               showResendOtp ? "resend_otp" : "!text-gray-400"
             }`}

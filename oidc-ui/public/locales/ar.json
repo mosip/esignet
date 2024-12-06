@@ -123,7 +123,8 @@
     "failed": "غير قادر على تسجيل الدخول. ",
     "refresh": "تحديث رمز الاستجابة السريعة",
     "open_wallet_app": "يفتح {{walletName}} برنامج",
-    "login_with_id": "تسجيل الدخول باستخدام {{currentID}}"
+    "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "wallet_header": "امسح رمز QR ضوئيًا باستخدام تطبيق {{walletName}}."
   },
   "otp": {
     "sign_in_with_otp": "تسجيل الدخول باستخدام OTP",
