@@ -123,7 +123,8 @@
     "failed": "Unable to login. Please scan QR code and try again.",
     "refresh": "Refresh QR Code",
     "open_wallet_app": "Open {{walletName}} App",
-    "login_with_id": "Login with {{currentID}}"
+    "login_with_id": "Login with {{currentID}}",
+    "wallet_header": "Scan the QR code with {{walletName}} app"
   },
   "otp": {
     "sign_in_with_otp": "Login with OTP",
