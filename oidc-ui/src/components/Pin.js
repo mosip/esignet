@@ -405,8 +405,8 @@ export default function Pin({
                         ? currentLoginID.input_label
                         : t1(field.labelText)
                     }
-                    labelFor={"Pin_" + currentLoginID.id}
-                    id={"Pin_" + currentLoginID.id}
+                    labelFor={idx === 0 ? currentLoginID.id : "Pin_" + currentLoginID.id}
+                    id={idx === 0 ? currentLoginID.id : "Pin_" + currentLoginID.id}
                     name={idx === 0 ? "Pin_" + currentLoginID.id : "pin"}
                     type={field.type}
                     isRequired={field.isRequired}

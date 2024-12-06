@@ -89,7 +89,7 @@
   "password": {
     "sign_in_with_password": "ចូលដោយប្រើពាក្យសម្ងាត់",
     "remember_me": "ចងចាំខ្ញុំ",
-    "login": "បន្ត",
+    "login": "ចូល",
     "uin_label_text": "UIN/VID",
     "password_label_text": "ពាក្យសម្ងាត់",
     "uin_placeholder": "បញ្ចូល UIN ឬ VID របស់អ្នក។",
