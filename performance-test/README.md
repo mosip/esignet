@@ -63,6 +63,9 @@
     <version>9.25.6</version>
 </dependency>
 
+* eSignet-default properties: eSignet will be pointing to MockIDA services after performing following changes
+		*mosip.esignet.integration.authenticator=MockAuthenticationService
+		*mosip.esignet.integration.key-binder=MockKeyBindingWrapperService
 
 ### Execution points for eSignet Authentication API's
 
