@@ -558,7 +558,7 @@ vars.put(&quot;mockId&quot;,mockId.toString());
           <boolProp name="recycle">true</boolProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
           <boolProp name="stopThread">false</boolProp>
-          <stringProp name="variableNames">individualId,Name</stringProp>
+          <stringProp name="variableNames">individualId,name</stringProp>
         </CSVDataSet>
         <hashTree/>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S01 T01 GetCsrfToken" enabled="true">
@@ -1101,96 +1101,6 @@ vars.put(&quot;utcTime&quot;, utcTime);
             </RegexExtractor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Authorization Code Endpoint API" enabled="false">
-            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&#xd;
-  &quot;requestTime&quot;: &quot;${utcTime}Z&quot;,&#xd;
-  &quot;request&quot;: {&#xd;
-    &quot;transactionId&quot;: &quot;${tidUserInfoPrep}&quot;,&#xd;
-    &quot;permittedAuthorizeScopes&quot;: [],&#xd;
-    &quot;acceptedClaims&quot;: [&#xd;
-      &quot;names&quot;&#xd;
-    ]&#xd;
-  }&#xd;
-}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
-            <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/v1/esignet/authorization/auth-code</stringProp>
-            <stringProp name="HTTPSampler.method">POST</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Content-Type</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-XSRF-TOKEN</stringProp>
-                  <stringProp name="Header.value">${loadCsrfToken}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Cookie</stringProp>
-                  <stringProp name="Header.value">XSRF-TOKEN=${loadCsrfToken}</stringProp>
-                </elementProp>
-                <elementProp name="oauth-details-hash" elementType="Header">
-                  <stringProp name="Header.name">oauth-details-hash</stringProp>
-                  <stringProp name="Header.value">${hashValue}</stringProp>
-                </elementProp>
-                <elementProp name="oauth-details-key" elementType="Header">
-                  <stringProp name="Header.name">oauth-details-key</stringProp>
-                  <stringProp name="Header.value">${tidUserInfoPrep}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="685365575">&quot;errors&quot;:[]</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
-            <hashTree/>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - Response Code" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="49586">200</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">2</intProp>
-            </ResponseAssertion>
-            <hashTree/>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Code" enabled="true">
-              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
-              <stringProp name="RegexExtractor.refname">codeTokenEndpoint</stringProp>
-              <stringProp name="RegexExtractor.regex">&quot;code&quot;:&quot;(.*?)&quot;</stringProp>
-              <stringProp name="RegexExtractor.template">$1$</stringProp>
-              <stringProp name="RegexExtractor.default">Code not found</stringProp>
-              <stringProp name="RegexExtractor.match_number">1</stringProp>
-            </RegexExtractor>
-            <hashTree/>
-          </hashTree>
         </hashTree>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S01 T06 Token" enabled="true">
           <boolProp name="TransactionController.includeTimers">false</boolProp>
@@ -1432,7 +1342,7 @@ import org.apache.commons.lang3.StringEscapeUtils
 
 def base64UrlEncodedJson=vars.get(&quot;encodedData&quot;);
 
-def data=vars.get(&quot;Name&quot;);
+def data=vars.get(&quot;name&quot;);
 
 def decodedBytes = Base64.decodeBase64(base64UrlEncodedJson)
 def decodedJsonString = new String(decodedBytes, &quot;UTF-8&quot;)
