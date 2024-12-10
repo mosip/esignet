@@ -21,7 +21,7 @@ Note: VCI implementations are permanently moved to Inji-Certify.
 
 4. All the required plugins are runtime dependency to esignet-service.
 
-![](/docs/esignet-service-basic-interations.png)
+![](../docs/esignet-service-basic-interactions.png)
 
 ## Local setup of eSignet with mock plugins
 
@@ -118,7 +118,7 @@ This approach gives you the flexibility to run eSignet in a standalone mode or c
 eSignet API documentation can be found [here](../docs/esignet-openapi.yaml)
 
 ## Databases
-Refer to [SQL scripts](db_scripts/mosip_esignet).
+Refer to [SQL scripts](../db_scripts/mosip_esignet).
 
 ## License
-This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
+This project is licensed under the terms of [Mozilla Public License 2.0](../LICENSE).
