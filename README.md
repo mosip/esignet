@@ -1,7 +1,10 @@
-[![Maven Package upon a push](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml/badge.svg?branch=develop)](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml)
+[![Maven Package upon a push](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml/badge.svg?branch=master)](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mosip_esignet&id=mosip_esignet&metric=alert_status)](https://sonarcloud.io/dashboard?id=mosip_esignet)
 # eSignet Project
 ## Overview
+
+eSignet offers a seamless and straightforward solution for incorporating an existing trusted identity database into the digital realm via plugins.
+
 This repository contains limited OpenId protocol implementation with:
 * OAuth 2.0 RFC 6749 - Authorization code flow support
 * OAuth 2.0 RFC 7636 - PKCE security extension
@@ -9,13 +12,12 @@ This repository contains limited OpenId protocol implementation with:
 * RFC 7519 - ID token and access token as JWT
 * OpenID Connect Discovery 1.0 - /.well-known/openid-configuration
 * RFC 5785 - Followed for both openid and oauth well-knowns
-* Identity assurance 1.0
+* Identity Assurance 1.0
 
 ## High level overview of eSignet with external systems
 
-![esignet-architecture-overview.png](docs/esignet-architecture-overview.png)
+![esignet-overview.png](docs/esignet-overview.png)
 
-`Note: Kindly refer `[eSignet signup repository](https://github.com/mosip/esignet-signup)` for more details on eSignet signup module.`
 
 eSignet repository contains following:
 
@@ -43,7 +45,7 @@ Refer to [SQL scripts](db_scripts).
 The project requires JDK 11.
 1. Build:
     ```
-    $ mvn clean install -Dgpg.skip=true
+    $ mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true
     ```
 ## [Deployment in K8 cluster](deploy/README.md)
 
