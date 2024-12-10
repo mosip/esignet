@@ -95,6 +95,8 @@ spec:
             - name: container_user
               value: {{ .Values.containerSecurityContext.runAsUser }}
             {{- if .Values.additionalResources.javaOpts }}
+            - name: SPRING_KAFKA_CONSUMER_GROUP_ID
+              value: esignet-consumer-{{ .Release.Namespace }} # Using the namespace dynamically
             - name: JDK_JAVA_OPTIONS
               value: {{ .Values.additionalResources.javaOpts }}
             {{- end }}

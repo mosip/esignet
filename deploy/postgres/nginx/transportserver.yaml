@@ -9,7 +9,7 @@ spec:
     protocol: TCP
   upstreams:
   - name: postgres
-    service: esignet-postgres-postgresql
+    service: postgres-postgresql
     port: 5432
   action:
     pass: postgres

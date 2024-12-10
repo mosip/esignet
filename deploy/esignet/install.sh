@@ -37,6 +37,7 @@ function installing_esignet() {
 
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
+  $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
   $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
@@ -77,10 +78,10 @@ function installing_esignet() {
       read -p "Enter the plugin number: " plugin_no
         while true; do
           if [[ "$plugin_no" == "1" ]]; then
-            plugin_option="--set plugin_name_env=esignet-mock-plugin.jar"
+            plugin_option="--set pluginNameEnv=esignet-mock-plugin.jar"
             break
           elif [[ "$plugin_no" == "2" ]]; then
-            plugin_option="--set plugin_name_env=mosip-identity-plugin.jar"
+            plugin_option="--set pluginNameEnv=mosip-identity-plugin.jar"
             break
           else
             echo "please provide the correct plugin number (1 or 2)."
@@ -97,9 +98,9 @@ function installing_esignet() {
     fi
   done
 
-
   echo Installing esignet
-  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE $plugin_option --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
+  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE $plugin_option \
+  --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
