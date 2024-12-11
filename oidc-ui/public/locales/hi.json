@@ -123,7 +123,8 @@
     "failed": "लॉगिन करने में असमर्थ। ",
     "refresh": "क्यूआर कोड रिफ्रेश करें",
     "open_wallet_app": "खुला {{walletName}} अनुप्रयोग",
-    "login_with_id": "{{currentID}} से लॉगिन करें"
+    "login_with_id": "{{currentID}} से लॉगिन करें",
+    "wallet_header": "{{walletName}} ऐप से QR कोड को स्कैन करें"
   },
   "otp": {
     "sign_in_with_otp": "ओटीपी से लॉगइन करें",

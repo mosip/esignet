@@ -364,10 +364,6 @@ export default function OtpVerify({
               )}
             </div>
           )}
-
-          {status.state === states.LOADING && (
-            <LoadingIndicator size="medium" message={status.msg} />
-          )}
         </div>
 
         <div
@@ -393,6 +389,7 @@ export default function OtpVerify({
             }}
             autoSelect={true}
             ref={(n) => (pin = n)}
+            disabled={status.state === states.LOADING}
           />
         </div>
 
@@ -426,12 +423,20 @@ export default function OtpVerify({
             text={t1("resend_otp")}
             handleClick={handleSendOtp}
             id="resend_otp"
-            disabled={showCaptcha && captchaToken === null}
+            disabled={
+              (showCaptcha && captchaToken === null) ||
+              !showResendOtp ||
+              status.state === states.LOADING
+            }
             customClassName={`!bg-white !border-none !p-0 !w-max !m-auto ${
               showResendOtp ? "resend_otp" : "!text-gray-400"
             }`}
           />
         </div>
+
+        {status.state === states.LOADING && (
+          <LoadingIndicator size="medium" message={status.msg} />
+        )}
       </form>
     </>
   );

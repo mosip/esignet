@@ -3,7 +3,7 @@
   --login-card-box-color: #BCC0C7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
-  --login-background: #FCFCFF;
+  --login-background: #f7f9fd;
   --language-icon-color: #FFFFFF;
   --language-icon-bg-color:  var(--primary-color);
   --login-background-min-height: calc(100vh - 104.6px) !important;
@@ -250,7 +250,7 @@
   --login-card-box-color: #bcc0c7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
-  --login-background: #fcfcff;
+  --login-background: #f7f9fd;
   --login-background-image: url("/images/section-bg.png");
   --login-background-min-height: calc(100vh - 157.6px) !important;
   --language-icon-color: #ffffff;
@@ -306,13 +306,13 @@
   --multipurpose-login-card-background-color: #ffffff;
   --side-section-bg-with: 226px;
   --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
-  --top-left-bg-logo-display: none;
+  --top-left-bg-logo-display: block;
   --bottom-left-bg-logo-url: url("/images/bg_bottom_left.png");
   --bottom-left-bg-logo-display: none;
   --top-right-bg-logo-url: url("/images/top_left_bg_logo.svg");
   --top-right-bg-logo-display: none;
   --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
-  --bottom-right-bg-logo-display: none;
+  --bottom-right-bg-logo-display: block;
   --login-client-logo-image-height: 3.25rem;
   --login-client-logo-image-width: 3.25rem;
   --login-alternate-arrow: "\21CB";

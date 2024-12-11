@@ -123,7 +123,8 @@
     "failed": "உள்நுழைய முடியவில்லை. ",
     "refresh": "QR குறியீட்டைப் புதுப்பிக்கவும்",
     "open_wallet_app": "திற {{walletName}} ஆப்",
-    "login_with_id": "{{currentID}} மூலம் உள்நுழைக"
+    "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
+    "wallet_header": "{{walletName}} ஆப்ஸ் மூலம் QR குறியீட்டை ஸ்கேன் செய்யவும்"
   },
   "otp": {
     "sign_in_with_otp": "OTP மூலம் உள்நுழையவும்",
