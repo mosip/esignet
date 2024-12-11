@@ -258,6 +258,12 @@ extraEnvVars: |
     value: esignet
   - name: IDA_AUTHENTICATOR_ENV
     value: Staging
+  - name: MOSIP_ESIGNET_UI_CONFIG_USERNAME_PREFIX
+    value: '+855'
+  - name: MOSIP_ESIGNET_INTEGRATION_KEY_BINDER
+    value: MockKeyBindingWrapperService
+  - name: MOSIP_ESIGNET_SIGNUP_ID_TOKEN_AUDIENCE
+    value: mosip-signup-oauth-client
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:
