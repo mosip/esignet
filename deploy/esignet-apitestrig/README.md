@@ -2,13 +2,25 @@
 
 ## Introduction
 ApiTestRig will test the working of APIs of the MOSIP modules.
-
 ## Install
+* Create a directory for apitestrig on the NFS server at `/srv/nfs/mosip/<sandbox>/apitestrig/`:
+```
+mkdir -p /srv/nfs/mosip/<sandbox>/apitestrig/
+```
+* Ensure the directory has 777 permissions:
+```
+chmod 777 /srv/nfs/mosip/<sandbox>/apitestrig
+```
+* Add the following entry to the /etc/exports file:
+```
+/srv/nfs/mosip/<sandbox>/apitestrig *(ro,sync,no_root_squash,no_all_squash,insecure,subtree_check)
+```
 * Review `values.yaml` and, Make sure to enable required modules for apitestrig operation.
-* Install
-```sh
+* run `./install.sh`.
+```
 ./install.sh
 ```
+
 * During the execution of the `install.sh` script, a prompt appears requesting information regarding the presence of a public domain and a valid SSL certificate on the server.
 * If the server lacks a public domain and a valid SSL certificate, it is advisable to select the `n` option. Opting it will enable the `init-container` with an `emptyDir` volume and include it in the deployment process.
 * The init-container will proceed to download the server's self-signed SSL certificate and mount it to the specified location within the container's Java keystore (i.e., `cacerts`) file.
