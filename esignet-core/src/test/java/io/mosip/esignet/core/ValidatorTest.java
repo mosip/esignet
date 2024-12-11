@@ -794,13 +794,18 @@ public class ValidatorTest {
 
     @Test
     public void test_ClientAdditionalConfigValidator_withValidValue_thenPass() {
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
         Map<String, Object> validAdditionalConfig = ClientAdditionalConfigValidatorTestData.getValidAdditionalConfig();
         Assert.assertTrue(clientAdditionalConfigValidator.isValid(validAdditionalConfig, null));
     }
 
     @Test
     public void test_ClientAdditionalConfigValidator_withInvalidValue_thenFail() {
-
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
         for (Map<String, Object> additionalConfig : ClientAdditionalConfigValidatorTestData.getInvalidAdditionalConfigs()) {
             Assert.assertFalse(clientAdditionalConfigValidator.isValid(additionalConfig, null));
         }

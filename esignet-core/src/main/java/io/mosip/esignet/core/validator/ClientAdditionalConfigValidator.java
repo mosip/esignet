@@ -8,7 +8,8 @@ import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import io.mosip.esignet.core.exception.EsignetException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -23,13 +24,16 @@ import java.util.Set;
 public class ClientAdditionalConfigValidator implements
         ConstraintValidator<ClientAdditionalConfig, Map<String, Object>> {
 
-    private String schemaUrl = "classpath:additional_config_request_schema.json";
+    @Value("${mosip.esignet.additional-config.schema.url}")
+    private String schemaUrl;
 
     private volatile JsonSchema cachedSchema;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private ResourceLoader resourceLoader = new DefaultResourceLoader();
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Override
     public void initialize(ClientAdditionalConfig constraintAnnotation) {
