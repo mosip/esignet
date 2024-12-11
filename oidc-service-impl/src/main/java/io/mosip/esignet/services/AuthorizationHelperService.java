@@ -213,13 +213,15 @@ public class AuthorizationHelperService {
 
     /**
      * Method validates challenge with "IDT" auth factor
-     * @param authChallenge
-     * @param transaction
-     * @param httpServletRequest
-     * @return
+     *
+     * @param authChallenge {@link AuthChallenge}
+     * @param individualId individual id from {@link AuthRequestV2}
+     * @param transaction {@link OIDCTransaction}
+     * @param httpServletRequest {@link HttpServletRequest}
+     * @return {@link KycAuthResult}
      */
     protected KycAuthResult handleInternalAuthenticateRequest(@NonNull AuthChallenge authChallenge,
-                                                              @NonNull OIDCTransaction transaction, HttpServletRequest httpServletRequest) {
+                                                              @NotNull String individualId, @NonNull OIDCTransaction transaction, HttpServletRequest httpServletRequest) {
         try {
             JsonNode jsonNode = objectMapper.readTree(IdentityProviderUtil.b64Decode(authChallenge.getChallenge()));
             if(jsonNode.isNull() || jsonNode.get("token").isNull())
@@ -228,6 +230,12 @@ public class AuthorizationHelperService {
             tokenService.verifyIdToken(token, signupIDTokenAudience);
             JWT jwt = JWTParser.parse(token);
             String subject = jwt.getJWTClaimsSet().getSubject();
+
+            //compares individual from auth request against subject from jwt token.
+            if(!individualId.equals(subject)){
+                throw new EsignetException(INVALID_INDIVIDUAL_ID);
+            }
+
             Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies())
                     .filter(x -> x.getName().equals(subject))
                     .findFirst();
@@ -246,6 +254,9 @@ public class AuthorizationHelperService {
                     result.isPresent(), haltedTransaction!=null);
         } catch (Exception e) {
             log.error("Failed to parse ID token as challenge", e);
+            if (e instanceof EsignetException && ((EsignetException) e).getErrorCode().equals(INVALID_INDIVIDUAL_ID)) {
+                throw new EsignetException(INVALID_INDIVIDUAL_ID);
+            }
         }
         throw new EsignetException(AUTH_FAILED);
     }
