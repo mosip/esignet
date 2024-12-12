@@ -405,7 +405,7 @@ export default function OtpVerify({
         )}
 
         <FormAction
-          disabled={otpValue.length !== otpLength}
+          disabled={otpValue.length !== otpLength || status.state === states.LOADING}
           type={buttonTypes.submit}
           text={t1("verify")}
           id="verify_otp"
