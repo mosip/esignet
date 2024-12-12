@@ -29,6 +29,9 @@ Kindly check our docker compose setup files to run eSignet locally [here](../doc
 
 ## Caching details
 
+All the transaction details are stored in cache. We support simple(in-memory) and redis cache. The way transaction is added or evicted from 
+the caches on every stage of OIDC transaction is detailed in the below tables.
+
 UI transaction
 
 | Endpoint     | Cache                                               | Evict                                               |
@@ -111,7 +114,6 @@ The eSignet service can run independently of a config server, yet remains flexib
 * SPRING_CONFIG_URL_ENV
 
 This approach gives you the flexibility to run eSignet in a standalone mode or connect it to an external configuration server as your setup requires.
-
 
 ## API document
 
