@@ -39,6 +39,12 @@
   ./initialise-prereq.sh
   ```
 ### Install esignet and oidc
+During deployment, the system will prompt for user input to select the appropriate plugin. The available options are listed below:
+1. esignet-mock-plugin.jar
+2. mosip-identity-plugin.jar
+
+For current scope of deployment, as it is limited to mock functionality, 
+select option 1 (esignet-mock-plugin.jar).
 ```
 ./install-esignet.sh
 ```
