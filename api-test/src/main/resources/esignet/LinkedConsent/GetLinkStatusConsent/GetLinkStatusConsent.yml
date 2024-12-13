@@ -1,6 +1,7 @@
 GetLinkStatusConsent:
    ESignet_GetLinkStatus_Consent_uin_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatusConsent_01
       description: Get link status consent UIN with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -19,6 +20,7 @@ GetLinkStatusConsent:
 
    ESignet_GetLinkStatus_Consent_Vid_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatusConsent_02
       description: Get link status consent VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -37,6 +39,7 @@ GetLinkStatusConsent:
 
    ESignet_GetLinkStatus_Consent_uin_EmptyClaim_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatusConsent_03
       description: Get link status consent UIN with empty claim
       role: resident
       checkErrorsOnlyInResponse: true

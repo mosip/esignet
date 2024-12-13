@@ -1,6 +1,7 @@
 GetOidcUserInfoLinkedConsent:
    ESignet_GetOidcUserInfo_LinkedConsent_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinkedConsent_01
       description: Get OIDC user info for linked consent UIN with all valid details
       role: resident
       restMethod: get
@@ -14,6 +15,7 @@ GetOidcUserInfoLinkedConsent:
       
    ESignet_GetOidcUserInfo_LinkedConsent_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinkedConsent_02
       description: Get OIDC user info for linked consent VID with all valid details
       role: resident
       restMethod: get
