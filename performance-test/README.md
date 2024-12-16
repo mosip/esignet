@@ -83,6 +83,16 @@
 		*S01 T06 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Pre-processor. The Pre-processor(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
 		*S01 T07 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
 	
+### Downloading Plugin manager jar file for the purpose installing other JMeter specific plugins
+
+* Download JMeter plugin manager from below url links.
+	*https://jmeter-plugins.org/get/
+
+* After downloading the jar file place it in below folder path.
+	*lib/ext
+
+* Please refer to following link to download JMeter jars.
+	https://mosip.atlassian.net/wiki/spaces/PT/pages/1227751491/Steps+to+set+up+the+local+system#PluginManager
 		
 ### Designing the workload model for performance test execution
 * Calculation of number of users depending on Transactions per second (TPS) provided by client
