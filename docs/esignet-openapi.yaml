@@ -1,6 +1,6 @@
 openapi: 3.1.0
 x-stoplight:
-  id: 2vyk8uw76c0j6
+  id: 1bt9cpymmfvts
 info:
   version: '1.0'
   title: eSignet
@@ -255,7 +255,7 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
       x-stoplight:
-        id: 6pu0p3a6mhqvr
+        id: olu5t4enay8v0
   /client-mgmt/oauth-client:
     post:
       tags:
@@ -489,6 +489,7 @@ paths:
       x-internal: false
       x-stoplight:
         id: fzn9175pquxhd
+      deprecated: true
   /client-mgmt/client:
     post:
       tags:
@@ -627,6 +628,62 @@ paths:
                         const: private_key_jwt
                     additionalConfig:
                       type: object
+                      required:
+                        - userinfo_response_type
+                        - purpose
+                        - signup_banner_required
+                        - forgot_pwd_link_required
+                        - consent_expire_in_days
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      properties:
+                        userinfo_response_type:
+                          x-stoplight:
+                            id: 6gpkj6mqys6va
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        purpose:
+                          type: object
+                          x-stoplight:
+                            id: sfa9a8ygak752
+                          description: 'Relying Parties should indicate the purpose of using eSignet (e.g., for login, verification) during registration, allowing for specific customisation.'
+                          required:
+                            - type
+                            - title
+                            - subTitle
+                          properties:
+                            type:
+                              x-stoplight:
+                                id: 9hqgv3ivrenfp
+                              enum:
+                                - Verify
+                                - Link
+                                - Login
+                            title:
+                              type: string
+                              x-stoplight:
+                                id: 7brcj2q2o7yyi
+                            subTitle:
+                              type: string
+                              x-stoplight:
+                                id: qagoh90f7hecz
+                        signup_banner_required:
+                          type: boolean
+                          x-stoplight:
+                            id: 4i1vlnmxu16e4
+                          description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have “Sign up with Unified login“ option.
+                        forgot_pwd_link_required:
+                          type: boolean
+                          x-stoplight:
+                            id: s1pb151yorc5y
+                          description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
+                        consent_expire_in_days:
+                          type: number
+                          x-stoplight:
+                            id: peyhsfc3w4ajc
+                          minimum: 0
+                          description: The number of days after which a user's given consent will expire.
             examples:
               example-1:
                 value:
@@ -661,7 +718,15 @@ paths:
                       - authorization_code
                     clientAuthMethods:
                       - private_key_jwt
-                    additionalConfig: {}
+                    additionalConfig:
+                      userinfo_response_type: JWS
+                      purpose:
+                        title: Verify your info with e-Signet
+                        type: Verify
+                        subTitle: Please verify the required details
+                      signup_banner_required: true
+                      forgot_pwd_link_required: true
+                      consent_expire_in_days: 30
       responses:
         '200':
           description: OK
@@ -925,7 +990,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: zr1f21tws4y9y
+        id: utfy424qtlbc9
   '/client-mgmt/oauth-client/{client_id}':
     put:
       tags:
@@ -1139,6 +1204,7 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
         id: z27nk9p9gk06g
+      deprecated: true
   '/client-mgmt/client/{client_id}':
     put:
       tags:
@@ -1265,6 +1331,62 @@ paths:
                         const: private_key_jwt
                     additionalConfig:
                       type: object
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      required:
+                        - userinfo_response_type
+                        - purpose
+                        - signup_banner_required
+                        - forgot_pwd_link_required
+                        - consent_expire_in_days
+                      properties:
+                        userinfo_response_type:
+                          x-stoplight:
+                            id: 6gpkj6mqys6va
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        purpose:
+                          type: object
+                          x-stoplight:
+                            id: sfa9a8ygak752
+                          description: 'Relying Parties should indicate the purpose of using eSignet (e.g., for login, verification) during registration, allowing for specific customisation.'
+                          required:
+                            - type
+                            - title
+                            - subTitle
+                          properties:
+                            type:
+                              x-stoplight:
+                                id: 9hqgv3ivrenfp
+                              enum:
+                                - Verify
+                                - Link
+                                - Login
+                            title:
+                              type: string
+                              x-stoplight:
+                                id: 7brcj2q2o7yyi
+                            subTitle:
+                              type: string
+                              x-stoplight:
+                                id: qagoh90f7hecz
+                        signup_banner_required:
+                          type: boolean
+                          x-stoplight:
+                            id: 4i1vlnmxu16e4
+                          description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have “Sign up with Unified login“ option.
+                        forgot_pwd_link_required:
+                          type: boolean
+                          x-stoplight:
+                            id: s1pb151yorc5y
+                          description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
+                        consent_expire_in_days:
+                          type: number
+                          x-stoplight:
+                            id: peyhsfc3w4ajc
+                          minimum: 0
+                          description: The number of days after which a user's given consent will expire.
             examples:
               Example 1:
                 value:
@@ -1294,7 +1416,15 @@ paths:
                       - authorization_code
                     clientAuthMethods:
                       - private_key_jwt
-                    additionalConfig: {}
+                    additionalConfig:
+                      userinfo_response_type: JWS
+                      purpose:
+                        title: Verify your info with e-Signet
+                        type: Verify
+                        subTitle: Please verify the required details
+                      signup_banner_required: true
+                      forgot_pwd_link_required: true
+                      consent_expire_in_days: 30
       responses:
         '200':
           description: OK
