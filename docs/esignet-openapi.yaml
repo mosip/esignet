@@ -1,6 +1,6 @@
 openapi: 3.1.0
 x-stoplight:
-  id: 2vyk8uw76c0j6
+  id: 7oz4lmhu3pf6b
 info:
   version: '1.0'
   title: eSignet
@@ -255,7 +255,7 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
       x-stoplight:
-        id: 6pu0p3a6mhqvr
+        id: ufuc57uqvy8nd
   /client-mgmt/oauth-client:
     post:
       tags:
@@ -488,7 +488,7 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
       x-stoplight:
-        id: 91b3a1508w0a5
+        id: llrtvbxzzypg9
   '/client-mgmt/oidc-client/{client_id}':
     put:
       tags:
@@ -687,7 +687,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: zr1f21tws4y9y
+        id: twjsfa0yqpyej
   '/client-mgmt/oauth-client/{client_id}':
     put:
       tags:
@@ -900,7 +900,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: dnbbtzbmppcsl
+        id: xwqybfwp9me23
   /authorize:
     get:
       tags:
@@ -1041,7 +1041,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: xel51v9q4xtvm
+        id: bx55bzakduy97
   /authorization/oauth-details:
     post:
       tags:
@@ -1062,7 +1062,7 @@ paths:
         4. scope / acrValues / claims / locales / claim_locales - unknown values are ignored. Only valid values are considered.
         5. scopes like profile, email and phone are allowed only if "openid" is also part of the requested scope.
         6. Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
-        7. claims considered only if part of registered claims.
+        7. Claims considered only if part of registered claims.
         8. ACR in claims request parameter is given the first priority over acr_values query parameter. if none of them are part of the registered acrs, registered ACRs are only considered to derive the auth factors.
       operationId: post-oauth-details
       parameters:
@@ -1261,7 +1261,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: plbkmewzwbi21
+        id: bhi8yst5xtovl
   /authorization/v2/oauth-details:
     post:
       tags:
@@ -1503,7 +1503,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: i5ht0irlohp9g
+        id: f8fifvn9td0n1
   /authorization/v3/oauth-details:
     post:
       tags:
@@ -1526,9 +1526,8 @@ paths:
         6. Claims request parameter is allowed, only if 'openid' is part of the scope request parameter
         7. claims considered only if part of registered claims.
         8. ACR in claims request parameter is given the first priority over acr_values query parameter. if none of them are part of the registered acrs, registered ACRs are only considered to derive the auth factors.
-        9. Verified claims in the 'claims' request parameter is supported only if the 'verified_claims_supported' flag is enabled.
-        10. Unknown or supported claims in the verified_claims parameter are ignored. 
-        11. idTokenHint is optional, if provided then it MUST be a valid JWT. 'sub' claim in the idTokenHint JWT payload must match the cookie name(set on the domain).If the cookie is not found with same name as of 'sub' claim, then the error is thrown.
+        9. Unknown or unsupported claims in the verified_claims parameter are ignored. 
+        10. idTokenHint is optional, if provided then it MUST be a valid JWT. 'sub' claim in the idTokenHint JWT payload must match the cookie name(set on the domain).If the cookie is not found with same name as of 'sub' claim, then the error is thrown.
       operationId: post-oauth-details-v3
       parameters:
         - name: X-XSRF-TOKEN
@@ -1755,7 +1754,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 0d1dmkcadb7iu
+        id: 5kwsv2k5932g8
   /authorization/send-otp:
     post:
       tags:
@@ -1894,7 +1893,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: olqbk7247688b
+        id: owaql9khq2ii9
   /linked-authorization/send-otp:
     post:
       tags:
@@ -2008,7 +2007,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: ww5t6kob3q1sc
+        id: b3138thajn9u4
   /authorization/authenticate:
     post:
       tags:
@@ -2138,7 +2137,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: yo34tum285pjb
+        id: xt4n2ff4zogdj
   /authorization/v2/authenticate:
     post:
       tags:
@@ -2276,7 +2275,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: lrym71d3b78v6
+        id: 5obwls7xlixv9
   /authorization/v3/authenticate:
     post:
       tags:
@@ -2420,6 +2419,7 @@ paths:
                             - invalid_challenge
                             - invalid_challenge_length
                             - invalid_challenge_format
+                            - invalid_captcha
                         errorMessage:
                           type: string
               examples:
@@ -2433,7 +2433,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 4kjy5afix1m2p
+        id: mgs48hfrem91q
   /authorization/auth-code:
     post:
       tags:
@@ -2560,7 +2560,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 4nac0grjh3ckp
+        id: ihwzp1k49ndtp
   /linked-authorization/link-code:
     post:
       tags:
@@ -2668,7 +2668,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 3dysrxbef3ht3
+        id: flzfkwilbocho
   /linked-authorization/link-transaction:
     post:
       tags:
@@ -2799,7 +2799,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 6tybrn5kekolm
+        id: 3ee98xoyw0bww
   /linked-authorization/v2/link-transaction:
     post:
       tags:
@@ -2939,7 +2939,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: t2hbrly00fjl3
+        id: zevye0dm733qx
   /linked-authorization/link-status:
     post:
       tags:
@@ -3052,7 +3052,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: vj7j4uk0geldw
+        id: 9gs5mjdlxs88n
   /linked-authorization/authenticate:
     post:
       tags:
@@ -3163,7 +3163,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 1gukg1x66cs69
+        id: bgjc5950ilnb9
   /linked-authorization/v2/authenticate:
     post:
       tags:
@@ -3282,7 +3282,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: lozvgnj5yg1be
+        id: r7hj34tn80w9x
   /linked-authorization/consent:
     post:
       tags:
@@ -3378,7 +3378,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: w1xz5wefevlib
+        id: da66r92cxqvam
   /linked-authorization/v2/consent:
     post:
       tags:
@@ -3477,7 +3477,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: m3xipj5r1svou
+        id: xext4ahumzbch
   /linked-authorization/link-auth-code:
     post:
       tags:
@@ -3598,7 +3598,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: h35gkz1v60phs
+        id: 05s8uwy4a3tr6
   /authorization/claim-details:
     get:
       tags:
@@ -3716,7 +3716,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: b7jnx7byz0ek4
+        id: fdlzxtdexapsn
     parameters: []
   /authorization/prepare-signup-redirect:
     post:
@@ -3773,7 +3773,7 @@ paths:
               description: uuid=encoded-json
       operationId: post-authorization-prepare-signup-redirect
       x-stoplight:
-        id: 9wb2ekkaeg7mk
+        id: d7hwkqd8hta5n
       parameters:
         - schema:
             type: string
@@ -3943,7 +3943,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 5nj96giav3npy
+        id: flbtdntgp97vt
   /oauth/token:
     post:
       tags:
@@ -4089,7 +4089,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: cdwhsjgoq9xbf
+        id: oq5wdn2tl5b68
   /oauth/v2/token:
     post:
       tags:
@@ -4252,7 +4252,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: zkcvd1seyedmd
+        id: bx4h4esbzst37
   /oidc/userinfo:
     get:
       tags:
@@ -4323,7 +4323,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: 5dgir3dl27lvp
+        id: 6iqtka3aua3f2
   /binding/binding-otp:
     post:
       tags:
@@ -4427,7 +4427,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: d3di5edwwt70b
+        id: t315hcecaulyy
   /binding/wallet-binding:
     post:
       tags:
@@ -4565,7 +4565,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: chsz43i4s7rkd
+        id: coqr4q7xd7k3x
   /.well-known/jwks.json:
     get:
       tags:
@@ -4649,7 +4649,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: azj8cuvdurps6
+        id: 4jt4qby3nx2e4
   /.well-known/openid-configuration:
     get:
       tags:
@@ -4846,7 +4846,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: o0uqnqgz9zm7j
+        id: 0t3znwjii5pcv
   /oauth/introspect:
     get:
       tags:
@@ -4902,7 +4902,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: o9h010bmb1db5
+        id: 4m5xw29vz2q9k
 tags:
   - name: Management
     description: Management level API's used for internal use.
@@ -4950,7 +4950,7 @@ components:
 
         **Note:** Unknown claim names either in userinfo or id_token are ignored.
       x-stoplight:
-        id: hhww7s6bqjn8j
+        id: ia7rtr773oztz
       properties:
         userinfo:
           type: object
@@ -4994,7 +4994,7 @@ components:
       type: object
       title: ClaimDetail
       x-stoplight:
-        id: 4enwly0dhq8tp
+        id: 6fpl3ntftytb2
       properties:
         essential:
           type: boolean
@@ -5042,13 +5042,13 @@ components:
       required:
         - type
       x-stoplight:
-        id: 50labrntmysgm
+        id: tsp0z081f1rag
     AuthChallenge:
       type: object
       title: AuthChallenge
       description: Model to take any type of challenge from the end user as part of authenticate request.
       x-stoplight:
-        id: thl682syr59bm
+        id: w3az95o1dv9h8
       required:
         - authFactorType
         - challenge
@@ -5080,7 +5080,7 @@ components:
     ClaimStatus:
       title: ClaimStatus
       x-stoplight:
-        id: o85s4acpltciv
+        id: dw0e0qr345403
       type: object
       description: Resolved claims among the RP requested claims with their availability and verification status.
       required:
@@ -5106,7 +5106,7 @@ components:
     VerifiedClaimDetail:
       title: VerifiedClaimDetail
       x-stoplight:
-        id: ombll0ox1abk0
+        id: aam5fhnleu0tk
       type: object
       description: |-
         Verified claim detail that can be requested by the RP
@@ -5293,6 +5293,8 @@ components:
 
 
 
+
+
                        JSON array representing the checks done in relation to the evidence. When present this array MUST have at least one member. This is applicable only for below evidence types:
                        1. document
                        2. electronic_record
@@ -5417,7 +5419,7 @@ components:
     EvidenceCheckDetail:
       title: EvidenceCheckDetail
       x-stoplight:
-        id: 56ntbetl6kt55
+        id: z3endvsasoabe
       type: object
       description: |-
         Object representing the checks done in relation to the evidence.
@@ -5454,7 +5456,7 @@ components:
     FilterCriteria:
       title: FilterCriteria
       x-stoplight:
-        id: xvfexlq01bb2w
+        id: tl65ie7ligsw6
       type: object
       description: Value or values used to filter the verified claims. if provided in the values parameter its a logical OR condition.
       properties:
@@ -5473,7 +5475,7 @@ components:
     EvidenceIssuer:
       title: EvidenceIssuer
       x-stoplight:
-        id: hia062eivzuvp
+        id: e24cvlea7chj3
       type: object
       description: ' JSON object containing information about the issuer of this document.'
       properties:
@@ -5500,7 +5502,7 @@ components:
     ElectronicRecord:
       title: ElectronicRecord
       x-stoplight:
-        id: 79aws43989s8i
+        id: 85iwcimsvb5yr
       type: object
       description: 'JSON object representing the record used to perform the identity verification. It consists of the following properties:'
       properties:
