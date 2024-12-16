@@ -21,13 +21,16 @@ Note: VCI implementations are permanently moved to Inji-Certify.
 
 4. All the required plugins are runtime dependency to esignet-service.
 
-![](/docs/esignet-service-basic-interations.png)
+![](../docs/esignet-service-basic-interactions.png)
 
 ## Local setup of eSignet with mock plugins
 
 Kindly check our docker compose setup files to run eSignet locally [here](../docker-compose)
 
 ## Caching details
+
+All the transaction details are stored in cache. We support simple(in-memory) and redis cache. The way transaction is added or evicted from 
+the caches on every stage of OIDC transaction is detailed in the below tables.
 
 UI transaction
 
@@ -112,13 +115,12 @@ The eSignet service can run independently of a config server, yet remains flexib
 
 This approach gives you the flexibility to run eSignet in a standalone mode or connect it to an external configuration server as your setup requires.
 
-
 ## API document
 
 eSignet API documentation can be found [here](../docs/esignet-openapi.yaml)
 
 ## Databases
-Refer to [SQL scripts](db_scripts/mosip_esignet).
+Refer to [SQL scripts](../db_scripts/mosip_esignet).
 
 ## License
-This project is licensed under the terms of [Mozilla Public License 2.0](LICENSE).
+This project is licensed under the terms of [Mozilla Public License 2.0](../LICENSE).

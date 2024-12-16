@@ -19,14 +19,12 @@ function installing_apitestrig() {
   helm repo update
 
   echo Copy Configmaps
-  $COPY_UTIL configmap global default $NS
   $COPY_UTIL configmap keycloak-host keycloak $NS
   $COPY_UTIL configmap artifactory-share artifactory $NS
   $COPY_UTIL configmap config-server-share config-server $NS
 
   echo echo Copy Secrtes
   $COPY_UTIL secret keycloak-client-secrets keycloak $NS
-  $COPY_UTIL secret s3 s3 $NS
   $COPY_UTIL secret postgres-postgresql postgres $NS
 
   echo "Delete s3, db, & apitestrig configmap if exists"
@@ -34,9 +32,9 @@ function installing_apitestrig() {
   kubectl -n $NS delete --ignore-not-found=true configmap db
   kubectl -n $NS delete --ignore-not-found=true configmap apitestrig
 
-  DB_HOST=$( kubectl -n default get cm global -o json  |jq -r '.data."mosip-api-internal-host"' )
-  API_INTERNAL_HOST=$( kubectl -n default get cm global -o json  |jq -r '.data."mosip-api-internal-host"' )
-  ENV_USER=$( kubectl -n default get cm global -o json |jq -r '.data."mosip-api-internal-host"' | awk -F '.' '/api-internal/{print $1"."$2}')
+  DB_HOST=$( kubectl -n esignet get cm esignet-global -o json  |jq -r '.data."mosip-api-internal-host"' )
+  API_INTERNAL_HOST=$( kubectl -n esignet get cm esignet-global -o json  |jq -r '.data."mosip-api-internal-host"' )
+  ENV_USER=$( kubectl -n esignet get cm esignet-global -o json |jq -r '.data."mosip-api-internal-host"' | awk -F '.' '/api-internal/{print $1"."$2}')
 
   read -p "Please enter the time(hr) to run the cronjob every day (time: 0-23) : " time
   if [ -z "$time" ]; then
@@ -132,7 +130,7 @@ function installing_apitestrig() {
             echo "NFS server not provided; EXITING."
             exit 1;
           fi
-          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/<sandbox>/apitestrig/), make sure permission is 777 for the folder: " nfs_path
+          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/mosip/<sandbox>/apitestrig/), make sure permission is 777 for the folder: " nfs_path
           if [[ -z $nfs_path ]]; then
             echo "NFS Path not provided; EXITING."
             exit 1;

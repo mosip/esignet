@@ -258,6 +258,8 @@ extraEnvVars: |
     value: esignet
   - name: IDA_AUTHENTICATOR_ENV
     value: Staging
+  - name: MOSIP_ESIGNET_UI_CONFIG_USERNAME_PREFIX
+    value: '+91'
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:
