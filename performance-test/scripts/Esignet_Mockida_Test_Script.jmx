@@ -238,7 +238,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           <hashTree/>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Create OIDC Client in MOSIP Authentication System (Setup)" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Create OIDC Client in Mock Authentication System (Setup)" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -264,70 +264,16 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           <stringProp name="variableNames">authTokenPms</stringProp>
         </CSVDataSet>
         <hashTree/>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Generate Key Pair" enabled="true">
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="script">import java.util.UUID;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.KeyUse;
-import java.util.Base64;
-
-// Generate 2048-bit RSA key pair in JWK format, attach some metadata
-RSAKey jwk = new RSAKeyGenerator(2048)
-    .keyUse(KeyUse.SIGNATURE) // indicate the intended use of the key
-    .keyID(UUID.randomUUID().toString()) // give the key a unique ID
-    .generate();
-
-String publicKey = jwk.toPublicJWK().toString();
-vars.put(&quot;publicKey&quot;, publicKey);
-
-String encodedPrivateKey = Base64.getEncoder().encodeToString(jwk.toRSAPrivateKey().getEncoded())
-
-vars.put(&quot;encodedPrivateKey&quot;, encodedPrivateKey);
-</stringProp>
-          <stringProp name="scriptLanguage">groovy</stringProp>
-        </JSR223Sampler>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PMS OIDC Client Endpoint" enabled="true">
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-  &quot;id&quot;: &quot;string&quot;,&#xd;
-  &quot;version&quot;: &quot;string&quot;,&#xd;
-  &quot;requesttime&quot;: &quot;${utcTime}Z&quot;,&#xd;
-  &quot;metadata&quot;: {},&#xd;
-  &quot;request&quot;: {&#xd;
-    &quot;name&quot;: &quot;clienta2&quot;,&#xd;
-    &quot;policyId&quot;: &quot;${policyId}&quot;,&#xd;
-    &quot;publicKey&quot;: ${publicKey},&#xd;
-    &quot;authPartnerId&quot;: &quot;${authPartnerId}&quot;,&#xd;
-    &quot;logoUri&quot;: &quot;${logoUri}&quot;,&#xd;
-    &quot;redirectUris&quot;: [&#xd;
-      &quot;${redirectUri}&quot;&#xd;
-    ],&#xd;
-    &quot;grantTypes&quot;: [&#xd;
-      &quot;authorization_code&quot;&#xd;
-    ],&#xd;
-    &quot;clientAuthMethods&quot;: [&#xd;
-      &quot;private_key_jwt&quot;&#xd;
-    ]&#xd;
-  }&#xd;
-}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Csrf Token Endpoint" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${serverIPInternal}</stringProp>
+          <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
           <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/v1/partnermanager/oidc/client</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/v1/esignet/csrf/token</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -343,9 +289,118 @@ vars.put(&quot;encodedPrivateKey&quot;, encodedPrivateKey);
                 <stringProp name="Header.name">Content-Type</stringProp>
                 <stringProp name="Header.value">application/json</stringProp>
               </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="-2017977937">&quot;token&quot;:</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">16</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - Response Code" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">2</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="loadCsrfToken" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">loadCsrfToken</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;token&quot;:&quot;(.*?)&quot;</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default"></stringProp>
+            <stringProp name="RegexExtractor.match_number">1</stringProp>
+            <boolProp name="RegexExtractor.default_empty_value">true</boolProp>
+          </RegexExtractor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Esignet OIDC Client Endpoint" enabled="true">
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&#xd;
+  &quot;requestTime&quot;: &quot;${utcTime}Z&quot;,&#xd;
+  &quot;request&quot;: {&#xd;
+    &quot;clientId&quot;: &quot;${clientId}&quot;,&#xd;
+    &quot;clientName&quot;: &quot;clienta2&quot;,&#xd;
+    &quot;publicKey&quot;: ${publicKey},&#xd;
+    &quot;relyingPartyId&quot;: &quot;mock-relying-party-id&quot;,&#xd;
+    &quot;userClaims&quot;: [&#xd;
+      &quot;name&quot;,&#xd;
+      &quot;email&quot;,&#xd;
+      &quot;gender&quot;,&#xd;
+      &quot;phone_number&quot;,&#xd;
+      &quot;picture&quot;,&#xd;
+      &quot;birthdate&quot;&#xd;
+    ],&#xd;
+    &quot;authContextRefs&quot;: [&#xd;
+      &quot;mosip:idp:acr:generated-code&quot;,&#xd;
+      &quot;mosip:idp:acr:password&quot;,&#xd;
+      &quot;mosip:idp:acr:linked-wallet&quot;&#xd;
+    ],&#xd;
+    &quot;logoUri&quot;: &quot;${logoUri}&quot;,&#xd;
+    &quot;redirectUris&quot;: [&#xd;
+      &quot;${redirectUri}&quot;,&#xd;
+      &quot;io.mosip.residentapp://oauth&quot;,&#xd;
+      &quot;http://loclahost:3000/**&quot;,&#xd;
+      &quot;http://loclahost:5000/registration/*&quot;&#xd;
+    ],&#xd;
+    &quot;grantTypes&quot;: [&#xd;
+      &quot;authorization_code&quot;&#xd;
+    ],&#xd;
+    &quot;clientAuthMethods&quot;: [&#xd;
+      &quot;private_key_jwt&quot;&#xd;
+    ]&#xd;
+  }&#xd;
+}&#xd;
+</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
+          <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/v1/esignet/client-mgmt/oidc-client</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="Content-Type" elementType="Header">
+                <stringProp name="Header.name">Content-Type</stringProp>
+                <stringProp name="Header.value">application/json</stringProp>
+              </elementProp>
+              <elementProp name="Cookie" elementType="Header">
+                <stringProp name="Header.name">Authorization</stringProp>
+                <stringProp name="Header.value">Bearer ${authTokenPms}</stringProp>
+              </elementProp>
+              <elementProp name="X-XSRF-TOKEN" elementType="Header">
+                <stringProp name="Header.name">X-XSRF-TOKEN</stringProp>
+                <stringProp name="Header.value">${loadCsrfToken}</stringProp>
+              </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Cookie</stringProp>
-                <stringProp name="Header.value">Authorization=${authTokenPms}</stringProp>
+                <stringProp name="Header.value">XSRF-TOKEN=${loadCsrfToken}</stringProp>
               </elementProp>
             </collectionProp>
           </HeaderManager>
@@ -370,23 +425,6 @@ vars.put(&quot;encodedPrivateKey&quot;, encodedPrivateKey);
             <intProp name="Assertion.test_type">2</intProp>
           </ResponseAssertion>
           <hashTree/>
-          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract ClientId" enabled="true">
-            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
-            <stringProp name="RegexExtractor.refname">partnerClientId</stringProp>
-            <stringProp name="RegexExtractor.regex">clientId&quot;:&quot;(.*?)&quot;</stringProp>
-            <stringProp name="RegexExtractor.template">$1$</stringProp>
-            <stringProp name="RegexExtractor.default">clientId not found</stringProp>
-            <stringProp name="RegexExtractor.match_number">1</stringProp>
-          </RegexExtractor>
-          <hashTree/>
-          <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="Store ClientId To File" enabled="true">
-            <stringProp name="filename"></stringProp>
-            <stringProp name="parameters"></stringProp>
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="script">${__StringToFile(${runTimeFilePath}/client_id_esignet.csv,${partnerClientId}\,${encodedPrivateKey}\n,true,)}
-</stringProp>
-          </BeanShellPostProcessor>
-          <hashTree/>
           <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate UTC Time" enabled="true">
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
@@ -398,8 +436,55 @@ SimpleDateFormat dateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd&apos;T&a
 dateFormat.setTimeZone(TimeZone.getTimeZone(&quot;UTC&quot;));// Get the current time in UTC
 Calendar cal = Calendar.getInstance();
 String utcTime = dateFormat.format(cal.getTime());
-vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
+vars.put(&quot;utcTime&quot;, utcTime);
+
+</stringProp>
           </BeanShellPreProcessor>
+          <hashTree/>
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Generate Public key" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import java.util.UUID;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.KeyUse;
+import java.util.Base64;
+
+// Generate 2048-bit RSA key pair in JWK format, attach some metadata
+RSAKey jwk = new RSAKeyGenerator(2048)
+    .keyUse(KeyUse.SIGNATURE) // indicate the intended use of the key
+    .keyID(UUID.randomUUID().toString()) // give the key a unique ID
+    .generate();
+
+String publicKey = jwk.toPublicJWK().toString();
+vars.put(&quot;publicKey&quot;, publicKey);
+
+String encodedPrivateKey = Base64.getEncoder().encodeToString(jwk.toRSAPrivateKey().getEncoded())
+
+vars.put(&quot;encodedPrivateKey&quot;, encodedPrivateKey);
+
+//Generate client Id
+
+def chars = (&apos;a&apos;..&apos;z&apos;) + (&apos;0&apos;..&apos;9&apos;)
+def random = new Random()
+String randomPart = (1..5).collect { chars[random.nextInt(chars.size())] }.join()
+String timestamp = System.currentTimeMillis().toString()
+String clientId =randomPart + timestamp;
+vars.put(&quot;clientId&quot;,clientId);
+
+
+</stringProp>
+          </JSR223PreProcessor>
+          <hashTree/>
+          <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="Store ClientId To File" enabled="true">
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <boolProp name="resetInterpreter">false</boolProp>
+            <stringProp name="script">${__StringToFile(${runTimeFilePath}/client_id_esignet.csv,${clientid}\,${encodedPrivateKey}\n,true,)}
+</stringProp>
+          </BeanShellPostProcessor>
           <hashTree/>
         </hashTree>
       </hashTree>
