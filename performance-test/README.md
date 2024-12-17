@@ -2,7 +2,7 @@
 ### Contains
 * This folder contains performance Test script and test script of below API endpoint categories.
     1. Auth Token Generation (Setup)
-    2. Create OIDC Client in MOSIP Authentication System (Setup)
+    2. Create OIDC Client in Mock Authentication System (Setup)
     3. Create Identities in Mock Identity System (Setup)
 	4. S01 OTP Authentication (Execution)
 
@@ -72,12 +72,12 @@
 *Esignet_Mockida_Test_Script.jmx
 	
 	* Auth Token Generation (Setup) : This threadgroup generates token pms client.
-	* Create OIDC Client in MOSIP Authentication System (Setup) : This thread contains a JSR223 sampler(Generate Key Pair) from which will get a public-private key pair. The public key generated will be used in the OIDC client api to generate client id's  which will be registered for both IDA and eSignet. The private key generated from the sampler will be used in another JSR223 sampler(Generate Client Assertion) present in the OIDC Token (Execution). Generated client id's and there respective private key will be stored in a file which will be used further in the required api's.
+	* Create OIDC Client in Mock Authentication System (Setup) : This threadgroup generates client id and encoded private key pair and stored in csv file. 
 	* Create Identities in Mock Identity System (Setup) : This threadgroup generates mock identities and stores in mock identity database. These identities are used for authentication in eSignet portal.
     * S01 OTP authentication (Execution)
 		*S01 T01 GetCsrf: This transaction generates CSRF token.
 		*S01 T02 Oauthdetails : This transaction hits Oauthdetails endpoint of eSignet.
-		*S01 T03 SendOTP : This transaction sends OTP request for authentication.
+		*S01 T03 Send OTP : This transaction sends OTP request for authentication.
 		*S01 T04 Authentication : This transaction performs authentication in eSignet portal
 		*S01 T05 Authorization : This transaction performs authorization in eSignet portal
 		*S01 T06 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Pre-processor. The Pre-processor(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
