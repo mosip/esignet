@@ -51,3 +51,12 @@ select option 1 (esignet-mock-plugin.jar).
 ## Onboarder
 * If Esignet is getting deployed with MOSIP than we need to execute the onboarder for MISP partner.
 * Onboarder [scripts](../partner-onboarder/).
+
+### NOTE:
+This deployment is limited to mock
+Below section related to configuring IDA is not tested. Still it can be tried out
+
+### CONFIGURE IDA for Esignet :
+Onboard eSignet as MISP partner in MOSIP PMS using our onboarder script
+We should override properties defined [here](https://github.com/mosip/esignet-plugins/blob/release-1.3.x/mosip-identity-plugin/src/main/resources/application.properties)  if there is any change in the MOSIP IDA domain names.
+Update the 'MOSIP_ESIGNET_AUTHENTICATOR_IDA_SECRET_KEY' property with MOSIP IDA keycloak client secret.
