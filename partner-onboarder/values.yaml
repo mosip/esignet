@@ -1,7 +1,14 @@
-image:
-  registry: docker.io
-  repository: mosipdev/partner-onboarder
-  tag: develop
+#image:
+#  registry: docker.io
+#  repository: mosipdev/partner-onboarder
+#  tag: develop
+resources:
+  limits:
+    cpu: 500m
+    memory: 500Mi
+  requests:
+    cpu: 500m
+    memory: 500Mi
 
 onboarding:
   modules:
@@ -17,7 +24,7 @@ onboarding:
 #      ns_esignet: esignet
 #      ns_signup: signup
 #  secrets:
-#     s3:
+#    s3:
 #      s3-user-secret: 'password'
 #  volumes:
 #    reports:

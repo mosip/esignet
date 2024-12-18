@@ -7,16 +7,16 @@ if [ $# -ge 1 ] ; then
 fi
 
 function deleting_postgres() {
-  NS=esignet
+  NS=postgres
   while true; do
       read -p "CAUTION: PVC, PV will get deleted. If your PV is not in 'Retain' mode all Postgres data will be lost. Are you sure? (Y/n): " yn
       if [ "$yn" = "Y" ] || [ "$yn" = "y" ]; then
           echo "Deleting Postgres resources..."
-          helm -n $NS delete esignet-postgres || echo "Failed to delete esignet-postgres helm release"
+          helm -n $NS delete postgres || echo "Failed to delete postgres helm release"
           helm -n $NS delete istio-addons || echo "Failed to delete istio-addons helm release"
-          kubectl -n $NS delete pvc data-esignet-postgres-postgresql-0 || echo "Failed to delete PVC"
-          helm -n $NS delete esignet-postgres-init || echo "Failed to delete esignet-postgres-init helm release"
-          kubectl -n $NS delete secret esignet-postgres-postgresql || echo "Failed to delete esignet-postgres-init secret"
+          kubectl -n $NS delete pvc data-postgres-postgresql-0 || echo "Failed to delete PVC"
+          helm -n $NS delete postgres-init || echo "Failed to delete postgres-init helm release"
+          kubectl -n $NS delete secret postgres-postgresql || echo "Failed to delete postgres-init secret"
           kubectl -n $NS delete secret db-common-secrets || echo "Failed to delete db-common-secrets secret"
           break
       elif [ "$yn" = "N" ] || [ "$yn" = "n" ]; then

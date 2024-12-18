@@ -185,9 +185,8 @@ public class EsignetUtil extends AdminTestUtil {
 			// Let run test cases eSignet & MOSIP API calls --- both UIN and VID
 
 //			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN", "VID"));
-			
 			getSupportedIdTypesValueFromActuator();
-
+			
 			logger.info("supportedIdType = " + supportedIdType);
 
 			String endpoint = testCaseDTO.getEndPoint();
