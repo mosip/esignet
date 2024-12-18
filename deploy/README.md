@@ -55,7 +55,7 @@ select option 1 (esignet-mock-plugin.jar).
 * Onboarder [scripts](../partner-onboarder/).
 
 ### MOCK Plugin
-* Download postman collection from [here](https://github.com/mosip/esignet/tree/release-1.5.x/postman-collection)
+* Download postman collection from [here](../postman-collection)
 * Fetch auth token from esignet keycloak. Update the "client_secret" in the request body.
 * Run the request under "OIDC Client Mgmt" -> "Mock" -> "Get Auth token"
 * Run the requests under
