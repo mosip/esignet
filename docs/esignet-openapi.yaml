@@ -4410,6 +4410,7 @@ paths:
                             - unknown_error
                             - invalid_individual_id
                             - send_otp_failed
+                            - invalid_captcha
                         errorMessage:
                           type: string
                 required:
