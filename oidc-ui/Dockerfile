@@ -1,4 +1,4 @@
-FROM node:12.18.4-alpine as build_esignet_ui
+FROM node:18-alpine as build_esignet_ui
 
 # Set a build-time environment variable (replace YOUR_ENV_VARIABLE_NAME with the desired variable name)
 ARG oidcUIPublicUrl
