@@ -49,8 +49,20 @@ select option 1 (esignet-mock-plugin.jar).
 ./install-esignet.sh
 ```
 ## Onboarder
-* If Esignet is getting deployed with MOSIP than we need to execute the onboarder for MISP partner.
+* There are two ways to proceed, either with mosip identity plugin or with mock plugin.
+### MOSIP Identity Plugin
+* If Esignet is getting deployed with MOSIP then we need to execute the onboarder for MISP partner and mock-rp oidc clientId.
 * Onboarder [scripts](../partner-onboarder/).
+
+### MOCK Plugin
+* Download postman collection from [here](https://github.com/mosip/esignet/tree/release-1.5.x/postman-collection)
+* Fetch auth token from esignet keycloak. Update the "client_secret" in the request body.
+* Run the request under "OIDC Client Mgmt" -> "Mock" -> "Get Auth token"
+* Run the requests under
+  
+    a. "OIDC Client Mgmt" -> "Mock" -> "Get CSRF token"
+
+    b. "OIDC Client Mgmt" -> "Mock" -> "Create OIDC client"
 
 ### NOTE:
 This deployment is limited to mock
