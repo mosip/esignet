@@ -14,7 +14,6 @@ import io.mosip.esignet.core.dto.OAuthDetailRequestV2;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.ClientAdditionalConfigValidatorTestData;
 import io.mosip.esignet.core.validator.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,11 +33,7 @@ import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.Mockito.when;
 
@@ -792,12 +787,62 @@ public class ValidatorTest {
 
     // =============================ClientAdditionalConfigValidator=============================//
 
+    public static Map<String, Object> getValidAdditionalConfig() {
+        Map<String, Object> validAdditionalConfig = new HashMap<>();
+        validAdditionalConfig.put("userinfo_response_type", "JWS");
+        validAdditionalConfig.put("purpose", Map.ofEntries(
+                Map.entry("type", ""),
+                Map.entry("title", ""),
+                Map.entry("subTitle", "")
+        ));
+        validAdditionalConfig.put("signup_banner_required", true);
+        validAdditionalConfig.put("forgot_pwd_link_required", true);
+        validAdditionalConfig.put("consent_expire_in_days", 1);
+        return validAdditionalConfig;
+    }
+
+    public static List<Map<String, Object>> getInvalidAdditionalConfigs() {
+        List<Map<String, Object>> invalidAdditionalConfigs = new ArrayList<>();
+
+        invalidAdditionalConfigs.add(null);
+
+        Map<String, Object> additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("userinfo_response_type", "ABC");
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("purpose", Collections.emptyMap());
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("purpose", Map.ofEntries(
+                Map.entry("type", ""),
+                Map.entry("title", 1),   //anything other than string
+                Map.entry("subTitle", "")
+        ));
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("signup_banner_required", 1); // anything other than boolean
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("forgot_pwd_link_required", 1); // anything other than boolean
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("consent_expire_in_days", ""); // anything other than number
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        return invalidAdditionalConfigs;
+    }
+
     @Test
     public void test_ClientAdditionalConfigValidator_withValidValue_thenPass() {
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
-        Map<String, Object> validAdditionalConfig = ClientAdditionalConfigValidatorTestData.getValidAdditionalConfig();
+        Map<String, Object> validAdditionalConfig = getValidAdditionalConfig();
         Assert.assertTrue(clientAdditionalConfigValidator.isValid(validAdditionalConfig, null));
     }
 
@@ -806,7 +851,7 @@ public class ValidatorTest {
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
-        for (Map<String, Object> additionalConfig : ClientAdditionalConfigValidatorTestData.getInvalidAdditionalConfigs()) {
+        for (Map<String, Object> additionalConfig : getInvalidAdditionalConfigs()) {
             Assert.assertFalse(clientAdditionalConfigValidator.isValid(additionalConfig, null));
         }
     }

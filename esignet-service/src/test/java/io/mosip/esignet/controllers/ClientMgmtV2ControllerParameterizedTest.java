@@ -8,7 +8,6 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ClientDetailCreateRequestV3;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequestV3;
 import io.mosip.esignet.core.dto.RequestWrapper;
-import io.mosip.esignet.core.util.ClientAdditionalConfigValidatorTestData;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -77,7 +76,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
     }
 
     private static Stream<TestCase> getTestCases() {
-        Map<String, Object> validAdditionalConfig = ClientAdditionalConfigValidatorTestData.getValidAdditionalConfig();
+        Map<String, Object> validAdditionalConfig = getValidAdditionalConfig();
         List<TestCase> TEST_CASES = new ArrayList<>(Arrays.asList(
                 // test-name, ClientDetailCreateRequest, ClientDetailUpdateRequest, clientIdQueryParam, errorCode
                 new TestCase("Successful create", new ClientDetailCreateRequestV3("client-id-#12c", "client-name", jwk,
@@ -235,7 +234,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
                     put("eng", "clientname");
                 }}, validAdditionalConfig), null, null, null)
         ));
-        List<Map<String, Object>> invalidAdditionalConfigs = ClientAdditionalConfigValidatorTestData.getInvalidAdditionalConfigs();
+        List<Map<String, Object>> invalidAdditionalConfigs = getInvalidAdditionalConfigs();
         for (Map<String, Object> additionalConfig : invalidAdditionalConfigs) {
             TEST_CASES.add(
                     new TestCase("with invalid additional config", new ClientDetailCreateRequestV3("client-id-v2", "client-name", jwk,
@@ -283,5 +282,55 @@ public class ClientMgmtV2ControllerParameterizedTest {
                     .andExpect(jsonPath("$.response.clientId").value(clientId))
                     .andExpect(jsonPath("$.response.status").value(Constants.CLIENT_ACTIVE_STATUS));
         }
+    }
+
+    public static Map<String, Object> getValidAdditionalConfig() {
+        Map<String, Object> validAdditionalConfig = new HashMap<>();
+        validAdditionalConfig.put("userinfo_response_type", "JWS");
+        validAdditionalConfig.put("purpose", Map.ofEntries(
+                Map.entry("type", ""),
+                Map.entry("title", ""),
+                Map.entry("subTitle", "")
+        ));
+        validAdditionalConfig.put("signup_banner_required", true);
+        validAdditionalConfig.put("forgot_pwd_link_required", true);
+        validAdditionalConfig.put("consent_expire_in_days", 1);
+        return validAdditionalConfig;
+    }
+
+    public static List<Map<String, Object>> getInvalidAdditionalConfigs() {
+        List<Map<String, Object>> invalidAdditionalConfigs = new ArrayList<>();
+
+        invalidAdditionalConfigs.add(null);
+
+        Map<String, Object> additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("userinfo_response_type", "ABC");
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("purpose", Collections.emptyMap());
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("purpose", Map.ofEntries(
+                Map.entry("type", ""),
+                Map.entry("title", 1),   //anything other than string
+                Map.entry("subTitle", "")
+        ));
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("signup_banner_required", 1); // anything other than boolean
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("forgot_pwd_link_required", 1); // anything other than boolean
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        additionalConfig = getValidAdditionalConfig();
+        additionalConfig.put("consent_expire_in_days", ""); // anything other than number
+        invalidAdditionalConfigs.add(additionalConfig);
+
+        return invalidAdditionalConfigs;
     }
 }
