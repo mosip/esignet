@@ -618,6 +618,11 @@ input[type="number"] {
   padding-top: 10px;
 }
 
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
+
 @media screen and (max-width: 375px) {
   .pincode-input-text {
     width: 2em !important;
