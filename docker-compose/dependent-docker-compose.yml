@@ -23,7 +23,7 @@ services:
       - 8082:8082
     environment:
       - container_user=mosip
-      - active_profile_env=local
+      - active_profile_env=default,local
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
