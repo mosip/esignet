@@ -86,7 +86,8 @@ function App() {
       for (let idx in languages) {
         if (supportedLanguages[languages[idx]]) {
           i18n.changeLanguage(languages[idx]);
-          return;
+        } else {
+          i18n.changeLanguage(window._env_.DEFAULT_LANG);
         }
       }
 
@@ -95,9 +96,12 @@ function App() {
       for (let idx in languages) {
         if (langCodeMapping[languages[idx]]) {
           i18n.changeLanguage(langCodeMapping[languages[idx]]);
-          return;
+        } else {
+          i18n.changeLanguage(window._env_.DEFAULT_LANG);
         }
       }
+    } else {
+      return i18n.changeLanguage(window._env_.DEFAULT_LANG);
     }
 
     //2. Check for cookie
