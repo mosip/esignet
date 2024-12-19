@@ -253,7 +253,7 @@ public class AuthorizationHelperService {
             log.error("ID token in the challenge is not matching the required conditions. isCookiePresent: {}, isHaltedTransactionFound: {}",
                     result.isPresent(), haltedTransaction!=null);
         } catch (EsignetException e) {
-            throw new EsignetException(INVALID_INDIVIDUAL_ID);
+            throw e;
         } catch (Exception e) {
             log.error("Failed to parse ID token as challenge", e);
         }

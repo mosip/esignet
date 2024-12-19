@@ -1257,9 +1257,42 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateV3_withIDToken_thenPass() {
+    public void authenticateV3_withIDTokenInvalidIndividualId_thenFail() {
         String transactionId = "test-transaction";
         String individualId = "23423434234";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:id-token"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:id-token"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:id-token"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:id-token"})).thenReturn(allAuthFactors);
+
+        AuthRequestV2 authRequest = new AuthRequestV2();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId(individualId);
+        authRequest.setCaptchaToken("captcha-token");
+
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("IDT");
+        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSW4wLjl0MG5GMkNtVWZaeTlCYlA3cjM4bElhSlJSeTNaSk41MnBRNlpLSl9qVWMifQ==");
+        authChallenges.add(authChallenge);
+        authRequest.setChallengeList(authChallenges);
+
+        try{
+            AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV3(authRequest, httpServletRequest);
+            Assert.assertNotNull(authResponseV2);
+        }catch (EsignetException ex){
+            Assert.assertEquals(ErrorConstants.INVALID_INDIVIDUAL_ID,ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void authenticateV3_withIDToken_thenPass() {
+        String transactionId = "test-transaction";
+        String individualId = "subject";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:id-token"}));
         when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
@@ -1293,7 +1326,6 @@ public class AuthorizationServiceTest {
         verify(captchaHelper, times(0)).validateCaptcha("captcha-token");
         Assert.assertNotNull(authResponseV2);
     }
-
 
     @Test
     public void completeSignupRedirect_withValidTransactionId_thenPass() {
