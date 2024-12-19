@@ -6,7 +6,7 @@ CREATE DATABASE mosip_esignet
 	OWNER = postgres
 	TEMPLATE  = template0;
 
-COMMENT ON DATABASE mosip_idp IS 'e-Signet related data is stored in this database';
+COMMENT ON DATABASE mosip_esignet IS 'e-Signet related data is stored in this database';
 
 \c mosip_esignet postgres
 

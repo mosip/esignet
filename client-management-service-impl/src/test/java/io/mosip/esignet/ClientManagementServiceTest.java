@@ -124,7 +124,7 @@ public class ClientManagementServiceTest {
 
     @Test
     public void createClientV2_withExistingClientId_thenFail() {
-        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(new ClientDetail()));
+        Mockito.when(clientDetailRepository.existsById("client_id_v1")).thenReturn(true);
         ClientDetailCreateRequestV2 clientCreateV2ReqDto = new ClientDetailCreateRequestV2();
         clientCreateV2ReqDto.setClientId("client_id_v1");
         try {
@@ -164,7 +164,7 @@ public class ClientManagementServiceTest {
 
     @Test
     public void createClientV3_withExistingClientId_thenFail() {
-        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(new ClientDetail()));
+        Mockito.when(clientDetailRepository.existsById("client_id_v1")).thenReturn(true);
         ClientDetailCreateRequestV3 clientCreateV3ReqDto = new ClientDetailCreateRequestV3();
         clientCreateV3ReqDto.setClientId("client_id_v1");
         try {
