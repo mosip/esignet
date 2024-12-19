@@ -41,7 +41,6 @@ CREATE TABLE esignet.client_detail(
   cr_dtimes timestamp NOT NULL,
   upd_dtimes timestamp,
   CONSTRAINT pk_clntdtl_id PRIMARY KEY (id),
-  CONSTRAINT uk_clntdtl_key UNIQUE (public_key)
 );
 
 CREATE UNIQUE INDEX unique_n_value ON client_detail ((public_key->>'n'));
