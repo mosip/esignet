@@ -6,13 +6,25 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=esignet
-CHART_VERSION=0.0.1-test
-
-echo Create $NS namespace
-kubectl create ns $NS
-
 function installing_oidc-ui() {
+
+  while true; do
+      read -p "Do you want to continue installing OIDC ui? (y/n) :" ans
+      if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
+          break
+      elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
+          exit 1
+      else
+          echo "Please provide a correct option (Y or N)"
+      fi
+  done
+
+  NS=esignet
+  CHART_VERSION=1.5.0-develop
+
+  echo Create $NS namespace
+  kubectl create ns $NS || true
+
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
 

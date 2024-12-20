@@ -16,6 +16,8 @@ import langConfigService from "../services/langConfigService";
 import InputWithImage from "./InputWithImage";
 import redirectOnError from "../helpers/redirectOnError";
 import ReCAPTCHA from "react-google-recaptcha";
+import LoginIDOptions from "./LoginIDOptions";
+import InputWithPrefix from "./InputWithPrefix";
 
 const fields = pinFields;
 let fieldsState = {};
@@ -45,13 +47,24 @@ export default function Pin({
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
 
-  const [loginState, setLoginState] = useState(fieldsState);
   const [status, setStatus] = useState(states.LOADED);
   const [errorBanner, setErrorBanner] = useState(null);
   const [inputError, setInputError] = useState([]);
-  const [invalidState, setInvalidState] = useState(true);
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
+
+  const [pin, setPin] = useState(null);
+  const [currentLoginID, setCurrentLoginID] = useState(null);
+  const [countryCode, setCountryCode] = useState(null);
+  const [individualId, setIndividualId] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [isValid, setIsValid] = useState(false);
+  const [isBtnDisabled, setIsBtnDisabled] = useState(true);
+  const [prevLanguage, setPrevLanguage] = useState(i18n.language);
+
+  var loginIDs = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.loginIdOptions
+  );
 
   const captchaEnableComponents =
     openIDConnectService.getEsignetConfiguration(
@@ -73,9 +86,97 @@ export default function Pin({
 
   const navigate = useNavigate();
 
+  function getPropertiesForLoginID(loginID, label) {
+    const { prefixes, maxLength: outerMaxLength, regex: outerRegex } = loginID;
+
+    if (Array.isArray(prefixes) && prefixes.length > 0) {
+      const prefix = prefixes.find((prefix) => prefix.label === label);
+      if (prefix) {
+        return {
+          maxLength: prefix.maxLength || outerMaxLength || null,
+          regex: prefix.regex || outerRegex || null,
+        };
+      }
+    }
+
+    return {
+      maxLength: outerMaxLength || null,
+      regex: outerRegex || null,
+    };
+  }
+
   const handleChange = (e) => {
-    setLoginState({ ...loginState, [e.target.id]: e.target.value });
+    setIsValid(true);
+    onCloseHandle();
+    const idProperties = getPropertiesForLoginID(
+      currentLoginID,
+      e.target.name.split("_")[1]
+    );
+    const maxLength = idProperties.maxLength;
+    const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
+    const trimmedValue = e.target.value.trim();
+
+    let newValue = regex
+      ? trimmedValue
+          .split("")
+          .filter((char) => regex.test(char))
+          .join("")
+      : trimmedValue;
+
+    setIndividualId(newValue); // Update state with the visible valid value
+    if (e.target.type === "password") {
+      setPin(e.target.value.trim());
+    } else {
+      setIndividualId(newValue);
+    }
+
+    setIsBtnDisabled(
+      !(
+        (
+          (!maxLength && !regex) || // Case 1: No maxLength, no regex
+          (maxLength && !regex && newValue.length === parseInt(maxLength)) || // Case 2: maxLength only
+          (!maxLength && regex && regex.test(newValue)) || // Case 3: regex only
+          (maxLength &&
+            regex &&
+            newValue.length === parseInt(maxLength) &&
+            regex.test(newValue))
+        ) // Case 4: Both maxLength and regex
+      )
+    );
   };
+
+  const handleBlur = (e) => {
+    const idProperties = getPropertiesForLoginID(
+      currentLoginID,
+      e.target.name.split("_")[1]
+    );
+    const maxLength = idProperties.maxLength;
+    const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
+    setIsValid(
+      (!maxLength || e.target.value.trim().length === parseInt(maxLength)) &&
+        (!regex || regex.test(e.target.value.trim()))
+    );
+  };
+
+  const handlePinChange = (e) => {
+    onCloseHandle();
+    setPin(e.target.value.trim());
+  };
+
+  useEffect(() => {
+    if (i18n.language === prevLanguage) {
+      setIndividualId(null);
+      setPin(null);
+      setIsValid(false);
+      setIsBtnDisabled(true);
+      onCloseHandle();
+      if (currentLoginID && currentLoginID.prefixes) {
+        setSelectedCountry(currentLoginID.prefixes[0]);
+      }
+    } else {
+      setPrevLanguage(i18n.language);
+    }
+  }, [currentLoginID]);
 
   const onBlurChange = (e, errors) => {
     let id = e.target.id;
@@ -126,10 +227,17 @@ export default function Pin({
     try {
       let transactionId = openIDConnectService.getTransactionId();
 
-      let uin =
-        fields[0].prefix + loginState["Pin_mosip-uin"] + fields[0].postfix;
+      let prefix = currentLoginID.prefixes
+        ? typeof currentLoginID.prefixes === "object"
+          ? countryCode
+          : currentLoginID.prefixes
+        : "";
+      let id = individualId;
+      let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
+
+      let ID = prefix + id + postfix;
       let challengeType = challengeTypes.pin;
-      let challenge = loginState["Pin_pin"];
+      let challenge = pin;
       let challengeFormat = challengeFormats.pin;
 
       let challengeList = [
@@ -143,7 +251,7 @@ export default function Pin({
       setStatus(states.LOADING);
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
-        uin,
+        ID,
         challengeList,
         captchaToken
       );
@@ -207,87 +315,169 @@ export default function Pin({
     setErrorBanner(null);
   };
 
-  useEffect(() => {
-    setInvalidState(!Object.values(loginState).every((value) => value?.trim()));
-  }, [loginState]);
-
   return (
     <>
-      <div className="grid grid-cols-8 items-center">{backButtonDiv}</div>
-      {errorBanner !== null && (
-        <ErrorBanner
-          showBanner={errorBanner.show}
-          errorCode={t2(errorBanner.errorCode)}
-          onCloseHandle={onCloseHandle}
-        />
-      )}
-      <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
-        {fields.map((field) => (
-          <div className="-space-y-px">
-            <InputWithImage
-              key={"Pin_" + field.id}
-              handleChange={handleChange}
-              blurChange={onBlurChange}
-              value={loginState["Pin_" + field.id]}
-              labelText={t1(field.labelText)}
-              labelFor={field.labelFor}
-              id={"Pin_" + field.id}
-              name={field.name}
-              type={field.type}
-              isRequired={field.isRequired}
-              placeholder={t1(field.placeholder)}
-              customClass={inputCustomClass}
-              imgPath={null}
-              icon={field.infoIcon}
-              prefix={field.prefix}
-              errorCode={field.errorCode}
-              maxLength={field.maxLength}
-              regex={field.regex}
-            />
-          </div>
-        ))}
-
-        <div className="flex items-center justify-between ">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 rounded"
-            />
-            <label
-              htmlFor="remember-me"
-              className="mx-2 block text-sm text-cyan-900"
-            >
-              {t1("remember_me")}
-            </label>
-          </div>
-        </div>
-
-        {showCaptcha && (
-          <div className="flex justify-center mt-5 mb-5">
-            <ReCAPTCHA
-              hl={i18n.language}
-              ref={_reCaptchaRef}
-              onChange={handleCaptchaChange}
-              sitekey={captchaSiteKey}
-            />
+      <div className="flex items-center">
+        {backButtonDiv}
+        {currentLoginID && (
+          <div className="inline mx-2 font-semibold my-3">
+            {loginIDs && loginIDs.length > 1
+              ? t1("multiple_login_ids")
+              : `${t1("login_with_id", {
+                currentID: `${t1(currentLoginID.id)}`
+              })}`}
           </div>
         )}
+      </div>
+      {errorBanner !== null && (
+        <div className="mb-4">
+          <ErrorBanner
+            showBanner={errorBanner.show}
+            errorCode={t2(errorBanner.errorCode)}
+            onCloseHandle={onCloseHandle}
+          />
+        </div>
+      )}
+      <LoginIDOptions
+        currentLoginID={(value) => {
+          setCurrentLoginID(value);
+        }}
+      />
+      {currentLoginID ? (
+        <form onSubmit={handleSubmit} className="relative">
+          {currentLoginID?.prefixes?.length > 0 ? (
+            <>
+              <InputWithPrefix
+                currentLoginID={currentLoginID}
+                login="Pin"
+                countryCode={(val) => {
+                  setCountryCode(val);
+                }}
+                selectedCountry={(val) => {
+                  setSelectedCountry(val);
+                }}
+                individualId={(val) => {
+                  setIndividualId(val);
+                }}
+                isBtnDisabled={(val) => {
+                  setIsBtnDisabled(val);
+                }}
+                i18nPrefix={i18nKeyPrefix1}
+              />
 
-        <FormAction
-          type={buttonTypes.submit}
-          text={t1("login")}
-          id="verify_pin"
-          disabled={
-            invalidState ||
-            (inputError && inputError.length > 0) ||
-            (showCaptcha && captchaToken === null)
-          }
-        />
-      </form>
+              {fields.map(
+                (field, idx) =>
+                  idx === 1 && (
+                    <div className="-space-y-px">
+                      <InputWithImage
+                        key={"Pin_" + currentLoginID.id}
+                        handleChange={handlePinChange}
+                        blurChange={onBlurChange}
+                        labelText={t1(field.labelText)}
+                        labelFor={"Pin_" + currentLoginID.id}
+                        id={"Pin_" + currentLoginID.id}
+                        name={"Pin_" + currentLoginID.id}
+                        type={field.type}
+                        isRequired={field.isRequired}
+                        placeholder={t1(field.placeholder)}
+                        customClass={inputCustomClass}
+                        errorCode={field.errorCode}
+                        maxLength={field.maxLength}
+                        regex={field.regex}
+                        value={pin ?? ""}
+                      />
+                    </div>
+                  )
+              )}
+            </>
+          ) : (
+            <>
+              {fields.map((field, idx) => (
+                <div className="-space-y-px">
+                  <InputWithImage
+                    key={"Pin_" + currentLoginID.id}
+                    handleChange={
+                      idx === 0 ? handleChange : handlePinChange
+                    }
+                    blurChange={idx === 0 ? handleBlur : onBlurChange}
+                    labelText={
+                      idx === 0
+                        ? currentLoginID.input_label
+                        : t1(field.labelText)
+                    }
+                    labelFor={idx === 0 ? currentLoginID.id : "Pin_" + currentLoginID.id}
+                    id={idx === 0 ? currentLoginID.id : "Pin_" + currentLoginID.id}
+                    name={idx === 0 ? "Pin_" + currentLoginID.id : "pin"}
+                    type={field.type}
+                    isRequired={field.isRequired}
+                    placeholder={
+                      idx === 0
+                        ? currentLoginID.input_placeholder
+                        : t1(field.placeholder)
+                    }
+                    customClass={inputCustomClass}
+                    imgPath={null}
+                    individualId={individualId}
+                    isInvalid={!isValid}
+                    value={idx === 0 ? individualId ?? "" : pin ?? ""}
+                    errorCode={idx === 1 ? field.errorCode : ""}
+                    maxLength={idx === 1 ? field.maxLength : ""}
+                    regex={idx === 1 ? field.regex : ""}
+                    currenti18nPrefix={idx === 0 ? i18nKeyPrefix1 : ""}
+                  />
+                </div>
+              ))}
+            </>
+          )}
+
+          <div className="flex items-center justify-between my-4">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 rounded"
+              />
+              <label
+                htmlFor="remember-me"
+                className="mx-2 block text-sm text-cyan-900"
+              >
+                {t1("remember_me")}
+              </label>
+            </div>
+          </div>
+
+          {showCaptcha && (
+            <div className="flex justify-center mt-5 mb-5">
+              <ReCAPTCHA
+                hl={i18n.language}
+                ref={_reCaptchaRef}
+                onChange={handleCaptchaChange}
+                sitekey={captchaSiteKey}
+              />
+            </div>
+          )}
+
+          <FormAction
+            type={buttonTypes.submit}
+            text={t1("login")}
+            id="verify_pin"
+            disabled={
+              !individualId?.trim() ||
+              !pin?.trim() ||
+              isBtnDisabled ||
+              (inputError && inputError.length > 0) ||
+              (showCaptcha && captchaToken === null)
+            }
+          />
+        </form>
+      ) : (
+        <div className="py-6">
+          <LoadingIndicator size="medium" message="loading_msg" />
+        </div>
+      )}
       {status === states.LOADING && (
-        <div>
+        <div className="mt-2">
           <LoadingIndicator size="medium" message="authenticating_msg" />
         </div>
       )}

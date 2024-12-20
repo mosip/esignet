@@ -435,7 +435,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "invalid_challenge_length",
+		      "errorCode": "auth_factor_mismatch",
 		      "errorMessage": "$IGNORE$"
 		    }
 		  ]
@@ -965,7 +965,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "invalid_challenge_length",
+		      "errorCode": "auth_factor_mismatch",
 		      "errorMessage": "$IGNORE$"
 		    }
 		  ]

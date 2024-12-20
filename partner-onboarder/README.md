@@ -4,6 +4,19 @@
 Exchanges certificates for eSignet MISP partner. Refer [mosip-onboarding repo](https://github.com/mosip/mosip-onboarding).
 
 ## Install 
+* Create a directory for onboarder on the NFS server at `/srv/nfs/<sandbox>/onboarder/`:
+```
+mkdir -p /srv/nfs/mosip/<sandbox>/onboarder/
+```
+* Ensure the directory has 777 permissions:
+```
+chmod 777 /srv/nfs/mosip/<sandbox>/onboarder
+```
+* Add the following entry to the /etc/exports file:
+```
+/srv/nfs/mosip/<sandbox>/onboarder *(ro,sync,no_root_squash,no_all_squash,insecure,subtree_check)
+```
+
 * Set `values.yaml` to run onboarder for specific modules.
 * run `./install.sh`.
 ```

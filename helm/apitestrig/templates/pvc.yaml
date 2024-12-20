@@ -1,0 +1,23 @@
+{{- range $modulename, $module := $.Values.modules }}
+{{- if $module.enabled }}
+{{- if eq $.Values.apitestrig.variables.push_reports_to_s3 "no" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $.Values.apitestrig.volumes.reports.name }}-{{ $.Release.Namespace }}-{{ $modulename }}-pvc
+  namespace: {{ $.Release.Namespace | quote }}
+spec:
+  storageClassName: {{ $.Values.apitestrig.volumes.reports.storageClass }}
+  accessModes:
+    {{- range $.Values.apitestrig.volumes.reports.accessModes }}
+      - {{ . }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ $.Values.apitestrig.volumes.reports.size }}
+  selector:
+    matchLabels:
+      name: {{ $.Values.apitestrig.volumes.reports.name }}
+{{- end }}
+{{- end }}
+{{- end }}
