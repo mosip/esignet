@@ -1419,6 +1419,7 @@ public class AuthorizationServiceTest {
         Assert.assertNotNull(authResponseV2);
     }
 
+
     @Test
     public void completeSignupRedirect_withValidTransactionId_thenPass() {
         String transactionId = "validTransactionId";

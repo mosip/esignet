@@ -364,7 +364,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         KycAuthResult kycAuthResult;
         if(authRequest.getChallengeList().size() == 1 && authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
-            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0), transaction,
+            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0),authRequest.getIndividualId(), transaction,
                     httpServletRequest);
             transaction.setInternalAuthSuccess(true);
         }
