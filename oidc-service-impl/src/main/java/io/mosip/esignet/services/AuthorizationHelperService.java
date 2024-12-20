@@ -399,7 +399,7 @@ public class AuthorizationHelperService {
                 String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
                 JSONObject payloadJson = new JSONObject(payload);
                 String audience = payloadJson.getString(TokenService.AUD);
-                if(!signupIDTokenAudience.equals(audience) && signupIDTokenAudience.equals(clientId))
+                if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
                     throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
                 return payloadJson.getString(TokenService.SUB);
             }
