@@ -100,8 +100,6 @@ function App() {
           i18n.changeLanguage(window._env_.DEFAULT_LANG);
         }
       }
-    } else {
-      return i18n.changeLanguage(window._env_.DEFAULT_LANG);
     }
 
     //2. Check for cookie
