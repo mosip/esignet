@@ -41,9 +41,9 @@ fi
 if [[ -n "$public_exists" && -n "$internal_exists" ]]; then
   echo "Both public and internal gateways exist. Skipping installation."
 else
-  helm -n $NS install istio-addons istio-gateway/ \
+  helm -n $NS install istio-addons . \
     $gateway_option \
-    --set proxyProtocol.enabled=false
+    --set proxyProtocol.enabled=false \
     --wait
 fi
 
