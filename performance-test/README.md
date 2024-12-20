@@ -65,6 +65,12 @@
 * eSignet-default properties: eSignet will be pointing to MockIDA services after performing following changes
 		*mosip.esignet.integration.authenticator=MockAuthenticationService
 		*mosip.esignet.integration.key-binder=MockKeyBindingWrapperService
+		
+   *Removing Auth token dependency for the eSignet client ID generation
+		*mosip.esignet.security.auth.post-urls={}
+		*mosip.esignet.security.auth.put-urls={}
+		*mosip.esignet.security.auth.get-urls={}
+		*spring.security.oauth2.resourceserver.jwt.issuer-uri=
 
 ### Execution points for eSignet Authentication API's
 
