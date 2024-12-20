@@ -233,36 +233,51 @@ body {
 .section-background .top_right_bg_logo,
 .section-background .bottom_right_bg_logo,
 .section-background .bottom_left_bg_logo {
-  width: var(--side-section-bg-with);
   position: absolute;
 }
 
 .section-background .top_left_bg_logo {
   display: var(--top-left-bg-logo-display);
-  content: var(--top-left-bg-logo-url);
-  top: 10px;
-  left: 10px;
+  -webkit-mask-image: var(--top-left-bg-logo-url);
+  mask-image: var(--top-left-bg-logo-url);
+  background-color: var(--primary-color);
+  width: var(--top-left-bg-width);
+  height: var(--top-left-bg-height);
+  top: var(--top-left-bg-position-top);
+  left: var(--top-left-bg-position-left);
 }
 
 .section-background .bottom_left_bg_logo {
   display: var(--bottom-left-bg-logo-display);
-  content: var(--bottom-left-bg-logo-url);
-  left: 10px;
-  bottom: 10px;
+  -webkit-mask-image: var(--bottom-left-bg-logo-url);
+  mask-image: var(--bottom-left-bg-logo-url);
+  background-color: var(--primary-color);
+  width: var(--bottom-left-bg-width);
+  height: var(--bottom-left-bg-height);
+  bottom: var(--bottom-left-bg-position-bottom);
+  left: var(--bottom-left-bg-position-left);
 }
 
 .section-background .top_right_bg_logo {
   display: var(--top-right-bg-logo-display);
-  content: var(--top-right-bg-logo-url);
-  top: 10px;
-  right: 10px;
+  -webkit-mask-image: var(--top-right-bg-logo-url);
+  mask-image: var(--top-right-bg-logo-url);
+  background-color: var(--primary-color);
+  width: var(--top-right-bg-width);
+  height: var(--top-right-bg-height);
+  top: var(--top-right-bg-position-top);
+  right: var(--top-right-bg-position-right);
 }
 
 .section-background .bottom_right_bg_logo {
   display: var(--bottom-right-bg-logo-display);
-  content: var(--bottom-right-bg-logo-url);
-  right: 10px;
-  bottom: 10px;
+  -webkit-mask-image: var(--bottom-right-bg-logo-url);
+  mask-image: var(--bottom-right-bg-logo-url);
+  background-color: var(--primary-color);
+  width: var(--bottom-right-bg-width);
+  height: var(--bottom-right-bg-height);
+  bottom: var(--bottom-right-bg-position-bottom);
+  right: var(--bottom-right-bg-position-right);
 }
 
 .back-button-color {
