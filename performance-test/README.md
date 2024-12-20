@@ -1,10 +1,9 @@
 
 ### Contains
 * This folder contains performance Test script and test script of below API endpoint categories.
-    1. Auth Token Generation (Setup)
-    2. Create OIDC Client in Mock Authentication System (Setup)
-    3. Create Identities in Mock Identity System (Setup)
-	4. S01 OTP Authentication (Execution)
+    1. Create OIDC Client in Mock Authentication System (Setup)
+    2. Create Identities in Mock Identity System (Setup)
+    3. S01 OTP Authentication (Execution)
 
 * Open source Tools used,
     1. [Apache JMeter](https://jmeter.apache.org/)
@@ -71,7 +70,6 @@
 
 *Esignet_Mockida_Test_Script.jmx
 	
-	* Auth Token Generation (Setup) : This threadgroup generates token pms client.
 	* Create OIDC Client in Mock Authentication System (Setup) : This threadgroup generates client id and encoded private key pair and stored in csv file. 
 	* Create Identities in Mock Identity System (Setup) : This threadgroup generates mock identities and stores in mock identity database. These identities are used for authentication in eSignet portal.
     * S01 OTP authentication (Execution)
