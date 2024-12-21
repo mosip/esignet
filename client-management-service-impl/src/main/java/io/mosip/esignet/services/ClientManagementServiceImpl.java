@@ -276,8 +276,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     }
 
     public ClientDetail buildClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) {
-        Optional<ClientDetail> result = clientDetailRepository.findById(clientDetailCreateRequestV2.getClientId());
-        if (result.isPresent()) {
+        if (clientDetailRepository.existsById(clientDetailCreateRequestV2.getClientId())) {
             log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
         }
