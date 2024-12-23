@@ -128,11 +128,8 @@ export default function OtpGet({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex
+    let newValue = regex && regex.test(trimmedValue)
       ? trimmedValue
-          .split("")
-          .filter((char) => regex.test(char))
-          .join("")
       : trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
@@ -141,11 +138,11 @@ export default function OtpGet({
       !(
         (
           (!maxLength && !regex) || // Case 1: No maxLength, no regex
-          (maxLength && !regex && newValue.length === parseInt(maxLength)) || // Case 2: maxLength only
+          (maxLength && !regex && newValue.length <= parseInt(maxLength)) || // Case 2: maxLength only
           (!maxLength && regex && regex.test(newValue)) || // Case 3: regex only
           (maxLength &&
             regex &&
-            newValue.length === parseInt(maxLength) &&
+            newValue.length <= parseInt(maxLength) &&
             regex.test(newValue))
         ) // Case 4: Both maxLength and regex
       )
@@ -160,7 +157,7 @@ export default function OtpGet({
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     setIsValid(
-      (!maxLength || e.target.value.trim().length === parseInt(maxLength)) &&
+      (!maxLength || e.target.value.trim().length <= parseInt(maxLength)) &&
         (!regex || regex.test(e.target.value.trim()))
     );
   };
@@ -342,7 +339,7 @@ export default function OtpGet({
               handleClick={sendOTP}
               id="get_otp"
               disabled={
-                !individualId?.trim() ||
+                !individualId ||
                 isBtnDisabled ||
                 (showCaptcha && captchaToken === null)
               }
