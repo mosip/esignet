@@ -76,23 +76,20 @@ const InputWithPrefix = (props) => {
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex
+    let newValue = regex && regex.test(trimmedValue)
       ? trimmedValue
-          .split("")
-          .filter((char) => regex.test(char))
-          .join("")
       : trimmedValue;
-
+   
     setIndividualId(newValue);
     props.individualId(newValue); // Update state with the visible valid value
 
     const isValidInput =
       (!maxLength && !regex) || // Case 1: No maxLength, no regex
-      (maxLength && !regex && newValue.length === parseInt(maxLength)) || // Case 2: maxLength only
+      (maxLength && !regex && newValue.length <= parseInt(maxLength)) || // Case 2: maxLength only
       (!maxLength && regex && regex.test(newValue)) || // Case 3: regex only
       (maxLength &&
         regex &&
-        newValue.length === parseInt(maxLength) &&
+        newValue.length <= parseInt(maxLength) &&
         regex.test(newValue)); // Case 4: Both maxLength and regex
 
     props.isBtnDisabled(!isValidInput);
@@ -106,7 +103,7 @@ const InputWithPrefix = (props) => {
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     setIsValid(
-      (!maxLength || e.target.value.trim().length === parseInt(maxLength)) &&
+      (!maxLength || e.target.value.trim().length <= parseInt(maxLength)) &&
         (!regex || regex.test(e.target.value.trim()))
     );
   };

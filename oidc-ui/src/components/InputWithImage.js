@@ -262,7 +262,7 @@ export default function InputWithImage({
           onBlur={onBlurChange}
           onKeyDown={handleKeyDown}
           onKeyUp={handleKeyUp}
-          value={value}
+          // value={value}
           type={type}
           id={id}
           name={name}
