@@ -341,11 +341,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate
-    //response splitting vulnerability
+    //response splitting vulnerability. Removed all whitespace characters
     private String sanitizePathFragment(String pathFragment) {
-        return pathFragment.replaceAll("[\r\n]", "");
+        return pathFragment.replaceAll("\\s", "");
     }
-
 
     private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction, HttpServletRequest httpServletRequest) {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
