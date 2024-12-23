@@ -101,7 +101,6 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
     }
 
     let lang = langOptions.find((option) => {
-      const currentUILocale = urlSearchParams.get("ui_locales");
       return option.value === i18n.language;
     });
 
