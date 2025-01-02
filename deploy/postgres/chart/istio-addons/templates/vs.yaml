@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: esignet-postgres
+  name: postgres
 spec:
   hosts:
     - "*"
@@ -12,8 +12,7 @@ spec:
     - port: 5432
     route:
     - destination:
-        host: esignet-postgres-postgresql
+        host: postgres-postgresql
         port:
           number: 5432
     
-

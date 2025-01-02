@@ -2,10 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
-import {
-  buttonTypes,
-  configurationKeys,
-} from "../constants/clientConstants";
+import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import FormAction from "./FormAction";
 import InputWithImage from "./InputWithImage";
@@ -23,9 +20,8 @@ export default function Form({
   openIDConnectService,
   backButtonDiv,
   i18nKeyPrefix1 = "Form",
-  i18nKeyPrefix2 = "errors"
+  i18nKeyPrefix2 = "errors",
 }) {
-  
   const { t: t1, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix1,
   });
@@ -33,7 +29,7 @@ export default function Form({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
-  
+
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
 
@@ -49,8 +45,7 @@ export default function Form({
   const [status, setStatus] = useState(states.LOADED);
   const [invalidState, setInvalidState] = useState(true);
 
-  useEffect(() => {  
-  }, []);
+  useEffect(() => {}, []);
 
   const navigate = useNavigate();
 
@@ -95,17 +90,28 @@ export default function Form({
   const resetCaptcha = () => {
     _reCaptchaRef.current.reset();
     setCaptchaToken(null);
-  }
+  };
 
   //Handle Login API Integration here
   const authenticateUser = async () => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
-      let uin = loginState["_form_" + openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField) ?? ""];
+      let uin =
+        loginState[
+          "_form_" +
+            openIDConnectService.getEsignetConfiguration(
+              configurationKeys.authFactorKnowledgeIndividualIdField
+            ) ?? ""
+        ];
       let challengeManipulate = {};
       fields.forEach(function (field) {
-        if (field.id !== openIDConnectService.getEsignetConfiguration(configurationKeys.authFactorKnowledgeIndividualIdField)) {
-          challengeManipulate[field.id] = loginState["_form_" + field.id]
+        if (
+          field.id !==
+          openIDConnectService.getEsignetConfiguration(
+            configurationKeys.authFactorKnowledgeIndividualIdField
+          )
+        ) {
+          challengeManipulate[field.id] = loginState["_form_" + field.id];
         }
       });
       let challenge = btoa(JSON.stringify(challengeManipulate));
@@ -132,27 +138,27 @@ export default function Form({
       const { response, errors } = authenticateResponse;
 
       if (errors != null && errors.length > 0) {
-        let errorCodeCondition = langConfig.errors.otp[errors[0].errorCode] !== undefined && langConfig.errors.kbi[errors[0].errorCode] !== null;
+        let errorCodeCondition =
+          langConfig.errors.otp[errors[0].errorCode] !== undefined &&
+          langConfig.errors.kbi[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
           setErrorBanner({
             errorCode: `kbi.${errors[0].errorCode}`,
-            show: true
+            show: true,
           });
-        }
-        else if (errors[0].errorCode === "invalid_transaction") {
+        } else if (errors[0].errorCode === "invalid_transaction") {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-        }
-        else {
+        } else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
-            show: true
+            show: true,
           });
         }
 
         if (showCaptcha) {
           resetCaptcha();
-        }      
+        }
         return;
       } else {
         setError(null);
@@ -174,13 +180,13 @@ export default function Form({
     } catch (error) {
       setErrorBanner({
         errorCode: "kbi.auth_failed",
-        show: true
+        show: true,
       });
       setStatus(states.ERROR);
 
       if (showCaptcha) {
         resetCaptcha();
-      }      
+      }
     }
   };
 
@@ -206,11 +212,11 @@ export default function Form({
 
   const onBlurChange = (e, errors) => {
     let id = e.target.id;
-    let tempError = inputErrorBanner.map(_ => _);
+    let tempError = inputErrorBanner.map((_) => _);
     if (errors.length > 0) {
-      tempError.push(id)
+      tempError.push(id);
     } else {
-      let errorIndex = tempError.findIndex(_ => _ === id);
+      let errorIndex = tempError.findIndex((_) => _ === id);
       if (errorIndex !== -1) {
         tempError.splice(errorIndex, 1);
       }
@@ -220,16 +226,21 @@ export default function Form({
 
   return (
     <>
-      <div className="grid grid-cols-8 items-center">
-        {(backButtonDiv)}
+      <div className="flex items-center">
+        {backButtonDiv}
+        <div className="inline mx-2 font-semibold my-3">
+          {`${t1("login_with_kbi")}`}
+        </div>
       </div>
 
       {errorBanner !== null && (
-        <ErrorBanner
-          showBanner={errorBanner.show}
-          errorCode={t2(errorBanner.errorCode)}
-          onCloseHandle={onCloseHandle}
-        />
+        <div className="mb-4">
+          <ErrorBanner
+            showBanner={errorBanner.show}
+            errorCode={t2(errorBanner.errorCode)}
+            onCloseHandle={onCloseHandle}
+          />
+        </div>
       )}
 
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>

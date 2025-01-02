@@ -1,0 +1,21 @@
+{{- if .Values.apitestrig.configmaps }}
+{{- range $cm_name, $cm_value := .Values.apitestrig.configmaps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $cm_name }}
+  namespace: {{ $.Release.Namespace }}
+  labels: {{- include "common.labels.standard" $ | nindent 8 }}
+    {{- if $.Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonLabels "context" $ ) | nindent 8 }}
+    {{- end }}
+  {{- if $.Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 8 }}
+  {{- end }}
+data:
+  {{- range $key, $value := $cm_value }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}

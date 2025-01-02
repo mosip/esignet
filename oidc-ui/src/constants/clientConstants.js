@@ -93,7 +93,8 @@ const configurationKeys = {
   eKYCStepsConfig: "eKYC-steps.config",
   bannerCloseTimer: "error.banner.close-timer",
   authFactorKnowledgeFieldDetails: "auth.factor.kbi.field-details",
-  authFactorKnowledgeIndividualIdField: "auth.factor.kbi.individual-id-field"
+  authFactorKnowledgeIndividualIdField: "auth.factor.kbi.individual-id-field",
+  loginIdOptions: "login-id.options"
 };
 
 const modalityIconPath = {
@@ -101,8 +102,8 @@ const modalityIconPath = {
   OTP: "images/otp_icon.svg",
   WALLET: "images/wallet_icon.svg",
   BIO: "images/bio_icon.svg",
-  PWD: "images/sign_in_with_otp.png",
-  KBI: "images/sign_in_with_kba.png"
+  PWD: "images/pwd_icon.svg",
+  KBI: "images/kbi_icon.svg"
 };
 
 export {

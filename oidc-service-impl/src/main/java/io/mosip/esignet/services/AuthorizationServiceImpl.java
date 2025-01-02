@@ -277,12 +277,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
 
         //Profile update is mandated only if any essential verified claim is requested
-        boolean unverifiedEssentialClaimsExist = transaction.getResolvedClaims().getUserinfo()
+        boolean unverifiedEssentialClaimsExists = transaction.getResolvedClaims().getUserinfo()
                 .entrySet()
                 .stream()
                 .anyMatch( entry -> entry.getValue().stream()
-                .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") == null ));
-        claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExist);
+                        .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
+                                transaction.getClaimMetadata().getOrDefault(entry.getKey(), Collections.EMPTY_LIST).isEmpty() ));
+        claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 
         auditWrapper.logAudit(Action.CLAIM_DETAILS, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transactionId, transaction), null);
@@ -340,11 +341,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate
-    //response splitting vulnerability
+    //response splitting vulnerability. Removed all whitespace characters
     private String sanitizePathFragment(String pathFragment) {
-        return pathFragment.replaceAll("[\r\n]", "");
+        return pathFragment.replaceAll("\\s", "");
     }
-
 
     private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction, HttpServletRequest httpServletRequest) {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
@@ -362,7 +362,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         KycAuthResult kycAuthResult;
         if(authRequest.getChallengeList().size() == 1 && authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
-            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0), transaction,
+            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0),authRequest.getIndividualId(), transaction,
                     httpServletRequest);
             transaction.setInternalAuthSuccess(true);
         }

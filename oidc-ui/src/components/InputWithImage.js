@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import PopoverContainer from "../common/Popover";
 
 const fixedInputClass =
-  "rounded-md bg-white shadow-lg appearance-none block w-full px-3.5 py-2.5 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm p-2.5 ltr:pr-10 rtl:pl-10 ";
+  "rounded-md bg-white shadow-lg appearance-none block w-full px-3.5 py-2.5 placeholder-[#A0A8AC] text-gray-900 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm p-2.5 ltr:pr-10 rtl:pl-10 ";
 
 export default function InputWithImage({
   handleChange,
@@ -31,13 +31,21 @@ export default function InputWithImage({
   errorCode,
   maxLength = "",
   regex = "",
+  isInvalid,
+  individualId,
+  currenti18nPrefix,
 }) {
-
-  const { t: t1 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix1 });
-  const { t: t2 } = useTranslation("translation", { keyPrefix: i18nKeyPrefix2 });
+  const { t } = useTranslation("translation");
+  const { t: t1 } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix1,
+  });
+  const { t: t2 } = useTranslation("translation", {
+    keyPrefix: i18nKeyPrefix2,
+  });
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorBanner, setErrorBanner] = useState([]);
+  const [isCapsLockOn, setIsCapsLockOn] = useState(false);
 
   const inputVal = useRef(value);
 
@@ -47,8 +55,11 @@ export default function InputWithImage({
     setShowPassword(!showPassword);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyUp = (e) => {
+    setIsCapsLockOn(e.getModifierState("CapsLock"));
+  };
 
+  const handleKeyDown = (e) => {
     var keyCode = e.key || e.which;
 
     // multiKeyChecking function checks if the key is
@@ -57,8 +68,9 @@ export default function InputWithImage({
     const multiKeyChecking = (key, ctrl, maxLength) => {
       if (
         ctrl &&
-        (key === "a" || key === "c"
-          || (key === "v" && checkMaxLength(maxLength)))
+        (key === "a" ||
+          key === "c" ||
+          (key === "v" && checkMaxLength(maxLength)))
       ) {
         return true;
       }
@@ -89,15 +101,25 @@ export default function InputWithImage({
         return /^[a-zA-Z\d]$/.test(key);
       }
 
-      return true
-    }
-
+      return true;
+    };
 
     // Allow some special keys like Backspace, Tab, Home, End, Left Arrow, Right Arrow, Delete.
-    const allowedKeyCodes =
-      ['Backspace', 'Tab', 'Control', 'End', 'Home', 'ArrowLeft', 'ArrowRight', 'Delete'];
+    const allowedKeyCodes = [
+      "Backspace",
+      "Tab",
+      "Control",
+      "End",
+      "Home",
+      "ArrowLeft",
+      "ArrowRight",
+      "Delete",
+    ];
 
-    if (!allowedKeyCodes.includes(keyCode) && !multiKeyChecking(keyCode, e.ctrlKey, maxLength)) {
+    if (
+      !allowedKeyCodes.includes(keyCode) &&
+      !multiKeyChecking(keyCode, e.ctrlKey, maxLength)
+    ) {
       // checking max length for the input
       // if greater than the max length then prevent the default action
       if (!checkMaxLength(maxLength)) {
@@ -109,7 +131,9 @@ export default function InputWithImage({
         e.preventDefault();
       }
     }
-  }
+
+    setIsCapsLockOn(e.getModifierState("CapsLock"));
+  };
 
   const onBlurChange = (e) => {
     const val = e.target.value;
@@ -139,21 +163,72 @@ export default function InputWithImage({
     }
     // setting the error in errorBanner
     setErrorBanner(tempBanner);
-    blurChange(e, tempBanner)
-  }
+    blurChange(e, tempBanner);
+  };
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <div className="flex justify-start">
-          <label
-            htmlFor={labelFor}
-            className="block mb-2 text-xs font-medium text-gray-900 text-opacity-70"
-          >
-            {labelText}
-          </label>
+        <div className="flex justify-start w-full">
+          <div className="flex justify-between w-full">
+            <label
+              className="inline-block mt-4 mb-2 text-sm font-medium"
+              htmlFor={id}
+            >
+              {labelText}
+            </label>
+            {id.includes("Password") &&
+              type === "password" &&
+              value &&
+              isCapsLockOn && (
+                <small className="caps_lock flex self-center mt-2 w-auto">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 18.5 18.5"
+                    className="mr-1 self-center w-3 h-3"
+                  >
+                    <g
+                      id="info_FILL0_wght400_GRAD0_opsz48"
+                      transform="translate(0.25 0.25)"
+                    >
+                      <path
+                        id="info_FILL0_wght400_GRAD0_opsz48-2"
+                        data-name="info_FILL0_wght400_GRAD0_opsz48"
+                        d="M88.393-866.5h1.35v-5.4h-1.35ZM89-873.565a.731.731,0,0,0,.529-.207.685.685,0,0,0,.214-.513.752.752,0,0,0-.213-.545.707.707,0,0,0-.529-.22.708.708,0,0,0-.529.22.751.751,0,0,0-.214.545.686.686,0,0,0,.213.513A.729.729,0,0,0,89-873.565ZM89.006-862a8.712,8.712,0,0,1-3.5-.709,9.145,9.145,0,0,1-2.863-1.935,9.14,9.14,0,0,1-1.935-2.865,8.728,8.728,0,0,1-.709-3.5,8.728,8.728,0,0,1,.709-3.5,9,9,0,0,1,1.935-2.854,9.237,9.237,0,0,1,2.865-1.924,8.728,8.728,0,0,1,3.5-.709,8.728,8.728,0,0,1,3.5.709,9.1,9.1,0,0,1,2.854,1.924,9.089,9.089,0,0,1,1.924,2.858,8.749,8.749,0,0,1,.709,3.5,8.712,8.712,0,0,1-.709,3.5,9.192,9.192,0,0,1-1.924,2.859,9.087,9.087,0,0,1-2.857,1.935A8.707,8.707,0,0,1,89.006-862Zm.005-1.35a7.348,7.348,0,0,0,5.411-2.239,7.4,7.4,0,0,0,2.228-5.422,7.374,7.374,0,0,0-2.223-5.411A7.376,7.376,0,0,0,89-878.65a7.4,7.4,0,0,0-5.411,2.223A7.357,7.357,0,0,0,81.35-871a7.372,7.372,0,0,0,2.239,5.411A7.385,7.385,0,0,0,89.011-863.35ZM89-871Z"
+                        transform="translate(-80 880)"
+                        fill="#2D86BA"
+                        stroke="#2D86BA"
+                        stroke-width="0.5"
+                      />
+                    </g>
+                  </svg>
+                  <span className="items-end">{t1("caps_on")}</span>
+                </small>
+              )}
+          </div>
           {icon && (
-            <PopoverContainer child={<img src={infoIcon} className="mx-1 mt-[2px] w-[15px] h-[14px] relative bottom-[1px]" />} content={id.includes("Otp") ? t1("otp_info") : id.includes("sbi") ? t1("bio_info") : id.includes("Pin") ? t1("pin_info") : t1("username_info")} position="right" contentSize="text-xs" contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-[175px] sm:w-[200px] md:w-[220px] leading-none"/>
+            <PopoverContainer
+              child={
+                <img
+                  src={infoIcon}
+                  className="mx-1 mt-[2px] w-[15px] h-[14px] relative bottom-[1px]"
+                />
+              }
+              content={
+                id.includes("Otp")
+                  ? t1("otp_info")
+                  : id.includes("sbi")
+                  ? t1("bio_info")
+                  : id.includes("Pin")
+                  ? t1("pin_info")
+                  : t1("username_info")
+              }
+              position="right"
+              contentSize="text-xs"
+              contentClassName="rounded-md px-3 py-2 border border-[#BCBCBC] outline-0 bg-white shadow-md z-50 w-[175px] sm:w-[200px] md:w-[220px] leading-none"
+            />
           )}
         </div>
         {formError && (
@@ -165,12 +240,20 @@ export default function InputWithImage({
           </label>
         )}
       </div>
-      <div className={`relative input-box ${errorBanner && errorBanner.length > 0 && errorBanner.find(val => val.id === id) && "errorInput"}`}>
-        {imgPath &&
+      <div
+        className={`relative input-box ${
+          ((isInvalid && individualId?.length > 0 && type !== "password") ||
+            (errorBanner &&
+              errorBanner.length > 0 &&
+              errorBanner.find((val) => val.id === id))) &&
+          "!border-[#FE6B6B]"
+        }`}
+      >
+        {imgPath && (
           <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0 z-[11]">
             <img className="w-6 h-6" src={imgPath} />
           </div>
-        }
+        )}
         {prefix && prefix !== "" && <span className="prefix">{prefix}</span>}
         <input
           ref={inputVal}
@@ -178,7 +261,8 @@ export default function InputWithImage({
           onChange={handleChange}
           onBlur={onBlurChange}
           onKeyDown={handleKeyDown}
-          value={value}
+          onKeyUp={handleKeyUp}
+          // value={value}
           type={type}
           id={id}
           name={name}
@@ -188,7 +272,7 @@ export default function InputWithImage({
           title={t1(tooltipMsg)}
           onWheelCapture={(e) => e.target.blur()}
         />
-        {id.includes("password") && (
+        {id.includes("Password") && type === "password" && value && (
           <span
             id="password-eye"
             type="button"
@@ -203,18 +287,47 @@ export default function InputWithImage({
           </span>
         )}
       </div>
-      {
-        errorBanner && errorBanner.length > 0 && errorBanner.map(item => {
-          if (item.id === id) {
-            return (
-              <div className="bg-[#FAEFEF] text-[#D52929] text-sm pb-1 pt-[2px] px-2 rounded-b-md font-semibold" key={id}>
-                {t2(`${item.errorCode}`)}
-              </div>
-            )
-          }
-          else return null;
-        })
-      }
+
+      {((isInvalid && individualId?.length > 0) ||
+        (errorBanner && errorBanner.length > 0)) && (
+        <small className="text-[#FE6B6B] font-medium flex items-center !mt-1">
+          {type !== "password" ? (
+            <>
+              <span>
+                <img
+                  src="\images\error_icon.svg"
+                  alt="error_icon"
+                  className="mr-1"
+                  width="12px"
+                />
+              </span>
+              <span>{`${t(`${currenti18nPrefix}.invalid_input`, {
+                id: `${t(`${currenti18nPrefix}.${id.split("_")[1]}`)}`,
+              })}`}</span>
+            </>
+          ) : (
+            errorBanner &&
+            errorBanner.length > 0 &&
+            errorBanner.map((item) => {
+              if (item.id === id) {
+                return (
+                  <>
+                    <span>
+                      <img
+                        src="\images\error_icon.svg"
+                        alt="error_icon"
+                        className="mr-1"
+                        width="12px"
+                      />
+                    </span>
+                    <span>{t2(`${item.errorCode}`)}</span>
+                  </>
+                );
+              }
+            })
+          )}
+        </small>
+      )}
     </>
   );
 }
