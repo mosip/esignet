@@ -18,7 +18,6 @@ This repository contains limited OpenId protocol implementation with:
 
 ![esignet-overview.png](docs/esignet-overview.png)
 
-
 eSignet repository contains following:
 
 1. esignet-core - Library containing all the common interfaces, DTOs and utils that is used as dependency in the other esignet module libraries and services
