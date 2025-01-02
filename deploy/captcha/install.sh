@@ -8,7 +8,7 @@ fi
 
 ROOT_DIR=`pwd`
 NS=captcha
-CHART_VERSION=0.1.0-develop
+CHART_VERSION=1.5.0
 
 function installing_captcha() {
   while true; do
