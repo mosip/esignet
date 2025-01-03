@@ -83,6 +83,8 @@ public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implem
 		
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 		
+		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+		
 		inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
 		
 		JSONObject requestJson = new JSONObject(inputJson);

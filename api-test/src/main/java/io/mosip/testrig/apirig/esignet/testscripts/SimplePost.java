@@ -120,6 +120,8 @@ public class SimplePost extends AdminTestUtil implements ITest {
 		}
 
 		else {
+			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+			
 			String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 			if (testCaseDTO.getEndPoint().contains("/signup/"))
 				tempUrl = EsignetConfigManager.getSignupBaseUrl();

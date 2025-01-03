@@ -134,6 +134,8 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 					throw new AdminTestException("Failed at output validation");
 			}
 		} else {
+			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+			
 			if (testCaseName.contains("ESignet_")) {
 				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 					throw new SkipException("esignet is not deployed hence skipping the testcase");

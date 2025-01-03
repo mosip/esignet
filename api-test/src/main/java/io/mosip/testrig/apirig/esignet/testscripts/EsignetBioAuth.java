@@ -160,6 +160,8 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 			if (authRequest.contains("$CHALLENGE$")) {
 				authRequest = authRequest.replace("$CHALLENGE$", challengeValue);
 			}
+			
+			authRequest = EsignetUtil.inputstringKeyWordHandeler(authRequest, testCaseName);
 			if (testCaseName.contains("ESignet_")) {
 				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 				response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(), authRequest,

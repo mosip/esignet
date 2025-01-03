@@ -115,6 +115,8 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 		String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
+		
+		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
 		String jsonInput = inputJsonKeyWordHandeler(inputJson, testCaseName);
 
