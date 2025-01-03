@@ -79,21 +79,6 @@
             <stringProp name="Argument.value">111111</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="pmsClientId" elementType="Argument">
-            <stringProp name="Argument.name">pmsClientId</stringProp>
-            <stringProp name="Argument.value">mosip-pms-client</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="pmsSecretKey" elementType="Argument">
-            <stringProp name="Argument.name">pmsSecretKey</stringProp>
-            <stringProp name="Argument.value">abc@123</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="pmsAppId" elementType="Argument">
-            <stringProp name="Argument.name">pmsAppId</stringProp>
-            <stringProp name="Argument.value">partner</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
           <elementProp name="authFactorType" elementType="Argument">
             <stringProp name="Argument.name">authFactorType</stringProp>
             <stringProp name="Argument.value">OTP</stringProp>
