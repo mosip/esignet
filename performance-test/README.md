@@ -1,6 +1,6 @@
 
 ### Contains
-* This folder contains performance Test script and test script of below API endpoint categories.
+* This folder contains performance test script of below API endpoint categories.
     1. Create OIDC Client in Mock Authentication System (Setup)
     2. Create Identities in Mock Identity System (Setup)
     3. S01 OTP Authentication (Execution)

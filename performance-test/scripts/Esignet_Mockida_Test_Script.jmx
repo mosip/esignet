@@ -124,6 +124,16 @@
             <stringProp name="Argument.value">1800</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="nonceValue" elementType="Argument">
+            <stringProp name="Argument.name">nonceValue</stringProp>
+            <stringProp name="Argument.value">973eieljzng</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="stateValue" elementType="Argument">
+            <stringProp name="Argument.name">stateValue</stringProp>
+            <stringProp name="Argument.value">eree2311</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -355,7 +365,7 @@ vars.put(&quot;clientId&quot;,clientId);
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="script">${__StringToFile(${runTimeFilePath}/client_id_esignet.csv,${clientid}\,${encodedPrivateKey}\n,true,)}
+            <stringProp name="script">${__StringToFile(${runTimeFilePath}/client_id_esignet.csv,${clientId}\,${encodedPrivateKey}\n,true,)}
 </stringProp>
           </BeanShellPostProcessor>
           <hashTree/>
@@ -634,8 +644,8 @@ vars.put(&quot;emailId&quot;,emailId);
         &quot;display&quot;: &quot;popup&quot;,&#xd;
         &quot;prompt&quot;: &quot;login&quot;,&#xd;
         &quot;acrValues&quot;: &quot;${acrValuesOtp}&quot;,&#xd;
-        &quot;nonce&quot; : &quot;973eieljzng&quot;,&#xd;
-        &quot;state&quot; : &quot;eree2311&quot;,&#xd;
+        &quot;nonce&quot; : &quot;${nonceValue}&quot;,&#xd;
+        &quot;state&quot; : &quot;${stateValue}&quot;,&#xd;
         &quot;claimsLocales&quot; : &quot;en&quot;,&#xd;
         &quot;codeChallenge&quot; : &quot;${codeChallenge}&quot;,&#xd;
         &quot;codeChallengeMethod&quot; : &quot;S256&quot;&#xd;
