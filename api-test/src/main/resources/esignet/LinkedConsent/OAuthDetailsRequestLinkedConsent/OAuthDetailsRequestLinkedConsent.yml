@@ -97,7 +97,7 @@ OAuthDetailsRequestLinkedConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "unknown_error",
+      "errorCode": "invalid_claim",
       "errorMessage": "$IGNORE$"
     }
   ]  
