@@ -55,9 +55,13 @@ jobs:
           for file in $(find . -name "pom.xml"); do
             echo "Checking pom.xml file at: $file"
 
+            # Print the full content of the pom.xml for debugging
+            # Uncomment this to debug the xml structure
+            # cat $file
+
             # Extract artifactId and version from the pom.xml file
-            artifactId=$(xmllint --xpath "string(//project/parent/artifactId)" $file)
-            version=$(xmllint --xpath "string(//project/parent/version)" $file)
+            artifactId=$(xmllint --xpath "string(//project/parent/artifactId)" $file 2>/dev/null)
+            version=$(xmllint --xpath "string(//project/parent/version)" $file 2>/dev/null)
 
             # Trim whitespace (if any)
             artifactId=$(echo "$artifactId" | xargs)
@@ -67,9 +71,9 @@ jobs:
             echo "Extracted artifactId: $artifactId"
             echo "Extracted version: $version"
 
-            # Check if artifactId is 'esignet-parent' and version follows '*.*.*-SNAPSHOT' pattern
+            # Check if artifactId and version are found
             if [[ -z "$artifactId" || -z "$version" ]]; then
-              echo "Could not find parent artifactId or version in pom.xml"
+              echo "Could not find parent artifactId or version in pom.xml at $file"
               echo "is_snapshot=false" >> $GITHUB_ENV
               echo "::set-output name=is_snapshot::false"
               exit 0
