@@ -50,20 +50,31 @@ jobs:
       - name: Check if artifactId is 'esignet-parent' and version follows '*.*.*-SNAPSHOT' pattern
         id: check_snapshot
         run: |
-          # Parse the parent POM to extract artifactId and version
-          artifactId=$(xmllint --xpath "string(//parent/artifactId)" pom.xml)
-          version=$(xmllint --xpath "string(//parent/version)" pom.xml)
+          # Print the content of the pom.xml for debugging purposes
+          echo "Printing the pom.xml file for debugging purposes"
+          cat pom.xml
           
-          # Print the artifactId and version
-          echo "Parent artifactId is: $artifactId"
-          echo "Parent version is: $version"
+          # Parse the parent POM to extract artifactId and version
+          artifactId=$(xmllint --xpath "string(//project/parent/artifactId)" pom.xml)
+          version=$(xmllint --xpath "string(//project/parent/version)" pom.xml)
+          
+          # Print the extracted artifactId and version for debugging
+          echo "Extracted artifactId: $artifactId"
+          echo "Extracted version: $version"
           
           # Check if artifactId is 'esignet-parent' and version follows '*.*.*-SNAPSHOT' pattern
           if [[ "$artifactId" == "esignet-parent" && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$ ]]; then
-            echo "The conditions are met: artifactId is 'esignet-parent' and version matches '*.*.*-SNAPSHOT'."
+            echo "Both conditions met: artifactId is 'esignet-parent' and version matches '*.*.*-SNAPSHOT'."
             echo "is_snapshot=true" >> $GITHUB_ENV
             echo "::set-output name=is_snapshot::true"
           else
+            # If either condition is not met, output a detailed message
+            if [[ "$artifactId" != "esignet-parent" ]]; then
+              echo "ArtifactId is NOT 'esignet-parent'. It is: $artifactId"
+            fi
+            if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$ ]]; then
+              echo "Version does NOT match '*.*.*-SNAPSHOT'. It is: $version"
+            fi
             echo "Conditions not met: Either artifactId is not 'esignet-parent' or version does not match '*.*.*-SNAPSHOT'."
             echo "is_snapshot=false" >> $GITHUB_ENV
             echo "::set-output name=is_snapshot::false"
