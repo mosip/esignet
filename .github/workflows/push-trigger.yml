@@ -53,6 +53,8 @@ jobs:
           # Parse the parent POM to extract artifactId and version
           artifactId=$(xmllint --xpath "string(//parent/artifactId)" pom.xml)
           version=$(xmllint --xpath "string(//parent/version)" pom.xml)
+          
+          # Print the artifactId and version
           echo "Parent artifactId is: $artifactId"
           echo "Parent version is: $version"
           
