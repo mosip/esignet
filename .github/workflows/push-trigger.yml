@@ -36,69 +36,22 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  check-snapshot-version:
+  check_snapshot_version:
+    needs: build-maven-esignet
     runs-on: ubuntu-latest
     outputs:
-      is_snapshot: ${{ steps.check_snapshot.outputs.is_snapshot }}
+      is_snapshot: ${{ steps.check_output.outputs.is_snapshot }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install xmllint (libxml2-utils)
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-
-      - name: Check if artifactId is 'esignet-parent' and version follows '*.*.*-SNAPSHOT' pattern
-        id: check_snapshot
+      - name: Check for SNAPSHOT version in parent
+        id: check_output
         run: |
-          # Limit the log output to avoid printing full pom.xml
-          # Find all pom.xml files in the repo and check each of them
-          for file in $(find . -name "pom.xml"); do
-            echo "Checking pom.xml file at: $file"
-
-            # Print the full content of the pom.xml for debugging
-            # Uncomment this to debug the xml structure
-            # cat $file
-
-            # Extract artifactId and version from the pom.xml file
-            artifactId=$(xmllint --xpath "string(//project/parent/artifactId)" $file 2>/dev/null)
-            version=$(xmllint --xpath "string(//project/parent/version)" $file 2>/dev/null)
-
-            # Trim whitespace (if any)
-            artifactId=$(echo "$artifactId" | xargs)
-            version=$(echo "$version" | xargs)
-
-            # Print the extracted artifactId and version for debugging
-            echo "Extracted artifactId: $artifactId"
-            echo "Extracted version: $version"
-
-            # Check if artifactId and version are found
-            if [[ -z "$artifactId" || -z "$version" ]]; then
-              echo "Could not find parent artifactId or version in pom.xml at $file"
-              echo "is_snapshot=false" >> $GITHUB_ENV
-              echo "::set-output name=is_snapshot::false"
-              exit 0
-            fi
-
-            # Check if artifactId is 'esignet-parent' and version matches '*.*.*-SNAPSHOT'
-            if [[ "$artifactId" == "esignet-parent" && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$ ]]; then
-              echo "Both conditions met: artifactId is 'esignet-parent' and version matches '*.*.*-SNAPSHOT'."
-              echo "is_snapshot=true" >> $GITHUB_ENV
-              echo "::set-output name=is_snapshot::true"
-              exit 0
-            else
-              # If either condition is not met, output a detailed message
-              if [[ "$artifactId" != "esignet-parent" ]]; then
-                echo "ArtifactId is NOT 'esignet-parent'. It is: $artifactId"
-              fi
-              if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$ ]]; then
-                echo "Version does NOT match '*.*.*-SNAPSHOT'. It is: $version"
-              fi
-              echo "Conditions not met: Either artifactId is not 'esignet-parent' or version does not match '*.*.*-SNAPSHOT'."
-              echo "is_snapshot=false" >> $GITHUB_ENV
-              echo "::set-output name=is_snapshot::false"
-              exit 0
-            fi
-          done
+          if [[ $(find . -name 'pom.xml' -exec grep -q '<parent><groupId>io.mosip.esignet</groupId><artifactId>esignet-parent</artifactId><version>.*-SNAPSHOT</version></parent>' {} \;) ]]; then
+            echo "::set-output name=is_snapshot::true"
+            echo "Snapshot dependency found in at least one pom.xml file."
+          else
+            echo "::set-output name=is_snapshot::false"
+            echo "Snapshot dependency not found in any pom.xml file."
+          fi
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
@@ -131,8 +84,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers:
-    needs: [build-maven-esignet, check-snapshot-version]
-    if: ${{ needs.check-snapshot-version.outputs.is_snapshot == 'true' }}
+    needs: [build-maven-esignet, check_snapshot_version]
+    if: ${{ needs.check_snapshot_version.outputs.is_snapshot == 'true' }}
     strategy:
       matrix:
         include:
