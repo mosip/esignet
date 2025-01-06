@@ -146,7 +146,7 @@ public class AuthorizationHelperService {
         LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
     }
 
-    @KafkaListener(id = "link-status-consumer", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-session.topic}")
+    @KafkaListener(id = "${spring.kafka.consumer.group-id}"+"-link-status", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-session.topic}")
     public void consumeLinkStatus(String linkCodeHash) {
         DeferredResult deferredResult = LINK_STATUS_DEFERRED_RESULT_MAP.get(linkCodeHash);
         if(deferredResult != null) {
@@ -156,7 +156,7 @@ public class AuthorizationHelperService {
         }
     }
 
-    @KafkaListener(id = "link-auth-code-status-consumer", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-auth-code.topic}")
+    @KafkaListener(id = "${spring.kafka.consumer.group-id}"+"-linked-auth-code", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-auth-code.topic}")
     public void consumeLinkAuthCodeStatus(String linkTransactionId) {
         DeferredResult deferredResult = LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.get(linkTransactionId);
         if(deferredResult != null) {
@@ -213,13 +213,15 @@ public class AuthorizationHelperService {
 
     /**
      * Method validates challenge with "IDT" auth factor
-     * @param authChallenge
-     * @param transaction
-     * @param httpServletRequest
-     * @return
+     *
+     * @param authChallenge {@link AuthChallenge}
+     * @param individualId individual id from {@link AuthRequestV2}
+     * @param transaction {@link OIDCTransaction}
+     * @param httpServletRequest {@link HttpServletRequest}
+     * @return {@link KycAuthResult}
      */
     protected KycAuthResult handleInternalAuthenticateRequest(@NonNull AuthChallenge authChallenge,
-                                                              @NonNull OIDCTransaction transaction, HttpServletRequest httpServletRequest) {
+                                                              @NotNull String individualId, @NonNull OIDCTransaction transaction, HttpServletRequest httpServletRequest) {
         try {
             JsonNode jsonNode = objectMapper.readTree(IdentityProviderUtil.b64Decode(authChallenge.getChallenge()));
             if(jsonNode.isNull() || jsonNode.get("token").isNull())
@@ -228,6 +230,12 @@ public class AuthorizationHelperService {
             tokenService.verifyIdToken(token, signupIDTokenAudience);
             JWT jwt = JWTParser.parse(token);
             String subject = jwt.getJWTClaimsSet().getSubject();
+
+            //compares individual from auth request against subject from jwt token.
+            if(!individualId.equals(subject)){
+                throw new EsignetException(INVALID_INDIVIDUAL_ID);
+            }
+
             Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies())
                     .filter(x -> x.getName().equals(subject))
                     .findFirst();
@@ -244,6 +252,8 @@ public class AuthorizationHelperService {
             }
             log.error("ID token in the challenge is not matching the required conditions. isCookiePresent: {}, isHaltedTransactionFound: {}",
                     result.isPresent(), haltedTransaction!=null);
+        } catch (EsignetException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to parse ID token as challenge", e);
         }
@@ -399,7 +409,7 @@ public class AuthorizationHelperService {
                 String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
                 JSONObject payloadJson = new JSONObject(payload);
                 String audience = payloadJson.getString(TokenService.AUD);
-                if(!signupIDTokenAudience.equals(audience) && signupIDTokenAudience.equals(clientId))
+                if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
                     throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
                 return payloadJson.getString(TokenService.SUB);
             }

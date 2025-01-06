@@ -24,19 +24,51 @@
       * __Logging__ : Setup logging as per [steps](https://github.com/mosip/k8s-infra/tree/v1.2.0.2/logging).
       * __Monitoring__ : Setup monitoring consisting elasticsearch, kibana, grafana using [steps](https://github.com/mosip/k8s-infra/tree/v1.2.0.2/monitoring).
 ### Install Pre-requisites
-```
-./install-prereq.sh
-```
+* `esignet-global` configmap: For eSignet K8's env, `esignet-global` configmap in `esignet` namespace contains Domain related information. Follow below steps to add domain details for `esignet-global` configmap.
+  * Copy `esignet-global-cm.yaml.sample` to `esignet-global-cm.yaml`.
+  * Update the domain names in `esignet-global-cm.yaml` correctly for your environment.
+  * Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/) and set esignet captcha.
+* Install pre-requisites
+  ```
+  ./install-prereq.sh
+  ```
 ### Initialise pre-requisites
 * Update values file for postgres init [here](postgres/init_values.yaml).
-* Execute `initialise-prereq.sh` script to initialise postgres and keycloak and set esignet captcha.
+* Execute `initialise-prereq.sh` script to initialise postgres and keycloak.
   ```
   ./initialise-prereq.sh
   ```
-### Install esignet, oidc and captcha service
+### Install esignet and oidc
+During deployment, the system will prompt for user input to select the appropriate plugin. The available options are listed below:
+1. esignet-mock-plugin.jar
+2. mosip-identity-plugin.jar
+
+For current scope of deployment, as it is limited to mock functionality, 
+select option 1 (esignet-mock-plugin.jar).
 ```
 ./install-esignet.sh
 ```
 ## Onboarder
-* If Esignet is getting deployed with MOSIP than we need to execute the onboarder for MISP partner.
+* There are two ways to proceed, either with mosip identity plugin or with mock plugin.
+### MOSIP Identity Plugin
+* If Esignet is getting deployed with MOSIP then we need to execute the onboarder for MISP partner and mock-rp oidc clientId.
 * Onboarder [scripts](../partner-onboarder/).
+
+### MOCK Plugin
+* Download postman collection from [here](../postman-collection)
+* Fetch auth token from esignet keycloak. Update the "client_secret" in the request body.
+* Run the request under "OIDC Client Mgmt" -> "Mock" -> "Get Auth token"
+* Run the requests under
+  
+    a. "OIDC Client Mgmt" -> "Mock" -> "Get CSRF token"
+
+    b. "OIDC Client Mgmt" -> "Mock" -> "Create OIDC client"
+
+### NOTE:
+This deployment is limited to mock
+Below section related to configuring IDA is not tested. Still it can be tried out
+
+### CONFIGURE IDA for Esignet :
+Onboard eSignet as MISP partner in MOSIP PMS using our onboarder script
+We should override properties defined [here](https://github.com/mosip/esignet-plugins/blob/release-1.3.x/mosip-identity-plugin/src/main/resources/application.properties)  if there is any change in the MOSIP IDA domain names.
+Update the 'MOSIP_ESIGNET_AUTHENTICATOR_IDA_SECRET_KEY' property with MOSIP IDA keycloak client secret.

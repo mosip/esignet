@@ -2,6 +2,14 @@ modules:
   esignet:
     enabled: true
     image:
-      repository: mosipqa/apitest-esignet
-      tag: develop
+      repository: mosipdev/apitest-esignet
+      tag: release-1.5.x
       pullPolicy: Always
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 500Mi
+  requests:
+    cpu: 300m
+    memory: 500Mi
