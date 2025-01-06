@@ -14,7 +14,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.esignet</groupId>
 	<artifactId>esignet-parent</artifactId>
-	<version>1.5.0-SNAPSHOT</version>
+	<version>1.5.0</version>
 	<packaging>pom</packaging>
 	<name>esignet</name>
 	<description>Parent project of MOSIP e-Signet</description>
