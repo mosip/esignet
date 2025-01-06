@@ -54,7 +54,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>io.mosip.testrig.apirig.apitest.commons</groupId>
+			<groupId>io.mosip.testrig.apitest.commons</groupId>
 			<artifactId>apitest-commons</artifactId>
 			<version>1.2.2-cleanup-SNAPSHOT</version>
 		</dependency>
