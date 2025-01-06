@@ -16,12 +16,14 @@ import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
+import LoginIDOptions from "./LoginIDOptions";
+import InputWithPrefix from "./InputWithPrefix";
 
 const fields = passwordFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState["Password_" + field.id] = ""));
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();  
+const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function Password({
   param,
@@ -31,7 +33,6 @@ export default function Password({
   i18nKeyPrefix1 = "password",
   i18nKeyPrefix2 = "errors",
 }) {
-
   const { t: t1, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix1,
   });
@@ -47,23 +48,38 @@ export default function Password({
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
 
-  const [loginState, setLoginState] = useState(fieldsState);
   const [errorBanner, setErrorBanner] = useState(null);
   const [inputErrorBanner, setInputErrorBanner] = useState([]);
   const [status, setStatus] = useState(states.LOADED);
-  const [invalidState, setInvalidState] = useState(true);
 
   const [forgotPassword, setForgotPassword] = useState(false);
   const [forgotPasswordURL, setForgotPasswordURL] = useState("");
 
+  const [password, setPassword] = useState(null);
+  const [currentLoginID, setCurrentLoginID] = useState(null);
+  const [countryCode, setCountryCode] = useState(null);
+  const [individualId, setIndividualId] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [isValid, setIsValid] = useState(false);
+  const [isBtnDisabled, setIsBtnDisabled] = useState(true);
+  const [prevLanguage, setPrevLanguage] = useState(i18n.language);
+
+  var loginIDs = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.loginIdOptions
+  );
+
   let forgotPasswordConfig = openIDConnectService.getEsignetConfiguration(
     configurationKeys.forgotPasswordConfig
   );
-  
+
   useEffect(() => {
-    if(forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
+    if (forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
       setForgotPassword(true);
-      setForgotPasswordURL(forgotPasswordConfig[configurationKeys.forgotPasswordURL] + "#" + authService.getAuthorizeQueryParam())
+      setForgotPasswordURL(
+        forgotPasswordConfig[configurationKeys.forgotPasswordURL] +
+          "#" +
+          authService.getAuthorizeQueryParam()
+      );
     }
   }, [i18n.language]);
 
@@ -74,15 +90,100 @@ export default function Password({
 
   const navigate = useNavigate();
 
+  function getPropertiesForLoginID(loginID, label) {
+    const { prefixes, maxLength: outerMaxLength, regex: outerRegex } = loginID;
+
+    if (Array.isArray(prefixes) && prefixes.length > 0) {
+      const prefix = prefixes.find((prefix) => prefix.label === label);
+      if (prefix) {
+        return {
+          maxLength: prefix.maxLength || outerMaxLength || null,
+          regex: prefix.regex || outerRegex || null,
+        };
+      }
+    }
+
+    return {
+      maxLength: outerMaxLength || null,
+      regex: outerRegex || null,
+    };
+  }
+
   const handleChange = (e) => {
+    setIsValid(true);
     onCloseHandle();
-    setLoginState({ ...loginState, [e.target.id]: e.target.value });
+    const idProperties = getPropertiesForLoginID(
+      currentLoginID,
+      e.target.name.split("_")[1]
+    );
+    const maxLength = idProperties.maxLength;
+    const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
+    const trimmedValue = e.target.value.trim();
+
+    let newValue = regex && regex.test(trimmedValue)
+      ? trimmedValue
+      : trimmedValue;
+
+    setIndividualId(newValue); // Update state with the visible valid value
+    if (e.target.type === "password") {
+      setPassword(e.target.value.trim());
+    } else {
+      setIndividualId(newValue);
+    }
+
+    setIsBtnDisabled(
+      !(
+        (
+          (!maxLength && !regex) || // Case 1: No maxLength, no regex
+          (maxLength && !regex && newValue.length <= parseInt(maxLength)) || // Case 2: maxLength only
+          (!maxLength && regex && regex.test(newValue)) || // Case 3: regex only
+          (maxLength &&
+            regex &&
+            newValue.length <= parseInt(maxLength) &&
+            regex.test(newValue))
+        ) // Case 4: Both maxLength and regex
+      )
+    );
   };
-  
+
+  const handleBlur = (e) => {
+    const idProperties = getPropertiesForLoginID(
+      currentLoginID,
+      e.target.name.split("_")[1]
+    );
+    const maxLength = idProperties.maxLength;
+    const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
+    setIsValid(
+      (!maxLength || e.target.value.trim().length <= parseInt(maxLength)) &&
+        (!regex || regex.test(e.target.value.trim()))
+    );
+  };
+
+  const handlePasswordChange = (e) => {
+    onCloseHandle();
+    setPassword(e.target.value.trim());
+  };
+
+  useEffect(() => {
+    if (i18n.language === prevLanguage) {
+      setIndividualId(null);
+      setPassword(null);
+      setIsValid(false);
+      setIsBtnDisabled(true);
+      onCloseHandle();
+      if (currentLoginID && currentLoginID.prefixes) {
+        setSelectedCountry(currentLoginID.prefixes[0]);
+      }
+    } else {
+      setPrevLanguage(i18n.language);
+    }
+  }, [currentLoginID]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     authenticateUser();
   };
+
   const captchaEnableComponents =
     openIDConnectService.getEsignetConfiguration(
       configurationKeys.captchaEnableComponents
@@ -114,16 +215,24 @@ export default function Password({
   const resetCaptcha = () => {
     _reCaptchaRef.current.reset();
     setCaptchaToken(null);
-  }
+  };
 
   //Handle Login API Integration here
   const authenticateUser = async () => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
 
-      let uin = fields[0].prefix + loginState["Password_mosip-uin"] + fields[0].postfix;
+      let prefix = currentLoginID.prefixes
+        ? typeof currentLoginID.prefixes === "object"
+          ? countryCode
+          : currentLoginID.prefixes
+        : "";
+      let id = individualId;
+      let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
+
+      let ID = prefix + id + postfix;
       let challengeType = challengeTypes.pwd;
-      let challenge = loginState["Password_password"];
+      let challenge = password;
       let challengeFormat = challengeFormats.pwd;
 
       let challengeList = [
@@ -138,7 +247,7 @@ export default function Password({
 
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
-        uin,
+        ID,
         challengeList,
         captchaToken
       );
@@ -146,24 +255,23 @@ export default function Password({
       setStatus(states.LOADED);
 
       const { response, errors } = authenticateResponse;
-      
+
       if (errors != null && errors.length > 0) {
-        
-        let errorCodeCondition = langConfig.errors.password[errors[0].errorCode] !== undefined && langConfig.errors.password[errors[0].errorCode] !== null;
+        let errorCodeCondition =
+          langConfig.errors.password[errors[0].errorCode] !== undefined &&
+          langConfig.errors.password[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
           setErrorBanner({
             errorCode: `password.${errors[0].errorCode}`,
-            show: true
+            show: true,
           });
-        }
-        else if (errors[0].errorCode === "invalid_transaction") {
+        } else if (errors[0].errorCode === "invalid_transaction") {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
-        }
-        else {
+        } else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
-            show: true
+            show: true,
           });
         }
         if (showCaptcha) {
@@ -190,7 +298,7 @@ export default function Password({
     } catch (error) {
       setErrorBanner({
         errorCode: "password.auth_failed",
-        show: true
+        show: true,
       });
       setStatus(states.ERROR);
       if (showCaptcha) {
@@ -215,21 +323,17 @@ export default function Password({
     loadComponent();
   }, []);
 
-  useEffect(() => {
-    setInvalidState(!Object.values(loginState).every((value) => value?.trim()));
-  }, [loginState]);
-
   const onCloseHandle = () => {
     setErrorBanner(null);
   };
 
   const onBlurChange = (e, errors) => {
     let id = e.target.id;
-    let tempError = inputErrorBanner.map(_ => _);
+    let tempError = inputErrorBanner.map((_) => _);
     if (errors.length > 0) {
-      tempError.push(id)
+      tempError.push(id);
     } else {
-      let errorIndex = tempError.findIndex(_ => _ === id);
+      let errorIndex = tempError.findIndex((_) => _ === id);
       if (errorIndex !== -1) {
         tempError.splice(errorIndex, 1);
       }
@@ -238,77 +342,171 @@ export default function Password({
   };
 
   const handleForgotPassword = () => {
-    window.onbeforeunload = null
-  }
+    window.onbeforeunload = null;
+  };
 
   return (
     <>
-      <div className="grid grid-cols-8 items-center">
+      <div className="flex items-center">
         {backButtonDiv}
+        {currentLoginID && (
+          <div className="inline mx-2 font-semibold my-3">
+            {loginIDs && loginIDs.length > 1
+              ? t1("multiple_login_ids")
+              : `${t1("login_with_id", {
+                currentID: `${t1(currentLoginID.id)}`
+              })}`}
+          </div>
+        )}
       </div>
 
       {errorBanner !== null && (
-        <ErrorBanner
-          showBanner={errorBanner.show}
-          errorCode={t2(errorBanner.errorCode)}
-          onCloseHandle={onCloseHandle}
-          bannerCloseTimer={bannerCloseTimer}
-        />
+        <div className="mb-4">
+          <ErrorBanner
+            showBanner={errorBanner.show}
+            errorCode={t2(errorBanner.errorCode)}
+            onCloseHandle={onCloseHandle}
+            bannerCloseTimer={bannerCloseTimer}
+          />
+        </div>
       )}
+      <LoginIDOptions
+        currentLoginID={(value) => {
+          setCurrentLoginID(value);
+        }}
+      />
+      {currentLoginID ? (
+        <form onSubmit={handleSubmit}>
+          {currentLoginID?.prefixes?.length > 0 ? (
+            <>
+              <InputWithPrefix
+                currentLoginID={currentLoginID}
+                login="Password"
+                countryCode={(val) => {
+                  setCountryCode(val);
+                }}
+                selectedCountry={(val) => {
+                  setSelectedCountry(val);
+                }}
+                individualId={(val) => {
+                  setIndividualId(val);
+                }}
+                isBtnDisabled={(val) => {
+                  setIsBtnDisabled(val);
+                }}
+                i18nPrefix={i18nKeyPrefix1}
+              />
 
-      <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
-        {fields.map((field) => (
-          <div className="-space-y-px">
-            <InputWithImage
-              key={"Password_" + field.id}
-              handleChange={handleChange}
-              blurChange={onBlurChange}
-              value={loginState["Password_" + field.id]}
-              labelText={t1(field.labelText)}
-              labelFor={field.labelFor}
-              id={"Password_" + field.id}
-              name={field.name}
-              type={field.type}
-              isRequired={field.isRequired}
-              placeholder={t1(field.placeholder)}
-              customClass={inputCustomClass}
-              imgPath={null}
-              icon={field.infoIcon}
-              prefix={field.prefix}
-              errorCode={field.errorCode}
-              maxLength={field.maxLength}
-              regex={field.regex}
-            />
-          </div>
-        ))}
+              {fields.map(
+                (field, idx) =>
+                  idx === 1 && (
+                    <div className="-space-y-px">
+                      <InputWithImage
+                        key={"Password_" + currentLoginID.id}
+                        handleChange={handlePasswordChange}
+                        blurChange={onBlurChange}
+                        labelText={t1(field.labelText)}
+                        labelFor={"Password_" + currentLoginID.id}
+                        id={"Password_" + currentLoginID.id}
+                        name={"Password_" + currentLoginID.id}
+                        type={field.type}
+                        isRequired={field.isRequired}
+                        placeholder={t1(field.placeholder)}
+                        customClass={inputCustomClass}
+                        errorCode={field.errorCode}
+                        maxLength={field.maxLength}
+                        regex={field.regex}
+                        value={password ?? ""}
+                      />
+                    </div>
+                  )
+              )}
+            </>
+          ) : (
+            <>
+              {fields.map((field, idx) => (
+                <div className="-space-y-px">
+                  <InputWithImage
+                    key={"Password_" + currentLoginID.id}
+                    handleChange={
+                      idx === 0 ? handleChange : handlePasswordChange
+                    }
+                    blurChange={idx === 0 ? handleBlur : onBlurChange}
+                    labelText={
+                      idx === 0
+                        ? currentLoginID.input_label
+                        : t1(field.labelText)
+                    }
+                    labelFor={idx === 0 ? currentLoginID.id : "Password_" + currentLoginID.id}
+                    id={idx === 0 ? currentLoginID.id : "Password_" + currentLoginID.id}
+                    name={
+                      idx === 0 ? "Password_" + currentLoginID.id : "password"
+                    }
+                    type={field.type}
+                    isRequired={field.isRequired}
+                    placeholder={
+                      idx === 0
+                        ? currentLoginID.input_placeholder
+                        : t1(field.placeholder)
+                    }
+                    customClass={inputCustomClass}
+                    imgPath={null}
+                    individualId={individualId}
+                    isInvalid={!isValid}
+                    value={idx === 0 ? individualId ?? "" : password ?? ""}
+                    errorCode={idx === 1 ? field.errorCode : ""}
+                    maxLength={idx === 1 ? field.maxLength : ""}
+                    regex={idx === 1 ? field.regex : ""}
+                    currenti18nPrefix={idx === 0 ? i18nKeyPrefix1 : ""}
+                  />
+                </div>
+              ))}
+            </>
+          )}
 
-        {forgotPassword && 
-          <a className="forgot-password-hyperlink" id="forgot-password-hyperlink" href={forgotPasswordURL} onClick={() => handleForgotPassword()} target="_self">{t1("forgot_password")}</a>
-        }
+          {forgotPassword && (
+            <a
+              className="forgot-password-hyperlink"
+              id="forgot-password-hyperlink"
+              href={forgotPasswordURL}
+              onClick={() => handleForgotPassword()}
+              target="_self"
+            >
+              {t1("forgot_password")}
+            </a>
+          )}
 
-        {showCaptcha && (
-          <div className="block password-google-reCaptcha">
-            <ReCAPTCHA
-              hl={i18n.language}
-              ref={_reCaptchaRef}
-              onChange={handleCaptchaChange}
-              sitekey={captchaSiteKey}
-              className="flex place-content-center"
-            />
-          </div>
-        )}
+          {showCaptcha && (
+            <div className="block password-google-reCaptcha">
+              <ReCAPTCHA
+                hl={i18n.language}
+                ref={_reCaptchaRef}
+                onChange={handleCaptchaChange}
+                sitekey={captchaSiteKey}
+                className="flex place-content-center"
+              />
+            </div>
+          )}
 
-        <FormAction
-          type={buttonTypes.submit}
-          text={t1("login")}
-          id="verify_password"
-          disabled={
-            invalidState ||
-            (inputErrorBanner && inputErrorBanner.length > 0) ||
-            (showCaptcha && captchaToken === null)
-          }
-        />
-      </form>
+          <FormAction
+            type={buttonTypes.submit}
+            text={t1("login")}
+            id="verify_password"
+            className="mt-2"
+            disabled={
+              !individualId ||
+              !password?.trim() ||
+              isBtnDisabled ||
+              (inputErrorBanner && inputErrorBanner.length > 0) ||
+              (showCaptcha && captchaToken === null)
+            }
+          />
+        </form>
+      ) : (
+        <div className="py-6">
+          <LoadingIndicator size="medium" message="loading_msg" />
+        </div>
+      )}
       {status === states.LOADING && (
         <div className="mt-2">
           <LoadingIndicator size="medium" message="authenticating_msg" />

@@ -208,7 +208,10 @@ public class EsignetUtil extends AdminTestUtil {
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("idaauthenticatorimpl")) {
 			// Let run test cases eSignet & MOSIP API calls --- both UIN and VID
 
-			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN", "VID"));
+//			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN", "VID"));
+			getSupportedIdTypesValueFromActuator();
+			
+			logger.info("supportedIdType = " + supportedIdType);
 
 			String endpoint = testCaseDTO.getEndPoint();
 			if (endpoint.contains("/v1/signup/") == true || endpoint.contains("/mock-identity-system/") == true
@@ -672,7 +675,6 @@ public class EsignetUtil extends AdminTestUtil {
 
 		}
 	}
-	
 	public static String getAuthTransactionId(String oidcTransactionId) {
 		final String transactionId = oidcTransactionId.replaceAll("_|-", "");
 		String lengthOfTransactionId = getValueFromEsignetActuator(

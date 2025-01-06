@@ -98,6 +98,7 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
+
 		String inputJson = testCaseDTO.getInput().toString();
 		JSONObject req = new JSONObject(testCaseDTO.getInput());
 

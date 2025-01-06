@@ -16,7 +16,7 @@ const ErrorBanner = ({
   return showBanner && (
     <div
       className={
-        "flex justify-between items-center px-2 sm:px-5 lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 error-banner " +
+        "flex justify-between items-center py-2 px-2 sm:px-5 lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 error-banner " +
         customClass
       }
       id="error-banner"

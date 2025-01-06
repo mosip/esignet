@@ -98,6 +98,19 @@ public class ValidatorTest {
     }
 
     @Test
+    public void authChallengeFactorFormatValidator_lowerCaseAuthFactorType_thenFail() {
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("otp");
+        authChallenge.setFormat("alpha-numeric");
+        authChallenge.setChallenge("111111");
+        Mockito.when(constraintValidatorContext.buildConstraintViolationWithTemplate(anyString()))
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+        boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
+        Mockito.verify(constraintValidatorContext).buildConstraintViolationWithTemplate(ErrorConstants.INVALID_AUTH_FACTOR_TYPE);
+        assertFalse(isValid);
+    }
+
+    @Test
     public void authChallengeFactorFormatValidator_invalidChallengeLength_theFail() {
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setAuthFactorType("OTP");

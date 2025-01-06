@@ -61,7 +61,14 @@
     "Face": "चेहरा",
     "Finger": "उँगलिया",
     "Iris": "आईरिस",
-    "select_a_device": "एक डिवाइस चुनें"
+    "select_a_device": "एक डिवाइस चुनें",
+    "invalid_input": "कृपया वैध {{id}} दर्ज करें",
+    "mobile": "मोबाइल नंबर",
+    "nrc": "एनआरसी आईडी",
+    "vid": "वी.आई.डी",
+    "email": "ईमेल",
+    "login_with_id": "{{currentID}} से लॉगिन करें",
+    "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "pin": {
     "sign_in_with_pin": "पिन से लॉगिन करें",
@@ -70,18 +77,32 @@
     "uin_label_text": "यूआईएन/वीआईडी",
     "pin_label_text": "नत्थी करना",
     "uin_placeholder": "अपना यूआईएन या वीआईडी ​​दर्ज करें",
-    "pin_placeholder": "पिन दर्ज करें"
+    "pin_placeholder": "पिन दर्ज करें",
+    "invalid_input": "कृपया वैध {{id}} दर्ज करें",
+    "mobile": "मोबाइल नंबर",
+    "nrc": "एनआरसी आईडी",
+    "vid": "वी.आई.डी",
+    "email": "ईमेल",
+    "login_with_id": "{{currentID}} से लॉगिन करें",
+    "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "password": {
     "sign_in_with_password": "पासवर्ड से लॉगिन करें",
     "remember_me": "मुझे याद करो",
-    "login": "जारी रखना",
+    "login": "लॉग इन करें",
     "uin_label_text": "यूआईएन/वीआईडी",
     "password_label_text": "पासवर्ड",
     "uin_placeholder": "अपना यूआईएन या वीआईडी ​​दर्ज करें",
     "password_placeholder": "पास वर्ड दर्ज करें",
     "forgot_password": "पासवर्ड भूल गए?",
-    "reset_password": "पासवर्ड रीसेट"
+    "reset_password": "पासवर्ड रीसेट",
+    "invalid_input": "कृपया वैध {{id}} दर्ज करें",
+    "mobile": "मोबाइल नंबर",
+    "nrc": "एनआरसी आईडी",
+    "vid": "वी.आई.डी",
+    "email": "ईमेल",
+    "login_with_id": "{{currentID}} से लॉगिन करें",
+    "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "Form": {
     "sign_in_with_details": "विवरण के साथ लॉगिन करें",
@@ -91,7 +112,8 @@
     "dob_label_text": "जन्मतिथि दर्ज करें",
     "policyNumber_placeholder": "नीति संख्या",
     "fullName_placeholder": "पूरा नाम",
-    "dob_placeholder": "जन्म तिथि"
+    "dob_placeholder": "जन्म तिथि",
+    "login_with_kbi": "KBI के साथ लॉगिन करें"
   },
   "LoginQRCode": {
     "scan_with_wallet": "के साथ स्कैन करें {{walletName}} लॉगिन करने के लिए",
@@ -100,7 +122,9 @@
     "link_code_status": "लिंक कोड स्थिति",
     "failed": "लॉगिन करने में असमर्थ। ",
     "refresh": "क्यूआर कोड रिफ्रेश करें",
-    "open_wallet_app": "खुला {{walletName}} अनुप्रयोग"
+    "open_wallet_app": "खुला {{walletName}} अनुप्रयोग",
+    "login_with_id": "{{currentID}} से लॉगिन करें",
+    "wallet_header": "{{walletName}} ऐप से QR कोड को स्कैन करें"
   },
   "otp": {
     "sign_in_with_otp": "ओटीपी से लॉगइन करें",
@@ -114,15 +138,24 @@
     "otp_placeholder": "1234",
     "mobile_number": "मोबाइल नंबर",
     "email_address": "मेल पता",
-    "otp_sent_msg": "आपके पंजीकृत पर ओटीपी भेज दिया गया है {{otpChannels}}",
-    "resend_otp_counter": "ओटीपी पुनः भेजें {{min}}:{{sec}}",
+    "otp_sent_msg": "कृपया भेजा गया {{otpLength}}-अंकीय ओटीपी दर्ज करें",
+    "resend_otp_counter": "आप ओटीपी को दोबारा भेज सकते हैं {{min}}:{{sec}}",
     "mobile_placeholder": "मोबाइल नंबर: {{mobileNumber}}",
     "email_placeholder": "मेल पता: {{emailAddress}}",
-    "mobile_email_placeholder": "मोबाइल नंबर: {{mobileNumber}} और ईमेल पता: {{emailAddress}}"
+    "mobile_email_placeholder": "मोबाइल नंबर: {{mobileNumber}} और ईमेल पता: {{emailAddress}}",
+    "invalid_input": "कृपया वैध {{id}} दर्ज करें",
+    "mobile": "मोबाइल नंबर",
+    "nrc": "एनआरसी आईडी",
+    "vid": "वी.आई.डी",
+    "email": "ईमेल",
+    "login_with_id": "{{currentID}} से लॉगिन करें",
+    "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें",
+    "enter_otp": "ओटीपी दर्ज करें",
+    "and": "और"
   },
   "signInOption": {
     "login_option_heading": "चुनें कि आप कैसे लॉगिन करना चाहते हैं:",
-    "login_with": "साथ प्रवेश करना {{option}}",
+    "login_with_id": "{{option}} से लॉगिन करें",
     "PIN": "नत्थी करना",
     "Biometrics": "बॉयोमेट्रिक्स",
     "BIO": "बॉयोमेट्रिक्स",
@@ -143,7 +176,7 @@
     "wellknown_api": ".सुप्रसिद्ध एपीआई"
   },
   "header": {
-    "login_heading": "लॉग इन करें",
+    "login_heading": "ई-सिग्नेट से लॉगिन करें",
     "login_subheading": "कृपया अपना पंजीकृत उपयोगकर्ता नाम और पासवर्ड दर्ज करें",
     "login_linkName": "पूर्वपंजीकरण",
     "more_ways_to_sign_in": "लॉगिन करने के और भी तरीके",
@@ -154,6 +187,7 @@
     "language": "भाषा",
     "noAccount": "कोई खाता नहीं है?",
     "signup_for_unified_login": "एकीकृत लॉगिन के साथ साइन अप करें",
+    "subheading": "{{clientName}} आपकी जानकारी मांग रहा है",
     "subheader_text": {
       "all_login_options": "कृपया लॉगिन विकल्प चुनें",
       "otp_login": "कृपया अपना यूआईएन/वीआईडी ​​दर्ज करें",
@@ -187,7 +221,8 @@
     "otp_info": "अपना जनरेट किया गया यूआईएन/वीआईडी ​​दर्ज करें",
     "bio_info": "अपना जनरेट किया गया यूआईएन/वीआईडी ​​दर्ज करें",
     "pin_info": "अपना जनरेट किया गया यूआईएन/वीआईडी ​​दर्ज करें",
-    "username_info": "अपना जनरेट किया गया यूआईएन/वीआईडी ​​दर्ज करें"
+    "username_info": "अपना जनरेट किया गया यूआईएन/वीआईडी ​​दर्ज करें",
+    "caps_on": "कैप्स लॉक ऑन है"
   },
   "consentDetails": {
     "essential_claims": "आवश्यक दावे",
@@ -228,6 +263,28 @@
     "popup_header": "ध्यान!",
     "popup_body": "{{clientName}} आगे बढ़ने के लिए पहुंच की आवश्यकता है, क्या आप अब भी इसे बंद करना चाहते हैं?",
     "consent_details_rejected": "हम क्षमा चाहते हैं! "
+  },
+  "loginOptions": {
+    "buttons": {
+      "mobile": "मोबाइल नंबर",
+      "nrc": "एनआरसी आईडी",
+      "vid": "वी.आई.डी",
+      "email": "ईमेल"
+    },
+    "input": {
+      "label": {
+        "mobile": "मोबाइल नंबर",
+        "nrc": "एनआरसी आईडी",
+        "vid": "वी.आई.डी",
+        "email": "ईमेल"
+      },
+      "placeholder": {
+        "mobile": "मोबाइल नंबर दर्ज करें",
+        "nrc": "एनआरसी आईडी दर्ज करें",
+        "vid": "वीआईडी ​​दर्ज करें",
+        "email": "यहां ईमेल दर्ज करें"
+      }
+    }
   },
   "errors": {
     "0": "सफलता",

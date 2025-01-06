@@ -6,15 +6,30 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=esignet
-CHART_VERSION=0.0.1-test
-
-ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
-
 echo Create $NS namespace
 kubectl create ns $NS
 
 function installing_esignet() {
+
+  while true; do
+      read -p "Do you want to continue installing esignet services? (y/n): " ans
+      if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
+          break
+      elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
+          exit 1
+      else
+          echo "Please provide a correct option (Y or N)"
+      fi
+  done
+
+
+  NS=esignet
+  CHART_VERSION=1.5.0-develop
+
+  ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
+
+  echo Create $NS namespace
+  kubectl create ns $NS || true
 
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
@@ -23,6 +38,7 @@ function installing_esignet() {
 
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
+  $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
   $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
@@ -63,10 +79,10 @@ function installing_esignet() {
       read -p "Enter the plugin number: " plugin_no
         while true; do
           if [[ "$plugin_no" == "1" ]]; then
-            plugin_option="--set plugin_name_env=esignet-mock-plugin.jar"
+            plugin_option="--set pluginNameEnv=esignet-mock-plugin.jar"
             break
           elif [[ "$plugin_no" == "2" ]]; then
-            plugin_option="--set plugin_name_env=mosip-identity-plugin.jar"
+            plugin_option="--set pluginNameEnv=mosip-identity-plugin.jar"
             break
           else
             echo "please provide the correct plugin number (1 or 2)."
@@ -83,9 +99,9 @@ function installing_esignet() {
     fi
   done
 
-
   echo Installing esignet
-  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE $plugin_option --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
+  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION $ENABLE_INSECURE $plugin_option \
+  --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 

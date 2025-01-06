@@ -7,6 +7,7 @@ package io.mosip.esignet.core.constants;
 
 public class ErrorConstants {
 
+    public static final String INVALID_ADDITIONAL_CONFIG="invalid_additional_config";
     public static final String INVALID_REQUEST="invalid_request";
     public static final String INVALID_CLIENT_ID="invalid_client_id";
     public static final String INVALID_CLIENT_NAME="invalid_client_name";

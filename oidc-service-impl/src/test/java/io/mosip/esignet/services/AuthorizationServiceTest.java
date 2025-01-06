@@ -19,6 +19,7 @@ import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.api.util.FilterCriteriaMatcher;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -102,9 +103,14 @@ public class AuthorizationServiceTest {
         claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
         claims.put("email", Arrays.asList("email","email_verified"));
         claims.put("phone", Arrays.asList("phone_number","phone_number_verified"));
+
+        FilterCriteriaMatcher filterCriteriaMatcher = new FilterCriteriaMatcher();
+        ReflectionTestUtils.setField(filterCriteriaMatcher,"objectMapper", new ObjectMapper());
+
         ClaimsHelperService claimsHelperService = new ClaimsHelperService();
         ReflectionTestUtils.setField(claimsHelperService,"claims", claims);
         ReflectionTestUtils.setField(claimsHelperService,"objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(claimsHelperService,"filterCriteriaMatcher", filterCriteriaMatcher);
 
         ReflectionTestUtils.setField(authorizationHelperService, "credentialScopes", Arrays.asList("sample_ldp_vc"));
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("resident-service"));
@@ -849,13 +855,13 @@ public class AuthorizationServiceTest {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setName(new HashMap<>());
         clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
-        clientDetail.setId("34567");
+        clientDetail.setId("mosip-signup-oauth-client");
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email","given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code", "mosip:idp:acr:wallet"));
 
         OAuthDetailRequestV3 oauthDetailRequest = new OAuthDetailRequestV3();
-        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setClientId("mosip-signup-oauth-client");
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
         oauthDetailRequest.setNonce("test-nonce");
         ClaimsV2 claims = new ClaimsV2();
@@ -880,9 +886,44 @@ public class AuthorizationServiceTest {
     }
 
     @Test
+    public void getOauthDetailsV3_withValidIDTokenHintClientIdAndAUDMismatch_thenFail() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setId("34567");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code", "mosip:idp:acr:wallet"));
+
+        OAuthDetailRequestV3 oauthDetailRequest = new OAuthDetailRequestV3();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
+        ClaimsV2 claims = new ClaimsV2();
+        claims.setId_token(new HashMap<>());
+        ClaimDetail claimDetail = new ClaimDetail();
+        claimDetail.setValues(new String[]{"mosip:idp:acr:wallet", "mosip:idp:acr:webauthn"});
+        claims.getId_token().put("acr", claimDetail);
+        oauthDetailRequest.setClaims(claims);
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
+        oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI", "5Y4ToFkWToXJrRFmPWPHDZLkciML4"+SERVER_NONCE_SEPARATOR+"test-state"));
+
+        try {
+            OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
+            Assert.assertNotNull(oauthDetailResponseV2);
+        } catch (EsignetException e) {
+            Assert.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
+        }
+    }
+
+    @Test
     public void getOauthDetailsV3_withValidIDTokenHintNoCookie_thenFail() throws Exception {
         OAuthDetailRequestV3 oauthDetailRequest = new OAuthDetailRequestV3();
         oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
+        oauthDetailRequest.setClientId("mosip-signup-oauth-client");
         MockHttpServletRequest request = new MockHttpServletRequest();
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
@@ -1251,9 +1292,42 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateV3_withIDToken_thenPass() {
+    public void authenticateV3_withIDTokenInvalidIndividualId_thenFail() {
         String transactionId = "test-transaction";
         String individualId = "23423434234";
+        when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:id-token"}));
+        when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
+                new String[]{"mosip:idp:acr:id-token"}));
+
+        List<List<AuthenticationFactor>> allAuthFactors=new ArrayList<>();
+        allAuthFactors.add(getAuthFactors("mosip:idp:acr:id-token"));
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:id-token"})).thenReturn(allAuthFactors);
+
+        AuthRequestV2 authRequest = new AuthRequestV2();
+        authRequest.setTransactionId(transactionId);
+        authRequest.setIndividualId(individualId);
+        authRequest.setCaptchaToken("captcha-token");
+
+        List<AuthChallenge> authChallenges = new ArrayList<>();
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("IDT");
+        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSW4wLjl0MG5GMkNtVWZaeTlCYlA3cjM4bElhSlJSeTNaSk41MnBRNlpLSl9qVWMifQ==");
+        authChallenges.add(authChallenge);
+        authRequest.setChallengeList(authChallenges);
+
+        try{
+            AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV3(authRequest, httpServletRequest);
+            Assert.assertNotNull(authResponseV2);
+        }catch (EsignetException ex){
+            Assert.assertEquals(ErrorConstants.INVALID_INDIVIDUAL_ID,ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void authenticateV3_withIDToken_thenPass() {
+        String transactionId = "test-transaction";
+        String individualId = "subject";
         when(cacheUtilService.getPreAuthTransaction(transactionId)).thenReturn(createIdpTransaction(
                 new String[]{"mosip:idp:acr:id-token"}));
         when(cacheUtilService.updateIndividualIdHashInPreAuthCache(transactionId, individualId)).thenReturn(createIdpTransaction(
@@ -1287,7 +1361,6 @@ public class AuthorizationServiceTest {
         verify(captchaHelper, times(0)).validateCaptcha("captcha-token");
         Assert.assertNotNull(authResponseV2);
     }
-
 
     @Test
     public void completeSignupRedirect_withValidTransactionId_thenPass() {
@@ -1371,24 +1444,67 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getClaimDetails_withValidTransaction_thenPass(){
+    public void getClaimDetails_withUnVerifiedClaimsRequest_thenPass(){
         OIDCTransaction transaction=new OIDCTransaction();
         Claims resolvedClaims = new Claims();
         resolvedClaims.setUserinfo(new HashMap<>());
         Map<String, Object> map = new HashMap<>();
         map.put("essential", true);
-        map.put("verification", new HashMap<>());
         resolvedClaims.getUserinfo().put("name", Arrays.asList(map));
-
         transaction.setResolvedClaims(resolvedClaims);
         transaction.setEssentialClaims(List.of("name", "email"));
         transaction.setVoluntaryClaims(List.of("phone_number"));
+
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        transaction.setClaimMetadata(claimMetadata);
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 
         ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
         Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
+        Assert.assertFalse(claimDetailResponse.isProfileUpdateRequired());
+    }
+
+    @Test
+    public void getClaimDetails_withVerifiedClaimsRequest_thenPass() throws JsonProcessingException {
+        OIDCTransaction transaction=new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+        Map<String, Object> requestedVerification = new HashMap<>();
+        requestedVerification.put("trust_framework", null);
+        map.put("verification", requestedVerification);
+        resolvedClaims.getUserinfo().put("name", Arrays.asList(map));
+        transaction.setResolvedClaims(resolvedClaims);
+        transaction.setEssentialClaims(List.of("name", "email"));
+        transaction.setVoluntaryClaims(List.of("phone_number"));
+
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        transaction.setClaimMetadata(claimMetadata);
+        transaction.setConsentAction(ConsentAction.CAPTURE);
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.CAPTURE);
+        Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().allMatch(cs -> !cs.isVerified() && !cs.isAvailable()));
+        Assert.assertTrue(claimDetailResponse.isProfileUpdateRequired());
+
+        Map<String, Object> emailMap = new HashMap<>();
+        emailMap.put("essential", true);
+        resolvedClaims.getUserinfo().put("email", Arrays.asList(emailMap));
+        Map<String, Object> phoneMap = new HashMap<>();
+        phoneMap.put("essential", false);
+        resolvedClaims.getUserinfo().put("phone_number", Arrays.asList(phoneMap));
+        claimMetadata.put("name", Arrays.asList(objectMapper.readTree("{\"verification\": {\"trust_framework\": \"XYZ TF\"}}")));
+        claimMetadata.put("phone_number", Arrays.asList());
+        claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("name") && cs.isVerified() && cs.isAvailable()));
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("email") && !cs.isVerified() && !cs.isAvailable()));
+        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("phone_number") && !cs.isVerified() && cs.isAvailable()));
+        Assert.assertFalse(claimDetailResponse.isProfileUpdateRequired());
     }
 
     @Test

@@ -17,6 +17,7 @@ function installing_keycloak() {
   ## TODO: enable istio injection after testing well.
   kubectl label ns $NS istio-injection=disabled --overwrite
   helm repo add bitnami https://charts.bitnami.com/bitnami
+  helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
 
   echo Installing
