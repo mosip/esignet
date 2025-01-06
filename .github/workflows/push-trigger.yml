@@ -101,7 +101,7 @@ jobs:
             BUILD_ARTIFACT: 'esignet'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    uses: Prafulrakhade/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -113,8 +113,6 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers-oidc-ui:
-    needs: [ build-maven-esignet, check-snapshot-version ]
-    if: ${{ steps.check_snapshot.outputs.is_snapshot == 'true' }}
     strategy:
       matrix:
         include:
@@ -122,7 +120,7 @@ jobs:
             SERVICE_NAME: 'oidc-ui'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    uses: Prafulrakhade/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -205,8 +203,7 @@ jobs:
         if: failure() # Pick up events even if the job fails or is canceled.
 
   build-dockers_apitest_esignet:
-    needs: [build-maven-apitest-esignet, check-snapshot-version]
-    if: ${{ steps.check_snapshot.outputs.is_snapshot == 'true' }}
+    needs: build-apitest-esignet-local
     strategy:
       matrix:
         include:
@@ -216,7 +213,7 @@ jobs:
             ONLY_DOCKER: true
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
+    uses: Prafulrakhade/kattu/.github/workflows/docker-build.yml@master-java21
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
