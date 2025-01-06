@@ -43,25 +43,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install xmllint
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-      - name: Check if pom.xml contains both -SNAPSHOT and esignet-parent
+      - name: Check if artifactId is 'esignet-parent' and version follows '*.*.*-SNAPSHOT' pattern
         id: check_snapshot
         run: |
-          # Extract the artifactId and version from pom.xml
-          artifact_id=$(xmllint --xpath "string(//artifactId)" pom.xml)
-          version=$(xmllint --xpath "string(//version)" pom.xml)
-
-          echo "ArtifactId: $artifact_id"
-          echo "Version: $version"
-
-          # Check if both artifactId is 'esignet-parent' and version ends with '-SNAPSHOT'
-          if [[ "$artifact_id" == "esignet-parent" && "$version" == *"-SNAPSHOT" ]]; then
-            echo "Conditions matched: artifactId is 'esignet-parent' and version ends with '-SNAPSHOT'."
+          # Parse the parent POM to extract artifactId and version
+          artifactId=$(xmllint --xpath "string(//parent/artifactId)" pom.xml)
+          version=$(xmllint --xpath "string(//parent/version)" pom.xml)
+          echo "Parent artifactId is: $artifactId"
+          echo "Parent version is: $version"
+          
+          # Check if artifactId is 'esignet-parent' and version follows '*.*.*-SNAPSHOT' pattern
+          if [[ "$artifactId" == "esignet-parent" && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$ ]]; then
+            echo "The conditions are met: artifactId is 'esignet-parent' and version matches '*.*.*-SNAPSHOT'."
             echo "is_snapshot=true" >> $GITHUB_ENV
             echo "::set-output name=is_snapshot::true"
           else
-            echo "Conditions not matched: Either artifactId is not 'esignet-parent' or version does not end with '-SNAPSHOT'."
+            echo "Conditions not met: Either artifactId is not 'esignet-parent' or version does not match '*.*.*-SNAPSHOT'."
             echo "is_snapshot=false" >> $GITHUB_ENV
             echo "::set-output name=is_snapshot::false"
           fi
