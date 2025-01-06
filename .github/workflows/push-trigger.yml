@@ -35,6 +35,27 @@ jobs:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+  check-snapshot-version:
+    runs-on: ubuntu-latest
+    outputs:
+      is_snapshot: ${{ steps.check_snapshot.outputs.is_snapshot }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Check if parent pom contains SNAPSHOT
+        id: check_snapshot
+        run: |
+          # Parse the parent POM to extract the version
+          version=$(xmllint --xpath "string(//parent/version)" pom.xml)
+          echo "Parent version is: $version"
+          # Check if the version contains SNAPSHOT
+          if [[ $version == *"-SNAPSHOT"* ]]; then
+            echo "The version contains SNAPSHOT."
+            echo "is_snapshot=true" >> $GITHUB_ENV
+          else
+            echo "The version does not contain SNAPSHOT."
+            echo "is_snapshot=false" >> $GITHUB_ENV
+          fi
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
@@ -67,7 +88,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers:
-    needs: build-maven-esignet
+    needs: [ build-maven-esignet, check-snapshot-version ]
+    if: ${{ env.is_snapshot == 'true' }}
     strategy:
       matrix:
         include:
@@ -88,6 +110,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers-oidc-ui:
+    needs: [ build-maven-esignet, check-snapshot-version ]
+    if: ${{ env.is_snapshot == 'true' }}
     strategy:
       matrix:
         include:
@@ -178,7 +202,8 @@ jobs:
         if: failure() # Pick up events even if the job fails or is canceled.
 
   build-dockers_apitest_esignet:
-    needs: build-apitest-esignet-local
+    needs: [build-maven-apitest-esignet, check-snapshot-version]
+    if: ${{ env.is_snapshot == 'true' }}
     strategy:
       matrix:
         include:
