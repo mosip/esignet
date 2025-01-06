@@ -1,7 +1,7 @@
 definePolicy:
    Esignet_DefinePolicy_All_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_01
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_01
       description: Define policy with all valid details
       role: partner
       restMethod: post
@@ -24,7 +24,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Misp_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_02
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_02
       description: Define policy with all valid details Misp
       role: partner
       restMethod: post
@@ -47,7 +47,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Auth_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_03
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_03
       description: Define policy with Auth
       role: partner
       restMethod: post
@@ -70,7 +70,7 @@ definePolicy:
 
    Esignet_DefinePolicy_NonAuth_All_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_04
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_04
       description: Define policy with NonAuth
       role: partner
       restMethod: post
@@ -93,7 +93,7 @@ definePolicy:
 
    Esignet_DefinePolicy_With_1_Policy_All_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_05
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_05
       description: Define policy with 1 policy valid details
       role: partner
       restMethod: post
@@ -118,7 +118,7 @@ definePolicy:
 
    Esignet_DefinePolicy_With_2_Policy_All_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_06
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_06
       description: Define policy with 2 policy valid details
       role: partner
       restMethod: post
@@ -143,7 +143,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Invalid_PolicyType_Neg:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_07
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_07
       description: Define policy with invalid policyType
       role: partner
       restMethod: post
@@ -168,7 +168,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Invalid_PolicyGroupName_Neg:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_08
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_08
       description: Define policy with invalid policyGroupName
       role: partner
       restMethod: post
@@ -193,7 +193,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Invalid_PolicyAuth_Neg:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_09
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_09
       description: Define policy with invalid policyAuth
       role: partner
       restMethod: post
@@ -216,7 +216,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Invalid_MispPolicy_Neg:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_10
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_10
       description: Define policy with invalid MispPolicy
       role: partner
       restMethod: post
@@ -239,7 +239,7 @@ definePolicy:
 
    Esignet_DefinePolicy__Invalid_Misp_Name_Neg:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_11
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_11
       description: Define policy with invalid Misp Name
       role: partner
       restMethod: post
@@ -264,7 +264,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Misp_False_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_12
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_12
       description: Define policy with isActive as false
       role: partner
       restMethod: post
@@ -287,7 +287,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Auth_False_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_13
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_13
       description: Define policy with Auth and isActive as false
       role: partner
       restMethod: post
@@ -310,7 +310,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Misp_S2_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_14
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_14
       description: Define policy with Misp S2
       role: partner
       restMethod: post
@@ -333,7 +333,7 @@ definePolicy:
 
    Esignet_DefinePolicy_Auth_S2_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies
-	  uniqueIdentifier: Dependent_Idrepo_definePolicy_15
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_15
       description: Define policy with Auth S2
       role: partner
       restMethod: post

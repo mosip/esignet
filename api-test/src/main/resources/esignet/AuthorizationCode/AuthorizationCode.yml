@@ -1,7 +1,7 @@
 AuthorizationCode:
    ESignet_AuthorizationCode_uin_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_01
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_01
       description: Authorization code request with all valid details UIN
       role: resident
       restMethod: post
@@ -21,7 +21,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_02
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_02
       description: Authorization code request with invalid transactionId UIN
       role: resident
       restMethod: post
@@ -46,7 +46,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_03
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_03
       description: Authorization code request without transactionId UIN
       role: resident
       restMethod: post
@@ -71,7 +71,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_04
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_04
       description: Authorization code request with empty value in transactionId UIN
       role: resident
       restMethod: post
@@ -96,7 +96,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Null_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_05
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_05
       description: Authorization code request with Null in transactionId UIN
       role: resident
       restMethod: post
@@ -121,7 +121,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Expired_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_06
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_06
       description: Authorization code request with expired transactionId UIN
       role: resident
       restMethod: post
@@ -146,7 +146,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Empty_PermittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_07
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_07
       description: Authorization code request with empty PermittedAuthorizeScopes UIN
       role: resident
       restMethod: post
@@ -172,7 +172,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Invalid_PermittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_08
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_08
       description: Authorization code request with invalid PermittedAuthorizeScopes UIN
       role: resident
       restMethod: post
@@ -198,7 +198,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Null_PermittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_09
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_09
       description: Authorization code request with Null in PermittedAuthorizeScopes UIN
       role: resident
       restMethod: post
@@ -224,7 +224,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Invalid_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_10
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_10
       description: Authorization code request with invalid accepted claims UIN
       role: resident
       restMethod: post
@@ -249,7 +249,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Missing_Claims_Pos:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_11
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_11
       description: Authorization code request without claims UIN
       role: resident
       restMethod: post
@@ -273,7 +273,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Empty_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_12
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_12
       description: Authorization code request with empty accepted claims UIN
       role: resident
       restMethod: post
@@ -298,7 +298,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Null_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_13
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_13
       description: Authorization code request with Null in accepted claims UIN
       role: resident
       restMethod: post
@@ -323,7 +323,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_14
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_14
       description: Authorization code request with invalid requestTime UIN
       role: resident
       restMethod: post
@@ -348,7 +348,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Diff_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_15
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_15
       description: Authorization code request with different requestTime UIN
       role: resident
       restMethod: post
@@ -373,7 +373,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_uin_Future_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_16
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_16
       description: Authorization code request with future requestTime UIN
       role: resident
       restMethod: post
@@ -398,7 +398,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_17
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_17
       description: Authorization code request with all valid details VID
       role: resident
       restMethod: post
@@ -418,7 +418,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_18
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_18
       description: Authorization code request with invalid transactionId VID
       role: resident
       restMethod: post
@@ -443,7 +443,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_19
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_19
       description: Authorization code request without transactionId VID
       role: resident
       restMethod: post
@@ -468,7 +468,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_20
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_20
       description: Authorization code request with empty value in transactionId VID
       role: resident
       restMethod: post
@@ -493,7 +493,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Null_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_21
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_21
       description: Authorization code request with Null in transactionId VID
       role: resident
       restMethod: post
@@ -518,7 +518,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Expired_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_22
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_22
       description: Authorization code request with expired transactionId VID
       role: resident
       restMethod: post
@@ -543,7 +543,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Empty_PermittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_23
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_23
       description: Authorization code request with empty value in PermittedAuthorizeScopes VID
       role: resident
       restMethod: post
@@ -569,7 +569,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Invalid_PermittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_24
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_24
       description: Authorization code request with invalid PermittedAuthorizeScopes VID
       role: resident
       restMethod: post
@@ -595,7 +595,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Null_PermittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_25
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_25
       description: Authorization code request with Null in PermittedAuthorizeScopes VID
       role: resident
       restMethod: post
@@ -621,7 +621,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Invalid_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_26
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_26
       description: Authorization code request with invalid accepted claims VID
       role: resident
       restMethod: post
@@ -646,7 +646,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Missing_Claims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_27
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_27
       description: Authorization code request without claims VID
       role: resident
       restMethod: post
@@ -670,7 +670,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Empty_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_28
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_28
       description: Authorization code request with empty accepted claims VID
       role: resident
       restMethod: post
@@ -695,7 +695,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Null_acceptedClaims_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_29
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_29
       description: Authorization code request with Null in accepted claims VID
       role: resident
       restMethod: post
@@ -720,7 +720,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_30
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_30
       description: Authorization code request with invalid requestTime VID
       role: resident
       restMethod: post
@@ -745,7 +745,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Diff_requestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_31
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_31
       description: Authorization code request with different requestTime VID
       role: resident
       restMethod: post
@@ -770,7 +770,7 @@ AuthorizationCode:
 
    ESignet_AuthorizationCode_Vid_Future_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/auth-code
-	  uniqueIdentifier: TC_ESignet_AuthorizationCode_32
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_32
       description: Authorization code request with future requestTime VID
       role: resident
       restMethod: post
@@ -792,3 +792,4 @@ AuthorizationCode:
     }
   ]
 }'
+
