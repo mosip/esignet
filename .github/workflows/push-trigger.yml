@@ -43,6 +43,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
       - name: Check if parent pom contains SNAPSHOT
         id: check_snapshot
         run: |
@@ -52,10 +54,12 @@ jobs:
           # Check if the version contains SNAPSHOT
           if [[ $version == *"-SNAPSHOT"* ]]; then
             echo "The version contains SNAPSHOT."
-            echo "::set-output name=is_snapshot::true"
+            echo "is_snapshot=true" >> $GITHUB_ENV
+            echo "::set-output name=is_snapshot::true"  # Set output to 'true'
           else
             echo "The version does not contain SNAPSHOT."
-            echo "::set-output name=is_snapshot::false"
+            echo "is_snapshot=false" >> $GITHUB_ENV
+            echo "::set-output name=is_snapshot::false"  # Set output to 'false'
           fi
 
   publish_to_nexus:
