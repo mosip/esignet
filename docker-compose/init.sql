@@ -40,10 +40,10 @@ CREATE TABLE esignet.client_detail(
   additional_config jsonb,
   cr_dtimes timestamp NOT NULL,
   upd_dtimes timestamp,
-  CONSTRAINT pk_clntdtl_id PRIMARY KEY (id),
+  CONSTRAINT pk_clntdtl_id PRIMARY KEY (id)
 );
 
-CREATE UNIQUE INDEX unique_n_value ON client_detail ((public_key->>'n'));
+CREATE UNIQUE INDEX unique_n_value ON esignet.client_detail ((public_key->>'n'));
 
 create table esignet.consent_detail (
     id UUID NOT NULL,
