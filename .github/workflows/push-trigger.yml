@@ -32,12 +32,16 @@ jobs:
       - name: Check for esignet-parent SNAPSHOT version
         id: check_snapshot
         run: |
-          if find . -name "pom.xml" -exec grep -A3 '<parent>' {} \; | grep -q '<artifactId>esignet-parent</artifactId>' && \
-             find . -name "pom.xml" -exec grep -A3 '<parent>' {} \; | grep -q '<version>.*-SNAPSHOT</version>'; then
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "found=false" >> $GITHUB_OUTPUT
-          fi
+          found=false
+          while IFS= read -r pom; do
+            if grep -A3 '<parent>' "$pom" | grep -q '<artifactId>esignet-parent</artifactId>' && \
+               grep -A3 '<parent>' "$pom" | grep -q '<version>.*-SNAPSHOT</version>'; then
+              found=true
+              break
+            fi
+          done < <(find . -name "pom.xml")
+          
+          echo "found=$found" >> $GITHUB_OUTPUT
 
   build-maven-esignet:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
