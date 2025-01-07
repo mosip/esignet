@@ -71,14 +71,18 @@ jobs:
                 echo "No '-SNAPSHOT' version found in $pom_file."
               fi
             else
-              # No <parent> block found, consider the condition as met
-              echo "No <parent> block found in $pom_file, assuming condition met for this file."
+              # No <parent> block found, condition met
+              echo "No <parent> block found in $pom_file, setting condition_met=true."
               condition_met=true
             fi
           done
 
           # Set the output for this step
           echo "::set-output name=is_condition::$condition_met"
+
+      - name: Debug Condition Output
+        run: |
+          echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
 
       - name: Debug Condition Output
         run: |
