@@ -54,13 +54,16 @@ jobs:
             # Extract the <parent> block from each pom.xml file
             parent_block=$(sed -n "/<parent>/,/<\/parent>/p" {})
 
-            # Check if both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version> are in the same <parent> block
-            artifact_found=$(echo "$parent_block" | grep -q "<artifactId>esignet-parent</artifactId>" && echo "true" || echo "false")
-            snapshot_found=$(echo "$parent_block" | grep -q "<version>.*-SNAPSHOT</version>" && echo "true" || echo "false")
+            # Only process the file if a <parent> block is found
+            if [ ! -z "$parent_block" ]; then
+              # Check if both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version> are in the same <parent> block
+              artifact_found=$(echo "$parent_block" | grep -q "<artifactId>esignet-parent</artifactId>" && echo "true" || echo "false")
+              snapshot_found=$(echo "$parent_block" | grep -q "<version>.*-SNAPSHOT</version>" && echo "true" || echo "false")
 
-            # If both are found in the <parent> block, set condition_met to true
-            if [ "$artifact_found" == "true" ] && [ "$snapshot_found" == "true" ]; then
-              condition_met=true
+              # If both are found in the <parent> block, set condition_met to true
+              if [ "$artifact_found" == "true" ] && [ "$snapshot_found" == "true" ]; then
+                condition_met=true
+              fi
             fi
           '
 
