@@ -53,7 +53,8 @@ jobs:
           condition_met=false
           echo "Initial condition_met: $condition_met"
 
-          # Initialize a flag to track if we processed any pom.xml file with <parent> block
+          # Initialize a flag to track if any pom.xml had <parent> block with -SNAPSHOT version
+          found_snapshot_version=false
           any_parent_found=false
 
           # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
@@ -74,7 +75,7 @@ jobs:
             echo "Checking the following parent block in $pom_file:"
             echo "$parent_block"
 
-            # Extract the <version> field from the <parent> block and check if it contains '-SNAPSHOT'
+            # Extract the <version> field from the <parent> block
             version_in_parent=$(echo "$parent_block" | grep -oP '<version>\K.*(?=</version>)')
 
             # Debug the extracted version
@@ -83,22 +84,26 @@ jobs:
             # Check if the version contains '-SNAPSHOT'
             if [[ "$version_in_parent" == *"-SNAPSHOT"* ]]; then
               echo "Found '-SNAPSHOT' version in $pom_file."
-              condition_met=true
+              found_snapshot_version=true
             else
               echo "No '-SNAPSHOT' version found in $pom_file."
             fi
-
-            echo "Current condition_met after processing $pom_file: $condition_met"
           done
 
           # If no <parent> block was found in any file, we don't modify condition_met
           if [ "$any_parent_found" = false ]; then
-            echo "No <parent> blocks found in any pom.xml files, skipping condition_met."
-          elif [ "$condition_met" = false ]; then
-            echo "No '-SNAPSHOT' version found in any parent block."
+            echo "No <parent> blocks found in any pom.xml files."
           fi
 
-          # Use the newer method to propagate the variable to the next step
+          # Set condition_met to true if any file had -SNAPSHOT in the parent version, otherwise false
+          if [ "$found_snapshot_version" = true ]; then
+            condition_met=true
+          fi
+
+          # Debug the final condition_met value
+          echo "Final condition_met value: $condition_met"
+
+          # Set the environment variable for condition_met to be used in the next step
           echo "is_condition=$condition_met" >> $GITHUB_ENV
 
       - name: Debug Condition Output
