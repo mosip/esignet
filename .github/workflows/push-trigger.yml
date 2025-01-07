@@ -45,7 +45,7 @@
         - name: Check for SNAPSHOT version in parent
           id: check_output
           run: |
-            if [[ $(find . -name './esignet-core/pom.xml' -exec grep -q '<parent><groupId>io.mosip.esignet</groupId><artifactId>esignet-parent</artifactId><version>[0-9]\+\.[0-9]\+\.[0-9]\+-SNAPSHOT</version></parent>' {} \;) ]]; then
+            if [[ $(find . -name "pom.xml" -exec sed -n '/<artifactId>esignet-parent<\/artifactId>/,/<\/version>/p' {} \; | grep -E '<artifactId>esignet-parent</artifactId>|<version>.*-SNAPSHOT</version>') ]]; then
               echo "::set-output name=is_snapshot::true"
               echo "Snapshot dependency found in at least one pom.xml file."
             else
