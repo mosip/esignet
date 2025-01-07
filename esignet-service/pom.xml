@@ -29,8 +29,8 @@
 		<esignet-mock-plugin.fileName>esignet-mock-plugin.jar</esignet-mock-plugin.fileName>
 		<mosip-identity-plugin.version>1.3.0-SNAPSHOT</mosip-identity-plugin.version>
 		<mosip-identity-plugin.fileName>mosip-identity-plugin.jar</mosip-identity-plugin.fileName>
-		<sunbird-rc-plugin.version>0.3.0-SNAPSHOT</sunbird-rc-plugin.version>
-		<sunbird-rc-plugin.fileName>sunbird-rc-esignet-plugin</sunbird-rc-plugin.fileName>
+		<sunbird-rc-plugin.version>1.3.1-SNAPSHOT</sunbird-rc-plugin.version>
+		<sunbird-rc-plugin.fileName>sunbird-rc-esignet-plugin.jar</sunbird-rc-plugin.fileName>
 	</properties>
 	
 	<dependencies>
@@ -145,8 +145,8 @@
 							<type>jar</type>
 						</artifactItem>
 						<artifactItem>
-							<groupId>io.mosip.esignet.sunbirdrc</groupId>
-							<artifactId>sunbird-rc-esignet-integration-impl</artifactId>
+							<groupId>io.mosip.esignet.plugin.sunbirdrc</groupId>
+							<artifactId>sunbird-rc-plugin</artifactId>
 							<version>${sunbird-rc-plugin.version}</version>
 							<outputDirectory>${esignet-plugins.location}</outputDirectory>
 							<destFileName>${sunbird-rc-plugin.fileName}</destFileName>
