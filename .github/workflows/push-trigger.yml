@@ -32,7 +32,8 @@ jobs:
       - name: Check for esignet-parent SNAPSHOT version
         id: check_snapshot
         run: |
-          if grep -q '<artifactId>esignet-parent</artifactId>' pom.xml && grep -q '<version>.*-SNAPSHOT</version>' pom.xml; then
+          if find . -name "pom.xml" -exec grep -A3 '<parent>' {} \; | grep -q '<artifactId>esignet-parent</artifactId>' && \
+             find . -name "pom.xml" -exec grep -A3 '<parent>' {} \; | grep -q '<version>.*-SNAPSHOT</version>'; then
             echo "found=true" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
