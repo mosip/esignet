@@ -92,7 +92,7 @@ jobs:
             echo "No '-SNAPSHOT' version found in any parent block."
           fi
 
-          # Set the output for this step
+          # Set the output for this step using the new method
           echo "is_condition=$condition_met" >> $GITHUB_ENV
 
       - name: Debug Condition Output
