@@ -76,12 +76,12 @@ jobs:
             fi
           done
 
-          # Export the result using the recommended environment file approach
-          echo "is_condition=$condition_met" >> $GITHUB_ENV
+          # Set the output value for the job
+          echo "::set-output name=is_condition::$condition_met"
 
       - name: Debug Condition Output
-        run:
-          echo "Condition Met: ${{ env.is_condition }}"
+        run: |
+          echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
