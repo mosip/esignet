@@ -39,8 +39,6 @@ jobs:
 
   check_snapshot_version:
     runs-on: ubuntu-latest
-    outputs:
-      is_condition: ${{ steps.check_output.outputs.is_condition }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -51,38 +49,39 @@ jobs:
         run: |
           # Initialize the flag that will hold the result
           condition_met=false
-          
+
           # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
           find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
             echo "Processing $pom_file"
-          
+
             # Extract the <parent> block from the pom.xml
             parent_block=$(awk '/<parent>/,/<\/parent>/' "$pom_file")
-          
+
             # If there's no <parent> block, skip this file and move to the next one
             if [ -z "$parent_block" ]; then
               echo "No <parent> block found in $pom_file, skipping this file."
               continue
             fi
-          
+
             echo "Parent block found in $pom_file:"
             echo "$parent_block"
-          
+
             # Check if <version> contains -SNAPSHOT
             if echo "$parent_block" | grep -q '<version>.*-SNAPSHOT</version>'; then
               echo "Found '-SNAPSHOT' version in $pom_file."
               condition_met=true
+              break  # Exit the loop early since the condition is met
             else
               echo "No '-SNAPSHOT' version found in $pom_file."
             fi
           done
-          
-          # Set the output for this step
-          echo "::set-output name=is_condition::$condition_met"
+
+          # Write the result to the environment file (which is the new method for setting outputs)
+          echo "is_condition=$condition_met" >> $GITHUB_ENV
 
       - name: Debug Condition Output
         run: |
-          echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
+          echo "Condition Met: ${{ env.is_condition }}"
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
