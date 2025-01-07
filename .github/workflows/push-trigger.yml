@@ -51,37 +51,41 @@ jobs:
         run: |
           # Initialize the flag that will hold the result
           condition_met=false
-          
+
           # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
           find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
             echo "Processing $pom_file"
-          
+
             # Extract the <parent> block from the pom.xml
             parent_block=$(awk '/<parent>/,/<\/parent>/' "$pom_file")
-          
+
             # If there's no <parent> block, skip this file and move to the next one
             if [ -z "$parent_block" ]; then
               echo "No <parent> block found in $pom_file, skipping this file."
               continue
             fi
-          
+
             echo "Parent block found in $pom_file:"
             echo "$parent_block"
-          
+
             # Check if <version> contains -SNAPSHOT
             if echo "$parent_block" | grep -q '<version>.*-SNAPSHOT</version>'; then
               echo "Found '-SNAPSHOT' version in $pom_file."
               condition_met=true
-            else
-              echo "No '-SNAPSHOT' version found in $pom_file."
             fi
           done
-          
+
+          # If no '-SNAPSHOT' was found in any pom file, set condition_met to false
+          if [ "$condition_met" = false ]; then
+            echo "No '-SNAPSHOT' version found in any parent block."
+          fi
+
           # Set the output for this step
-          echo "::set-output name=is_condition::$condition_met"
+          echo "is_condition=$condition_met" >> $GITHUB_ENV
+
       - name: Debug Condition Output
         run: |
-          echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
+          echo "Condition Met: ${{ env.is_condition }}"
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
