@@ -74,8 +74,14 @@ jobs:
             echo "Checking the following parent block in $pom_file:"
             echo "$parent_block"
 
-            # Check if <version> contains -SNAPSHOT
-            if echo "$parent_block" | grep -q -E '<version>.*-SNAPSHOT.*</version>'; then
+            # Extract the <version> field from the <parent> block and check if it contains '-SNAPSHOT'
+            version_in_parent=$(echo "$parent_block" | grep -oP '<version>\K.*(?=</version>)')
+
+            # Debug the extracted version
+            echo "Extracted version in $pom_file: $version_in_parent"
+
+            # Check if the version contains '-SNAPSHOT'
+            if [[ "$version_in_parent" == *"-SNAPSHOT"* ]]; then
               echo "Found '-SNAPSHOT' version in $pom_file."
               condition_met=true
             else
@@ -92,7 +98,7 @@ jobs:
             echo "No '-SNAPSHOT' version found in any parent block."
           fi
 
-          # Set the output for this step using the new method
+          # Use the newer method to propagate the variable to the next step
           echo "is_condition=$condition_met" >> $GITHUB_ENV
 
       - name: Debug Condition Output
