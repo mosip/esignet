@@ -51,6 +51,10 @@ jobs:
         run: |
           # Initialize the flag that will hold the result
           condition_met=false
+          echo "Initial condition_met: $condition_met"
+
+          # Initialize a flag to track if we processed any pom.xml file with <parent> block
+          any_parent_found=false
 
           # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
           find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
@@ -65,18 +69,26 @@ jobs:
               continue
             fi
 
-            echo "Parent block found in $pom_file:"
+            # At least one <parent> block was found
+            any_parent_found=true
+            echo "Checking the following parent block in $pom_file:"
             echo "$parent_block"
 
             # Check if <version> contains -SNAPSHOT
-            if echo "$parent_block" | grep -q '<version>.*-SNAPSHOT</version>'; then
+            if echo "$parent_block" | grep -q -E '<version>.*-SNAPSHOT.*</version>'; then
               echo "Found '-SNAPSHOT' version in $pom_file."
               condition_met=true
+            else
+              echo "No '-SNAPSHOT' version found in $pom_file."
             fi
+
+            echo "Current condition_met after processing $pom_file: $condition_met"
           done
 
-          # If no '-SNAPSHOT' was found in any pom file, set condition_met to false
-          if [ "$condition_met" = false ]; then
+          # If no <parent> block was found in any file, we don't modify condition_met
+          if [ "$any_parent_found" = false ]; then
+            echo "No <parent> blocks found in any pom.xml files, skipping condition_met."
+          elif [ "$condition_met" = false ]; then
             echo "No '-SNAPSHOT' version found in any parent block."
           fi
 
