@@ -45,12 +45,27 @@
         - name: Check for SNAPSHOT version in parent
           id: check_output
           run: |
-            if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<artifactId>esignet-parent<\/artifactId>/,/<\/version>/p" {} | grep -E "<artifactId>esignet-parent</artifactId>|<version>.*-SNAPSHOT</version>"' > /dev/null; then
+            # Check if both artifactId and SNAPSHOT version are found
+            artifact_found=false
+            snapshot_found=false
+
+            # Search for artifactId "esignet-parent" in pom.xml
+            if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<artifactId>esignet-parent<\/artifactId>/p" {}' > /dev/null; then
+              artifact_found=true
+            fi
+
+            # Search for version ending with -SNAPSHOT in pom.xml
+            if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<version>.*-SNAPSHOT<\/version>/p" {}' > /dev/null; then
+              snapshot_found=true
+            fi
+
+            # Check the results
+            if [[ "$artifact_found" == true && "$snapshot_found" == true ]]; then
               echo "::set-output name=is_snapshot::true"
-              echo "Snapshot dependency found in at least one pom.xml file."
+              echo "Both 'esignet-parent' and '-SNAPSHOT' found in pom.xml files."
             else
               echo "::set-output name=is_snapshot::false"
-              echo "Snapshot dependency not found in any pom.xml file."
+              echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in pom.xml files."
             fi
     publish_to_nexus:
       if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
