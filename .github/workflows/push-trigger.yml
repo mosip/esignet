@@ -52,7 +52,7 @@ jobs:
           # Initialize the flag that will hold the result
           condition_met=false
 
-          # Loop through each pom.xml file and check if both artifactId and version are correct
+          # Loop through each pom.xml file and check if version are correct
           find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
             echo "Processing $pom_file"
 
@@ -63,12 +63,12 @@ jobs:
               echo "Parent block found in $pom_file:"
               echo "$parent_block"
 
-              # Check if <artifactId> and <version> are both present in the extracted <parent> block
-              if echo "$parent_block" | grep -q '<artifactId>esignet-parent</artifactId>' && echo "$parent_block" | grep -q '<version>.*-SNAPSHOT</version>'; then
-                echo "Both 'esignet-parent' and '-SNAPSHOT' found in $pom_file."
+              # Check if <version> are present in the extracted <parent> block
+              if echo "$parent_block" | grep -q '<version>.*-SNAPSHOT</version>'; then
+                echo " '-SNAPSHOT' found in $pom_file."
                 condition_met=true
               else
-                echo "Either 'esignet-parent' or '-SNAPSHOT' is missing in $pom_file."
+                echo "Either '-SNAPSHOT' is missing in $pom_file."
               fi
             else
               echo "No <parent> block found in $pom_file."
