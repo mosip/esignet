@@ -38,7 +38,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   check_snapshot_version:
-    needs: build-maven-esignet
+    #needs: build-maven-esignet
     runs-on: ubuntu-latest
     outputs:
       is_condition: ${{ steps.check_output.outputs.is_condition }}
@@ -68,6 +68,7 @@ jobs:
             done
           
             echo $condition_met
+            echo $parent_block
             
             
             # Set the output based on the result
