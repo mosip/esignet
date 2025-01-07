@@ -45,7 +45,7 @@
         - name: Check for SNAPSHOT version in parent
           id: check_output
           run: |
-            if [[ $(find . -name "pom.xml" -exec sed -n '/<artifactId>esignet-parent<\/artifactId>/,/<\/version>/p' {} \; | grep -E '<artifactId>esignet-parent</artifactId>|<version>.*-SNAPSHOT</version>') ]]; then
+            if [[ find . -name "pom.xml" -exec sed -n '/<artifactId>esignet-parent<\/artifactId>/,/<\/version>/p' {} \; | grep -E '<artifactId>esignet-parent</artifactId>|<version>.*-SNAPSHOT</version>' ]]; then
               echo "::set-output name=is_snapshot::true"
               echo "Snapshot dependency found in at least one pom.xml file."
             else
