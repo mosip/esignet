@@ -231,4 +231,3 @@
         OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
         GPG_SECRET: ${{ secrets.GPG_SECRET }}
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-    [MOSIP-38703] updated push-trigger.yml to Continue docker build only if the SNAPSHOT is present in parent pom otherwise skip · Prafulrakhade/esignet@4a32907
