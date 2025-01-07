@@ -45,14 +45,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Check for esignet-parent and -SNAPSHOT in pom.xml files
+      - name: Check for -SNAPSHOT version in pom.xml files
         id: check_output
         shell: bash
         run: |
           # Initialize the flag that will hold the result
           condition_met=false
 
-          # Loop through each pom.xml file and check if version are correct
+          # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
           find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
             echo "Processing $pom_file"
 
@@ -63,15 +63,17 @@ jobs:
               echo "Parent block found in $pom_file:"
               echo "$parent_block"
 
-              # Check if <version> are present in the extracted <parent> block
+              # Check if <version> contains -SNAPSHOT
               if echo "$parent_block" | grep -q '<version>.*-SNAPSHOT</version>'; then
-                echo " '-SNAPSHOT' found in $pom_file."
+                echo "Found '-SNAPSHOT' version in $pom_file."
                 condition_met=true
               else
-                echo "Either '-SNAPSHOT' is missing in $pom_file."
+                echo "No '-SNAPSHOT' version found in $pom_file."
               fi
             else
-              echo "No <parent> block found in $pom_file."
+              # No <parent> block found, consider the condition as met
+              echo "No <parent> block found in $pom_file, assuming condition met for this file."
+              condition_met=true
             fi
           done
 
