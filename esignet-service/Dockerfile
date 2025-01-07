@@ -91,15 +91,13 @@ RUN apt-get -y update \
 && wget https://raw.githubusercontent.com/mosip/artifactory-ref-impl/v1.2.0.3/artifacts/src/hsm/client.zip -O client.zip \
 && chown -R ${container_user}:${container_user} /home/${container_user}
 
-# copy all files under target/esignet-plugins to the plugins folder
-COPY ./target/*-plugin.jar ${plugins_path}
 COPY ./src/main/resources/amr_acr_mapping.json ${work_dir}/amr_acr_mapping.json
 
 # select container user for all tasks
 USER ${container_user_uid}:${container_user_gid}
 
-EXPOSE 8088
-EXPOSE 9010
+EXPOSE 8088 9010
 
 ENTRYPOINT [ "./configure_start.sh" ]
-CMD java -jar -Dloader.path="${loader_path_env}" -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" esignet-service.jar
+
+CMD ["java", "-jar", "-Dloader.path=${loader_path_env}", "-Dspring.cloud.config.label=${spring_config_label_env}", "-Dspring.profiles.active=${active_profile_env}", "-Dspring.cloud.config.uri=${spring_config_url_env}", "esignet-service.jar"]
