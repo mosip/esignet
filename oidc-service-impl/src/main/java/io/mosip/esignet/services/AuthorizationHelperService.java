@@ -408,7 +408,7 @@ public class AuthorizationHelperService {
         throw new EsignetException(NO_UNIQUE_ALIAS);
     }
 
-    protected Pair<String,String> validateAndGetSubject(String clientId, String idTokenHint) {
+    protected Pair<String,String> validateAndGetSubjectAndNonce(String clientId, String idTokenHint) {
         try {
             String[] jwtParts = idTokenHint.split("\\.");
             if (jwtParts.length == 3) {

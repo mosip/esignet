@@ -153,7 +153,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
         //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
         if (oauthDetailReqDto.getIdTokenHint() != null) {
-            Pair<String, String> pair = authorizationHelperService.validateAndGetSubject(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
+            Pair<String, String> pair = authorizationHelperService.validateAndGetSubjectAndNonce(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
             if(httpServletRequest.getCookies() == null)
                 throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
             Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(pair.getFirst())).findFirst();
