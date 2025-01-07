@@ -46,24 +46,21 @@ jobs:
       - name: Check for SNAPSHOT version in parent
         id: check_output
         run: |
-          # Check if both artifactId and SNAPSHOT version are found
-          artifact_found=false
-          snapshot_found=false
-          # Search for artifactId "esignet-parent" in pom.xml
-          if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<artifactId>esignet-parent<\/artifactId>/p" {}' > /dev/null; then
-            artifact_found=true
+          # Initialize the condition flag
+          condition_met=false
+
+          # Search for the exact <parent> block with both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version>
+          if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<parent>/,/<\/parent>/p" {} | grep -q "<artifactId>esignet-parent</artifactId>" && sed -n "/<parent>/,/<\/parent>/p" {} | grep -q "<version>.*-SNAPSHOT</version>"'; then
+            condition_met=true
           fi
-          # Search for version ending with -SNAPSHOT in pom.xml
-          if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<version>.*-SNAPSHOT<\/version>/p" {}' > /dev/null; then
-            snapshot_found=true
-          fi
-          # Check the results
-          if [[ "$artifact_found" == true && "$snapshot_found" == true ]]; then
+
+          # Check the result
+          if [[ "$condition_met" == true ]]; then
             echo "::set-output name=is_condition::true"
-            echo "Both 'esignet-parent' and '-SNAPSHOT' found in pom.xml files."
+            echo "Both 'esignet-parent' and '-SNAPSHOT' found in at least one pom.xml file."
           else
             echo "::set-output name=is_condition::false"
-            echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in pom.xml files."
+            echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in any pom.xml file."
           fi
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
