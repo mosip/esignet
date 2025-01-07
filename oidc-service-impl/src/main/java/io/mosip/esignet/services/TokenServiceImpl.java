@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -92,15 +91,15 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String getIDToken(@NonNull OIDCTransaction transaction) {
         JSONObject payload = buildIDToken(transaction.getPartnerSpecificUserToken(),
-                transaction.getClientId(), idTokenExpireSeconds, transaction);
+                transaction.getClientId(), idTokenExpireSeconds, transaction, null);
         payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
 
     @Override
     public String getIDToken(@NonNull String subject, @NonNull String audience, int validitySeconds,
-                             @NonNull OIDCTransaction transaction) {
-        JSONObject payload = buildIDToken(subject, audience, validitySeconds, transaction);
+                             @NonNull OIDCTransaction transaction, String nonce) {
+        JSONObject payload = buildIDToken(subject, audience, validitySeconds, transaction, nonce);
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
 
@@ -213,7 +212,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     private JSONObject buildIDToken(String subject, String audience, int validitySeconds,
-                                    OIDCTransaction transaction) {
+                                    OIDCTransaction transaction, String nonce) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
         payload.put(SUB, subject);
@@ -222,7 +221,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(IAT, issueTime);
         payload.put(EXP, issueTime + (validitySeconds<=0 ? 3600 : validitySeconds));
         payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
-        payload.put(NONCE, transaction.getNonce());
+        payload.put(NONCE, nonce == null ? transaction.getNonce() : nonce);
         List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
         payload.put(ACR, String.join(SPACE, acrs));
         return payload;
