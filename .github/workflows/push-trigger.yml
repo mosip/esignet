@@ -46,13 +46,19 @@ jobs:
       - name: Check for SNAPSHOT version in parent
         id: check_output
         run: |
-          # Initialize the condition flag
+          # Initialize condition flag
           condition_met=false
 
-          # Search for the exact <parent> block with both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version>
-          if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<parent>/,/<\/parent>/p" {} | grep -q "<artifactId>esignet-parent</artifactId>" && sed -n "/<parent>/,/<\/parent>/p" {} | grep -q "<version>.*-SNAPSHOT</version>"'; then
-            condition_met=true
-          fi
+          # Check all pom.xml files
+          find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c '
+            # Extract <parent> block from each pom.xml
+            parent_block=$(sed -n "/<parent>/,/<\/parent>/p" {})
+
+            # Check if both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version> are found in the <parent> block
+            if echo "$parent_block" | grep -q "<artifactId>esignet-parent</artifactId>" && echo "$parent_block" | grep -q "<version>.*-SNAPSHOT</version>"; then
+              condition_met=true
+            fi
+          '
 
           # Check the result
           if [[ "$condition_met" == true ]]; then
@@ -62,6 +68,7 @@ jobs:
             echo "::set-output name=is_condition::false"
             echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in any pom.xml file."
           fi
+
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
     needs: build-maven-esignet
