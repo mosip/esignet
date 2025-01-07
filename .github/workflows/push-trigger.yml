@@ -66,6 +66,9 @@ jobs:
                 echo "No <parent> block found in $pom_file, skipping."
               fi
             done
+          
+            echo $condition_met
+            
             
             # Set the output based on the result
             if [ "$condition_met" == true ]; then
