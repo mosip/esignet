@@ -67,7 +67,6 @@ jobs:
               if echo "$parent_block" | grep -q '<artifactId>esignet-parent</artifactId>' && echo "$parent_block" | grep -q '<version>.*-SNAPSHOT</version>'; then
                 echo "Both 'esignet-parent' and '-SNAPSHOT' found in $pom_file."
                 condition_met=true
-                break  # Exit the loop early since the condition is met
               else
                 echo "Either 'esignet-parent' or '-SNAPSHOT' is missing in $pom_file."
               fi
