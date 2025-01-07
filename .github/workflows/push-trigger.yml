@@ -37,55 +37,55 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  check_snapshot_version:
-    needs: build-maven-esignet
-    runs-on: ubuntu-latest
-    outputs:
-      is_condition: ${{ steps.check_output.outputs.is_condition }}
-    steps:
-      - name: Check for SNAPSHOT version in parent
-        id: check_output
-        run: |
-          # Initialize the condition flag
-          condition_met=false
+  name: Check for esignet-parent and SNAPSHOT
 
-          # Loop through each pom.xml file
-          find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
-            # Extract the <parent> block from each pom.xml file
-            parent_block=$(sed -n '/<parent>/,/<\/parent>/p' "$pom_file")
+  on:
+    push:
+      branches:
+        - main
+    pull_request:
+      branches:
+        - main
 
-            # Debug: Print the extracted <parent> block for inspection
-            echo "Inspecting parent block in $pom_file:"
-            echo "$parent_block"
+  jobs:
+    check_snapshot_version:
+      runs-on: ubuntu-latest
+      outputs:
+        is_condition: ${{ steps.check_output.outputs.is_condition }}
+      steps:
+        - name: Check for esignet-parent and -SNAPSHOT in pom.xml files
+          id: check_output
+          run: |
+            # Initialize the flag that will hold the result
+            condition_met=false
 
-            # Check if the <parent> block exists
-            if [ ! -z "$parent_block" ]; then
-              # Check if both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version> are found in the <parent> block
-              artifact_found=$(echo "$parent_block" | grep -q "<artifactId>esignet-parent</artifactId>" && echo "true" || echo "false")
-              snapshot_found=$(echo "$parent_block" | grep -q "<version>.*-SNAPSHOT</version>" && echo "true" || echo "false")
+            # Loop through each pom.xml file and check if both artifactId and version are correct
+            find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
+              echo "Processing $pom_file"
+              # Extract the <parent> block from the pom.xml
+              parent_block=$(sed -n '/<parent>/,/<\/parent>/p' "$pom_file")
 
-              # Debug: Print the results of the condition checks
-              echo "Artifact found: $artifact_found"
-              echo "Snapshot found: $snapshot_found"
-
-              # If both conditions are met, set condition_met to true and exit early
-              if [ "$artifact_found" == "true" ] && [ "$snapshot_found" == "true" ]; then
-                condition_met=true
-                break  # Exit early since we've found a match
+              # Check if both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version> exist
+              if [ ! -z "$parent_block" ]; then
+                if echo "$parent_block" | grep -qE '<artifactId>esignet-parent</artifactId>' && echo "$parent_block" | grep -qE '<version>.*-SNAPSHOT</version>'; then
+                  echo "Both 'esignet-parent' and '-SNAPSHOT' found in $pom_file."
+                  condition_met=true
+                  break  # Exit the loop early since we've found a match
+                fi
+              else
+                echo "No <parent> block found in $pom_file, skipping."
               fi
-            else
-              echo "No <parent> block found in $pom_file, skipping."
-            fi
-          done
+            done
 
-          # After looping through all files, check the result
-          if [ "$condition_met" == true ]; then
-            echo "::set-output name=is_condition::true"
-            echo "Both 'esignet-parent' and '-SNAPSHOT' found in at least one pom.xml file."
-          else
-            echo "::set-output name=is_condition::false"
-            echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in any pom.xml file."
-          fi
+            # Set the output based on the result
+            if [ "$condition_met" == true ]; then
+              echo "::set-output name=is_condition::true"
+              echo "Both 'esignet-parent' and '-SNAPSHOT' found in at least one pom.xml file."
+            else
+              echo "::set-output name=is_condition::false"
+              echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in any pom.xml file."
+            fi
+  
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
