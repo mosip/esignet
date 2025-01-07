@@ -107,7 +107,6 @@ public class DeleteWithParam extends AdminTestUtil implements ITest {
 
 		else {
 			String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
-			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
 			if (testCaseName.contains("ESignet_")) {
 				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
@@ -121,17 +120,22 @@ public class DeleteWithParam extends AdminTestUtil implements ITest {
 					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
-					if (EsignetConfigManager.getSunBirdBaseURL() != null && !EsignetConfigManager.getSunBirdBaseURL().isBlank())
+					if (EsignetConfigManager.getSunBirdBaseURL() != null
+							&& !EsignetConfigManager.getSunBirdBaseURL().isBlank())
 						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
-						//Once sunbird registry is pointing to specific env, remove the above line and uncomment below line
-						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
+					// Once sunbird registry is pointing to specific env, remove the above line and
+					// uncomment below line
+					// tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL,
+					// ConfigManager.getSunBirdBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 				}
+				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
 				response = deleteWithPathParamAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
 
 			} else {
+				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 				response = deleteWithPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
 			}
