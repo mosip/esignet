@@ -37,34 +37,24 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  name: Check for esignet-parent and SNAPSHOT
-
-  on:
-    push:
-      branches:
-        - main
-    pull_request:
-      branches:
-        - main
-
-  jobs:
-    check_snapshot_version:
-      runs-on: ubuntu-latest
-      outputs:
-        is_condition: ${{ steps.check_output.outputs.is_condition }}
-      steps:
-        - name: Check for esignet-parent and -SNAPSHOT in pom.xml files
-          id: check_output
-          run: |
+  check_snapshot_version:
+    needs: build-maven-esignet
+    runs-on: ubuntu-latest
+    outputs:
+      is_condition: ${{ steps.check_output.outputs.is_condition }}
+    steps:
+      - name: Check for esignet-parent and -SNAPSHOT in pom.xml files
+        id: check_output
+        run: |
             # Initialize the flag that will hold the result
             condition_met=false
-
+            
             # Loop through each pom.xml file and check if both artifactId and version are correct
             find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
               echo "Processing $pom_file"
               # Extract the <parent> block from the pom.xml
               parent_block=$(sed -n '/<parent>/,/<\/parent>/p' "$pom_file")
-
+            
               # Check if both <artifactId>esignet-parent</artifactId> and <version>.*-SNAPSHOT</version> exist
               if [ ! -z "$parent_block" ]; then
                 if echo "$parent_block" | grep -qE '<artifactId>esignet-parent</artifactId>' && echo "$parent_block" | grep -qE '<version>.*-SNAPSHOT</version>'; then
@@ -76,7 +66,7 @@ jobs:
                 echo "No <parent> block found in $pom_file, skipping."
               fi
             done
-
+            
             # Set the output based on the result
             if [ "$condition_met" == true ]; then
               echo "::set-output name=is_condition::true"
@@ -85,7 +75,6 @@ jobs:
               echo "::set-output name=is_condition::false"
               echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in any pom.xml file."
             fi
-  
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
