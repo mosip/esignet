@@ -76,7 +76,7 @@ jobs:
             fi
           done
 
-          # Set the output value for the job
+          # Set the output for this step
           echo "::set-output name=is_condition::$condition_met"
 
       - name: Debug Condition Output
