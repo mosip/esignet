@@ -25,19 +25,20 @@ on:
 jobs:
   check-esignet-parent:
     runs-on: ubuntu-latest
+    outputs:
+      found: ${{ steps.check_snapshot.outputs.found }}
     steps:
       - uses: actions/checkout@v3
       - name: Check for esignet-parent SNAPSHOT version
         id: check_snapshot
         run: |
           if grep -q '<artifactId>esignet-parent</artifactId>' pom.xml && grep -q '<version>.*-SNAPSHOT</version>' pom.xml; then
-            echo "found=true" >> $GITHUB_ENV
+            echo "found=true" >> $GITHUB_OUTPUT
           else
-            echo "found=false" >> $GITHUB_ENV
+            echo "found=false" >> $GITHUB_OUTPUT
           fi
 
   build-maven-esignet:
-    if: ${{ env.found == 'true' }}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -80,8 +81,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers:
-    needs: build-maven-esignet
-    if: ${{ env.found == 'true' }}
+    needs: check-esignet-parent
+    if: ${{ needs.check-esignet-parent.outputs.found == 'true' }}
     strategy:
       matrix:
         include:
