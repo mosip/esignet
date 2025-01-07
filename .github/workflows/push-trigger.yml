@@ -45,27 +45,21 @@
         - name: Check for SNAPSHOT version in parent
           id: check_output
           run: |
-            # Check if both artifactId and SNAPSHOT version are found
-            artifact_found=false
-            snapshot_found=false
+            # Initialize the flag
+            parent_found=false
 
-            # Search for artifactId "esignet-parent" in pom.xml
-            if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<artifactId>esignet-parent<\/artifactId>/p" {}' > /dev/null; then
-              artifact_found=true
+            # Search for the <parent> block with specific <artifactId> and <version> ending with -SNAPSHOT
+            if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<parent>/,/<\/parent>/p" {} | grep -q "<artifactId>esignet-parent</artifactId>" && sed -n "/<parent>/,/<\/parent>/p" {} | grep -q "<version>.*-SNAPSHOT</version>"'; then
+              parent_found=true
             fi
 
-            # Search for version ending with -SNAPSHOT in pom.xml
-            if find . -name "pom.xml" -print0 | xargs -0 -I {} sh -c 'sed -n "/<version>.*-SNAPSHOT<\/version>/p" {}' > /dev/null; then
-              snapshot_found=true
-            fi
-
-            # Check the results
-            if [[ "$artifact_found" == true && "$snapshot_found" == true ]]; then
+            # If both conditions are found, print and set output to true
+            if [[ "$parent_found" == true ]]; then
               echo "::set-output name=is_snapshot::true"
-              echo "Both 'esignet-parent' and '-SNAPSHOT' found in pom.xml files."
+              echo "Found the <parent> block with 'esignet-parent' and '-SNAPSHOT' version in at least one pom.xml file."
             else
               echo "::set-output name=is_snapshot::false"
-              echo "Not found: Either 'esignet-parent' or '-SNAPSHOT' is missing in pom.xml files."
+              echo "Not found: The <parent> block with 'esignet-parent' or '-SNAPSHOT' version is missing in all pom.xml files."
             fi
     publish_to_nexus:
       if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
