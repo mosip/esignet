@@ -22,9 +22,9 @@
 		<java.version>11</java.version>
 		<jackson.version>2.9.5</jackson.version>
 		<jackson.datatype.version>2.9.8</jackson.datatype.version>
-		<jackson.databind>2..5.0-SNAPSHOT</jackson.databind>
-		<fasterxml.jackson.module.jsr310.version>2..5.0-SNAPSHOT</fasterxml.jackson.module.jsr310.version>
-		<fasterxml.jackson.module.afterburner.version>2..5.0-SNAPSHOT</fasterxml.jackson.module.afterburner.version>
+		<jackson.databind>2.15.0</jackson.databind>
+		<fasterxml.jackson.module.jsr310.version>2.15.0</fasterxml.jackson.module.jsr310.version>
+		<fasterxml.jackson.module.afterburner.version>2.15.0</fasterxml.jackson.module.afterburner.version>
 		<kernel.keymanager.version>1.2.1.0</kernel.keymanager.version>
 		<javassist.version>3.27.0-GA</javassist.version>
 		<junit.version>4.13.2</junit.version>
