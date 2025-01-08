@@ -36,6 +36,65 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
+  check_snapshot_version:
+    runs-on: ubuntu-latest
+    outputs:
+      is_condition: ${{ steps.check_output.outputs.is_condition }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Check for -SNAPSHOT version in pom.xml files
+        id: check_output
+        shell: bash
+        run: |
+          # Initialize the flag that will hold the result
+          condition_met=false
+          echo "Initial condition_met: $condition_met"
+          
+          # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
+          for pom_file in $(find . -name "pom.xml"); do
+            echo "Processing $pom_file"
+          
+            # Extract the <parent> block from the pom.xml
+            parent_block=$(awk '/<parent>/,/<\/parent>/' "$pom_file")
+          
+            # If there's no <parent> block, skip this file and move to the next one
+            if [ -z "$parent_block" ]; then
+              echo "No <parent> block found in $pom_file, skipping this file."
+              continue
+            fi
+          
+            # Debug: Print the entire parent block for verification
+            echo "Checking the following parent block in $pom_file:"
+            echo "$parent_block"
+          
+            # Extract the <version> field from the <parent> block
+            version_in_parent=$(echo "$parent_block" | grep -oP '<version>\K.*(?=</version>)')
+          
+            # Debug the extracted version
+            echo "Extracted version in $pom_file: $version_in_parent"
+          
+            # Check if the version contains '-SNAPSHOT'
+            if [[ "$version_in_parent" == *"-SNAPSHOT"* ]]; then
+              echo "Found '-SNAPSHOT' version in $pom_file."
+              condition_met=true
+              break # Stop checking further files once we find '-SNAPSHOT'
+            else
+              echo "No '-SNAPSHOT' version found in $pom_file."
+            fi
+          done
+          
+          # Debug the final condition_met value
+          echo "Final condition_met value: $condition_met"
+          
+          # Set the output for the next step
+          echo "::set-output name=is_condition::$condition_met"
+
+      - name: Debug Condition Output
+        run: |
+          echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
+
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
     needs: build-maven-esignet
@@ -49,7 +108,6 @@ jobs:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
 
   sonar_analysis:
     needs: build-maven-esignet
@@ -67,7 +125,32 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers:
+    needs: [build-maven-esignet, check_snapshot_version, publish_to_nexus]
+    if: ${{ needs.check_snapshot_version.outputs.is_condition == 'true' }}
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: 'esignet-service'
+            SERVICE_NAME: 'esignet'
+            BUILD_ARTIFACT: 'esignet'
+      fail-fast: false
+    name: ${{ matrix.SERVICE_NAME }}
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # build the docker manually if you want docker image with without "-SNAPSHOT"
+  manual-build-dockers:
+    runs-on: ubuntu-latest
     needs: build-maven-esignet
+    if: ${{ github.event_name == 'workflow_dispatch' }}  # Runs only when triggered manually
     strategy:
       matrix:
         include:
