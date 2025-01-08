@@ -114,51 +114,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.5.0</version>
-				<executions>
-					<execution>
-						<id>copy</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<artifactItems>
-						<artifactItem>
-							<groupId>io.mosip.esignet</groupId>
-							<artifactId>mosip-identity-plugin</artifactId>
-							<version>${mosip-identity-plugin.version}</version>
-							<outputDirectory>${esignet-plugins.location}</outputDirectory>
-							<destFileName>${mosip-identity-plugin.fileName}</destFileName>
-							<type>jar</type>
-						</artifactItem>
-						<artifactItem>
-							<groupId>io.mosip.esignet</groupId>
-							<artifactId>mock-plugin</artifactId>
-							<version>${esignet-mock-plugin.version}</version>
-							<outputDirectory>${esignet-plugins.location}</outputDirectory>
-							<destFileName>${esignet-mock-plugin.fileName}</destFileName>
-							<type>jar</type>
-						</artifactItem>
-						<artifactItem>
-							<groupId>io.mosip.esignet.sunbirdrc</groupId>
-							<artifactId>sunbird-rc-esignet-integration-impl</artifactId>
-							<version>${esignet-digital-credential-wrapper.version}</version>
-							<outputDirectory>${esignet-plugins.location}</outputDirectory>
-							<destFileName>${esignet-digital-credential-wrapper.fileName}</destFileName>
-							<type>jar</type>
-						</artifactItem>
-					</artifactItems>
-					<overWriteReleases>true</overWriteReleases>
-					<overWriteSnapshots>true</overWriteSnapshots>
-					<overWriteIfNewer>true</overWriteIfNewer>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 
