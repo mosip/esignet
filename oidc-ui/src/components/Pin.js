@@ -116,11 +116,8 @@ export default function Pin({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex
+    let newValue = regex && regex.test(trimmedValue)
       ? trimmedValue
-          .split("")
-          .filter((char) => regex.test(char))
-          .join("")
       : trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
@@ -134,11 +131,11 @@ export default function Pin({
       !(
         (
           (!maxLength && !regex) || // Case 1: No maxLength, no regex
-          (maxLength && !regex && newValue.length === parseInt(maxLength)) || // Case 2: maxLength only
+          (maxLength && !regex && newValue.length <= parseInt(maxLength)) || // Case 2: maxLength only
           (!maxLength && regex && regex.test(newValue)) || // Case 3: regex only
           (maxLength &&
             regex &&
-            newValue.length === parseInt(maxLength) &&
+            newValue.length <= parseInt(maxLength) &&
             regex.test(newValue))
         ) // Case 4: Both maxLength and regex
       )
@@ -153,7 +150,7 @@ export default function Pin({
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     setIsValid(
-      (!maxLength || e.target.value.trim().length === parseInt(maxLength)) &&
+      (!maxLength || e.target.value.trim().length <= parseInt(maxLength)) &&
         (!regex || regex.test(e.target.value.trim()))
     );
   };
@@ -463,7 +460,7 @@ export default function Pin({
             text={t1("login")}
             id="verify_pin"
             disabled={
-              !individualId?.trim() ||
+              !individualId ||
               !pin?.trim() ||
               isBtnDisabled ||
               (inputError && inputError.length > 0) ||
