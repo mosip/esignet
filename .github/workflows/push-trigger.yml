@@ -49,48 +49,48 @@ jobs:
         id: check_output
         shell: bash
         run: |
-          # Initialize the flag that will hold the result
-          condition_met=false
-          echo "Initial condition_met: $condition_met"
-
-          # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
-          find . -name "pom.xml" -print0 | while IFS= read -r -d '' pom_file; do
-            echo "Processing $pom_file"
-
-            # Extract the <parent> block from the pom.xml
-            parent_block=$(awk '/<parent>/,/<\/parent>/' "$pom_file")
-
-            # If there's no <parent> block, skip this file and move to the next one
-            if [ -z "$parent_block" ]; then
-              echo "No <parent> block found in $pom_file, skipping this file."
-              continue
-            fi
-
-            # Debug: Print the entire parent block for verification
-            echo "Checking the following parent block in $pom_file:"
-            echo "$parent_block"
-
-            # Extract the <version> field from the <parent> block
-            version_in_parent=$(echo "$parent_block" | grep -oP '<version>\K.*(?=</version>)')
-
-            # Debug the extracted version
-            echo "Extracted version in $pom_file: $version_in_parent"
-
-            # Check if the version contains '-SNAPSHOT'
-            if [[ "$version_in_parent" == *"-SNAPSHOT"* ]]; then
-              echo "Found '-SNAPSHOT' version in $pom_file."
-              condition_met=true
-              break # Stop checking further files once we find '-SNAPSHOT'
-            else
-              echo "No '-SNAPSHOT' version found in $pom_file."
-            fi
-          done
-
-          # Debug the final condition_met value
-          echo "Final condition_met value: $condition_met"
-
-          # Set the output for the next step
-          echo "::set-output name=is_condition::$condition_met"
+            # Initialize the flag that will hold the result
+            condition_met=false
+            echo "Initial condition_met: $condition_met"
+            
+            # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
+            for pom_file in $(find . -name "pom.xml"); do
+              echo "Processing $pom_file"
+            
+              # Extract the <parent> block from the pom.xml
+              parent_block=$(awk '/<parent>/,/<\/parent>/' "$pom_file")
+            
+              # If there's no <parent> block, skip this file and move to the next one
+              if [ -z "$parent_block" ]; then
+                echo "No <parent> block found in $pom_file, skipping this file."
+                continue
+              fi
+            
+              # Debug: Print the entire parent block for verification
+              echo "Checking the following parent block in $pom_file:"
+              echo "$parent_block"
+            
+              # Extract the <version> field from the <parent> block
+              version_in_parent=$(echo "$parent_block" | grep -oP '<version>\K.*(?=</version>)')
+            
+              # Debug the extracted version
+              echo "Extracted version in $pom_file: $version_in_parent"
+            
+              # Check if the version contains '-SNAPSHOT'
+              if [[ "$version_in_parent" == *"-SNAPSHOT"* ]]; then
+                echo "Found '-SNAPSHOT' version in $pom_file."
+                condition_met=true
+                break # Stop checking further files once we find '-SNAPSHOT'
+              else
+                echo "No '-SNAPSHOT' version found in $pom_file."
+              fi
+            done
+            
+            # Debug the final condition_met value
+            echo "Final condition_met value: $condition_met"
+            
+            # Set the output for the next step
+            echo "::set-output name=is_condition::$condition_met"
 
       - name: Debug Condition Output
         run: |
