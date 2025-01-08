@@ -80,7 +80,7 @@ jobs:
             if [[ "$version_in_parent" == *"-SNAPSHOT"* ]]; then
               echo "Found '-SNAPSHOT' version in $pom_file."
               condition_met=true
-              break # No need to check further files once we find -SNAPSHOT
+              break # Stop checking further files once we find '-SNAPSHOT'
             else
               echo "No '-SNAPSHOT' version found in $pom_file."
             fi
@@ -89,7 +89,7 @@ jobs:
           # Debug the final condition_met value
           echo "Final condition_met value: $condition_met"
 
-          # Set the output for the next step to pass the value correctly
+          # Save the result to the environment variable (instead of using `set-output`)
           echo "is_condition=$condition_met" >> $GITHUB_ENV
 
       - name: Debug Condition Output
