@@ -159,6 +159,10 @@ jobs:
             BUILD_ARTIFACT: 'esignet'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
+    steps:
+      - name: Echo Manual Trigger Message
+        run:
+          echo "Workflow triggered manually with message: ${{ github.event.inputs.message }}"
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
