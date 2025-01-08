@@ -89,7 +89,7 @@ jobs:
           # Debug the final condition_met value
           echo "Final condition_met value: $condition_met"
 
-          # Save the result to the environment variable (instead of using `set-output`)
+          # Update the output for the step to set it as an environment variable
           echo "is_condition=$condition_met" >> $GITHUB_ENV
 
       - name: Debug Condition Output
