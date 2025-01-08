@@ -110,7 +110,6 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-
   sonar_analysis:
     needs: build-maven-esignet
     if: "${{  github.event_name != 'pull_request' }}"
@@ -137,7 +136,7 @@ jobs:
             BUILD_ARTIFACT: 'esignet'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: Prafulrakhade/kattu/.github/workflows/docker-build.yml@master
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -156,7 +155,7 @@ jobs:
             SERVICE_NAME: 'oidc-ui'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: Prafulrakhade/kattu/.github/workflows/docker-build.yml@master
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -249,7 +248,7 @@ jobs:
             ONLY_DOCKER: true
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: Prafulrakhade/kattu/.github/workflows/docker-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
