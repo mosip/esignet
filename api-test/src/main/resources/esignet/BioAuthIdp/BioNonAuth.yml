@@ -1,7 +1,7 @@
 BioNonAuth:
   ESignet_BioAuth_Biometric_Face_NonAuth_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_01
+      uniqueIdentifier: TC_ESignet_BioNonAuth_01
       description: Face biometric with NonAuth and valid details UIN
       role: resident
       restMethod: post
@@ -47,7 +47,7 @@ BioNonAuth:
 
   ESignet_BioAuth_Biometric_RingFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_02
+      uniqueIdentifier: TC_ESignet_BioNonAuth_02
       description: RingFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -92,7 +92,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_03
+      uniqueIdentifier: TC_ESignet_BioNonAuth_03
       description: LeftMiddleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -137,7 +137,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftLittleFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_04
+      uniqueIdentifier: TC_ESignet_BioNonAuth_04
       description: LeftLittleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -182,7 +182,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIndexFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_05
+      uniqueIdentifier: TC_ESignet_BioNonAuth_05
       description: RightIndexFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -227,7 +227,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightRingFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_06
+      uniqueIdentifier: TC_ESignet_BioNonAuth_06
       description: RightRingFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -272,7 +272,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightMiddleFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_07
+      uniqueIdentifier: TC_ESignet_BioNonAuth_07
       description: RightMiddleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -317,7 +317,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightLittleFinger_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_08
+      uniqueIdentifier: TC_ESignet_BioNonAuth_08
       description: RightLittleFinger biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -362,7 +362,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftThumb_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_09
+      uniqueIdentifier: TC_ESignet_BioNonAuth_09
       description: LeftThumb biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -407,7 +407,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightThumb_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_10
+      uniqueIdentifier: TC_ESignet_BioNonAuth_10
       description: RightThumb biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -452,7 +452,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIris_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_11
+      uniqueIdentifier: TC_ESignet_BioNonAuth_11
       description: RightIris biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -497,7 +497,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftIris_With_uin_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_12
+      uniqueIdentifier: TC_ESignet_BioNonAuth_12
       description: LeftIris biometric with NonAuth UIN
       role: resident
       restMethod: post
@@ -543,7 +543,7 @@ BioNonAuth:
 
   ESignet_BioNonAuth_Biometric_Face_NonAuth_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_13
+      uniqueIdentifier: TC_ESignet_BioNonAuth_13
       description: Face biometric with NonAuth and valid details VID
       role: resident
       restMethod: post
@@ -589,7 +589,7 @@ BioNonAuth:
 
   ESignet_BioAuth_Biometric_RingFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_14
+      uniqueIdentifier: TC_ESignet_BioNonAuth_14
       description: RingFinger biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -634,7 +634,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_15
+      uniqueIdentifier: TC_ESignet_BioNonAuth_15
       description: LeftMiddleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -679,7 +679,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftLittleFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_16
+      uniqueIdentifier: TC_ESignet_BioNonAuth_16
       description: LeftLittleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -724,7 +724,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIndexFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_17
+      uniqueIdentifier: TC_ESignet_BioNonAuth_17
       description: RightIndexFinger biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -769,7 +769,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightRingFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_18
+      uniqueIdentifier: TC_ESignet_BioNonAuth_18
       description: RightRingFinger biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -814,7 +814,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightMiddleFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_19
+      uniqueIdentifier: TC_ESignet_BioNonAuth_19
       description: RightMiddleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -859,7 +859,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightLittleFinger_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_20
+      uniqueIdentifier: TC_ESignet_BioNonAuth_20
       description: RightLittleFinger biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -904,7 +904,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftThumb_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_21
+      uniqueIdentifier: TC_ESignet_BioNonAuth_21
       description: LeftThumb biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -949,7 +949,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightThumb_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_22
+      uniqueIdentifier: TC_ESignet_BioNonAuth_22
       description: RightThumb biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -994,7 +994,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_RightIris_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_23
+      uniqueIdentifier: TC_ESignet_BioNonAuth_23
       description: RightIris biometric with NonAuth VID
       role: resident
       restMethod: post
@@ -1039,7 +1039,7 @@ BioNonAuth:
 }'
   ESignet_BioAuth_Biometric_LeftIris_With_Vid_NonAuth_Neg:
       endPoint: /v1/esignet/authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_BioNonAuth_24
+      uniqueIdentifier: TC_ESignet_BioNonAuth_24
       description: LeftIris biometric with NonAuth VID
       role: resident
       restMethod: post

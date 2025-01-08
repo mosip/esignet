@@ -1,7 +1,7 @@
 GenerateToken:
    ESignet_GenerateToken_uin_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_01
+      uniqueIdentifier: TC_ESignet_GenerateToken_01
       description: Generate token with all valid details UIN
       role: resident
       restMethod: post
@@ -22,7 +22,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Invalid_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_02
+      uniqueIdentifier: TC_ESignet_GenerateToken_02
       description: Generate token with invalid ClientId UIN
       role: resident
       restMethod: post
@@ -43,7 +43,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Missing_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_03
+      uniqueIdentifier: TC_ESignet_GenerateToken_03
       description: Generate token without ClientId UIN
       role: resident
       restMethod: post
@@ -64,7 +64,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Null_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_04
+      uniqueIdentifier: TC_ESignet_GenerateToken_04
       description: Generate token with Null in ClientId UIN
       role: resident
       restMethod: post
@@ -85,7 +85,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Empty_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_05
+      uniqueIdentifier: TC_ESignet_GenerateToken_05
       description: Generate token with empty value in ClientId UIN
       role: resident
       restMethod: post
@@ -106,7 +106,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Invalid_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_06
+      uniqueIdentifier: TC_ESignet_GenerateToken_06
       description: Generate token with invalid grant_type UIN
       role: resident
       restMethod: post
@@ -127,7 +127,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Missing_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_07
+      uniqueIdentifier: TC_ESignet_GenerateToken_07
       description: Generate token without grant_type UIN
       role: resident
       restMethod: post
@@ -148,7 +148,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Empty_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_08
+      uniqueIdentifier: TC_ESignet_GenerateToken_08
       description: Generate token with empty grant_type UIN
       role: resident
       restMethod: post
@@ -169,7 +169,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Null_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_09
+      uniqueIdentifier: TC_ESignet_GenerateToken_09
       description: Generate token with Null in grant_type UIN
       role: resident
       restMethod: post
@@ -190,7 +190,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_SpaceFirst_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_10
+      uniqueIdentifier: TC_ESignet_GenerateToken_10
       description: Generate token with space in the beginning of grant_type UIN
       role: resident
       restMethod: post
@@ -211,7 +211,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_SpaceLast_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_11
+      uniqueIdentifier: TC_ESignet_GenerateToken_11
       description: Generate token with space in the end of grant_type UIN
       role: resident
       restMethod: post
@@ -232,7 +232,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Invalid_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_12
+      uniqueIdentifier: TC_ESignet_GenerateToken_12
       description: Generate token with invalid code UIN
       role: resident
       restMethod: post
@@ -253,7 +253,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Missing_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_13
+      uniqueIdentifier: TC_ESignet_GenerateToken_13
       description: Generate token without code UIN
       role: resident
       restMethod: post
@@ -274,7 +274,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Empty_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_14
+      uniqueIdentifier: TC_ESignet_GenerateToken_14
       description: Generate token with empty value in code UIN
       role: resident
       restMethod: post
@@ -295,7 +295,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Null_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_15
+      uniqueIdentifier: TC_ESignet_GenerateToken_15
       description: Generate token with Null in code UIN
       role: resident
       restMethod: post
@@ -316,7 +316,7 @@ GenerateToken:
  
    ESignet_GenerateToken_uin_Used_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_16
+      uniqueIdentifier: TC_ESignet_GenerateToken_16
       description: Generate token with used code UIN
       role: resident
       restMethod: post
@@ -337,7 +337,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Invalid_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_17
+      uniqueIdentifier: TC_ESignet_GenerateToken_17
       description: Generate token with invalid redirect uri UIN
       role: resident
       restMethod: post
@@ -358,7 +358,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Missing_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_18
+      uniqueIdentifier: TC_ESignet_GenerateToken_18
       description: Generate token without redirect uri UIN
       role: resident
       restMethod: post
@@ -379,7 +379,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Empty_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_19
+      uniqueIdentifier: TC_ESignet_GenerateToken_19
       description: Generate token with empty value in redirect uri UIN
       role: resident
       restMethod: post
@@ -400,7 +400,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Null_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_20
+      uniqueIdentifier: TC_ESignet_GenerateToken_20
       description: Generate token with Null in redirect uri UIN
       role: resident
       restMethod: post
@@ -421,7 +421,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Incorrect_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_21
+      uniqueIdentifier: TC_ESignet_GenerateToken_21
       description: Generate token with incorrect client assertion type UIN
       role: resident
       restMethod: post
@@ -442,7 +442,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Missing_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_22
+      uniqueIdentifier: TC_ESignet_GenerateToken_22
       description: Generate token without client assertion type UIN
       role: resident
       restMethod: post
@@ -463,7 +463,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Empty_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_23
+      uniqueIdentifier: TC_ESignet_GenerateToken_23
       description: Generate token with empty value in client assertion type UIN
       role: resident
       restMethod: post
@@ -484,7 +484,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Null_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_24
+      uniqueIdentifier: TC_ESignet_GenerateToken_24
       description: Generate token with Null in client assertion type UIN
       role: resident
       restMethod: post
@@ -505,7 +505,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_SpaceFirst_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_25
+      uniqueIdentifier: TC_ESignet_GenerateToken_25
       description: Generate token with space in the beginning of client assertion type UIN
       role: resident
       restMethod: post
@@ -526,7 +526,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_SpaceLast_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_26
+      uniqueIdentifier: TC_ESignet_GenerateToken_26
       description: Generate token with space in the end of client assertion type UIN
       role: resident
       restMethod: post
@@ -547,7 +547,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Invalid_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_27
+      uniqueIdentifier: TC_ESignet_GenerateToken_27
       description: Generate token with invalid client assertion type UIN
       role: resident
       restMethod: post
@@ -568,7 +568,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Invalid_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_28
+      uniqueIdentifier: TC_ESignet_GenerateToken_28
       description: Generate token with invalid client assertion UIN
       role: resident
       restMethod: post
@@ -589,7 +589,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Missing_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_29
+      uniqueIdentifier: TC_ESignet_GenerateToken_29
       description: Generate token without client assertion UIN
       role: resident
       restMethod: post
@@ -610,7 +610,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Empty_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_30
+      uniqueIdentifier: TC_ESignet_GenerateToken_30
       description: Generate token with empty value in client assertion UIN
       role: resident
       restMethod: post
@@ -631,7 +631,7 @@ GenerateToken:
 
    ESignet_GenerateToken_uin_Null_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_31
+      uniqueIdentifier: TC_ESignet_GenerateToken_31
       description: Generate token with Null in client assertion UIN
       role: resident
       restMethod: post
@@ -652,7 +652,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_32
+      uniqueIdentifier: TC_ESignet_GenerateToken_32
       description: Generate token with all valid details VID
       role: resident
       restMethod: post
@@ -673,7 +673,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Invalid_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_33
+      uniqueIdentifier: TC_ESignet_GenerateToken_33
       description: Generate token with invalid ClientId VID
       role: resident
       restMethod: post
@@ -694,7 +694,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Missing_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_34
+      uniqueIdentifier: TC_ESignet_GenerateToken_34
       description: Generate token without ClientId VID
       role: resident
       restMethod: post
@@ -715,7 +715,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Null_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_35
+      uniqueIdentifier: TC_ESignet_GenerateToken_35
       description: Generate token with Null in ClientId VID
       role: resident
       restMethod: post
@@ -736,7 +736,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Empty_ClientId_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_36
+      uniqueIdentifier: TC_ESignet_GenerateToken_36
       description: Generate token with empty value in ClientId VID
       role: resident
       restMethod: post
@@ -757,7 +757,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Invalid_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_37
+      uniqueIdentifier: TC_ESignet_GenerateToken_37
       description: Generate token with invalid grant_type VID
       role: resident
       restMethod: post
@@ -778,7 +778,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Missing_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_38
+      uniqueIdentifier: TC_ESignet_GenerateToken_38
       description: Generate token without grant_type VID
       role: resident
       restMethod: post
@@ -799,7 +799,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Empty_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_39
+      uniqueIdentifier: TC_ESignet_GenerateToken_39
       description: Generate token with empty value in grant_type VID
       role: resident
       restMethod: post
@@ -820,7 +820,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Null_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_40
+      uniqueIdentifier: TC_ESignet_GenerateToken_40
       description: Generate token with Null in grant_type VID
       role: resident
       restMethod: post
@@ -841,7 +841,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_SpaceFirst_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_41
+      uniqueIdentifier: TC_ESignet_GenerateToken_41
       description: Generate token with space in the beginning of grant_type VID
       role: resident
       restMethod: post
@@ -862,7 +862,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_SpaceLast_Grant_type_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_42
+      uniqueIdentifier: TC_ESignet_GenerateToken_42
       description: Generate token with space in the end of grant_type VID
       role: resident
       restMethod: post
@@ -883,7 +883,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Invalid_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_43
+      uniqueIdentifier: TC_ESignet_GenerateToken_43
       description: Generate token with invalid code VID
       role: resident
       restMethod: post
@@ -904,7 +904,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Missing_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_44
+      uniqueIdentifier: TC_ESignet_GenerateToken_44
       description: Generate token without code VID
       role: resident
       restMethod: post
@@ -925,7 +925,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Empty_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_45
+      uniqueIdentifier: TC_ESignet_GenerateToken_45
       description: Generate token with empty value in code VID
       role: resident
       restMethod: post
@@ -946,7 +946,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Null_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_46
+      uniqueIdentifier: TC_ESignet_GenerateToken_46
       description: Generate token with Null in code VID
       role: resident
       restMethod: post
@@ -967,7 +967,7 @@ GenerateToken:
  
    ESignet_GenerateToken_Vid_Used_Code_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_47
+      uniqueIdentifier: TC_ESignet_GenerateToken_47
       description: Generate token with used code VID
       role: resident
       restMethod: post
@@ -988,7 +988,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Invalid_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_48
+      uniqueIdentifier: TC_ESignet_GenerateToken_48
       description: Generate token with invalid redirect uri VID
       role: resident
       restMethod: post
@@ -1009,7 +1009,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Missing_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_49
+      uniqueIdentifier: TC_ESignet_GenerateToken_49
       description: Generate token without redirect uri VID
       role: resident
       restMethod: post
@@ -1030,7 +1030,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Empty_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_50
+      uniqueIdentifier: TC_ESignet_GenerateToken_50
       description: Generate token with empty value in redirect uri VID
       role: resident
       restMethod: post
@@ -1051,7 +1051,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Null_Redirect_uri_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_51
+      uniqueIdentifier: TC_ESignet_GenerateToken_51
       description: Generate token with Null in redirect uri VID
       role: resident
       restMethod: post
@@ -1072,7 +1072,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Incorrect_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_52
+      uniqueIdentifier: TC_ESignet_GenerateToken_52
       description: Generate token with incorrect ClientAssertionType VID
       role: resident
       restMethod: post
@@ -1093,7 +1093,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Missing_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_53
+      uniqueIdentifier: TC_ESignet_GenerateToken_53
       description: Generate token without ClientAssertionType VID
       role: resident
       restMethod: post
@@ -1114,7 +1114,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Empty_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_54
+      uniqueIdentifier: TC_ESignet_GenerateToken_54
       description: Generate token with empty value in ClientAssertionType VID
       role: resident
       restMethod: post
@@ -1135,7 +1135,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Null_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_55
+      uniqueIdentifier: TC_ESignet_GenerateToken_55
       description: Generate token with Null in ClientAssertionType VID
       role: resident
       restMethod: post
@@ -1156,7 +1156,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_SpaceFirst_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_56
+      uniqueIdentifier: TC_ESignet_GenerateToken_56
       description: Generate token with space in the beginning of ClientAssertionType VID
       role: resident
       restMethod: post
@@ -1177,7 +1177,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_SpaceLast_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_57
+      uniqueIdentifier: TC_ESignet_GenerateToken_57
       description: Generate token with space in the end of ClientAssertionType VID
       role: resident
       restMethod: post
@@ -1198,7 +1198,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Invalid_ClientAssertionType_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_58
+      uniqueIdentifier: TC_ESignet_GenerateToken_58
       description: Generate token with invalid ClientAssertionType VID
       role: resident
       restMethod: post
@@ -1219,7 +1219,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Invalid_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_59
+      uniqueIdentifier: TC_ESignet_GenerateToken_59
       description: Generate token with invalid ClientAssertion VID
       role: resident
       restMethod: post
@@ -1240,7 +1240,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Missing_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_60
+      uniqueIdentifier: TC_ESignet_GenerateToken_60
       description: Generate token without ClientAssertion VID
       role: resident
       restMethod: post
@@ -1261,7 +1261,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Empty_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_61
+      uniqueIdentifier: TC_ESignet_GenerateToken_61
       description: Generate token with empty value in ClientAssertion VID
       role: resident
       restMethod: post
@@ -1282,7 +1282,7 @@ GenerateToken:
 
    ESignet_GenerateToken_Vid_Null_ClientAssertion_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-	  uniqueIdentifier: TC_ESignet_GenerateToken_62
+      uniqueIdentifier: TC_ESignet_GenerateToken_62
       description: Generate token with Null in ClientAssertion VID
       role: resident
       restMethod: post

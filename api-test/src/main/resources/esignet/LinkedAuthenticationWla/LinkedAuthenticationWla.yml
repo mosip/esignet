@@ -1,7 +1,7 @@
 LinkedAuthenticationWla:
    ESignet_LinkedAuthenticationWla_Consent_SameClaim_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
-	  uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_01
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_01
       description: Linked AuthenticationWla consent same claim UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -54,7 +54,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Consent_SameClaim_Vid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
-	  uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_02
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_02
       description: Linked AuthenticationWla consent same claim VID SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -107,7 +107,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Consent_User2_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
-	  uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_03
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_03
       description: Linked AuthenticationWla consent User2 UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -160,7 +160,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Consent_User2_Vid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
-	  uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_04
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_04
       description: Linked AuthenticationWla consent User2 UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -213,7 +213,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_05
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_05
       description: Linked AuthenticationWla UIN SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -265,7 +265,7 @@ LinkedAuthenticationWla:
 
    ESignet_LinkedAuthenticationWla_Vid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
-	  uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_06
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_06
       description: Linked AuthenticationWla VID SCert all valid details
       role: resident
       checkErrorsOnlyInResponse: true

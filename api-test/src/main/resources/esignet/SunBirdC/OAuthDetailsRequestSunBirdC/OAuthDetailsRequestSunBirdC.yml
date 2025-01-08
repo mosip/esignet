@@ -1,7 +1,7 @@
 OAuthDetailsRequestSunBirdC:
    ESignet_OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-	  uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdC_01
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdC_01
       description: To Request OAuthDetails for SunBirdC with all valid data
       role: resident
       restMethod: post

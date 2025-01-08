@@ -1,7 +1,7 @@
 createPartnerSelfRegistration:
    Esignet_PartnerSelfRegistration_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_01
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_01
       description: PartnerSelfRegistration with all valid details
       role: partner
       restMethod: post
@@ -24,7 +24,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Misp_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_02
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_02
       description: PartnerSelfRegistration Misp valid details 
       role: partner
       restMethod: post
@@ -47,7 +47,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Kyc_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_03
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_03
       description: PartnerSelfRegistration Kyc valid details
       role: partner
       restMethod: post
@@ -70,7 +70,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_04
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_04
       description: PartnerSelfRegistration NonAuth all valid details
       role: partner
       restMethod: post
@@ -93,7 +93,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Misp_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_05
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_05
       description: PartnerSelfRegistration Misp false valid details
       role: partner
       restMethod: post
@@ -116,7 +116,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Auth_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_06
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_06
       description: PartnerSelfRegistration Auth false valid details
       role: partner
       restMethod: post
@@ -139,7 +139,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Misp_S2_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_07
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_07
       description: PartnerSelfRegistration Misp S2 valid details
       role: partner
       restMethod: post
@@ -162,7 +162,7 @@ createPartnerSelfRegistration:
 
    Esignet_PartnerSelfRegistration_Auth_S2_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners
-	  uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_08
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_08
       description: PartnerSelfRegistration Auth S2 valid details
       role: partner
       restMethod: post
