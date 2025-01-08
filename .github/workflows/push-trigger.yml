@@ -89,12 +89,12 @@ jobs:
           # Debug the final condition_met value
           echo "Final condition_met value: $condition_met"
 
-          # Set the output for the next step
-          echo "::set-output name=is_condition::$condition_met"
+          # Set the output for the next step to pass the value correctly
+          echo "is_condition=$condition_met" >> $GITHUB_ENV
 
       - name: Debug Condition Output
         run: |
-          echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
+          echo "Condition Met: ${{ env.is_condition }}"
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
