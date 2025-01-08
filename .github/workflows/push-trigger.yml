@@ -149,7 +149,6 @@ jobs:
 
   # build the docker manually if you want docker image with without "-SNAPSHOT"
   manual-build-dockers:
-    runs-on: ubuntu-latest
     needs: build-maven-esignet
     if: ${{ github.event_name == 'workflow_dispatch' }}  # Runs only when triggered manually
     strategy:
