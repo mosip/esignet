@@ -302,7 +302,11 @@ export default function InputWithImage({
                 />
               </span>
               <span>{`${t(`${currenti18nPrefix}.invalid_input`, {
-                id: `${t(`${currenti18nPrefix}.${id.split("_")[1]}`)}`,
+                id: `${t(
+                  `${currenti18nPrefix}.${
+                    id.includes("_") ? id.split("_")[1] : id
+                  }`
+                )}`,
               })}`}</span>
             </>
           ) : (

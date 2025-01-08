@@ -28,6 +28,7 @@ import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -232,7 +233,7 @@ public class AuthorizationHelperService {
             String subject = jwt.getJWTClaimsSet().getSubject();
 
             //compares individual from auth request against subject from jwt token.
-            if(!individualId.equals(subject)){
+            if(!individualId.equals(subject)) {
                 throw new EsignetException(INVALID_INDIVIDUAL_ID);
             }
 
@@ -241,9 +242,14 @@ public class AuthorizationHelperService {
                     .findFirst();
             OIDCTransaction haltedTransaction = cacheUtilService.getHaltedTransaction(subject);
 
+            //Checks to confirm that the ID token is not mis-used or re-used
             //Validate if cookie is present with token subject as name and halted transaction is present in cache
-            if(result.isPresent() && haltedTransaction != null && haltedTransaction.getServerNonce().equals(
-                    result.get().getValue().split(SERVER_NONCE_SEPARATOR)[0])) {
+            //validate if the server nonce in the halted transaction is same as the nonce in the ID token
+            //validate if the nonce in the ID token is same as the nonce in the current OIDC transaction
+            if(result.isPresent() && haltedTransaction != null &&
+                    haltedTransaction.getServerNonce().equals(result.get().getValue().split(SERVER_NONCE_SEPARATOR)[0]) &&
+                    haltedTransaction.getServerNonce().equals(jwt.getJWTClaimsSet().getStringClaim(TokenService.NONCE)) &&
+                    transaction.getNonce().equals(jwt.getJWTClaimsSet().getStringClaim(TokenService.NONCE))) {
                 transaction.setIndividualId(haltedTransaction.getIndividualId());
                 KycAuthResult kycAuthResult = new KycAuthResult();
                 kycAuthResult.setKycToken(subject);
@@ -402,7 +408,7 @@ public class AuthorizationHelperService {
         throw new EsignetException(NO_UNIQUE_ALIAS);
     }
 
-    protected String validateAndGetSubject(String clientId, String idTokenHint) {
+    protected Pair<String,String> validateAndGetSubjectAndNonce(String clientId, String idTokenHint) {
         try {
             String[] jwtParts = idTokenHint.split("\\.");
             if (jwtParts.length == 3) {
@@ -411,7 +417,7 @@ public class AuthorizationHelperService {
                 String audience = payloadJson.getString(TokenService.AUD);
                 if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
                     throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-                return payloadJson.getString(TokenService.SUB);
+                return Pair.of(payloadJson.getString(TokenService.SUB), payloadJson.getString(TokenService.NONCE));
             }
         } catch (Exception e) {
             log.error("Failed to parse the given IDTokenHint as JWT", e);

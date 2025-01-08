@@ -503,16 +503,19 @@ public class AuthorizationHelperServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "objectMapper",objectMapper);
 
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSW4wLjl0MG5GMkNtVWZaeTlCYlA3cjM4bElhSlJSeTNaSk41MnBRNlpLSl9qVWMifQ==");
+        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSWl3aWJtOXVZMlVpT2lKelpYSjJaWEl0Ym05dVkyVWlmUS5CcU5FWF82YUhIc0J2MDVzc0ZqaXVjZ0dzQTZYSW1RWUxWaDZseXFXMXM0In0=");
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setIndividualId("individualId");
+        transaction.setNonce("server-nonce");
         Mockito.doNothing().when(tokenService).verifyIdToken(any(), any());
-        Mockito.when(httpServletRequest.getCookies()).thenReturn(createMockCookies("subject"));
+
+        Cookie cookie = new Cookie("subject", "server-nonce".concat(SERVER_NONCE_SEPARATOR).concat("path-fragment"));
+        Mockito.when(httpServletRequest.getCookies()).thenReturn(new Cookie[]{cookie});
 
         OIDCTransaction haltedTransaction = new OIDCTransaction();
         haltedTransaction.setIndividualId("individualId");
         haltedTransaction.setTransactionId("transactionId");
-        haltedTransaction.setServerNonce("subject");
+        haltedTransaction.setServerNonce("server-nonce");
         Mockito.when(cacheUtilService.getHaltedTransaction(Mockito.anyString())).thenReturn(haltedTransaction);
 
         KycAuthResult result = authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, "subject", transaction, httpServletRequest);
@@ -569,10 +572,4 @@ public class AuthorizationHelperServiceTest {
             Assert.assertEquals("auth_failed",e.getErrorCode());
         }
     }
-
-    private Cookie[] createMockCookies(String subject) {
-        Cookie cookie = new Cookie(subject, "subject");
-        return new Cookie[]{cookie};
-    }
-
 }
