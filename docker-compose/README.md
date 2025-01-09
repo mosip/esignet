@@ -6,8 +6,8 @@ This is the docker compose setup to run esignet UI and esignet-service with mock
 
 1. Open terminal and go to "docker-compose" folder.
 2. Run `docker compose --file dependent-docker-compose.yml up` to start all the dependent services.
-3. Go to command line for the project root directory and run `mvn clean install -Dgpg.skip=true -DskipTests=true`
-4. Add [esignet-mock-plugin.jar](../esignet-service/target/esignet-plugins/esignet-mock-plugin.jar) to esignet-service classpath in your IDE.
+3. Go to [esignet-with-plugins](../esignet-with-plugins) folder and run `mvn clean install -Dgpg.skip=true` from the command line.
+4. Add [esignet-mock-plugin.jar](../esignet-with-plugins/target/esignet-mock-plugin.jar) to esignet-service classpath in your IDE.
 5. Start the [EsignetServiceApplication.java](../esignet-service/src/main/java/io/mosip/esignet/EsignetServiceApplication.java) from your IDE.
 6. Import files under [postman-collection](../postman-collection) folder into your postman to test/validate OIDC flow.
 
