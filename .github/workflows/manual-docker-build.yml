@@ -1,10 +1,6 @@
-name: Manual Docker build for without -SNAPSHOT
+name: Manual Docker Build for without -SNAPSHOT
 
 on:
-  release:
-    types: [published]
-  pull_request:
-    types: [opened, reopened, synchronize]
   workflow_dispatch:
     inputs:
       message:
@@ -12,15 +8,6 @@ on:
         required: false
         default: 'Triggered for Updates'
         type: string
-  push:
-    branches:
-      - '!release-branch'
-      - master
-      - 1.*
-      - develop
-      - MOSIP*
-      - release*
-      - ES-842
 
 jobs:
   build-maven-esignet:
@@ -36,8 +23,7 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-
-  # build the docker manually if you want docker image with without "-SNAPSHOT"
+  # Build the Docker image manually if you want it without "-SNAPSHOT"
   manual-build-dockers:
     needs: build-maven-esignet
     if: ${{ github.event_name == 'workflow_dispatch' }}  # Runs only when triggered manually
