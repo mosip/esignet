@@ -7,6 +7,7 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
+import { errorCodeObj } from "../constants/clientConstants";
 
 export default function ConsentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,13 +43,6 @@ export default function ConsentPage() {
       .replace(/\+/g, "-")
       .replace(/\//g, "_");
     return hashB64;
-  };
-
-  const errorCodeObj = {
-    dismiss: "consent_rejected",
-    invalid_transaction: "invalid_transaction",
-    incompatible_browser: "incompatible_browser",
-    ekyc_failed: "ekyc_failed"
   };
 
   const handleRedirection = (redirect_uri, errorCode) => {
