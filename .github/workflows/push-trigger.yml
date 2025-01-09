@@ -149,7 +149,7 @@ jobs:
   build-maven-esignet-with-plugins:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
-      SERVICE_LOCATION: ./esignet-with-plugins
+      SERVICE_LOCATION: ./
       BUILD_ARTIFACT: esignet-with-plugins
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
