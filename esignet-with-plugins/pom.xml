@@ -15,6 +15,8 @@
 	<version>1.5.1-SNAPSHOT</version>
 	<name>esignet-with-plugins</name>
 	<packaging>pom</packaging>
+	<description> Project of MOSIP e-Signet with Plugins</description>
+	<url>https://github.com/mosip/esignet</url>
 	
 	<properties>
 		<java.version>11</java.version>
