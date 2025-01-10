@@ -49,18 +49,18 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  #build-maven-esignet-with-plugins:
-  #  uses: mosip/kattu/.github/workflows/maven-build.yml@master
-  #  with:
-  #    SERVICE_LOCATION: ./
-  #    BUILD_ARTIFACT: esignet-with-plugins
-  #  secrets:
-  #    OSSRH_USER: ${{ secrets.OSSRH_USER }}
-  #    OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-  #    OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-  #    GPG_SECRET: ${{ secrets.GPG_SECRET }}
-  #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
+#  build-maven-esignet-with-plugins:
+#    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+#    with:
+#      SERVICE_LOCATION: ./
+#      BUILD_ARTIFACT: esignet-with-plugins
+#    secrets:
+#      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+#      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+#      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+#      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+#      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+#
 #  build-dockers-with-esignet-plugins:
 #    needs: build-maven-esignet-with-plugins
 #    if: ${{ github.event_name == 'workflow_dispatch' }}  # Runs only when triggered manually

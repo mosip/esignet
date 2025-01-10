@@ -125,7 +125,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers:
-    needs: [build-maven-esignet, check_snapshot_version, publish_to_nexus]
+    needs: [build-maven-esignet, check_snapshot_version]
     if: ${{ needs.check_snapshot_version.outputs.is_condition == 'true' }}
     strategy:
       matrix:
@@ -159,7 +159,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers-with-esignet-plugins:
-    needs: [ build-maven-esignet-with-plugins, check_snapshot_version, publish_to_nexus ]
+    needs: [build-maven-esignet-with-plugins, check_snapshot_version]
     if: ${{ needs.check_snapshot_version.outputs.is_condition == 'true' }}
     strategy:
       matrix:
