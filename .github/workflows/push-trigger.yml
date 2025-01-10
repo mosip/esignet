@@ -149,6 +149,7 @@ jobs:
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
       BUILD_ARTIFACT: esignet-with-plugins
+      MAVEN_NON_EXEC_ARTIFACTS: esignet-with-plugins
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
