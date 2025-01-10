@@ -23,7 +23,7 @@ on:
       - ES-842
 
 jobs:
-  build-maven-esignet:
+  build_maven_esignet:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -96,7 +96,7 @@ jobs:
 
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
-    needs: build-maven-esignet
+    needs: build_maven_esignet
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -109,7 +109,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   sonar_analysis:
-    needs: build-maven-esignet
+    needs: build_maven_esignet
     if: "${{  github.event_name != 'pull_request' }}"
     uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
     with:
@@ -123,8 +123,8 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-dockers:
-    needs: build-maven-esignet
+  build_dockers:
+    needs: build_maven_esignet
     strategy:
       matrix:
         include:
@@ -144,7 +144,7 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-maven-esignet-with-plugins:
+  build_maven_esignet_with_plugins:
     uses: Prafulrakhade/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
@@ -157,8 +157,8 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-dockers-with-esignet-plugins:
-    needs: [build-maven-esignet-with-plugins, check_snapshot_version, publish_to_nexus]
+  build_dockers_esignet_with_plugins:
+    needs: [build_maven_esignet_with_plugins, check_snapshot_version, publish_to_nexus]
     if: ${{ needs.check_snapshot_version.outputs.is_condition == 'true' }}
     strategy:
       matrix:
@@ -179,7 +179,7 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-dockers-oidc-ui:
+  build_dockers_oidc_ui:
     strategy:
       matrix:
         include:
@@ -197,7 +197,7 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-maven-apitest-esignet:
+  build_maven_apitest_esignet:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
@@ -211,7 +211,7 @@ jobs:
 
   publish_to_nexus_apitest_esignet:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-apitest-esignet
+    needs: build_maven_apitest_esignet
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
@@ -223,8 +223,8 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-apitest-esignet-local:
-    needs: build-maven-apitest-esignet
+  build_apitest_esignet_local:
+    needs: build_maven_apitest_esignet
     runs-on: ubuntu-latest
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
@@ -269,8 +269,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: failure() # Pick up events even if the job fails or is canceled.
 
-  build-dockers_apitest_esignet:
-    needs: build-apitest-esignet-local
+  build_dockers_apitest_esignet:
+    needs: build_apitest_esignet_local
     strategy:
       matrix:
         include:
