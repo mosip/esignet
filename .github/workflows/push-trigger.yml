@@ -147,7 +147,7 @@ jobs:
   build-maven-esignet-with-plugins:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
-      SERVICE_LOCATION: ./esignet-with-plugins
+      SERVICE_LOCATION: ./esignet/esignet-with-plugins
       BUILD_ARTIFACT: esignet-with-plugins
       MAVEN_NON_EXEC_ARTIFACTS: esignet-with-plugins
     secrets:
