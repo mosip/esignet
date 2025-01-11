@@ -1,0 +1,47 @@
+name: Manual Docker Build for without -SNAPSHOT
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message for manually triggering'
+        required: false
+        default: 'Triggered for Updates'
+        type: string
+
+jobs:
+
+  build_maven_esignet_with_plugins:
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    with:
+      SERVICE_LOCATION: ./esignet-with-plugins
+      BUILD_ARTIFACT: esignet-with-plugins
+      MAVEN_NON_EXEC_ARTIFACTS: "esignet-mock-plugin.jar,mosip-identity-plugin.jar,sunbird-rc-plugin.jar"
+    secrets:
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  build_dockers_with_esignet_plugins:
+    needs: build_maven_esignet_with_plugins
+    if: ${{ github.event_name == 'workflow_dispatch' }}  # Runs only when triggered manually
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: 'esignet-with-plugins'
+            SERVICE_NAME: 'esignet-with-plugins'
+            BUILD_ARTIFACT: 'esignet-with-plugins'
+      fail-fast: false
+    name: ${{ matrix.SERVICE_NAME }}
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
