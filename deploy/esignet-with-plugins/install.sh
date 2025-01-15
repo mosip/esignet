@@ -9,7 +9,7 @@ fi
 echo Create $NS namespace
 kubectl create ns $NS
 
-function installing_esignet-with-plugins() {
+function installing_esignet_with_plugins() {
 
   while true; do
       read -p "Do you want to continue installing esignet-with-plugins services? (y/n): " ans
@@ -32,12 +32,12 @@ function installing_esignet-with-plugins() {
 
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
-  #helm repo add mosip https://mosip.github.io/mosip-helm
-  #helm repo update
+  helm repo add mosip https://mosip.github.io/mosip-helm
+  helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
-  $COPY_UTIL configmap esignet-postgres-config esignet-with-plugins $NS
+  $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
   $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
@@ -115,4 +115,4 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-installing_esignet-with-plugins   # calling function
+installing_esignet_with_plugins   # calling function
