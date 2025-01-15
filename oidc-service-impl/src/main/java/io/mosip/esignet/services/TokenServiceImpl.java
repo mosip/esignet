@@ -76,7 +76,7 @@ public class TokenServiceImpl implements TokenService {
     @Value("#{${mosip.esignet.credential.scope-resource-mapping}}")
     private Map<String, String> scopesResourceMapping;
 
-    @Value("${mosip.esignet.jwt.leeway-seconds:5}")
+    @Value("${mosip.esignet.client-assertion-jwt.leeway-seconds:5}")
     private int maxClockSkew;
     
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
