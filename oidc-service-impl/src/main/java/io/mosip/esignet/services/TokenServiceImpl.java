@@ -76,6 +76,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("#{${mosip.esignet.credential.scope-resource-mapping}}")
     private Map<String, String> scopesResourceMapping;
+
+    @Value("${mosip.esignet.jwt.leeway-seconds:5}")
+    private int maxClockSkew;
     
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
 
@@ -140,7 +143,7 @@ public class TokenServiceImpl implements TokenService {
             throw new EsignetException(ErrorConstants.INVALID_ASSERTION);
 
         try {
-      
+
             JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
                     new ImmutableJWKSet(new JWKSet(RSAKey.parse(jwk))));
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
@@ -148,7 +151,7 @@ public class TokenServiceImpl implements TokenService {
                     .issuer(clientId)
                     .subject(clientId)
                     .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
-            claimsSetVerifier.setMaxClockSkew(0);
+            claimsSetVerifier.setMaxClockSkew(maxClockSkew);
 
             ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
             jwtProcessor.setJWSKeySelector(keySelector);
