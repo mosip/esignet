@@ -274,13 +274,21 @@ const ClaimDetails = ({
   ) : (
     <>
       <img
-        className="top_left_bg_logo hidden md:block"
-        alt="top left background"
-      />
-      <img
-        className="bottom_left_bg_logo hidden md:block"
-        alt="bottom left background"
-      />
+          className="top_left_bg_logo hidden md:block"
+          alt="top left background"
+        />
+        <img
+          className="bottom_left_bg_logo hidden md:block"
+          alt="bottom left background"
+        />
+        <img
+          className="top_right_bg_logo hidden md:block"
+          alt="top right background"
+        />
+        <img
+          className="bottom_right_bg_logo hidden md:block"
+          alt="bottom right background"
+        />
       <div
         className="relative z-50 consent-details"
         aria-labelledby="modal-title"
