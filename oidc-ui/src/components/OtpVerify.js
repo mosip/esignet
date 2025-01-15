@@ -318,8 +318,6 @@ export default function OtpVerify({
 
   const onCloseHandle = () => {
     setErrorBanner(null);
-    setOtpSentMobile("");
-    setOtpSentEmail("");
   };
 
   return (
@@ -334,7 +332,7 @@ export default function OtpVerify({
 
       <form onSubmit={handleSubmit}>
         <div className="text-center break-words">
-          {status.state !== states.LOADING && !errorBanner && (
+          {status.state !== states.LOADING && (
             <div className="w-full m-auto text-gray-500 mt-5 mb-1">
               {otpSentMobile && otpSentEmail ? (
                 <>

@@ -342,7 +342,7 @@
     "invalid_no_of_challenges": "Null or Empty Authentication Challenges Not Allowed.",
     "invalid_transaction_id": "Null or Empty TransactionId Not Allowed.",
     "invalid_auth_factor_type": "Null or Empty Authentication Factor Type Not Allowed.",
-    "invalid_challenge": "Authentication Challenge is Required.",
+    "invalid_challenge": "Credentials you entered are not valid. Please verify and check again.",
     "invalid_status": "Status value is invalid or unsupported. Please try with valid value.",
     "invalid_accepted_claim": "The user claims provided are invalid or not supported. Please try again.",
     "invalid_auth_code": "Unable to authorize. Please try again.",
@@ -517,7 +517,10 @@
       "send_otp_failed_msg": "Unable to send OTP. Please try again.",
       "invalid_otp_channel": "Invalid OTP Channel Provided.",
       "auth_failed": "OTP authentication failed. Please try again.",
-      "IDA-MLC-018": "Please Enter Valid UIN."
+      "IDA-MLC-018": "Please Enter Valid UIN.",
+      "invalid_challenge": "The OTP you entered is not valid. Please enter valid OTP and try again.",
+      "invalid_challenge_length": "The OTP you entered is too short or too long. Please verify and try again.",
+      "invalid_challenge_format": "The OTP you entered is not valid. Please enter valid OTP and try again."
     },
     "biometrics": {
       "IDA-BIA-001": "Biometric data did not match. Please try again.",
@@ -538,12 +541,18 @@
       "IDA-BIA-017": "Unable to perform biometric match due to a technical issue. Please try again later or contact support if the problem persists.",
       "IDA-BIA-018": "Unable to Process the Request due to a Technical Issue",
       "auth_failed": "Biometric authentication failed. Please try again.",
-      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID."
+      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID.",
+      "invalid_challenge": "Biometric data you entered is not valid. Please verify and try again.",
+      "invalid_challenge_length": "Biometric data you entered is not valid. Please verify and try again.",
+      "invalid_challenge_format": "Biometric data you entered is not valid. Please verify and try again."
     },
     "pin": {
       "invalid_pin": "The PIN you entered is incorrect. Please check and enter the valid PIN.",
       "auth_failed": "PIN authentication failed. Please try again.",
-      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID."
+      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID.",
+      "invalid_challenge": "The PIN you entered is not valid. Please enter valid PIN and try again.",
+      "invalid_challenge_format": "The PIN you entered is not valid. Please enter valid PIN and try again.",
+      "invalid_challenge_length": "The PIN you entered is too short or too long. Please verify and try again."
     },
     "wallet": {
       "failed_to_link": "Failed to link wallet. Please try scanning the QR code again.",
@@ -551,20 +560,29 @@
       "invalid_qrcode_config": "Invalid QRCode configuration. Please report to the site admin.",
       "link_code_refresh_failed": "Failed to Load",
       "auth_failed": "Wallet authentication failed. Please try again.",
-      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID."
+      "IDA-MLC-018": "The UIN/VID you entered is incorrect. Please Enter Valid UIN/VID.",
+      "invalid_challenge": "Wallet authentication failed. Please verify and try again.",
+      "invalid_challenge_length": "Wallet authentication failed. Please verify and try again.",
+      "invalid_challenge_format": "Wallet authentication failed. Please verify and try again."
     },
     "password": {
       "auth_failed": "Username or password is not valid. Please enter valid credentials.",
       "password_error_msg": "The password you entered is not valid. Please enter valid password.",
       "IDA-MLC-018": "The username you entered is not valid. Please enter valid username.",
       "IDA-PSD-001": "Username or password is not valid. Please enter valid credentials.",
-      "IDA-PSD-002": "Username or password is not valid. Please enter valid credentials."
+      "IDA-PSD-002": "Username or password is not valid. Please enter valid credentials.",
+      "invalid_challenge": "The password you entered is not valid. Please enter valid password and try again.",
+      "invalid_challenge_format": "The password you entered is not valid. Please enter valid password and try again.",
+      "invalid_challenge_length": "The password you entered is too short or too long. Please verify and try again."
     },
     "kba": {
       "auth_failed": "Login unsuccessful. Please check your credentials and try again."
     },
     "kbi": {
-      "auth_failed": "Login unsuccessful. Please check your credentials and try again."
+      "auth_failed": "Login unsuccessful. Please check your credentials and try again.",
+      "invalid_challenge": "KBI details you entered are not valid. Please verify and try again.",
+      "invalid_challenge_length": "KBI details you entered are not valid. Please verify and try again.",
+      "invalid_challenge_format": "KBI details you entered are not valid. Please verify and try again."
     },
     "statusCodeHeader": {
       "400": "Bad Request",
