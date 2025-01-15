@@ -71,6 +71,7 @@ public class TokenServiceTest {
         transaction.setPartnerSpecificUserToken("psut");
         transaction.setNonce("nonce");
         transaction.setAuthTimeInSeconds(22);
+        transaction.setServerNonce("server-nonce");
         transaction.setAHash("access-token-hash");
         transaction.setProvidedAuthFactors(new HashSet<>());
         Mockito.when(authenticationContextClassRefUtil.getACRs(Mockito.any())).thenReturn(Arrays.asList("generated-code", "static-code"));
@@ -85,13 +86,13 @@ public class TokenServiceTest {
         Assert.assertEquals("generated-code static-code", jsonObject.get(ACR));
         Assert.assertEquals("test-issuer", jsonObject.get(ISS));
 
-        token = tokenService.getIDToken("subject", "audience",30, transaction);
+        token = tokenService.getIDToken("subject", "audience",30, transaction, transaction.getServerNonce());
         Assert.assertNotNull(token);
         jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         Assert.assertEquals("audience", jsonObject.get(AUD));
         Assert.assertEquals("subject", jsonObject.get(SUB));
         Assert.assertEquals(transaction.getAuthTimeInSeconds(), jsonObject.getLong(AUTH_TIME));
-        Assert.assertEquals(transaction.getNonce(), jsonObject.get(NONCE));
+        Assert.assertEquals(transaction.getServerNonce(), jsonObject.get(NONCE));
         Assert.assertEquals("generated-code static-code", jsonObject.get(ACR));
         Assert.assertEquals("test-issuer", jsonObject.get(ISS));
     }

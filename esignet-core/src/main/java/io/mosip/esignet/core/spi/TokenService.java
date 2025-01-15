@@ -134,11 +134,13 @@ public interface TokenService {
 
     /**
      * Creates ID token with the given subject and audience and nonce
+     *
      * @param subject
      * @param audience
      * @param validitySeconds
      * @param transaction
+     * @param nonce
      * @return
      */
-     String getIDToken(String subject, String audience, int validitySeconds, OIDCTransaction transaction);
+     String getIDToken(String subject, String audience, int validitySeconds, OIDCTransaction transaction, String nonce);
 }
