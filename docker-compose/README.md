@@ -38,9 +38,3 @@ This is the docker compose setup to run esignet UI and esignet-service with mock
 ## How to add user identity in the mock-identity-system?
 
 1. Import files under [postman-collection](../postman-collection) folder into your postman. And invoke requests under `User Mgmt/Mock` folder in postman.
-
-
-
-
-
-
