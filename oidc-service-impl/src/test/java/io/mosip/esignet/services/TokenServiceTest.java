@@ -61,6 +61,7 @@ public class TokenServiceTest {
         ReflectionTestUtils.setField(tokenService, "signatureService", getSignatureService());
         ReflectionTestUtils.setField(tokenService, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(tokenService, "issuerId", "test-issuer");
+        ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
     }
 
     @Test
@@ -126,6 +127,37 @@ public class TokenServiceTest {
         Assert.assertEquals("test-issuer", jsonObject.get(ISS));
         Assert.assertEquals("test_cnonce", jsonObject.get(C_NONCE));
         Assert.assertNotNull(jsonObject.get(C_NONCE_EXPIRES_IN));
+    }
+
+    @Test(expected = InvalidRequestException.class)
+    public void verifyClientAssertionToken_withExpiredTokenNotWithinClockSkew_thenException() throws JOSEException {
+        ReflectionTestUtils.setField(tokenService, "maxClockSkew", 0);
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("audience")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() - 3000))
+                .issuer("client-id")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+    }
+
+    @Test
+    public void verifyClientAssertionToken_withExpiredTokenWithinClockSkew_thenPass() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("audience")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() - 3000))
+                .issuer("client-id")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
     }
 
     @Test(expected = EsignetException.class)
