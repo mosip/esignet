@@ -486,6 +486,8 @@ input[type="checkbox"]:hover {
   outline: none;
   padding-left: 0rem;
   font: normal normal normal 16px/20px Roboto;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 [dir="ltr"] .input-box input {
