@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs esignet helm chart
+# Installs esignet-with-plugins helm chart
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
@@ -9,10 +9,10 @@ fi
 echo Create $NS namespace
 kubectl create ns $NS
 
-function installing_esignet() {
+function installing_esignet-with-plugins() {
 
   while true; do
-      read -p "Do you want to continue installing esignet services? (y/n): " ans
+      read -p "Do you want to continue installing esignet-with-plugins services? (y/n): " ans
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
@@ -32,12 +32,12 @@ function installing_esignet() {
 
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
-  helm repo add mosip https://mosip.github.io/mosip-helm
-  helm repo update
+  #helm repo add mosip https://mosip.github.io/mosip-helm
+  #helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
-  $COPY_UTIL configmap esignet-postgres-config esignet $NS
+  $COPY_UTIL configmap esignet-postgres-config esignet-with-plugins $NS
   $COPY_UTIL configmap redis-config redis $NS
   $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
@@ -69,19 +69,43 @@ function installing_esignet() {
     ENABLE_INSECURE='--set enable_insecure=true';
   fi
 
-  read -p "Provide the URL to download the plugins zip " plugin_url
-  read -p "Provide the plugin jar name (with extension eg., test-plugin.jar) " plugin_jar
-  plugin_option="--set pluginNameEnv=$plugin_jar --set pluginUrlEnv=$plugin_url"
+  while true; do
+    read -p "Do you want to use the default plugins? (y/n): " ans
+    if [[ "$ans" == "y" || "$ans" == "Y" ]]; then
+      echo "Default plugins are listed below, please provide the correct plugin number."
+      echo "1. esignet-mock-plugin.jar"
+      echo "2. mosip-identity-plugin.jar"
+      read -p "Enter the plugin number: " plugin_no
+        while true; do
+          if [[ "$plugin_no" == "1" ]]; then
+            plugin_option="--set pluginNameEnv=esignet-mock-plugin.jar"
+            break
+          elif [[ "$plugin_no" == "2" ]]; then
+            plugin_option="--set pluginNameEnv=mosip-identity-plugin.jar"
+            break
+          else
+            echo "please provide the correct plugin number (1 or 2)."
+          fi
+        done
+      break
+    elif [[ "$ans" == "n" || "$ans" == "N" ]]; then
+      read -p "Provide the URL to download the plugins zip " plugin_url
+      read -p "Provide the plugin jar name (with extension eg., test-plugin.jar) " plugin_jar
+      plugin_option="--set pluginNameEnv=$plugin_jar --set pluginUrlEnv=$plugin_url"
+      break
+    else
+      echo " Invalid response. Please respond with y (yes) or n (no)."
+    fi
+  done
 
-  echo Installing esignet
-  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
-  --set image.repository=mosipdev/esignet --set image.tag=develop \
+  echo Installing esignet-with-plugins
+  helm -n $NS install esignet-with-plugins mosip/esignet --version $CHART_VERSION \
   $ENABLE_INSECURE $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
-  echo Installed esignet service
+  echo Installed esignet-with-plugins service
   return 0
 }
 
@@ -91,4 +115,4 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-installing_esignet   # calling function
+installing_esignet-with-plugins   # calling function
