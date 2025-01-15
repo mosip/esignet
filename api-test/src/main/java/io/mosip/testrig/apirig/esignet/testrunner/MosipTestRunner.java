@@ -206,7 +206,7 @@ public class MosipTestRunner {
 				TestNG runner = new TestNG();
 				List<String> suitefiles = new ArrayList<>();
 
-				if (file.getName().toLowerCase().contains(GlobalConstants.ESIGNET)) {
+				if (file.getName().toLowerCase().contains("mastertestsuite")) {
 					BaseTestCase.setReportName(GlobalConstants.ESIGNET);
 					suitefiles.add(file.getAbsolutePath());
 					runner.setTestSuites(suitefiles);
