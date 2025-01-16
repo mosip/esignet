@@ -1,6 +1,7 @@
 package io.mosip.testrig.apirig.esignet.utils;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -235,9 +236,14 @@ public class EsignetUtil extends AdminTestUtil {
 	}
 	
 	public static String inputstringKeyWordHandeler(String jsonString, String testCaseName) {
-		if (jsonString.contains(GlobalConstants.TIMESTAMP))
+		if (jsonString.contains(GlobalConstants.TIMESTAMP)) {
 			jsonString = replaceKeywordValue(jsonString, GlobalConstants.TIMESTAMP, generateCurrentUTCTimeStamp());
+		}
 		
+		if (jsonString.contains("$UNIQUENONCEVALUEFORESIGNET$")) {
+			jsonString = replaceKeywordValue(jsonString, "$UNIQUENONCEVALUEFORESIGNET$",
+					String.valueOf(Calendar.getInstance().getTimeInMillis()));
+		}
 		
 		return jsonString;
 		
