@@ -50,7 +50,7 @@ export default function Background({
           </h1>
           <h1 className="flex text-center justify-center title-font sm:text-base text-base mb-3 font-small text-gray-400">{subheading}</h1>
         </div>
-        <div className="w-full flex mb-4 justify-center items-center">
+        {/* <div className="w-full flex mb-4 justify-center items-center">
           <img
             className="object-contain client-logo-size"
             src={clientLogoPath}
@@ -61,7 +61,7 @@ export default function Background({
             className="object-contain brand-only-logo client-logo-size"
             alt={t("logo_alt")}
           />
-        </div>
+        </div> */}
         <div
           className="text-black lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 login-card-separator"
         ></div>
