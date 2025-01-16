@@ -16,7 +16,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -41,7 +41,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -66,7 +66,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -91,7 +91,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -116,7 +116,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -141,7 +141,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -166,7 +166,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -191,7 +191,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -216,7 +216,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -241,7 +241,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -265,7 +265,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -290,7 +290,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -315,7 +315,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -339,7 +339,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -363,7 +363,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -387,7 +387,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -411,7 +411,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -435,7 +435,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -459,7 +459,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -483,7 +483,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -507,7 +507,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -532,7 +532,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -557,7 +557,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -582,7 +582,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -607,7 +607,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -632,7 +632,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -657,7 +657,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -682,7 +682,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -707,7 +707,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -732,7 +732,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -757,7 +757,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -782,7 +782,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -807,7 +807,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:biometrics",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -832,7 +832,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -857,7 +857,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -887,7 +887,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -917,7 +917,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -947,7 +947,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -977,7 +977,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1007,7 +1007,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1037,7 +1037,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1067,7 +1067,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1097,7 +1097,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1127,7 +1127,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1157,7 +1157,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1187,7 +1187,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1217,7 +1217,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1247,7 +1247,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1277,7 +1277,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1307,7 +1307,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1337,7 +1337,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1367,7 +1367,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1397,7 +1397,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1422,7 +1422,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp/acr:static?:code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1447,7 +1447,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-codemosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1472,7 +1472,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "$REMOVE$",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1497,7 +1497,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1522,7 +1522,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1547,7 +1547,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en",
 	    "claims": "$REMOVE$"
@@ -1573,7 +1573,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en",
 	    "claims": ""
@@ -1603,7 +1603,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1628,7 +1628,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "$REMOVE$"
 }'
@@ -1653,7 +1653,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "hn"
 }'
@@ -1678,7 +1678,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": ""
 }'
@@ -1703,7 +1703,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "null"
 }'
@@ -1728,7 +1728,7 @@ OAuthDetailsRequest:
       	"display": "$REMOVE$",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1753,7 +1753,7 @@ OAuthDetailsRequest:
       	"display": "abc",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1783,7 +1783,7 @@ OAuthDetailsRequest:
       	"display": "",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1812,7 +1812,7 @@ OAuthDetailsRequest:
       	"display": "null",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1842,7 +1842,7 @@ OAuthDetailsRequest:
       	"display": " ",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -1871,7 +1871,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "$$@#fdhfdkl",
 	    "claimsLocales": "en"
 }'
@@ -1896,7 +1896,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "$REMOVE$",
 	    "claimsLocales": "en"
 }'
@@ -1921,7 +1921,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "",
 	    "claimsLocales": "en"
 }'
@@ -1946,7 +1946,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "null",
 	    "claimsLocales": "en"
 }'
@@ -1971,33 +1971,8 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "aa1hmnkz7ee0c1te988gw9bkos5pb4mi830uf6wrxj6hs80z07rmtwpzvjr9qjhgw8aw2rf9iljprvvxxh4y94je13gl4vr9vwaq358tnov5bh3likbef6elkqnqvnn4gu9fh1pzui2b459m0xfwjdsjlinll1s6kayk29d01i3vx1uagewcoc39ssxm4feyci06zoimd6ot3c0w3w8genv1d0hk4ni9ym1mjkwclffj5tfiglipy9sn5fyjqway9c6y",
-	    "claimsLocales": "en"
-}'
-      output: '{
-       
-}'
-
-   ESignet_OAuthDetailsRequest_Invalid_Nonce_Pos:
-      endPoint: /v1/esignet/authorization/oauth-details
-      description: Oauthdetails request with invalid Nonce
-      role: resident
-      restMethod: post
-      checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
-      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
-      	"scope": "openid resident-service profile",
-      	"responseType": "code",
-      	"redirectUri": "$IDPREDIRECTURI$",
-      	"display": "popup",
-	    "prompt": "login",
-	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "$$#@DSNsds",
-	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
       output: '{
@@ -2054,31 +2029,6 @@ OAuthDetailsRequest:
        
 }'
 
-   ESignet_OAuthDetailsRequest_Null_Nonce_Pos:
-      endPoint: /v1/esignet/authorization/oauth-details
-      description: Oauthdetails request with Null in Nonce
-      role: resident
-      restMethod: post
-      checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
-      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
-      	"scope": "openid resident-service profile",
-      	"responseType": "code",
-      	"redirectUri": "$IDPREDIRECTURI$",
-      	"display": "popup",
-	    "prompt": "login",
-	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "null",
-	    "state": "eree2311",
-	    "claimsLocales": "en"
-}'
-      output: '{
-       
-}'
-
    ESignet_OAuthDetailsRequest_Invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
       description: Oauthdetails request with invalid requestTime
@@ -2096,7 +2046,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -2126,7 +2076,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -2156,7 +2106,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "abc",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -2186,7 +2136,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "$REMOVE$",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -2210,7 +2160,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -2239,7 +2189,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "null",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -2269,7 +2219,7 @@ OAuthDetailsRequest:
       	"display": "popup",
 	    "prompt": "select account",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'

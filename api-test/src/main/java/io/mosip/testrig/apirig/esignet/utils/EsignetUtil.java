@@ -306,6 +306,11 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, "$CHALLENGEVALUEFORSUNBIRDC$", challengeValue);
 		}
 		
+		if (jsonString.contains("$UNIQUENONCEVALUEFORESIGNET$")) {
+			jsonString = replaceKeywordValue(jsonString, "$UNIQUENONCEVALUEFORESIGNET$",
+					String.valueOf(Calendar.getInstance().getTimeInMillis()));
+		}
+		
 		if (jsonString.contains("$ENCRYPTEDSESSIONKEY$")) {
 			jsonString = replaceKeywordValue(jsonString, "$ENCRYPTEDSESSIONKEY$", encryptedSessionKeyString);
 		}
