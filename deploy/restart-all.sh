@@ -10,7 +10,7 @@ fi
 function Restarting_All() {
   ROOT_DIR=`pwd`
 
-  declare -a module=("esignet"
+  declare -a module=("esignet-with-plugins"
                      "captcha"
                      "oidc-ui"
                     )
