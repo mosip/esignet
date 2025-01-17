@@ -13,7 +13,7 @@ function installing_eSignet() {
 
   helm repo add mosip https://mosip.github.io/mosip-helm
   # List of modules to install
-  declare -a modules=("esignet" "oidc-ui")
+  declare -a modules=("esignet-with-plugins" "oidc-ui")
 
   echo "Installing eSignet services"
 
