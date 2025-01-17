@@ -5014,7 +5014,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: d3di5edwwt70b
+        id: t315hcecaulyy
   /binding/v2/binding-otp:
     post:
       tags:
@@ -5970,8 +5970,6 @@ components:
                     x-stoplight:
                       id: 5q6luh9khretn
                     description: |2-
-
-
 
 
 
