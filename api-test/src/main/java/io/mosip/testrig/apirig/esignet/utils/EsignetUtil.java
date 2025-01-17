@@ -232,8 +232,14 @@ public class EsignetUtil extends AdminTestUtil {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
-		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbird")) {
+		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice")) {
 			// Let run test cases eSignet & Sunbird (for identity)   -- only KBI 
+			
+			String endpoint = testCaseDTO.getEndPoint();
+			
+			if (testCaseName.contains("SunBird") == false) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
 			
 		}
 		

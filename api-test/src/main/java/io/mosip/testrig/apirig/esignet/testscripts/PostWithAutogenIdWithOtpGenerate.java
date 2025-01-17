@@ -244,7 +244,9 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 	public void waittime() {
 		try {
 			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
-					.contains("mockauthenticationservice") == false) {
+					.contains("mockauthenticationservice") == false
+					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+							.contains("sunbirdrcauthenticationservice") == false) {
 				if (!testCaseName.contains(GlobalConstants.ESIGNET_)) {
 					long delayTime = Long.parseLong(properties.getProperty("Delaytime"));
 					logger.info("waiting for " + delayTime + " mili secs after VID Generation In RESIDENT SERVICES");

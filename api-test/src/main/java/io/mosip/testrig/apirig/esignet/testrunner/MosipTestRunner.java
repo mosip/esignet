@@ -98,7 +98,7 @@ public class MosipTestRunner {
 			
 
 			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == false
-					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbird") == false) {				
+					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice") == false) {				
 				KeycloakUserManager.removeUser();
 				KeycloakUserManager.createUsers();
 				KeycloakUserManager.closeKeycloakInstance();
