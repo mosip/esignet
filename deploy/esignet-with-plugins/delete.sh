@@ -12,7 +12,7 @@ function Deleting_esignet_with_plugins() {
       read -p "Are you sure you want to delete all esignet-with-plugins helm charts?(Y/n) " yn
       if [[ $yn = "Y" ]] || [[ $yn = "y" ]];
         then
-          helm -n $NS delete esignet-with-plugins
+          helm -n $NS delete esignet
           break
         else
           break
