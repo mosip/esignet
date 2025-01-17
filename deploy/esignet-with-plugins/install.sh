@@ -99,7 +99,7 @@ function installing_esignet_with_plugins() {
   done
 
   echo Installing esignet-with-plugins
-  helm -n $NS install esignet-with-plugins mosip/esignet --version $CHART_VERSION \
+  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
   $ENABLE_INSECURE $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
