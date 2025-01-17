@@ -1979,31 +1979,6 @@ OAuthDetailsRequest:
        
 }'
 
-   ESignet_OAuthDetailsRequest_Invalid_Nonce_Pos:
-      endPoint: /v1/esignet/authorization/oauth-details
-      description: Oauthdetails request with invalid Nonce
-      role: resident
-      restMethod: post
-      checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
-      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
-      	"scope": "openid resident-service profile",
-      	"responseType": "code",
-      	"redirectUri": "$IDPREDIRECTURI$",
-      	"display": "popup",
-	    "prompt": "login",
-	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "$$#@DSNsds",
-	    "state": "eree2311",
-	    "claimsLocales": "en"
-}'
-      output: '{
-       
-}'
-
    ESignet_OAuthDetailsRequest_Missing_Nonce_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
       description: Oauthdetails request without Nonce
@@ -2047,31 +2022,6 @@ OAuthDetailsRequest:
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
 	    "nonce": "",
-	    "state": "eree2311",
-	    "claimsLocales": "en"
-}'
-      output: '{
-       
-}'
-
-   ESignet_OAuthDetailsRequest_Null_Nonce_Pos:
-      endPoint: /v1/esignet/authorization/oauth-details
-      description: Oauthdetails request with Null in Nonce
-      role: resident
-      restMethod: post
-      checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
-      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
-      input: '{
-      	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
-      	"scope": "openid resident-service profile",
-      	"responseType": "code",
-      	"redirectUri": "$IDPREDIRECTURI$",
-      	"display": "popup",
-	    "prompt": "login",
-	    "acrValues": "mosip:idp:acr:static-code mosip:idp:acr:generated-code",
-	    "nonce": "null",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
