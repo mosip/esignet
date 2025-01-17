@@ -75,7 +75,7 @@ function installing_esignet() {
 
   echo Installing esignet
   helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
-  --set image.repository=mosipdev/esignet --set image.tag=develop \
+  --set image.repository=mosipdev/esignet --set image.tag=release-1.5.x \
   $ENABLE_INSECURE $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
