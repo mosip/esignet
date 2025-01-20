@@ -81,7 +81,7 @@ OAuthDetailsRequestLinkedConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestNoClaims
-      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      outputTemplate: esignet/error
       input: '{
        	"requestTime": "$TIMESTAMP$",
        	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
