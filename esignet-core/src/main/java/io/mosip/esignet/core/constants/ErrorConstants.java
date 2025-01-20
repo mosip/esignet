@@ -92,6 +92,5 @@ public class ErrorConstants {
     public static final String INVALID_VERIFICATION = "invalid_verification";
     public static final String INVALID_VERIFIED_CLAIMS = "invalid_verified_claims";
     public static final String INVALID_PURPOSE="invalid_purpose";
-
     public static final String VERIFICATION_INCOMPLETE = "verification_incomplete";
 }
