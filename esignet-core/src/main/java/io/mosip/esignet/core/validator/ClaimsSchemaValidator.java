@@ -29,7 +29,6 @@ public class ClaimsSchemaValidator implements ConstraintValidator<ClaimsSchema, 
     @Value("${mosip.esignet.claims.schema.url}")
     private String schemaUrl;
 
-    @NotNull
     private JsonSchema schema;
 
     @Autowired
