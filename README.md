@@ -38,7 +38,7 @@ eSignet repository contains following:
 
 `NOTE: All the Verifiable Credential Issuance endpoints are moved to Inji Certify(Inji stack). Refer` [Inji Certify repository](https://github.com/mosip/inji-certify)` for more information.`
 
-## Databases
+## Databases.
 Refer to [SQL scripts](db_scripts).
 
 ## Build (for developers)
