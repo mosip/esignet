@@ -1,7 +1,7 @@
 #image:
 #  registry: docker.io
-#  repository: mosipdev/partner-onboarder
-#  tag: develop
+#  repository: mosipid/partner-onboarder
+#  tag: 1.3.0-beta.1
 resources:
   limits:
     cpu: 500m
