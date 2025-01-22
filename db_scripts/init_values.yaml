@@ -4,7 +4,7 @@ dbUserPasswords:
 databases:
   mosip_esignet:
     enabled: true
-    host: "esignet-postgresql.<sandbox>.mosip.net"
+    host: "postgres-postgresql.postgres"
     port: 5432
     su:
       user: postgres
