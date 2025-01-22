@@ -18,7 +18,7 @@ public class SharedComponentConfig {
     @Bean
     public CaptchaHelper captchaHelper(@Value("${mosip.esignet.captcha.validator-url}") String validatorUrl,
                                        @Value("${mosip.esignet.captcha.module-name}") String moduleName,
-                                       @Value("#{'${mosip.esignet.captcha.required}'}")List<String> captchaRequired) {
+                                       @Value("#{'${mosip.esignet.captcha.required:}'}")List<String> captchaRequired) {
         return new CaptchaHelper(restTemplate, validatorUrl, moduleName, captchaRequired);
     }
 }
