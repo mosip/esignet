@@ -1,6 +1,7 @@
 gitRepo:
   uri: https://github.com/mosip/esignet-config
-  version: develop
+  ## version should be "Tag" or "Branch" name
+  version: ""
   ## Folders within the base repo where properties may be found.
   searchFolders: ""
   private: false
