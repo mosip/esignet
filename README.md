@@ -18,7 +18,7 @@ e-Signet repository contains following:
 8. vci-service-impl - Credential issuance service implementation classes.
 9. db_scripts - Contains all the db scripts required to setup or upgrade the DB for esignet module.
 
-## Databases
+## Databases.
 Refer to [SQL scripts](db_scripts).
 
 ## Build (for developers)
