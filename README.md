@@ -14,7 +14,7 @@ This repository contains limited OpenId protocol implementation with:
 * RFC 5785 - Followed for both openid and oauth well-knowns
 * Identity Assurance 1.0
 
-## High level overview of eSignet with external systems
+## High level overview of eSignet with external systems..
 
 ![esignet-overview.png](docs/esignet-overview.png)
 
