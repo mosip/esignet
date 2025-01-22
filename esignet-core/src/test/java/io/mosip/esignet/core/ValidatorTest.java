@@ -79,6 +79,16 @@ public class ValidatorTest {
         discoveryMap.put("claims_supported", Arrays.asList("name", "gender", "address"));
         when(authenticationContextClassRefUtil.getSupportedACRValues()).thenReturn(mockACRs);
         when(authenticator.isSupportedOtpChannel("email")).thenReturn(true);
+
+        ReflectionTestUtils.setField(claimSchemaValidator,"resourceLoader",resourceLoader);
+        ReflectionTestUtils.setField(claimSchemaValidator,"objectMapper",mapper);
+        ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:/verified_claims_request_schema_test.json");
+        claimSchemaValidator.initSchema();
+
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
+        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
+        clientAdditionalConfigValidator.initSchema();
     }
 
     // ============================ Display Validator =========================
@@ -677,10 +687,6 @@ public class ValidatorTest {
     @Test
     public void claimSchemaValidator_withValidDetails_thenPass() throws IOException {
 
-        ReflectionTestUtils.setField(claimSchemaValidator, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(claimSchemaValidator, "objectMapper", mapper);
-        ReflectionTestUtils.setField(claimSchemaValidator, "schemaUrl", "classpath:/verified_claims_request_schema_test.json");
-
         String address = "{\"essential\":true}";
         String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"income-tax\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
 
@@ -704,10 +710,6 @@ public class ValidatorTest {
 
     @Test
     public void claimSchemaValidator_withTrustFrameWorkAsNull_thenFail() throws IOException {
-
-        ReflectionTestUtils.setField(claimSchemaValidator, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(claimSchemaValidator, "objectMapper", mapper);
-        ReflectionTestUtils.setField(claimSchemaValidator, "schemaUrl", "classpath:/verified_claims_request_schema_test.json");
 
         String address = "{\"essential\":true}";
         String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":null}},\"claims\":{\"name\":null,\"email\":{\"essential\":true}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
@@ -733,10 +735,6 @@ public class ValidatorTest {
     @Test
     public void claimSchemaValidator_withEssentialAsNonBoolean_thenFail() throws IOException {
 
-        ReflectionTestUtils.setField(claimSchemaValidator, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(claimSchemaValidator, "objectMapper", mapper);
-        ReflectionTestUtils.setField(claimSchemaValidator, "schemaUrl", "classpath:/verified_claims_request_schema_test.json");
-
         String address = "{\"essential\":true}";
         String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":1}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kaif\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
 
@@ -760,10 +758,6 @@ public class ValidatorTest {
 
     @Test
     public void test_ClaimSchemaValidator_withInvalidValue_thenFail() throws IOException {
-
-        ReflectionTestUtils.setField(claimSchemaValidator, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(claimSchemaValidator, "objectMapper", mapper);
-        ReflectionTestUtils.setField(claimSchemaValidator, "schemaUrl", "classpath:/verified_claims_request_schema_test.json");
 
         String address = "{\"essential\":true}";
         String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"name\":null,\"email\":{\"essential\":1}}},{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"birthdate\":{\"essential\":true},\"address\":null}},{\"verification\":{\"trust_framework\":{\"value\":\"kf\"}},\"claims\":{\"gender\":{\"essential\":true},\"email\":{\"essential\":true}}}]";
@@ -839,18 +833,12 @@ public class ValidatorTest {
 
     @Test
     public void test_ClientAdditionalConfigValidator_withValidValue_thenPass() {
-        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
-        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
         Map<String, Object> validAdditionalConfig = getValidAdditionalConfig();
         Assert.assertTrue(clientAdditionalConfigValidator.isValid(validAdditionalConfig, null));
     }
 
     @Test
     public void test_ClientAdditionalConfigValidator_withInvalidValue_thenFail() {
-        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
-        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
         for (Map<String, Object> additionalConfig : getInvalidAdditionalConfigs()) {
             Assert.assertFalse(clientAdditionalConfigValidator.isValid(additionalConfig, null));
         }
