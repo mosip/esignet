@@ -8,7 +8,7 @@
 	<name>apitest-esignet</name>
 	<description>Parent project of MOSIP Esignet apitests</description>
 	<url>https://github.com/mosip/esignet</url>
-	<version>1.5.0-SNAPSHOT</version>
+	<version>1.5.0</version>
 
 	<licenses>
 		<license>
@@ -49,7 +49,7 @@
 		<maven.source.plugin.version>2.2.1</maven.source.plugin.version>
 
 		<git.commit.id.plugin.version>3.0.1</git.commit.id.plugin.version>
-		<fileName>apitest-esignet-1.5.0-SNAPSHOT-jar-with-dependencies</fileName>
+		<fileName>apitest-esignet-1.5.0-jar-with-dependencies</fileName>
 	</properties>
 
 	<dependencies>
