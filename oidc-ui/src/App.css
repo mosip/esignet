@@ -444,6 +444,11 @@ input[type="checkbox"]:hover {
   cursor: pointer;
 }
 
+input {
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+}
+
 .input-box {
   display: flex;
   align-items: center;
