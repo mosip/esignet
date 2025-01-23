@@ -24,7 +24,7 @@ on:
 
 jobs:
   build_maven_esignet:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    uses: rajapandi1234/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
       BUILD_ARTIFACT: esignet
