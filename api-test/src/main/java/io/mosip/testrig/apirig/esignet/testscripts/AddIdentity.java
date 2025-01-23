@@ -95,7 +95,7 @@ public class AddIdentity extends AdminTestUtil implements ITest {
 		
 		if (testCaseDTO.getEndPoint().contains("mock-identity-system")) {
 			String individualIDStr = String.valueOf(Calendar.getInstance().getTimeInMillis());
-			String phoneStr = generateRandomNumberString(10);
+			String phoneStr = "+91" + generateRandomNumberString(10);
 			String emailStr = testCaseName + "@mosip.net";
 			String passWordStr = properties.getProperty("passwordForAddIdentity");
 			String url = ApplnURI.replace("-internal", "") + testCaseDTO.getEndPoint();
