@@ -9,6 +9,12 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  redis:
+    image: redis:6.0
+    ports:
+      - "6379:6379"
+    restart: always
+
   mock-identity-system:
     image: 'mosipdev/mock-identity-system:release-0.10.1-temp'
     user: root
@@ -39,6 +45,7 @@ services:
     depends_on:
       - database
       - mock-identity-system
+      - redis
 
   esignet-ui:
     image: 'mosipdev/oidc-ui:release-1.5.1-temp'
