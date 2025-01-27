@@ -98,6 +98,9 @@ public class OAuthServiceTest {
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setIndividualId("individual-id");
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
@@ -137,6 +140,9 @@ public class OAuthServiceTest {
         oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance("KgFzotzIWt3ZMFusBrpCIyWTP-F9QJdtM4Qb8m3I-4Q",
                 "S256"));
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
@@ -191,6 +197,9 @@ public class OAuthServiceTest {
         oidcTransaction.setRequestedClaimDetails(requestedClaimDetail);
 
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
@@ -248,6 +257,9 @@ public class OAuthServiceTest {
         oidcTransaction.setRequestedClaimDetails(requestedClaimDetail);
 
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
@@ -288,6 +300,9 @@ public class OAuthServiceTest {
         oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance("KgFzotzIWt3ZMFusBrpCIyWTP-F9QJdtM4Qb8m3I-4Q",
                 "S256"));
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
 
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
@@ -331,6 +346,9 @@ public class OAuthServiceTest {
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setIndividualId("individual-id");
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
@@ -367,6 +385,9 @@ public class OAuthServiceTest {
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setIndividualId("individual-id");
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
@@ -425,6 +446,9 @@ public class OAuthServiceTest {
         }
 
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri1/**", "http://test-redirect-uri-2"));
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
@@ -482,6 +506,9 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
@@ -516,6 +543,9 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
@@ -553,6 +583,9 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
@@ -695,6 +728,9 @@ public class OAuthServiceTest {
         oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance("KgFzotzIWt3ZMFusBrpCIyWTP-F9QJdtM4Qb8m3I-4Q",
                 "S256"));
         ClientDetail clientDetail = new ClientDetail();
+        Map<String, Object> userInfoResponseType= new HashMap<>();
+        userInfoResponseType.put("user_info_response_type","JWS");
+        clientDetail.setAdditionalConfig(userInfoResponseType);
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
 
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
