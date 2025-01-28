@@ -1782,7 +1782,7 @@ AuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-	  allowedErrorCodes: invalid_challenge_length,invalid_auth_factor_type
+      allowedErrorCodes: invalid_challenge_length,invalid_auth_factor_type
       inputTemplate: esignet/AuthenticateUser/AuthenticateUser
       outputTemplate: esignet/error
       input: '{
