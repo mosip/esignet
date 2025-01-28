@@ -28,4 +28,11 @@ public class ClientDetail implements Serializable {
     private List<String> grantTypes;
     private List<String> clientAuthMethods;
     private Map<String, Object> additionalConfig;
+
+    public Object getAdditionalConfig(String keyName, Object defaultValue) {
+        if (additionalConfig == null) {
+            return defaultValue;
+        }
+        return additionalConfig.getOrDefault(keyName, defaultValue);
+    }
 }
