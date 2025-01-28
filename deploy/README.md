@@ -55,21 +55,26 @@ select option 1 (esignet-mock-plugin.jar).
 * Onboarder [scripts](../partner-onboarder/).
 
 ### MOCK Plugin
-
 Download and import eSignet-with-mock.postman_environment.json and eSignet.postman_collection.json postman collection from [here](../postman-collection))
-
-Update the "client_secret" and iam_url(keycoak) in the request body.
-Run the requests under
 # OIDC Client Management Instructions
-1. Navigate to **"OIDC Client Mgmt"** -> **"Mock"** -> **"Get Auth token"** to fetch the authentication token.
-2. Navigate to **"OIDC Client Mgmt"** -> **"Mock"** -> **"Get CSRF token"** to fetch the CSRF token.
-3. **Before executing the "Create OIDC client" request**, update the following fields in the request:
-   - `url`
-   - `logo-uri`
-   - `redirect-uri`
-   - `client-name`
-   - `client-id`
-4. Once clientID is created and activated,Then update the clientId in mock-relying-party-ui deployment.
+1. Fetch the Authentication Token
+   Navigate to "OIDC Client Mgmt" → "Mock" → "Get Auth Token" to retrieve the authentication token.
+   * Update the client_secret (retrieve it from the keycloak-client-secrets).
+   * Update the iam_url (Keycloak URL) in the request body.
+     * Retrieve the Keycloak URL from the config-map under keycloak-host → keycloak-external-url.
+2. Fetch the CSRF Token
+   * Navigate to "OIDC Client Mgmt" → "Mock" → "Get CSRF Token" to obtain the CSRF token.
+3. Update the Request Fields for OIDC Client Creation
+   * Before executing the "Create OIDC Client" request, update the following fields in the request body:
+     * url
+     * logo-uri
+     * redirect-uri
+     * client-name
+     * client-id
+4. Update the clientId in Deployment
+   * Once the clientId is created and activated, update the clientId in the mock-relying-party-ui deployment.
+5. Update the Client Private Key
+   * Retrieve the client-private-key from the eSignet-with-mock environment and update the client-private-key in the mock-relying-party service secret.
 
 ### NOTE:
 This deployment is limited to mock
