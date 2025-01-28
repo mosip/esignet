@@ -1,0 +1,9 @@
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-postgresql
+  namespace: postgres
+type: Opaque
+data:
+  postgres-password: cG9zdGdyZXM=

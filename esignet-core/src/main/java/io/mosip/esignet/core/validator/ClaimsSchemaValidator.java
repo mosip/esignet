@@ -14,12 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import javax.annotation.PostConstruct;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -29,7 +28,7 @@ public class ClaimsSchemaValidator implements ConstraintValidator<ClaimsSchema, 
     @Value("${mosip.esignet.claims.schema.url}")
     private String schemaUrl;
 
-    private volatile JsonSchema cachedSchema;
+    private JsonSchema schema;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -37,31 +36,25 @@ public class ClaimsSchemaValidator implements ConstraintValidator<ClaimsSchema, 
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @PostConstruct
+    public void initSchema() {
+        InputStream schemaResponse = getResource(schemaUrl);
+        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+        schema = jsonSchemaFactory.getSchema(schemaResponse);
+    }
 
     @Override
     public boolean isValid(ClaimsV2 claims, ConstraintValidatorContext context) {
         Set<ValidationMessage> errors = null;
         try {
             JsonNode jsonNode = objectMapper.valueToTree(claims);
-            errors = getCachedSchema().validate(jsonNode);
+            errors = schema.validate(jsonNode);
             if(errors.isEmpty())return true;
         } catch (Exception e) {
             log.error("Error validating claims schema", e);
         }
         log.error("Validation failed for claims: {}", errors);
         return false;
-    }
-
-    private JsonSchema getCachedSchema() throws EsignetException {
-        if(cachedSchema!=null ) return cachedSchema;
-        synchronized (this) {
-            if (cachedSchema == null) {
-                InputStream schemaResponse = getResource(schemaUrl);
-                JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-                cachedSchema = jsonSchemaFactory.getSchema(schemaResponse);
-            }
-        }
-        return cachedSchema;
     }
 
     private InputStream getResource(String url) {

@@ -417,7 +417,7 @@ WalletBinding:
        "errors": [
     {
       "errorCode": "IDA-MLC-009",
-      "errorMessage": "request.individualId: invalid_individual_id"
+      "errorMessage": "$IGNORE$"
     }
   ],
         "sendOtpResp": {

@@ -21,7 +21,7 @@ if [ "$flag" = "n" ]; then
 fi
 
 NS=esignet
-CHART_VERSION=0.0.1-develop
+CHART_VERSION=1.5.0-es-develop
 
 echo Create $NS namespace
 kubectl create ns $NS || true
@@ -73,7 +73,7 @@ function installing_onboarder() {
             echo "NFS server not provided; EXITING."
             exit 1;
           fi
-          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/<sandbox>/onboarder/), make sure permission is 777 for the folder: " nfs_path
+          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/mosip/<sandbox>/onboarder/), make sure permission is 777 for the folder: " nfs_path
           if [[ -z $nfs_path ]]; then
             echo "NFS Path not provided; EXITING."
             exit 1;
@@ -113,7 +113,9 @@ function installing_onboarder() {
       -f values.yaml \
       --version $CHART_VERSION \
       --wait --wait-for-jobs
-    echo "Partner onboarded successfully and reports are moved to S3 or NFS"
+    echo "Partner onboarder executed and reports are moved to S3 or NFS please check the same to make sure partner was onboarded sucessfully."
+    kubectl rollout restart deployment -n esignet esignet
+    echo eSignet MISP License Key updated successfully to eSignet.
     return 0
   fi
 }

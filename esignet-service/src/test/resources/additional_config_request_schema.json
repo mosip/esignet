@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "userinfo_response_type": {
+      "type": "string",
+      "enum": ["JWS", "JWE"]
+    },
+    "purpose": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "subTitle": {
+          "type": "string"
+        }
+      },
+      "required": ["type", "title", "subTitle"],
+      "additionalProperties": true
+    },
+    "signup_banner_required": {
+      "type": "boolean"
+    },
+    "forgot_pwd_link_required": {
+      "type": "boolean"
+    },
+    "consent_expire_in_days": {
+      "type": "number",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "userinfo_response_type",
+    "purpose",
+    "signup_banner_required",
+    "forgot_pwd_link_required",
+    "consent_expire_in_days"
+  ],
+  "additionalProperties": true
+}

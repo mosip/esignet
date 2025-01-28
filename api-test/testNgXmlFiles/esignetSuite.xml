@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
-	<suite name="e-Signet Suite">
+	<suite name="eSignet API Test">
 	<!-- Passing Group as parmeter unsing "testType" Possible Groups are: smoke 
 		regression smokeAndRegression -->
 	<listeners>
 		<listener class-name="io.mosip.testrig.apirig.report.EmailableReport"/>
 	</listeners>
+	
 	<test name="OIDCClientV2">
 		<parameter name="ymlFile"
 			value="esignet/OIDCClientV2/OIDCClientV2.yml" />
@@ -494,6 +495,5 @@
 		<classes>
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
-	</test> -->	
-
+	</test> -->
 </suite>

@@ -986,7 +986,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_length",
+      "errorCode": "invalid_auth_factor_type",
       "errorMessage": "$IGNORE$"
     }
   ],

@@ -23,12 +23,11 @@ on:
       - ES-842
 
 jobs:
-  build-maven-esignet:
+  build_maven_esignet:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
       BUILD_ARTIFACT: esignet
-      MAVEN_NON_EXEC_ARTIFACTS: esignet-plugins
     secrets:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
@@ -36,9 +35,68 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
+  check_snapshot_version:
+    runs-on: ubuntu-latest
+    outputs:
+      is_condition: ${{ steps.check_output.outputs.is_condition }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Check for -SNAPSHOT version in pom.xml files
+        id: check_output
+        shell: bash
+        run: |
+          # Initialize the flag that will hold the result
+          condition_met=false
+          echo "Initial condition_met: $condition_met"
+          
+          # Loop through each pom.xml file and check if -SNAPSHOT version is present in the parent block
+          for pom_file in $(find . -name "pom.xml"); do
+            echo "Processing $pom_file"
+          
+            # Extract the <parent> block from the pom.xml
+            parent_block=$(awk '/<parent>/,/<\/parent>/' "$pom_file")
+          
+            # If there's no <parent> block, skip this file and move to the next one
+            if [ -z "$parent_block" ]; then
+              echo "No <parent> block found in $pom_file, skipping this file."
+              continue
+            fi
+          
+            # Debug: Print the entire parent block for verification
+            echo "Checking the following parent block in $pom_file:"
+            echo "$parent_block"
+          
+            # Extract the <version> field from the <parent> block
+            version_in_parent=$(echo "$parent_block" | grep -oP '<version>\K.*(?=</version>)')
+          
+            # Debug the extracted version
+            echo "Extracted version in $pom_file: $version_in_parent"
+          
+            # Check if the version contains '-SNAPSHOT'
+            if [[ "$version_in_parent" == *"-SNAPSHOT"* ]]; then
+              echo "Found '-SNAPSHOT' version in $pom_file."
+              condition_met=true
+              break # Stop checking further files once we find '-SNAPSHOT'
+            else
+              echo "No '-SNAPSHOT' version found in $pom_file."
+            fi
+          done
+          
+          # Debug the final condition_met value
+          echo "Final condition_met value: $condition_met"
+          
+          # Set the output for the next step
+          echo "::set-output name=is_condition::$condition_met"
+
+      - name: Debug Condition Output
+        run: |
+          echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
+
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
-    needs: build-maven-esignet
+    needs: build_maven_esignet
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -50,9 +108,8 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-
   sonar_analysis:
-    needs: build-maven-esignet
+    needs: build_maven_esignet
     if: "${{  github.event_name != 'pull_request' }}"
     uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
     with:
@@ -66,8 +123,8 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-dockers:
-    needs: build-maven-esignet
+  build_dockers:
+    needs: build_maven_esignet
     strategy:
       matrix:
         include:
@@ -87,7 +144,42 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-dockers-oidc-ui:
+  build_maven_esignet_with_plugins:
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    with:
+      SERVICE_LOCATION: ./esignet-with-plugins
+      BUILD_ARTIFACT: esignet-with-plugins
+      MAVEN_NON_EXEC_ARTIFACTS: "esignet-mock-plugin.jar,mosip-identity-plugin.jar,sunbird-rc-plugin.jar"
+    secrets:
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  build_dockers_esignet_with_plugins:
+    needs: [build_maven_esignet_with_plugins, check_snapshot_version, publish_to_nexus]
+    if: ${{ needs.check_snapshot_version.outputs.is_condition == 'true' }}
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: 'esignet-with-plugins'
+            SERVICE_NAME: 'esignet-with-plugins'
+            BUILD_ARTIFACT: 'esignet-with-plugins'
+      fail-fast: false
+    name: ${{ matrix.SERVICE_NAME }}
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  build_dockers_oidc_ui:
     strategy:
       matrix:
         include:
@@ -105,7 +197,7 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-maven-apitest-esignet:
+  build_maven_apitest_esignet:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
@@ -119,7 +211,7 @@ jobs:
 
   publish_to_nexus_apitest_esignet:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-apitest-esignet
+    needs: build_maven_apitest_esignet
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
@@ -131,8 +223,8 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-apitest-esignet-local:
-    needs: build-maven-apitest-esignet
+  build_apitest_esignet_local:
+    needs: build_maven_apitest_esignet
     runs-on: ubuntu-latest
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
@@ -165,7 +257,7 @@ jobs:
           find ${{ env.SERVICE_LOCATION }} -path '*/target/*' -exec zip ${{ env.BUILD_ARTIFACT }}.zip {} +
       - name: Upload the springboot jars
         if: ${{ !contains(github.ref, 'master') || !contains(github.ref, 'main') }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.BUILD_ARTIFACT }}
           path: ${{ env.BUILD_ARTIFACT }}.zip
@@ -177,8 +269,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: failure() # Pick up events even if the job fails or is canceled.
 
-  build-dockers_apitest_esignet:
-    needs: build-apitest-esignet-local
+  build_dockers_apitest_esignet:
+    needs: build_apitest_esignet_local
     strategy:
       matrix:
         include:
@@ -198,19 +290,4 @@ jobs:
       DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  sonar_analysis_apitest_esignet:
-    needs: build-maven-apitest-esignet
-    if: "${{  github.event_name != 'pull_request' }}"
-    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
-    with:
-      SERVICE_LOCATION: ./api-test
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      ORG_KEY: ${{ secrets.ORG_KEY }}
-      OSSRH_USER: ${{ secrets.OSSRH_USER }}
-      OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
-      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
