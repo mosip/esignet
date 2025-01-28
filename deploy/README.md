@@ -55,14 +55,21 @@ select option 1 (esignet-mock-plugin.jar).
 * Onboarder [scripts](../partner-onboarder/).
 
 ### MOCK Plugin
-* Download postman collection from [here](../postman-collection)
-* Fetch auth token from esignet keycloak. Update the "client_secret" in the request body.
-* Run the request under "OIDC Client Mgmt" -> "Mock" -> "Get Auth token"
-* Run the requests under
-  
-    a. "OIDC Client Mgmt" -> "Mock" -> "Get CSRF token"
 
-    b. "OIDC Client Mgmt" -> "Mock" -> "Create OIDC client"
+Download and import eSignet-with-mock.postman_environment.json and eSignet.postman_collection.json postman collection from [here](../postman-collection))
+
+Update the "client_secret" and iam_url(keycoak) in the request body.
+Run the requests under
+# OIDC Client Management Instructions
+1. Navigate to **"OIDC Client Mgmt"** -> **"Mock"** -> **"Get Auth token"** to fetch the authentication token.
+2. Navigate to **"OIDC Client Mgmt"** -> **"Mock"** -> **"Get CSRF token"** to fetch the CSRF token.
+3. **Before executing the "Create OIDC client" request**, update the following fields in the request:
+   - `url`
+   - `logo-uri`
+   - `redirect-uri`
+   - `client-name`
+   - `client-id`
+4. Once clientID is created and activated,Then update the clientId in mock-relying-party-ui deployment.
 
 ### NOTE:
 This deployment is limited to mock
