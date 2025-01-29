@@ -5399,6 +5399,8 @@ components:
 
 
 
+
+
                        JSON array representing the checks done in relation to the evidence. When present this array MUST have at least one member. This is applicable only for below evidence types:
                        1. document
                        2. electronic_record
