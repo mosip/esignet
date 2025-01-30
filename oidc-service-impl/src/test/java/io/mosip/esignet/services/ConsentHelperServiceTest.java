@@ -549,7 +549,6 @@ public class ConsentHelperServiceTest {
         JWSObject jwsObject = new JWSObject(header,payload);
         jwsObject.sign(signer);
         String token = jwsObject.serialize();
-        log.info("The token is {}",token);
         String parts[]=token.split("\\.");
         return parts[0]+"."+parts[2];
     }
