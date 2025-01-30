@@ -16,7 +16,7 @@ OAuthDetailsRequestLinkedConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:linked-wallet",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -41,7 +41,7 @@ OAuthDetailsRequestLinkedConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:linked-wallet",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -55,7 +55,7 @@ OAuthDetailsRequestLinkedConsent:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestNoClaims
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestNullClaims
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
@@ -66,10 +66,39 @@ OAuthDetailsRequestLinkedConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:linked-wallet",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
       output: '{
        
+}'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_Consent_NoClaim_Neg:
+      endPoint: /v1/esignet/authorization/oauth-details
+      description: Oauthdetails request with linkAuth consent and no claims
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestNoClaims
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]  
 }'

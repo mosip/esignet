@@ -16,7 +16,7 @@ OAuthDetailsRequestConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -41,7 +41,7 @@ OAuthDetailsRequestConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -66,7 +66,7 @@ OAuthDetailsRequestConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -91,7 +91,7 @@ OAuthDetailsRequestConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -116,7 +116,7 @@ OAuthDetailsRequestConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -141,7 +141,7 @@ OAuthDetailsRequestConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
@@ -166,7 +166,7 @@ OAuthDetailsRequestConsent:
       	"display": "popup",
 	    "prompt": "login",
 	    "acrValues": "mosip:idp:acr:generated-code",
-	    "nonce": "973eieljzng",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'

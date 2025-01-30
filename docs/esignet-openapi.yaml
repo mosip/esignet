@@ -4428,6 +4428,112 @@ paths:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
         id: t315hcecaulyy
+  /binding/v2/binding-otp:
+    post:
+      tags:
+        - WALLET BACKEND
+      summary: Send Binding OTP Endpoint
+      description: Send wallet binding OTP endpoint is invoked by Mimoto server.
+      operationId: post-binding-otp
+      parameters:
+        - name: partner-api-key
+          in: header
+          description: 'API key of the binding partner, this will be passed to binder implementation to interact with authentication system.'
+          schema:
+            type: string
+        - name: partner-id
+          in: header
+          description: 'Binding partner Identifier, this will be passed to binder implementation to interact with authentication system.'
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestTime:
+                  type: string
+                request:
+                  type: object
+                  properties:
+                    individualId:
+                      type: string
+                      description: User Id (UIN/VID)
+                    otpChannels:
+                      type: array
+                      description: Channels to which OTP should be delivered.
+                      items:
+                        type: string
+                    captchaToken:
+                      type: string
+                      description: 'Captcha token, if enabled.'
+                  required:
+                    - individualId
+                    - otpChannels
+              required:
+                - requestTime
+                - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2023-09-22T08:01:13.000Z'
+                  request:
+                    individualId: '24554655645'
+                    otpChannels:
+                      - sms
+                      - email
+                    captchaToken: ALSKDJFURIEOQPZMKFURHFVBH
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTIme:
+                    type: string
+                  response:
+                    type: object
+                    properties:
+                      maskedEmail:
+                        type: string
+                        description: Masked email id of the individualId user.
+                      maskedMobile:
+                        type: string
+                        description: Masked mobile number of the individualId user.
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_otp_channel
+                            - unknown_error
+                            - invalid_individual_id
+                            - send_otp_failed
+                            - invalid_captcha
+                        errorMessage:
+                          type: string
+                required:
+                  - responseTIme
+              examples:
+                Example 1:
+                  value:
+                    responseTIme: '2023-09-22T08:01:16.000Z'
+                    response:
+                      maskedEmail: XXdXXaXXhXXkX@gmail.com
+                      maskedMobile: XXXXXXX357934
+                    errors: [ ]
+      security:
+        - Authorization-send_binding_otp: [ ]
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-stoplight:
+        id: xnl3gyq4v4bh4
   /binding/wallet-binding:
     post:
       tags:

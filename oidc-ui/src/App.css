@@ -468,6 +468,8 @@ input[type="checkbox"]:hover {
   outline: none;
   padding-left: 0rem;
   font: normal normal normal 16px/20px Roboto;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 [dir="ltr"] .input-box input {
@@ -570,6 +572,11 @@ input[type="number"] {
   text-align: center;
   letter-spacing: 0px;
   padding-top: 10px;
+}
+
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
 }
 
 @media screen and (max-width: 375px) {

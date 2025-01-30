@@ -1,5 +1,6 @@
 package io.mosip.esignet.core;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.CaptchaHelper;
@@ -7,10 +8,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
@@ -18,8 +17,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -35,7 +34,28 @@ public class CaptchaHelperTest {
     @Before
     public void setUp() {
         captchaHelper = new CaptchaHelper(restTemplate, "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha",
-                "esignet");
+                "esignet", List.of("binding-otp"));
+    }
+
+    @Test
+    public void validateCaptchaToken_withEmptyToken_thenFail() {
+        ReflectionTestUtils.setField(captchaHelper, "captchaRequired", List.of("binding-otp"));
+        try {
+            captchaHelper.validateCaptchaToken("", "binding-otp");
+        } catch(EsignetException e) {
+            Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
+        }
+    }
+
+
+    @Test
+    public void validateCaptchaToken_withInValidToken_thenFail() {
+        ReflectionTestUtils.setField(captchaHelper, "captchaRequired", List.of("binding-otp"));
+        try {
+            captchaHelper.validateCaptchaToken("captcha-token", "binding-otp");
+        } catch(EsignetException e) {
+            Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
+        }
     }
 
     @Test
@@ -47,6 +67,18 @@ public class CaptchaHelperTest {
     public void validateCaptcha_withEmptyCaptchaToken_thenFail() {
         Assert.assertThrows(EsignetException.class,()->captchaHelper.validateCaptcha(""));
     }
+
+    @Test
+    public void validateCaptchaToken_withValidData_thenPass() {
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setResponse("success");
+        ResponseEntity<ResponseWrapper> responseEntity = ResponseEntity.ok(responseWrapper);
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.eq(ResponseWrapper.class)))
+                .thenReturn(responseEntity);
+        boolean result = captchaHelper.validateCaptcha("captchaToken");
+        Assert.assertTrue(result);
+    }
+
 
     @Test
     public void validateCaptcha_withNullResponse_thenFail() {
