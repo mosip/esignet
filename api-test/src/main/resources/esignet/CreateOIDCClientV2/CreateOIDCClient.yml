@@ -1,6 +1,7 @@
 CreateOIDCClientV2:
    ESignet_CreateOIDCClientV2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/client-mgmt/oauth-client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_01
       description: To create OIDC Client V2 with all valid data
       role: partner
       restMethod: post
@@ -32,6 +33,7 @@ CreateOIDCClientV2:
 
    ESignet_CreateOIDCClientV2_Invalid_langCode_Size_Neg:
       endPoint: /v1/esignet/client-mgmt/oauth-client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_02
       description: To create OIDC Client V2 with invalid language code size
       role: partner
       restMethod: post
@@ -66,6 +68,7 @@ CreateOIDCClientV2:
 
    ESignet_CreateOIDCClientV2_Invalid_langCode_Neg:
       endPoint: /v1/esignet/client-mgmt/oauth-client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_03
       description: To create OIDC Client V2 with invalid language code
       role: partner
       restMethod: post
@@ -100,6 +103,7 @@ CreateOIDCClientV2:
 
    ESignet_CreateOIDCClientV2_Invalid_clientNameLang_Neg:
       endPoint: /v1/esignet/client-mgmt/oauth-client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_04
       description: To create OIDC Client V2 with invalid clientNameLang
       role: partner
       restMethod: post
@@ -134,6 +138,7 @@ CreateOIDCClientV2:
 
    ESignet_CreateOIDCClientV2_Missing_ClientNamelangMap_Value_Neg:
       endPoint: /v1/esignet/client-mgmt/oauth-client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_05
       description: To create OIDC Client V2 with missing clientNameLangMap value
       role: partner
       restMethod: post
@@ -166,6 +171,7 @@ CreateOIDCClientV2:
 
    ESignet_CreateOIDCClientV2_Missing_ClientNamelangMap_Neg:
       endPoint: /v1/esignet/client-mgmt/oauth-client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_06
       description: To create OIDC Client V2 with missing ClientNamelangMap
       role: partner
       restMethod: post

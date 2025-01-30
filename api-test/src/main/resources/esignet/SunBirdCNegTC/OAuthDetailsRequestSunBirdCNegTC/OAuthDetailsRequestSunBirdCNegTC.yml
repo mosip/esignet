@@ -1,6 +1,7 @@
 OAuthDetailsRequestSunBirdCNegTC:
    ESignet_OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_with_other_acrs:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_01
       description: To request OAuthDetails for SunBirdC with all valid dataand with other acrs
       role: resident
       restMethod: post
@@ -27,6 +28,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_without_scope:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_02
       description: To request OAuthDetails for SunBirdC with all valid data and without scope
       role: resident
       restMethod: post
@@ -57,6 +59,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_without_scope_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_03
       description: To request OAuthDetails for SunBirdC with all valid data and without scope data
       role: resident
       restMethod: post
@@ -88,6 +91,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_invalid_scope_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_04
       description: To request OAuthDetails for SunBirdC with invalid scope value
       role: resident
       restMethod: post
@@ -118,6 +122,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_opeind_scope_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_05
       description: To request OAuthDetails for SunBirdC with openid scope data
       role: resident
       restMethod: post
@@ -144,6 +149,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_openid_profile_sunbird_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_06
       description: To request OAuthDetails for SunBirdC with openid profile sunbird value in scope
       role: resident
       restMethod: post
@@ -174,6 +180,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_random_codeChallenege_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_07
       description: To request OAuthDetails for SunBirdC with random codeChallenge data
       role: resident
       restMethod: post
@@ -200,6 +207,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_invalid_challenege_method:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_08
       description: To request OAuthDetails for SunBirdC with invalid codeChallengeMethod 
       role: resident
       restMethod: post
@@ -230,6 +238,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_empty_challenege_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_09
       description: To request OAuthDetails for SunBirdC with an empty codeChallenge data
       role: resident
       restMethod: post
@@ -261,6 +270,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_lengthy_codeChallenege_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_10
       description: To request OAuthDetails for SunBirdC with lenghty codeChallenge data
       role: resident
       restMethod: post
@@ -287,6 +297,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_without_codeChallenege_and_with_sunbirdc_scope:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_11
       description: To request OAuthDetails for SunBirdC with sunbirdc scope
       role: resident
       restMethod: post
@@ -317,6 +328,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_With_only_code_challenge_with_scope:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_12
       description: To request OAuthDetails for SunBirdC with only codeChallenge with scope
       role: resident
       restMethod: post
@@ -347,6 +359,7 @@ OAuthDetailsRequestSunBirdCNegTC:
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_With_only_challenge_method:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_13
       description: To request OAuthDetails for SunBirdC with only challenge method
       role: resident
       restMethod: post
@@ -378,7 +391,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_14
+      description: To request OAuthDetails for SunBirdC with valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -405,7 +419,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_15
+      description: To request OAuthDetails for SunBirdC with valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -432,7 +447,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_16
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -459,7 +475,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_17
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -486,7 +503,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_18
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -513,7 +531,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_19
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -540,7 +559,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_20
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -567,7 +587,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with invalid AuthCode
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_21
+      description: To request OAuthDetails for SunBirdC with valid AuthCode
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -594,7 +615,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different different invalid AuthCode
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_22
+      description: To request OAuthDetails for SunBirdC with different different valid AuthCode
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -621,7 +643,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid AuthCode
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_23
+      description: To request OAuthDetails for SunBirdC with different valid AuthCode
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -648,7 +671,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different  invalid Authcode
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_24
+      description: To request OAuthDetails for SunBirdC with different  valid Authcode
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -675,7 +699,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_25
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -702,7 +727,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_26
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -729,7 +755,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_27
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -756,7 +783,8 @@ OAuthDetailsRequestSunBirdCNegTC:
 
    ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
-      description: To request OAuthDetails for SunBirdC with different invalid data
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_28
+      description: To request OAuthDetails for SunBirdC with different valid data
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

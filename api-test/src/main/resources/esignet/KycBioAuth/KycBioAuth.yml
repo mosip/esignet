@@ -1,6 +1,7 @@
 KycBioAuth:
    Esignet_KycBioAuth_uin_all_Valid_Smoke:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_01
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -32,6 +33,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_all_Valid_Smoke:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_02
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -65,6 +67,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_Invalid_Biovalue_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_03
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -100,6 +103,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_Invalid_Biovalue_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_04
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -135,6 +139,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_RingFinger_all_Valid_Smoke:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_05
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -166,6 +171,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_RingFinger_all_Valid_Smoke:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_06
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -197,6 +203,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_RingFinger_Invalid_Biovalue_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_07
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -232,6 +239,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_RingFinger_Invalid_Biovalue_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_08
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -267,6 +275,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_LeftIris_all_Valid_Smoke:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_09
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -298,6 +307,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_LeftIris_all_Valid_Smoke:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_10
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -329,6 +339,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_LeftIris_Invalid_Biovalue_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_11
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -364,6 +375,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_LeftIris_Invalid_Biovalue_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_12
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -399,6 +411,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_null_MispLk_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_13
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -430,6 +443,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_null_MispLk_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_14
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -462,6 +476,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_Null_PartnerId_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_15
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -493,6 +508,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_Null_PartnerId_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_16
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -525,6 +541,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_uin_Null_ClientId_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:AddIdentity_KycAuth_smoke_Pos_UIN$&idType=UIN&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_17
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -556,6 +573,7 @@ KycBioAuth:
 
    Esignet_KycBioAuth_Vid_Null_ClientId_Neg:
       endPoint: /v1/identity/createAuthRequest?id=$ID:Generate_Perpetual_VID_Kyc_Valid_Smoke_sid_vid$&idType=VID&isKyc=true&isInternal=false&transactionId=$TRANSACTIONID$&isNewInternalAuth=false&isPreLTS=false&signWithMisp=true&partnerName=$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$&keyFileNameByPartnerName=true​&Authtype=bio&moduleName=$MODULENAME$
+      uniqueIdentifier: TC_ESignet_KycBioAuth_18
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

@@ -1,6 +1,7 @@
 GenerateVID:
    ESignetRes_Generate_Perpetual_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_01
       description: Generate perpetual VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -37,6 +38,7 @@ GenerateVID:
 
    ESignetRes_Generate_Temporary_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_02
       description: Generate temporary VID with valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -73,6 +75,7 @@ GenerateVID:
 
    ESignetRes_Generate_Onetimeuse_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_03
       description: Generate Onetimeuse VID with valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -109,6 +112,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual2_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_04
       description: Generate perpetual2 VID with valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -145,6 +149,7 @@ GenerateVID:
 
    ESignetRes_Generate_Temporary2_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_05
       description: Generate temporary2 VID valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -181,6 +186,7 @@ GenerateVID:
 
    ESignetRes_Generate_Onetimeuse2_VID_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_06
       description: Generate Onetimeuse2 VID valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -217,6 +223,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Kyc_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_07
       description: Generate perpetual VID Kyc valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -253,6 +260,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_LinkedSce_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_08
       description: Generate perpetual VID Linkedsce valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -289,6 +297,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_09
       description: Generate perpetual VID with invalid scenario
       role: resident
       checkErrorsOnlyInResponse: true
@@ -325,6 +334,7 @@ GenerateVID:
 
    ESignetRes_Generate_Temporary_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_10
       description: Generate temporary VID invalid scen valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -361,6 +371,7 @@ GenerateVID:
 
    ESignetRes_Generate_Onetimeuse_VID_Invalid_Scen_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_11
       description: Generate Onetimeuse VID invalid scen valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -397,6 +408,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Consent_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_12
       description: Generate perpetual VID consent valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -433,6 +445,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Linked_Consent_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_13
       description: Generate perpetual VID linked consent valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -469,6 +482,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_Linked_Consent_User2_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_14
       description: Generate perpetual VID linked consent user2 valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -505,6 +519,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_VCI_Valid_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_15
       description: Generate perpetual VID VCI valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -541,6 +556,7 @@ GenerateVID:
 
    ESignetRes_Generate_Perpetual_VID_VCI_Invalid_Scen_Smoke_sid:
       endPoint: /resident/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_GenerateVID_16
       description: Generate perpetual VID VCI with invalid scenario
       role: resident
       checkErrorsOnlyInResponse: true

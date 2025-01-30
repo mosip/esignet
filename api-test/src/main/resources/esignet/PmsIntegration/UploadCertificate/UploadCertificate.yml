@@ -1,6 +1,7 @@
 uploadCACert:
    Esignet_UploadCACertificate_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_01
       description: upload CACertificate with all valid details
       role: partner
       restMethod: post
@@ -16,6 +17,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_02
       description: upload CACertificate with all valid details
       role: partner
       restMethod: post
@@ -32,6 +34,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Misp_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_03
       description: upload CACertificate Misp valid details
       role: partner
       restMethod: post
@@ -47,6 +50,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Misp_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_04
       description: upload CACertificate Misp valid details
       role: partner
       restMethod: post
@@ -63,6 +67,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Kyc_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_05
       description: upload CACertificate Kyc with all valid details
       role: partner
       restMethod: post
@@ -78,6 +83,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Kyc_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_06
       description: upload CACertificate Kyc with all valid details
       role: partner
       restMethod: post
@@ -94,6 +100,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_NonAuth_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_07
       description: upload CACertificate NonAuth with all valid details
       role: partner
       restMethod: post
@@ -109,6 +116,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_NonAuth_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_08
       description: upload CACertificate NonAuth all valid details
       role: partner
       restMethod: post
@@ -125,6 +133,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Misp_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_09
       description: upload CACertificate Misp False valid details
       role: partner
       restMethod: post
@@ -140,6 +149,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Misp_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_10
       description: upload CACertificate Misp false valid details
       role: partner
       restMethod: post
@@ -156,6 +166,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Auth_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_11
       description: upload CACertificate Auth false valid details
       role: partner
       restMethod: post
@@ -171,6 +182,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Auth_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_12
       description: upload CACertificate Auth false valid details
       role: partner
       restMethod: post
@@ -187,6 +199,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Misp_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_13
       description: upload CACertificate Misp S2 valid details
       role: partner
       restMethod: post
@@ -202,6 +215,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Misp_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_14
       description: upload CACertificate Misp S2 valid details
       role: partner
       restMethod: post
@@ -218,6 +232,7 @@ uploadCACert:
 
    Esignet_UploadCACertificate_Auth_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_15
       description: upload CACertificate Auth S2 valid details
       role: partner
       restMethod: post
@@ -233,6 +248,7 @@ uploadCACert:
 }'
    Esignet_UploadCInterCertificate_Auth_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_16
       description: upload CACertificate Auth S2 valid details
       role: partner
       restMethod: post

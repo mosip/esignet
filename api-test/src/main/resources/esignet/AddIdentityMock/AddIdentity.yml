@@ -1,6 +1,7 @@
 AddIdentity:
    ESignet_AddIdentity_Valid_Parameters_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_01
       description: Add identity with all valid parameters
       role: idrepo
       restMethod: post
@@ -20,6 +21,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Parameters_Sce2_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_02
       description: Add identity with all valid parameters
       role: idrepo
       restMethod: post
@@ -39,6 +41,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Invalid_Scen_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_03
       description: Add identity with invalid scenario
       role: idrepo
       restMethod: post
@@ -58,6 +61,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Params_BindOtp_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_04
       description: Add identity with all valid parameters
       role: idrepo
       restMethod: post
@@ -77,6 +81,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Params_WOPhone_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_05
       description: Add identity with valid parameter and without phone number
       role: idrepo
       restMethod: post
@@ -96,6 +101,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Params_WOEmail_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_06
       description: Add identity with valid parameter and without Email
       role: idrepo
       restMethod: post
@@ -115,6 +121,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Vid_Generation_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_07
       description: Add identity Vid generation
       role: idrepo
       restMethod: post
@@ -134,6 +141,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Vid_2_Generation_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_08
       description: Add identity Vid generation
       role: idrepo
       restMethod: post
@@ -153,6 +161,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Linked_Sce_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_09
       description: Add identity with valid parameters
       role: idrepo
       restMethod: post
@@ -172,6 +181,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Linked_Consent_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_10
       description: Add identity linked consent
       role: idrepo
       restMethod: post
@@ -191,6 +201,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Linked_Consent_User2_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_11
       description: Add identity linked consent user2
       role: idrepo
       restMethod: post
@@ -210,6 +221,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Linked_Consent_Vid_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_12
       description: Add identity linked consent Vid
       role: idrepo
       restMethod: post
@@ -229,6 +241,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Linked_Consent_User2_Vid_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_13
       description: Add identity linked consent user2 Vid
       role: idrepo
       restMethod: post
@@ -248,6 +261,7 @@ AddIdentity:
 
    ESignet_AddIdentity_BioAuth_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_14
       description: Add identity with BioAuth
       role: idrepo
       restMethod: post
@@ -267,6 +281,7 @@ AddIdentity:
 
    ESignet_AddIdentity_KycAuth_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_15
       description: Add identity with KycAuth
       role: idrepo
       restMethod: post
@@ -286,6 +301,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Consent_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_16
       description: Add identity consent
       role: idrepo
       restMethod: post
@@ -305,6 +321,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Consent_Vid_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_17
       description: Add identity consent Vid
       role: idrepo
       restMethod: post
@@ -324,6 +341,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Params_VCI_uin_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_18
       description: Add identity with valid parameters VCI UIN
       role: idrepo
       restMethod: post
@@ -343,6 +361,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Params_VCI_uin_Inv_Scen_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_19
       description: Add identity with valid parameters VCI UIN invalid scenario
       role: idrepo
       restMethod: post
@@ -362,6 +381,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Params_VCI_Vid_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_20
       description: Add identity with valid parameters VCI Vid
       role: idrepo
       restMethod: post
@@ -381,6 +401,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Valid_Params_VCI_Vid_Inv_Scen_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_21
       description: Add identity with valid parameters VCI Vid invalid scenario
       role: idrepo
       restMethod: post
@@ -400,6 +421,7 @@ AddIdentity:
 
    ESignet_AddIdentity_Password_Auth_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_22
       description: Add identity with password authentication
       role: idrepo
       restMethod: post
@@ -419,6 +441,7 @@ AddIdentity:
 
    ESignet_AddIdentity_L2_Valid_Parameters_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_23
       description: Add identity with password authentication
       role: idrepo
       restMethod: post
@@ -437,6 +460,7 @@ AddIdentity:
 }'
    ESignet_AddIdentity_L2_Valid_Parameters_smoke_Neg_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_24
       description: Add identity with password authentication
       role: idrepo
       restMethod: post
