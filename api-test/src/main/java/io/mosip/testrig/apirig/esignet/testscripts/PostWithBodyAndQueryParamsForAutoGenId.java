@@ -28,7 +28,7 @@ import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
-import io.mosip.testrig.apirig.utils.AuthUtil;
+import io.mosip.testrig.apirig.utils.AuthTestsUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
@@ -83,6 +83,8 @@ public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implem
 		
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 		
+		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+		
 		inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
 		
 		JSONObject requestJson = new JSONObject(inputJson);
@@ -129,7 +131,7 @@ public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implem
 		
 		requestBody.put("certData", certValueSigned);
 		
-		AuthUtil authUtil = new AuthUtil();
+		AuthTestsUtil authUtil = new AuthTestsUtil();
 		
 		String str;
 		try {

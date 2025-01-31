@@ -1,4 +1,4 @@
-FROM mosipid/openjdk-21-jre:21.0.4
+FROM mosipdev/openjdk-21-jre:latest
 
 ARG SOURCE
 ARG COMMIT_HASH

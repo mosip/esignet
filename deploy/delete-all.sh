@@ -14,7 +14,7 @@ function Deleting_All() {
   helm -n $SOFTHSM_NS delete esignet-softhsm
 
   declare -a module=("oidc-ui"
-                     "esignet"
+                     "esignet-with-plugins"
                      "captcha"
                     )
   echo Deleting esignet services

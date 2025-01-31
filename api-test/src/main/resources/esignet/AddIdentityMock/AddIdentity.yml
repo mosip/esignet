@@ -416,3 +416,40 @@ AddIdentity:
       output: '{
   "status":"mock identity data created successfully"
 }'
+
+   ESignet_AddIdentity_L2_Valid_Parameters_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with password authentication
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_smoke_Neg_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      description: Add identity with password authentication
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
