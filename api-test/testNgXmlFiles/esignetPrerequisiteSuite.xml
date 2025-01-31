@@ -184,12 +184,4 @@
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
-	<test name="KycBioAuth">
-		<parameter name="ymlFile" value="esignet/KycBioAuth/KycBioAuth.yml" />
-		<parameter name="isInternal" value="false" />
-		<parameter name="prerequisite" value="Yes" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.esignet.testscripts.KycAuth" />
-		</classes>
-	</test>
 </suite>

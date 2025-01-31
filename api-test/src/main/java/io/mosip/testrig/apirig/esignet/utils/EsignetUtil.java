@@ -595,7 +595,7 @@ public class EsignetUtil extends AdminTestUtil {
 		
 		if (jsonString.contains("$WLATOKENCONSENTUSER2$")) {
 			jsonString = replaceKeywordValue(jsonString, "$WLATOKENCONSENTUSER2$",
-					generateWLAToken(jsonString, BINDINGCONSENTUSER2JWK, BINDINGCERTCONSENTSAMECLAIMFILE));
+					generateWLAToken(jsonString, BINDINGCONSENTUSER2JWK, BINDINGCERTCONSENTUSER2FILE));
 		}
 		
 		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREUSER2$")) {
@@ -605,12 +605,12 @@ public class EsignetUtil extends AdminTestUtil {
 		
 		if (jsonString.contains("$WLATOKENCONSENTVIDUSER2$")) {
 			jsonString = replaceKeywordValue(jsonString, "$WLATOKENCONSENTVIDUSER2$",
-					generateWLAToken(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTCONSENTSAMECLAIMFILE));
+					generateWLAToken(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTVIDCONSENTUSER2FILE));
 		}
 		
 		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREVIDUSER2$")) {
 			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREVIDUSER2$",
-					generateDetachedSignature(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTCONSENTSAMECLAIMFILE));
+					generateDetachedSignature(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTVIDCONSENTUSER2FILE));
 		}
 		
 		if (jsonString.contains("$PROOFJWT$")) {
