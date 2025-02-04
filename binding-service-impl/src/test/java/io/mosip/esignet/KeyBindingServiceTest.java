@@ -93,7 +93,7 @@ public class KeyBindingServiceTest {
 		when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
 				.thenReturn(Arrays.asList("jwt", "alpha-numeric"));
 
-		captchaHelper = new CaptchaHelper(restTemplate, "https://api-internal.camdgc-dev1.mosip.net/v1/captcha/validatecaptcha",
+		captchaHelper = new CaptchaHelper(restTemplate, "https://test-api.example.com/v1/captcha/validatecaptcha",
 				"esignet", List.of("binding-otp"));
 
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingWrapper", mockKeyBindingWrapperService);
