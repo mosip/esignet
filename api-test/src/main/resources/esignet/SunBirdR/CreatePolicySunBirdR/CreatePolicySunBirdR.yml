@@ -1,6 +1,7 @@
 CreatePolicySunBirdR:
    ESignet_SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_Sid:
       endPoint: $SUNBIRDBASEURL$/api/v1/Insurance
+      uniqueIdentifier: TC_ESignet_CreatePolicySunBirdR_01
       description: To create a Policy for SunBirdR with all valid data and with no authorization
       role: resident
       restMethod: post

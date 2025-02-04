@@ -1,6 +1,7 @@
 LinkAuthorizationCode:
    ESignet_LinkAuthorizationCode_Consent_uin_SameClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_01
       description: Link Authorization code consent UIN with same claim and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -18,6 +19,7 @@ LinkAuthorizationCode:
 }'
    ESignet_LinkAuthorizationCode_Consent_Vid_SameClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_02
       description: Link Authorization code consent VID with same claim and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -36,6 +38,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Consent_uin_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_03
       description: Link Authorization code consent UIN for User2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -54,6 +57,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Consent_Vid_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_04
       description: Link Authorization code consent VID for User2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -72,6 +76,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_05
       description: Link Authorization code with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -89,6 +94,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_06
       description: Link Authorization code with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
@@ -106,6 +112,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Invalid_requestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_07
       description: Link Authorization code with invalid requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -128,6 +135,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Past_Val_requestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_08
       description: Link Authorization code with past value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -150,6 +158,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Future_Val_requestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_09
       description: Link Authorization code with future value requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -172,6 +181,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Empty_Val_requestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_10
       description: Link Authorization code with empty value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -194,6 +204,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Space_Val_requestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_11
       description: Link Authorization code with only space in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -216,6 +227,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_12
       description: Link Authorization code with invalid transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -238,6 +250,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Space_Val_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_13
       description: Link Authorization code with only space in transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -260,6 +273,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Missing_Val_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_14
       description: Link Authorization code without transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -282,6 +296,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_15
       description: Link Authorization code with empty value in transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -304,6 +319,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Invalid_linkedCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_16
       description: Link Authorization code with invalid linkedCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -326,6 +342,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Misssing_linkedCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_17
       description: Link Authorization code without linkedCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -348,6 +365,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Space_Val_linkedCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_18
       description: Link Authorization code with only space in linkedCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -370,6 +388,7 @@ LinkAuthorizationCode:
 
    ESignet_LinkAuthorizationCode_Empty_Val_linkedCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCode_19
       description: Link Authorization code with empty value in linkedCode
       role: resident
       checkErrorsOnlyInResponse: true

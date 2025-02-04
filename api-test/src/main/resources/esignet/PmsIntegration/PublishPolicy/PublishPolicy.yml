@@ -1,6 +1,7 @@
 createPublishPolicy:
    Esignet_PublishPolicy_All_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_01
       description: Publish policy with all valid details
       role: partner
       restMethod: post
@@ -29,6 +30,7 @@ createPublishPolicy:
 
    Esignet_PublishPolicy_Misp_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_02
       description: Publish policy Misp with all valid details
       role: partner
       restMethod: post
@@ -57,6 +59,7 @@ createPublishPolicy:
 
    Esignet_PublishPolicy_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_03
       description: Publish policy with valid details
       role: partner
       restMethod: post
@@ -85,6 +88,7 @@ createPublishPolicy:
 
    Esignet_PublishPolicy_NonAuth_All_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_04
       description: Publish policy with NonAuth valid details
       role: partner
       restMethod: post
@@ -113,6 +117,7 @@ createPublishPolicy:
 
    Esignet_PublishPolicy_Misp_False_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_05
       description: Publish policy Misp false valid details
       role: partner
       restMethod: post
@@ -141,6 +146,7 @@ createPublishPolicy:
 
    Esignet_PublishPolicy_Auth_False_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_06
       description: Publish policy Auth false valid details
       role: partner
       restMethod: post
@@ -169,6 +175,7 @@ createPublishPolicy:
 
    Esignet_PublishPolicy_Misp_S2_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_07
       description: Publish policy Misp S2 valid details
       role: partner
       restMethod: post
@@ -197,6 +204,7 @@ createPublishPolicy:
 
    Esignet_PublishPolicy_Auth_S2_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_08
       description: Publish policy Auth S2 valid details
       role: partner
       restMethod: post

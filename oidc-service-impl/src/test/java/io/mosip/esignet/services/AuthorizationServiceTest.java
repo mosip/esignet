@@ -39,6 +39,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -71,6 +72,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     Authenticator authenticationWrapper;
+
+    @Mock
+    Environment environment;
 
     @InjectMocks
     AuthorizationServiceImpl authorizationServiceImpl;
@@ -124,6 +128,8 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationServiceImpl, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);
         ReflectionTestUtils.setField(authorizationServiceImpl,"captchaRequired",Arrays.asList("bio","pwd"));
+
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
     }
 
     

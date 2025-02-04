@@ -1,6 +1,7 @@
 GenerateTokenSunBirdC:
    ESignet_GenerateTokenSunBirdC_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
+      uniqueIdentifier: TC_ESignet_GenerateTokenSunBirdC_01
       description: To Generate token for SunBirdC with all valid data
       role: resident
       restMethod: post

@@ -1,6 +1,7 @@
 AddIdentityMock:
    ESignet_AddIdentity_Valid_Parameters_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_01
       description: Add identity with all valid parameters
       role: idrepo
       restMethod: post

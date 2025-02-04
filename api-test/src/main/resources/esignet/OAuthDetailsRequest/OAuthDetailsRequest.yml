@@ -1,6 +1,7 @@
 OAuthDetailsRequest:
    ESignet_OAuthDetailsRequest_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_01
       description: Oauthdetails request with all valid details
       role: resident
       restMethod: post
@@ -26,6 +27,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2nd_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_02
       description: Oauthdetails request 2nd with all valid details
       role: resident
       restMethod: post
@@ -51,6 +53,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2nd_vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_03
       description: Oauthdetails request 2nd with all valid details VID
       role: resident
       restMethod: post
@@ -76,6 +79,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Consent_2nd_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_04
       description: Oauthdetails request consent 2nd with all valid details
       role: resident
       restMethod: post
@@ -101,6 +105,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_05
       description: Oauthdetails request with all valid details VID
       role: resident
       restMethod: post
@@ -126,6 +131,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_2nd_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_06
       description: Oauthdetails request consent 2nd with all valid details VID
       role: resident
       restMethod: post
@@ -151,6 +157,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_SendOtp_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_07
       description: Oauthdetails request sendOtp with all valid details VID
       role: resident
       restMethod: post
@@ -176,6 +183,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Other_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_08
       description: Oauthdetails request with other valid details
       role: resident
       restMethod: post
@@ -201,6 +209,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_vid_Other_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_09
       description: Oauthdetails request with other valid details VID
       role: resident
       restMethod: post
@@ -226,6 +235,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_10
       description: Oauthdetails request 2 with all valid details
       role: resident
       restMethod: post
@@ -250,6 +260,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_3all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_11
       description: Oauthdetails request 3 with all valid details
       role: resident
       restMethod: post
@@ -275,6 +286,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_4all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_12
       description: Oauthdetails request 4 with all valid details
       role: resident
       restMethod: post
@@ -300,6 +312,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_5all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_13
       description: Oauthdetails request 5 with all valid details
       role: resident
       restMethod: post
@@ -324,6 +337,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_6all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_14
       description: Oauthdetails request 6 with all valid details
       role: resident
       restMethod: post
@@ -348,6 +362,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_7all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_15
       description: Oauthdetails request 7 with all valid details
       role: resident
       restMethod: post
@@ -372,6 +387,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_8all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_16
       description: Oauthdetails request 8 with all valid details
       role: resident
       restMethod: post
@@ -396,6 +412,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_9all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_17
       description: Oauthdetails request 9 with all valid details
       role: resident
       restMethod: post
@@ -420,6 +437,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_10all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_18
       description: Oauthdetails request 10 with all valid details
       role: resident
       restMethod: post
@@ -444,6 +462,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_11all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_19
       description: Oauthdetails request 11 with all valid details
       role: resident
       restMethod: post
@@ -468,6 +487,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_12all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_20
       description: Oauthdetails request 12 with all valid details
       role: resident
       restMethod: post
@@ -492,6 +512,7 @@ OAuthDetailsRequest:
 }'
    ESignet_OAuthDetailsRequest_13all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_21
       description: Oauthdetails request 13 with all valid details
       role: resident
       restMethod: post
@@ -517,6 +538,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_14all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_22
       description: Oauthdetails request 14 with all valid details
       role: resident
       restMethod: post
@@ -542,6 +564,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_15all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_23
       description: Oauthdetails request 15 with all valid details
       role: resident
       restMethod: post
@@ -567,6 +590,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_16all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_24
       description: Oauthdetails request 16 with all valid details
       role: resident
       restMethod: post
@@ -592,6 +616,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_17all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_25
       description: Oauthdetails request 17 with all valid details
       role: resident
       restMethod: post
@@ -617,6 +642,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_18all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_26
       description: Oauthdetails request 18 with all valid details
       role: resident
       restMethod: post
@@ -642,6 +668,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_19all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_27
       description: Oauthdetails request 19 with all valid details
       role: resident
       restMethod: post
@@ -667,6 +694,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_20all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_28
       description: Oauthdetails request 20 with all valid details
       role: resident
       restMethod: post
@@ -692,6 +720,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_21all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_29
       description: Oauthdetails request 21 with all valid details
       role: resident
       restMethod: post
@@ -717,6 +746,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_22all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_30
       description: Oauthdetails request 22 with all valid details
       role: resident
       restMethod: post
@@ -742,6 +772,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_23all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_31
       description: Oauthdetails request 23 with all valid details
       role: resident
       restMethod: post
@@ -767,6 +798,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_24all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_32
       description: Oauthdetails request 24 with all valid details
       role: resident
       restMethod: post
@@ -792,6 +824,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_25all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_33
       description: Oauthdetails request 25 with all valid details
       role: resident
       restMethod: post
@@ -817,6 +850,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_34
       description: Oauthdetails request 2 with all valid details
       role: resident
       restMethod: post
@@ -842,6 +876,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_35
       description: Oauthdetails request with Invalid ClientId
       role: resident
       restMethod: post
@@ -872,6 +907,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_36
       description: Oauthdetails request with empty value in ClientId
       role: resident
       restMethod: post
@@ -902,6 +938,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_37
       description: Oauthdetails request without ClientId
       role: resident
       restMethod: post
@@ -932,6 +969,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Range_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_38
       description: Oauthdetails request with Invalid range in ClientId
       role: resident
       restMethod: post
@@ -962,6 +1000,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Exceding_Range_ClientId_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_39
       description: Oauthdetails request with exceeding range in ClientId
       role: resident
       restMethod: post
@@ -992,6 +1031,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_40
       description: Oauthdetails request with Invalid redirectUri
       role: resident
       restMethod: post
@@ -1022,6 +1062,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_41
       description: Oauthdetails request without redirectUri
       role: resident
       restMethod: post
@@ -1052,6 +1093,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_42
       description: Oauthdetails request with empty value in redirectUri
       role: resident
       restMethod: post
@@ -1082,6 +1124,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_redirectUri_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_43
       description: Oauthdetails request with Null in redirectUri
       role: resident
       restMethod: post
@@ -1112,6 +1155,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_44
       description: Oauthdetails request with Invalid ResponseType
       role: resident
       restMethod: post
@@ -1142,6 +1186,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_45
       description: Oauthdetails request without ResponseType
       role: resident
       restMethod: post
@@ -1172,6 +1217,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_46
       description: Oauthdetails request with empty value in ResponseType
       role: resident
       restMethod: post
@@ -1202,6 +1248,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_ResponseType_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_47
       description: Oauthdetails request with Null in ResponseType
       role: resident
       restMethod: post
@@ -1232,6 +1279,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_48
       description: Oauthdetails request with Invalid Scope
       role: resident
       restMethod: post
@@ -1262,6 +1310,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_WithoutSpace_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_49
       description: Oauthdetails request without space in Scope
       role: resident
       restMethod: post
@@ -1292,6 +1341,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_50
       description: Oauthdetails request without Scope
       role: resident
       restMethod: post
@@ -1322,6 +1372,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_51
       description: Oauthdetails request with empty value in Scope
       role: resident
       restMethod: post
@@ -1352,6 +1403,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_Scope_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_52
       description: Oauthdetails request with Null in Scope
       role: resident
       restMethod: post
@@ -1382,6 +1434,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_53
       description: Oauthdetails request with Invalid AcrValues
       role: resident
       restMethod: post
@@ -1407,6 +1460,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Format_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_54
       description: Oauthdetails request with Invalid format AcrValues
       role: resident
       restMethod: post
@@ -1432,6 +1486,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_WithoutSpace_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_55
       description: Oauthdetails request without space in AcrValues
       role: resident
       restMethod: post
@@ -1457,6 +1512,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_56
       description: Oauthdetails request without AcrValues
       role: resident
       restMethod: post
@@ -1482,6 +1538,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_57
       description: Oauthdetails request with empty value in AcrValues
       role: resident
       restMethod: post
@@ -1507,6 +1564,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_AcrValues_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_58
       description: Oauthdetails request with Null in AcrValues
       role: resident
       restMethod: post
@@ -1532,6 +1590,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_Claims_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_59
       description: Oauthdetails request without Claims
       role: resident
       restMethod: post
@@ -1558,6 +1617,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Claims_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_60
       description: Oauthdetails request with empty value in Claims
       role: resident
       restMethod: post
@@ -1588,6 +1648,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Claims_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_61
       description: Oauthdetails request with invalid Claims
       role: resident
       restMethod: post
@@ -1613,6 +1674,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_62
       description: Oauthdetails request without claimsLocales
       role: resident
       restMethod: post
@@ -1638,6 +1700,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_63
       description: Oauthdetails request with invalid claimsLocales
       role: resident
       restMethod: post
@@ -1663,6 +1726,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_64
       description: Oauthdetails request with empty value in claimsLocales
       role: resident
       restMethod: post
@@ -1688,6 +1752,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_claimsLocales_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_65
       description: Oauthdetails request with Null in claimsLocales
       role: resident
       restMethod: post
@@ -1713,6 +1778,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_display_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_66
       description: Oauthdetails request without display
       role: resident
       restMethod: post
@@ -1738,6 +1804,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_67
       description: Oauthdetails request with invalid display
       role: resident
       restMethod: post
@@ -1768,6 +1835,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_68
       description: Oauthdetails request with empty value in display
       role: resident
       restMethod: post
@@ -1797,6 +1865,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_69
       description: Oauthdetails request with Null in display
       role: resident
       restMethod: post
@@ -1827,6 +1896,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_SpaceValue_display_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_70
       description: Oauthdetails request with space in display
       role: resident
       restMethod: post
@@ -1856,6 +1926,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_71
       description: Oauthdetails request with invalid state
       role: resident
       restMethod: post
@@ -1881,6 +1952,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_72
       description: Oauthdetails request without state
       role: resident
       restMethod: post
@@ -1906,6 +1978,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_73
       description: Oauthdetails request with empty value in state
       role: resident
       restMethod: post
@@ -1931,6 +2004,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_74
       description: Oauthdetails request with Null in state
       role: resident
       restMethod: post
@@ -1956,6 +2030,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Exceding_Range_State_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_75
       description: Oauthdetails request with exceeding range in state
       role: resident
       restMethod: post
@@ -1979,8 +2054,10 @@ OAuthDetailsRequest:
        
 }'
 
+
    ESignet_OAuthDetailsRequest_Missing_Nonce_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_77
       description: Oauthdetails request without Nonce
       role: resident
       restMethod: post
@@ -2006,6 +2083,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Nonce_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_78
       description: Oauthdetails request with empty value in Nonce
       role: resident
       restMethod: post
@@ -2031,6 +2109,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_requestTime_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_80
       description: Oauthdetails request with invalid requestTime
       role: resident
       restMethod: post
@@ -2061,6 +2140,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Diff_requestTime_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_81
       description: Oauthdetails request with different requestTime
       role: resident
       restMethod: post
@@ -2091,6 +2171,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Invalid_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_82
       description: Oauthdetails request with invalid prompt
       role: resident
       restMethod: post
@@ -2121,6 +2202,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Missing_Prompt_Pos:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_83
       description: Oauthdetails request without prompt
       role: resident
       restMethod: post
@@ -2145,6 +2227,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Empty_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_84
       description: Oauthdetails request with empty value in prompt
       role: resident
       restMethod: post
@@ -2174,6 +2257,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_Null_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_85
       description: Oauthdetails request with Null in prompt
       role: resident
       restMethod: post
@@ -2204,6 +2288,7 @@ OAuthDetailsRequest:
 
    ESignet_OAuthDetailsRequest_space_delimited_Prompt_Neg:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_86
       description: Oauthdetails request with space delimited in prompt
       role: resident
       restMethod: post

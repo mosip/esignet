@@ -1,6 +1,7 @@
 GetLinkStatus:
    ESignet_GetLinkStatus_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_01
       description: Get link status with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -18,6 +19,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Vid_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_02
       description: Get link status with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
@@ -35,6 +37,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Consent_uin_User2_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_03
       description: Get link status consent UIN User2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -53,6 +56,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Consent_Vid_User2_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_04
       description: Get link status consent VID User2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -71,6 +75,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Consent_uin_SameClaim_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_05
       description: Get link status consent UIN with same claim and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -89,6 +94,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Consent_Vid_SameClaim_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_06
       description: Get link status consent UIN with same claim and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -107,6 +113,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_07
       description: Get link status with invalid requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -129,6 +136,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Past_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_08
       description: Get link status with past value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -151,6 +159,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Future_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_09
       description: Get link status with future value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -173,6 +182,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Missing_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_10
       description: Get link status without requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -195,6 +205,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_SpaceVal_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_11
       description: Get link status with only space in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -217,6 +228,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_12
       description: Get link status with invalid transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -239,6 +251,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Expired_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_13
       description: Get link status with expired transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -261,6 +274,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_14
       description: Get link status with empty transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -283,6 +297,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_15
       description: Get link status without transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -305,6 +320,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Null_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_16
       description: Get link status with Null in transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -327,6 +343,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_SpaceVal_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_17
       description: Get link status with only space in transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -349,6 +366,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Invalid_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_18
       description: Get link status with invalid linkCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -371,6 +389,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Expired_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_19
       description: Get link status with expired linkCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -393,6 +412,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Missing_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_20
       description: Get link status without linkCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -415,6 +435,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Empty_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_21
       description: Get link status with empty linkCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -437,6 +458,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_Null_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_22
       description: Get link status with Null in linkCode
       role: resident
       checkErrorsOnlyInResponse: true
@@ -459,6 +481,7 @@ GetLinkStatus:
 
    ESignet_GetLinkStatus_SpaceVal_LinkCode_Neg:
       endPoint: /v1/esignet/linked-authorization/link-status
+      uniqueIdentifier: TC_ESignet_GetLinkStatus_23
       description: Get link status with space in linkCode
       role: resident
       checkErrorsOnlyInResponse: true
