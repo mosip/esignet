@@ -166,7 +166,10 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 				}
 				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
-				if ((testCaseName.contains("_AuthorizationCode_")) || (testCaseName.contains("_AuthToken_Xsrf_"))) {
+				if ((testCaseName.contains("_AuthorizationCode_")) || (testCaseName.contains("_AuthToken_Xsrf_"))
+						|| (testCaseName.contains("_OAuthDetailsRequest_"))
+						|| (testCaseName.contains("_GenerateLinkCode_")) || (testCaseName.contains("_LinkTransaction_"))
+						|| (testCaseName.contains("_LinkAuthorizationCode_"))) {
 					response = postRequestWithCookieAuthHeaderAndXsrfTokenForAutoGenId(
 							tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME, testCaseDTO.getTestCaseName(),
 							idKeyName);

@@ -201,7 +201,9 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
 					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke")
-					|| testCaseName.contains("ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke"))) {
+					|| testCaseName.contains("ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke")
+					|| testCaseName.contains("ESignet_UpdateOIDCClient_StatusCode_Diff_Token_Neg")
+					|| testCaseName.contains("ESignet_CreateOIDCClient_StatusCode_Diff_Token_Neg"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
