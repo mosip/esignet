@@ -114,7 +114,7 @@
 		*S01 T06 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Pre-processor. The Pre-processor(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in Mock Authentication System (Setup). An access token will be generated in the response body.
 		*S01 T07 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
 		
-*Esignet_Mockida_Test_Script.jmx
+*Esignet_Test_Script.jmx
 	
 	* Create Identities in MOSIP Identity System - Password Based Auth (Setup) : This threadgroup generates VIDs and passwords for password authentication and stored in csv file. 
 	* Create Identities in MOSIP Identity System - OTP Based Auth (Setup) : This threadgroup generates VIDs for OTP authentication.
