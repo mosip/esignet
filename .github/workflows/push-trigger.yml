@@ -42,7 +42,6 @@ jobs:
       SERVICE_LOCATION: oidc-ui
       BUILD_ARTIFACT: oidc-ui
       NPM_BUILD_TYPE: BOB
-      CI: false
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
