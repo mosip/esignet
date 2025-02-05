@@ -8,6 +8,7 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -40,10 +41,12 @@ import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
 import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.JWKKeyUtil;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.SkipTestCaseHandler;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 public class EsignetUtil extends AdminTestUtil {
@@ -688,6 +691,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 		}
 	}
+	
 	public static String getAuthTransactionId(String oidcTransactionId) {
 		final String transactionId = oidcTransactionId.replaceAll("_|-", "");
 		String lengthOfTransactionId = getValueFromEsignetActuator(
@@ -1186,5 +1190,156 @@ public class EsignetUtil extends AdminTestUtil {
 
 	private static boolean gettriggerESignetKeyGen13() {
 		return triggerESignetKeyGen13;
+	}
+
+	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
+			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
+	private static final String GRANT_TYPE = "client_credentials";
+	private static final String CLIENT_ID = "client_id";
+	private static final String CLIENT_SECRET = "client_secret";
+	private static final String GRANT_TYPE_KEY = "grant_type";
+	private static final String ACCESS_TOKEN = "access_token";
+
+    private static String partnerCookie = null;
+    private static String mobileAuthCookie = null;
+    
+	private static Response sendPostRequest(String url, Map<String, String> params) {
+		try {
+			return RestAssured.given().contentType("application/x-www-form-urlencoded; charset=utf-8")
+					.formParams(params).log().all().when().log().all().post(url);
+		} catch (Exception e) {
+			logger.error("Error sending POST request to URL: " + url, e);
+			return null;
+		}
+	}
+	
+    public static String getAuthTokenFromKeyCloak(String clientId, String clientSecret) {
+        Map<String, String> params = new HashMap<>();
+        params.put(CLIENT_ID, clientId);
+        params.put(CLIENT_SECRET, clientSecret);
+        params.put(GRANT_TYPE_KEY, GRANT_TYPE);
+
+        Response response = sendPostRequest(TOKEN_URL, params);
+
+        if (response == null) {
+            return "";
+        }
+        logger.info(response.getBody().asString());
+
+        JSONObject responseJson = new JSONObject(response.getBody().asString());
+        return responseJson.optString(ACCESS_TOKEN, "");
+    }
+    
+    public static String getAuthTokenByRole(String role) {
+        if (role == null) return "";
+
+        String roleLowerCase = role.toLowerCase();
+        switch (roleLowerCase) {
+            case "partner":
+                if (!AdminTestUtil.isValidToken(partnerCookie)) {
+                    partnerCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getPmsClientId(), EsignetConfigManager.getPmsClientSecret());
+                }
+                return partnerCookie;
+            case "mobileauth":
+                if (!AdminTestUtil.isValidToken(mobileAuthCookie)) {
+                    mobileAuthCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getMPartnerMobileClientId(), EsignetConfigManager.getMPartnerMobileClientSecret());
+                }
+                return mobileAuthCookie;
+            default:
+                return "";
+        }
+    }
+
+	public static Response postRequestWithCookieAndAuthHeader(String url, String jsonInput, String cookieName, String role,
+			String testCaseName) {
+		Response response = null;
+		token = getAuthTokenByRole(role);
+		String apiKey = null;
+		String partnerId = null;
+		JSONObject req = new JSONObject(jsonInput);
+		apiKey = req.getString(GlobalConstants.APIKEY);
+		req.remove(GlobalConstants.APIKEY);
+		partnerId = req.getString(GlobalConstants.PARTNERID);
+		req.remove(GlobalConstants.PARTNERID);
+
+		HashMap<String, String> headers = new HashMap<>();
+		headers.put("PARTNER-API-KEY", apiKey);
+		headers.put("PARTNER-ID", partnerId);
+		headers.put(cookieName, "Bearer " + token);
+		jsonInput = req.toString();
+		if (BaseTestCase.currentModule.equals(GlobalConstants.ESIGNET)) {
+			jsonInput = smtpOtpHandler(jsonInput, testCaseName);
+		}
+
+		logger.info(GlobalConstants.POST_REQ_URL + url);
+		GlobalMethods.reportRequest(headers.toString(), jsonInput, url);
+		try {
+			response = RestClient.postRequestWithMultipleHeadersWithoutCookie(url, jsonInput,
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, headers);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
+	}
+	
+	public static Response postWithBodyAndBearerToken(String url, String jsonInput, String cookieName,
+			String role, String testCaseName, String idKeyName) {
+		Response response = null;
+		if (testCaseName.contains("Invalid_Token")) {
+			token = "xyz";
+		} else if (testCaseName.contains("NOAUTH")) {
+			token = "";
+		} else {
+			token = getAuthTokenByRole(role);
+		}
+		logger.info(GlobalConstants.POST_REQ_URL + url);
+		GlobalMethods.reportRequest(null, jsonInput, url);
+		try {
+			response = RestClient.postRequestWithBearerToken(url, jsonInput, MediaType.APPLICATION_JSON,
+					MediaType.APPLICATION_JSON, cookieName, token);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
+	}
+	
+	public static Response putWithPathParamsAndBodyAndBearerToken(String url, String jsonInput, String cookieName, String role,
+			String testCaseName, String pathParams) {
+		Response response = null;
+		logger.info("inputJson is::" + jsonInput);
+		JSONObject req = new JSONObject(jsonInput);
+		logger.info(GlobalConstants.REQ_STR + req);
+		HashMap<String, String> pathParamsMap = new HashMap<>();
+		String[] params = pathParams.split(",");
+		for (String param : params) {
+			logger.info("param is::" + param);
+			if (req.has(param)) {
+				logger.info(GlobalConstants.REQ_STR + req);
+				pathParamsMap.put(param, req.get(param).toString());
+				req.remove(param);
+			} else
+				logger.error(GlobalConstants.ERROR_STRING_2 + param + GlobalConstants.IN_STRING + jsonInput);
+		}
+		if (testCaseName.contains("Invalid_Token")) {
+			token = "xyz";
+		} else {
+			token = getAuthTokenByRole(role);
+		}
+		logger.info(GlobalConstants.PUT_REQ_STRING + url);
+		GlobalMethods.reportRequest(null, req.toString(), url);
+		try {
+			response = RestClient.putWithPathParamsBodyAndBearerToken(url, pathParamsMap, req.toString(),
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, cookieName, token);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
 	}
 }

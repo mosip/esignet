@@ -122,7 +122,8 @@ public class PutWithPathParamsAndBody extends AdminTestUtil implements ITest {
 			
 			if (testCaseName.contains("ESignet_")) {
 				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
-				response = putWithPathParamsBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+				inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+				response = EsignetUtil.putWithPathParamsAndBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
 						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
 			} else {
 				response = putWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
