@@ -14,3 +14,33 @@ databases:
     dml: 1
     repoUrl: https://github.com/mosip/esignet.git
     branch: release-1.5.x
+
+  mosip_master:
+    enabled: false
+
+  mosip_audit:
+    enabled: false
+
+  mosip_keymgr:
+    enabled: false
+
+  mosip_kernel:
+    enabled: false
+
+  mosip_idmap:
+    enabled: false
+
+  mosip_prereg:
+    enabled: false
+
+  mosip_idrepo:
+    enabled: false
+
+  mosip_ida:
+    enabled: false
+
+  mosip_credential:
+    enabled: false
+
+  mosip_regprc:
+    enabled: false
