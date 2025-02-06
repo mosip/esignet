@@ -163,8 +163,16 @@ public class SimplePost extends AdminTestUtil implements ITest {
 							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
 
 				} else if (testCaseName.contains("ESignet_SendBindingOtp")) {
-					response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					
+					if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == true){
+						inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+						response = EsignetUtil.postRequestWithCookieAndAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					}else {
+						response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					}
+					
 				} else {
 					response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
 							inputJson, COOKIENAME, testCaseDTO.getTestCaseName());
