@@ -274,7 +274,7 @@
             <stringProp name="RegexExtractor.match_number">1</stringProp>
           </RegexExtractor>
           <hashTree/>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate UTC Time" enabled="true">
+          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate Utc Time" enabled="true">
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <boolProp name="resetInterpreter">false</boolProp>
@@ -363,7 +363,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
             <stringProp name="RegexExtractor.match_number">1</stringProp>
           </RegexExtractor>
           <hashTree/>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate UTC Time" enabled="true">
+          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate Utc Time" enabled="true">
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <boolProp name="resetInterpreter">false</boolProp>
@@ -760,7 +760,7 @@ vars.put(&quot;identifier&quot;, tempValue);
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Generate Auth Token For PMS Endpoint" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Generate Auth Token For Pms Endpoint" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -825,7 +825,7 @@ vars.put(&quot;identifier&quot;, tempValue);
             <intProp name="Assertion.test_type">2</intProp>
           </ResponseAssertion>
           <hashTree/>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate UTC Time" enabled="true">
+          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate Utc Time" enabled="true">
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <boolProp name="resetInterpreter">false</boolProp>
@@ -882,46 +882,6 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           <boolProp name="stopThread">true</boolProp>
           <stringProp name="variableNames">authTokenPms</stringProp>
         </CSVDataSet>
-        <hashTree/>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Generate Key Pair" enabled="true">
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="script">import java.util.UUID;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.KeyUse;
-import java.util.Base64;
-
-// Generate 2048-bit RSA key pair in JWK format, attach some metadata
-RSAKey jwk = new RSAKeyGenerator(2048)
-    .keyUse(KeyUse.SIGNATURE) // indicate the intended use of the key
-    .keyID(UUID.randomUUID().toString()) // give the key a unique ID
-    .generate();
-
-String publicKey = jwk.toPublicJWK().toString();
-vars.put(&quot;publicKey&quot;, publicKey);
-
-String encodedPrivateKey = Base64.getEncoder().encodeToString(jwk.toRSAPrivateKey().getEncoded())
-
-vars.put(&quot;encodedPrivateKey&quot;, encodedPrivateKey);
-</stringProp>
-          <stringProp name="scriptLanguage">groovy</stringProp>
-        </JSR223Sampler>
-        <hashTree/>
-        <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate UTC Time" enabled="true">
-          <stringProp name="filename"></stringProp>
-          <stringProp name="parameters"></stringProp>
-          <boolProp name="resetInterpreter">false</boolProp>
-          <stringProp name="script">import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.TimeZone;//Set the format for the date-time
-SimpleDateFormat dateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd&apos;T&apos;HH:mm:ss.sss&quot;);
-dateFormat.setTimeZone(TimeZone.getTimeZone(&quot;UTC&quot;));// Get the current time in UTC
-Calendar cal = Calendar.getInstance();
-String utcTime = dateFormat.format(cal.getTime());
-vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
-        </BeanShellPreProcessor>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PMS OIDC Client POST Endpoint" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -982,6 +942,46 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
               </elementProp>
             </collectionProp>
           </HeaderManager>
+          <hashTree/>
+          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Generate Utc Time" enabled="true">
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <boolProp name="resetInterpreter">false</boolProp>
+            <stringProp name="script">import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;//Set the format for the date-time
+SimpleDateFormat dateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd&apos;T&apos;HH:mm:ss.sss&quot;);
+dateFormat.setTimeZone(TimeZone.getTimeZone(&quot;UTC&quot;));// Get the current time in UTC
+Calendar cal = Calendar.getInstance();
+String utcTime = dateFormat.format(cal.getTime());
+vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
+          </BeanShellPreProcessor>
+          <hashTree/>
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Generate Key Pair" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import java.util.UUID;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.KeyUse;
+import java.util.Base64;
+
+// Generate 2048-bit RSA key pair in JWK format, attach some metadata
+RSAKey jwk = new RSAKeyGenerator(2048)
+    .keyUse(KeyUse.SIGNATURE) // indicate the intended use of the key
+    .keyID(UUID.randomUUID().toString()) // give the key a unique ID
+    .generate();
+
+String publicKey = jwk.toPublicJWK().toString();
+vars.put(&quot;publicKey&quot;, publicKey);
+
+String encodedPrivateKey = Base64.getEncoder().encodeToString(jwk.toRSAPrivateKey().getEncoded())
+
+vars.put(&quot;encodedPrivateKey&quot;, encodedPrivateKey);
+</stringProp>
+          </JSR223PreProcessor>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
@@ -1057,7 +1057,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           <boolProp name="recycle">true</boolProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
           <boolProp name="stopThread">false</boolProp>
-          <stringProp name="variableNames">vid,passwordPwdAuth,fullName</stringProp>
+          <stringProp name="variableNames">vid,password,fullName</stringProp>
         </CSVDataSet>
         <hashTree/>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S01 T01 Get Csrf Token" enabled="true">
@@ -1911,7 +1911,7 @@ else
           <boolProp name="recycle">true</boolProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
           <boolProp name="stopThread">false</boolProp>
-          <stringProp name="variableNames">individualIdPwdAuth,passwordPwdAuth,fullName</stringProp>
+          <stringProp name="variableNames">individualId,passwordAuth,fullName</stringProp>
         </CSVDataSet>
         <hashTree/>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S01 T01 Get Csrf Token" enabled="true">
@@ -2183,7 +2183,7 @@ function encodeBase64Url(value) {
         &quot;challengeList&quot; : [&#xd;
             {&#xd;
                 &quot;authFactorType&quot; : &quot;PWD&quot;,&#xd;
-                &quot;challenge&quot; : &quot;${passwordPwdAuth}&quot;,&#xd;
+                &quot;challenge&quot; : &quot;${passwordAuth}&quot;,&#xd;
                 &quot;format&quot; : &quot;alpha-numeric&quot;&#xd;
             }&#xd;
         ]&#xd;

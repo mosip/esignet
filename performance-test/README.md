@@ -85,7 +85,7 @@
 		
 ### Mosip Config changes for Mosip IDA
 
-* eSignet-default properties: eSignet will be pointing to MockIDA services after performing following changes
+* eSignet-default properties: eSignet will be pointing to Mosip IDA services after performing following changes
 		*mosip.esignet.integration.authenticator=IdaAuthenticatorImpl
 		*mosip.esignet.integration.key-binder=IdaKeyBinderImpl
 				
@@ -134,7 +134,7 @@
 		*S02 T05 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Pre-processor. The Pre-processor(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
 		*S02 T06 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
 	
-### Downloading Plugin manager jar file for the purpose installing other JMeter specific plugins
+### Downloading Plugin manager jar file for the purpose of installing other JMeter specific plugins
 
 * Download JMeter plugin manager from below url links.
 	*https://jmeter-plugins.org/get/
