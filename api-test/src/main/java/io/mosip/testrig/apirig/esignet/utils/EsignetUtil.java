@@ -9,8 +9,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.ws.rs.core.MediaType;
 
@@ -18,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
 
@@ -53,128 +52,172 @@ public class EsignetUtil extends AdminTestUtil {
 
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
 	
-	public static String getIdentityPluginNameFromEsignetActuator() {
-		// Possible values = IdaAuthenticatorImpl, MockAuthenticationService
-
-		String plugin = getValueFromEsignetActuator("classpath:/application.properties",
-				"mosip.esignet.integration.authenticator");
-
-		if (plugin == null || plugin.isBlank() == true) {
-			plugin = getValueFromEsignetActuator("classpath:/application-default.properties",
-					"mosip.esignet.integration.authenticator");
-		}
-		
-		if (plugin == null || plugin.isBlank() == true) {
-			plugin = getValueFromEsignetActuator("mosip-config/esignet",
-					"mosip.esignet.integration.authenticator");
-		}
-
-		return plugin;
-	}
-	
 	public static void getSupportedLanguage() {
-		String supportedLanguages = getValueFromSignupActuator("classpath:/application-default.properties",
-				"mosip.signup.supported-languages");
 
-		if (supportedLanguages != null && supportedLanguages.isBlank() == false) {
-			supportedLanguages = supportedLanguages.replace("{", "").replace("}", "").replace("'", "");
-
-			// Split the string by commas
-			String[] languages = supportedLanguages.split(",");
-
-			// Use a TreeSet to sort the languages
-			Set<String> sortedLanguages = new TreeSet<>();
-			for (String language : languages) {
-				sortedLanguages.add(language.trim()); // Trim to remove any extra spaces
-			}
-
-			// Add sorted languages to the languageList
-			BaseTestCase.languageList.addAll(sortedLanguages);
-
-			logger.info("languageList " + BaseTestCase.languageList);
+		if (EsignetConfigManager.getproperty("esignetSupportedLanguage") != null) {
+			BaseTestCase.languageList.add(EsignetConfigManager.getproperty(EsignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
+			logger.info("Supported Language = " + EsignetConfigManager.getproperty(EsignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
 		} else {
 			logger.error("Language not found");
 		}
 	}
 	
-//	private static final Map<String, String> actuatorValueCache = new HashMap<>();
+	public static JSONArray esignetActiveProfiles = null;
+	
+	public static String getIdentityPluginNameFromEsignetActuator() {
+		// Possible values = IdaAuthenticatorImpl, MockAuthenticationService
+		String plugin = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+				"mosip.esignet.integration.authenticator");
+
+		return plugin;
+	}
+	
+	public static JSONArray getActiveProfilesFromActuator(String url, String key) {
+		JSONArray activeProfiles = null;
+
+		try {
+			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+			JSONObject responseJson = new JSONObject(response.getBody().asString());
+
+			// If the key exists in the response, return the associated JSONArray
+			if (responseJson.has(key)) {
+				activeProfiles = responseJson.getJSONArray(key);
+			} else {
+				logger.warn("The key '" + key + "' was not found in the response.");
+			}
+
+		} catch (Exception e) {
+			// Handle other errors like network issues, etc.
+			logger.error("Error fetching active profiles from the actuator: " + e.getMessage());
+		}
+
+		return activeProfiles;
+	}
+	
+	public static String getValueFromEsignetActuator(String section, String key) {
+		String value = null;
+
+		// Try to fetch profiles if not already fetched
+		if (esignetActiveProfiles == null || esignetActiveProfiles.length() == 0) {
+			esignetActiveProfiles = getActiveProfilesFromActuator(EsignetConstants.ESIGNET_ACTUATOR_URL,
+					EsignetConstants.ACTIVE_PROFILES);
+		}
+
+		// Normalize the key
+		String keyForEnvVariableSection = key.toUpperCase().replace("-", "_").replace(".", "_");
+
+		// Try fetching the value from different sections
+		value = getValueFromEsignetActuator(EsignetConstants.SYSTEM_ENV_SECTION, keyForEnvVariableSection,
+				EsignetConstants.ESIGNET_ACTUATOR_URL);
+
+		// Fallback to other sections if value is not found
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES, key,
+					EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_DEFAULT_PROPERTIES, key,
+					EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		// Try profiles from active profiles if available
+		if (value == null || value.isBlank()) {
+			if (esignetActiveProfiles != null && esignetActiveProfiles.length() > 0) {
+				for (int i = 0; i < esignetActiveProfiles.length(); i++) {
+					String propertySection = esignetActiveProfiles.getString(i).equals(EsignetConstants.DEFAULT_STRING)
+							? EsignetConstants.MOSIP_CONFIG_APPLICATION_HYPHEN_STRING
+									+ esignetActiveProfiles.getString(i) + EsignetConstants.DOT_PROPERTIES_STRING
+							: esignetActiveProfiles.getString(i) + EsignetConstants.DOT_PROPERTIES_STRING;
+
+					value = getValueFromEsignetActuator(propertySection, key, EsignetConstants.ESIGNET_ACTUATOR_URL);
+
+					if (value != null && !value.isBlank()) {
+						break;
+					}
+				}
+			} else {
+				logger.warn("No active profiles were retrieved.");
+			}
+		}
+
+		// Fallback to a default section
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(), key,
+					EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		// Final fallback to the original section if no value was found
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(section, key, EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		// Log the final result or an error message if not found
+		if (value == null || value.isBlank()) {
+			logger.error("Value not found for section: " + section + ", key: " + key);
+		}
+
+		return value;
+	}
+
 	
 	public static JSONArray esignetActuatorResponseArray = null;
 
-	public static String getValueFromEsignetActuator(String section, String key) {
-		String url = EsignetConfigManager.getEsignetBaseUrl() + EsignetConfigManager.getproperty("actuatorEsignetEndpoint");
+	public static String getValueFromEsignetActuator(String section, String key, String url) {
+		// Combine the cache key to uniquely identify each request
 		String actuatorCacheKey = url + section + key;
+
+		// Check if the value is already cached
 		String value = actuatorValueCache.get(actuatorCacheKey);
-		if (value != null && !value.isEmpty())
-			return value;
+		if (value != null && !value.isEmpty()) {
+			return value; // Return cached value if available
+		}
 
 		try {
+			// Fetch the actuator response array if it's not already populated
 			if (esignetActuatorResponseArray == null) {
-				Response response = null;
-				JSONObject responseJson = null;
-				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
-				responseJson = new JSONObject(response.getBody().asString());
+				Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+				JSONObject responseJson = new JSONObject(response.getBody().asString());
 				esignetActuatorResponseArray = responseJson.getJSONArray("propertySources");
 			}
 
+			// Loop through the "propertySources" to find the matching section and key
 			for (int i = 0, size = esignetActuatorResponseArray.length(); i < size; i++) {
 				JSONObject eachJson = esignetActuatorResponseArray.getJSONObject(i);
+				// Check if the section matches
 				if (eachJson.get("name").toString().contains(section)) {
-					logger.info(eachJson.getJSONObject(GlobalConstants.PROPERTIES));
-					value = eachJson.getJSONObject(GlobalConstants.PROPERTIES).getJSONObject(key)
-							.get(GlobalConstants.VALUE).toString();
-					if (EsignetConfigManager.IsDebugEnabled())
-						logger.info("Actuator: " + url + " key: " + key + " value: " + value);
-					break;
+					// Get the value from the properties object
+					JSONObject properties = eachJson.getJSONObject(GlobalConstants.PROPERTIES);
+					if (properties.has(key)) {
+						value = properties.getJSONObject(key).get(GlobalConstants.VALUE).toString();
+						// Log the value if debug is enabled
+						if (EsignetConfigManager.IsDebugEnabled()) {
+							logger.info("Actuator: " + url + " key: " + key + " value: " + value);
+						}
+						break; // Exit the loop once the value is found
+					} else {
+						logger.warn("Key '" + key + "' not found in section '" + section + "'.");
+					}
 				}
 			}
-			actuatorValueCache.put(actuatorCacheKey, value);
 
-			return value;
-		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return value;
-		}
-
-	}
-	
-	public static JSONArray signupActuatorResponseArray = null;
-
-	public static String getValueFromSignupActuator(String section, String key) {
-		String url = EsignetConfigManager.getSignupBaseUrl() + EsignetConfigManager.getproperty("actuatorSignupEndpoint");
-		String actuatorCacheKey = url + section + key;
-		String value = actuatorValueCache.get(actuatorCacheKey);
-		if (value != null && !value.isEmpty())
-			return value;
-
-		try {
-			if (signupActuatorResponseArray == null) {
-				Response response = null;
-				JSONObject responseJson = null;
-				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
-				responseJson = new JSONObject(response.getBody().asString());
-				signupActuatorResponseArray = responseJson.getJSONArray("propertySources");
+			// Cache the retrieved value for future lookups
+			if (value != null && !value.isEmpty()) {
+				actuatorValueCache.put(actuatorCacheKey, value);
+			} else {
+				logger.warn("No value found for section: " + section + ", key: " + key);
 			}
 
-			for (int i = 0, size = signupActuatorResponseArray.length(); i < size; i++) {
-				JSONObject eachJson = signupActuatorResponseArray.getJSONObject(i);
-				if (eachJson.get("name").toString().contains(section)) {
-					logger.info(eachJson.getJSONObject(GlobalConstants.PROPERTIES));
-					value = eachJson.getJSONObject(GlobalConstants.PROPERTIES).getJSONObject(key)
-							.get(GlobalConstants.VALUE).toString();
-					if (EsignetConfigManager.IsDebugEnabled())
-						logger.info("Actuator: " + url + " key: " + key + " value: " + value);
-					break;
-				}
-			}
-			actuatorValueCache.put(actuatorCacheKey, value);
-
 			return value;
+		} catch (JSONException e) {
+			// Handle JSON parsing exceptions separately
+			logger.error("JSON parsing error for section: " + section + ", key: " + key + " - " + e.getMessage());
+			return null; // Return null if JSON parsing fails
 		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return value;
+			// Catch any other exceptions (e.g., network issues)
+			logger.error("Error fetching value for section: " + section + ", key: " + key + " - " + e.getMessage());
+			return null; // Return null if any other exception occurs
 		}
-
 	}
 	
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
