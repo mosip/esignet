@@ -178,7 +178,11 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 							idKeyName);
 				} else {
 					if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
-							.contains("mockauthenticationservice") == true) {
+							.contains("mockauthenticationservice") == true
+							|| (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+									.contains("sunbirdrcauthenticationservice") == true
+									&& testCaseName
+											.contains("ESignet_CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid"))) {
 						inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
 						response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(),
 								inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);

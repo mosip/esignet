@@ -23,5 +23,7 @@ public class EsignetConstants {
 	public static final String DOT_PROPERTIES_STRING = ".properties";
 	
 	public static final String ESIGNET_SUPPORTED_LANGUAGE = "esignetSupportedLanguage";
+	
+	public static final String MOSIP_ESIGNET_SUPPORTED_CREDENTIAL_SCOPES_LANGUAGE = "mosip.esignet.supported.credential.scopes";
 
 }

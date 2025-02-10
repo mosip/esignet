@@ -10,7 +10,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -31,12 +31,11 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/SunBCC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
+      inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "$REMOVE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -142,14 +141,14 @@ OAuthDetailsRequestSunBirdCNegTC:
       output: '{
        
 }'
-   ESignet_OAuthDetailsRequest_SunBirdC_with_openid_profile_sunbird_data:
+   ESignet_OAuthDetailsRequest_SunBirdC_with_openid_profile_sunbird_data_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       description: To request OAuthDetails for SunBirdC with openid profile sunbird value in scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
-      outputTemplate: esignet/error
+      outputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdCResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
@@ -166,11 +165,6 @@ OAuthDetailsRequestSunBirdCNegTC:
         "codeChallengeMethod": "S256"
 }'
       output: '{
-  "errors": [
-    {
-      "erroCode": "invalid_scope"
-    }
-  ]
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_random_codeChallenege_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
@@ -183,7 +177,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -209,7 +203,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -240,7 +234,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -270,7 +264,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -296,7 +290,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -326,7 +320,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -356,7 +350,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -387,7 +381,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -414,7 +408,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -441,7 +435,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -468,7 +462,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -495,7 +489,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -522,7 +516,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -549,7 +543,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -576,7 +570,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -603,7 +597,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -630,7 +624,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -657,7 +651,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -684,7 +678,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -711,7 +705,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -738,7 +732,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -765,7 +759,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",

@@ -324,6 +324,13 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, GlobalConstants.TIMESTAMP, generateCurrentUTCTimeStamp());
 		}
 		
+		if (jsonString.contains("$SUNBIRD_SCOPE$")) {
+			jsonString = replaceKeywordValue(jsonString, "$SUNBIRD_SCOPE$",
+					getValueFromEsignetActuator(jsonString,
+							EsignetConstants.MOSIP_ESIGNET_SUPPORTED_CREDENTIAL_SCOPES_LANGUAGE).replace("{'", "")
+							.replace("'}", ""));
+		}
+		
 		if (testCaseName.contains("ESignet_GenerateApiKey_")) {
 			KeycloakUserManager.createKeyCloakUsers(genPartnerName, genPartnerEmail, "AUTH_PARTNER");
 		}
@@ -785,9 +792,6 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	public static String signJWKKeyForMock(String clientId, RSAKey jwkKey) {
 		String tempUrl = getValueFromEsignetWellKnownEndPoint("token_endpoint", EsignetConfigManager.getEsignetBaseUrl());
-		if (tempUrl.contains("esignet.")) {
-			tempUrl = tempUrl.replace("esignet.", EsignetConfigManager.getproperty("esignetMockBaseURL"));
-		}
 		int idTokenExpirySecs = Integer
 				.parseInt(getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(),
 						GlobalConstants.MOSIP_ESIGNET_ID_TOKEN_EXPIRE_SECONDS));
