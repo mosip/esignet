@@ -2616,8 +2616,8 @@ def jsonObject = jsonSlurper.parseText(decodedJsonString)
 
 
 def unescapedJsonString = StringEscapeUtils.unescapeJava(groovy.json.JsonOutput.toJson(jsonObject))
-log.info(unescapedJsonString);
-log.info(data);
+//log.info(unescapedJsonString);
+//log.info(data);
 // applying assertion
 if(unescapedJsonString.contains(data))
 {
