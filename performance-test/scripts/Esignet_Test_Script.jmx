@@ -2179,7 +2179,7 @@ function encodeBase64Url(value) {
     &quot;requestTime&quot;: &quot;${utcTime}Z&quot;,&#xd;
     &quot;request&quot;: {&#xd;
         &quot;transactionId&quot;: &quot;${tidUserInfoPrep}&quot;,&#xd;
-        &quot;individualId&quot;: &quot;${individualIdPwdAuth}&quot;,&#xd;
+        &quot;individualId&quot;: &quot;${individualId}&quot;,&#xd;
         &quot;challengeList&quot; : [&#xd;
             {&#xd;
                 &quot;authFactorType&quot; : &quot;PWD&quot;,&#xd;
