@@ -45,7 +45,7 @@ function installing_postgres() {
   kubectl label ns $NS istio-injection=enabled --overwrite
 
   echo Installing  Postgres
-  helm -n $NS install postgres bitnami/postgresql --version 13.1.5 -f values.yaml --wait
+  helm -n $NS install postgres bitnami/postgresql --version 13.1.5 -f values.yaml --wait --timeout 3m
   # Run the Python script to generate secrets and configmap
   if [ -f generate-secret-cm.py ]; then
       echo "Running generate_secret.py to create Postgres secrets and configmap..."
