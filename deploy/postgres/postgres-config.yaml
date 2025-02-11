@@ -6,7 +6,7 @@ metadata:
   labels:
     app: postgres
 data:
-  database-host: "postgres-postgresql"
+  database-host: "postgres-postgresql.postgres"
   database-port: "5432"
   database-username: "esignetuser"
   database-name: "mosip_esignet"

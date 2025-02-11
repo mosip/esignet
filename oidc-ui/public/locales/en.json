@@ -176,7 +176,9 @@
     "wellknown_api": ".wellknown API"
   },
   "header": {
-    "login_heading": "Login with eSignet",
+    "login_heading": "Login using eSignet",
+    "verify_heading": "Verify using eSignet",
+    "link_heading": "Link using eSignet",
     "login_subheading": "Please enter your registered username and password",
     "login_linkName": "Preregister",
     "more_ways_to_sign_in": "More Ways to Login",
@@ -282,7 +284,7 @@
         "mobile": "Enter Mobile Number",
         "nrc": "Enter NRC ID",
         "vid": "Enter VID",
-        "email": "Enter Email Here"
+        "email": "Enter Email ID"
       }
     }
   },

@@ -196,7 +196,7 @@ extraEnvVars: []
 ## ConfigMap with extra environment variables
 ##
 extraEnvVarsCM:
-  - global
+  - esignet-global
   - s3
   - keycloak-host
   - db
@@ -249,7 +249,7 @@ initContainers:
         value: "true"
     envFrom:
       - configMapRef:
-          name: global
+          name: esignet-global
     image: docker.io/openjdk:11-jre
     imagePullPolicy: Always
     name: cacerts

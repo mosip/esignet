@@ -114,6 +114,12 @@ const errorCodeObj = {
   no_ekyc_provider: "no_ekyc_provider"
 };
 
+const purposeObj = {
+  login: "login_heading",
+  verify: "verify_heading",
+  link: "link_heading"
+}
+
 export {
   deviceType,
   challengeTypes,
@@ -124,5 +130,6 @@ export {
   challengeFormats,
   walletConfigKeys,
   modalityIconPath,
-  errorCodeObj
+  errorCodeObj,
+  purposeObj
 };

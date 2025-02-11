@@ -18,6 +18,7 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 import Form from "../components/Form";
+import { purposeObj } from "../constants/clientConstants";
 
 function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
   return React.createElement(L1Biometrics, {
@@ -135,6 +136,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
   const [authFactorType, setAuthFactorType] = useState(null);
+  const [heading, setHeading] = useState(purposeObj.login);
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
@@ -231,6 +233,11 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const loadComponent = () => {
     let oAuthDetailResponse = oidcService.getOAuthDetails();
+    // set dynamic heading according the purpose from oauth details
+    // otherwise default heading will be login
+    if (oAuthDetailResponse?.purpose && (oAuthDetailResponse.purpose in purposeObj)) {
+      setHeading(purposeObj[oAuthDetailResponse.purpose]);
+    }
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientName(oAuthDetailResponse?.clientName);
     handleBackButtonClick();
@@ -253,7 +260,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     <>
       {!checkForIDT(JSON.parse(decodeOAuth).authFactors) && (
         <Background
-          heading={t("login_heading", {
+          heading={t(heading, {
             idProviderName: window._env_.DEFAULT_ID_PROVIDER_NAME,
           })}
           subheading={clientName}
