@@ -720,9 +720,6 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = request.toString();
 			tempUrl = getValueFromEsignetWellKnownEndPoint("issuer", EsignetConfigManager.getEsignetBaseUrl());
-			if (tempUrl.contains("esignet.")) {
-				tempUrl = tempUrl.replace("esignet.", EsignetConfigManager.getproperty("esignetMockBaseURL"));
-			}
 			jsonString = replaceKeywordValue(jsonString, "$PROOF_JWT_2$",
 					signJWKForMock(clientId, accessToken, oidcJWKKey4, testCaseName, tempUrl));
 		}
