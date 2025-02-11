@@ -31,7 +31,7 @@ function initialize_db() {
           kubectl -n $NS delete secret db-common-secrets  || true
 	  ../copy_cm_func.sh secret postgres-postgresql postgres $NS
           echo Initializing DB
-          helm -n $NS install postgres-init mosip/postgres-init --set image.repository=mosipdev/postgres-init --set image.tag=develop --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
+          helm -n $NS install postgres-init mosip/postgres-init --version $CHART_VERSION -f init_values.yaml --wait --wait-for-jobs
           break
       elif [ "$yn" = "N" ] || [ "$yn" = "n" ]; then
           echo "Skipping esignet postgres DB initialisation as per your input"
