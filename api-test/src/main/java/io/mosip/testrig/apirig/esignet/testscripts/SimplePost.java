@@ -135,36 +135,37 @@ public class SimplePost extends AdminTestUtil implements ITest {
 				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC")) {
-//					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
-//						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
 					if (EsignetConfigManager.getEsignetMockBaseURL() != null
 							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
 						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
-					response = postWithBodyAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
-							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
+
+					response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
+							inputJson, COOKIENAME, testCaseDTO.getTestCaseName());
 				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$")
 						&& testCaseName.contains("SunBirdR")) {
-
-//					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
-//						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
 					if (EsignetConfigManager.getSunBirdBaseURL() != null
 							&& !EsignetConfigManager.getSunBirdBaseURL().isBlank())
 						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
-					// Once sunbird registry is pointing to specific env, remove the above line and
-					// uncomment below line
-					// tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL,
-					// ConfigManager.getSunBirdBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 
 					response = postWithBodyAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
 							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
 
 				} else if (testCaseName.contains("ESignet_SendBindingOtp")) {
-					response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+
+					if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+							.contains("mockauthenticationservice") == true) {
+						inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+						response = EsignetUtil.postRequestWithCookieAndAuthHeader(tempUrl + testCaseDTO.getEndPoint(),
+								inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					} else {
+						response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					}
+
 				} else {
 					response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
 							inputJson, COOKIENAME, testCaseDTO.getTestCaseName());

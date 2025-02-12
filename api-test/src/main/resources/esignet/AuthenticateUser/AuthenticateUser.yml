@@ -1973,7 +1973,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_format",
+      "errorCode": "invalid_auth_factor_type",
       "errorMessage": "$IGNORE$"
     }
   ],

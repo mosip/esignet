@@ -37,6 +37,7 @@ import io.mosip.testrig.apirig.utils.AuthTestsUtil;
 import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.JWKKeyUtil;
 import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
@@ -84,6 +85,7 @@ public class MosipTestRunner {
 			EsignetConfigManager.init();
 			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
+			GlobalMethods.setModuleNameAndReCompilePattern(EsignetConfigManager.getproperty("moduleNamePattern"));
 			setLogLevels();
 
 //			HealthChecker healthcheck = new HealthChecker();
@@ -128,6 +130,11 @@ public class MosipTestRunner {
 					LOGGER.error("partnerKeyURL is null");
 				else
 					startTestRunner();
+			} else if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("sunbirdrcauthenticationservice") == true) {
+				BaseTestCase.isTargetEnvLatest = true;
+				EsignetUtil.getSupportedLanguage();
+				startTestRunner();
 			} else {
 				BaseTestCase.isTargetEnvLatest = true;
 				EsignetUtil.getSupportedLanguage();

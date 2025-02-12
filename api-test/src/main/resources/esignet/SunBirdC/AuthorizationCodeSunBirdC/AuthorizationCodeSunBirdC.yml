@@ -13,7 +13,7 @@ AuthorizationCodeSunBirdC:
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_sid_transactionId$",
-      	"permittedAuthorizeScopes": [{scope: "sunbird_rc_insurance_vc_ldp"}]
+      	"permittedAuthorizeScopes": [{scope: "$REMOVE$"}]
 }'
       output: '{
 }'
