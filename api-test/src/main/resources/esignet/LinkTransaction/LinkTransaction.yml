@@ -174,7 +174,7 @@ LinkTransaction:
         
 }'
 
-   ESignet_Link_Transaction_Absent_RequestTime_Neg:
+   ESignet_LinkTransaction_Absent_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/link-transaction
       uniqueIdentifier: TC_ESignet_LinkTransaction_10
       description: link transaction without requestTime
