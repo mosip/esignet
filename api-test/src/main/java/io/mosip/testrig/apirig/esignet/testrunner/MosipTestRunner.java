@@ -69,10 +69,6 @@ public class MosipTestRunner {
 
 		try {
 			Map<String, String> envMap = System.getenv();
-			LOGGER.info("** ------------- Get ALL ENV varibales --------------------------------------------- **");
-			for (String envName : envMap.keySet()) {
-				LOGGER.info(String.format("ENV %s = %s%n", envName, envMap.get(envName)));
-			}
 			BaseTestCase.setRunContext(getRunType(), jarUrl);
 
 			ExtractResource.removeOldMosipTestTestResource();
