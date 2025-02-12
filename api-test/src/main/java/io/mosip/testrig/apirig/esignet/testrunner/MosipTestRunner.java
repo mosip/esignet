@@ -68,7 +68,8 @@ public class MosipTestRunner {
 	public static void main(String[] arg) {
 
 		try {
-			Map<String, String> envMap = System.getenv();
+			LOGGER.info("** ------------- API Test Rig Run Started --------------------------------------------- **");
+			
 			BaseTestCase.setRunContext(getRunType(), jarUrl);
 
 			ExtractResource.removeOldMosipTestTestResource();
