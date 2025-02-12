@@ -44,3 +44,12 @@ databases:
 
   mosip_regprc:
     enabled: false
+
+  mosip_pms:
+    enabled: false
+
+  mosip_resident:
+    enabled: false
+
+ mosip_hotlist:
+    enabled: false
