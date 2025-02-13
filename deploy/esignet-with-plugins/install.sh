@@ -6,6 +6,8 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
+NS=esignet
+CHART_VERSION=1.5.0
 echo Create $NS namespace
 kubectl create ns $NS
 
@@ -21,9 +23,6 @@ function installing_esignet_with_plugins() {
           echo "Please provide a correct option (Y or N)"
       fi
   done
-
-  NS=esignet
-  CHART_VERSION=1.5.0
 
   ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
 
