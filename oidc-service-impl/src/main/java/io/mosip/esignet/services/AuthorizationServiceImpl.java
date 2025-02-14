@@ -421,7 +421,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
         oAuthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oAuthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
-        oAuthDetailResponse.setConfigs(uiConfigMap);
+        Map<String, Object> config = new HashMap<>(uiConfigMap);
+        config.put("clientAdditionalConfig", clientDetailDto.getAdditionalConfig());
+        oAuthDetailResponse.setConfigs(config);
         oAuthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
         oAuthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
 

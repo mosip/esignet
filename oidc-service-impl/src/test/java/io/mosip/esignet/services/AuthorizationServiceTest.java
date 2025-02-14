@@ -128,6 +128,7 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationServiceImpl, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);
         ReflectionTestUtils.setField(authorizationServiceImpl,"captchaRequired",Arrays.asList("bio","pwd"));
+        ReflectionTestUtils.setField(authorizationServiceImpl, "uiConfigMap", new HashMap<String, Object>());
 
         when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
     }
