@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=1.5.0
+CHART_VERSION=1.5.1
 echo Create $NS namespace
 kubectl create ns $NS
 
