@@ -139,6 +139,7 @@ jobs:
     uses: mosip/kattu/.github/workflows/npm-sonar-analysis.yml@develop
     with:
       SERVICE_LOCATION: oidc-ui
+      NPM_BUILD_TYPE: BOB
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       ORG_KEY: ${{ secrets.ORG_KEY }}
