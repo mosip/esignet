@@ -1,6 +1,7 @@
 AuthenticateUserSunBirdC:
    ESignet_AuthenticateUserSunBirdC_Valid_Smoke:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdC_01
       description: To Authenticate the User for SunBirdC with all valid data
       role: resident
       restMethod: post
@@ -13,7 +14,7 @@ AuthenticateUserSunBirdC:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
-      	"authFactorType" : "KBA",
+      	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
       	"format": "base64url-encoded-json"
     }'

@@ -1,6 +1,7 @@
 OAuthDetailsRequestLinked:
    ESignet_OAuthDetailsRequest_LinkAuth_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_01
       description: Oauthdetails request linkAuth with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -26,6 +27,7 @@ OAuthDetailsRequestLinked:
 
    ESignet_OAuthDetailsRequest_LinkAuth_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_02
       description: Oauthdetails request linkAuth VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -51,6 +53,7 @@ OAuthDetailsRequestLinked:
 
    ESignet_OAuthDetailsRequest_LinkAuth_Consent_User2_Uin_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_03
       description: Oauthdetails request linkAuth consent User2 UIN with valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -76,6 +79,7 @@ OAuthDetailsRequestLinked:
 
    ESignet_OAuthDetailsRequest_LinkAuth_Consent_User2_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_04
       description: Oauthdetails request linkAuth consent User2 VID with valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -101,6 +105,7 @@ OAuthDetailsRequestLinked:
 
    ESignet_OAuthDetailsRequest_LinkAuth_Consent_SameClaim_Uin_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_05
       description: Oauthdetails request linkAuth consent with same claim details UIN
       role: resident
       checkErrorsOnlyInResponse: true
@@ -126,6 +131,7 @@ OAuthDetailsRequestLinked:
 
    ESignet_OAuthDetailsRequest_LinkAuth_Consent_SameClaim_Vid_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_06
       description: Oauthdetails request linkAuth consent with same claim details VID
       role: resident
       checkErrorsOnlyInResponse: true
@@ -151,6 +157,7 @@ OAuthDetailsRequestLinked:
 
    ESignet_OAuthDetailsRequest_LinkAuth_Other_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_07
       description: Oauthdetails request other linkAuth  with valid details
       role: resident
       checkErrorsOnlyInResponse: true

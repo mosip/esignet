@@ -1,6 +1,7 @@
 GenerateTokenLinked:
    ESignet_GenerateToken_Linked_uin_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenLinked_01
       description: Generate token linked UIN with all valid details
       role: resident
       restMethod: post
@@ -21,6 +22,7 @@ GenerateTokenLinked:
 
    ESignet_GenerateToken_Linked_Vid_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenLinked_02
       description: Generate token linked VID with all valid details
       role: resident
       restMethod: post
@@ -41,6 +43,7 @@ GenerateTokenLinked:
 
    ESignet_GenerateToken_Linked_uin_SameClaim_all_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenLinked_03
       description: Generate token linked UIN with same claim and all valid details
       role: resident
       restMethod: post
@@ -61,6 +64,7 @@ GenerateTokenLinked:
 
    ESignet_GenerateToken_Linked_Vid_SameClaim_all_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenLinked_04
       description: Generate token linked VID with same claim and all valid details
       role: resident
       restMethod: post
@@ -81,6 +85,7 @@ GenerateTokenLinked:
 
    ESignet_GenerateToken_Linked_uin_User2_all_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenLinked_05
       description: Generate token linked UIN for User2 with all valid details
       role: resident
       restMethod: post
@@ -101,6 +106,7 @@ GenerateTokenLinked:
 
    ESignet_GenerateToken_Linked_Vid_User2_all_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenLinked_06
       description: Generate token linked VID for User2 with all valid details
       role: resident
       restMethod: post

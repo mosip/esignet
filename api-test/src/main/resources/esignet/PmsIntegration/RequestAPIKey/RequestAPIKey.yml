@@ -1,6 +1,7 @@
 RequestAPIKeyForAuthPartner:
    Esignet_SubmitPartnerApiKeyRequest_Rejection_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$/policy/map
+      uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_01
       description: Submit partner Api Key request rejection all valid details
       role: partner
       restMethod: post 
@@ -18,6 +19,7 @@ RequestAPIKeyForAuthPartner:
 
    Esignet_SubmitPartnerApiKeyRequest_Rejection_Misp_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$/policy/map
+      uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_02
       description: Submit partner Api Key request rejection Misp valid details
       role: partner
       restMethod: post 
@@ -35,6 +37,7 @@ RequestAPIKeyForAuthPartner:
 
    Esignet_SubmitPartnerApiKeyRequest_Kyc_Rejection_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$/policy/map
+      uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_03
       description: Submit partner Api Key request Kyc rejection all valid details
       role: partner
       restMethod: post 
@@ -52,6 +55,7 @@ RequestAPIKeyForAuthPartner:
 
    Esignet_SubmitPartnerApiKeyRequest_Rejection_NonAuth_All_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_NonAuth_All_Valid_Smoke_sid_partnerId$/policy/map
+      uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_04
       description: Submit partner Api Key request rejection NonAuth all valid details
       role: partner
       restMethod: post 
@@ -69,6 +73,7 @@ RequestAPIKeyForAuthPartner:
 
    Esignet_SubmitPartnerApiKeyRequest_Rejection_Misp_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Misp_False_Valid_Smoke_sid_partnerId$/policy/map
+      uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_05
       description: Submit partner Api Key request rejection Misp false valid details
       role: partner
       restMethod: post 
@@ -86,6 +91,7 @@ RequestAPIKeyForAuthPartner:
 
    Esignet_SubmitPartnerApiKeyRequest_Rejection_Auth_False_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/$ID:PartnerSelfRegistration_Auth_False_Valid_Smoke_sid_partnerId$/policy/map
+      uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_06
       description: Submit partner Api Key request rejection Auth false valid details
       role: partner
       restMethod: post 

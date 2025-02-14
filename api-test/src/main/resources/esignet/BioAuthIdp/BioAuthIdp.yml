@@ -1,6 +1,7 @@
 BioAuth:
   ESignet_BioAuth_Biometric_Face_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_01
       description: Biometric Face Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -42,6 +43,7 @@ BioAuth:
 
   ESignet_BioAuth_Biometric_RingFinger_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_02
       description: Biometric RingFinger Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -82,6 +84,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_03
       description: Biometric LeftMiddleFinger Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -122,6 +125,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftLittleFinger_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_04
       description: Biometric LeftLittleFinger Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -162,6 +166,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightIndexFinger_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_05
       description: Biometric RightIndexFinger Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -202,6 +207,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightRingFinger_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_06
       description: Biometric RightRingFinger Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -242,6 +248,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightMiddleFinger_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_07
       description: Biometric RightMiddleFinger Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -282,6 +289,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightLittleFinger_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_08
       description: Biometric RightLittleFinger Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -322,6 +330,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftThumb_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_09
       description: Biometric LeftThumb Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -362,6 +371,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightThumb_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_10
       description: Biometric RightThumb Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -402,6 +412,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightIris_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_11
       description: Biometric RightIris Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -442,6 +453,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftIris_With_Valid_uin_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_12
       description: Biometric LeftIris Auth with all valid details UIN
       role: resident
       restMethod: post
@@ -482,6 +494,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_Face_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_13
       description: Biometric Face Auth with all valid details VID
       role: resident
       restMethod: post
@@ -522,6 +535,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RingFinger_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_14
       description: Biometric RingFinger Auth with all valid details VID
       role: resident
       restMethod: post
@@ -562,6 +576,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftMiddleFingerr_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_15
       description: Biometric LeftMiddleFinger Auth with all valid details VID
       role: resident
       restMethod: post
@@ -602,6 +617,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftLittleFinger_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_16
       description: Biometric LeftLittleFinger Auth with all valid details VID
       role: resident
       restMethod: post
@@ -642,6 +658,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightIndexFinger_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_17
       description: Biometric RightIndexFinger Auth with all valid details VID
       role: resident
       restMethod: post
@@ -682,6 +699,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightRingFinger_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_18
       description: Biometric RightRingFinger Auth with all valid details VID
       role: resident
       restMethod: post
@@ -722,6 +740,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightMiddleFinger_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_19
       description: Biometric RightMiddleFinger Auth with all valid details VID
       role: resident
       restMethod: post
@@ -762,6 +781,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightLittleFinger_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_20
       description: Biometric RightLittleFinger Auth with all valid details VID
       role: resident
       restMethod: post
@@ -802,6 +822,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftThumb_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_21
       description: Biometric LeftThumb Auth with all valid details VID
       role: resident
       restMethod: post
@@ -842,6 +863,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightThumb_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_22
       description: Biometric RightThumb Auth with all valid details VID
       role: resident
       restMethod: post
@@ -882,6 +904,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_RightIris_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_23
       description: Biometric RightIris Auth with all valid details VID
       role: resident
       restMethod: post
@@ -922,6 +945,7 @@ BioAuth:
 }'
   ESignet_BioAuth_Biometric_LeftIris_With_Valid_Vid_Smoke_Pos:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_BioAuth_24
       description: Biometric LeftIris Auth with all valid details VID
       role: resident
       restMethod: post

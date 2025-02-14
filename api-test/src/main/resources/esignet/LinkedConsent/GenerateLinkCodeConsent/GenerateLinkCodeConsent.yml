@@ -1,6 +1,7 @@
 GenerateLinkCodeConsent:
    ESignet_GenerateLinkCode_Consent_uin_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      uniqueIdentifier: TC_ESignet_GenerateLinkCodeConsent_01
       description: Generate LinkCode consent UIN with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -18,6 +19,7 @@ GenerateLinkCodeConsent:
 
    ESignet_GenerateLinkCode_Consent_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      uniqueIdentifier: TC_ESignet_GenerateLinkCodeConsent_02
       description: Generate LinkCode consent VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -35,6 +37,7 @@ GenerateLinkCodeConsent:
 
    ESignet_GenerateLinkCode_Consent_uin_EmptyClaim_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-code
+      uniqueIdentifier: TC_ESignet_GenerateLinkCodeConsent_03
       description: Generate LinkCode consent UIN with empty claim all valid details
       role: resident
       checkErrorsOnlyInResponse: true

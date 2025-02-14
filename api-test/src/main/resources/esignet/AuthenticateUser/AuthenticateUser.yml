@@ -1,6 +1,7 @@
 AuthenticateUser:
    ESignet_AuthenticateUserIDP_uin_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_01
       description: Authenticate user with Otp UIN
       role: resident
       restMethod: post
@@ -35,6 +36,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_2nd_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_02
       description: Authenticate user with 2nd Otp UIN
       role: resident
       restMethod: post
@@ -69,6 +71,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Same_Claims:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_03
       description: Authenticate user consent with Otp and same claims UIN
       role: resident
       restMethod: post
@@ -104,6 +107,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_2nd_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_04
       description: Authenticate user with 2nd Otp and valid details VID
       role: resident
       restMethod: post
@@ -138,6 +142,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Otp_Vid_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_05
       description: Authenticate user with valid details VID
       role: resident
       restMethod: post
@@ -172,6 +177,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Same_Claims:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_06
       description: Authenticate user consent Otp with same claims VID
       role: resident
       restMethod: post
@@ -207,6 +213,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Otp_Vid_Invalid_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_07
       description: Authenticate user Otp with invalid VID
       role: resident
       restMethod: post
@@ -247,6 +254,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_2_Otp_UnAuthenticated_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_08
       description: Send authenticate request with unauthenticated transactionId UIN
       role: resident
       restMethod: post
@@ -288,6 +296,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_09
       description: Authenticate user with invalid requestTime UIN
       role: resident
       restMethod: post
@@ -328,6 +337,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Diff_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_10
       description: Authenticate user with different requestTime UIN
       role: resident
       restMethod: post
@@ -368,6 +378,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Future_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_11
       description: Authenticate user with future requestTime UIN
       role: resident
       restMethod: post
@@ -408,6 +419,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_12
       description: Authenticate user with invalid transactionId UIN
       role: resident
       restMethod: post
@@ -448,6 +460,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Expired_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_13
       description: Authenticate user with expired transactionId UIN
       role: resident
       restMethod: post
@@ -488,6 +501,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_14
       description: Authenticate user without transactionId UIN
       role: resident
       restMethod: post
@@ -528,6 +542,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_15
       description: Authenticate user with empty value in transactionId UIN
       role: resident
       restMethod: post
@@ -568,6 +583,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Null_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_16
       description: Authenticate user with Null in transactionId UIN
       role: resident
       restMethod: post
@@ -608,6 +624,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Invalid_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_17
       description: Authenticate user with invalid individualId UIN
       role: resident
       restMethod: post
@@ -649,6 +666,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Missing_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_18
       description: Authenticate user without individualId UIN
       role: resident
       restMethod: post
@@ -689,6 +707,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Empty_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_19
       description: Authenticate user with empty value in individualId UIN
       role: resident
       restMethod: post
@@ -729,6 +748,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Null_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_20
       description: Authenticate user with Null in individualId UIN
       role: resident
       restMethod: post
@@ -770,6 +790,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Invalid_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_21
       description: Authenticate user with invalid AuthFactorType UIN
       role: resident
       restMethod: post
@@ -811,6 +832,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Missing_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_22
       description: Authenticate user without AuthFactorType UIN
       role: resident
       restMethod: post
@@ -852,6 +874,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Empty_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_23
       description: Authenticate user with empty value in AuthFactorType UIN
       role: resident
       restMethod: post
@@ -893,6 +916,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Null_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_24
       description: Authenticate user with Null in AuthFactorType UIN
       role: resident
       restMethod: post
@@ -933,6 +957,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Diff_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_25
       description: Authenticate user with different AuthFactorType UIN
       role: resident
       restMethod: post
@@ -974,6 +999,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Invalid_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_26
       description: Authenticate user with invalid challenge UIN
       role: resident
       restMethod: post
@@ -1015,6 +1041,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Missing_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_27
       description: Authenticate user without challenge UIN
       role: resident
       restMethod: post
@@ -1056,6 +1083,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Empty_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_28
       description: Authenticate user with empty value in challenge UIN
       role: resident
       restMethod: post
@@ -1097,6 +1125,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Null_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_29
       description: Authenticate user with Null in challenge UIN
       role: resident
       restMethod: post
@@ -1137,6 +1166,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Invalid_Otp_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_30
       description: Authenticate user with invalid Otp challenge UIN
       role: resident
       restMethod: post
@@ -1178,6 +1208,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_uin_Other_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_31
       description: Authenticate user with other Otp valid details UIN
       role: resident
       restMethod: post
@@ -1212,6 +1243,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_2_Otp_UnAuthenticated_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_32
       description: Send authentication request with unauthenticated transactionId VID
       role: resident
       restMethod: post
@@ -1252,6 +1284,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_33
       description: Authenticate user with invalid requestTime VID
       role: resident
       restMethod: post
@@ -1292,6 +1325,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Diff_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_34
       description: Authenticate user with different requestTime VID
       role: resident
       restMethod: post
@@ -1332,6 +1366,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Future_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_35
       description: Authenticate user with future requestTime VID
       role: resident
       restMethod: post
@@ -1372,6 +1407,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_36
       description: Authenticate user with invalid transactionId VID
       role: resident
       restMethod: post
@@ -1412,6 +1448,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Expired_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_37
       description: Authenticate user with expired transactionId VID
       role: resident
       restMethod: post
@@ -1452,6 +1489,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_38
       description: Authenticate user without transactionId VID
       role: resident
       restMethod: post
@@ -1492,6 +1530,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_39
       description: Authenticate user with empty value in transactionId VID
       role: resident
       restMethod: post
@@ -1532,6 +1571,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Null_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_40
       description: Authenticate user with Null in transactionId VID
       role: resident
       restMethod: post
@@ -1572,6 +1612,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Invalid_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_41
       description: Authenticate user with invalid individualId VID
       role: resident
       restMethod: post
@@ -1612,6 +1653,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Missing_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_42
       description: Authenticate user without individualId VID
       role: resident
       restMethod: post
@@ -1652,6 +1694,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Empty_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_43
       description: Authenticate user with empty value in individualId VID
       role: resident
       restMethod: post
@@ -1692,6 +1735,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Null_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_44
       description: Authenticate user with Null in individualId VID
       role: resident
       restMethod: post
@@ -1732,6 +1776,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Invalid_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_45
       description: Authenticate user with invalid AuthFactorType VID
       role: resident
       restMethod: post
@@ -1773,6 +1818,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Missing_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_46
       description: Authenticate user without AuthFactorType VID
       role: resident
       restMethod: post
@@ -1814,6 +1860,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Empty_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_47
       description: Authenticate user with empty value in AuthFactorType VID
       role: resident
       restMethod: post
@@ -1855,6 +1902,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Null_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_48
       description: Authenticate user with Null in AuthFactorType VID
       role: resident
       restMethod: post
@@ -1896,6 +1944,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Diff_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_49
       description: Authenticate user with different AuthFactorType VID
       role: resident
       restMethod: post
@@ -1924,7 +1973,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_challenge_format",
+      "errorCode": "invalid_auth_factor_type",
       "errorMessage": "$IGNORE$"
     }
   ],
@@ -1937,6 +1986,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Invalid_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_50
       description: Authenticate user with invalid challenge VID
       role: resident
       restMethod: post
@@ -1977,6 +2027,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Missing_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_51
       description: Authenticate user without challenge VID
       role: resident
       restMethod: post
@@ -2018,6 +2069,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Empty_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_52
       description: Authenticate user with empty value in challenge VID
       role: resident
       restMethod: post
@@ -2059,6 +2111,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Null_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_53
       description: Authenticate user with Null in challenge VID
       role: resident
       restMethod: post
@@ -2100,6 +2153,7 @@ AuthenticateUser:
 
    ESignet_AuthenticateUserIDP_Vid_Invalid_Otp_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_54
       description: Authenticate user with invalid Otp challenge VID
       role: resident
       restMethod: post

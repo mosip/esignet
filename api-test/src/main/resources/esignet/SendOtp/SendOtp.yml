@@ -1,6 +1,7 @@
 SendOtp:
    ESignet_SendOtp_uin_all_Valid_Smoke:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_01
       description: SendOtp with all valid details UIN
       role: resident
       restMethod: post
@@ -22,6 +23,7 @@ SendOtp:
 
    ESignet_SendOtp_NR_Email_Uin_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_02
       description: SendOtp to unregistered email UIN
       role: resident
       restMethod: post
@@ -43,6 +45,7 @@ SendOtp:
 
    ESignet_SendOtp_NR_Phone_Uin_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_03
       description: SendOtp to unregistered Phone UIN
       role: resident
       restMethod: post
@@ -64,6 +67,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_all_Valid_Smoke:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_04
       description: SendOtp with all valid details VID
       role: resident
       restMethod: post
@@ -85,6 +89,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_SpaceSeparated_otpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_05
       description: SendOtp to space separated OtpChannels UIN
       role: resident
       restMethod: post
@@ -109,6 +114,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_SpaceSeparated_otpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_06
       description: SendOtp to space separated OtpChannels VID
       role: resident
       restMethod: post
@@ -133,6 +139,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_07
       description: SendOtp with invalid requestTime UIN
       role: resident
       restMethod: post
@@ -157,6 +164,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Diff_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_08
       description: SendOtp with different requestTime UIN
       role: resident
       restMethod: post
@@ -181,6 +189,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Future_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_09
       description: SendOtp with future requestTime UIN
       role: resident
       restMethod: post
@@ -205,6 +214,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Invalid_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_10
       description: SendOtp with invalid transactionId UIN
       role: resident
       restMethod: post
@@ -229,6 +239,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Expired_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_11
       description: SendOtp with expired transactionId UIN
       role: resident
       restMethod: post
@@ -253,6 +264,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Missing_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_12
       description: SendOtp without transactionId UIN
       role: resident
       restMethod: post
@@ -277,6 +289,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Empty_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_13
       description: SendOtp with empty value in transactionId UIN
       role: resident
       restMethod: post
@@ -301,6 +314,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Null_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_14
       description: SendOtp with Null in transactionId UIN
       role: resident
       restMethod: post
@@ -325,6 +339,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Invalid_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_15
       description: SendOtp with invalid individualId UIN
       role: resident
       restMethod: post
@@ -350,6 +365,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Missing_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_16
       description: SendOtp without individualId UIN
       role: resident
       restMethod: post
@@ -374,6 +390,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Empty_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_17
       description: SendOtp with empty value in individualId UIN
       role: resident
       restMethod: post
@@ -398,6 +415,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Null_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_18
       description: SendOtp with Null in individualId UIN
       role: resident
       restMethod: post
@@ -423,6 +441,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Invalid_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_19
       description: SendOtp to invalid OtpChannels UIN
       role: resident
       restMethod: post
@@ -447,6 +466,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Missing_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_20
       description: SendOtp without OtpChannels UIN
       role: resident
       restMethod: post
@@ -471,6 +491,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Empty_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_21
       description: SendOtp with empty value in OtpChannels UIN
       role: resident
       restMethod: post
@@ -495,6 +516,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Null_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_22
       description: SendOtp with Null in OtpChannels UIN
       role: resident
       restMethod: post
@@ -519,6 +541,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Missing_OtpChannel_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_23
       description: SendOtp without OtpChannels UIN
       role: resident
       restMethod: post
@@ -543,6 +566,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Empty_OtpChannel_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_24
       description: SendOtp with empty value in OtpChannels UIN
       role: resident
       restMethod: post
@@ -567,6 +591,7 @@ SendOtp:
 
    ESignet_SendOtp_uin_Null_OtpChannel_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_25
       description: SendOtp with Null in OtpChannels UIN
       role: resident
       restMethod: post
@@ -591,6 +616,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_26
       description: SendOtp with invalid requestTime VID
       role: resident
       restMethod: post
@@ -615,6 +641,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Diff_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_27
       description: SendOtp with different requestTime VID
       role: resident
       restMethod: post
@@ -639,6 +666,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Future_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_28
       description: SendOtp with future requestTime VID
       role: resident
       restMethod: post
@@ -663,6 +691,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Invalid_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_29
       description: SendOtp with invalid transactionId VID
       role: resident
       restMethod: post
@@ -687,6 +716,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Expired_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_30
       description: SendOtp with expired transactionId VID
       role: resident
       restMethod: post
@@ -711,6 +741,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Missing_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_31
       description: SendOtp without transactionId VID
       role: resident
       restMethod: post
@@ -735,6 +766,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Empty_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_32
       description: SendOtp with empty value in transactionId VID
       role: resident
       restMethod: post
@@ -759,6 +791,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Null_transactionId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_33
       description: SendOtp with Null in transactionId VID
       role: resident
       restMethod: post
@@ -783,6 +816,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Invalid_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_34
       description: SendOtp with invalid individualId VID
       role: resident
       restMethod: post
@@ -807,6 +841,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Missing_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_35
       description: SendOtp without individualId VID
       role: resident
       restMethod: post
@@ -831,6 +866,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Empty_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_36
       description: SendOtp with empty value in individualId VID
       role: resident
       restMethod: post
@@ -855,6 +891,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Null_individualId_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_37
       description: SendOtp with Null in individualId VID
       role: resident
       restMethod: post
@@ -879,6 +916,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Invalid_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_38
       description: SendOtp with invalid OtpChannels VID
       role: resident
       restMethod: post
@@ -903,6 +941,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Missing_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_39
       description: SendOtp without OtpChannels VID
       role: resident
       restMethod: post
@@ -927,6 +966,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Empty_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_40
       description: SendOtp with empty value in OtpChannels VID
       role: resident
       restMethod: post
@@ -951,6 +991,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Null_OtpChannels_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_41
       description: SendOtp with Null in OtpChannels VID
       role: resident
       restMethod: post
@@ -975,6 +1016,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Missing_OtpChannel_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_42
       description: SendOtp without OtpChannels VID
       role: resident
       restMethod: post
@@ -999,6 +1041,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Empty_OtpChannel_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_43
       description: SendOtp with empty value in OtpChannels VID
       role: resident
       restMethod: post
@@ -1023,6 +1066,7 @@ SendOtp:
 
    ESignet_SendOtp_Vid_Null_OtpChannel_Neg:
       endPoint: /v1/esignet/authorization/send-otp
+      uniqueIdentifier: TC_ESignet_SendOtp_44
       description: SendOtp with Null in OtpChannels VID
       role: resident
       restMethod: post

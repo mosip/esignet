@@ -1,6 +1,7 @@
 DeactivatePolicy:
    Esignet_DeactivatePolicy_After_Publish_Neg:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}
+      uniqueIdentifier: Dependent_Idrepo_DeactivatePolicy_01
       description: Deactivate policy after published
       role: partner
       restMethod: patch

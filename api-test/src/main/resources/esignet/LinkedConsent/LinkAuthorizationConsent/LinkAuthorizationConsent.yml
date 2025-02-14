@@ -1,6 +1,7 @@
 LinkAuthorizationConsent:
    ESignet_LinkedAuthorizationConsent_Consent_uin_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_01
       description: Linked Authorization conset UIN with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -20,6 +21,7 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_02
       description: Linked Authorization conset VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true

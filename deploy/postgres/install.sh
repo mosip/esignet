@@ -57,7 +57,7 @@ function installing_postgres() {
   fi
   echo Installing gateways and virtual services
   POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
-  helm -n $NS install istio-addons chart/istio-addons --set postgresHost=$POSTGRES_HOST --wait
+  helm -n $NS install istio-addons chart/istio-addons --set postgresHost=$POSTGRES_HOST --wait --timeout 3m
   return 0
 }
 

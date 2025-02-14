@@ -176,7 +176,9 @@
     "wellknown_api": ".ល្បី API"
   },
   "header": {
-    "login_heading": "ចូលជាមួយ eSignet",
+    "login_heading": "ចូលដោយប្រើ eSignet",
+    "verify_heading": "ផ្ទៀងផ្ទាត់ដោយប្រើ eSignet",
+    "link_heading": "ភ្ជាប់ដោយប្រើ eSignet",
     "login_subheading": "សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងពាក្យសម្ងាត់ដែលបានចុះឈ្មោះរបស់អ្នក។",
     "login_linkName": "ចុះឈ្មោះជាមុន",
     "more_ways_to_sign_in": "វិធីច្រើនទៀតដើម្បីចូល",
@@ -282,7 +284,7 @@
         "mobile": "បញ្ចូលលេខទូរស័ព្ទ",
         "nrc": "បញ្ចូលលេខសម្គាល់ NRC",
         "vid": "បញ្ចូល VID",
-        "email": "បញ្ចូលអ៊ីមែលនៅទីនេះ"
+        "email": "បញ្ចូលលេខសម្គាល់អ៊ីមែល"
       }
     }
   },

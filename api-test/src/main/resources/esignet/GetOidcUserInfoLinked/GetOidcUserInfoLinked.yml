@@ -1,6 +1,7 @@
 GetOidcUserInfoLinked:
    ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_01
       description: Get OIDC user info linked UIN with all valid details
       role: resident
       restMethod: get
@@ -14,6 +15,7 @@ GetOidcUserInfoLinked:
       
    ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_02
       description: Get OIDC user info linked VID with all valid details
       role: resident
       restMethod: get
@@ -27,6 +29,7 @@ GetOidcUserInfoLinked:
       
    ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_StatusCode_SameClaim_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_03
       description: Get OIDC user info linked UIN with same claim and all valid details
       role: resident
       restMethod: get
@@ -40,6 +43,7 @@ GetOidcUserInfoLinked:
       
    ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_StatusCode_SameClaim_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_04
       description: Get OIDC user info linked VID with same claim and all valid details
       role: resident
       restMethod: get
@@ -53,6 +57,7 @@ GetOidcUserInfoLinked:
       
    ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_StatusCode_User2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_05
       description: Get OIDC user info linked UIN for user2 with all valid details
       role: resident
       restMethod: get
@@ -66,6 +71,7 @@ GetOidcUserInfoLinked:
       
    ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_StatusCode_User2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_06
       description: Get OIDC user info linked VID for user2 with all valid details
       role: resident
       restMethod: get

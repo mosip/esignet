@@ -384,13 +384,6 @@
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
-	<test name="GetCredentialSunBirdC">
-		<parameter name="ymlFile"
-			value="esignet/SunBirdC/GetCredentialSunBirdC/GetCredentialSunBirdC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
-		</classes>
-	</test>
 	<test name="OAuthDetailsRequestSunBirdCNegTC">
 		<parameter name="ymlFile"
 			value="esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC.yml" />
@@ -420,13 +413,6 @@
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
-		</classes>
-	</test>
-	<test name="GetCredentialSunBirdCNegTC">
-		<parameter name="ymlFile"
-			value="esignet/SunBirdCNegTC/GetCredentialSunBirdCNegTC/GetCredentialSunBirdCNegTC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="DeletePolicySunBirdR">

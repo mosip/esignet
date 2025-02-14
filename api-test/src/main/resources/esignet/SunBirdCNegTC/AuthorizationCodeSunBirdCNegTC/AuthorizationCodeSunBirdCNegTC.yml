@@ -1,6 +1,7 @@
 AuthorizationCodeSunBirdCNegTC:
    ESignet_AuthorizationCode_SunBirdCNegTC_Diff_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_01
       description: To Authenticate the user for SunBirdC with different scope
       role: resident
       restMethod: post
@@ -19,6 +20,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Diff_Scope2_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_02
       description: To Authenticate the user for SunBirdC with multiple different scope
       role: resident
       restMethod: post
@@ -30,13 +32,14 @@ AuthorizationCodeSunBirdCNegTC:
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid_transactionId$",
-      	"permittedAuthorizeScopes": [{scope: "openid profile"}, {scope: "sunbird_rc_insurance_vc_ldp"}]
+      	"permittedAuthorizeScopes": [{scope: "openid profile"}, {scope: "$SUNBIRD_SCOPE$"}]
 }'
       output: '{
 }'
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Comma_Separated_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_03
       description: To Authenticate the user for SunBirdC with comma separated scope
       role: resident
       restMethod: post
@@ -55,12 +58,13 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Missing_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_04
       description: To Authenticate the user for SunBirdC with missing scope
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: esignet/SunBirdCNegTC/AuthorizatioCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
+      inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_Smoke_sid_encodedResp$",
@@ -73,6 +77,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Empty_Scope_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_05
       description: To Authenticate the user for SunBirdC with an empty scope
       role: resident
       restMethod: post
@@ -96,6 +101,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_SpaceVal_Scope_Neg:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_06
       description: To Authenticate the user for SunBirdC with space value in scope
       role: resident
       restMethod: post
@@ -119,6 +125,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Invalid_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_07
       description: To Authenticate the user for SunBirdC with invalid scope
       role: resident
       restMethod: post
@@ -137,6 +144,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_Null_Scope_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_08
       description: To Authenticate the user for SunBirdC with null value in scope
       role: resident
       restMethod: post
@@ -155,6 +163,7 @@ AuthorizationCodeSunBirdCNegTC:
 
    ESignet_AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeSunBirdCNegTC_09
       description: To Authenticate the user for SunBirdC with all valid data
       role: resident
       restMethod: post
@@ -166,7 +175,7 @@ AuthorizationCodeSunBirdCNegTC:
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
-      	"permittedAuthorizeScopes": [{scope: "sunbird_rc_insurance_vc_ldp"}]
+      	"permittedAuthorizeScopes": [{scope: "$SUNBIRD_SCOPE$"}]
 }'
       output: '{
 }'

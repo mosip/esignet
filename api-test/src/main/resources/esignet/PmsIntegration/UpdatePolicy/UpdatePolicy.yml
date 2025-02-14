@@ -1,6 +1,7 @@
 UpdatePolicy:
    Esignet_UpdatePolicy__AfterPublished_Neg:
       endPoint: /v1/policymanager/policies/{policyId}
+      uniqueIdentifier: Dependent_Idrepo_UpdatePolicy_01
       description: Update policy after published
       role: partner
       restMethod: put

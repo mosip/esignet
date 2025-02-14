@@ -1,6 +1,7 @@
 uploadPartnerCert:
    Esignet_UploadPartnerCert_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_01
       description: Upload partner certificate with all valid details
       role: partner
       checkErrorsOnlyInResponse: true
@@ -18,6 +19,7 @@ uploadPartnerCert:
 
    Esignet_UploadPartnerCert_Misp_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_02
       description: Upload partner certificate Misp valid details
       role: partner
       checkErrorsOnlyInResponse: true
@@ -35,6 +37,7 @@ uploadPartnerCert:
 
    Esignet_UploadPartnerCert_Kyc_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_03
       description: Upload partner certificate Kyc all valid details
       role: partner
       checkErrorsOnlyInResponse: true
@@ -52,6 +55,7 @@ uploadPartnerCert:
 
    Esignet_UploadPartnerCert_NonAuth_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_04
       description: Upload partner certificate NonAuth all valid details
       role: partner
       checkErrorsOnlyInResponse: true
@@ -69,6 +73,7 @@ uploadPartnerCert:
 
    Esignet_UploadPartnerCert_Misp_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_05
       description: Upload partner certificate Misp false valid details
       role: partner
       checkErrorsOnlyInResponse: true
@@ -86,6 +91,7 @@ uploadPartnerCert:
 
    Esignet_UploadPartnerCert_Auth_False_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_06
       description: Upload partner certificate Auth false valid details
       role: partner
       checkErrorsOnlyInResponse: true
@@ -103,6 +109,7 @@ uploadPartnerCert:
 
    Esignet_UploadPartnerCert_Misp_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_07
       description: Upload partner certificate Misp S2 valid details
       role: partner
       checkErrorsOnlyInResponse: true
@@ -120,6 +127,7 @@ uploadPartnerCert:
 
    Esignet_UploadPartnerCert_Auth_S2_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadPartnerCert_08
       description: Upload partner certificate Auth S2 valid details
       role: partner
       checkErrorsOnlyInResponse: true

@@ -1,6 +1,7 @@
 AuthenticateUserNonAuth:
    ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserNonAuth_01
       description: Authenticate User with NonAuth Otp with valid details UIN
       role: resident
       restMethod: post
@@ -41,6 +42,7 @@ AuthenticateUserNonAuth:
 
    ESignet_AuthenticateUserIDP_NonAuth_Otp_Vid_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserNonAuth_02
       description: Authenticate User with NonAuth Otp with valid details VID
       role: resident
       checkErrorsOnlyInResponse: true

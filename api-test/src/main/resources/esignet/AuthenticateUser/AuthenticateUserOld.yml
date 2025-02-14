@@ -1,6 +1,7 @@
 AuthenticateUser:
 #   IDP_AuthenticateUserIDP_Pin_Valid_Smoke:
 #     endPoint: /v1/esignet/authorization/authenticate
+       uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_01
 #      role: resident
 #      restMethod: post
 #      inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -18,6 +19,7 @@ AuthenticateUser:
 #
    IDP_AuthenticateUserIDP_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_02
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -35,6 +37,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Otp_Vid_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_03
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -52,6 +55,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Otp_Vid_Invalid_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_04
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -69,6 +73,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_2_Otp_UnAuthenticated_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_05
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -91,6 +96,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_06
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -113,6 +119,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Diff_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_07
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -135,6 +142,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Future_RequestTime_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_08
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -157,6 +165,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_09
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -179,6 +188,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Expired_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_10
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -201,6 +211,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_11
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -223,6 +234,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_12
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -245,6 +257,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Null_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_13
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -267,6 +280,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Invalid_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_14
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -289,6 +303,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Missing_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_15
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -311,6 +326,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Empty_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_16
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -333,6 +349,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Null_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_17
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -355,6 +372,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Invalid_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_18
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -377,6 +395,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Missing_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_19
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -399,6 +418,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Empty_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_20
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -421,6 +441,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Null_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_21
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -443,6 +464,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Diff_AuthFactorType_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_22
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -465,6 +487,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Invalid_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_23
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -487,6 +510,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Missing_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_24
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -509,6 +533,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Empty_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_25
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -531,6 +556,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Null_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_26
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser
@@ -553,6 +579,7 @@ AuthenticateUser:
 
    IDP_AuthenticateUserIDP_Invalid_Otp_Challenge_Neg:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserIDP_27
       role: resident
       restMethod: post
       inputTemplate: idp/AuthenticateUser/AuthenticateUser

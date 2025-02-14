@@ -34,7 +34,17 @@ jobs:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
+      
+  build-oidc-ui:
+    uses: mosip/kattu/.github/workflows/npm-build.yml@develop
+    with:
+      SERVICE_LOCATION: oidc-ui
+      BUILD_ARTIFACT: oidc
+      NPM_BUILD_TYPE: BOB
+      ZIP_DIR: build
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      
   check_snapshot_version:
     runs-on: ubuntu-latest
     outputs:
@@ -123,6 +133,17 @@ jobs:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
+  sonar-analysis-oidc-ui:
+    needs: build-oidc-ui
+    if: "${{ github.event_name != 'pull_request' }}"
+    uses: mosip/kattu/.github/workflows/npm-sonar-analysis.yml@develop
+    with:
+      SERVICE_LOCATION: oidc-ui
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      ORG_KEY: ${{ secrets.ORG_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
   build_dockers:
     needs: build_maven_esignet
     strategy:
@@ -131,6 +152,7 @@ jobs:
           - SERVICE_LOCATION: 'esignet-service'
             SERVICE_NAME: 'esignet'
             BUILD_ARTIFACT: 'esignet'
+            SQUASH_LAYERS: '14'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
@@ -138,6 +160,7 @@ jobs:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
       BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+      SQUASH_LAYERS: ${{ matrix.SQUASH_LAYERS }}
     secrets:
       DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
@@ -185,12 +208,14 @@ jobs:
         include:
           - SERVICE_LOCATION: 'oidc-ui'
             SERVICE_NAME: 'oidc-ui'
+            SQUASH_LAYERS: '13'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      SQUASH_LAYERS: ${{ matrix.SQUASH_LAYERS }}
     secrets:
       DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}

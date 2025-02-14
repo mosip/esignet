@@ -1,6 +1,7 @@
 LinkAuthorizationCodeConsent:
    ESignet_LinkAuthorizationCode_Consent_uin_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCodeConsent_01
       description: Link Authorization code consent UIN with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -19,6 +20,7 @@ LinkAuthorizationCodeConsent:
 
    ESignet_LinkAuthorizationCode_Consent_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/link-auth-code
+      uniqueIdentifier: TC_ESignet_LinkAuthorizationCodeConsent_02
       description: Link Authorization code consent VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true

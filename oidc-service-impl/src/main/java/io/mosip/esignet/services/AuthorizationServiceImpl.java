@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +103,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Value("${mosip.esignet.signup-id-token-audience}")
     private String signupIDTokenAudience;
+
+    @Autowired
+    private Environment environment;
 
 
     @Override
@@ -509,11 +513,15 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private void validateNonce(String nonce) {
-        if(nonce == null || nonce.isBlank())
+        if(isLocalEnvironment() || nonce == null || nonce.isBlank())
             return;
 
         if(cacheUtilService.checkNonce(nonce.trim()) == 0L)
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+    }
+
+    private boolean isLocalEnvironment() {
+        return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
     }
 
 }

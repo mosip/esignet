@@ -1,6 +1,7 @@
 LinkedAuthorizationConsent:
    ESignet_LinkedAuthorizationConsent_Consent_uin_SameClaim_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_01
       description: Linked authorization consent with same claim UIN
       role: resident
       checkErrorsOnlyInResponse: true
@@ -20,6 +21,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_Vid_SameClaim_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_02
       description: Linked authorization consent with same claim VID
       role: resident
       checkErrorsOnlyInResponse: true
@@ -39,6 +41,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_uin_User2:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_03
       description: Linked authorization consent with User2 UIN
       role: resident
       checkErrorsOnlyInResponse: true
@@ -55,15 +58,16 @@ LinkedAuthorizationConsent:
       output: '{
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_Vid_User2_Neg:
+   ESignet_LinkedAuthorizationConsent_Consent_Vid_User2:
       endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_04
       description: Linked authorization consent with User2 VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
-      outputTemplate: esignet/error
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_Vid_User2_all_Valid_Smoke_sid_linkTransactionId$",
@@ -71,15 +75,11 @@ LinkedAuthorizationConsent:
       	"signature": "$CONSENTDETACHEDSIGNATUREVIDUSER2$"
 }'
       output: '{
-  "errors": [
-    {
-      "errorCode": "invalid_transaction"
-    }
-  ]
 }'
 
    ESignet_LinkedAuthorizationConsent_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_05
       description: Linked authorization consent with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -97,6 +97,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_06
       description: Linked authorization consent with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
@@ -114,6 +115,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_07
       description: Linked authorization consent with invalid requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -135,6 +137,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Past_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_08
       description: Linked authorization consent with past value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -156,6 +159,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Future_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_09
       description: Linked authorization consent with future value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -177,6 +181,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Space_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_10
       description: Linked authorization consent with only space in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -198,6 +203,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Empty_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_11
       description: Linked authorization consent with empty value in requestTime
       role: resident
       checkErrorsOnlyInResponse: true
@@ -219,6 +225,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_12
       description: Linked authorization consent with invalid transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -240,6 +247,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Missing_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_13
       description: Linked authorization consent without transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -261,6 +269,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Empty_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_14
       description: Linked authorization consent with empty transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -282,6 +291,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Space_Val_TransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_15
       description: Linked authorization consent with space in transactionId
       role: resident
       checkErrorsOnlyInResponse: true
@@ -303,6 +313,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_AcceptedClaims_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_16
       description: Linked authorization consent with invalid accepted claims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -325,6 +336,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Null_AcceptedClaims_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_17
       description: Linked authorization consent with Null in accepted claims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -347,6 +359,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Invalid_permittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_18
       description: Linked authorization consent with invalid accepted claims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -370,6 +383,7 @@ LinkedAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Null_permittedAuthorizeScopes_Neg:
       endPoint: /v1/esignet/linked-authorization/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_19
       description: Linked authorization consent with Null in permittedAuthorizeScopes
       role: resident
       checkErrorsOnlyInResponse: true

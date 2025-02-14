@@ -252,14 +252,8 @@ extraEnvVars: |
       secretKeyRef:
         name: esignet-captcha
         key: esignet-captcha-site-key
-  - name: MOSIP_ESIGNET_INTEGRATION_AUDIT_PLUGIN
-    value: LoggerAuditService
   - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
     value: esignet
-  - name: IDA_AUTHENTICATOR_ENV
-    value: Staging
-  - name: MOSIP_ESIGNET_UI_CONFIG_USERNAME_PREFIX
-    value: '+91'
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:
@@ -371,7 +365,7 @@ initContainers:
         value: "true"
     envFrom:
       - configMapRef:
-          name: global
+          name: esignet-global
     image: docker.io/openjdk:11-jre
     imagePullPolicy: Always
     name: cacerts
