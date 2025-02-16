@@ -68,6 +68,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static org.mockito.ArgumentMatchers.*;
@@ -133,6 +134,7 @@ public class AuthCodeFlowTest {
         RedisConnectionFactory redisConnectionFactory = Mockito.mock(RedisConnectionFactory.class);
         when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
         when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
+        when(redisScriptingCommands.scriptExists("nonceScriptHash")).thenReturn(List.of(true));
         when(redisScriptingCommands.evalSha(anyString(), any(ReturnType.class), anyInt(), any(), any())).thenReturn(1L);
 
         ReflectionTestUtils.setField(cacheUtilService, "redisConnectionFactory", redisConnectionFactory);

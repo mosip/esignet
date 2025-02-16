@@ -97,7 +97,7 @@ public class CacheUtilService {
 
     public long checkNonce(String nonce) {
         if (redisConnectionFactory.getConnection() != null) {
-            if (nonceScriptHash == null) {
+            if (nonceScriptHash == null || !redisConnectionFactory.getConnection().scriptingCommands().scriptExists(nonceScriptHash).get(0)) {
                 nonceScriptHash = redisConnectionFactory.getConnection().scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
             }
             log.info("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
