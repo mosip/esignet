@@ -4,6 +4,8 @@
 
 The **eSignet API Test Rig** is designed for the execution of module-wise automation API tests for the eSignet service. This test rig utilizes **Java REST Assured** and **TestNG** frameworks to automate testing of the eSignet API functionalities. The key focus is to validate the authentication, signature generation, and related functionalities provided by the eSignet module.
 
+For more detailed information about eSignet, please refer to the [eSignet Documentation](https://docs.esignet.io/).
+
 ---
 
 ## Test Categories
@@ -19,15 +21,33 @@ This test rig covers only **external API endpoints** exposed by the eSignet modu
 
 ---
 
-## Pre-requisites
+### Pre-requisites
+Before setting up the eSignet API Test Rig, ensure the following prerequisites are met:
 
-Before running the automation tests, ensure the following software is installed on the machine:
+1. **Java 21 (or a compatible version)**  
+   - Ensure that Java 21 (or a compatible version) is installed on your machine.
+   - You can download Java from the [official website](https://www.oracle.com/java/technologies/javase-jdk21-downloads.html).
 
-- **Java 21** (or a compatible version)
-- **Maven 3.9.6** (or higher)
-- **Lombok** (Refer to [Lombok Project](https://projectlombok.org/))
-- **setting.xml** ([download here](https://github.com/mosip/mosip-functional-tests/blob/master/settings.xml))
-- **apitest-commons** library should be cloned and the JAR should be built. Refer to ([README](https://github.com/mosip/mosip-functional-tests/blob/release-1.3.0/apitest-commons/README.md))
+2. **Maven 3.9.6 (or higher)**  
+   - Download and install Maven from [here](https://maven.apache.org/download.cgi).
+   - Verify the installation by running `mvn -v` in the terminal.
+
+3. **Lombok**  
+   - Lombok simplifies your code by generating boilerplate code such as getters and setters.
+   - You can find installation instructions on the [Lombok project page](https://projectlombok.org/).
+
+4. **setting.xml**  
+   - Download the `setting.xml` configuration file from [this link](https://github.com/mosip/mosip-functional-tests/blob/master/settings.xml) and place it in your Maven configuration directory.
+
+5. **IDE (e.g., Eclipse)**  
+   - A code editor is needed to write and execute tests. We recommend using Eclipse for ease of use.
+
+6. **apitest-commons Library**  
+   - Clone the `apitest-commons` repository and build the JAR file by following the [README](https://github.com/mosip/mosip-functional-tests/blob/release-1.3.1/apitest-commons/README.md).
+   - GitHub Repository: [apitest-commons-1.3.1](https://github.com/mosip/mosip-functional-tests/tree/release-1.3.1/apitest-commons).
+
+7. **eSignet Repository**  
+   - Ensure you have access to the eSignet API repository. The code can be cloned from [the eSignet repo](https://github.com/mosip/esignet).
 
 ### For Windows
 
@@ -105,15 +125,14 @@ You can access the test automation code using either of the following methods:
 
 Once the repository is cloned or downloaded, follow these steps to build and install the test automation code:
 
-1. Navigate to the project directory:
-   ```sh
-   cd api-test
-   ```
+1. **Open Command Prompt**  
+   - Before proceeding with the project setup, open the Command Prompt or terminal on your system.
 
-2. Build the project using Maven:
-   ```sh
-   mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true
-   ```
+2. **Navigate to the project directory**:  
+   "cd api-test"
+
+3. **Build the project using Maven**:  
+   "mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true"
 
 This will download the required dependencies and prepare the test suite for execution.
 
