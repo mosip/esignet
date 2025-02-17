@@ -51,6 +51,7 @@ import io.restassured.response.Response;
 public class EsignetUtil extends AdminTestUtil {
 
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
+	public static String pluginName = null;
 	
 	public static void getSupportedLanguage() {
 
@@ -65,11 +66,14 @@ public class EsignetUtil extends AdminTestUtil {
 	public static JSONArray esignetActiveProfiles = null;
 	
 	public static String getIdentityPluginNameFromEsignetActuator() {
-		// Possible values = IdaAuthenticatorImpl, MockAuthenticationService
-		String plugin = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+		// Possible values = IdaAuthenticatorImpl, MockAuthenticationService, SunbirdRCAuthenticationService
+		if (pluginName != null && !pluginName.isBlank()) {
+			return pluginName;
+		}
+		pluginName = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
 				"mosip.esignet.integration.authenticator");
 
-		return plugin;
+		return pluginName;
 	}
 	
 	public static JSONArray getActiveProfilesFromActuator(String url, String key) {
