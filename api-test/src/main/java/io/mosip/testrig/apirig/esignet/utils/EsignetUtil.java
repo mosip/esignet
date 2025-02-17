@@ -1261,13 +1261,7 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static Response sendPostRequest(String url, Map<String, String> params) {
 		try {
-			if (EsignetConfigManager.IsDebugEnabled()) {
-				return RestAssured.given().contentType("application/x-www-form-urlencoded; charset=utf-8")
-						.formParams(params).log().all().when().log().all().post(url);
-			} else {
-				return RestAssured.given().contentType("application/x-www-form-urlencoded; charset=utf-8")
-						.formParams(params).when().post(url);
-			}
+			return RestClient.postRequestWithFormDataBody(url, params);
 		} catch (Exception e) {
 			logger.error("Error sending POST request to URL: " + url, e);
 			return null;
