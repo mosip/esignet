@@ -36,6 +36,7 @@
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage src",
     "eject": "react-scripts eject"
+    "sonar": "sonar-scanner"
   },
   "eslintConfig": {
     "extends": [
