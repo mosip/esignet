@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
@@ -52,6 +53,13 @@ public class EsignetUtil extends AdminTestUtil {
 
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
 	public static String pluginName = null;
+	
+	public static void setLogLevel() {
+		if (EsignetConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
 	
 	public static void getSupportedLanguage() {
 
@@ -1250,11 +1258,16 @@ public class EsignetUtil extends AdminTestUtil {
 
     private static String partnerCookie = null;
     private static String mobileAuthCookie = null;
-    
+	
 	private static Response sendPostRequest(String url, Map<String, String> params) {
 		try {
-			return RestAssured.given().contentType("application/x-www-form-urlencoded; charset=utf-8")
-					.formParams(params).log().all().when().log().all().post(url);
+			if (EsignetConfigManager.IsDebugEnabled()) {
+				return RestAssured.given().contentType("application/x-www-form-urlencoded; charset=utf-8")
+						.formParams(params).log().all().when().log().all().post(url);
+			} else {
+				return RestAssured.given().contentType("application/x-www-form-urlencoded; charset=utf-8")
+						.formParams(params).when().post(url);
+			}
 		} catch (Exception e) {
 			logger.error("Error sending POST request to URL: " + url, e);
 			return null;

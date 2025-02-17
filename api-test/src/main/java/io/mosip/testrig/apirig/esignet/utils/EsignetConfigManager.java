@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.mosip.testrig.apirig.esignet.testrunner.MosipTestRunner;
@@ -13,6 +14,9 @@ public class EsignetConfigManager extends ConfigManager{
 	private static final Logger LOGGER = Logger.getLogger(EsignetConfigManager.class);
 
 	public static void init() {
+		Logger configManagerLogger = Logger.getLogger(ConfigManager.class);
+		configManagerLogger.setLevel(Level.WARN);
+		
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
 		// Load scope specific properties
 		try {
