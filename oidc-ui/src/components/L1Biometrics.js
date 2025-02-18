@@ -25,6 +25,7 @@ export default function L1Biometrics({
   authService,
   openIDConnectService,
   backButtonDiv,
+  secondaryHeading,
   i18nKeyPrefix1 = "l1Biometrics",
   i18nKeyPrefix2 = "errors",
 }) {
@@ -402,7 +403,7 @@ export default function L1Biometrics({
           <div className="inline mx-2 font-semibold my-3">
             {loginIDs && loginIDs.length > 1
               ? t1("multiple_login_ids")
-              : `${t1("login_with_id", {
+              : `${t1(secondaryHeading, {
                 currentID: `${t1(currentLoginID.id)}`
               })}`}
           </div>

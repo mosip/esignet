@@ -68,6 +68,8 @@
     "vid": "ವಿಐಡಿ",
     "email": "ಇಮೇಲ್",
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
+    "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "pin": {
@@ -84,6 +86,8 @@
     "vid": "ವಿಐಡಿ",
     "email": "ಇಮೇಲ್",
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
+    "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "password": {
@@ -102,6 +106,8 @@
     "vid": "ವಿಐಡಿ",
     "email": "ಇಮೇಲ್",
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
+    "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "Form": {
@@ -113,7 +119,10 @@
     "policyNumber_placeholder": "ನೀತಿ ಸಂಖ್ಯೆ",
     "fullName_placeholder": "ಪೂರ್ಣ ಹೆಸರು",
     "dob_placeholder": "DOB",
-    "login_with_kbi": "KBI ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ"
+    "login_with_kbi": "KBI ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "login_with_id": "KBI ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "verify_with_id": "KBI ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
+    "link_using_id": "KBI ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ"
   },
   "LoginQRCode": {
     "scan_with_wallet": "ಇದರೊಂದಿಗೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ {{walletName}} ಲಾಗಿನ್ ಮಾಡಲು",
@@ -124,6 +133,8 @@
     "refresh": "QR ಕೋಡ್ ಅನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ",
     "open_wallet_app": "ತೆರೆಯಿರಿ {{walletName}} ಅಪ್ಲಿಕೇಶನ್",
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
+    "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
     "wallet_header": "{{walletName}} ಅಪ್ಲಿಕೇಶನ್‌ನೊಂದಿಗೆ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"
   },
   "otp": {
@@ -149,6 +160,8 @@
     "vid": "ವಿಐಡಿ",
     "email": "ಇಮೇಲ್",
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
+    "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
     "enter_otp": "OTP ನಮೂದಿಸಿ",
     "and": "ಮತ್ತು"
@@ -156,6 +169,8 @@
   "signInOption": {
     "login_option_heading": "ನೀವು ಹೇಗೆ ಲಾಗಿನ್ ಮಾಡಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ಆರಿಸಿ:",
     "login_with_id": "{{option}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
+    "verify_with_id": "{{option}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
+    "link_using_id": "{{option}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
     "PIN": "ಪಿನ್",
     "Biometrics": "ಬಯೋಮೆಟ್ರಿಕ್ಸ್",
     "BIO": "ಬಯೋಮೆಟ್ರಿಕ್ಸ್",
@@ -164,6 +179,7 @@
     "PWD": "ಪಾಸ್ವರ್ಡ್",
     "walletName": "ಇಂಜಿ",
     "preferred_mode_of_login": "ಆದ್ಯತೆಯ ಲಾಗಿನ್ ಮೋಡ್ ಅನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "preferred_mode_to_continue": "ಮುಂದುವರೆಯಲು ಒಂದು ಆದ್ಯತೆಯ ವಿಧಾನವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
     "more_ways_to_sign_in": "ಸೈನ್ ಇನ್ ಮಾಡಲು ಇನ್ನಷ್ಟು ಮಾರ್ಗಗಳು",
     "or": "ಅಥವಾ",
     "sign_in_with": "ಬಳಸಿ ಪರಿಶೀಲಿಸಿ {{idProviderName}}",
@@ -179,7 +195,9 @@
     "login_heading": "eSignet ಬಳಸಿ ಲಾಗಿನ್ ಮಾಡಿ",
     "verify_heading": "eSignet ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
     "link_heading": "eSignet ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
-    "login_subheading": "ದಯವಿಟ್ಟು ನಿಮ್ಮ ನೋಂದಾಯಿತ ಬಳಕೆದಾರಹೆಸರು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ನಮೂದಿಸಿ",
+    "login_subheading": "ದಯವಿಟ್ಟು ನಿಮ್ಮ ರುಜುವಾತುಗಳನ್ನು ಬಳಸಿ ಲಾಗಿನ್ ಮಾಡಿ.",
+    "verify_subheading": "ಪರಿಶೀಲನೆಗಾಗಿ ದಯವಿಟ್ಟು ನಿಮ್ಮ ರುಜುವಾತುಗಳನ್ನು ಒದಗಿಸಿ",
+    "link_subheading": "ನಿಮ್ಮ ಖಾತೆಯೊಂದಿಗೆ ಲಿಂಕ್ ಮಾಡಲು ದಯವಿಟ್ಟು ನಿಮ್ಮ ರುಜುವಾತುಗಳನ್ನು ಒದಗಿಸಿ",
     "login_linkName": "ಮುಂಚಿತವಾಗಿ ನೋಂದಾಯಿಸಿ",
     "more_ways_to_sign_in": "ಲಾಗಿನ್ ಮಾಡಲು ಹೆಚ್ಚಿನ ಮಾರ್ಗಗಳು",
     "invalid_auth_factor": "ಅಮಾನ್ಯವಾದ ದೃಢೀಕರಣ ಅಂಶಗಳು. ",

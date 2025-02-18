@@ -21,6 +21,7 @@ export default function LoginQRCode({
   linkAuthService,
   openIDConnectService,
   backButtonDiv,
+  secondaryHeading,
   i18nKeyPrefix1 = "LoginQRCode",
   i18nKeyPrefix2 = "errors",
 }) {
@@ -471,7 +472,7 @@ export default function LoginQRCode({
       <div className="flex items-center">
         {backButtonDiv}
         <div className="inline font-semibold py-3 m-auto relative right-3">
-          {`${t1("login_with_id", {
+          {`${t1(secondaryHeading, {
             currentID: walletDetail[walletConfigKeys.walletName],
           })}`}
         </div>

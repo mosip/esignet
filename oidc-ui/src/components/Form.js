@@ -19,6 +19,7 @@ export default function Form({
   authService,
   openIDConnectService,
   backButtonDiv,
+  secondaryHeading,
   i18nKeyPrefix1 = "Form",
   i18nKeyPrefix2 = "errors",
 }) {
@@ -229,7 +230,7 @@ export default function Form({
       <div className="flex items-center">
         {backButtonDiv}
         <div className="inline mx-2 font-semibold my-3">
-          {`${t1("login_with_kbi")}`}
+          {t1(secondaryHeading)}
         </div>
       </div>
 

@@ -14,6 +14,7 @@ export default function Otp({
   authService,
   openIDConnectService,
   backButtonDiv,
+  secondaryHeading,
   i18nKeyPrefix = "otp",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -87,7 +88,7 @@ export default function Otp({
           <div className="inline mx-2 font-semibold my-3">
             {loginIDs && loginIDs.length > 1
               ? t("multiple_login_ids")
-              : `${t("login_with_id", {
+              : `${t(secondaryHeading, {
                 currentID: `${t(loginIDs[0].id)}`
               })}`}
           </div>

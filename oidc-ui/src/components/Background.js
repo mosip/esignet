@@ -57,14 +57,12 @@ export default function Background({
           >
             {heading}
           </h1>
-          {clientName && (
+          {subheading && (
             <h1
               className="flex text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
               id="login-subheader"
             >
-              {t("subheading", {
-                clientName: subheading["@none"],
-              })}
+              {subheading}
             </h1>
           )}
         </div>

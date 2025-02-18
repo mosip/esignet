@@ -114,10 +114,29 @@ const errorCodeObj = {
   no_ekyc_provider: "no_ekyc_provider"
 };
 
-const purposeObj = {
+const purposeTitleKey = {
   login: "login_heading",
   verify: "verify_heading",
   link: "link_heading"
+}
+
+const purposeSubTitleKey = {
+  login: "login_subheading",
+  verify: "verify_subheading",
+  link: "link_subheading"
+}
+
+const authLabelKey = {
+  login: "login_with_id",
+  verify: "verify_with_id",
+  link: "link_using_id",
+}
+
+const purposeTypeObj = {
+  login: "login",
+  verify: "verify",
+  link: "link",
+  none: "none"
 }
 
 export {
@@ -131,5 +150,8 @@ export {
   walletConfigKeys,
   modalityIconPath,
   errorCodeObj,
-  purposeObj
+  purposeTitleKey,
+  purposeTypeObj,
+  purposeSubTitleKey,
+  authLabelKey
 };
