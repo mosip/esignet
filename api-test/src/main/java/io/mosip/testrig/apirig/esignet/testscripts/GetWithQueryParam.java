@@ -118,14 +118,14 @@ public class GetWithQueryParam extends AdminTestUtil implements ITest {
 		}
 
 		else {
+			String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 			if (testCaseName.contains("ESignet_")) {
 				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
-				response = getWithQueryParamAndCookie(tempUrl + testCaseDTO.getEndPoint(),
-						getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
+				response = getWithQueryParamAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
 			} else {
-				response = getWithQueryParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(),
-						getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
+				response = getWithQueryParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
 			}
 			Map<String, List<OutputValidationDto>> ouputValid = null;

@@ -153,14 +153,15 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
         //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
         if (oauthDetailReqDto.getIdTokenHint() != null) {
-            String subject = authorizationHelperService.validateAndGetSubject(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
+            Pair<String, String> pair = authorizationHelperService.validateAndGetSubjectAndNonce(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
             if(httpServletRequest.getCookies() == null)
                 throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(subject)).findFirst();
+            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(pair.getFirst())).findFirst();
             if (result.isEmpty()) {
                 throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
             }
             String[] parts = result.get().getValue().split(SERVER_NONCE_SEPARATOR);
+            oauthDetailReqDto.setNonce(pair.getSecond());
             oauthDetailReqDto.setState(parts.length == 2? parts[1] : result.get().getValue());
         }
         return getOauthDetailsV2(oauthDetailReqDto);
@@ -300,7 +301,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         SignupRedirectResponse signupRedirectResponse = new SignupRedirectResponse();
         signupRedirectResponse.setTransactionId(signupRedirectRequest.getTransactionId());
-        signupRedirectResponse.setIdToken(tokenService.getIDToken(signupRedirectRequest.getTransactionId(), signupIDTokenAudience, signupIDTokenValidity, oidcTransaction));
+        signupRedirectResponse.setIdToken(tokenService.getIDToken(signupRedirectRequest.getTransactionId(), signupIDTokenAudience, signupIDTokenValidity,
+                oidcTransaction, oidcTransaction.getServerNonce()));
 
         //Move the transaction to halted transaction
         cacheUtilService.setHaltedTransaction(signupRedirectRequest.getTransactionId(), oidcTransaction);
@@ -341,11 +343,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate
-    //response splitting vulnerability
+    //response splitting vulnerability. Removed all whitespace characters
     private String sanitizePathFragment(String pathFragment) {
-        return pathFragment.replaceAll("[\r\n]", "");
+        return pathFragment.replaceAll("\\s", "");
     }
-
 
     private OIDCTransaction authenticate(AuthRequest authRequest, boolean checkConsentAction, HttpServletRequest httpServletRequest) {
         OIDCTransaction transaction = cacheUtilService.getPreAuthTransaction(authRequest.getTransactionId());
@@ -363,7 +364,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         KycAuthResult kycAuthResult;
         if(authRequest.getChallengeList().size() == 1 && authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
-            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0), transaction,
+            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0),authRequest.getIndividualId(), transaction,
                     httpServletRequest);
             transaction.setInternalAuthSuccess(true);
         }
@@ -396,6 +397,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                                                                                     OAuthDetailResponse oAuthDetailResponse) {
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
+        validateNonce(oauthDetailReqDto.getNonce());
 
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
@@ -504,6 +506,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return new String(authTransactionIdBytes);
     }
 
+    private void validateNonce(String nonce) {
+        if(nonce == null || nonce.isBlank())
+            return;
 
+        if(cacheUtilService.checkNonce(nonce.trim()) == 0L)
+            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+    }
 
 }

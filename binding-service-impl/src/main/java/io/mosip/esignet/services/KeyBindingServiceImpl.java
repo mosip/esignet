@@ -20,6 +20,7 @@ import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
@@ -54,12 +55,16 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 	@Autowired
 	private KeyBindingHelperService keyBindingHelperService;
 
+	@Autowired
+	private CaptchaHelper captchaHelper;
+
 	@Value("${mosip.esignet.binding.encrypt-binding-id:true}")
 	private boolean encryptBindingId;
 
 
 	@Override
-	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders) throws EsignetException {
+	public BindingOtpResponse sendBindingOtp(BindingOtpRequest bindingOtpRequest, Map<String, String> requestHeaders)
+			throws EsignetException {
 		log.debug("sendBindingOtp :: Request headers >> {}", requestHeaders);
 		SendOtpResult sendOtpResult;
 		try {
@@ -69,17 +74,23 @@ public class KeyBindingServiceImpl implements KeyBindingService {
 			log.error("Failed to send binding otp: {}", e);
 			throw new EsignetException(e.getErrorCode());
 		}
-
 		if (sendOtpResult == null) {
 			log.error("send-otp Failed wrapper returned null result!");
 			throw new EsignetException(SEND_OTP_FAILED);
 		}
-
 		BindingOtpResponse otpResponse = new BindingOtpResponse();
 		otpResponse.setMaskedEmail(sendOtpResult.getMaskedEmail());
 		otpResponse.setMaskedMobile(sendOtpResult.getMaskedMobile());
 		return otpResponse;
 	}
+
+	@Override
+	public BindingOtpResponse sendBindingOtpV2(BindingOtpRequestV2 bindingOtpRequestV2, Map<String, String> requestHeaders)
+			throws EsignetException {
+		captchaHelper.validateCaptchaToken(bindingOtpRequestV2.getCaptchaToken(), "binding-otp");
+		return sendBindingOtp(bindingOtpRequestV2, requestHeaders);
+	}
+
 
 	private void validateChallengeListAuthFormat(List<AuthChallenge> challengeList){
 		if(!challengeList.stream().allMatch(challenge->keyBindingWrapper.getSupportedChallengeFormats(challenge.getAuthFactorType()).

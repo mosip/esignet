@@ -33,15 +33,16 @@ CREATE TABLE esignet.client_detail(
   redirect_uris character varying NOT NULL,
   claims character varying NOT NULL,
   acr_values character varying NOT NULL,
-  public_key character varying NOT NULL,
+  public_key jsonb NOT NULL,
   grant_types character varying NOT NULL,
   auth_methods character varying NOT NULL,
   status character varying(20) NOT NULL,
   cr_dtimes timestamp NOT NULL,
   upd_dtimes timestamp,
-  CONSTRAINT pk_clntdtl_id PRIMARY KEY (id),
-  CONSTRAINT uk_clntdtl_key UNIQUE (public_key)
+  CONSTRAINT pk_clntdtl_id PRIMARY KEY (id)
 );
+
+CREATE UNIQUE INDEX unique_n_value ON esignet.client_detail ((public_key->>'n'));
 
 create table esignet.consent_detail (
     id UUID NOT NULL,

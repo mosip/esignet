@@ -55,7 +55,7 @@ LinkedAuthorizationConsent:
       output: '{
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_Vid_User2_Neg:
+   ESignet_LinkedAuthorizationConsent_Consent_Vid_User2:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       description: Linked authorization consent with User2 VID
       role: resident
@@ -63,7 +63,7 @@ LinkedAuthorizationConsent:
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
-      outputTemplate: esignet/error
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_Vid_User2_all_Valid_Smoke_sid_linkTransactionId$",
@@ -71,11 +71,6 @@ LinkedAuthorizationConsent:
       	"signature": "$CONSENTDETACHEDSIGNATUREVIDUSER2$"
 }'
       output: '{
-  "errors": [
-    {
-      "errorCode": "invalid_transaction"
-    }
-  ]
 }'
 
    ESignet_LinkedAuthorizationConsent_All_Valid_Smoke_sid:

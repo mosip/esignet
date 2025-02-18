@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.5.0</version>
+		<version>1.5.1</version>
 	</parent>
 	
 	<groupId>io.mosip.esignet</groupId>
@@ -22,7 +22,6 @@
 		<java.version>11</java.version>
 		<jackson.version>2.9.5</jackson.version>
 		<jackson.datatype.version>2.9.8</jackson.datatype.version>
-		<jackson.databind>2.15.0</jackson.databind>
 		<fasterxml.jackson.module.jsr310.version>2.15.0</fasterxml.jackson.module.jsr310.version>
 		<fasterxml.jackson.module.afterburner.version>2.15.0</fasterxml.jackson.module.afterburner.version>
 		<kernel.keymanager.version>1.2.1.0</kernel.keymanager.version>
@@ -101,19 +100,43 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.networknt</groupId>
+			<artifactId>json-schema-validator</artifactId>
+			<version>1.5.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-annotations</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.datatype</groupId>
+					<artifactId>jackson-datatype-jsr310</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.module</groupId>
+					<artifactId>jackson-module-afterburner</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>${jackson.databind}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.databind}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.databind}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -180,5 +203,6 @@
 			<version>1.7</version>
 		</dependency>
 	</dependencies>
+
 
 </project>

@@ -232,7 +232,7 @@ export default function Form({
         />
       )}
 
-      <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-6" onSubmit={handleSubmit}>
         {fields.map((field) => (
           <div className="-space-y-px" key={"_form-div_" + field.id}>
             <InputWithImage

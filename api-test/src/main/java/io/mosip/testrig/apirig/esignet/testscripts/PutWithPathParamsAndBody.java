@@ -118,10 +118,19 @@ public class PutWithPathParamsAndBody extends AdminTestUtil implements ITest {
 		}
 
 		else {
+			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+			
 			if (testCaseName.contains("ESignet_")) {
 				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
-				response = putWithPathParamsBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+				if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == true){
+					inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+					response = EsignetUtil.putWithPathParamsAndBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+				}else {
+					response = putWithPathParamsBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+				}
+				
 			} else {
 				response = putWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 						testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);

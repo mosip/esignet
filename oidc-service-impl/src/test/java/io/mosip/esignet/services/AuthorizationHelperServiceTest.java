@@ -503,24 +503,45 @@ public class AuthorizationHelperServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "objectMapper",objectMapper);
 
         AuthChallenge authChallenge = new AuthChallenge();
-        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSW4wLjl0MG5GMkNtVWZaeTlCYlA3cjM4bElhSlJSeTNaSk41MnBRNlpLSl9qVWMifQ==");
+        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSWl3aWJtOXVZMlVpT2lKelpYSjJaWEl0Ym05dVkyVWlmUS5CcU5FWF82YUhIc0J2MDVzc0ZqaXVjZ0dzQTZYSW1RWUxWaDZseXFXMXM0In0=");
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setIndividualId("individualId");
+        transaction.setNonce("server-nonce");
         Mockito.doNothing().when(tokenService).verifyIdToken(any(), any());
-        Mockito.when(httpServletRequest.getCookies()).thenReturn(createMockCookies("subject"));
+
+        Cookie cookie = new Cookie("subject", "server-nonce".concat(SERVER_NONCE_SEPARATOR).concat("path-fragment"));
+        Mockito.when(httpServletRequest.getCookies()).thenReturn(new Cookie[]{cookie});
 
         OIDCTransaction haltedTransaction = new OIDCTransaction();
         haltedTransaction.setIndividualId("individualId");
         haltedTransaction.setTransactionId("transactionId");
-        haltedTransaction.setServerNonce("subject");
+        haltedTransaction.setServerNonce("server-nonce");
         Mockito.when(cacheUtilService.getHaltedTransaction(Mockito.anyString())).thenReturn(haltedTransaction);
 
-        KycAuthResult result = authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest);
+        KycAuthResult result = authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, "subject", transaction, httpServletRequest);
 
         Assert.assertNotNull(result);
         Assert.assertEquals("subject", result.getKycToken());
         Assert.assertEquals("subject", result.getPartnerSpecificUserToken());
         Assert.assertEquals("individualId", transaction.getIndividualId());
+    }
+
+    @Test
+    public void testHandleInternalAuthenticateRequest_InvalidIndividualId_thenFail(){
+        ReflectionTestUtils.setField(authorizationHelperService, "objectMapper",objectMapper);
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSW4wLjl0MG5GMkNtVWZaeTlCYlA3cjM4bElhSlJSeTNaSk41MnBRNlpLSl9qVWMifQ==");
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setIndividualId("individualId");
+        Mockito.doNothing().when(tokenService).verifyIdToken(any(), any());
+
+        try{
+            authorizationHelperService.handleInternalAuthenticateRequest(authChallenge,
+                    "invalid_individualId", transaction, httpServletRequest);
+        }catch(EsignetException e){
+            Assert.assertEquals(INVALID_INDIVIDUAL_ID,e.getErrorCode());
+        }
     }
 
     @Test
@@ -531,7 +552,7 @@ public class AuthorizationHelperServiceTest {
         OIDCTransaction transaction = new OIDCTransaction();
         HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
         try{
-            authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest);
+            authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, "individualId", transaction, httpServletRequest);
             Assert.fail();
         }catch(EsignetException e){
             Assert.assertEquals("auth_failed",e.getErrorCode());
@@ -544,17 +565,11 @@ public class AuthorizationHelperServiceTest {
         authChallenge.setChallenge("base64encodedchallenge");
         OIDCTransaction transaction = new OIDCTransaction();
         try {
-            authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, transaction, httpServletRequest);
+            authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, "individualId", transaction, httpServletRequest);
             Assert.fail();
         }catch(EsignetException e)
         {
             Assert.assertEquals("auth_failed",e.getErrorCode());
         }
     }
-
-    private Cookie[] createMockCookies(String subject) {
-        Cookie cookie = new Cookie(subject, "subject");
-        return new Cookie[]{cookie};
-    }
-
 }

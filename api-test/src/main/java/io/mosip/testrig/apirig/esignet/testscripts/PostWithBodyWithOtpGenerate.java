@@ -108,14 +108,16 @@ public class PostWithBodyWithOtpGenerate extends AdminTestUtil implements ITest 
 		otpReqJson.remove("sendOtpReqTemplate");
 		sendOtpEndPoint = otpReqJson.getString("sendOtpEndPoint");
 		otpReqJson.remove("sendOtpEndPoint");
+		
+		String inputJson = getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate);
+		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+		
 		Response otpResponse = null;
 		if (testCaseName.contains("ESignet_WalletBinding")) {
-			otpResponse = postRequestWithCookieAuthHeader(tempUrl + sendOtpEndPoint,
-					getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate), COOKIENAME, testCaseDTO.getRole(),
-					testCaseDTO.getTestCaseName());
+			otpResponse = postRequestWithCookieAuthHeader(tempUrl + sendOtpEndPoint, inputJson, COOKIENAME,
+					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
 		} else {
-			otpResponse = postWithBodyAndCookie(ApplnURI + sendOtpEndPoint,
-					getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate), COOKIENAME,
+			otpResponse = postWithBodyAndCookie(ApplnURI + sendOtpEndPoint, inputJson, COOKIENAME,
 					GlobalConstants.RESIDENT, testCaseDTO.getTestCaseName());
 		}
 
@@ -151,13 +153,14 @@ public class PostWithBodyWithOtpGenerate extends AdminTestUtil implements ITest 
 				Thread.currentThread().interrupt();
 			}
 		}
+		String reqJson = getJsonFromTemplate(req.toString(), testCaseDTO.getInputTemplate());
+		reqJson = EsignetUtil.inputstringKeyWordHandeler(reqJson, testCaseName);
+
 		if (testCaseName.contains("ESignet_WalletBinding")) {
-			response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(),
-					getJsonFromTemplate(req.toString(), testCaseDTO.getInputTemplate()), COOKIENAME,
+			response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
 					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
 		} else {
-			response = postRequestWithCookieAndHeader(ApplnURI + testCaseDTO.getEndPoint(),
-					getJsonFromTemplate(req.toString(), testCaseDTO.getInputTemplate()), COOKIENAME,
+			response = postRequestWithCookieAndHeader(ApplnURI + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
 					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
 		}
 		Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(

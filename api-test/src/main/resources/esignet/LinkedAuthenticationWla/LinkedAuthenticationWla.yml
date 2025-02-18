@@ -196,7 +196,7 @@ LinkedAuthenticationWla:
       }
 }'
       output: '{
-         "consentAction": "NOCAPTURE",
+         "consentAction": "CAPTURE",
          "sendOtpResp":{
           "maskedMobile": "$IGNORE$",
           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",

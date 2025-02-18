@@ -5,17 +5,16 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.dto.BindingOtpResponse;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.dto.BindingOtpRequest;
-import io.mosip.esignet.core.dto.WalletBindingRequest;
-import io.mosip.esignet.core.dto.WalletBindingResponse;
 
 import java.util.Map;
 
 public interface KeyBindingService {
 
     BindingOtpResponse sendBindingOtp(BindingOtpRequest otpRequest, Map<String, String> requestHeaders) throws EsignetException;
+
+    BindingOtpResponse sendBindingOtpV2(BindingOtpRequestV2 otpRequest, Map<String, String> requestHeaders) throws EsignetException;
 
     WalletBindingResponse bindWallet(WalletBindingRequest walletBindingRequest, Map<String, String> requestHeaders) throws EsignetException;
 }

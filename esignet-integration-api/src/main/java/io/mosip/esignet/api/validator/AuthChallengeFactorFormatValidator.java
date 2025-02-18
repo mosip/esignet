@@ -47,7 +47,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     	String authFactor = authChallenge.getAuthFactorType();
         String format = environment.getProperty(String.format(FORMAT_KEY_PREFIX, authFactor),
                 String.class);
-        if( !StringUtils.hasText(authFactor) || !StringUtils.hasText(format)) {
+        if( !StringUtils.hasText(authFactor) || !StringUtils.hasText(format) || !authChallenge.getAuthFactorType().equals(authFactor.toUpperCase()) ) {
         	context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(ErrorConstants.INVALID_AUTH_FACTOR_TYPE).addConstraintViolation();
 			return false;

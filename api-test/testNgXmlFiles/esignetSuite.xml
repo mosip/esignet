@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
-	<suite name="e-Signet Suite">
+	<suite name="eSignet API Test">
 	<!-- Passing Group as parmeter unsing "testType" Possible Groups are: smoke 
 		regression smokeAndRegression -->
 	<listeners>
@@ -384,13 +384,7 @@
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
-	<test name="GetCredentialSunBirdC">
-		<parameter name="ymlFile"
-			value="esignet/SunBirdC/GetCredentialSunBirdC/GetCredentialSunBirdC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
-		</classes>
-	</test>
+	
 	<test name="OAuthDetailsRequestSunBirdCNegTC">
 		<parameter name="ymlFile"
 			value="esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC.yml" />
@@ -420,13 +414,6 @@
 			<parameter name="idKeyName"	value="access_token" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
-		</classes>
-	</test>
-	<test name="GetCredentialSunBirdCNegTC">
-		<parameter name="ymlFile"
-			value="esignet/SunBirdCNegTC/GetCredentialSunBirdCNegTC/GetCredentialSunBirdCNegTC.yml" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
 		</classes>
 	</test>
 	<test name="DeletePolicySunBirdR">

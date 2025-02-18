@@ -23,7 +23,7 @@ function installing_esignet() {
   done
 
   NS=esignet
-  CHART_VERSION=1.5.0
+  CHART_VERSION=1.5.1
 
   ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
 
@@ -75,7 +75,7 @@ function installing_esignet() {
 
   echo Installing esignet
   helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
-  --set image.repository=mosipid/esignet --set image.tag=1.5.0 \
+  --set image.repository=mosipid/esignet --set image.tag=1.5.1 \
   $ENABLE_INSECURE $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 

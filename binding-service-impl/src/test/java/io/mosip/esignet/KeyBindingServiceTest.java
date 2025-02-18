@@ -5,21 +5,9 @@
  */
 package io.mosip.esignet;
 
-import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.time.LocalDateTime;
-import java.util.*;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.esignet.api.dto.AuthChallenge;
@@ -28,10 +16,14 @@ import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.exception.KeyBindingException;
 import io.mosip.esignet.api.exception.SendOtpException;
 import io.mosip.esignet.api.spi.KeyBinder;
-import io.mosip.esignet.entity.PublicKeyRegistry;
-import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.dto.BindingOtpRequest;
+import io.mosip.esignet.core.dto.BindingOtpRequestV2;
+import io.mosip.esignet.core.dto.BindingOtpResponse;
+import io.mosip.esignet.core.dto.WalletBindingRequest;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.util.CaptchaHelper;
+import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.KeyBindingHelperService;
 import io.mosip.esignet.services.KeyBindingServiceImpl;
@@ -47,9 +39,21 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.jwk.JWK;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
@@ -70,9 +74,15 @@ public class KeyBindingServiceTest {
 	@Mock
 	KeymanagerUtil keymanagerUtil;
 
+	CaptchaHelper captchaHelper;
+
+	@Mock
+	RestTemplate restTemplate;
+
 	private JWK clientJWK = generateJWK_RSA();
 
 	private ObjectMapper objectMapper = new ObjectMapper();
+
 
 	@Before
 	public void setUp() {
@@ -82,13 +92,17 @@ public class KeyBindingServiceTest {
 		mockKeyBindingWrapperService = mock(KeyBinder.class);
 		when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
 				.thenReturn(Arrays.asList("jwt", "alpha-numeric"));
+
+		captchaHelper = new CaptchaHelper(restTemplate, "https://test-api.example.com/v1/captcha/validatecaptcha",
+				"esignet", List.of("binding-otp"));
+
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingWrapper", mockKeyBindingWrapperService);
 
 		keyBindingHelperService = mock(KeyBindingHelperService.class);
 		ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
 		ReflectionTestUtils.setField(keyBindingHelperService, "publicKeyRegistryRepository", publicKeyRegistryRepository);
 		ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
-
+		ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
 		ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
 	}
 
@@ -106,7 +120,8 @@ public class KeyBindingServiceTest {
 		BindingOtpResponse otpResponse = keyBindingService.sendBindingOtp(otpRequest, headers);
 		Assert.assertNotNull(otpResponse);
 	}
-	
+
+
 	@Test(expected = EsignetException.class)
 	public void sendBindingOtp_withInvalidRequest_thenFail() throws SendOtpException {
 		BindingOtpRequest otpRequest = new BindingOtpRequest();
@@ -117,6 +132,41 @@ public class KeyBindingServiceTest {
 		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
 
 		keyBindingService.sendBindingOtp(otpRequest, headers);
+	}
+
+
+	@Test
+	public void sendBindingOtpV2_withInvalidCaptcha_thenFail() throws SendOtpException {
+
+		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		otpRequest.setCaptchaToken("qwerty");
+
+		Map<String, String> headers = new HashMap<>();
+
+		try {
+			keyBindingService.sendBindingOtpV2(otpRequest, headers);
+		} catch (EsignetException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
+		}
+	}
+
+	@Test
+	public void sendBindingOtpV2_withEmptyCaptcha_thenFail() throws SendOtpException {
+
+		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
+		otpRequest.setIndividualId("8267411571");
+		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+		otpRequest.setCaptchaToken("");
+
+		Map<String, String> headers = new HashMap<>();
+
+		try {
+			keyBindingService.sendBindingOtpV2(otpRequest, headers);
+		} catch (EsignetException e) {
+			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
+		}
 	}
 
 	@Test
@@ -368,4 +418,5 @@ public class KeyBindingServiceTest {
 		}
 		return null;
 	}
+
 }

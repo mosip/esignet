@@ -106,8 +106,6 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
 			}
 		}
-		testCaseName = isTestCaseValidForExecution(testCaseDTO);
-
 		JSONObject request = new JSONObject(testCaseDTO.getInput());
 		String identityRequest = null;
 		String identityRequestTemplate = null;
@@ -126,7 +124,7 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 		identityReqJson.remove("identityRequestEncUrl");
 		
 		if (identityReqJson.has("transactionId")) {
-			String oidcTransactionId = AdminTestUtil.getAuthTransactionId(identityReqJson.getString("transactionId"));
+			String oidcTransactionId = EsignetUtil.getAuthTransactionId(identityReqJson.getString("transactionId"));
 			if (oidcTransactionId != null && !oidcTransactionId.isBlank())
 				identityReqJson.put("transactionId", oidcTransactionId);
 		}
@@ -166,6 +164,8 @@ public class EsignetBioAuth extends AdminTestUtil implements ITest {
 			if (authRequest.contains("$CHALLENGE$")) {
 				authRequest = authRequest.replace("$CHALLENGE$", challengeValue);
 			}
+			
+			authRequest = EsignetUtil.inputstringKeyWordHandeler(authRequest, testCaseName);
 			if (testCaseName.contains("ESignet_")) {
 				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 				response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(), authRequest,

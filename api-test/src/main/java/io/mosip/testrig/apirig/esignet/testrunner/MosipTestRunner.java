@@ -37,6 +37,7 @@ import io.mosip.testrig.apirig.utils.AuthTestsUtil;
 import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.JWKKeyUtil;
 import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
@@ -67,11 +68,8 @@ public class MosipTestRunner {
 	public static void main(String[] arg) {
 
 		try {
-			Map<String, String> envMap = System.getenv();
-			LOGGER.info("** ------------- Get ALL ENV varibales --------------------------------------------- **");
-			for (String envName : envMap.keySet()) {
-				LOGGER.info(String.format("ENV %s = %s%n", envName, envMap.get(envName)));
-			}
+			LOGGER.info("** ------------- API Test Rig Run Started --------------------------------------------- **");
+			
 			BaseTestCase.setRunContext(getRunType(), jarUrl);
 
 			ExtractResource.removeOldMosipTestTestResource();
@@ -84,6 +82,7 @@ public class MosipTestRunner {
 			EsignetConfigManager.init();
 			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
+			GlobalMethods.setModuleNameAndReCompilePattern(EsignetConfigManager.getproperty("moduleNamePattern"));
 			setLogLevels();
 
 //			HealthChecker healthcheck = new HealthChecker();
@@ -98,10 +97,11 @@ public class MosipTestRunner {
 			
 
 			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == false
-					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbird") == false) {				
+					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice") == false) {				
 				KeycloakUserManager.removeUser();
 				KeycloakUserManager.createUsers();
 				KeycloakUserManager.closeKeycloakInstance();
+				AdminTestUtil.getRequiredField();
 
 				List<String> localLanguageList = new ArrayList<>(BaseTestCase.getLanguageList());
 				AdminTestUtil.getLocationData();
@@ -127,6 +127,11 @@ public class MosipTestRunner {
 					LOGGER.error("partnerKeyURL is null");
 				else
 					startTestRunner();
+			} else if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("sunbirdrcauthenticationservice") == true) {
+				BaseTestCase.isTargetEnvLatest = true;
+				EsignetUtil.getSupportedLanguage();
+				startTestRunner();
 			} else {
 				BaseTestCase.isTargetEnvLatest = true;
 				EsignetUtil.getSupportedLanguage();
@@ -198,34 +203,15 @@ public class MosipTestRunner {
 			homeDir = new File(dir.getParent() + "/mosip/testNgXmlFiles");
 			LOGGER.info("ELSE :" + homeDir);
 		}
-		// List and sort the files
 		File[] files = homeDir.listFiles();
 		if (files != null) {
-			Arrays.sort(files, (f1, f2) -> {
-				// Customize the comparison based on file names
-				if (f1.getName().toLowerCase().contains("prerequisite")) {
-					return -1; // f1 should come before f2
-				} else if (f2.getName().toLowerCase().contains("prerequisite")) {
-					return 1; // f2 comes before f1
-				}
-				return f1.getName().compareTo(f2.getName()); // default alphabetical order
-			});
 
 			for (File file : files) {
 				TestNG runner = new TestNG();
 				List<String> suitefiles = new ArrayList<>();
 
-				if (file.getName().toLowerCase().contains(GlobalConstants.ESIGNET)) {
-					if (file.getName().toLowerCase().contains("prerequisite")) {
-						BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-prerequisite");
-					} else {
-						// if the prerequisite total skipped/failed count is greater than zero
-						if (EmailableReport.getFailedCount() > 0 || EmailableReport.getSkippedCount() > 0) {
-							// skipAll = true;
-						}
-
-						BaseTestCase.setReportName(GlobalConstants.ESIGNET);
-					}
+				if (file.getName().toLowerCase().contains("mastertestsuite")) {
+					BaseTestCase.setReportName(GlobalConstants.ESIGNET);
 					suitefiles.add(file.getAbsolutePath());
 					runner.setTestSuites(suitefiles);
 					System.getProperties().setProperty("testng.outpur.dir", "testng-report");

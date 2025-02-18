@@ -39,6 +39,12 @@ export const AppRouter = () => {
     setupResponseInterceptor(navigate);
   }, [navigate]);
 
+  if (window.location.pathname === CLAIM_DETAIL) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "unset";
+  }
+
   const checkRoute = (currentRoute) =>
     [LOGIN, AUTHORIZE, CONSENT].includes(currentRoute);
 

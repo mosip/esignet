@@ -11,13 +11,12 @@ services:
 
   redis:
     image: redis:6.0
-    container_name: redis-server
     ports:
       - "6379:6379"
     restart: always
 
   mock-identity-system:
-    image: 'mosipid/mock-identity-system:0.10.0'
+    image: 'mosipdev/mock-identity-system:release-0.10.1-temp'
     user: root
     ports:
       - 8082:8082

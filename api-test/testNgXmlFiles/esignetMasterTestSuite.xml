@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="eSignet API Test Rig Master Suite">
+	<listeners>
+		<listener class-name="io.mosip.testrig.apirig.report.EmailableReport" />
+	</listeners>
+	<suite-files>
+		<suite-file path="esignetPrerequisiteSuite.xml" />
+		<suite-file path="esignetSuite.xml" />
+	</suite-files>
+</suite>

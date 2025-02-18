@@ -42,6 +42,44 @@ Before running the automation tests, ensure the following software is installed 
 
 ---
 
+# API Test Rig Configuration
+
+The API Test Rig is configured to work with different core service plugins, such as MOSIP-ID, Mock-Identity-System, and Sunbird Insurance. It allows for dynamic testing and validation of workflows related to identity management and authentication.
+
+## Integration of eSignet API Test Rig with Core Service Plugins
+
+The Test Rig is dynamically configured based on the core service plugin being tested (either MOSIP-ID, Mock-Identity-System, or Sunbird Insurance). The configuration is as follows:
+
+### 1. Configuration for MOSIP-ID Plugin:
+- **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the MOSIP-ID service.
+- **mosip_components_base_urls**: A string defining the base URLs for various components.
+- **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
+
+### 2. Configuration for Mock-Identity-System Plugin:
+- **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the Mock-Identity-service.
+- **mosip_components_base_urls**: A string defining the base URLs for various components.
+- **usePreConfiguredOtp**: A flag to use pre-configured OTPs. Set to "true" for OTP-based workflows.
+- **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
+- **esignetSupportedLanguage**: Any 3-letter valid language code to create OIDC client (e.g., "eng", "hin", "tam").
+
+### 3. Configuration for Sunbird Insurance Use Case:
+- **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the Sunbird insurance service.
+- **sunBirdBaseURL**: The Test Rig will use the live Sunbird registry instance integrated with the Sunbird insurance service.
+- **esignetMockBaseURL**: Specifies the baseURL of Sunbird instance (e.g., "esignet-sunbird.").
+- **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
+- **esignetSupportedLanguage**: Any 3-letter valid language code to create OIDC client (e.g., "eng", "hin", "tam").
+
+### eSignet Deployment Configuration (Required for API Test Rig):
+These configurations need to be added as part of the eSignet service deployment to support the API Test Rig:
+
+- **MOSIP_ESIGNET_AUTHENTICATE_ATTEMPTS**: 300
+- **MOSIP_ESIGNET_SEND_OTP_ATTEMPTS**: 300
+- **MOSIP_ESIGNET_AUTH_CHALLENGE_BIO_MAX_LENGTH**: 200000
+- **MOSIP_ESIGNET_PREAUTHENTICATION_EXPIRE_IN_SECS**: 600
+- **MOSIP_ESIGNET_CAPTCHA_REQUIRED**: (empty)
+
+These parameters must be included in the eSignet deployment YAML for the API Test Rig to function correctly, independent of which plugin is being used.
+
 ## Access Test Automation Code
 
 You can access the test automation code using either of the following methods:
@@ -96,7 +134,7 @@ To execute the tests using Jar, use the following steps:
 
 2. Run the automation test suite JAR file:
    ```
-   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.2.1-SNAPSHOT-jar-with-dependencies.jar
+   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.5.1-jar-with-dependencies.jar
    ```
    
 # Using Eclipse IDE
@@ -144,9 +182,9 @@ To execute the tests using Eclipse IDE, use the following steps:
 ## 6. **View Test Results**
 
    - After the tests are executed, you can view the detailed results in the `api-test\testng-report` directory.
-   - Two reports will gets generated
-       - First report is for pre-requisite testcases
-       - Second report is for core testcases
+   - The report will have two sections:
+       - One section for pre-requisite APIs test cases.
+       - Another section for core test cases.
 
 ---
   
@@ -155,7 +193,7 @@ To execute the tests using Eclipse IDE, use the following steps:
 - **env.user**: Replace `<env_name>` with the appropriate environment name (e.g., `dev`, `qa`, etc.).
 - **env.endpoint**: The environment where the application under test is deployed. Replace `<base_env>` with the correct base URL for the environment (e.g., `https://api-internal.<env_name>.mosip.net`).
 - **env.testLevel**: Set this to `smoke` to run only smoke test cases, or `smokeAndRegression` to run both smoke and regression tests.
-- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.2.1-SNAPSHOT-jar-with-dependencies.jar`.
+- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.5.1-jar-with-dependencies.jar`.
 
 ### Build and Run Info
 

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.5.0</version>
+		<version>1.5.1</version>
 	</parent>
 
 	<groupId>io.mosip.esignet</groupId>
@@ -29,5 +29,5 @@
 			<artifactId>esignet-core</artifactId>
 			<version>${esignet.core.version}</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 </project>

@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @Configuration
 public class SharedComponentConfig {
 
@@ -15,7 +17,8 @@ public class SharedComponentConfig {
 
     @Bean
     public CaptchaHelper captchaHelper(@Value("${mosip.esignet.captcha.validator-url}") String validatorUrl,
-                                        @Value("${mosip.esignet.captcha.module-name}") String moduleName) {
-        return new CaptchaHelper(restTemplate, validatorUrl, moduleName);
+                                       @Value("${mosip.esignet.captcha.module-name}") String moduleName,
+                                       @Value("#{'${mosip.esignet.captcha.required:}'}")List<String> captchaRequired) {
+        return new CaptchaHelper(restTemplate, validatorUrl, moduleName, captchaRequired);
     }
 }

@@ -94,6 +94,8 @@ public class PatchWithPathParamsAndBody extends AdminTestUtil implements ITest {
 
 		testCaseDTO = AdminTestUtil.filterHbs(testCaseDTO);
 		String inputJson = filterInputHbs(testCaseDTO);
+		
+		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
 		response = patchWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 				testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);

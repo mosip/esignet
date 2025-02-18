@@ -30,7 +30,7 @@ AuthorizationCodeSunBirdCNegTC:
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid_transactionId$",
-      	"permittedAuthorizeScopes": [{scope: "openid profile"}, {scope: "sunbird_rc_insurance_vc_ldp"}]
+      	"permittedAuthorizeScopes": [{scope: "openid profile"}, {scope: "$SUNBIRD_SCOPE$"}]
 }'
       output: '{
 }'
@@ -60,7 +60,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: esignet/SunBirdCNegTC/AuthorizatioCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
+      inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_Smoke_sid_encodedResp$",
@@ -166,7 +166,7 @@ AuthorizationCodeSunBirdCNegTC:
         "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
-      	"permittedAuthorizeScopes": [{scope: "sunbird_rc_insurance_vc_ldp"}]
+      	"permittedAuthorizeScopes": [{scope: "$SUNBIRD_SCOPE$"}]
 }'
       output: '{
 }'

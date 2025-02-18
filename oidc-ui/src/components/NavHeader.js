@@ -18,6 +18,14 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   const authorizeQueryParam = "authorize_query_param";
   const ui_locales = "ui_locales";
 
+  // Decode the authorize query param
+  const decodedBase64 = Buffer.from(
+    authServices.getAuthorizeQueryParam(),
+    "base64"
+  ).toString();
+
+  var urlSearchParams = new URLSearchParams(decodedBase64);
+
   const changeLanguageHandler = (e) => {
     i18n.changeLanguage(e.value);
   };
@@ -49,42 +57,16 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   };
 
   useEffect(() => {
-    if (!langOptions || langOptions.length === 0) {
-      return;
-    }
-
-    let lang = langOptions.find((option) => {
-      return option.value === i18n.language;
-    });
-
-    if (lang == null) {
-      const defaultLanguageCode = window._env_.DEFAULT_LANG;
-
-      // Find the language option that matches the extracted language code
-      const defaultLang = langOptions.find(
-        (option) => option.value === defaultLanguageCode
-      );
-      setSelectedLang(defaultLang);
-    } else {
-      setSelectedLang(lang);
-    }
-
     //Gets fired when changeLanguage got called.
     i18n.on("languageChanged", function (lng) {
       let language = langOptions.find((option) => {
         return option.value === lng;
       });
-      setSelectedLang(language);
 
+      if (language) {
+        setSelectedLang(language);
+      }
       // Setting up the current i18n language in the URL on every language change.
-
-      // Decode the authorize query param
-      const decodedBase64 = Buffer.from(
-        authServices.getAuthorizeQueryParam(),
-        "base64"
-      ).toString();
-
-      var urlSearchParams = new URLSearchParams(decodedBase64);
 
       // Convert the decoded string to JSON
       var jsonObject = {};
@@ -113,6 +95,26 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
       // Insert the new authorizeQueryParam to the local storage
       localStorage.setItem(authorizeQueryParam, encodedBase64);
     });
+
+    if (!langOptions || langOptions.length === 0) {
+      return;
+    }
+
+    let lang = langOptions.find((option) => {
+      return option.value === i18n.language;
+    });
+
+    if (!lang) {
+      const defaultLanguageCode = window._env_.DEFAULT_LANG;
+
+      // Find the language option that matches the extracted language code
+      const defaultLang = langOptions.find(
+        (option) => option.value === defaultLanguageCode
+      );
+      setSelectedLang(defaultLang);
+    } else {
+      setSelectedLang(lang);
+    }
   }, [langOptions]);
 
   var dropdownItemClass =
@@ -182,7 +184,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <span
-                  className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer text-[14px]"
+                  className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer"
                   aria-label="Customise options"
                   id="language_selection"
                 >

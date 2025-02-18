@@ -64,6 +64,13 @@ keycloak:
         - REGISTRATION_PROCESSOR
         - SUBSCRIBE_OIDC_CLIENT_CREATED_GENERAL
         - SUBSCRIBE_OIDC_CLIENT_UPDATED_GENERAL
+        - CREDENTIAL_PARTNER
+        - PUBLISH_CREDENTIAL_STATUS_UPDATE_GENERAL
+        - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+        - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
+        - SUBSCRIBE_CREDENTIAL_ISSUED_INDIVIDUAL
+        - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+        - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
       client_scopes:
         - name: add_oidc_client
           description: Scope required to create OIDC client
@@ -97,8 +104,8 @@ keycloak:
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
           }
-        - name: sending_binding_otp
-          description: Scope required to create OIDC client
+        - name: send_binding_otp
+          description: Scope required to create OIDC client and mpartner-default-mobile client
           protocol: openid-connect
           "Include In Token Scope": on
           attributes: {
@@ -106,7 +113,7 @@ keycloak:
             include.in.token.scope: "true"
           }
         - name: wallet_binding
-          description: ''
+          description: Scope required to create mpartner-default-mobile client
           protocol: openid-connect
           "Include In Token Scope": on
           attributes: {
@@ -162,3 +169,16 @@ keycloak:
             - PARTNER_ADMIN
             - uma_authorization
             - offline_access
+        - name: mpartner-default-mobile
+          mappers: [ ]
+          saroles:
+            - CREDENTIAL_PARTNER
+            - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+            - SUBSCRIBE_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
+            - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_COMPLETED_EVENT_GENERAL
+            - PUBLISH_CREDENTIAL_STATUS_UPDATE_GENERAL
+            - PUBLISH_REGISTRATION_PROCESSOR_WORKFLOW_PAUSED_FOR_ADDITIONAL_INFO_EVENT_GENERAL
+            - SUBSCRIBE_CREDENTIAL_ISSUED_INDIVIDUAL
+          assign_client_scopes:
+            - send_binding_otp
+            - wallet_binding

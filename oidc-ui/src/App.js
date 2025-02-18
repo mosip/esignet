@@ -78,7 +78,7 @@ function App() {
 
     //1. Check for ui locales param. Highest priority.
     //This will override the language detectors selected language
-    let supportedLanguages = loadLang.languages_2Letters;
+    let { languages_2Letters: supportedLanguages, langCodeMapping } = loadLang;
     let searchUrlParams = new URLSearchParams(window.location.search);
     let uiLocales = searchUrlParams.get("ui_locales");
     if (uiLocales) {
@@ -91,12 +91,23 @@ function App() {
       }
 
       // if language code not found in 2 letter codes, then check mapped language codes
-      let langCodeMapping = loadLang.langCodeMapping;
       for (let idx in languages) {
         if (langCodeMapping[languages[idx]]) {
           i18n.changeLanguage(langCodeMapping[languages[idx]]);
           return;
         }
+      }
+
+      let defaultLang = window._env_.DEFAULT_LANG;
+      // checking default language in 2 letter language code
+      if (defaultLang in supportedLanguages) {
+        i18n.changeLanguage(defaultLang)
+        return
+      }
+      // checking default language in 3 letter language code
+      if (defaultLang in langCodeMapping) {
+        i18n.changeLanguage(langCodeMapping[defaultLang])
+        return
       }
     }
 
@@ -115,7 +126,7 @@ function App() {
     case states.LOADING:
       el = (
         <div className="h-screen flex justify-center content-center">
-          <LoadingIndicator size="medium" message={"loading_msg"} className="align-loading-center"/>
+          <LoadingIndicator size="medium" message={"loading_msg"} className="align-loading-center" />
         </div>
       );
       break;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
-	<suite name="e-Signet Prerequisite Suite">
+	<suite name="eSignet Pre-requisite API Test">
 	<!-- Passing Group as parmeter unsing "testType" Possible Groups are: smoke 
 		regression smokeAndRegression -->
 	<listeners>
@@ -182,14 +182,6 @@
 			<parameter name="prerequisite" value="Yes" />
 		<classes>
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
-		</classes>
-	</test>
-	<test name="KycBioAuth">
-		<parameter name="ymlFile" value="esignet/KycBioAuth/KycBioAuth.yml" />
-		<parameter name="isInternal" value="false" />
-		<parameter name="prerequisite" value="Yes" />
-		<classes>
-			<class name="io.mosip.testrig.apirig.esignet.testscripts.KycAuth" />
 		</classes>
 	</test>
 </suite>

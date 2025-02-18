@@ -64,6 +64,7 @@ Download and import eSignet-with-mock.postman_environment.json and eSignet.postm
      * Retrieve the Keycloak URL from the config-map under keycloak-host → keycloak-external-url.
 2. Fetch the CSRF Token
    * Navigate to "OIDC Client Mgmt" → "Mock" → "Get CSRF Token" to obtain the CSRF token.
+   * Update the "url" to ge the CSRF Token.
 3. Update the Request Fields for OIDC Client Creation
    * Before executing the "Create OIDC Client" request, update the following fields in the request body:
      * url
@@ -73,8 +74,10 @@ Download and import eSignet-with-mock.postman_environment.json and eSignet.postm
      * client-id
 4. Update the clientId in Deployment
    * Once the clientId is created and activated, update the clientId in the mock-relying-party-ui deployment.
-5. Update the Client Private Key
-   * Retrieve the client-private-key from the eSignet-with-mock environment and update the client-private-key in the mock-relying-party service secret.
+   * Retrieve the `client-private-key` from the **eSignet-with-mock** Postman environment, as shown in the image below:
+     * ![postman-image.png](./postman-image.png)
+     * Encode the retrieved `client-private-key` using Base64.
+     * Update the Base64-encoded `client-private-key` in the **mock-relying-party service secret**.
 
 ### NOTE:
 This deployment is limited to mock

@@ -9,8 +9,15 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  redis:
+    image: redis:6.0
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    restart: always
+
   mock-identity-system:
-    image: 'mosipid/mock-identity-system:0.10.0'
+    image: 'mosipid/mock-identity-system:0.10.1'
     user: root
     ports:
       - 8082:8082
@@ -25,7 +32,7 @@ services:
       - database
 
   esignet:
-    image: 'mosipid/esignet-with-plugins:1.5.0'
+    image: 'mosipid/esignet-with-plugins:1.5.1'
     user: root
     ports: 
       - 8088:8088
@@ -36,12 +43,16 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_esignet?currentSchema=esignet
       - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
       - MOSIP_ESIGNET_INTEGRATION_KEY_BINDER=MockKeyBindingWrapperService
+      - SPRING_CACHE_TYPE=redis
+      - SPRING_REDIS_HOST=redis-server
+      - SPRING_REDIS_PASSWORD=
     depends_on:
       - database
       - mock-identity-system
+      - redis
 
   esignet-ui:
-    image: 'mosipid/oidc-ui:1.5.0'
+    image: 'mosipid/oidc-ui:1.5.1'
     user: root
     ports:
       - 3000:3000

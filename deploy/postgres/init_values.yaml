@@ -4,7 +4,7 @@ dbUserPasswords:
 databases:
   mosip_esignet:
     enabled: true
-    host: "postgres-postgresql"
+    host: "postgres-postgresql.postgres"
     port: 5432
     su:
       user: postgres
@@ -13,4 +13,43 @@ databases:
         key: postgres-password
     dml: 1
     repoUrl: https://github.com/mosip/esignet.git
-    branch: release-1.5.x
+    branch: v1.5.1
+
+  mosip_master:
+    enabled: false
+
+  mosip_audit:
+    enabled: false
+
+  mosip_keymgr:
+    enabled: false
+
+  mosip_kernel:
+    enabled: false
+
+  mosip_idmap:
+    enabled: false
+
+  mosip_prereg:
+    enabled: false
+
+  mosip_idrepo:
+    enabled: false
+
+  mosip_ida:
+    enabled: false
+
+  mosip_credential:
+    enabled: false
+
+  mosip_regprc:
+    enabled: false
+
+  mosip_pms:
+    enabled: false
+
+  mosip_resident:
+    enabled: false
+
+  mosip_hotlist:
+    enabled: false

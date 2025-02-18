@@ -13,12 +13,17 @@ import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
 
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
@@ -27,8 +32,23 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Service
 public class CacheUtilService {
 
+    private static final String NONCE_CHECK_SCRIPT = "if redis.call(\"EXISTS\", KEYS[1]) == 0 then\n" +
+            "    redis.call(\"SETEX\", KEYS[1], tonumber(ARGV[1]), \"1\")\n" +
+            "    return 1\n" +
+            "else\n" +
+            "    return 0\n" +
+            "end";
+    private String nonceScriptHash = null;
+    private static String NONCE_KEY = "nonce::%s";
+
+    @Value("${mosip.esignet.nonce-expire-seconds:86400}")
+    private int nonceValidity;
+
     @Autowired
     CacheManager cacheManager;
+
+    @Autowired
+    private RedisConnectionFactory redisConnectionFactory;
 
     @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     public OIDCTransaction setTransaction(String transactionId, OIDCTransaction oidcTransaction) {
@@ -73,6 +93,24 @@ public class CacheUtilService {
     @CacheEvict(value = Constants.HALTED_CACHE, key = "#transactionId")
     public void removeHaltedTransaction(String transactionId) {
         log.debug("Evicting entry from HALTED_CACHE");
+    }
+
+    public long checkNonce(String nonce) {
+        if (redisConnectionFactory.getConnection() != null) {
+            if (nonceScriptHash == null) {
+                nonceScriptHash = redisConnectionFactory.getConnection().scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
+            }
+            log.info("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
+            final String key = String.format(NONCE_KEY, nonce);
+            return redisConnectionFactory.getConnection().scriptingCommands().evalSha(
+                    nonceScriptHash,
+                    ReturnType.INTEGER,
+                    1,  // Number of keys
+                    key.getBytes(), // The Redis hash name (key)
+                    String.valueOf(nonceValidity).getBytes(StandardCharsets.UTF_8) // ttl
+            );
+        }
+        return 0;
     }
 
     //---------------------------------------------- Linked authorization ----------------------------------------------

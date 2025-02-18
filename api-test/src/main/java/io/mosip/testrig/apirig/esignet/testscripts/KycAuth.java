@@ -119,6 +119,8 @@ public class KycAuth extends AdminTestUtil implements ITest {
 		logger.info("******Post request Json to EndPointUrl: " + url + testCaseDTO.getEndPoint() + " *******");
 
 		Response authResponse = null;
+		
+		input = EsignetUtil.inputstringKeyWordHandeler(input, testCaseName);
 
 		authResponse = postWithBodyAndCookieWithText(url + testCaseDTO.getEndPoint(), input, COOKIENAME,
 				testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
@@ -141,6 +143,8 @@ public class KycAuth extends AdminTestUtil implements ITest {
 		headers.put(COOKIENAME, token);
 
 		logger.info("******Post request Json to EndPointUrl: " + ApplnURI + testCaseDTO.getEndPoint() + " *******");
+		
+		authResBody = EsignetUtil.inputstringKeyWordHandeler(authResBody, testCaseName);
 
 		response = postRequestWithAuthHeaderAndSignatureForOtp(ApplnURI + kycAuthEndPoint, authResBody, COOKIENAME,
 				token, headers, testCaseDTO.getTestCaseName());
