@@ -410,7 +410,8 @@
                 "$ref": "#/$defs/verified_claims_def"
               }
             ]
-          }
+          },
+          "minItems": 1
         },
         {
           "$ref": "#/$defs/verified_claims_def"

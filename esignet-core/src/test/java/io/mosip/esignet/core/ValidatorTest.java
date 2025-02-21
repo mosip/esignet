@@ -708,6 +708,29 @@ public class ValidatorTest {
     }
 
     @Test
+    public void testClaimSchemaValidator_withEmptyVerifiedClaims_thenFail() throws IOException {
+
+        String address = "{\"essential\":true, \"purpose\":\"User address\"}";
+        String verifiedClaims = "[]";
+        JsonNode addressNode = mapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
+
+        ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+        idTokenMap.put("some_claim", claimDetail);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(idTokenMap);
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
     public void claimSchemaValidator_withTrustFrameWorkAsNull_thenFail() throws IOException {
 
         String address = "{\"essential\":true}";
