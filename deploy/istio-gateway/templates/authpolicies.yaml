@@ -2,7 +2,7 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: deny-swagger
+  name: deny-swagger-except-mock
 spec:
   selector:
     matchLabels:
@@ -12,4 +12,5 @@ spec:
   - to:
     - operation:
         paths: ["*/swagger-ui.html", "*/swagger-ui/index.html"]
+        notPaths: ["*/mock-identity-system/swagger-ui/index.html"]
 {{- end }}
