@@ -194,3 +194,34 @@
   --consent-details-header-color: var(--primary-color);
   --login-client-logo-image-shadow: 0px 4px 15px 2px #32CD324D;
 }
+
+[class="violet"] {
+  --primary-color: #7F56D9;
+  --login-background-image: url("/images/section-bg.png");
+  --primary-button-hover-bg-color: var(--primary-color);
+  --primary-button-hover-border-color: var(--primary-color);
+  --primary-button-disable-color: #ffffff;
+  --primary-button-disable-bg-color: #cbcbcb;
+  --primary-button-disable-border-color: #cbcbcb;
+  --secondary-button-color: var(--primary-color);
+  --secondary-button-hover-color: var(--primary-color);
+  --loading-indicator-ring-color: var(--primary-color);
+  --info-icon-color: var(--primary-color);
+  --toggle-button-active-bg-color: #ffdecc;
+  --toggle-button-active-border-color: #ffffff;
+  --toggle-button-inactive-ball-color: #cbcbcb;
+  --toggle-button-inactive-ball-border-color: #cbcbcb;
+  --signup-banner-background-color: #bfa4fa;
+  --signup-banner-bottom-radius: 10px;
+  --signup-banner-signup-url-color-hover: var(--primary-color);
+  --signup-banner-signup-url-color-focus: var(--primary-color);
+  --top-left-bg-logo-display: block;
+  --bottom-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
+  --top-right-bg-logo-url: url("/images/top_left_bg_logo.svg");
+  --bottom-right-bg-logo-display: block;
+  --login-alternate-arrow: "\21C4";
+  --footer-bg-color: #ffffff;
+  --primary-button-border-radius: 8px;
+  --consent-details-header-color: var(--primary-color);
+  --login-client-logo-image-shadow: 0px 4px 15px 2px #7F56D94D;
+}
