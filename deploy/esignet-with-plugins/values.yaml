@@ -4,86 +4,113 @@
 #  repository: mosipdev/esignet
 #  tag: develop
 
-#extraEnvVars: |
-#  - name: KEYCLOAK_EXTERNAL_URL
-#    valueFrom:
-#      configMapKeyRef:
-#        name: keycloak-host
-#        key: keycloak-external-url
-#  - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
-#    valueFrom:
-#      secretKeyRef:
-#        name: esignet-captcha
-#        key: esignet-captcha-site-key
-#  - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
-#    value: esignet
-#  - name: IDA_AUTHENTICATOR_ENV
-#    value: Staging
-#  - name: REDIS_HOST
-#    valueFrom:
-#      configMapKeyRef:
-#        name: redis-config
-#        key: redis-host
-#  - name: REDIS_PORT
-#    valueFrom:
-#      configMapKeyRef:
-#        name: redis-config
-#        key: redis-port
-#  - name: REDIS_PASSWORD
-#    valueFrom:
-#      secretKeyRef:
-#        name: redis
-#        key: redis-password
-#  - name: DATABASE_HOST
-#    valueFrom:
-#      configMapKeyRef:
-#        name: postgres-config
-#        key: database-host
-#  - name: DATABASE_PORT
-#    valueFrom:
-#      configMapKeyRef:
-#        name: postgres-config
-#        key: database-port
-#  - name: DATABASE_NAME
-#    valueFrom:
-#      configMapKeyRef:
-#        name: postgres-config
-#        key: database-name
-#  - name: DATABASE_USERNAME
-#    valueFrom:
-#      configMapKeyRef:
-#        name: postgres-config
-#        key: database-username
-#  - name: DB_DBUSER_PASSWORD
-#    valueFrom:
-#      secretKeyRef:
-#        name: db-common-secrets
-#        key: db-dbuser-password
-#  - name: SOFTHSM_ESIGNET_SECURITY_PIN
-#    valueFrom:
-#      secretKeyRef:
-#        name: esignet-softhsm
-#        key: security-pin
-#  - name: MOSIP_ESIGNET_HOST
-#    valueFrom:
-#      configMapKeyRef:
-#        name: esignet-global
-#        key: mosip-esignet-host
-#  - name: MOSIP_SIGNUP_HOST
-#    valueFrom:
-#      configMapKeyRef:
-#        name: esignet-global
-#        key: mosip-signup-host
-#  - name: MOSIP_IDA_CLIENT_SECRET
-#    valueFrom:
-#      secretKeyRef:
-#        name: keycloak-client-secrets
-#        key: mosip_ida_client_secret
-#  - name: MOSIP_ESIGNET_MISP_KEY
-#    valueFrom:
-#      secretKeyRef:
-#        name: esignet-misp-onboarder-key
-#        key: mosip-esignet-misp-key
+extraEnvVars: |
+  - name: KEYCLOAK_EXTERNAL_URL
+    valueFrom:
+      configMapKeyRef:
+        name: keycloak-host
+        key: keycloak-external-url
+  - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: esignet-captcha
+        key: esignet-captcha-site-key
+  - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
+    value: esignet
+  - name: REDIS_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: redis-config
+        key: redis-host
+  - name: REDIS_PORT
+    valueFrom:
+      configMapKeyRef:
+        name: redis-config
+        key: redis-port
+  - name: REDIS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: redis
+        key: redis-password
+  - name: DATABASE_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-host
+  - name: DATABASE_PORT
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-port
+  - name: DATABASE_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-name
+  - name: DATABASE_USERNAME
+    valueFrom:
+      configMapKeyRef:
+        name: postgres-config
+        key: database-username
+  - name: DB_DBUSER_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-common-secrets
+        key: db-dbuser-password
+  - name: SOFTHSM_ESIGNET_SECURITY_PIN
+    valueFrom:
+      secretKeyRef:
+        name: esignet-softhsm
+        key: security-pin
+  - name: MOSIP_ESIGNET_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-esignet-host
+  - name: MOSIP_SIGNUP_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-signup-host
+  - name: MOSIP_IDA_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-client-secrets
+        key: mosip_ida_client_secret
+  - name: MOSIP_ESIGNET_MISP_KEY
+    valueFrom:
+      secretKeyRef:
+        name: esignet-misp-onboarder-key
+        key: mosip-esignet-misp-key
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL
+    value: https://api-internal.released.mosip.net/mosip-certs/ida-partner.cer
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-AUTH-URL
+    value: https://api-internal.released.mosip.net/idauthentication/v1/kyc-auth/delegated/${mosip.esignet.authenticator.ida.misp-license-key}
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-EXCHANGE-URL
+    value: https://api-internal.released.mosip.net/idauthentication/v1/kyc-exchange/delegated/${mosip.esignet.authenticator.ida.misp-license-key}
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND-OTP-URL
+    value: https://api-internal.released.mosip.net/idauthentication/v1/otp/${mosip.esignet.authenticator.ida.misp-license-key}
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_KEY-BINDING-URL
+    value: https://api-internal.released.mosip.net/idauthentication/v1/identity-key-binding/delegated/${mosip.esignet.authenticator.ida.misp-license-key}
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_GET_CERTIFICATES-URL
+    value: https://api-internal.released.mosip.net/idauthentication/v1/internal/getAllCertificates
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUTH-TOKEN-URL
+    value: https://api-internal.released.mosip.net/v1/authmanager/authenticate/clientidsecretkey
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUDIT-MANAGER-URL
+    value: https://api-internal.released.mosip.net/v1/auditmanager/audits
+  - name: MOSIP_ESIGNET_AUTHENTICATOR_IDA-DOMAINURI
+    value: https://esignet-mosipid.released.mosip.net
+  - name: SRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI
+    value: https://iam.released.mosip.net/auth/realms/mosip
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+    value: https://iam.released.mosip.net/auth/realms/mosip/protocol/openid-connect/certs
+  - name: MOSIP_ESIGNET_AUTHENTICATE_ATTEMPTS
+    value: '300'
+  - name: MOSIP_ESIGNET_SEND_OTP_ATTEMPTS
+    value: '300'
+  - name: MOSIP_ESIGNET_PREAUTHENTICATION_EXPIRE_IN_SECS
+    value: '600'
+
 #extraEnvVarsCM:
 #  - esignet-softhsm-share
 
