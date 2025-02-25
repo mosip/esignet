@@ -99,7 +99,7 @@
 
 ### Schema update for the Password authentication.
 
-* We have created new schema with version 0.4 in cellbox1 environment to support password authentication where default schema does not password authentication.
+* We have created new schema with version 0.4 in cellbox1 environment to support password authentication where default schema does not support password authentication.
 
 ### Execution points for eSignet Authentication API's
 
