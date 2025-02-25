@@ -118,13 +118,13 @@
             <stringProp name="Argument.value">+91</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="defaultSignUpChallengeValue" elementType="Argument">
-            <stringProp name="Argument.name">defaultSignUpChallengeValue</stringProp>
+          <elementProp name="defaultEsignetChallengeValue" elementType="Argument">
+            <stringProp name="Argument.name">defaultEsignetChallengeValue</stringProp>
             <stringProp name="Argument.value">111111</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="signUpRegisterLanguage" elementType="Argument">
-            <stringProp name="Argument.name">signUpRegisterLanguage</stringProp>
+          <elementProp name="esignetRegisterLanguage" elementType="Argument">
+            <stringProp name="Argument.name">esignetRegisterLanguage</stringProp>
             <stringProp name="Argument.value">eng</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
@@ -166,11 +166,6 @@
           <elementProp name="acrValuesOtp" elementType="Argument">
             <stringProp name="Argument.name">acrValuesOtp</stringProp>
             <stringProp name="Argument.value">mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="nonce" elementType="Argument">
-            <stringProp name="Argument.name">nonce</stringProp>
-            <stringProp name="Argument.value">ere973eieljznge2311</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="state" elementType="Argument">
@@ -577,7 +572,7 @@ vars.put(&quot;genPassword&quot;, password)
             ],&#xd;
             &quot;phone&quot;: &quot;${identifierPrefix}${identifier}&quot;,&#xd;
             &quot;email&quot;: &quot;abc@gmail${__Random(100,999999999999,)}.com&quot;,&#xd;
-            &quot;preferredLang&quot;: &quot;${signUpRegisterLanguage}&quot;,&#xd;
+            &quot;preferredLang&quot;: &quot;${esignetRegisterLanguage}&quot;,&#xd;
             &quot;dateOfBirth&quot;: &quot;${dateOfBirth}&quot;,&#xd;
             &quot;password&quot;: {&#xd;
                 &quot;hash&quot;: &quot;${hash}&quot;,&#xd;
@@ -1117,7 +1112,7 @@ vars.put(&quot;encodedPrivateKey&quot;, encodedPrivateKey);
         &quot;display&quot;: &quot;popup&quot;,&#xd;
         &quot;prompt&quot;: &quot;login&quot;,&#xd;
         &quot;acrValues&quot;: &quot;${acrValuesOtp}&quot;,&#xd;
-        &quot;nonce&quot; : &quot;${nonce}&quot;,&#xd;
+        &quot;nonce&quot; : &quot;${__RandomString(19,qwertyuiopa1234567890asdfghj,)}&quot;,&#xd;
         &quot;state&quot; : &quot;${state}&quot;,&#xd;
         &quot;claimsLocales&quot; : &quot;en&quot;,&#xd;
         &quot;codeChallenge&quot; : &quot;${codeChallenge}&quot;,&#xd;
@@ -1388,7 +1383,7 @@ function encodeBase64Url(value) {
         &quot;challengeList&quot; : [&#xd;
             {&#xd;
                 &quot;authFactorType&quot; : &quot;OTP&quot;,&#xd;
-                &quot;challenge&quot; : &quot;${defaultSignUpChallengeValue}&quot;,&#xd;
+                &quot;challenge&quot; : &quot;${defaultEsignetChallengeValue}&quot;,&#xd;
                 &quot;format&quot; : &quot;alpha-numeric&quot;&#xd;
             }&#xd;
         ]&#xd;
@@ -1971,7 +1966,7 @@ else
         &quot;display&quot;: &quot;popup&quot;,&#xd;
         &quot;prompt&quot;: &quot;login&quot;,&#xd;
         &quot;acrValues&quot;: &quot;${acrValuesPwd}&quot;,&#xd;
-        &quot;nonce&quot; : &quot;${nonce}&quot;,&#xd;
+        &quot;nonce&quot; : &quot;${__RandomString(19,qwertyuiopa1234567890asdfghj,)}&quot;,&#xd;
         &quot;state&quot; : &quot;${state}&quot;,&#xd;
         &quot;claimsLocales&quot; : &quot;en&quot;,&#xd;
         &quot;codeChallenge&quot; : &quot;${codeChallenge}&quot;,&#xd;
