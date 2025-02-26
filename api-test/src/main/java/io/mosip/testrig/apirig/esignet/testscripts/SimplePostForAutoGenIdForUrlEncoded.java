@@ -35,7 +35,7 @@ import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.restassured.response.Response;
 
-public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implements ITest {
+public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(SimplePostForAutoGenIdForUrlEncoded.class);
 	protected String testCaseName = "";
 	public String idKeyName = null;
