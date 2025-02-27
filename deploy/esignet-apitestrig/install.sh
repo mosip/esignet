@@ -125,6 +125,21 @@ function installing_apitestrig() {
         push_reports_to_s3="no"
         read -p "Since S3 details are not available, do you want to use NFS directory mount for storing reports? (y/n) : " answer
         if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
+            # Storage class selection first
+          echo "Please select the storage class for NFS:"
+          echo "1. nfs-client"
+          echo "2. nfs-csi"
+          
+          read -p "Enter your choice (1 or 2): " storage_choice
+          
+          if [[ "$storage_choice" == "1" ]]; then
+            storage_class="nfs-client"
+          elif [[ "$storage_choice" == "2" ]]; then
+            storage_class="nfs-csi"
+          else
+            echo "Invalid choice. Exiting"
+            exit 1;
+          fi
           read -p "Please provide NFS Server IP: " nfs_server
           if [[ -z $nfs_server ]]; then
             echo "NFS server not provided; EXITING."
@@ -135,7 +150,7 @@ function installing_apitestrig() {
             echo "NFS Path not provided; EXITING."
             exit 1;
           fi
-          NFS_OPTION="--set apitestrig.volumes.reports.nfs.server=$nfs_server --set apitestrig.volumes.reports.nfs.path=$nfs_path"
+          NFS_OPTION="--set apitestrig.volumes.reports.storageClass=$storage_class --set apitestrig.volumes.reports.nfs.server=$nfs_server --set apitestrig.volumes.reports.nfs.path=$nfs_path"
           config_complete=true
         else
           echo "Please rerun the script with either S3 or NFS server details."

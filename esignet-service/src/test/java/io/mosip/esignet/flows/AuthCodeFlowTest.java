@@ -43,22 +43,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisScriptingCommands;
 import org.springframework.data.redis.connection.ReturnType;
-import org.springframework.http.HttpStatus;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.security.PrivateKey;
@@ -70,6 +64,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static org.mockito.ArgumentMatchers.*;
@@ -137,6 +132,7 @@ public class AuthCodeFlowTest {
         RedisConnectionFactory redisConnectionFactory = Mockito.mock(RedisConnectionFactory.class);
         when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
         when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
+        when(redisScriptingCommands.scriptExists("nonceScriptHash")).thenReturn(List.of(true));
         when(redisScriptingCommands.evalSha(anyString(), any(ReturnType.class), anyInt(), any(), any())).thenReturn(1L);
 
         ReflectionTestUtils.setField(cacheUtilService, "redisConnectionFactory", redisConnectionFactory);
