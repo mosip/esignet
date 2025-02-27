@@ -19,7 +19,6 @@
             "title": {
               "oneOf": [
                 { "type":  "null" },
-                { "type": "string" },
                 {
                   "type": "object",
                   "required": ["@none"],
@@ -35,7 +34,6 @@
             "subTitle": {
               "oneOf": [
                 { "type":  "null" },
-                { "type": "string" },
                 {
                   "type": "object",
                   "required": ["@none"],

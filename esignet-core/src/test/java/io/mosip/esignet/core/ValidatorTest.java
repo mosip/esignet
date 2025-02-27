@@ -788,8 +788,12 @@ public class ValidatorTest {
         validConfig.put("userinfo_response_type", "JWS");
         validConfig.set("purpose", mapper.valueToTree(Map.ofEntries(
                 Map.entry("type", "verify"),
-                Map.entry("title", ""),
-                Map.entry("subTitle", "")
+                Map.entry("title", Map.ofEntries(
+                        Map.entry("@none", "title")
+                )),
+                Map.entry("subTitle", Map.ofEntries(
+                        Map.entry("@none", "subTitle")
+                ))
         )));
         validConfig.put("signup_banner_required", true);
         validConfig.put("forgot_pwd_link_required", true);
@@ -797,7 +801,7 @@ public class ValidatorTest {
         configList.add(validConfig);
 
         ObjectNode config = validConfig.deepCopy();
-        config.remove("purpose");  // config
+        config.remove("purpose");  // config without purpose
         configList.add(config);
 
         config = validConfig.deepCopy();
@@ -807,14 +811,7 @@ public class ValidatorTest {
         config = validConfig.deepCopy();
         ((ObjectNode) config.get("purpose")).set("title", mapper.valueToTree(Map.ofEntries(
                 Map.entry("@none", "title"),
-                Map.entry("eng", "title")
-        )));
-        configList.add(config);
-
-        config = validConfig.deepCopy();
-        ((ObjectNode) config.get("purpose")).set("subTitle", mapper.valueToTree(Map.ofEntries(
-                Map.entry("@none", "subTitle"),
-                Map.entry("eng", "subTitle")
+                Map.entry("eng", "title")  // title in other language
         )));
         configList.add(config);
 
@@ -830,8 +827,12 @@ public class ValidatorTest {
         validConfig.put("userinfo_response_type", "JWS");
         validConfig.set("purpose", mapper.valueToTree(Map.ofEntries(
                 Map.entry("type", "verify"),
-                Map.entry("title", ""),
-                Map.entry("subTitle", "")
+                Map.entry("title", Map.ofEntries(
+                        Map.entry("@none", "title")
+                )),
+                Map.entry("subTitle", Map.ofEntries(
+                        Map.entry("@none", "subTitle")
+                ))
         )));
         validConfig.put("signup_banner_required", true);
         validConfig.put("forgot_pwd_link_required", true);
@@ -842,13 +843,15 @@ public class ValidatorTest {
         configList.add(config);
 
         config = validConfig.deepCopy();
-        config.put("purpose", mapper.valueToTree(Map.ofEntries(
-                Map.entry("title", "")    // purpose without type field
+        config.set("purpose", mapper.valueToTree(Map.ofEntries(   // purpose without type field
+                Map.entry("title", Map.ofEntries(
+                        Map.entry("@none", "title")
+                ))
         )));
         configList.add(config);
 
         config = validConfig.deepCopy();
-        config.put("purpose", mapper.valueToTree(Map.ofEntries(
+        config.set("purpose", mapper.valueToTree(Map.ofEntries(
                 Map.entry("type", "dummy"),   // invalid purpose type
                 Map.entry("title", "")
         )));

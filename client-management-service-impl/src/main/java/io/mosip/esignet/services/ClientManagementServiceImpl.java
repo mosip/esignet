@@ -307,30 +307,13 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetail buildClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientDetailCreateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
-        JsonNode additionalConfig = convertPurposeStringToLangMap(clientDetail.getAdditionalConfig());
-        clientDetail.setAdditionalConfig(additionalConfig);
         return clientDetail;
     }
 
     public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientId, clientDetailUpdateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
-        JsonNode additionalConfig = convertPurposeStringToLangMap(clientDetailUpdateRequestV3.getAdditionalConfig());
-        clientDetail.setAdditionalConfig(additionalConfig);
         return clientDetail;
-    }
-
-    public JsonNode convertPurposeStringToLangMap(JsonNode additionalConfig) {
-        JsonNode purpose = additionalConfig.path("purpose");
-        if(!purpose.isMissingNode()) {
-            if(purpose.path("title").getNodeType().equals(JsonNodeType.STRING)) {
-                ((ObjectNode) purpose).set("title", objectMapper.createObjectNode().put(Constants.NONE_LANG_KEY, purpose.get("title").textValue()));
-            }
-            if(purpose.path("subTitle").getNodeType().equals(JsonNodeType.STRING)) {
-                ((ObjectNode) purpose).set("subTitle", objectMapper.createObjectNode().put(Constants.NONE_LANG_KEY, purpose.get("subTitle").textValue()));
-            }
-        }
-        return additionalConfig;
     }
 
 }
