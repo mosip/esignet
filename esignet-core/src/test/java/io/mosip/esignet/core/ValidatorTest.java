@@ -81,7 +81,7 @@ public class ValidatorTest {
 
         ReflectionTestUtils.setField(claimSchemaValidator,"resourceLoader",resourceLoader);
         ReflectionTestUtils.setField(claimSchemaValidator,"objectMapper",mapper);
-        ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:/verified_claims_request_schema_test.json");
+        ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:claims_request_schema_test.json");
         claimSchemaValidator.initSchema();
 
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
