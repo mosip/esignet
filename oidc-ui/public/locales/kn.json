@@ -70,6 +70,9 @@
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
     "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
     "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
+    "login_with_id_multiple": "ಲಾಗ್ ಇನ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "verify_with_id_multiple": "ಪರಿಶೀಲಿಸಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "link_using_id_multiple": "ಲಿಂಕ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "pin": {
@@ -88,6 +91,9 @@
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
     "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
     "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
+    "login_with_id_multiple": "ಲಾಗ್ ಇನ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "verify_with_id_multiple": "ಪರಿಶೀಲಿಸಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "link_using_id_multiple": "ಲಿಂಕ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "password": {
@@ -108,6 +114,9 @@
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
     "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
     "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
+    "login_with_id_multiple": "ಲಾಗ್ ಇನ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "verify_with_id_multiple": "ಪರಿಶೀಲಿಸಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "link_using_id_multiple": "ಲಿಂಕ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
   "Form": {
@@ -162,6 +171,9 @@
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
     "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
     "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
+    "login_with_id_multiple": "ಲಾಗ್ ಇನ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "verify_with_id_multiple": "ಪರಿಶೀಲಿಸಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "link_using_id_multiple": "ಲಿಂಕ್ ಮಾಡಲು ಆದ್ಯತೆಯ ಐಡಿ ಆಯ್ಕೆಮಾಡಿ",
     "multiple_login_ids": "ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
     "enter_otp": "OTP ನಮೂದಿಸಿ",
     "and": "ಮತ್ತು"
