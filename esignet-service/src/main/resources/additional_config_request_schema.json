@@ -3,7 +3,6 @@
   "type": "object",
   "properties": {
     "userinfo_response_type": {
-      "type": "string",
       "enum": ["JWS", "JWE"]
     },
     "purpose": {
@@ -46,7 +45,8 @@
                 }
               ]
             }
-          }
+          },
+          "additionalProperties": false
         }
       ]
     },
@@ -66,5 +66,6 @@
     "signup_banner_required",
     "forgot_pwd_link_required",
     "consent_expire_in_days"
-  ]
+  ],
+  "additionalProperties": false
 }

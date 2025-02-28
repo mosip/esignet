@@ -30,7 +30,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
-import javax.management.ObjectName;
 import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
