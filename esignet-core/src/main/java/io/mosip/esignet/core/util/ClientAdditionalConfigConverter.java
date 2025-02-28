@@ -1,23 +1,22 @@
 package io.mosip.esignet.core.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import java.util.Map;
 
 @Slf4j
 @Converter(autoApply = true)
-public class ClientAdditionalConfigConverter implements AttributeConverter<Map<String, Object>, String> {
+public class ClientAdditionalConfigConverter implements AttributeConverter<JsonNode, String> {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(Map<String, Object> attribute) {
+    public String convertToDatabaseColumn(JsonNode attribute) {
         if(attribute == null) return null;
         try {
             return objectMapper.writeValueAsString(attribute);
@@ -28,10 +27,10 @@ public class ClientAdditionalConfigConverter implements AttributeConverter<Map<S
     }
 
     @Override
-    public Map<String, Object> convertToEntityAttribute(String dbData) {
+    public JsonNode convertToEntityAttribute(String dbData) {
         if(dbData == null) return null;
         try {
-            return objectMapper.readValue(dbData, new TypeReference<Map<String, Object>>() {});
+            return objectMapper.readTree(dbData);
         } catch (JsonProcessingException e) {
             log.error("Failed to parse client additionalConfig", e);
             throw new InvalidClientException();

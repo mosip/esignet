@@ -7,20 +7,48 @@
       "enum": ["JWS", "JWE"]
     },
     "purpose": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string"
-        },
-        "title": {
-          "type": "string"
-        },
-        "subTitle": {
-          "type": "string"
+      "oneOf": [
+        { "type":  "null" },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "enum": ["none", "verify", "link", "login"]
+            },
+            "title": {
+              "oneOf": [
+                { "type":  "null" },
+                {
+                  "type": "object",
+                  "required": ["@none"],
+                  "properties": {
+                    "@none": { "type":  "string" }
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "subTitle": {
+              "oneOf": [
+                { "type":  "null" },
+                {
+                  "type": "object",
+                  "required": ["@none"],
+                  "properties": {
+                    "@none": { "type":  "string" }
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          }
         }
-      },
-      "required": ["type", "title", "subTitle"],
-      "additionalProperties": true
+      ]
     },
     "signup_banner_required": {
       "type": "boolean"
@@ -35,10 +63,8 @@
   },
   "required": [
     "userinfo_response_type",
-    "purpose",
     "signup_banner_required",
     "forgot_pwd_link_required",
     "consent_expire_in_days"
-  ],
-  "additionalProperties": true
+  ]
 }
