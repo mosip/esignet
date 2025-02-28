@@ -43,6 +43,18 @@
                     "type": "string",
                     "maxLength": 300,
                     "minLength": 3
+                  },
+                  "value":{
+                    "type": "string",
+                    "minLength": 3,
+                    "pattern": "\\S"
+                  },
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 1
                   }
                 }
               }
@@ -69,7 +81,9 @@
               "minLength": 3
             },
             "value": {
-              "type": "string"
+              "type": "string",
+              "minLength": 3,
+              "pattern": "\\S"
             },
             "values": {
               "type": "array",
@@ -410,7 +424,8 @@
                 "$ref": "#/$defs/verified_claims_def"
               }
             ]
-          }
+          },
+          "minItems": 1
         },
         {
           "$ref": "#/$defs/verified_claims_def"
@@ -520,10 +535,64 @@
     },
     "userinfo": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "verified_claims": {
           "$ref": "#/$defs/verified_claims"
+        },
+        "name": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "given_name": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "family_name": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "middle_name": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "nickname": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "preferred_username": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "profile": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "picture": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "website": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "email": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "email_verified": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "gender": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "birthdate": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "zoneinfo": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "locale": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "phone_number": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "phone_number_verified": {
+          "$ref": "#/$defs/simple_element"
+        },
+        "address": {
+          "$ref": "#/$defs/simple_element"
         }
       }
     }

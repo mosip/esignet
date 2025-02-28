@@ -6,7 +6,10 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
@@ -220,7 +223,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Override
     public ClientDetailResponse createOAuthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) throws EsignetException {
-        ClientDetail clientDetail = buildClient(clientDetailCreateRequestV2);
+        ClientDetail clientDetail = buildOAuthClient(clientDetailCreateRequestV2);
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
         } catch (ConstraintViolationException cve) {
@@ -237,7 +240,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
     @Override
     public ClientDetailResponse updateOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException {
-        ClientDetail clientDetail = buildClient(clientId, clientDetailUpdateRequestV2);
+        ClientDetail clientDetail = buildOAuthClient(clientId, clientDetailUpdateRequestV2);
         clientDetail = clientDetailRepository.save(clientDetail);
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OAUTH_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
@@ -248,14 +251,12 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @Override
     public ClientDetailResponseV2 createClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) throws EsignetException {
         ClientDetail clientDetail = buildClient(clientDetailCreateRequestV3);
-        clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
         } catch (ConstraintViolationException cve) {
             log.error("Failed to create client details", cve);
             throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }
-
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OAUTH_CLIENT_CREATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientDetailCreateRequestV3.getClientId()), null);
 
@@ -266,16 +267,14 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @Override
     public ClientDetailResponseV2 updateClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) throws EsignetException {
         ClientDetail clientDetail = buildClient(clientId, clientDetailUpdateRequestV3);
-        clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
         clientDetail = clientDetailRepository.save(clientDetail);
-
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
                 Action.OAUTH_CLIENT_UPDATE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
 
         return getClientDetailResponseV2(clientDetail);
     }
 
-    public ClientDetail buildClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) {
+    public ClientDetail buildOAuthClient(ClientDetailCreateRequestV2 clientDetailCreateRequestV2) {
         if (clientDetailRepository.existsById(clientDetailCreateRequestV2.getClientId())) {
             log.error("Duplicate Client Id : {}", ErrorConstants.DUPLICATE_CLIENT_ID);
             throw new EsignetException(ErrorConstants.DUPLICATE_CLIENT_ID);
@@ -289,7 +288,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         return clientDetail;
     }
 
-    public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) {
+    public ClientDetail buildOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
         if (!result.isPresent()) {
             log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
@@ -302,6 +301,18 @@ public class ClientManagementServiceImpl implements ClientManagementService {
                 clientDetailUpdateRequestV2.getClientName()
         );
         clientDetail.setName(clientName);
+        return clientDetail;
+    }
+
+    public ClientDetail buildClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) {
+        ClientDetail clientDetail = buildOAuthClient(clientDetailCreateRequestV3);
+        clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
+        return clientDetail;
+    }
+
+    public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) {
+        ClientDetail clientDetail = buildOAuthClient(clientId, clientDetailUpdateRequestV3);
+        clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
         return clientDetail;
     }
 

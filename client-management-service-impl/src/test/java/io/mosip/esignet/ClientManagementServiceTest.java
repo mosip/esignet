@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.security.KeyPair;
@@ -46,7 +47,7 @@ public class ClientManagementServiceTest {
     @Mock
     ClientDetailRepository clientDetailRepository;
 
-    @Mock
+    @Spy
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
@@ -150,7 +151,7 @@ public class ClientManagementServiceTest {
         clientCreateV3ReqDto.setRelyingPartyId("RELYING_PARTY_ID");
         clientCreateV3ReqDto.setGrantTypes(Arrays.asList("authorization_code"));
         clientCreateV3ReqDto.setClientAuthMethods(Arrays.asList("private_key_jwt"));
-        clientCreateV3ReqDto.setAdditionalConfig(new HashMap<>());
+        clientCreateV3ReqDto.setAdditionalConfig(objectMapper.createObjectNode());
 
         ClientDetail entity = new ClientDetail();
         entity.setId("mock_id_v1");
@@ -281,7 +282,7 @@ public class ClientManagementServiceTest {
         updateV3Request.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
         updateV3Request.setGrantTypes(Arrays.asList("authorization_code"));
         updateV3Request.setClientAuthMethods(Arrays.asList("private_key_jwt"));
-        updateV3Request.setAdditionalConfig(new HashMap<>());
+        updateV3Request.setAdditionalConfig(objectMapper.createObjectNode());
 
         ClientDetail entity = new ClientDetail();
         entity.setId("client_id_v1");

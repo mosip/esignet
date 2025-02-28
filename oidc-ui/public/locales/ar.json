@@ -68,6 +68,8 @@
     "vid": "فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "verify_with_id": "تحقق باستخدام {{currentID}}",
+    "link_using_id": "الربط باستخدام {{currentID}}",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "pin": {
@@ -84,6 +86,8 @@
     "vid": "فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "verify_with_id": "تحقق باستخدام {{currentID}}",
+    "link_using_id": "الربط باستخدام {{currentID}}",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "password": {
@@ -102,6 +106,8 @@
     "vid": "فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "verify_with_id": "تحقق باستخدام {{currentID}}",
+    "link_using_id": "الربط باستخدام {{currentID}}",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "Form": {
@@ -113,7 +119,10 @@
     "policyNumber_placeholder": "رقم السياسة",
     "fullName_placeholder": "الاسم الكامل",
     "dob_placeholder": "تاريخ الميلاد",
-    "login_with_kbi": "تسجيل الدخول مع KBI"
+    "login_with_kbi": "تسجيل الدخول مع KBI",
+    "login_with_id": "تسجيل الدخول مع KBI",
+    "verify_with_id": "تحقق باستخدام KBI",
+    "link_using_id": "الربط باستخدام KBI"
   },
   "LoginQRCode": {
     "scan_with_wallet": "مسح مع {{walletName}} لتسجيل الدخول",
@@ -124,6 +133,8 @@
     "refresh": "تحديث رمز الاستجابة السريعة",
     "open_wallet_app": "يفتح {{walletName}} برنامج",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "verify_with_id": "تحقق باستخدام {{currentID}}",
+    "link_using_id": "الربط باستخدام {{currentID}}",
     "wallet_header": "امسح رمز QR ضوئيًا باستخدام تطبيق {{walletName}}."
   },
   "otp": {
@@ -149,6 +160,8 @@
     "vid": "فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
+    "verify_with_id": "تحقق باستخدام {{currentID}}",
+    "link_using_id": "الربط باستخدام {{currentID}}",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول",
     "enter_otp": "أدخل كلمة المرور لمرة واحدة",
     "and": "و"
@@ -156,6 +169,8 @@
   "signInOption": {
     "login_option_heading": "اختر الطريقة التي تريد تسجيل الدخول بها:",
     "login_with_id": "تسجيل الدخول باستخدام {{option}}",
+    "verify_with_id": "تحقق باستخدام {{option}}",
+    "link_using_id": "الربط باستخدام {{option}}",
     "PIN": "دبوس",
     "Biometrics": "القياسات الحيوية",
     "BIO": "القياسات الحيوية",
@@ -164,6 +179,7 @@
     "PWD": "كلمة المرور",
     "walletName": "إنجي",
     "preferred_mode_of_login": "حدد الوضع المفضل لتسجيل الدخول",
+    "preferred_mode_to_continue": "اختر وضعًا مفضلًا للمتابعة",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "or": "أو",
     "sign_in_with": "التحقق باستخدام {{idProviderName}}",
@@ -179,7 +195,9 @@
     "login_heading": "تسجيل الدخول باستخدام eSignet",
     "verify_heading": "التحقق باستخدام eSignet",
     "link_heading": "الربط باستخدام eSignet",
-    "login_subheading": "الرجاء إدخال اسم المستخدم وكلمة المرور المسجلين لديك",
+    "login_subheading": "الرجاء استخدام بيانات اعتمادك لتسجيل الدخول.",
+    "verify_subheading": "يُرجى تقديم بيانات اعتمادك للربط بحسابك.",
+    "link_subheading": "",
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "invalid_auth_factor": "عوامل المصادقة غير صالحة. ",
