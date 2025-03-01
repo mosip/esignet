@@ -70,6 +70,9 @@
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
     "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "pin": {
@@ -88,6 +91,9 @@
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
     "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "password": {
@@ -108,6 +114,9 @@
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
     "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "Form": {
@@ -162,6 +171,9 @@
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
     "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល",
     "enter_otp": "បញ្ចូល OTP",
     "and": "និង"

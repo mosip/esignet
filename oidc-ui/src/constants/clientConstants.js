@@ -94,7 +94,8 @@ const configurationKeys = {
   bannerCloseTimer: "error.banner.close-timer",
   authFactorKnowledgeFieldDetails: "auth.factor.kbi.field-details",
   authFactorKnowledgeIndividualIdField: "auth.factor.kbi.individual-id-field",
-  loginIdOptions: "login-id.options"
+  loginIdOptions: "login-id.options",
+  additionalConfig: "clientAdditionalConfig"
 };
 
 const modalityIconPath = {
@@ -132,6 +133,12 @@ const authLabelKey = {
   link: "link_using_id",
 }
 
+const multipleIdKey = {
+  login: "login_with_id_multiple",
+  verify: "verify_with_id_multiple",
+  link: "link_using_id_multiple",
+}
+
 const purposeTypeObj = {
   login: "login",
   verify: "verify",
@@ -153,5 +160,6 @@ export {
   purposeTitleKey,
   purposeTypeObj,
   purposeSubTitleKey,
-  authLabelKey
+  authLabelKey,
+  multipleIdKey
 };

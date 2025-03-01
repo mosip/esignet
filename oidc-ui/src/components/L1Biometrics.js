@@ -401,11 +401,14 @@ export default function L1Biometrics({
         {backButtonDiv}
         {currentLoginID && (
           <div className="inline mx-2 font-semibold my-3">
-            {loginIDs && loginIDs.length > 1
-              ? t1("multiple_login_ids")
-              : `${t1(secondaryHeading, {
-                currentID: `${t1(currentLoginID.id)}`
-              })}`}
+            {/*
+              according to the login id option, secondary heading value will be changed
+              if the login id option is single, then with secondary heading will pass a object with current id
+              if the login id option is multiple, then secondary heading will be passed as it is
+            */}
+            {t1(secondaryHeading, loginIDs && loginIDs.length === 1 && {
+              currentID: t1(loginIDs[0].id)
+            })}
           </div>
         )}
       </div>

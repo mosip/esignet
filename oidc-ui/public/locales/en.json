@@ -70,6 +70,9 @@
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
     "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option"
   },
   "pin": {
@@ -88,6 +91,9 @@
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
     "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option"
   },
   "password": {
@@ -108,6 +114,9 @@
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
     "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option"
   },
   "Form": {
@@ -162,6 +171,9 @@
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
     "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option",
     "enter_otp": "Enter OTP",
     "and": "and"

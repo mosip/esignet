@@ -70,6 +70,9 @@
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
     "link_using_id": "الربط باستخدام {{currentID}}",
+    "login_with_id_multiple": "اختر هوية مفضلة لتسجيل الدخول",
+    "verify_with_id_multiple": "اختر هوية مفضلة للتحقق",
+    "link_using_id_multiple": "اختر هوية مفضلة للربط",  
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "pin": {
@@ -88,6 +91,9 @@
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
     "link_using_id": "الربط باستخدام {{currentID}}",
+    "login_with_id_multiple": "اختر هوية مفضلة لتسجيل الدخول",
+    "verify_with_id_multiple": "اختر هوية مفضلة للتحقق",
+    "link_using_id_multiple": "اختر هوية مفضلة للربط",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "password": {
@@ -108,6 +114,9 @@
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
     "link_using_id": "الربط باستخدام {{currentID}}",
+    "login_with_id_multiple": "اختر هوية مفضلة لتسجيل الدخول",
+    "verify_with_id_multiple": "اختر هوية مفضلة للتحقق",
+    "link_using_id_multiple": "اختر هوية مفضلة للربط",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "Form": {
@@ -162,6 +171,9 @@
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
     "link_using_id": "الربط باستخدام {{currentID}}",
+    "login_with_id_multiple": "اختر هوية مفضلة لتسجيل الدخول",
+    "verify_with_id_multiple": "اختر هوية مفضلة للتحقق",
+    "link_using_id_multiple": "اختر هوية مفضلة للربط",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول",
     "enter_otp": "أدخل كلمة المرور لمرة واحدة",
     "and": "و"

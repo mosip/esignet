@@ -70,6 +70,9 @@
     "login_with_id": "{{currentID}} से लॉगिन करें",
     "verify_with_id": "{{currentID}} से सत्यापित करें",
     "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "pin": {
@@ -88,6 +91,9 @@
     "login_with_id": "{{currentID}} से लॉगिन करें",
     "verify_with_id": "{{currentID}} से सत्यापित करें",
     "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "password": {
@@ -108,6 +114,9 @@
     "login_with_id": "{{currentID}} से लॉगिन करें",
     "verify_with_id": "{{currentID}} से सत्यापित करें",
     "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "Form": {
@@ -162,6 +171,9 @@
     "login_with_id": "{{currentID}} से लॉगिन करें",
     "verify_with_id": "{{currentID}} से सत्यापित करें",
     "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें",
     "enter_otp": "ओटीपी दर्ज करें",
     "and": "और"

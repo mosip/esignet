@@ -9,7 +9,7 @@ import localStorageService from "../services/local-storageService";
 import sbiService from "../services/sbiService";
 import Background from "../components/Background";
 import SignInOptions from "../components/SignInOptions";
-import { purposeTypeObj, validAuthFactors } from "../constants/clientConstants";
+import { multipleIdKey, purposeTypeObj, validAuthFactors } from "../constants/clientConstants";
 import linkAuthService from "../services/linkAuthService";
 import LoginQRCode from "../components/LoginQRCode";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -18,7 +18,7 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 import Form from "../components/Form";
-import { purposeTitleKey, purposeSubTitleKey, authLabelKey } from "../constants/clientConstants";
+import { purposeTitleKey, purposeSubTitleKey, authLabelKey, configurationKeys } from "../constants/clientConstants";
 import langConfigService from "./../services/langConfigService";
 
 function InitiateL1Biometrics(openIDConnectService, backButtonDiv, secondaryHeading) {
@@ -103,6 +103,8 @@ function InitiateInvalidAuthFactor(errorMsg) {
 
 function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, secondaryHeading) {
   const authFactorType = authFactor.type;
+  const tempSecondaryHeading = checkLoginIdOption(oidcService, secondaryHeading);
+
   if (typeof authFactorType === "undefined") {
     return InitiateInvalidAuthFactor(
       "The component " + { authFactorType } + " has not been created yet."
@@ -110,19 +112,19 @@ function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, seco
   }
 
   if (authFactorType === validAuthFactors.OTP) {
-    return InitiateOtp(oidcService, backButtonDiv, secondaryHeading);
+    return InitiateOtp(oidcService, backButtonDiv, tempSecondaryHeading);
   }
 
   if (authFactorType === validAuthFactors.PIN) {
-    return InitiatePin(oidcService, backButtonDiv, secondaryHeading);
+    return InitiatePin(oidcService, backButtonDiv, tempSecondaryHeading);
   }
 
   if (authFactorType === validAuthFactors.BIO) {
-    return InitiateL1Biometrics(oidcService, backButtonDiv, secondaryHeading);
+    return InitiateL1Biometrics(oidcService, backButtonDiv, tempSecondaryHeading);
   }
 
   if (authFactorType === validAuthFactors.PWD) {
-    return InitiatePassword(oidcService, backButtonDiv, secondaryHeading);
+    return InitiatePassword(oidcService, backButtonDiv, tempSecondaryHeading);
   }
 
   if (authFactorType === validAuthFactors.KBI) {
@@ -135,6 +137,23 @@ function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, seco
 
   // default element
   return React.createElement(Otp);
+}
+
+// check for multiple login id options
+// setting the secondary heading accordingly
+function checkLoginIdOption(oidcService, secondaryHeading) {
+  const loginIds = oidcService.getEsignetConfiguration(
+    configurationKeys.loginIdOptions
+  )
+
+  if (loginIds && loginIds.length > 1) {
+    return authLabelKey.verify === secondaryHeading
+      ? multipleIdKey.verify
+      : authLabelKey.link === secondaryHeading
+        ? multipleIdKey.link
+        : multipleIdKey.login;
+  }
+  return secondaryHeading
 }
 
 export default function LoginPage({ i18nKeyPrefix = "header" }) {
