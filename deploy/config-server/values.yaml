@@ -1,7 +1,7 @@
 gitRepo:
-  uri: https://github.com/mosip/esignet-config
+  uri: https://github.com/mosip/mosip-config
   ## version should be "Tag" or "Branch" name
-  version: ""
+  version: "mc-training"
   ## Folders within the base repo where properties may be found.
   searchFolders: ""
   private: false
@@ -57,17 +57,11 @@ envVariables:
     enabled: true
 
   - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_KEYCLOAK_EXTERNAL_HOST
-    valueFrom:
-      configMapKeyRef:
-        name: keycloak-host
-        key: keycloak-external-host
+    value: iam.released.mosip.net
     enabled: true
 
   - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MPARTNER_DEFAULT_AUTH_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-client-secrets
-        key: mpartner_default_auth_secret
+    value: h8837fwMkGzpfhh2
     enabled: true
 
   - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SOFTHSM_ESIGNET_SECURITY_PIN
