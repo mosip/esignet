@@ -141,7 +141,7 @@
   },
   "header": {
     "login_heading": "تسجيل الدخول",
-    "login_subheading": "الرجاء إدخال اسم المستخدم وكلمة المرور المسجلين لديك",
+    "login_subheading": "يتطلب {{clientName}} المصادقة عبر eSignet",
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "invalid_auth_factor": "عوامل المصادقة غير صالحة. حاول مرة اخرى...",

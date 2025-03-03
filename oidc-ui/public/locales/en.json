@@ -142,7 +142,7 @@
   },
   "header": {
     "login_heading": "Login",
-    "login_subheading": "Please enter your registered username and password",
+    "login_subheading": "{{clientName}} requires authentication through eSignet",
     "login_linkName": "Preregister",
     "more_ways_to_sign_in": "More Ways to Login",
     "invalid_auth_factor": "Invalid Auth Factors. Please Try Again...",

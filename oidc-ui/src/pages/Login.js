@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Otp from "../components/Otp";
 import Pin from "../components/Pin";
 import { generateFieldData } from "../constants/formFields";
@@ -18,6 +18,7 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 import Form from "../components/Form";
+import langConfigService from "./../services/langConfigService";
 
 function InitiateL1Biometrics(openIDConnectService, backButtonDiv) {
   return React.createElement(L1Biometrics, {
@@ -138,6 +139,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const [authFactorType, setAuthFactorType] = useState(null);
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const [langMap, setLangMap] = useState(null);
+  const firstRender = useRef(true);
 
   var decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
   var nonce = searchParams.get("nonce");
@@ -147,37 +150,37 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     if (!decodeOAuth) {
       return;
     }
+    const initialize = async () => {
+      const langConfig = await langConfigService.getLangCodeMapping();
+      setLangMap(langConfig);
+    }
+    if (firstRender.current) {
+      firstRender.current = false;
+      initialize();
+      return;
+    }
     loadComponent();
   }, []);
-  
-  useEffect(() => {
-    if (authFactorType === null) {
-      setSubHeaderText(t("subheader_text.all_login_options"));
-    } else {
-      setSubHeader();
-    }
-  }, [authFactorType, i18n.language]);
 
-  const setSubHeader = () => {
-    if (authFactorType === "OTP") {
-      setSubHeaderText(t("subheader_text.otp_login"));
+  useEffect(() => {
+    
+    if (langMap) {
+      const currLang = i18n.language;
+
+      const currLang2letter = langMap[currLang];
+
+      console.log("useEffect langMap", currLang, currLang2letter);
+      
+      let clientNameInLang = "";
+      if (clientName) {
+        clientNameInLang = (currLang in clientName)
+          ? clientName[currLang] : (currLang2letter in clientName)
+            ? clientName[currLang2letter] : clientName['@none'];
+      }
+
+      setSubHeaderText(t("login_subheading", { clientName: clientNameInLang }));
     }
-    else if (authFactorType === "BIO") {
-      setSubHeaderText(t("subheader_text.biometrics_login"));
-    }
-    else if (authFactorType === "PIN") {
-      setSubHeaderText(t("subheader_text.pin_login"));
-    }
-    else if (authFactorType === "PWD") {
-      setSubHeaderText(t("subheader_text.password_login"));
-    }
-    else if (authFactorType === "KBA") {
-      setSubHeaderText(t("subheader_text.kba_login"));
-    }
-    else if(authFactorType === "WLA") {
-      setSubHeaderText(t("subheader_text.wallet_login"));
-    }
-  }
+  }, [langMap, clientName, i18n.language]);
 
   let parsedOauth = null;
 
