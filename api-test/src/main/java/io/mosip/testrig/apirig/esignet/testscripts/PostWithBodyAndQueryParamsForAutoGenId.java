@@ -36,7 +36,7 @@ import io.mosip.testrig.apirig.utils.PartnerTypes;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.restassured.response.Response;
 
-public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implements ITest {
+public class PostWithBodyAndQueryParamsForAutoGenId extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(PostWithBodyAndQueryParamsForAutoGenId.class);
 	protected String testCaseName = "";
 	String queryParams = null;

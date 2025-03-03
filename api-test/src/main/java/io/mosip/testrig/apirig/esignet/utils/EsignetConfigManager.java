@@ -24,8 +24,7 @@ public class EsignetConfigManager extends ConfigManager{
 			Properties props = getproperties(path);
 			// Convert Properties to Map and add to moduleSpecificPropertiesMap
 			for (String key : props.stringPropertyNames()) {
-				String value = System.getenv(key) == null ? props.getProperty(key) : System.getenv(key);
-				moduleSpecificPropertiesMap.put(key, value);
+				moduleSpecificPropertiesMap.put(key, props.getProperty(key));
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
