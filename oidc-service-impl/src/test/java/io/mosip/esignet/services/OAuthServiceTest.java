@@ -82,7 +82,7 @@ public class OAuthServiceTest {
     }
 
     @Test
-    public void getTokens_withValidRequest_thenPass() throws KycExchangeException {
+    public void getTokens_withValidRequest_thenPass() throws KycExchangeException, JsonProcessingException {
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
@@ -99,6 +99,10 @@ public class OAuthServiceTest {
         oidcTransaction.setIndividualId("individual-id");
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonConfig = "{ \"user_info_response_type\": \"JWS\" }";
+        JsonNode additionalConfig = objectMapper.readTree(jsonConfig);
+        clientDetail.setAdditionalConfig(additionalConfig);
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
 
@@ -192,6 +196,10 @@ public class OAuthServiceTest {
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonConfig = "{ \"user_info_response_type\": \"JWS\" }";
+        JsonNode additionalConfig = objectMapper.readTree(jsonConfig);
+        clientDetail.setAdditionalConfig(additionalConfig);
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
 
