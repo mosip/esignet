@@ -151,8 +151,13 @@ class openIDConnectService {
       title: null,
       subTitle: null,
     }
-    if (this.oAuthDetails?.purpose && this.checkPurposeObjIsNotEmpty(this.oAuthDetails.purpose)) {
-      const tempPurpose = this.oAuthDetails.purpose;
+
+    // getting client additional config object,
+    // which may contains purpose object
+    const additionalConfig = this.getEsignetConfiguration(configurationKeys.additionalConfig);
+
+    if (additionalConfig?.purpose && this.checkPurposeObjIsNotEmpty(additionalConfig.purpose)) {
+      const tempPurpose = additionalConfig.purpose;
       purposeObj.type = tempPurpose.type;
       if (tempPurpose.type === purposeTypeObj.none) {
         return purposeObj;

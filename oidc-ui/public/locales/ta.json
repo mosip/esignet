@@ -70,6 +70,9 @@
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
     "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
     "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "pin": {
@@ -88,6 +91,9 @@
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
     "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
     "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "password": {
@@ -108,6 +114,9 @@
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
     "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
     "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "Form": {
@@ -162,6 +171,9 @@
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
     "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
     "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்",
     "enter_otp": "OTP ஐ உள்ளிடவும்",
     "and": "மற்றும்"

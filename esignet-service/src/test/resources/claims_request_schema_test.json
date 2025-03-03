@@ -535,7 +535,7 @@
     },
     "userinfo": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "verified_claims": {
           "$ref": "#/$defs/verified_claims"
