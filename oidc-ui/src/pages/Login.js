@@ -101,7 +101,7 @@ function createDynamicLoginElements(
       "The component " + { authFactorType } + " has not been created yet."
     );
   }
-  
+
   if (authFactorType === validAuthFactors.OTP) {
     return InitiateOtp(oidcService, backButtonDiv);
   }
@@ -121,7 +121,7 @@ function createDynamicLoginElements(
   if (authFactorType === validAuthFactors.KBA) {
     return InitiateForm(oidcService, backButtonDiv);
   }
-  
+
   if (authFactorType === validAuthFactors.WLA) {
     return InitiateLinkedWallet(authFactor, oidcService, backButtonDiv);
   }
@@ -163,14 +163,14 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   }, []);
 
   useEffect(() => {
-    
+
     if (langMap) {
       const currLang = i18n.language;
 
       const currLang2letter = langMap[currLang];
 
       console.log("useEffect langMap", currLang, currLang2letter);
-      
+
       let clientNameInLang = "";
       if (clientName) {
         clientNameInLang = (currLang in clientName)
@@ -178,7 +178,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
             ? clientName[currLang2letter] : clientName['@none'];
       }
 
-      setSubHeaderText(t("login_subheading", { clientName: clientNameInLang }));
+      setSubHeaderText(clientNameInLang);
     }
   }, [langMap, clientName, i18n.language]);
 
@@ -208,7 +208,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       )
     );
   };
-  
+
   const handleBackButtonClick = () => {
     setAuthFactorType(null)
     setCompToShow(InitiateSignInOptions(handleSignInOptionClick, oidcService));
