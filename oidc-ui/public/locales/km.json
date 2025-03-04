@@ -142,7 +142,7 @@
   },
   "header": {
     "login_heading": "ចូលដោយប្រើ eSignet",
-    "login_subheading": "{{clientName}} តម្រូវឱ្យមានការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវតាមរយៈ eSignet",
+    "login_subheading": "<strong>{{clientName}}</strong> កំពុងស្នើសុំការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវ។",
     "login_linkName": "ចុះឈ្មោះជាមុន",
     "more_ways_to_sign_in": "វិធីច្រើនទៀតដើម្បីចូល",
     "invalid_auth_factor": "កត្តាផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត...",
