@@ -7,6 +7,7 @@ package io.mosip.esignet.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.Authenticator;
@@ -28,6 +29,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
+
 import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -81,11 +83,10 @@ public class ValidatorTest {
 
         ReflectionTestUtils.setField(claimSchemaValidator,"resourceLoader",resourceLoader);
         ReflectionTestUtils.setField(claimSchemaValidator,"objectMapper",mapper);
-        ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:/verified_claims_request_schema_test.json");
+        ReflectionTestUtils.setField(claimSchemaValidator,"schemaUrl","classpath:claims_request_schema_test.json");
         claimSchemaValidator.initSchema();
 
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(clientAdditionalConfigValidator, "objectMapper", mapper);
         ReflectionTestUtils.setField(clientAdditionalConfigValidator, "schemaUrl", "classpath:additional_config_request_schema.json");
         clientAdditionalConfigValidator.initSchema();
     }
@@ -708,6 +709,29 @@ public class ValidatorTest {
     }
 
     @Test
+    public void testClaimSchemaValidator_withEmptyVerifiedClaims_thenFail() throws IOException {
+
+        String address = "{\"essential\":true, \"purpose\":\"User address\"}";
+        String verifiedClaims = "[]";
+        JsonNode addressNode = mapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
+
+        ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+        idTokenMap.put("some_claim", claimDetail);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(idTokenMap);
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
     public void claimSchemaValidator_withTrustFrameWorkAsNull_thenFail() throws IOException {
 
         String address = "{\"essential\":true}";
@@ -780,65 +804,122 @@ public class ValidatorTest {
 
     // =============================ClientAdditionalConfigValidator=============================//
 
-    public static Map<String, Object> getValidAdditionalConfig() {
-        Map<String, Object> validAdditionalConfig = new HashMap<>();
-        validAdditionalConfig.put("userinfo_response_type", "JWS");
-        validAdditionalConfig.put("purpose", Map.ofEntries(
-                Map.entry("type", ""),
-                Map.entry("title", ""),
-                Map.entry("subTitle", "")
-        ));
-        validAdditionalConfig.put("signup_banner_required", true);
-        validAdditionalConfig.put("forgot_pwd_link_required", true);
-        validAdditionalConfig.put("consent_expire_in_days", 1);
-        return validAdditionalConfig;
+    public List<JsonNode> getValidAdditionalConfigs() {
+        List<JsonNode> configList = new ArrayList<>();
+        ObjectNode validConfig = mapper.createObjectNode();
+        validConfig.put("userinfo_response_type", "JWS");
+        validConfig.set("purpose", mapper.valueToTree(Map.ofEntries(
+                Map.entry("type", "verify"),
+                Map.entry("title", Map.ofEntries(
+                        Map.entry("@none", "title")
+                )),
+                Map.entry("subTitle", Map.ofEntries(
+                        Map.entry("@none", "subTitle")
+                ))
+        )));
+        validConfig.put("signup_banner_required", true);
+        validConfig.put("forgot_pwd_link_required", true);
+        validConfig.put("consent_expire_in_days", 1);
+        configList.add(validConfig);
+
+        ObjectNode config = validConfig.deepCopy();
+        config.remove("purpose");  // config without purpose
+        configList.add(config);
+
+        config = validConfig.deepCopy();
+        ((ObjectNode) config.get("purpose")).remove(List.of("title", "subTitle"));  // purpose without title and subTitle
+        configList.add(config);
+
+        config = validConfig.deepCopy();
+        ((ObjectNode) config.get("purpose")).set("title", mapper.valueToTree(Map.ofEntries(
+                Map.entry("@none", "title"),
+                Map.entry("eng", "title")  // title in other language
+        )));
+        configList.add(config);
+
+        return configList;
     }
 
-    public static List<Map<String, Object>> getInvalidAdditionalConfigs() {
-        List<Map<String, Object>> invalidAdditionalConfigs = new ArrayList<>();
+    public List<JsonNode> getInvalidAdditionalConfigs() {
+        List<JsonNode> configList = new ArrayList<>();
 
-        invalidAdditionalConfigs.add(null);
+        configList.add(null);
 
-        Map<String, Object> additionalConfig = getValidAdditionalConfig();
-        additionalConfig.put("userinfo_response_type", "ABC");
-        invalidAdditionalConfigs.add(additionalConfig);
+        ObjectNode validConfig = mapper.createObjectNode();
+        validConfig.put("userinfo_response_type", "JWS");
+        validConfig.set("purpose", mapper.valueToTree(Map.ofEntries(
+                Map.entry("type", "verify"),
+                Map.entry("title", Map.ofEntries(
+                        Map.entry("@none", "title")
+                )),
+                Map.entry("subTitle", Map.ofEntries(
+                        Map.entry("@none", "subTitle")
+                ))
+        )));
+        validConfig.put("signup_banner_required", true);
+        validConfig.put("forgot_pwd_link_required", true);
+        validConfig.put("consent_expire_in_days", 1);
 
-        additionalConfig = getValidAdditionalConfig();
-        additionalConfig.put("purpose", Collections.emptyMap());
-        invalidAdditionalConfigs.add(additionalConfig);
+        ObjectNode config = validConfig.deepCopy();
+        config.put("userinfo_response_type", "ABC");  // invalid userinfo
+        configList.add(config);
 
-        additionalConfig = getValidAdditionalConfig();
-        additionalConfig.put("purpose", Map.ofEntries(
-                Map.entry("type", ""),
-                Map.entry("title", 1),   //anything other than string
-                Map.entry("subTitle", "")
-        ));
-        invalidAdditionalConfigs.add(additionalConfig);
+        config = validConfig.deepCopy();
+        config.set("purpose", mapper.valueToTree(Map.ofEntries(   // purpose without type field
+                Map.entry("title", Map.ofEntries(
+                        Map.entry("@none", "title")
+                ))
+        )));
+        configList.add(config);
 
-        additionalConfig = getValidAdditionalConfig();
-        additionalConfig.put("signup_banner_required", 1); // anything other than boolean
-        invalidAdditionalConfigs.add(additionalConfig);
+        config = validConfig.deepCopy();
+        config.set("purpose", mapper.valueToTree(Map.ofEntries(
+                Map.entry("type", "dummy"),   // invalid purpose type
+                Map.entry("title", "")
+        )));
+        configList.add(config);
 
-        additionalConfig = getValidAdditionalConfig();
-        additionalConfig.put("forgot_pwd_link_required", 1); // anything other than boolean
-        invalidAdditionalConfigs.add(additionalConfig);
+        config = validConfig.deepCopy();
+        config.set("purpose", mapper.valueToTree(Map.ofEntries(
+                Map.entry("type", "verify"),
+                Map.entry("title", Map.ofEntries(Map.entry("eng", "title in english"))) // title without @none key
+        )));
+        configList.add(config);
 
-        additionalConfig = getValidAdditionalConfig();
-        additionalConfig.put("consent_expire_in_days", ""); // anything other than number
-        invalidAdditionalConfigs.add(additionalConfig);
+        config = validConfig.deepCopy();
+        config.set("purpose", mapper.valueToTree(Map.ofEntries(
+                Map.entry("type", "verify"),
+                Map.entry("title", Map.ofEntries(Map.entry("@none", "title in default"), Map.entry("eng", "title in english"))),
+                Map.entry("subTitle", Map.ofEntries(Map.entry("fr", "subTitle in french"), Map.entry("eng", "title in english"))) // subTitle without @none key
+        )));
+        configList.add(config);
 
-        return invalidAdditionalConfigs;
+        config = validConfig.deepCopy();
+        config.put("signup_banner_required", 1); // anything other than boolean
+        configList.add(config);
+
+        config = validConfig.deepCopy();
+        config.put("forgot_pwd_link_required", 1); // anything other than boolean
+        configList.add(config);
+
+        config = validConfig.deepCopy();
+        config.put("consent_expire_in_days", ""); // anything other than number
+        configList.add(config);
+
+        return configList;
     }
 
     @Test
     public void test_ClientAdditionalConfigValidator_withValidValue_thenPass() {
-        Map<String, Object> validAdditionalConfig = getValidAdditionalConfig();
-        Assert.assertTrue(clientAdditionalConfigValidator.isValid(validAdditionalConfig, null));
+        List<JsonNode> validAdditionalConfig = getValidAdditionalConfigs();
+        for(JsonNode config : validAdditionalConfig) {
+            Assert.assertTrue(clientAdditionalConfigValidator.isValid(config, null));
+        }
     }
 
     @Test
     public void test_ClientAdditionalConfigValidator_withInvalidValue_thenFail() {
-        for (Map<String, Object> additionalConfig : getInvalidAdditionalConfigs()) {
+        for (JsonNode additionalConfig : getInvalidAdditionalConfigs()) {
             Assert.assertFalse(clientAdditionalConfigValidator.isValid(additionalConfig, null));
         }
     }

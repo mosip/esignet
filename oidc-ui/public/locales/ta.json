@@ -68,6 +68,11 @@
     "vid": "விஐடி",
     "email": "மின்னஞ்சல்",
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
+    "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
+    "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "pin": {
@@ -84,6 +89,11 @@
     "vid": "விஐடி",
     "email": "மின்னஞ்சல்",
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
+    "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
+    "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "password": {
@@ -102,6 +112,11 @@
     "vid": "விஐடி",
     "email": "மின்னஞ்சல்",
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
+    "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
+    "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "Form": {
@@ -113,7 +128,10 @@
     "policyNumber_placeholder": "கொள்கை எண்",
     "fullName_placeholder": "முழுப் பெயர்",
     "dob_placeholder": "DOB",
-    "login_with_kbi": "KBI உடன் உள்நுழைக"
+    "login_with_kbi": "KBI உடன் உள்நுழைக",
+    "login_with_id": "KBI உடன் உள்நுழைக",
+    "verify_with_id": "KBI மூலம் சரிபார்க்கவும்",
+    "link_using_id": "KBI ஐப் பயன்படுத்தி இணைக்கவும்"
   },
   "LoginQRCode": {
     "scan_with_wallet": "உடன் ஸ்கேன் செய்யவும் {{walletName}} உள்நுழைய",
@@ -124,6 +142,8 @@
     "refresh": "QR குறியீட்டைப் புதுப்பிக்கவும்",
     "open_wallet_app": "திற {{walletName}} ஆப்",
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
+    "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
+    "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
     "wallet_header": "{{walletName}} ஆப்ஸ் மூலம் QR குறியீட்டை ஸ்கேன் செய்யவும்"
   },
   "otp": {
@@ -149,6 +169,11 @@
     "vid": "விஐடி",
     "email": "மின்னஞ்சல்",
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
+    "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
+    "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
+    "login_with_id_multiple": "உள்நுழைய விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "verify_with_id_multiple": "சரிபார்க்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
+    "link_using_id_multiple": "இணைக்க விருப்பமான ஐடியைத் தேர்ந்தெடுக்கவும்",
     "multiple_login_ids": "உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்",
     "enter_otp": "OTP ஐ உள்ளிடவும்",
     "and": "மற்றும்"
@@ -156,6 +181,8 @@
   "signInOption": {
     "login_option_heading": "நீங்கள் எப்படி உள்நுழைய விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும்:",
     "login_with_id": "{{option}} மூலம் உள்நுழைக",
+    "verify_with_id": "{{option}} மூலம் சரிபார்க்கவும்",
+    "link_using_id": "{{option}} ஐப் பயன்படுத்தி இணைக்கவும்",
     "PIN": "பின்",
     "Biometrics": "பயோமெட்ரிக்ஸ்",
     "BIO": "பயோமெட்ரிக்ஸ்",
@@ -164,6 +191,7 @@
     "PWD": "கடவுச்சொல்",
     "walletName": "இன்ஜி",
     "preferred_mode_of_login": "விருப்பமான உள்நுழைவு முறையைத் தேர்ந்தெடுக்கவும்",
+    "preferred_mode_to_continue": "தொடர விருப்பமான முறையைத் தேர்ந்தெடுக்கவும்",
     "more_ways_to_sign_in": "உள்நுழைவதற்கான கூடுதல் வழிகள்",
     "or": "அல்லது",
     "sign_in_with": "பயன்படுத்தி சரிபார்க்கவும் {{idProviderName}}",
@@ -179,7 +207,9 @@
     "login_heading": "eSignet-ஐப் பயன்படுத்தி உள்நுழைக",
     "verify_heading": "eSignet-ஐப் பயன்படுத்தி சரிபார்க்கவும்",
     "link_heading": "eSignet-ஐப் பயன்படுத்தி இணைக்கவும்",
-    "login_subheading": "உங்கள் பதிவு செய்யப்பட்ட பயனர்பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும்",
+    "login_subheading": "உள்நுழைய உங்கள் சான்றுகளைப் பயன்படுத்தவும்",
+    "verify_subheading": "சரிபார்ப்பதற்காக உங்கள் சான்றுகளை வழங்கவும்",
+    "link_subheading": "உங்கள் கணக்குடன் இணைக்க, உங்கள் சான்றுகளை வழங்கவும்",
     "login_linkName": "முன்பதிவு",
     "more_ways_to_sign_in": "உள்நுழைவதற்கான கூடுதல் வழிகள்",
     "invalid_auth_factor": "தவறான அங்கீகார காரணிகள். ",

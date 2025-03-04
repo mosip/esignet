@@ -6,6 +6,7 @@ import {
   validAuthFactors,
   configurationKeys,
   modalityIconPath,
+  purposeTypeObj,
 } from "../constants/clientConstants";
 
 class openIDConnectService {
@@ -138,6 +139,53 @@ class openIDConnectService {
     });
     return loginOptions;
   };
+
+  /**
+   * Get purpose object, to check heading & subheading
+   * @returns purpose object
+   */
+  getPurpose = () => {
+    // default purpose object
+    const purposeObj = {
+      type: purposeTypeObj.login,
+      title: null,
+      subTitle: null,
+    }
+
+    // getting client additional config object,
+    // which may contains purpose object
+    const additionalConfig = this.getEsignetConfiguration(configurationKeys.additionalConfig);
+
+    if (additionalConfig?.purpose && this.checkPurposeObjIsNotEmpty(additionalConfig.purpose)) {
+      const tempPurpose = additionalConfig.purpose;
+      purposeObj.type = tempPurpose.type;
+      if (tempPurpose.type === purposeTypeObj.none) {
+        return purposeObj;
+      }
+      purposeObj.title = this.checkTitleAndSubTitle(tempPurpose.title);
+      purposeObj.subTitle = this.checkTitleAndSubTitle(tempPurpose.subTitle);
+      
+    }
+
+    return purposeObj;
+  }
+
+  // check purpose object has any of the property,
+  // otherwise use deafault purpose object
+  checkPurposeObjIsNotEmpty = (purposeObj) => {
+    if (purposeObj && (('title' in purposeObj) || ('subTitle' in purposeObj) || ('type' in purposeObj))) {
+      return true;
+    }
+    return false;
+  }
+
+  // check if title & subtitle is obj or not
+  checkTitleAndSubTitle = (dataObj) => {
+    if (dataObj === null || dataObj === undefined) {
+      return null;
+    }
+    return dataObj;
+  }
 }
 
 export default openIDConnectService;

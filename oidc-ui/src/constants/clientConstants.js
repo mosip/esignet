@@ -94,7 +94,8 @@ const configurationKeys = {
   bannerCloseTimer: "error.banner.close-timer",
   authFactorKnowledgeFieldDetails: "auth.factor.kbi.field-details",
   authFactorKnowledgeIndividualIdField: "auth.factor.kbi.individual-id-field",
-  loginIdOptions: "login-id.options"
+  loginIdOptions: "login-id.options",
+  additionalConfig: "clientAdditionalConfig"
 };
 
 const modalityIconPath = {
@@ -114,10 +115,35 @@ const errorCodeObj = {
   no_ekyc_provider: "no_ekyc_provider"
 };
 
-const purposeObj = {
+const purposeTitleKey = {
   login: "login_heading",
   verify: "verify_heading",
   link: "link_heading"
+}
+
+const purposeSubTitleKey = {
+  login: "login_subheading",
+  verify: "verify_subheading",
+  link: "link_subheading"
+}
+
+const authLabelKey = {
+  login: "login_with_id",
+  verify: "verify_with_id",
+  link: "link_using_id",
+}
+
+const multipleIdKey = {
+  login: "login_with_id_multiple",
+  verify: "verify_with_id_multiple",
+  link: "link_using_id_multiple",
+}
+
+const purposeTypeObj = {
+  login: "login",
+  verify: "verify",
+  link: "link",
+  none: "none"
 }
 
 export {
@@ -131,5 +157,9 @@ export {
   walletConfigKeys,
   modalityIconPath,
   errorCodeObj,
-  purposeObj
+  purposeTitleKey,
+  purposeTypeObj,
+  purposeSubTitleKey,
+  authLabelKey,
+  multipleIdKey
 };

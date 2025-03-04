@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
 import java.util.List;
@@ -27,5 +28,5 @@ public class ClientDetail implements Serializable {
     private String status;
     private List<String> grantTypes;
     private List<String> clientAuthMethods;
-    private Map<String, Object> additionalConfig;
+    private JsonNode additionalConfig;
 }

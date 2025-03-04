@@ -68,6 +68,11 @@
     "vid": "वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "pin": {
@@ -84,6 +89,11 @@
     "vid": "वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "password": {
@@ -102,6 +112,11 @@
     "vid": "वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "Form": {
@@ -113,7 +128,10 @@
     "policyNumber_placeholder": "नीति संख्या",
     "fullName_placeholder": "पूरा नाम",
     "dob_placeholder": "जन्म तिथि",
-    "login_with_kbi": "KBI के साथ लॉगिन करें"
+    "login_with_kbi": "KBI के साथ लॉगिन करें",
+    "login_with_id": "KBI के साथ लॉगिन करें",
+    "verify_with_id": "KBI से सत्यापित करें",
+    "link_using_id": "KBI का उपयोग करके लिंक करें"
   },
   "LoginQRCode": {
     "scan_with_wallet": "के साथ स्कैन करें {{walletName}} लॉगिन करने के लिए",
@@ -124,6 +142,8 @@
     "refresh": "क्यूआर कोड रिफ्रेश करें",
     "open_wallet_app": "खुला {{walletName}} अनुप्रयोग",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
     "wallet_header": "{{walletName}} ऐप से QR कोड को स्कैन करें"
   },
   "otp": {
@@ -149,6 +169,11 @@
     "vid": "वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें",
     "enter_otp": "ओटीपी दर्ज करें",
     "and": "और"
@@ -156,6 +181,8 @@
   "signInOption": {
     "login_option_heading": "चुनें कि आप कैसे लॉगिन करना चाहते हैं:",
     "login_with_id": "{{option}} से लॉगिन करें",
+    "verify_with_id": "{{option}} से सत्यापित करें",
+    "link_using_id": "{{option}} का उपयोग करके लिंक करें ",
     "PIN": "नत्थी करना",
     "Biometrics": "बॉयोमेट्रिक्स",
     "BIO": "बॉयोमेट्रिक्स",
@@ -164,6 +191,7 @@
     "PWD": "पासवर्ड",
     "walletName": "इंजी",
     "preferred_mode_of_login": "लॉगिन का पसंदीदा तरीका चुनें",
+    "preferred_mode_to_continue": "जारी रखने के लिए एक पसंदीदा मोड चुनें",
     "more_ways_to_sign_in": "साइन इन करने के और भी तरीके",
     "or": "या",
     "sign_in_with": "का उपयोग करके सत्यापित करें {{idProviderName}}",
@@ -179,7 +207,9 @@
     "login_heading": "eSignet का उपयोग करके लॉग इन करें",
     "verify_heading": "eSignet का उपयोग करके सत्यापित करें",
     "link_heading": "eSignet का उपयोग करके लिंक करें",
-    "login_subheading": "कृपया अपना पंजीकृत उपयोगकर्ता नाम और पासवर्ड दर्ज करें",
+    "login_subheading": "कृपया अपने क्रेडेंशियल का उपयोग करके लॉग इन करें।",
+    "verify_subheading": "सत्यापन के लिए कृपया अपने क्रेडेंशियल प्रदान करें।",
+    "link_subheading": "खाते से लिंक करने के लिए कृपया अपने क्रेडेंशियल प्रदान करें।",
     "login_linkName": "पूर्वपंजीकरण",
     "more_ways_to_sign_in": "लॉगिन करने के और भी तरीके",
     "invalid_auth_factor": "अमान्य प्रामाणिक कारक. ",

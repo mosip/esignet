@@ -1,5 +1,6 @@
 package io.mosip.esignet.core.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,5 @@ public class ClientDetailResponseV2 extends ClientDetailResponse {
     private String acrValues;
     private String grantTypes;
     private String clientAuthMethods;
-    private Map<String, Object> additionalConfig;
+    private JsonNode additionalConfig;
 }

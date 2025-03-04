@@ -130,11 +130,11 @@ public class MosipTestRunner {
 					startTestRunner();
 			} else if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
 					.contains("sunbirdrcauthenticationservice") == true) {
-				BaseTestCase.isTargetEnvLatest = true;
+//				BaseTestCase.isTargetEnvLatest = true;
 				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			} else {
-				BaseTestCase.isTargetEnvLatest = true;
+//				BaseTestCase.isTargetEnvLatest = true;
 				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			}
@@ -188,6 +188,9 @@ public class MosipTestRunner {
 		KernelAuthentication.setLogLevel();
 		BaseTestCase.setLogLevel();
 		EsignetUtil.setLogLevel();
+		KeycloakUserManager.setLogLevel();
+		DBManager.setLogLevel();
+		BiometricDataProvider.setLogLevel();
 	}
 
 	/**
