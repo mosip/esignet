@@ -6,10 +6,7 @@
 
 extraEnvVars: |
   - name: KEYCLOAK_EXTERNAL_URL
-    valueFrom:
-      configMapKeyRef:
-        name: keycloak-host
-        key: keycloak-external-url
+    value: https://iam.released.mosip.net
   - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
     valueFrom:
       secretKeyRef:
@@ -73,10 +70,7 @@ extraEnvVars: |
         name: esignet-global
         key: mosip-signup-host
   - name: MOSIP_IDA_CLIENT_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-client-secrets
-        key: mosip_ida_client_secret
+    value: G4etKo0yh9NF2fGG
   - name: MOSIP_ESIGNET_MISP_KEY
     valueFrom:
       secretKeyRef:
