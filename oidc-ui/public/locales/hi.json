@@ -142,7 +142,7 @@
   },
   "header": {
     "login_heading": "ईसिग्नेट से लॉगिन करें",
-    "login_subheading": "कृपया अपना पंजीकृत उपयोगकर्ता नाम और पासवर्ड दर्ज करें",
+    "login_subheading": "<strong>{{clientName}}</strong> प्रमाणीकरण का अनुरोध कर रहा है।",
     "login_linkName": "पूर्व-पंजीकरण",
     "more_ways_to_sign_in": "साइन इन करने के और तरीके",
     "invalid_auth_factor": "अमान्य प्रमाणीकरण कारक. कृपया पुन: प्रयास करें...",
