@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { configurationKeys } from "../constants/clientConstants";
-  
+
 export default function Background({
   heading,
   subheading,
@@ -22,7 +22,7 @@ export default function Background({
   );
 
   useEffect(() => {
-    if(signupConfig?.[configurationKeys.signupBanner]) {
+    if (signupConfig?.[configurationKeys.signupBanner]) {
       setSignupBanner(true);
       setSignupURL(signupConfig[configurationKeys.signupURL] + "#" + authService.getAuthorizeQueryParam());
     }
@@ -48,7 +48,9 @@ export default function Background({
           <h1 className="flex text-center justify-center title-font sm:text-base text-base mb-3 font-medium text-gray-900">
             {heading}
           </h1>
-          <h1 className="flex text-center justify-center title-font sm:text-base text-base mb-3 font-small text-gray-400">{subheading}</h1>
+          <h1 className="text-center justify-center title-font sm:text-base text-base mb-3 font-small text-gray-400">
+            <Trans i18nKey="header.login_subheading" values={{ clientName: subheading }} components={{strong: <strong />}} />
+          </h1>
         </div>
         <div className="w-full flex mb-4 justify-center items-center">
           <img
@@ -68,11 +70,11 @@ export default function Background({
         {component}
       </div>
       {/* Enable the signup banner when it is true in the signup.config of oauth-details */}
-      {signupBanner && 
-      <div className="signup-banner">
-        <p className="signup-banner-text">{t("noAccount")}</p>
-        <a className="signup-banner-hyperlink" id="signup-url-button" href={signupURL} target="_self" onClick={() => handleSignup()}>{t("signup_for_unified_login")}</a>
-      </div>}
+      {signupBanner &&
+        <div className="signup-banner">
+          <p className="signup-banner-text">{t("noAccount")}</p>
+          <a className="signup-banner-hyperlink" id="signup-url-button" href={signupURL} target="_self" onClick={() => handleSignup()}>{t("signup_for_unified_login")}</a>
+        </div>}
     </div>
   );
 }

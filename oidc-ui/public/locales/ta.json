@@ -142,7 +142,7 @@
   },
   "header": {
     "login_heading": "eSignet மூலம் உள்நுழையவும்",
-    "login_subheading": "உங்கள் பதிவு செய்யப்பட்ட பயனர்பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும்",
+    "login_subheading": "<strong>{{clientName}}</strong> அங்கீகாரத்தைக் கோருகிறது.",
     "login_linkName": "முன்பதிவு",
     "more_ways_to_sign_in": "உள்நுழைவதற்கான கூடுதல் வழிகள்",
     "invalid_auth_factor": "தவறான அங்கீகார காரணிகள் தயவுசெய்து மீண்டும் முயற்சி செய்க...",
