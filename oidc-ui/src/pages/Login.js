@@ -167,7 +167,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     }
 
     console.log("continue 2");
-
+    loadComponent();
+    console.log("after load component>>>");
     if (firstRender.current) {
       console.log("first render");
 
@@ -176,7 +177,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       return;
     }
     console.log("before load component");
-    loadComponent();
+    
   }, []);
 
   useEffect(() => {
