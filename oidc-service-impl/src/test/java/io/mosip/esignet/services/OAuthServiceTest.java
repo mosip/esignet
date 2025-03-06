@@ -79,6 +79,8 @@ public class OAuthServiceTest {
     @Before
     public void setup() {
         ReflectionTestUtils.setField(oAuthService, "objectMapper", objectMapper);
+        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any(), Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any(), Mockito.any())).thenReturn("test-id-token");
     }
 
     @Test
@@ -107,8 +109,6 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
-        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
@@ -146,8 +146,6 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
-        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
@@ -200,8 +198,6 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doVerifiedKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
-        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
@@ -257,8 +253,6 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doVerifiedKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
-        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
@@ -294,8 +288,6 @@ public class OAuthServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
-        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
-        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         Mockito.when(tokenService.getSignedJWT(Mockito.anyString(), Mockito.any())).thenReturn("encrypted-kyc");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
@@ -340,8 +332,6 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
-        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
@@ -376,8 +366,6 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
-        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
-        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Assert.assertNotNull(tokenResponse);
         Assert.assertNotNull(tokenResponse.getId_token());
@@ -702,7 +690,6 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.generateSecureRandomString(20)).thenReturn("test-nonce");
-        Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
 
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Mockito.verifyNoInteractions(authenticationWrapper);

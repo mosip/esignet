@@ -110,8 +110,12 @@ public class OAuthServiceImpl implements OAuthService {
             transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
             auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         }
-
-        TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped);
+        Optional<Integer> consentExpireSeconds = Optional.empty();
+        JsonNode additionalConfig = clientDetailDto.getAdditionalConfig();
+        if(additionalConfig != null && additionalConfig.get("consent_expire_in_mins") != null) {
+            consentExpireSeconds = Optional.of(additionalConfig.get("consent_expire_in_mins").intValue()*60);
+        }
+        TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped, consentExpireSeconds);
         // cache kyc with access-token as key
         cacheUtilService.setUserInfoTransaction(transaction.getAHash(), transaction);
         auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
@@ -233,11 +237,11 @@ public class OAuthServiceImpl implements OAuthService {
         tokenService.verifyClientAssertionToken(clientId, jwk, clientAssertion,audience);
     }
 
-    private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped) {
+    private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped, Optional<Integer> consentExpireSeconds) {
         TokenResponse tokenResponse = new TokenResponse();
         String cNonce = isTransactionVCScoped ? securityHelperService.generateSecureRandomString(20) : null;
-        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
-        tokenResponse.setExpires_in(accessTokenExpireSeconds);
+        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce, consentExpireSeconds));
+        tokenResponse.setExpires_in(consentExpireSeconds.orElse(accessTokenExpireSeconds));
         tokenResponse.setToken_type(Constants.BEARER);
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
@@ -246,7 +250,7 @@ public class OAuthServiceImpl implements OAuthService {
             tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);
         }
         else {
-            tokenResponse.setId_token(tokenService.getIDToken(transaction));
+            tokenResponse.setId_token(tokenService.getIDToken(transaction, consentExpireSeconds));
         }
         return tokenResponse;
     }

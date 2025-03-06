@@ -9,6 +9,7 @@ import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import org.json.simple.JSONObject;
+import java.util.Optional;
 
 public interface TokenService {
 
@@ -58,7 +59,7 @@ public interface TokenService {
      * at_hash: Access token hash
      * @return
      */
-     String getIDToken(OIDCTransaction transaction);
+     String getIDToken(OIDCTransaction transaction, Optional<Integer> consentExpireSeconds);
 
 
     /**
@@ -90,7 +91,7 @@ public interface TokenService {
      * @param cNonce
      * @return
      */
-     String getAccessToken(OIDCTransaction transaction, String cNonce);
+     String getAccessToken(OIDCTransaction transaction, String cNonce, Optional<Integer> consentExpireSeconds);
 
     /**
      * Client's authentication token when using token endpoint
