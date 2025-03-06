@@ -153,11 +153,6 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
 				}
 				String endPoint = tempUrl + testCaseDTO.getEndPoint();
-//				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMRESIDENTACTUATOR$")
-//						&& BaseTestCase.currentModule.equalsIgnoreCase("resident")) {
-//					endPoint = getValueFromActuator("mosip-config/resident-default.properties",
-//							"mosip.iam.token_endpoint");
-//				}
 				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMWELLKNOWN$")
 						&& BaseTestCase.currentModule.equalsIgnoreCase("esignet")) {
 					endPoint = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint", EsignetConfigManager.getEsignetBaseUrl());
