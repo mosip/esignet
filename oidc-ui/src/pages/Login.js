@@ -147,35 +147,63 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   var state = searchParams.get("state");
 
   useEffect(() => {
+    console.log("inside 1st use effect");
+
     if (!decodeOAuth) {
+      console.log("inside decode auth");
+
       return;
     }
+
+    console.log("continue");
+
     const initialize = async () => {
+      console.log("inside initialize");
+
       const langConfig = await langConfigService.getLangCodeMapping();
+      console.log(langConfig);
+
       setLangMap(langConfig);
     }
+
+    console.log("continue 2");
+
     if (firstRender.current) {
+      console.log("first render");
+
       firstRender.current = false;
       initialize();
       return;
     }
+    console.log("before load component");
     loadComponent();
   }, []);
 
   useEffect(() => {
+    console.log("useffect langMap");
 
     if (langMap) {
+      console.log("langMap present");
+      console.log(langMap);
+
       const currLang = i18n.language;
 
       const currLang2letter = langMap[currLang];
 
-      console.log("useEffect langMap", currLang, currLang2letter);
+      console.log("currlang", currLang);
+      console.log("currlang 2 letter", currLang2letter);
 
       let clientNameInLang = "";
       if (clientName) {
+        console.log("clientName present");
+        console.log(clientName);
+
+
         clientNameInLang = (currLang in clientName)
           ? clientName[currLang] : (currLang2letter in clientName)
             ? clientName[currLang2letter] : clientName['@none'];
+
+        console.log("clientNameInLang", clientNameInLang);
       }
 
       setSubHeaderText(clientNameInLang);
@@ -231,7 +259,11 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   };
 
   const loadComponent = () => {
+    console.log("inside load component");
+
     let oAuthDetailResponse = oidcService.getOAuthDetails();
+    console.log(oAuthDetailResponse);
+
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientName(oAuthDetailResponse?.clientName);
     handleBackButtonClick();
