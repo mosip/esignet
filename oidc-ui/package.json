@@ -82,7 +82,9 @@
       "src/common/Popover.js",
       "src/components/ClaimDetails.js",
       "src/services/authService.js",
-      "src/services/openIDConnectService.js"
+      "src/services/openIDConnectService.js",
+      "src/components/InputWithPrefix.js",
+      "src/components/LoginIDOptions.js"
     ]
   }
 }
