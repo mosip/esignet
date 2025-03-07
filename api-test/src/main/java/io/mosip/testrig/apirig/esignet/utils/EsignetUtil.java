@@ -3,6 +3,8 @@ package io.mosip.testrig.apirig.esignet.utils;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
@@ -22,6 +24,7 @@ import org.json.JSONObject;
 import org.testng.SkipException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -53,6 +56,10 @@ public class EsignetUtil extends AdminTestUtil {
 
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
 	public static String pluginName = null;
+	private static Faker faker = new Faker();
+	private static String fullNameForSunBirdR = generateFullNameForSunBirdR();
+	private static String dobForSunBirdR = generateDobForSunBirdR();
+	private static String policyNumberForSunBirdR = generateRandomNumberString(9);
 	
 	public static void setLogLevel() {
 		if (EsignetConfigManager.IsDebugEnabled())
@@ -355,23 +362,22 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		
 		if (jsonString.contains("$POLICYNUMBERFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordValue(jsonString, "$POLICYNUMBERFORSUNBIRDRC$",
-					properties.getProperty("policyNumberForSunBirdRC"));
+			jsonString = replaceKeywordValue(jsonString, "$POLICYNUMBERFORSUNBIRDRC$", policyNumberForSunBirdR);
 		}
 		
 		if (jsonString.contains("$FULLNAMEFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordValue(jsonString, "$FULLNAMEFORSUNBIRDRC$", fullNameForSunBirdRC);
+			jsonString = replaceKeywordValue(jsonString, "$FULLNAMEFORSUNBIRDRC$", fullNameForSunBirdR);
 		}
 		
 		if (jsonString.contains("$DOBFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordValue(jsonString, "$DOBFORSUNBIRDRC$", dobForSunBirdRC);
+			jsonString = replaceKeywordValue(jsonString, "$DOBFORSUNBIRDRC$", dobForSunBirdR);
 		}
 		
 		if (jsonString.contains("$CHALLENGEVALUEFORSUNBIRDC$")) {
 
 			HashMap<String, String> mapForChallenge = new HashMap<String, String>();
-			mapForChallenge.put(GlobalConstants.FULLNAME, fullNameForSunBirdRC);
-			mapForChallenge.put(GlobalConstants.DOB, dobForSunBirdRC);
+			mapForChallenge.put(GlobalConstants.FULLNAME, fullNameForSunBirdR);
+			mapForChallenge.put(GlobalConstants.DOB, dobForSunBirdR);
 
 			String challenge = gson.toJson(mapForChallenge);
 
@@ -1476,5 +1482,16 @@ public class EsignetUtil extends AdminTestUtil {
 				.get("certificate").toString();
 
 		CertsUtil.addCertificateToCache(certsKey, certificateData);
+	}
+	
+	public static String generateFullNameForSunBirdR() {
+		return faker.name().fullName();
+	}
+
+	public static String generateDobForSunBirdR() {
+		Faker faker = new Faker();
+		LocalDate dob = faker.date().birthday().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		return dob.format(formatter);
 	}
 }
