@@ -162,10 +162,6 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 					if (EsignetConfigManager.getSunBirdBaseURL() != null
 							&& !EsignetConfigManager.getSunBirdBaseURL().isBlank())
 						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
-					// Once sunbird registry is pointing to specific env, remove the above line and
-					// uncomment below line
-					// tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL,
-					// ConfigManager.getSunBirdBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 				}
 				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
