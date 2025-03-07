@@ -135,6 +135,7 @@
   --caps-lock-text-color: #2D86BA;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
+  --selected-lang-text-color: var(--primary-color);
 }
 
 [class="orange"] {
@@ -274,6 +275,7 @@
   --caps-lock-text-color: #2D86BA;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
+  --selected-lang-text-color: var(--primary-color);
 }
 
 [class="green"] {
@@ -419,4 +421,5 @@
   --caps-lock-text-color: #2D86BA;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
+  --selected-lang-text-color: var(--primary-color);
 }

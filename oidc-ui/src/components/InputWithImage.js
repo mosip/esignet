@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { useTranslation } from "react-i18next";
 import PopoverContainer from "../common/Popover";
 
@@ -35,7 +35,7 @@ export default function InputWithImage({
   individualId,
   currenti18nPrefix,
 }) {
-  const { t } = useTranslation("translation");
+  const { t, i18n } = useTranslation("translation");
   const { t: t1 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix1,
   });
@@ -48,6 +48,12 @@ export default function InputWithImage({
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
 
   const inputVal = useRef(value);
+
+  useLayoutEffect(() => {
+    if (inputVal.current) {
+      inputVal.current.focus();
+    }
+  }, [i18n.language]);
 
   const changePasswordState = () => {
     let passwordRef = document.getElementById(id);

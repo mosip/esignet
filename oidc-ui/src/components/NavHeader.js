@@ -118,7 +118,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   }, [langOptions]);
 
   var dropdownItemClass =
-    "group text-[14px] leading-none flex items-center relative select-none outline-none data-[disabled]:pointer-events-none hover:font-bold cursor-pointer py-2";
+    "group text-[14px] leading-none flex items-center relative select-none outline-none data-[disabled]:pointer-events-none cursor-pointer py-3 langDropdown";
 
   var borderBottomClass = "border-b-[1px]";
 
@@ -198,7 +198,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
               </DropdownMenu.Trigger>
               <DropdownMenu.Portal>
                 <DropdownMenu.Content
-                  className="min-w-[220px] bg-white rounded-md shadow-md will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade px-3 py-2 border border-[#BCBCBC] outline-0 relative top-[-0.5rem]"
+                  className="min-w-[220px] bg-white rounded-md shadow-md will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade px-3 py-1 border border-[#BCBCBC] outline-0 relative top-[-0.5rem]"
                   sideOffset={5}
                 >
                   {langOptions.map((key, idx) => (
@@ -208,8 +208,8 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
                       className={
                         i18n.language === key.value
                           ? langOptions.length - 1 !== idx
-                            ? `font-bold ${dropdownItemClass} ${borderBottomClass}`
-                            : `font-bold ${dropdownItemClass}`
+                            ? `selectedLang ${dropdownItemClass} ${borderBottomClass}`
+                            : `selectedLang ${dropdownItemClass}`
                           : langOptions.length - 1 !== idx
                           ? `${dropdownItemClass} ${borderBottomClass}`
                           : `${dropdownItemClass}`
