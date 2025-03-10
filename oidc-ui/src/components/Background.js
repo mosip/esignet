@@ -23,16 +23,33 @@ export default function Background({
     configurationKeys.signupConfig
   );
 
-  useEffect(() => {
-    if (signupConfig?.[configurationKeys.signupBanner]) {
+  let clientAdditionalConfig = oidcService.getEsignetConfiguration(
+    configurationKeys.additionalConfig
+  );
+
+  const toggleSignupBanner = (exist) => {
+    if (exist) {
       setSignupBanner(true);
       setSignupURL(
         signupConfig[configurationKeys.signupURL] +
           "#" +
           authService.getAuthorizeQueryParam()
       );
+    } else {
+      setSignupBanner(false);
     }
-    // document.getElementById("language_dropdown")?.style?.display="none"
+  };
+
+  useEffect(() => {
+    if (clientAdditionalConfig?.[configurationKeys.signupBannerRequired]) {
+      toggleSignupBanner(configurationKeys.signupBannerRequired);
+    } else {
+      if (signupConfig?.[configurationKeys.signupBanner]) {
+        toggleSignupBanner(configurationKeys.signupBanner);
+      } else {
+        setSignupBanner(false);
+      }
+    }
   }, [i18n.language]);
 
   // check signup banner is present or not,
