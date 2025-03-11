@@ -509,6 +509,7 @@ input {
 
 .checkIcon {
   stroke: var(--language-check-icon-color);
+  stroke-width: 3px;
 }
 
 .forgot-password-hyperlink {
@@ -551,6 +552,7 @@ input[type="number"] {
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
+  font-family: Inter !important;
 }
 
 .selected_login_id {
@@ -593,6 +595,15 @@ input[type="number"] {
 
 .caps_lock {
   color: var(--caps-lock-text-color);
+}
+
+nav {
+  font-family: Inter !important;
+}
+
+.selectedLang, .langDropdown:hover {
+  font-weight: 600;
+  color: var(--selected-lang-text-color);
 }
 
 @media screen and (max-width: 767px) {

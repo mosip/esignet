@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { useTranslation } from "react-i18next";
 
@@ -9,6 +9,7 @@ const InputWithPrefix = (props) => {
   const [individualId, setIndividualId] = useState("");
   const { t, i18n } = useTranslation();
   const [prevLanguage, setPrevLanguage] = useState(i18n.language);
+  const inputRef = useRef(null);
 
   const iso = require("iso-3166-1");
   const countries = iso.all();
@@ -32,6 +33,12 @@ const InputWithPrefix = (props) => {
       setIsDropdownOpen(true);
     }
   });
+
+  useLayoutEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [selectedCountry, i18n.language]);
 
   useEffect(() => {
     if (i18n.language === prevLanguage) {
@@ -76,10 +83,9 @@ const InputWithPrefix = (props) => {
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
-   
+    let newValue =
+      regex && regex.test(trimmedValue) ? trimmedValue : trimmedValue;
+
     setIndividualId(newValue);
     props.individualId(newValue); // Update state with the visible valid value
 
@@ -154,6 +160,7 @@ const InputWithPrefix = (props) => {
                 toggleDropdown
               }
               id={`${props.login}_login_dropdown_button`}
+              data-testid="prefix-dropdown-btn"
               type="button"
             >
               {typeof props.currentLoginID?.prefixes === "object" ? (
@@ -233,6 +240,7 @@ const InputWithPrefix = (props) => {
               </div>
             )}
           <input
+            ref={inputRef}
             type="text"
             placeholder={props.currentLoginID.input_placeholder}
             className={`w-full px-4 py-2 border border-l-1 border-b-0 border-r-0 border-t-0 outline-none rounded-tr-lg rounded-br-lg ${

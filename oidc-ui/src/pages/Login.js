@@ -163,6 +163,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const [compToShow, setCompToShow] = useState(null);
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
+  const [clientNameMap, setClientNameMap] = useState(null);
   const [authFactorType, setAuthFactorType] = useState(null);
   const [headingDetails, setHeadingDetails] = useState({
     authLabel: authLabelKey.login,
@@ -188,12 +189,12 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       const langConfig = await langConfigService.getLangCodeMapping();
       setLangMap(langConfig);
     }
+    loadComponent();
     if (firstRender.current) {
       firstRender.current = false;
       initialize();
       return;
     }
-    loadComponent();
   }, []);
 
 
@@ -247,9 +248,16 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
           subheading: purposeSubTitleKey.login,
         }
       }
+
+      if (clientNameMap) {
+        const clientName  = (currLang in clientNameMap)
+          ? clientNameMap[currLang] : (currLang2letter in clientNameMap)
+            ? clientNameMap[currLang2letter] : clientNameMap['@none'];
+        setClientName(clientName);
+      }
       setHeadingDetails({ ...tempPurpose })
     }
-  }, [purposeObj, langMap, i18n.language]);
+  }, [purposeObj, clientNameMap, langMap, i18n.language]);
 
   useEffect(() => {
     handleBackButtonClick();
@@ -341,7 +349,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
     // otherwise default heading will be login
     setPurposeObj(oidcService.getPurpose());
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
-    setClientName(oAuthDetailResponse?.clientName);
+    setClientNameMap(oAuthDetailResponse?.clientName);
     handleBackButtonClick();
   };
 
@@ -363,7 +371,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       {!checkForIDT(JSON.parse(decodeOAuth).authFactors) && (
         <Background
           heading={t(headingDetails.heading, headingDetails.heading)}
-          subheading={t(headingDetails.subheading, headingDetails.subheading)}
+          subheading={headingDetails.subheading}
           clientLogoPath={clientLogoURL}
           clientName={clientName}
           component={compToShow}

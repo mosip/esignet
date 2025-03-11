@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { configurationKeys } from "../constants/clientConstants";
 
 export default function Background({
@@ -59,10 +59,10 @@ export default function Background({
           </h1>
           {subheading && (
             <h1
-              className="flex text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
+              className="text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
               id="login-subheader"
             >
-              {subheading}
+              <Trans i18nKey={i18nKeyPrefix + "." + subheading} defaults={subheading} values={{ clientName: clientName }} components={{ strong: <strong /> }} />
             </h1>
           )}
         </div>
