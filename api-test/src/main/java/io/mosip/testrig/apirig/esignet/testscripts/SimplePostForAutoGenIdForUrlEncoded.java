@@ -147,9 +147,6 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
 						&& testCaseName.contains("SunBirdC")) {
 
-					if (EsignetConfigManager.getEsignetMockBaseURL() != null
-							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
-						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
 				}
 				String endPoint = tempUrl + testCaseDTO.getEndPoint();

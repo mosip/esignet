@@ -1,5 +1,5 @@
 OAuthDetailsRequestSunBirdCNegTC:
-   ESignet_OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_with_other_acrs:
+   ESignet_OAuthDetailsRequest_SunBirdC_all_Valid_with_other_acrs:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_01
       description: To request OAuthDetails for SunBirdC with all valid dataand with other acrs
@@ -384,7 +384,7 @@ OAuthDetailsRequestSunBirdCNegTC:
   ]
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_14
       description: To request OAuthDetails for SunBirdC with valid data
@@ -412,7 +412,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_15
       description: To request OAuthDetails for SunBirdC with valid data
@@ -440,7 +440,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_16
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -468,7 +468,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_17
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -496,7 +496,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_18
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -524,7 +524,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_19
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -552,7 +552,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_20
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -580,7 +580,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_21
       description: To request OAuthDetails for SunBirdC with valid AuthCode
@@ -608,7 +608,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_22
       description: To request OAuthDetails for SunBirdC with different different valid AuthCode
@@ -636,7 +636,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_23
       description: To request OAuthDetails for SunBirdC with different valid AuthCode
@@ -664,7 +664,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_24
       description: To request OAuthDetails for SunBirdC with different  valid Authcode
@@ -692,7 +692,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_25
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -720,7 +720,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_26
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -748,7 +748,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_27
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -776,7 +776,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_28
       description: To request OAuthDetails for SunBirdC with different valid data
