@@ -121,8 +121,6 @@ public class SimplePost extends EsignetUtil implements ITest {
 
 		else {
 			String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
-			if (testCaseDTO.getEndPoint().contains("/signup/"))
-				tempUrl = EsignetConfigManager.getSignupBaseUrl();
 			if (testCaseName.contains("ESignet_")) {
 
 				if ((testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC"))
@@ -135,10 +133,6 @@ public class SimplePost extends EsignetUtil implements ITest {
 				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC")) {
-
-					if (EsignetConfigManager.getEsignetMockBaseURL() != null
-							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
-						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
 
 					response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),

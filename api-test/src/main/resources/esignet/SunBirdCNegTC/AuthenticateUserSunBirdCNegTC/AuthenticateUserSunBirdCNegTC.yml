@@ -10,7 +10,7 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "sgsfdg",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
@@ -37,7 +37,7 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$REMOVE$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
@@ -64,7 +64,7 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "sgsfdg",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
@@ -91,7 +91,7 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "LIqWka8p3F4ID2Z2X4Dnxqf57ixUZyHxGGrDe7R96p4",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
@@ -118,9 +118,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "5adsf1",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -145,9 +145,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -172,9 +172,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": " ",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -199,9 +199,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "null",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -226,9 +226,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$REMOVE$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -254,9 +254,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "ads",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -282,9 +282,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -310,9 +310,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : " ",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -338,9 +338,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "null",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -366,9 +366,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "OTP",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -394,9 +394,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "$REMOVE$",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -422,9 +422,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$REMOVE$",
@@ -450,9 +450,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "",
@@ -477,9 +477,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "eyJmdWxsTmFtZSI6IkthaWYgZGFmZHNmZCIsImRvYiI6IjIwMDAtMDctMjYifQ==",
@@ -504,9 +504,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "eyJmdWxsTmFtZSI6IkthaWYgZGFmZHNmZCIsImRvYiI6IjIwMDAtMDctMjYifQ==",
@@ -532,9 +532,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : " ",
@@ -559,9 +559,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "null",
@@ -586,9 +586,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "sfdgsfhsgjrtjysngfbfsnbsgfjhsgj",
@@ -614,9 +614,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -642,9 +642,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -670,9 +670,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -686,7 +686,7 @@ AuthenticateUserSunBirdCNegTC:
   ]
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Valid_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_26
       description: To Authenticate the user for SunBirdC with invalid data
@@ -697,9 +697,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -719,9 +719,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -746,9 +746,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -773,9 +773,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -800,9 +800,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -827,9 +827,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -854,9 +854,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -881,9 +881,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -897,7 +897,7 @@ AuthenticateUserSunBirdCNegTC:
   ]
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen1_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen1_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_34
       description: To Authenticate the user for SunBirdC with invalid authcode
@@ -908,9 +908,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -919,7 +919,7 @@ AuthenticateUserSunBirdCNegTC:
       output: '{
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen2_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen2_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_35
       description: To Authenticate the user for SunBirdC with different invalid authcode
@@ -930,9 +930,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -941,7 +941,7 @@ AuthenticateUserSunBirdCNegTC:
       output: '{
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen3_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen3_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_36
       description: To Authenticate the user for SunBirdC with different invalid authcode
@@ -952,9 +952,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -963,7 +963,7 @@ AuthenticateUserSunBirdCNegTC:
       output: '{
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen4_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen4_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_37
       description: To Authenticate the user for SunBirdC with different invalid authcode
@@ -974,9 +974,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -985,7 +985,7 @@ AuthenticateUserSunBirdCNegTC:
       output: '{
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen5_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen5_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_38
       description: To Authenticate the user for SunBirdC with different invalid authcode
@@ -996,9 +996,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -1007,7 +1007,7 @@ AuthenticateUserSunBirdCNegTC:
       output: '{
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen6_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen6_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_39
       description: To Authenticate the user for SunBirdC with different invalid authcode
@@ -1018,9 +1018,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -1029,7 +1029,7 @@ AuthenticateUserSunBirdCNegTC:
       output: '{
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen7_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen7_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_40
       description: To Authenticate the user for SunBirdC with different invalid authcode
@@ -1040,9 +1040,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",
@@ -1051,7 +1051,7 @@ AuthenticateUserSunBirdCNegTC:
       output: '{
 }'
 
-   ESignet_AuthenticateUserSunBirdCNegTC_Scen8_AuthCode_Valid_Smoke:
+   ESignet_AuthenticateUserSunBirdCNegTC_Scen8_AuthCode_Valid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateUserSunBirdCNegTC_41
       description: To Authenticate the user for SunBirdC with different invalid authcode
@@ -1062,9 +1062,9 @@ AuthenticateUserSunBirdCNegTC:
       inputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthenticateUserSunBirdCNegTC/AuthenticateUserSunBirdCNegTCResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_sid_transactionId$",
       	"individualId": "$POLICYNUMBERFORSUNBIRDRC$",
       	"authFactorType" : "KBI",
       	"challenge" : "$CHALLENGEVALUEFORSUNBIRDC$",

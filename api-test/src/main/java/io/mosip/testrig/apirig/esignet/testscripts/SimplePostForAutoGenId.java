@@ -149,9 +149,6 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
-					if (EsignetConfigManager.getEsignetMockBaseURL() != null
-							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
-						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
 				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$")
 						&& testCaseName.contains("SunBirdR")) {
