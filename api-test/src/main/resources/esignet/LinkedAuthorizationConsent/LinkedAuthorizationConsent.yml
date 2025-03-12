@@ -1,5 +1,5 @@
 LinkedAuthorizationConsent:
-   ESignet_LinkedAuthorizationConsent_Consent_uin_SameClaim_Pos:
+   ESignet_LinkedAuthorizationConsent_Consent_uin_SameClaim_Smoke_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_01
       description: Linked authorization consent with same claim UIN
@@ -19,7 +19,7 @@ LinkedAuthorizationConsent:
 
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_Vid_SameClaim_Pos:
+   ESignet_LinkedAuthorizationConsent_Consent_Vid_SameClaim_Smoke_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_02
       description: Linked authorization consent with same claim VID
@@ -39,7 +39,7 @@ LinkedAuthorizationConsent:
 
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_uin_User2:
+   ESignet_LinkedAuthorizationConsent_Consent_uin_User2_Smoke_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_03
       description: Linked authorization consent with User2 UIN
@@ -58,7 +58,7 @@ LinkedAuthorizationConsent:
       output: '{
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_Vid_User2:
+   ESignet_LinkedAuthorizationConsent_Consent_Vid_User2_Smoke_Pos:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_04
       description: Linked authorization consent with User2 VID
