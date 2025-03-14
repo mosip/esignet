@@ -71,6 +71,7 @@ public class TestAuthenticationService implements Authenticator {
     private static final String AUD_CLAIM = "aud";
     private static final String IAT_CLAIM = "iat";
     private static final String EXP_CLAIM = "exp";
+    private static final String JTI_CLAIM = "jti";
     private static final String INDIVIDUAL_FILE_NAME_FORMAT = "%s.json";
     private static final String POLICY_FILE_NAME_FORMAT = "%s_policy.json";
     private static final String NOT_AUTHENTICATED = "not_authenticated";
@@ -117,6 +118,7 @@ public class TestAuthenticationService implements Authenticator {
         REQUIRED_CLAIMS.add("iss");
         REQUIRED_CLAIMS.add("iat");
         REQUIRED_CLAIMS.add("exp");
+        REQUIRED_CLAIMS.add(JTI_CLAIM);
         REQUIRED_CLAIMS.add(CID_CLAIM);
         REQUIRED_CLAIMS.add(RID_CLAIM);
 
@@ -180,6 +182,7 @@ public class TestAuthenticationService implements Authenticator {
             Map<String,Object> kyc = buildKycDataBasedOnPolicy(relyingPartyId, jwtClaimsSet.getSubject(),
                     kycExchangeDto.getAcceptedClaims(), kycExchangeDto.getClaimsLocales());
             kyc.put(SUB_CLAIM, jwtClaimsSet.getStringClaim(PSUT_CLAIM));
+            kyc.put(JTI_CLAIM, UUID.randomUUID().toString());
             KycExchangeResult kycExchangeResult = new KycExchangeResult();
             kycExchangeResult.setEncryptedKyc(this.encryptKyc ? getJWE(relyingPartyId, signKyc(kyc)) : signKyc(kyc));
             return kycExchangeResult;
@@ -223,6 +226,7 @@ public class TestAuthenticationService implements Authenticator {
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT_CLAIM, issueTime);
         payload.put(EXP_CLAIM, issueTime +kycTokenExpireInSeconds);
+        payload.put(JTI_CLAIM, UUID.randomUUID().toString());
         try {
             return signKyc(payload);
         } catch (JsonProcessingException e) {

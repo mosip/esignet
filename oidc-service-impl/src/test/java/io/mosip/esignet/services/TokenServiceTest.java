@@ -34,6 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.UUID;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
 
@@ -154,6 +155,7 @@ public class TokenServiceTest {
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() - 3000))
                 .issuer("client-id")
+                .jwtID(UUID.randomUUID().toString())
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
@@ -189,6 +191,7 @@ public class TokenServiceTest {
                 .issueTime(new Date(123000L))
                 .expirationTime(new Date(System.currentTimeMillis()))
                 .issuer("test-issuer")
+                .jwtID(UUID.randomUUID().toString())
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
@@ -220,6 +223,7 @@ public class TokenServiceTest {
                 .issueTime(new Date(123000L))
                 .expirationTime(new Date(System.currentTimeMillis()))
                 .issuer("test-issuer")
+                .jwtID(UUID.randomUUID().toString())
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
@@ -231,6 +235,7 @@ public class TokenServiceTest {
                 .audience("audience")
                 .issueTime(new Date(123000L))
                 .issuer("test-issuer")
+                .jwtID(UUID.randomUUID().toString())
                 .build();
         jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSetWithoutExp);
         jwt.sign(signer);

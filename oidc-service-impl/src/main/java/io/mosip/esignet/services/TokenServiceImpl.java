@@ -88,6 +88,7 @@ public class TokenServiceImpl implements TokenService {
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("exp");
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iss");
         REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iat");
+        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("jti");
     }
 
 
@@ -114,6 +115,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(AUD, transaction.getClientId());
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
+        payload.put(JTI, UUID.randomUUID().toString());
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
         if(!CollectionUtils.isEmpty(transaction.getPermittedScopes())) {
             payload.put(SCOPE, String.join(SPACE, transaction.getPermittedScopes()));
@@ -227,6 +229,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(NONCE, nonce == null ? transaction.getNonce() : nonce);
         List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
         payload.put(ACR, String.join(SPACE, acrs));
+        payload.put(JTI, UUID.randomUUID().toString());
         return payload;
     }
 

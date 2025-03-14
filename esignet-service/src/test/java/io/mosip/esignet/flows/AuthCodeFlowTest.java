@@ -60,11 +60,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
 import static org.mockito.ArgumentMatchers.*;
@@ -200,6 +196,7 @@ public class AuthCodeFlowTest {
                 .subject(clientId)
                 .issueTime(Date.from(issuedInstant))
                 .expirationTime(Date.from(issuedInstant.plusSeconds(60)))
+                .jwtID(UUID.randomUUID().toString())
                 .build();
         SignedJWT signedJWT = new SignedJWT(header, jwtClaimsSet);
         signedJWT.sign(new RSASSASigner(jwk.toRSAKey().toPrivateKey()));
