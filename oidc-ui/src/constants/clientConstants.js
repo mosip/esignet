@@ -95,7 +95,9 @@ const configurationKeys = {
   authFactorKnowledgeFieldDetails: "auth.factor.kbi.field-details",
   authFactorKnowledgeIndividualIdField: "auth.factor.kbi.individual-id-field",
   loginIdOptions: "login-id.options",
-  additionalConfig: "clientAdditionalConfig"
+  additionalConfig: "clientAdditionalConfig",
+  signupBannerRequired: "signup_banner_required",
+  forgotPwdLinkRequired: "forgot_pwd_link_required"
 };
 
 const modalityIconPath = {

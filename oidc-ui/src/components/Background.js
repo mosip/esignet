@@ -23,16 +23,33 @@ export default function Background({
     configurationKeys.signupConfig
   );
 
-  useEffect(() => {
-    if (signupConfig?.[configurationKeys.signupBanner]) {
+  let clientAdditionalConfig = oidcService.getEsignetConfiguration(
+    configurationKeys.additionalConfig
+  );
+
+  const toggleSignupBanner = (exist) => {
+    if (exist) {
       setSignupBanner(true);
       setSignupURL(
         signupConfig[configurationKeys.signupURL] +
           "#" +
           authService.getAuthorizeQueryParam()
       );
+    } else {
+      setSignupBanner(false);
     }
-    // document.getElementById("language_dropdown")?.style?.display="none"
+  };
+
+  useEffect(() => {
+    if (clientAdditionalConfig?.[configurationKeys.signupBannerRequired]) {
+      toggleSignupBanner(configurationKeys.signupBannerRequired);
+    } else {
+      if (signupConfig?.[configurationKeys.signupBanner]) {
+        toggleSignupBanner(configurationKeys.signupBanner);
+      } else {
+        setSignupBanner(false);
+      }
+    }
   }, [i18n.language]);
 
   // check signup banner is present or not,
@@ -45,7 +62,7 @@ export default function Background({
   return (
     <div
       className={
-        "multipurpose-login-card shadow w-full md:w-3/6 lg:max-w-sm md:z-10 m-0 md:m-auto " +
+        "multipurpose-login-card shadow-sm m-3 !rounded-lg w-auto sm:w-3/6 lg:max-w-sm md:z-10 md:m-auto " +
         conditionalPadding
       }
     >
