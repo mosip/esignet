@@ -62,7 +62,7 @@ export default function Background({
   return (
     <div
       className={
-        "multipurpose-login-card shadow w-full md:w-3/6 lg:max-w-sm md:z-10 m-0 md:m-auto " +
+        "multipurpose-login-card shadow-sm m-3 !rounded-lg w-auto sm:w-3/6 lg:max-w-sm md:z-10 md:m-auto " +
         conditionalPadding
       }
     >
