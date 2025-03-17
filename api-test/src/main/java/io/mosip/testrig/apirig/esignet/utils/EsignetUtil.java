@@ -37,6 +37,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
+import io.mosip.testrig.apirig.dbaccess.DBManager;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.testrunner.MosipTestRunner;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
@@ -66,6 +67,24 @@ public class EsignetUtil extends AdminTestUtil {
 			logger.setLevel(Level.ALL);
 		else
 			logger.setLevel(Level.ERROR);
+	}
+	
+	public static void dBCleanup() {
+		DBManager.executeDBQueries(EsignetConfigManager.getKMDbUrl(), EsignetConfigManager.getKMDbUser(),
+				EsignetConfigManager.getKMDbPass(), EsignetConfigManager.getKMDbSchema(),
+				getGlobalResourcePath() + "/" + "config/keyManagerDataDeleteQueriesForEsignet.txt");
+
+		DBManager.executeDBQueries(EsignetConfigManager.getIdaDbUrl(), EsignetConfigManager.getIdaDbUser(),
+				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getIdaDbSchema(),
+				getGlobalResourcePath() + "/" + "config/idaDeleteQueriesForEsignet.txt");
+
+		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
+				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
+				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
+
+		DBManager.executeDBQueries(EsignetConfigManager.getPMSDbUrl(), EsignetConfigManager.getPMSDbUser(),
+				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getPMSDbSchema(),
+				getGlobalResourcePath() + "/" + "config/pmsDataDeleteQueries.txt");
 	}
 	
 	public static void getSupportedLanguage() {
