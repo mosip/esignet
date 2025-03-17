@@ -172,7 +172,7 @@ export default function SignInOptions({
                       dangerouslySetInnerHTML={{
                         __html: iconsMap[option.id] || "",
                       }}
-                      className="mx-2 relative top-[3px] w-6"
+                      className="mx-2 relative top-[2.75px] w-6"
                     ></div>
                   ) : (
                     <img
@@ -181,7 +181,7 @@ export default function SignInOptions({
                       alt={option.id}
                     />
                   )}
-                  <div className="font-medium truncate ltr:text-left rtl:text-right ltr:ml-1.5 rtl:mr-1.5">
+                  <div className="font-medium truncate ltr:text-left rtl:text-right ltr:ml-1.5 rtl:mr-1.5 relative bottom-[1px]">
                     {t(authLabel, {
                       option: t(option.label, option.label),
                     })}

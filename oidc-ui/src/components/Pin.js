@@ -425,6 +425,7 @@ export default function Pin({
                     maxLength={idx === 1 ? field.maxLength : ""}
                     regex={idx === 1 ? field.regex : ""}
                     currenti18nPrefix={idx === 0 ? i18nKeyPrefix1 : ""}
+                    idx={idx}
                   />
                 </div>
               ))}
