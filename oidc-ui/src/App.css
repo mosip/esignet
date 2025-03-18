@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-family) !important;
 }
 
 .navbar-header {
@@ -206,13 +206,10 @@ body {
 }
 
 .signup-banner-hyperlink {
-  font-style: normal;
-  font-variant: normal;
-  font-weight: bold;
-  font-size: 16px;
-  line-height: 21px;
-  letter-spacing: 0px;
+  font-weight: 700;
   color: var(--signup-banner-signup-url-color);
+  font-family: Roboto !important;
+  letter-spacing: 0.5px;
 }
 
 .signup-banner-hyperlink:hover {
@@ -445,7 +442,7 @@ input[type="checkbox"]:hover {
 }
 
 input {
-  overflow: hidden;
+  overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
 
@@ -454,7 +451,7 @@ input {
   align-items: center;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .input-box .prefix {
@@ -491,8 +488,8 @@ input {
   outline: none;
   padding-left: 0rem;
   font: normal normal normal 16px/20px Roboto;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 [dir="ltr"] .input-box input {
@@ -509,6 +506,7 @@ input {
 
 .checkIcon {
   stroke: var(--language-check-icon-color);
+  stroke-width: 2px;
 }
 
 .forgot-password-hyperlink {
@@ -516,6 +514,7 @@ input {
   font-size: var(--forgot-password-font-size);
   width: var(--forgot-password-width);
   margin-top: var(--forgot-password-margin-top) !important;
+  font-weight: 500;
 }
 
 [dir="ltr"] .forgot-password-hyperlink {
@@ -551,6 +550,7 @@ input[type="number"] {
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
+  font-family: Roboto !important;
 }
 
 .selected_login_id {
@@ -593,6 +593,25 @@ input[type="number"] {
 
 .caps_lock {
   color: var(--caps-lock-text-color);
+}
+
+nav {
+  font-family: Roboto !important;
+}
+
+.selectedLang, .langDropdown:hover {
+  font-weight: 500;
+  color: var(--selected-lang-text-color);
+}
+
+.border-button {
+  color: var(--border-button-text-color);
+  border-color: var(--border-button-border-color);
+
+  &:hover {
+    background-color: var(--border-button-text-color);
+    color:white;
+  }
 }
 
 @media screen and (max-width: 767px) {

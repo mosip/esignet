@@ -6,7 +6,7 @@
   --login-background: #f7f9fd;
   --language-icon-color: #FFFFFF;
   --language-icon-bg-color:  var(--primary-color);
-  --login-background-min-height: calc(100vh - 104.6px) !important;
+  --login-background-min-height: calc(100vh - 102px) !important;
   --brand-only-logo-url: url("/logo.png");
   --brand-logo-url: url("/images/brand_logo.png");
   --background-logo-url: url("/images/illustration_one.png");
@@ -46,7 +46,7 @@
   --header-height: 55px;
   --footer-height: 47px;
   --signup-banner-background-color: #eaf5ff;
-  --signup-banner-bottom-radius: 20px;
+  --signup-banner-bottom-radius: 5px;
   --signup-banner-padding-top: 20px;
   --signup-banner-padding-bottom: 20px;
   --signup-banner-margin-top: 16px;
@@ -135,6 +135,9 @@
   --caps-lock-text-color: #2D86BA;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
+  --selected-lang-text-color: var(--primary-color);
+  --border-button-text-color: var(--primary-color);
+  --border-button-border-color: var(--primary-color);
 }
 
 [class="orange"] {
@@ -145,7 +148,7 @@
   --login-background: #f7f9fd;
   --language-icon-color: #ffffff;
   --language-icon-bg-color: var(--primary-color);
-  --login-background-min-height: calc(100vh - 104.6px) !important;
+  --login-background-min-height: calc(100vh - 102px) !important;
   --brand-only-logo-url: url("/logo.png");
   --brand-logo-url: url("/images/brand_logo.png");
   --background-logo-url: url("/images/illustration_one.png");
@@ -185,7 +188,7 @@
   --header-height: 55px;
   --footer-height: 47px;
   --signup-banner-background-color: #fff6f2;
-  --signup-banner-bottom-radius: 10px;
+  --signup-banner-bottom-radius: 5px;
   --signup-banner-padding-top: 20px;
   --signup-banner-padding-bottom: 20px;
   --signup-banner-margin-top: 16px;
@@ -274,6 +277,9 @@
   --caps-lock-text-color: #2D86BA;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
+  --selected-lang-text-color: var(--primary-color);
+  --border-button-text-color: var(--primary-color);
+  --border-button-border-color: var(--primary-color);
 }
 
 [class="green"] {
@@ -285,7 +291,7 @@
   --login-background-image: url("/images/section-bg.png");
   --language-icon-color: #ffffff;
   --language-icon-bg-color: var(--primary-color);
-  --login-background-min-height: calc(100vh - 104.6px) !important;
+  --login-background-min-height: calc(100vh - 102px) !important;
   --brand-only-logo-url: url("/logo.png");
   --brand-logo-url: url("/images/brand_logo.png");
   --background-logo-url: url("/images/illustration_one.png");
@@ -325,7 +331,7 @@
   --header-height: 55px;
   --footer-height: 47px;
   --signup-banner-background-color: #98FB98;
-  --signup-banner-bottom-radius: 10px;
+  --signup-banner-bottom-radius: 5px;
   --signup-banner-padding-top: 20px;
   --signup-banner-padding-bottom: 20px;
   --signup-banner-margin-top: 16px;
@@ -419,4 +425,7 @@
   --caps-lock-text-color: #2D86BA;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
+  --selected-lang-text-color: var(--primary-color);
+  --border-button-text-color: var(--primary-color);
+  --border-button-border-color: var(--primary-color);
 }

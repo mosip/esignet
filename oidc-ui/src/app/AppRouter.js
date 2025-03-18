@@ -18,9 +18,12 @@ import {
   SOMETHING_WENT_WRONG,
   ESIGNET_DETAIL,
   CLAIM_DETAIL,
+  NETWORK_ERROR,
 } from "../constants/routes";
 import configService from "../services/configService";
 import ClaimDetails from "../components/ClaimDetails";
+import NetworkError from "../pages/NetworkError";
+import useNetworkStatus from "../hooks/useNetworkStatus";
 
 const config = await configService();
 
@@ -46,7 +49,7 @@ export const AppRouter = () => {
   }
 
   const checkRoute = (currentRoute) =>
-    [LOGIN, AUTHORIZE, CONSENT].includes(currentRoute);
+    [LOGIN, AUTHORIZE, CONSENT, NETWORK_ERROR].includes(currentRoute);
 
   // checking the pathname if login, consent, authorize
   // is present then only show the background
@@ -92,9 +95,22 @@ export const AppRouter = () => {
     { route: CONSENT, component: <ConsentPage /> },
     { route: CLAIM_DETAIL, component: <ClaimDetails /> },
     { route: SOMETHING_WENT_WRONG, component: <SomethingWrongPage /> },
+    { route: NETWORK_ERROR, component: <NetworkError /> },
     { route: PAGE_NOT_FOUND, component: <PageNotFoundPage /> },
     { route: "*", component: <PageNotFoundPage /> },
   ];
+
+  const isOnline = useNetworkStatus();
+
+  useEffect(() => {
+    if (!isOnline) {
+      navigate(NETWORK_ERROR, {
+        state: {
+          path: window.location.href,
+        },
+      });
+    }
+  }, [isOnline]);
 
   return (
     <WithSuspense>

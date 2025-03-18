@@ -7,7 +7,7 @@ import {
   OAUTH_DETAIL_V2,
   CLAIM_DETAILS,
   PREPARE_SIGNUP_REDIRECT,
-  RESUME,
+  AUTHCODE
 } from "../../constants/routes";
 
 jest.mock("../../services/api.service");
@@ -18,6 +18,9 @@ jest.mock("buffer", () => ({
       toString: jest.fn().mockReturnValue("mockedBase64String"),
     })),
   },
+}));
+jest.spyOn(Buffer, "from").mockImplementation((str) => ({
+  toString: jest.fn(() => "mockedBase64String"),
 }));
 
 describe("authService", () => {
@@ -291,31 +294,82 @@ describe("authService", () => {
     ).rejects.toThrow("API Error");
   });
 
-  it("resume should call ApiService.post with correct headers", async () => {
-    // Mock methods from openIDConnectService
-    mockOpenIDConnectService.getTransactionId.mockResolvedValue(
-      "mockedTransactionId"
+  it("post_OauthDetails_v2 should call ApiService.post with correct parameters", async () => {
+    const params = { key: "value" };
+  
+    ApiService.post.mockResolvedValue({ data: "oauthDetailsResponse" });
+  
+    const response = await service.post_OauthDetails_v2(params);
+  
+    expect(ApiService.post).toHaveBeenCalledWith(
+      OAUTH_DETAIL_V2,
+      {
+        requestTime: expect.any(String),
+        request: params,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-XSRF-TOKEN": "mockedXsrfToken",
+        },
+      }
     );
-    mockOpenIDConnectService.getOauthDetailsHash.mockResolvedValue(
-      "mockedHash"
-    );
-    localStorageService.getCookie.mockReturnValue("mockedXsrfToken");
-
-    // Mock the ApiService.post to return a response with a data property
-    ApiService.post.mockResolvedValue({ data: "resumeResponse" });
-
-    const response = await service.resume("mockedTransactionId", true);
-
-    expect(ApiService.post).toHaveBeenCalledWith(RESUME, expect.any(Object), {
-      headers: expect.objectContaining({
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": "mockedXsrfToken",
-        "oauth-details-hash": "mockedHash",
-        "oauth-details-key": "mockedTransactionId", // Ensure this matches the mock value
-      }),
-    });
-    expect(response).toBe("resumeResponse"); // Check that the response matches the mock data
+  
+    expect(response).toBe("oauthDetailsResponse");
   });
+  
+  it("post_AuthCode should call ApiService.post with correct parameters", async () => {
+    const transactionId = "transactionId";
+    const acceptedClaims = ["claim1"];
+    const permittedAuthorizeScopes = ["scope1"];
+    const oAuthDetailsHash = "mockedHash";
+  
+    ApiService.post.mockResolvedValue({ data: "authCodeResponse" });
+  
+    const response = await service.post_AuthCode(
+      transactionId,
+      acceptedClaims,
+      permittedAuthorizeScopes,
+      oAuthDetailsHash
+    );
+  
+    expect(ApiService.post).toHaveBeenCalledWith(
+      AUTHCODE,
+      {
+        requestTime: expect.any(String),
+        request: { transactionId, acceptedClaims, permittedAuthorizeScopes },
+      },
+      {
+        headers: expect.objectContaining({
+          "Content-Type": "application/json",
+          "X-XSRF-TOKEN": "mockedXsrfToken",
+          "oauth-details-hash": oAuthDetailsHash,
+          "oauth-details-key": transactionId,
+        }),
+      }
+    );
+  
+    expect(response).toBe("authCodeResponse");
+  });
+
+  it("buildRedirectParams should return correct formatted query params", () => {
+    jest.spyOn(Buffer, "from").mockImplementation((str) => ({
+      toString: jest.fn(() => "mockedBase64String"),
+    }));
+  
+    const nonce = "nonce123";
+    const state = "state456";
+    const oauthResponse = { key: "value" };
+    const consentAction = "approve";
+  
+    const result = service.buildRedirectParams(nonce, state, oauthResponse, consentAction);
+  
+    expect(Buffer.from).toHaveBeenCalledWith(JSON.stringify(oauthResponse));
+    expect(result).toContain("nonce=nonce123");
+    expect(result).toContain("state=state456");
+    expect(result).toContain("consentAction=approve");
+    expect(result).toContain("mockedBase64String"); // Mocked buffer result
+  });  
 
   it("should handle cases where oAuthDetailsHash is not provided in post_AuthenticateUser", async () => {
     const transactionId = "transactionId";

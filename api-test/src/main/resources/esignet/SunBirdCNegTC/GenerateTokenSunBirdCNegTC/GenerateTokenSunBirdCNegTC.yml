@@ -10,7 +10,7 @@ GenerateTokenSunBirdCNegTC:
       outputTemplate: esignet/error2
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid_code$",
+		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_sid_code$",
 		  "client_id": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
@@ -32,7 +32,7 @@ GenerateTokenSunBirdCNegTC:
       outputTemplate: esignet/error2
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid_code$",
+		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_sid_code$",
 		  "client_id": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
@@ -54,7 +54,7 @@ GenerateTokenSunBirdCNegTC:
       outputTemplate: esignet/error2
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid_code$",
+		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_sid_code$",
 		  "client_id": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
@@ -76,7 +76,7 @@ GenerateTokenSunBirdCNegTC:
       outputTemplate: esignet/error2
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid_code$",
+		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_sid_code$",
 		  "client_id": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
@@ -98,7 +98,7 @@ GenerateTokenSunBirdCNegTC:
       outputTemplate: esignet/error2
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid_code$",
+		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_sid_code$",
 		  "client_id": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
@@ -109,7 +109,7 @@ GenerateTokenSunBirdCNegTC:
            "error": "pkce_failed"
 }'
 
-   ESignet_GenerateTokenSunBirdCNegTC_Valid_Smoke_sid:
+   ESignet_GenerateTokenSunBirdCNegTC_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/oauth/v2/token
       uniqueIdentifier: TC_ESignet_GenerateTokenSunBirdCNegTC_06
       description: To Authenticate the user for SunBirdC with invalid data
@@ -120,7 +120,7 @@ GenerateTokenSunBirdCNegTC:
       outputTemplate: esignet/SunBirdCNegTC/GenerateTokenSunBirdCNegTC/GenerateTokenSunBirdCNegTCResult
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_Smoke_sid_code$",
+		  "code": "$ID:AuthorizationCode_SunBirdCNegTC_All_Valid_sid_code$",
 		  "client_id": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
