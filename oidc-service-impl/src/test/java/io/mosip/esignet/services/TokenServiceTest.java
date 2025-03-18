@@ -139,6 +139,7 @@ public class TokenServiceTest {
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() - 3000))
                 .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
@@ -154,6 +155,7 @@ public class TokenServiceTest {
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() - 3000))
                 .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
