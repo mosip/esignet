@@ -104,8 +104,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 
-        String userInfoResponseType=clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS");
-
+        String userInfoResponseType=transaction.getUserInfoResponseType();
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
         if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
             KycExchangeResult kycExchangeResult = doKycExchange(transaction,userInfoResponseType);

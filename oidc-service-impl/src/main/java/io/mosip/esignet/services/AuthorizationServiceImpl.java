@@ -446,6 +446,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         oidcTransaction.setInternalAuthSuccess(false);
         oidcTransaction.setRequestedClaimDetails(oauthDetailReqDto.getClaims()!=null? oauthDetailReqDto.getClaims().getUserinfo() : null);
+        oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 

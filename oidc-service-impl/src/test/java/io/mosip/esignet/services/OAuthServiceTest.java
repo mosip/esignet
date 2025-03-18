@@ -97,12 +97,9 @@ public class OAuthServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setUserInfoResponseType("JWS");
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonConfig = "{ \"user_info_response_type\": \"JWS\" }";
-        JsonNode additionalConfig = objectMapper.readTree(jsonConfig);
-        clientDetail.setAdditionalConfig(additionalConfig);
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
 
@@ -177,6 +174,7 @@ public class OAuthServiceTest {
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setIndividualId("individual-id");
         oidcTransaction.setAcceptedClaims(Arrays.asList("name", "email"));
+        oidcTransaction.setUserInfoResponseType("JWS");
 
         Claims claims = new Claims();
         claims.setUserinfo(new HashMap<>());
@@ -196,10 +194,6 @@ public class OAuthServiceTest {
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonConfig = "{ \"user_info_response_type\": \"JWS\" }";
-        JsonNode additionalConfig = objectMapper.readTree(jsonConfig);
-        clientDetail.setAdditionalConfig(additionalConfig);
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         kycExchangeResult.setEncryptedKyc("encrypted-kyc");
 
