@@ -1,18 +1,14 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import useNetworkStatus from "../hooks/useNetworkStatus";
 import { useTranslation } from "react-i18next";
 
 const NetworkError = () => {
   const location = useLocation();
-  const isOnline = useNetworkStatus();
   const { t } = useTranslation();
 
   const tryAgain = () => {
     window.onbeforeunload = null;
-    if (isOnline) {
-      window.location.replace(location.state.path);
-    }
+    window.location.replace(location.state.path);
   };
 
   return (

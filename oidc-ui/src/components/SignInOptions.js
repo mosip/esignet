@@ -172,7 +172,7 @@ export default function SignInOptions({
                       dangerouslySetInnerHTML={{
                         __html: iconsMap[option.id] || "",
                       }}
-                      className="mx-2 relative top-[2.75px] w-6"
+                      className="mx-2 relative top-[2.5px] w-6"
                     ></div>
                   ) : (
                     <img
