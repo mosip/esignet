@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import {
   LoginPage,
@@ -23,7 +23,7 @@ import {
 import configService from "../services/configService";
 import ClaimDetails from "../components/ClaimDetails";
 import NetworkError from "../pages/NetworkError";
-import useNetworkStatus from "../hooks/useNetworkStatus";
+import { Detector } from "react-detect-offline";
 
 const config = await configService();
 
@@ -37,6 +37,13 @@ export const AppRouter = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const [currentUrl, setCurrentUrl] = useState(window.location.href);
+
+  useEffect(() => {
+    if (location.pathname !== NETWORK_ERROR) {
+      setCurrentUrl(window.location.href);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     setupResponseInterceptor(navigate);
@@ -100,23 +107,22 @@ export const AppRouter = () => {
     { route: "*", component: <PageNotFoundPage /> },
   ];
 
-  const isOnline = useNetworkStatus();
-
-  useEffect(() => {
-    if (!isOnline) {
-      navigate(NETWORK_ERROR, {
-        state: {
-          path: window.location.href,
-        },
-      });
-    }
-  }, [isOnline]);
-
   return (
     <WithSuspense>
       <div className="section-background">
         <section className="login-text body-font pt-0 md:py-4">
           <div className="container justify-center flex mx-auto sm:flex-row flex-col">
+            <Detector
+              render={({ online }) => {
+                if (!online) {
+                  navigate(NETWORK_ERROR, {
+                    state: {
+                      path: currentUrl,
+                    },
+                  });
+                }
+              }}
+            />
             {backgroundLogoDiv}
             <Routes>
               {esignetRoutes.map((route) => (
