@@ -82,7 +82,7 @@ public class OAuthServiceTest {
     }
 
     @Test
-    public void getTokens_withValidRequest_thenPass() throws KycExchangeException, JsonProcessingException {
+    public void getTokens_withValidRequest_thenPass() throws KycExchangeException {
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");

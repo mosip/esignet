@@ -104,10 +104,9 @@ public class OAuthServiceImpl implements OAuthService {
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 
-        String userInfoResponseType=transaction.getUserInfoResponseType();
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
         if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
-            KycExchangeResult kycExchangeResult = doKycExchange(transaction,userInfoResponseType);
+            KycExchangeResult kycExchangeResult = doKycExchange(transaction);
             transaction.setEncryptedKyc(kycExchangeResult.getEncryptedKyc());
             auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         }
@@ -252,7 +251,7 @@ public class OAuthServiceImpl implements OAuthService {
         return tokenResponse;
     }
 
-    private KycExchangeResult doKycExchange(OIDCTransaction transaction, String userInfoResponseType) {
+    private KycExchangeResult doKycExchange(OIDCTransaction transaction) {
         KycExchangeResult kycExchangeResult;
         try {
             VerifiedKycExchangeDto kycExchangeDto = new VerifiedKycExchangeDto();
@@ -287,7 +286,7 @@ public class OAuthServiceImpl implements OAuthService {
                 }
             }
             kycExchangeDto.setAcceptedClaimDetails(acceptedClaimDetails);
-            kycExchangeDto.setUserInfoResponseType(userInfoResponseType);
+            kycExchangeDto.setUserInfoResponseType(transaction.getUserInfoResponseType());
 
             if(transaction.isInternalAuthSuccess()) {
                 log.info("Internal kyc exchange is invoked as the transaction is marked as internal auth success");
