@@ -142,18 +142,6 @@ public class PostWithBodyAndQueryParamsForAutoGenId extends EsignetUtil implemen
 		}
 		logger.info("Is update partner certificate " + str);
 
-//		if (testCaseName.contains("_AuthDemoUrl_")) {
-//			String url = ConfigManager.getAuthDemoServiceUrl();
-//
-//			logger.info("******Post request Json to EndPointUrl: " + url + testCaseDTO.getEndPoint() + " *******");
-//
-//			response = postWithQueryParamsBodyAndCookie(url + testCaseDTO.getEndPoint(),
-//					getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
-//					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), queryParams, idKeyName);
-//		} else {
-//			logger.info("Not Getting" + GlobalConstants.POST_REQ_URL + testCaseDTO.getTestCaseName() + " *******");
-//		}
-
 		Map<String, List<OutputValidationDto>> ouputValid = null;
 		if (testCaseName.contains("_StatusCode")) {
 			OutputValidationDto customResponse = null;

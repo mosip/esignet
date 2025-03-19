@@ -86,9 +86,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
                         "rp-id", Arrays.asList("given_name"),
                         Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                         Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
-                        Arrays.asList("private_key_jwt"), new HashMap<String, String>() {{
-                    put("eng", "clientname");
-                }}, validAdditionalConfigs.get((i++)%size)), null, null, null),
+                        Arrays.asList("private_key_jwt"), null, validAdditionalConfigs.get((i++)%size)), null, null, null),
                 new TestCase("Duplicate client id", new ClientDetailCreateRequestV3("client-id-#12c", "client-name", jwk,
                         "rp-id", Arrays.asList("given_name"),
                         Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",

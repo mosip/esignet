@@ -22,7 +22,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class ClientDetailCreateRequestV2 extends ClientDetailCreateRequest {
 
-    @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME)
     private Map<@ClientNameLang String,
             @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientNameLangMap;
             

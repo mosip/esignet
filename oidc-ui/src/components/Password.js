@@ -73,14 +73,32 @@ export default function Password({
     configurationKeys.forgotPasswordConfig
   );
 
-  useEffect(() => {
-    if (forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
+  let clientAdditionalConfig = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.additionalConfig
+  );
+
+  const toggleForgotPwdBanner = (exist) => {
+    if (exist) {
       setForgotPassword(true);
       setForgotPasswordURL(
         forgotPasswordConfig[configurationKeys.forgotPasswordURL] +
           "#" +
           authService.getAuthorizeQueryParam()
       );
+    } else {
+      setForgotPassword(false);
+    }
+  };
+
+  useEffect(() => {
+    if (clientAdditionalConfig?.[configurationKeys.forgotPwdLinkRequired]) {
+      toggleForgotPwdBanner(configurationKeys.forgotPwdLinkRequired);
+    } else {
+      if (forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
+        toggleForgotPwdBanner(configurationKeys.forgotPassword);
+      } else {
+        setForgotPassword(false);
+      }
     }
   }, [i18n.language]);
 
@@ -121,9 +139,8 @@ export default function Password({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
+    let newValue =
+      regex && regex.test(trimmedValue) ? trimmedValue : trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
     if (e.target.type === "password") {
@@ -357,9 +374,13 @@ export default function Password({
               if the login id option is single, then with secondary heading will pass a object with current id
               if the login id option is multiple, then secondary heading will be passed as it is
             */}
-            {t1(secondaryHeading, loginIDs && loginIDs.length === 1 && {
-              currentID: t1(loginIDs[0].id)
-            })}
+            {t1(
+              secondaryHeading,
+              loginIDs &&
+                loginIDs.length === 1 && {
+                  currentID: t1(loginIDs[0].id),
+                }
+            )}
           </div>
         )}
       </div>
@@ -441,8 +462,16 @@ export default function Password({
                         ? currentLoginID.input_label
                         : t1(field.labelText)
                     }
-                    labelFor={idx === 0 ? currentLoginID.id : "Password_" + currentLoginID.id}
-                    id={idx === 0 ? currentLoginID.id : "Password_" + currentLoginID.id}
+                    labelFor={
+                      idx === 0
+                        ? currentLoginID.id
+                        : "Password_" + currentLoginID.id
+                    }
+                    id={
+                      idx === 0
+                        ? currentLoginID.id
+                        : "Password_" + currentLoginID.id
+                    }
                     name={
                       idx === 0 ? "Password_" + currentLoginID.id : "password"
                     }
@@ -462,6 +491,7 @@ export default function Password({
                     maxLength={idx === 1 ? field.maxLength : ""}
                     regex={idx === 1 ? field.regex : ""}
                     currenti18nPrefix={idx === 0 ? i18nKeyPrefix1 : ""}
+                    idx={idx}
                   />
                 </div>
               ))}

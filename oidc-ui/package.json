@@ -20,6 +20,7 @@
     "qrcode": "^1.5.1",
     "react": "^18.2.0",
     "react-country-flag": "^3.1.0",
+    "react-detect-offline": "^2.4.5",
     "react-dom": "^18.2.0",
     "react-google-recaptcha": "^2.1.0",
     "react-i18next": "^11.18.6",
@@ -82,7 +83,9 @@
       "src/common/Popover.js",
       "src/components/ClaimDetails.js",
       "src/services/authService.js",
-      "src/services/openIDConnectService.js"
+      "src/services/openIDConnectService.js",
+      "src/components/InputWithPrefix.js",
+      "src/components/LoginIDOptions.js"
     ]
   }
 }

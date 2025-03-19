@@ -699,6 +699,11 @@
       "508": "Server has detected an infinite loop while processing the request",
       "510": "Further extensions are required for the server to be able to fulfil the request",
       "511": "Client needs to authenticate to gain network access"
+    },
+    "network_error": {
+      "header": "Network Error!",
+      "subHeader": "Please check your internet connection and try again.",
+      "button": "Try Again"
     }
   }
 }

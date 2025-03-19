@@ -34,3 +34,4 @@ export const AUTHORIZE = "/authorize";
 export const CONSENT = "/consent";
 export const ESIGNET_DETAIL = "/";
 export const CLAIM_DETAIL = "/claim-details";
+export const NETWORK_ERROR = "/network-error";

@@ -137,6 +137,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     }
 
     private String getClientNameLanguageMapAsJsonString(Map<String, String> clientNameMap, String clientName) {
+        if(clientNameMap == null) clientNameMap = new HashMap<>();
         clientNameMap.put(Constants.NONE_LANG_KEY, clientName);
         JSONObject clientNameObject = new JSONObject(clientNameMap);
         return clientNameObject.toString();
