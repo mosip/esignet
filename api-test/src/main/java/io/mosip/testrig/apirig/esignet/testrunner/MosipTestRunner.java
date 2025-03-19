@@ -99,6 +99,8 @@ public class MosipTestRunner {
 
 			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == false
 					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice") == false) {				
+				EsignetUtil.dBCleanup();
+				
 				KeycloakUserManager.removeUser();
 				KeycloakUserManager.createUsers();
 				KeycloakUserManager.closeKeycloakInstance();
@@ -124,10 +126,13 @@ public class MosipTestRunner {
 
 				BiometricDataProvider.generateBiometricTestData("Registration");
 
-				if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty())
+				if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty()) {
 					LOGGER.error("partnerKeyURL is null");
-				else
+				} else {
 					startTestRunner();
+					EsignetUtil.dBCleanup();
+				}
+
 			} else if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
 					.contains("sunbirdrcauthenticationservice") == true) {
 				EsignetUtil.getSupportedLanguage();
@@ -161,15 +166,6 @@ public class MosipTestRunner {
 		}
 		BaseTestCase.currentModule = GlobalConstants.ESIGNET;
 		BaseTestCase.certsForModule = GlobalConstants.ESIGNET;
-		DBManager.executeDBQueries(EsignetConfigManager.getKMDbUrl(), EsignetConfigManager.getKMDbUser(),
-				EsignetConfigManager.getKMDbPass(), EsignetConfigManager.getKMDbSchema(),
-				getGlobalResourcePath() + "/" + "config/keyManagerDataDeleteQueriesForEsignet.txt");
-		DBManager.executeDBQueries(EsignetConfigManager.getIdaDbUrl(), EsignetConfigManager.getIdaDbUser(),
-				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getIdaDbSchema(),
-				getGlobalResourcePath() + "/" + "config/idaDeleteQueriesForEsignet.txt");
-		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
-				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
-				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
 		AdminTestUtil.initiateesignetTest();
 		BaseTestCase.otpListener = new OTPListener();
 		BaseTestCase.otpListener.run();

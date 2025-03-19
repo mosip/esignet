@@ -34,6 +34,7 @@ export default function InputWithImage({
   isInvalid,
   individualId,
   currenti18nPrefix,
+  idx
 }) {
   const { t, i18n } = useTranslation("translation");
   const { t: t1 } = useTranslation("translation", {
@@ -47,13 +48,13 @@ export default function InputWithImage({
   const [errorBanner, setErrorBanner] = useState([]);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
 
-  const inputVal = useRef(value);
+  const inputVal = useRef(null);
 
   useLayoutEffect(() => {
-    if (inputVal.current) {
+    if (inputVal.current && idx === 0) {
       inputVal.current.focus();
     }
-  }, [i18n.language]);
+  }, [i18n.language, idx]);
 
   const changePasswordState = () => {
     let passwordRef = document.getElementById(id);
