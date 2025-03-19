@@ -345,7 +345,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
         )));
         validConfig.put("signup_banner_required", true);
         validConfig.put("forgot_pwd_link_required", true);
-        validConfig.put("consent_expire_in_mins", 1);
+        validConfig.put("consent_expire_in_mins", 10);
 
         ObjectNode config = validConfig.deepCopy();
         config.put("userinfo_response_type", "ABC");  // invalid userinfo
