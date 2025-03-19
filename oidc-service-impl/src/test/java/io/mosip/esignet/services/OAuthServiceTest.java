@@ -99,6 +99,7 @@ public class OAuthServiceTest {
         oidcTransaction.setRelyingPartyId("rp-id");
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setUserInfoResponseType("JWS");
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
@@ -171,6 +172,7 @@ public class OAuthServiceTest {
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setIndividualId("individual-id");
         oidcTransaction.setAcceptedClaims(Arrays.asList("name", "email"));
+        oidcTransaction.setUserInfoResponseType("JWS");
 
         Claims claims = new Claims();
         claims.setUserinfo(new HashMap<>());

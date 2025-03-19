@@ -290,6 +290,7 @@ public class OAuthServiceImpl implements OAuthService {
                 }
             }
             kycExchangeDto.setAcceptedClaimDetails(acceptedClaimDetails);
+            kycExchangeDto.setUserInfoResponseType(transaction.getUserInfoResponseType());
 
             if(transaction.isInternalAuthSuccess()) {
                 log.info("Internal kyc exchange is invoked as the transaction is marked as internal auth success");
