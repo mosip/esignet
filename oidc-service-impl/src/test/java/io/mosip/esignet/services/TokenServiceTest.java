@@ -146,6 +146,21 @@ public class TokenServiceTest {
         tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
     }
 
+    @Test(expected = InvalidRequestException.class)
+    public void verifyClientAssertionToken_withTokenWithoutJTI_thenException() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("audience")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis()))
+                .issuer("client-id")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+    }
+
     @Test
     public void verifyClientAssertionToken_withExpiredTokenWithinClockSkew_thenPass() throws JOSEException {
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
