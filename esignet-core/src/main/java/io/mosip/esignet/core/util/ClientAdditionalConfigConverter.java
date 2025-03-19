@@ -17,7 +17,7 @@ public class ClientAdditionalConfigConverter implements AttributeConverter<JsonN
 
     @Override
     public String convertToDatabaseColumn(JsonNode attribute) {
-        if(attribute == null) return null;
+        if(attribute == null || attribute.isNull()) return null;
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {

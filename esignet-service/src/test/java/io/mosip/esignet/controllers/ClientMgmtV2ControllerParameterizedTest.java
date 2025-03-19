@@ -293,6 +293,9 @@ public class ClientMgmtV2ControllerParameterizedTest {
 
     public static List<JsonNode> getValidAdditionalConfigs() {
         List<JsonNode> configList = new ArrayList<>();
+
+        configList.add(null);
+
         ObjectNode validConfig = mapper.createObjectNode();
         validConfig.put("userinfo_response_type", "JWS");
         validConfig.set("purpose", mapper.valueToTree(Map.ofEntries(
@@ -306,7 +309,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
         )));
         validConfig.put("signup_banner_required", true);
         validConfig.put("forgot_pwd_link_required", true);
-        validConfig.put("consent_expire_in_days", 1);
+        validConfig.put("consent_expire_in_mins", 10);
         configList.add(validConfig);
 
         ObjectNode config = validConfig.deepCopy();
@@ -330,8 +333,6 @@ public class ClientMgmtV2ControllerParameterizedTest {
     public static List<JsonNode> getInvalidAdditionalConfigs() {
         List<JsonNode> configList = new ArrayList<>();
 
-        configList.add(null);
-
         ObjectNode validConfig = mapper.createObjectNode();
         validConfig.put("userinfo_response_type", "JWS");
         validConfig.set("purpose", mapper.valueToTree(Map.ofEntries(
@@ -345,7 +346,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
         )));
         validConfig.put("signup_banner_required", true);
         validConfig.put("forgot_pwd_link_required", true);
-        validConfig.put("consent_expire_in_days", 1);
+        validConfig.put("consent_expire_in_mins", 10);
 
         ObjectNode config = validConfig.deepCopy();
         config.put("userinfo_response_type", "ABC");  // invalid userinfo
@@ -390,7 +391,11 @@ public class ClientMgmtV2ControllerParameterizedTest {
         configList.add(config);
 
         config = validConfig.deepCopy();
-        config.put("consent_expire_in_days", ""); // anything other than number
+        config.put("consent_expire_in_mins", ""); // anything other than number
+        configList.add(config);
+
+        config = validConfig.deepCopy();
+        config.put("consent_expire_in_mins", 5); // consent less than 10 mins
         configList.add(config);
 
         return configList;
