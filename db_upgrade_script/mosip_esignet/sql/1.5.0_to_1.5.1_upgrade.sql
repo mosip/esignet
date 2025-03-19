@@ -34,8 +34,6 @@ $$ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
--- Add the new column with a default value
-ALTER TABLE client_detail ADD COLUMN additional_config jsonb;
 
 IF NOT is_column_jsonb('client_detail', 'public_key') THEN
 
