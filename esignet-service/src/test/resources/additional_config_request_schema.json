@@ -3,7 +3,6 @@
   "type": "object",
   "properties": {
     "userinfo_response_type": {
-      "type": "string",
       "enum": ["JWS", "JWE"]
     },
     "purpose": {
@@ -46,7 +45,8 @@
                 }
               ]
             }
-          }
+          },
+          "additionalProperties": false
         }
       ]
     },
@@ -56,15 +56,15 @@
     "forgot_pwd_link_required": {
       "type": "boolean"
     },
-    "consent_expire_in_days": {
+    "consent_expire_in_mins": {
       "type": "number",
-      "minimum": 0
+      "minimum": 10
     }
   },
   "required": [
     "userinfo_response_type",
     "signup_banner_required",
-    "forgot_pwd_link_required",
-    "consent_expire_in_days"
-  ]
+    "forgot_pwd_link_required"
+  ],
+  "additionalProperties": false
 }

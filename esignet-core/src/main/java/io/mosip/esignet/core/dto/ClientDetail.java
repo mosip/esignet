@@ -11,6 +11,7 @@ import lombok.Data;
 import java.util.List;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Optional;
 
 @Data
 public class ClientDetail implements Serializable {
@@ -38,5 +39,12 @@ public class ClientDetail implements Serializable {
             }
         }
         return defaultValue;
+    }
+
+    public Optional<Integer> getAdditionalConfigConsentExpireInSecs() {
+        if(this.additionalConfig != null && additionalConfig.get("consent_expire_in_mins") != null) {
+            return Optional.of(additionalConfig.get("consent_expire_in_mins").intValue() * 60);
+        }
+        return Optional.empty();
     }
 }
