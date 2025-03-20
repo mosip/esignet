@@ -4,15 +4,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
-import localStorageService from "../services/local-storageService";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
-
-const { getCookie } = { ...localStorageService };
+import { decodeHash } from "../helpers/utils";
 
 export default function Authorize({ authService }) {
   const get_CsrfToken = authService.get_CsrfToken;
-  const post_OauthDetails_v2 = authService.post_OauthDetails_v2;
   const post_OauthDetails_v3 = authService.post_OauthDetails_v3;
   const buildRedirectParams = authService.buildRedirectParams;
   const storeQueryParam = authService.storeQueryParam;
@@ -28,7 +25,7 @@ export default function Authorize({ authService }) {
 
   const base64UrlDecode = (str) => {
     return decodeURIComponent(
-      atob(str.replace(/-/g, "+").replace(/_/g, "/"))
+      decodeHash(str.replace(/-/g, "+").replace(/_/g, "/"))
         .split("")
         .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
         .join("")
