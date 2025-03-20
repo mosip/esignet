@@ -282,7 +282,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"publicKey\": {{client_public_key}},\n        \"relyingPartyId\": \"mock-relying-party-id\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n             \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:3000/**\",\n             \"http://localhost:5000/registration/*\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+									"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"publicKey\": {{client_public_key}},\n        \"relyingPartyId\": \"mock-relying-party-id\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n             \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:3000/**\",\n             \"http://localhost:5000/registration/*\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\",\n                \"title\": {\n                    \"@none\": \"title\"\n                },\n                \"subTitle\": {\n                    \"@none\": \"subtitle\"\n                }\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20\n        }\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -290,7 +290,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/v1/esignet/client-mgmt/oidc-client",
+									"raw": "{{url}}/v1/esignet/client-mgmt/client",
 									"host": [
 										"{{url}}"
 									],
@@ -298,7 +298,7 @@
 										"v1",
 										"esignet",
 										"client-mgmt",
-										"oidc-client"
+										"client"
 									]
 								}
 							},
@@ -320,7 +320,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:3000/**\",\n             \"http://localhost:5000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:static-code\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ]\n    }\n}",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:3000/**\",\n             \"http://localhost:5000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:static-code\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\",\n                \"title\": {\n                    \"@none\": \"title\"\n                },\n                \"subTitle\": {\n                    \"@none\": \"subtitle\"\n                }\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20\n        }\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -328,7 +328,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/v1/esignet/client-mgmt/oidc-client/{{client_id}}",
+									"raw": "{{url}}/v1/esignet/client-mgmt/client/{{client_id}}",
 									"host": [
 										"{{url}}"
 									],
@@ -336,7 +336,7 @@
 										"v1",
 										"esignet",
 										"client-mgmt",
-										"oidc-client",
+										"client",
 										"{{client_id}}"
 									]
 								}
