@@ -79,19 +79,15 @@ public class TokenServiceImpl implements TokenService {
     @Value("${mosip.esignet.client-assertion-jwt.leeway-seconds:5}")
     private int maxClockSkew;
     
-    private static Set<String> REQUIRED_TOKEN_CLAIMS;
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
 
     static {
-        REQUIRED_TOKEN_CLAIMS = new HashSet<>();
-        REQUIRED_TOKEN_CLAIMS.add("sub");
-        REQUIRED_TOKEN_CLAIMS.add("aud");
-        REQUIRED_TOKEN_CLAIMS.add("exp");
-        REQUIRED_TOKEN_CLAIMS.add("iss");
-        REQUIRED_TOKEN_CLAIMS.add("iat");
-
-        REQUIRED_CLIENT_ASSERTION_CLAIMS = new HashSet<>(REQUIRED_TOKEN_CLAIMS);
-        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("jti");
+        REQUIRED_CLIENT_ASSERTION_CLAIMS = new HashSet<>();
+        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("sub");
+        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("aud");
+        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("exp");
+        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iss");
+        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iat");
     }
 
 
@@ -178,7 +174,7 @@ public class TokenServiceImpl implements TokenService {
                     .audience(clientId)
                     .issuer(issuerId)
                     .subject(subject)
-                    .build(), REQUIRED_TOKEN_CLAIMS);
+                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
             claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
         } catch (Exception e) {
             log.error("Access token claims verification failed", e);
@@ -197,7 +193,7 @@ public class TokenServiceImpl implements TokenService {
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(clientId)
                     .issuer(issuerId)
-                    .build(), REQUIRED_TOKEN_CLAIMS);
+                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
             claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
         } catch (Exception e) {
             log.error("ID token claims verification failed", e);
