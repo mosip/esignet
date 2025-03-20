@@ -1,3 +1,5 @@
+import { Buffer } from "buffer";
+
 const encodeString = (str) => {
     return Buffer.from(str).toString("base64");
 }
