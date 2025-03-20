@@ -72,4 +72,5 @@ public class OIDCTransaction implements Serializable {
 
     String verificationStatus;
     String verificationErrorCode;
+    String userInfoResponseType;
 }

@@ -29,4 +29,14 @@ public class ClientDetail implements Serializable {
     private List<String> grantTypes;
     private List<String> clientAuthMethods;
     private JsonNode additionalConfig;
+
+    public String getAdditionalConfig(String fieldName, String defaultValue) {
+        if (this.additionalConfig != null) {
+            JsonNode fieldNode = this.additionalConfig.get(fieldName);
+            if (fieldNode != null) {
+                return fieldNode.asText();
+            }
+        }
+        return defaultValue;
+    }
 }

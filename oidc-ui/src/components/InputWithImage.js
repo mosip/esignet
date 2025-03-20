@@ -54,7 +54,7 @@ export default function InputWithImage({
     if (inputVal.current && idx === 0) {
       inputVal.current.focus();
     }
-  }, [i18n.language]);
+  }, [i18n.language, idx]);
 
   const changePasswordState = () => {
     let passwordRef = document.getElementById(id);
@@ -278,7 +278,6 @@ export default function InputWithImage({
           placeholder={placeholder}
           title={t1(tooltipMsg)}
           onWheelCapture={(e) => e.target.blur()}
-          autoFocus={true}
         />
         {id.includes("Password") && type === "password" && value && (
           <span
