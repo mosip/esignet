@@ -46,7 +46,7 @@ public class ClientAdditionalConfigValidator implements
 
     @Override
     public boolean isValid(JsonNode additionalConfig, ConstraintValidatorContext context) {
-        if(additionalConfig == null) return false;
+        if(additionalConfig == null || additionalConfig.isNull()) return true;
         Set<ValidationMessage> errors = schema.validate(additionalConfig);
         if (errors.isEmpty()) return true;
         log.error("Validation failed for additional_config ---> {}", errors);

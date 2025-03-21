@@ -61,10 +61,5 @@
       "minimum": 10
     }
   },
-  "required": [
-    "userinfo_response_type",
-    "signup_banner_required",
-    "forgot_pwd_link_required"
-  ],
   "additionalProperties": false
 }

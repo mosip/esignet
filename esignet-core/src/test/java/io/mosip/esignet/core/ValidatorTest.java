@@ -806,6 +806,9 @@ public class ValidatorTest {
 
     public List<JsonNode> getValidAdditionalConfigs() {
         List<JsonNode> configList = new ArrayList<>();
+
+        configList.add(null);
+
         ObjectNode validConfig = mapper.createObjectNode();
         validConfig.put("userinfo_response_type", "JWS");
         validConfig.set("purpose", mapper.valueToTree(Map.ofEntries(
@@ -819,7 +822,7 @@ public class ValidatorTest {
         )));
         validConfig.put("signup_banner_required", true);
         validConfig.put("forgot_pwd_link_required", true);
-        validConfig.put("consent_expire_in_mins", 20);
+        validConfig.put("consent_expire_in_mins", 10);
         configList.add(validConfig);
 
         ObjectNode config = validConfig.deepCopy();
@@ -842,8 +845,6 @@ public class ValidatorTest {
 
     public List<JsonNode> getInvalidAdditionalConfigs() {
         List<JsonNode> configList = new ArrayList<>();
-
-        configList.add(null);
 
         ObjectNode validConfig = mapper.createObjectNode();
         validConfig.put("userinfo_response_type", "JWS");

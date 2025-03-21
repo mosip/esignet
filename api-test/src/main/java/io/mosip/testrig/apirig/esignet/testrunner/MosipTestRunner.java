@@ -131,6 +131,8 @@ public class MosipTestRunner {
 				} else {
 					startTestRunner();
 					EsignetUtil.dBCleanup();
+					KeycloakUserManager.removeUser();
+					KeycloakUserManager.closeKeycloakInstance();
 				}
 
 			} else if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
@@ -145,6 +147,7 @@ public class MosipTestRunner {
 		} catch (Exception e) {
 			LOGGER.error("Exception " + e.getMessage());
 		}
+		
 		OTPListener.bTerminate = true;
 
 		HealthChecker.bTerminate = true;

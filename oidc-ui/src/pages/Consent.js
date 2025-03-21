@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Consent from "../components/Consent";
 import authService from "../services/authService";
 import { Buffer } from "buffer";
@@ -8,6 +8,7 @@ import DefaultError from "../components/DefaultError";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
 import { errorCodeObj } from "../constants/clientConstants";
+import { decodeHash } from "../helpers/utils";
 
 export default function ConsentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,7 +57,7 @@ export default function ConsentPage() {
     if (key && urlInfo && !hasResumed) {
       hasResumed = true;
       // Parse the hash from the URL info
-      const hash = JSON.parse(atob(urlInfo.split("#")[1]));
+      const hash = JSON.parse(decodeHash(urlInfo.split("#")[1]));
 
       // Destructure the transactionId from the hash
       const { transactionId } = hash;

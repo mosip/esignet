@@ -1,4 +1,5 @@
 import openIDConnectService from "../services/openIDConnectService";
+import { decodeHash } from "./utils";
 
 function redirectOnError(errorCode, errorDescription) {
 
@@ -15,7 +16,7 @@ function redirectOnError(errorCode, errorDescription) {
   const code = urlObj.hash.substring(1);
 
   // Decoding the Base64-encoded string (excluding the first character)
-  const decodedBase64 = atob(code);
+  const decodedBase64 = decodeHash(code);
 
   // Creating an instance of the openIDConnectService with decodedBase64, nonce, and state parameters
   const oidcService = new openIDConnectService(
