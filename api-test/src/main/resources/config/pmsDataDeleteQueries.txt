@@ -4,5 +4,7 @@ delete from partner_policy where cr_by='esignet-111997'
 delete from partner_policy_request where cr_by='esignet-111997'
 delete from partner_policy_bioextract where cr_by='esignet-111997'
 delete from partner_policy_credential_type where cr_by='esignet-111997'
+delete from partner_policy WHERE policy_id IN (SELECT id FROM auth_policy WHERE cr_by = 'esignet-111997')
 delete from auth_policy where cr_by='esignet-111997'
+delete from auth_policy WHERE policy_group_id IN (SELECT id FROM policy_group WHERE cr_by='esignet-111997')
 delete from policy_group WHERE cr_by='esignet-111997'
