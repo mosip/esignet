@@ -87,6 +87,13 @@ public class ClientMgmtV2ControllerParameterizedTest {
                         Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
                         Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                         Arrays.asList("private_key_jwt"), null, validAdditionalConfigs.get((i++)%size)), null, null, null),
+                new TestCase("Invalid client name lang map value", new ClientDetailCreateRequestV3("client-id-#12c-1", "client-name", jwk,
+                        "rp-id", Arrays.asList("given_name"),
+                        Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
+                        Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
+                        Arrays.asList("private_key_jwt"), new HashMap<String, String>() {{
+                    put("eng", "This is a very long client name that definitely exceeds fifty characters in length.");
+                }}, validAdditionalConfigs.get((i++)%size)), null, null, ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE),
                 new TestCase("Duplicate client id", new ClientDetailCreateRequestV3("client-id-#12c", "client-name", jwk,
                         "rp-id", Arrays.asList("given_name"),
                         Arrays.asList("mosip:idp:acr:static-code"), "https://logo-url/png",
@@ -219,6 +226,12 @@ public class ClientMgmtV2ControllerParameterizedTest {
                         "client-name", Arrays.asList("private_key_jwt"), new HashMap<String, String>() {{
                     put("abc", "clientname");
                 }}, validAdditionalConfigs.get((i++)%size)), "cid#1", "invalid_language_code"),
+                new TestCase("update with invalid client name lang map value", null, new ClientDetailUpdateRequestV3("https://logo-url/png",
+                        Arrays.asList("https://logo-url/png"), Arrays.asList("given_name"),
+                        Arrays.asList("mosip:idp:acr:static-code"), "ACTIVE", Arrays.asList("authorization_code"),
+                        "client-name", Arrays.asList("private_key_jwt"), new HashMap<String, String>() {{
+                    put("eng", "This is a very long client name that definitely exceeds fifty characters in length.");
+                }}, validAdditionalConfigs.get((i++)%size)), "cid#1", ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE),
                 new TestCase("update client-details", new ClientDetailCreateRequestV3("client-id-up2", "client-name",
                         TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject(),
                         "rp-id", Arrays.asList("given_name"),
