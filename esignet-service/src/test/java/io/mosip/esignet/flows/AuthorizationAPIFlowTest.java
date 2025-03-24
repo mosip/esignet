@@ -43,6 +43,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -104,7 +105,7 @@ public class AuthorizationAPIFlowTest {
 
     @Before
     public void init() {
-        when(cacheUtilService.checkNonce(nonce)).thenReturn(1L);
+        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "simple");
     }
 
 

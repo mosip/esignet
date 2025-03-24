@@ -45,6 +45,9 @@ public class CacheUtilService {
     @Value("${mosip.esignet.nonce-expire-seconds:86400}")
     private int nonceValidity;
 
+    @Value("${spring.cache.type}")
+    private String cacheType;
+
     @Autowired
     CacheManager cacheManager;
 
@@ -97,6 +100,9 @@ public class CacheUtilService {
     }
 
     public long checkNonce(String nonce) {
+        if("simple".equalsIgnoreCase(cacheType))
+            return 1L;
+
         if (redisConnectionFactory.getConnection() != null) {
             if (isScriptNotLoaded(nonceScriptHash)) {
                 nonceScriptHash = redisConnectionFactory.getConnection().scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
