@@ -136,14 +136,14 @@ CreateOIDCClientV2:
   ]
 }'
 
-   ESignet_CreateOIDCClientV2_Missing_ClientNamelangMap_Value_Neg:
+   ESignet_CreateOIDCClientV2_Missing_ClientNamelangMap_Value_Pos:
       endPoint: /v1/esignet/client-mgmt/oauth-client
       uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_05
       description: To create OIDC Client V2 with missing clientNameLangMap value
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClientV2/CreateOIDCClientWOClientLangMapValue
-      outputTemplate: esignet/error
+      outputTemplate: esignet/CreateOIDCClientV2/CreateOIDCClientResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$RANDOMPARTNERID$",
@@ -162,21 +162,18 @@ CreateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-  "errors": [
-    {
-      "errorCode": "invalid_client_name"
-    }
-  ]
+      "clientId": "$IGNORE$",
+      "status": "ACTIVE"
 }'
 
-   ESignet_CreateOIDCClientV2_Missing_ClientNamelangMap_Neg:
+   ESignet_CreateOIDCClientV2_Missing_ClientNamelangMap_Pos:
       endPoint: /v1/esignet/client-mgmt/oauth-client
       uniqueIdentifier: TC_ESignet_CreateOIDCClientV2_06
       description: To create OIDC Client V2 with missing ClientNamelangMap
       role: partner
       restMethod: post
       inputTemplate: esignet/CreateOIDCClientV2/CreateOIDCClientWOClientLangMap
-      outputTemplate: esignet/error
+      outputTemplate: esignet/CreateOIDCClientV2/CreateOIDCClientResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$RANDOMPARTNERID$",
@@ -195,9 +192,6 @@ CreateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-  "errors": [
-    {
-      "errorCode": "invalid_client_name"
-    }
-  ]
+      "clientId": "$IGNORE$",
+      "status": "ACTIVE"
 }'
