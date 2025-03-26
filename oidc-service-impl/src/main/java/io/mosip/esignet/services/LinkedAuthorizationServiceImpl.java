@@ -14,6 +14,7 @@ import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
@@ -26,6 +27,7 @@ import io.mosip.esignet.core.util.KafkaHelperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.data.util.Pair;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.mosip.esignet.core.constants.Constants.*;
@@ -68,6 +71,9 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
 
     @Autowired
     private ClaimsHelperService claimsHelperService;
+
+    @Autowired
+    MessageSource messageSource;
 
     @Value("${mosip.esignet.link-code-expire-in-secs}")
     private int linkCodeExpiryInSeconds;
@@ -307,6 +313,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Override
     public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkStatusRequest.getLinkCode());
+        setTimeoutHandler(linkCodeHash, deferredResult);
+        setErrorHandler(linkCodeHash, deferredResult);
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkCodeGenerated(linkCodeHash);
         if(linkTransactionMetadata == null) {
             //if its already linked
@@ -327,6 +335,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     @Override
     public void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkAuthCodeRequest.getLinkedCode());
+        setTimeoutHandler(linkCodeHash, deferredResult);
+        setErrorHandler(linkCodeHash, deferredResult);
         LinkTransactionMetadata linkTransactionMetadata = cacheUtilService.getLinkedTransactionMetadata(linkCodeHash);
         if(linkTransactionMetadata == null || !linkAuthCodeRequest.getTransactionId().equals(linkTransactionMetadata.getTransactionId()) ||
                 linkTransactionMetadata.getLinkedTransactionId() == null)
@@ -344,5 +354,42 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
     private void validateConsent(OIDCTransaction transaction, List<String> acceptedClaims, List<String> permittedScopes) {
         claimsHelperService.validateAcceptedClaims(transaction, acceptedClaims);
         authorizationHelperService.validatePermittedScopes(transaction, permittedScopes);
+    }
+
+    private void setTimeoutHandler(String key, DeferredResult deferredResult) {
+        deferredResult.onTimeout(new Runnable() {
+            @Override
+            public void run() {
+                authorizationHelperService.removeEntryInLinkStatusDeferredResultMap(key);
+                authorizationHelperService.removeEntryInLinkAuthCodeStatusDeferredResultMap(key);
+                ResponseWrapper responseWrapper = new ResponseWrapper();
+                responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+                responseWrapper.setErrors(new ArrayList<>());
+                responseWrapper.getErrors().add(new Error(ErrorConstants.RESPONSE_TIMEOUT,
+                        messageSource.getMessage(ErrorConstants.RESPONSE_TIMEOUT, null, Locale.getDefault())));
+                deferredResult.setErrorResult(responseWrapper);
+            }
+        });
+    }
+
+    private void setErrorHandler(String key, DeferredResult deferredResult) {
+        deferredResult.onError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) {
+                log.error("Building deferred response failed", throwable);
+                authorizationHelperService.removeEntryInLinkStatusDeferredResultMap(key);
+                authorizationHelperService.removeEntryInLinkAuthCodeStatusDeferredResultMap(key);
+                ResponseWrapper responseWrapper = new ResponseWrapper();
+                responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+                responseWrapper.setErrors(new ArrayList<>());
+                if(throwable instanceof EsignetException) {
+                    String errorCode = ((EsignetException) throwable).getErrorCode();
+                    responseWrapper.getErrors().add(new Error(errorCode, messageSource.getMessage(errorCode, null, Locale.getDefault())));
+                } else
+                    responseWrapper.getErrors().add(new Error(ErrorConstants.UNKNOWN_ERROR,
+                            messageSource.getMessage(ErrorConstants.UNKNOWN_ERROR, null, Locale.getDefault())));
+                deferredResult.setErrorResult(responseWrapper);
+            }
+        });
     }
 }

@@ -47,6 +47,7 @@ import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
@@ -60,8 +61,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Component
 public class AuthorizationHelperService {
 
-    private static final Map<String, DeferredResult> LINK_STATUS_DEFERRED_RESULT_MAP = new HashMap<>();
-    private static final Map<String, DeferredResult> LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP = new HashMap<>();
+    private static final Map<String, DeferredResult> LINK_STATUS_DEFERRED_RESULT_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, DeferredResult> LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP = new ConcurrentHashMap<>();
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -143,8 +144,16 @@ public class AuthorizationHelperService {
         LINK_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
     }
 
+    protected void removeEntryInLinkStatusDeferredResultMap(String key) {
+        LINK_STATUS_DEFERRED_RESULT_MAP.remove(key);
+    }
+
     protected void addEntryInLinkAuthCodeStatusDeferredResultMap(String key, DeferredResult deferredResult) {
         LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
+    }
+
+    protected void removeEntryInLinkAuthCodeStatusDeferredResultMap(String key) {
+        LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.remove(key);
     }
 
     @KafkaListener(id = "${spring.kafka.consumer.group-id}"+"-link-status", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-session.topic}")
