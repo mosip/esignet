@@ -146,7 +146,7 @@ CreateOIDCClientV2:
       outputTemplate: esignet/error
       input: '{
       	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$RANDOMID$V2",
+      	"clientId": "$RANDOMPARTNERID$",
       	"clientName": "MOSIP OIDC Client",
       	"logoUri": "https://health-services.com/logo.png",
       	"relyingPartyId": "Bharathi-Inc",
@@ -179,7 +179,7 @@ CreateOIDCClientV2:
       outputTemplate: esignet/error
       input: '{
       	"requestTime": "$TIMESTAMP$",
-      	"clientId": "$RANDOMID$V2",
+      	"clientId": "$RANDOMPARTNERID$",
       	"clientName": "MOSIP OIDC Client",
       	"logoUri": "https://health-services.com/logo.png",
       	"relyingPartyId": "Bharathi-Inc",
