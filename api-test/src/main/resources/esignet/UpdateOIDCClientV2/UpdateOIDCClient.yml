@@ -132,14 +132,14 @@ UpdateOIDCClientV2:
   ]
 }'
 
-   ESignet_UpdateOIDCClientV2_Missing_ClientNamelangMap_Value_Neg:
+   ESignet_UpdateOIDCClientV2_Missing_ClientNamelangMap_Value_Pos:
       endPoint: /v1/esignet/client-mgmt/oauth-client/{clientId}
       uniqueIdentifier: TC_ESignet_UpdateOIDCClientV2_05
       description: To update OIDC Client V2 with missing clientNamelangMap value
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClientV2/UpdateOIDCClientWOClientNameMapValue
-      outputTemplate: esignet/error
+      outputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClientResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"status": "ACTIVE",
@@ -157,21 +157,18 @@ UpdateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-  "errors": [
-    {
-      "errorCode": "invalid_client_name"
-    }
-  ]
+      "clientId": "$IGNORE$",
+      "status": "ACTIVE"
 }'
 
-   ESignet_UpdateOIDCClientV2_Missing_ClientNamelangMap_Neg:
+   ESignet_UpdateOIDCClientV2_Missing_ClientNamelangMap_Pos:
       endPoint: /v1/esignet/client-mgmt/oauth-client/{clientId}
       uniqueIdentifier: TC_ESignet_UpdateOIDCClientV2_06
       description: To update OIDC Client V2 with missing clientNamelangMap
       role: partner
       restMethod: put
       inputTemplate: esignet/UpdateOIDCClientV2/UpdateOIDCClientWOClientNameMap
-      outputTemplate: esignet/error
+      outputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClientResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"status": "ACTIVE",
@@ -189,9 +186,6 @@ UpdateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-  "errors": [
-    {
-      "errorCode": "invalid_client_name"
-    }
-  ]
+       "clientId": "$IGNORE$",
+       "status": "ACTIVE"
 }'
