@@ -5,7 +5,9 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.LinkedAuthorizationService;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -13,9 +15,11 @@ import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.services.AuthorizationHelperService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.function.Consumer;
 
 @Slf4j
 @RestController
@@ -31,9 +38,15 @@ public class LinkedAuthorizationController {
 
     @Autowired
     private LinkedAuthorizationService linkedAuthorizationService;
+
+    @Autowired
+    private AuthorizationHelperService authorizationHelperService;
     
     @Autowired
     private AuditPlugin auditWrapper;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Value("${mosip.esignet.link-status-deferred-response-timeout-secs:25}")
     private long linkStatusDeferredResponseTimeout;
@@ -98,6 +111,9 @@ public class LinkedAuthorizationController {
     public DeferredResult<ResponseWrapper<LinkStatusResponse>> getLinkStatus(@Valid @RequestBody RequestWrapper<LinkStatusRequest>
                                                                                      requestWrapper) throws EsignetException {
         DeferredResult deferredResult = new DeferredResult<>(linkStatusDeferredResponseTimeout*1000);
+        String linkCodeHash = authorizationHelperService.getKeyHash(requestWrapper.getRequest().getLinkCode());
+        setTimeoutHandler(linkCodeHash, deferredResult);
+        setErrorHandler(linkCodeHash, deferredResult);
         try {
         	linkedAuthorizationService.getLinkStatus(deferredResult, requestWrapper.getRequest());
         } catch (EsignetException ex) {
@@ -186,6 +202,9 @@ public class LinkedAuthorizationController {
     public DeferredResult<ResponseWrapper<LinkAuthCodeResponse>> getAuthCode(@Valid @RequestBody RequestWrapper<LinkAuthCodeRequest>
                                                                                            requestWrapper) throws EsignetException {
         DeferredResult deferredResult = new DeferredResult<>(linkAuthCodeDeferredResponseTimeout*1000);
+        String linkCodeHash = authorizationHelperService.getKeyHash(requestWrapper.getRequest().getLinkedCode());
+        setTimeoutHandler(linkCodeHash, deferredResult);
+        setErrorHandler(linkCodeHash, deferredResult);
         try {
         	linkedAuthorizationService.getLinkAuthCode(deferredResult, requestWrapper.getRequest());
         } catch (EsignetException ex) {
@@ -193,6 +212,43 @@ public class LinkedAuthorizationController {
             throw ex;
         }
         return deferredResult;
+    }
+
+    private void setTimeoutHandler(String key, DeferredResult deferredResult) {
+        deferredResult.onTimeout(new Runnable() {
+            @Override
+            public void run() {
+                authorizationHelperService.removeEntryInLinkStatusDeferredResultMap(key);
+                authorizationHelperService.removeEntryInLinkAuthCodeStatusDeferredResultMap(key);
+                ResponseWrapper responseWrapper = new ResponseWrapper();
+                responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+                responseWrapper.setErrors(new ArrayList<>());
+                responseWrapper.getErrors().add(new Error(ErrorConstants.RESPONSE_TIMEOUT,
+                        messageSource.getMessage(ErrorConstants.RESPONSE_TIMEOUT, null, Locale.getDefault())));
+                deferredResult.setErrorResult(responseWrapper);
+            }
+        });
+    }
+
+    private void setErrorHandler(String key, DeferredResult deferredResult) {
+        deferredResult.onError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) {
+                log.error("Building deferred response failed", throwable);
+                authorizationHelperService.removeEntryInLinkStatusDeferredResultMap(key);
+                authorizationHelperService.removeEntryInLinkAuthCodeStatusDeferredResultMap(key);
+                ResponseWrapper responseWrapper = new ResponseWrapper();
+                responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+                responseWrapper.setErrors(new ArrayList<>());
+                if(throwable instanceof EsignetException) {
+                    String errorCode = ((EsignetException) throwable).getErrorCode();
+                    responseWrapper.getErrors().add(new Error(errorCode, messageSource.getMessage(errorCode, null, Locale.getDefault())));
+                } else
+                    responseWrapper.getErrors().add(new Error(ErrorConstants.UNKNOWN_ERROR,
+                            messageSource.getMessage(ErrorConstants.UNKNOWN_ERROR, null, Locale.getDefault())));
+                deferredResult.setErrorResult(responseWrapper);
+            }
+        });
     }
 
 }

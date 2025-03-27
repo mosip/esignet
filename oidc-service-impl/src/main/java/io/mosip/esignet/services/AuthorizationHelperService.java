@@ -144,7 +144,7 @@ public class AuthorizationHelperService {
         LINK_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
     }
 
-    protected void removeEntryInLinkStatusDeferredResultMap(String key) {
+    public void removeEntryInLinkStatusDeferredResultMap(String key) {
         LINK_STATUS_DEFERRED_RESULT_MAP.remove(key);
     }
 
@@ -152,7 +152,7 @@ public class AuthorizationHelperService {
         LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.put(key, deferredResult);
     }
 
-    protected void removeEntryInLinkAuthCodeStatusDeferredResultMap(String key) {
+    public void removeEntryInLinkAuthCodeStatusDeferredResultMap(String key) {
         LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.remove(key);
     }
 
