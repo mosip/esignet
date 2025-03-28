@@ -23,7 +23,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 		"io.mosip.kernel.signature.service," +
 		"io.mosip.kernel.partnercertservice.service," +
 		"io.mosip.kernel.partnercertservice.helper," +
-		"io.mosip.kernel.core.logger.config,"+
 		"${mosip.esignet.integration.scan-base-package}")
 public class EsignetServiceApplication {
 

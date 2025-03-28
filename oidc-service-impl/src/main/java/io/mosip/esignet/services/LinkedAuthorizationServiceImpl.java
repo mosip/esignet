@@ -303,7 +303,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         return authRespDto;
     }
 
-    @Async
+    //@Async
     @Override
     public void getLinkStatus(DeferredResult deferredResult, LinkStatusRequest linkStatusRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkStatusRequest.getLinkCode());
@@ -323,7 +323,7 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         }
     }
 
-    @Async
+    //@Async
     @Override
     public void getLinkAuthCode(DeferredResult deferredResult, LinkAuthCodeRequest linkAuthCodeRequest) throws EsignetException {
         String linkCodeHash = authorizationHelperService.getKeyHash(linkAuthCodeRequest.getLinkedCode());
