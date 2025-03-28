@@ -65,7 +65,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -86,7 +86,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -109,7 +109,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -166,7 +166,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -300,20 +300,20 @@
     "buttons": {
       "mobile": "Mobile Number",
       "nrc": "NRC ID",
-      "vid": "VID",
+      "vid": "UIN/VID",
       "email": "Email"
     },
     "input": {
       "label": {
         "mobile": "Mobile Number",
         "nrc": "NRC ID",
-        "vid": "VID",
+        "vid": "UIN/VID",
         "email": "Email"
       },
       "placeholder": {
         "mobile": "Enter Mobile Number",
         "nrc": "Enter NRC ID",
-        "vid": "Enter VID",
+        "vid": "Enter UIN/VID",
         "email": "Enter Email ID"
       }
     }

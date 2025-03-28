@@ -65,7 +65,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -86,7 +86,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -109,7 +109,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -166,7 +166,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -300,20 +300,20 @@
     "buttons": {
       "mobile": "លេខទូរសព្ទ",
       "nrc": "លេខសម្គាល់ NRC",
-      "vid": "វីឌី",
+      "vid": "យូអ៊ីន/វីឌី",
       "email": "អ៊ីមែល"
     },
     "input": {
       "label": {
         "mobile": "លេខទូរសព្ទ",
         "nrc": "លេខសម្គាល់ NRC",
-        "vid": "វីឌី",
+        "vid": "យូអ៊ីន/វីឌី",
         "email": "អ៊ីមែល"
       },
       "placeholder": {
         "mobile": "បញ្ចូលលេខទូរស័ព្ទ",
         "nrc": "បញ្ចូលលេខសម្គាល់ NRC",
-        "vid": "បញ្ចូល VID",
+        "vid": "បញ្ចូល យូអ៊ីន/វីឌី",
         "email": "បញ្ចូលលេខសម្គាល់អ៊ីមែល"
       }
     }
