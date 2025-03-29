@@ -65,7 +65,7 @@
     "invalid_input": "الرجاء إدخال {{id}} صالح",
     "mobile": "رقم الهاتف المحمول",
     "nrc": "معرف المجلس النرويجي للاجئين",
-    "vid": "فيد",
+    "vid": "يو آي إن/فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
@@ -86,7 +86,7 @@
     "invalid_input": "الرجاء إدخال {{id}} صالح",
     "mobile": "رقم الهاتف المحمول",
     "nrc": "معرف المجلس النرويجي للاجئين",
-    "vid": "فيد",
+    "vid": "يو آي إن/فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
@@ -109,7 +109,7 @@
     "invalid_input": "الرجاء إدخال {{id}} صالح",
     "mobile": "رقم الهاتف المحمول",
     "nrc": "معرف المجلس النرويجي للاجئين",
-    "vid": "فيد",
+    "vid": "يو آي إن/فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
@@ -166,7 +166,7 @@
     "invalid_input": "الرجاء إدخال {{id}} صالح",
     "mobile": "رقم الهاتف المحمول",
     "nrc": "معرف المجلس النرويجي للاجئين",
-    "vid": "فيد",
+    "vid": "يو آي إن/فيد",
     "email": "بريد إلكتروني",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
@@ -207,9 +207,9 @@
     "login_heading": "تسجيل الدخول باستخدام eSignet",
     "verify_heading": "التحقق باستخدام eSignet",
     "link_heading": "الربط باستخدام eSignet",
-    "login_subheading": "الرجاء استخدام بيانات اعتمادك لتسجيل الدخول.",
-    "verify_subheading": "يُرجى تقديم بيانات اعتمادك للربط بحسابك.",
-    "link_subheading": "",
+    "login_subheading": "<strong>{{clientName}}</strong> يطلب المصادقة لتسجيل الدخول",
+    "verify_subheading": "<strong>{{clientName}}</strong> يطلب المصادقة للتحقق",
+    "link_subheading": "<strong>{{clientName}}</strong> يطلب المصادقة لربط حسابك",
     "login_linkName": "التسجيل المسبق",
     "more_ways_to_sign_in": "المزيد من الطرق لتسجيل الدخول",
     "invalid_auth_factor": "عوامل المصادقة غير صالحة. ",
@@ -300,20 +300,20 @@
     "buttons": {
       "mobile": "رقم الهاتف المحمول",
       "nrc": "معرف المجلس النرويجي للاجئين",
-      "vid": "فيد",
+      "vid": "يو آي إن/فيد",
       "email": "بريد إلكتروني"
     },
     "input": {
       "label": {
         "mobile": "رقم الهاتف المحمول",
         "nrc": "معرف المجلس النرويجي للاجئين",
-        "vid": "فيد",
+        "vid": "يو آي إن/فيد",
         "email": "بريد إلكتروني"
       },
       "placeholder": {
         "mobile": "أدخل رقم الجوال",
         "nrc": "أدخل معرف المجلس النرويجي للاجئين",
-        "vid": "أدخل فيد",
+        "vid": "أدخل يو آي إن/فيد",
         "email": "أدخل معرف البريد الإلكتروني"
       }
     }

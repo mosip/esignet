@@ -65,7 +65,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -86,7 +86,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -109,7 +109,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -166,7 +166,7 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
@@ -207,9 +207,9 @@
     "login_heading": "Login using eSignet",
     "verify_heading": "Verify using eSignet",
     "link_heading": "Link using eSignet",
-    "login_subheading": "Please use your credentials to login",
-    "verify_subheading": "Please provide your credentials for verification",
-    "link_subheading": "Please provide your credentials to link with your account",
+    "login_subheading": "<strong>{{clientName}}</strong> is requesting authentication for login",
+    "verify_subheading": "<strong>{{clientName}}</strong> is requesting authentication for verification",
+    "link_subheading": "<strong>{{clientName}}</strong> is requesting authentication for link your account",
     "login_linkName": "Preregister",
     "more_ways_to_sign_in": "More Ways to Login",
     "invalid_auth_factor": "Invalid Auth Factors. Please Try Again...",
@@ -300,20 +300,20 @@
     "buttons": {
       "mobile": "Mobile Number",
       "nrc": "NRC ID",
-      "vid": "VID",
+      "vid": "UIN/VID",
       "email": "Email"
     },
     "input": {
       "label": {
         "mobile": "Mobile Number",
         "nrc": "NRC ID",
-        "vid": "VID",
+        "vid": "UIN/VID",
         "email": "Email"
       },
       "placeholder": {
         "mobile": "Enter Mobile Number",
         "nrc": "Enter NRC ID",
-        "vid": "Enter VID",
+        "vid": "Enter UIN/VID",
         "email": "Enter Email ID"
       }
     }

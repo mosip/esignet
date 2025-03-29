@@ -65,7 +65,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -86,7 +86,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -109,7 +109,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -166,7 +166,7 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
     "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
@@ -207,9 +207,9 @@
     "login_heading": "ចូលដោយប្រើ eSignet",
     "verify_heading": "ផ្ទៀងផ្ទាត់ដោយប្រើ eSignet",
     "link_heading": "ភ្ជាប់ដោយប្រើ eSignet",
-    "login_subheading": "សូមប្រើព័ត៌មានសម្ងាត់របស់អ្នកដើម្បីចូល។",
-    "verify_subheading": "សូមផ្តល់ព័ត៌មានសម្ងាត់របស់អ្នកសម្រាប់ការផ្ទៀងផ្ទាត់។",
-    "link_subheading": "សូមផ្តល់ព័ត៌មានសម្ងាត់របស់អ្នកដើម្បីភ្ជាប់ជាមួយគណនីរបស់អ្នក។",
+    "login_subheading": "<strong>{{clientName}}</strong> កំពុងស្នើសុំការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវសម្រាប់ការចូល",
+    "verify_subheading": "<strong>{{clientName}}</strong> កំពុងស្នើសុំការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវសម្រាប់ការផ្ទៀងផ្ទាត់",
+    "link_subheading": "<strong>{{clientName}}</strong> កំពុងស្នើសុំការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវសម្រាប់ភ្ជាប់គណនីរបស់អ្នក",
     "login_linkName": "ចុះឈ្មោះជាមុន",
     "more_ways_to_sign_in": "វិធីច្រើនទៀតដើម្បីចូល",
     "invalid_auth_factor": "កត្តាផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ។ ",
@@ -300,20 +300,20 @@
     "buttons": {
       "mobile": "លេខទូរសព្ទ",
       "nrc": "លេខសម្គាល់ NRC",
-      "vid": "វីឌី",
+      "vid": "យូអ៊ីន/វីឌី",
       "email": "អ៊ីមែល"
     },
     "input": {
       "label": {
         "mobile": "លេខទូរសព្ទ",
         "nrc": "លេខសម្គាល់ NRC",
-        "vid": "វីឌី",
+        "vid": "យូអ៊ីន/វីឌី",
         "email": "អ៊ីមែល"
       },
       "placeholder": {
         "mobile": "បញ្ចូលលេខទូរស័ព្ទ",
         "nrc": "បញ្ចូលលេខសម្គាល់ NRC",
-        "vid": "បញ្ចូល VID",
+        "vid": "បញ្ចូល យូអ៊ីន/វីឌី",
         "email": "បញ្ចូលលេខសម្គាល់អ៊ីមែល"
       }
     }
