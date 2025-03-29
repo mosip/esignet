@@ -7,6 +7,8 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import io.mosip.esignet.api.dto.*;
@@ -47,6 +49,7 @@ import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
@@ -60,8 +63,13 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Component
 public class AuthorizationHelperService {
 
-    private static final Map<String, DeferredResult> LINK_STATUS_DEFERRED_RESULT_MAP = new HashMap<>();
-    private static final Map<String, DeferredResult> LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP = new HashMap<>();
+    private static final Cache<String, DeferredResult> LINK_STATUS_DEFERRED_RESULT_MAP = CacheBuilder.newBuilder()
+            .expireAfterWrite(40, TimeUnit.SECONDS)
+                .build();
+
+    private static final Cache<String, DeferredResult> LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP = CacheBuilder.newBuilder()
+            .expireAfterWrite(40, TimeUnit.SECONDS)
+            .build();
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
@@ -149,17 +157,17 @@ public class AuthorizationHelperService {
 
     @KafkaListener(id = "${spring.kafka.consumer.group-id}"+"-link-status", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-session.topic}")
     public void consumeLinkStatus(String linkCodeHash) {
-        DeferredResult deferredResult = LINK_STATUS_DEFERRED_RESULT_MAP.get(linkCodeHash);
+        DeferredResult deferredResult = LINK_STATUS_DEFERRED_RESULT_MAP.getIfPresent(linkCodeHash);
         if(deferredResult != null) {
             if(!deferredResult.isSetOrExpired())
                 deferredResult.setResult(getLinkStatusResponse(LINKED_STATUS));
-            LINK_STATUS_DEFERRED_RESULT_MAP.remove(linkCodeHash);
+            LINK_STATUS_DEFERRED_RESULT_MAP.invalidate(linkCodeHash);
         }
     }
 
     @KafkaListener(id = "${spring.kafka.consumer.group-id}"+"-linked-auth-code", autoStartup = "${kafka.enabled:true}", topics = "${mosip.esignet.kafka.linked-auth-code.topic}")
     public void consumeLinkAuthCodeStatus(String linkTransactionId) {
-        DeferredResult deferredResult = LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.get(linkTransactionId);
+        DeferredResult deferredResult = LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.getIfPresent(linkTransactionId);
         if(deferredResult != null) {
             try {
                 if(!deferredResult.isSetOrExpired()) {
@@ -170,7 +178,7 @@ public class AuthorizationHelperService {
                     deferredResult.setResult(getLinkAuthStatusResponse(null, oidcTransaction));
                 }
             } finally {
-                LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.remove(linkTransactionId);
+                LINK_AUTH_CODE_STATUS_DEFERRED_RESULT_MAP.invalidate(linkTransactionId);
             }
         }
     }
