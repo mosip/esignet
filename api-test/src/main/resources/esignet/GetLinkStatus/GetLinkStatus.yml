@@ -243,7 +243,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "response_timeout",
+      "errorCode": "invalid_link_code",
       "errorMessage": "$IGNORE$"
     }
   ]
@@ -266,7 +266,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "response_timeout",
+      "errorCode": "invalid_link_code",
       "errorMessage": "$IGNORE$"
     }
   ]
@@ -335,7 +335,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "response_timeout",
+      "errorCode": "invalid_link_code",
       "errorMessage": "$IGNORE$"
     }
   ]
@@ -381,7 +381,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "response_timeout",
+      "errorCode": "invalid_link_code",
       "errorMessage": "$IGNORE$"
     }
   ]
@@ -404,7 +404,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "response_timeout",
+      "errorCode": "invalid_link_code",
       "errorMessage": "$IGNORE$"
     }
   ]
@@ -473,7 +473,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "response_timeout",
+      "errorCode": "invalid_link_code",
       "errorMessage": "$IGNORE$"
     }
   ]
