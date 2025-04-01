@@ -8,7 +8,7 @@
 	<name>apitest-esignet</name>
 	<description>Parent project of MOSIP Esignet apitests</description>
 	<url>https://github.com/mosip/esignet</url>
-	<version>1.6.0-develop-SNAPSHOT</version>
+	<version>1.6.0-RC</version>
 
 	<licenses>
 		<license>
