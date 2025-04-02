@@ -44,7 +44,7 @@ public class AuthenticationContextClassRefUtil {
     private static final String AMR_KEY = "amr";
     private static final String ACR_AMR = "acr_amr";
 
-    @Value("${mosip.esignet.amr-acr-mapping-file-path:/home/mosip/amr_acr_mapping.json}")
+    @Value("${mosip.esignet.amr-acr-mapping-file-path:file:/home/mosip/amr_acr_mapping.json}")
     private String mappingFilePath;
 
     @Autowired
