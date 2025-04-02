@@ -18,7 +18,7 @@ public class SleuthValve extends ValveBase {
 
     private final Tracer tracer;
 
-    SleuthValve(Tracer tracer) {
+    public SleuthValve(Tracer tracer) {
         this.tracer = tracer;
     }
 
