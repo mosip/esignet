@@ -115,7 +115,7 @@ Below is the default MOSIP UI JSON specification, We will NOT be supporting all 
     "exceptionPhotoRequired" : true
 }`
 
-Only the below attributes are supported in eSignet signup:
+Only the below attributes are required to be supported in eSignet KBI and eSignet signup registration form:
  
 `{
     "id": "<Unique identifier for the field>",
@@ -129,7 +129,18 @@ Only the below attributes are supported in eSignet signup:
             "fra": "Exemple de champ",
             "eng": "Sample Field"
             },
-    "controlType": "textbox/fileupload/dropdown/checkbox/button/date/ageDate/html/biometrics"
+    "controlType": "textbox/fileupload/dropdown/checkbox/button/date/ageDate/html/biometrics",
+    "validators": [{
+            "type": "regex",
+            "validator": "^([0-9]{10,30})$",
+            "arguments": [],
+            "langCode": <if null, its applicable for all languages, else validator expression can be provided for each langCode>,
+            "errorCode" : "UI_100001"
+            }],
+    "alignmentGroup": "<fields belonging to same alignment group are placed horizontally next to eachother>",
+    "required": true,
+    "requiredOn": [{
+                "engine": "MVEL",
+                "expr": "identity.get('ageGroup') == 'INFANT' && (identity.get('introducerRID') == nil || identity.get('introducerRID') == empty)"
+                }]
 }`
-
-TODO
