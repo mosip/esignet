@@ -25,6 +25,7 @@ import org.testng.internal.TestResult;
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConstants;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
@@ -103,7 +104,7 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 		String[] templateFields = testCaseDTO.getTemplateFields();
 		String inputJson = "";
 
-		if (BaseTestCase.currentModule.equals(GlobalConstants.MASTERDATA)
+		if ((BaseTestCase.currentModule.equals(GlobalConstants.MASTERDATA) || BaseTestCase.currentModule.equals(EsignetConstants.DSL))
 				&& testCaseName.startsWith("Esignet_CreateOIDCClient")) {
 			inputJson = testCaseDTO.getInput();
 		} else {
