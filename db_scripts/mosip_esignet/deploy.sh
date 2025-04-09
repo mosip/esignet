@@ -15,6 +15,16 @@ else
      echo `date "+%m/%d/%Y %H:%M:%S"` ": Property file not found, Pass property file name as argument."
 fi
 
+## Check if eSignet database exists
+echo "Checking if database '$MOSIP_DB_NAME' exists..."
+RESULT=$(PGPASSWORD=$SU_USER_PWD psql -U "$SU_USER" -h "$DB_SERVERIP" -p "$DB_PORT" -tAc "SELECT 1 FROM pg_database WHERE datname='$MOSIP_DB_NAME'")
+if [ "$RESULT" = "1" ]; then
+  echo "Database '$MOSIP_DB_NAME' already exists."
+  exit 0
+else
+  echo "eSignet database was not found. Running the db scripts to create and initialize the eSignet database."
+fi
+
 ## Terminate existing connections
 echo "Terminating active connections"
 CONN=$(PGPASSWORD=$SU_USER_PWD psql -v ON_ERROR_STOP=1 --username=$SU_USER --host=$DB_SERVERIP --port=$DB_PORT --dbname=$DEFAULT_DB_NAME -t -c "SELECT count(pg_terminate_backend(pg_stat_activity.pid)) FROM pg_stat_activity WHERE datname = '$MOSIP_DB_NAME' AND pid <> pg_backend_pid()";exit;)

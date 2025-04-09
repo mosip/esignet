@@ -320,6 +320,8 @@ extraEnvVars: |
         name: esignet-misp-onboarder-key
         key: mosip-esignet-misp-key
 
+extraEnvVarsAdditional: []
+
 ## ConfigMap with extra environment variables that used
 ##
 extraEnvVarsCM:

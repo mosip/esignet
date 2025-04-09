@@ -12,15 +12,20 @@ CHART_VERSION=0.1.0-develop
 
 function installing_captcha() {
   while true; do
-      read -p "Do you want to continue installing captcha validation service? (y/n): " ans
+      echo "Do you want to install captcha validation service? (Press Enter for default 'y') (y/n): "
+      echo "Warning: It is not recommended to use eSignet without a captcha site key and captcha secret key in a production environment."
+      read ans
+      ans=${ans:-y}  # Default to 'y' if the user presses Enter
+
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
-          exit 1
+          exit 0
       else
           echo "Please provide a correct option (Y or N)"
       fi
   done
+
 
   echo "Creating $NS namespace"
   kubectl create ns $NS || true
