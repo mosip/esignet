@@ -130,10 +130,12 @@ function installing_prerequisites() {
   return 0
 }
 
+# Set commands for error handling.
 set -e
-set -o errexit
-set -o nounset
-set -o errtrace
-set -o pipefail
+set -o errexit   ## Exit the script if any statement returns a non-true return value
+set -o nounset   ## Exit the script if you try to use an uninitialized variable
+set -o errtrace  ## Trace ERR through 'time command' and other functions
+set -o pipefail  ## Trace ERR through pipes
 
+# Calling the function to start installing prerequisites
 installing_prerequisites
