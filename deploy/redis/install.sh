@@ -8,29 +8,6 @@ fi
 
 function installing_redis() {
 
-  while true; do
-      read -p "Do you want to install Redis in redis namespace? (y/n) :" ans
-      if [ "$ans" = "n" ] || [ "$ans" = "N" ]; then
-        read -p "Please confirm if redis-config is already present in redis namespace. (y/n):" response 
-        if [ "$response" = "Y" ] || [ "$response" = "y" ]; then
-          echo "Skipping Redis installation as well as redis-config creation."
-          exit 1
-        elif [ "$response" = "N" ] || [ "$response" = "n" ]; then
-          echo "Skipping Redis installation and continuing with redis-config creation."
-          kubectl apply -f redis-config.yaml
-          echo "redis-config configmap creation completed."
-          exit 1
-        else
-          echo "Incorrect response. Please re-execute the redis installation script."
-          exit 1
-        fi
-      elif [ "$ans" = "y" ] || [ "$ans" = "Y" ]; then
-          break
-      else
-          echo "Please provide a correct option (Y or N)"
-      fi
-  done
-
   NS=redis
   CHART_VERSION=17.3.14
 

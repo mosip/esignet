@@ -63,7 +63,8 @@ function installing_postgres() {
 
 # Prompt the user if they want to install PostgreSQL
 while true; do
-    read -p "Do you want to install default Postgres ? (y/n): " answer
+    read -p "Do you want to deploy postgres in the postgres namespace? Please opt for 'n' if you already have a postgres server deployed : Press enter for default y: " answer
+    answer=${answer:-Y}
     if [ "$answer" = "Y" ] || [ "$answer" = "y" ]; then
         echo "Continuing with Postgres server deployment..."
         break  # Proceed with the installation
