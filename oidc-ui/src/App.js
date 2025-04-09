@@ -36,6 +36,22 @@ function App() {
     },
   });
 
+  function loadExternalScript(src, callback) {
+    const script = document.createElement("script");
+    script.src = src;
+    script.defer = true;
+    script.onload = callback;
+    script.onerror = () => console.error(`Failed to load: ${src}`);
+    document.head.appendChild(script);
+  }
+
+  if (window._env_?.FORM_BUILDER_URL) {
+    loadExternalScript(window._env_.FORM_BUILDER_URL, () => {
+      console.log("DynamicFormBuilder loaded!");
+      // You can now use `window.DynamicFormBuilder` here
+    });
+  }
+
   //Loading rtlLangs
   useEffect(() => {
     try {
@@ -101,13 +117,13 @@ function App() {
       let defaultLang = window._env_.DEFAULT_LANG;
       // checking default language in 2 letter language code
       if (defaultLang in supportedLanguages) {
-        i18n.changeLanguage(defaultLang)
-        return
+        i18n.changeLanguage(defaultLang);
+        return;
       }
       // checking default language in 3 letter language code
       if (defaultLang in langCodeMapping) {
-        i18n.changeLanguage(langCodeMapping[defaultLang])
-        return
+        i18n.changeLanguage(langCodeMapping[defaultLang]);
+        return;
       }
     }
 
@@ -126,7 +142,11 @@ function App() {
     case states.LOADING:
       el = (
         <div className="h-screen flex justify-center content-center">
-          <LoadingIndicator size="medium" message={"loading_msg"} className="align-loading-center" />
+          <LoadingIndicator
+            size="medium"
+            message={"loading_msg"}
+            className="align-loading-center"
+          />
         </div>
       );
       break;

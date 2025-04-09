@@ -7,4 +7,5 @@ window._env_ = {
   DEFAULT_TITLE: "eSignet",
   DEFAULT_ID_PROVIDER_NAME: "eSignet",
   DEFAULT_FONT_URL: "https://fonts.googleapis.com/css?family=Inter",
+  FORM_BUILDER_URL: "http://127.0.0.1:5500/dynamic-form-builder/dist/DynamicFormBuilder.umd.js",
 };
