@@ -60,12 +60,11 @@ function installing_eSignet() {
 
 # Set commands for error handling.
 set -e
-set -o errexit   # Exit the script if any statement returns a non-true return value
-set -o nounset   # Exit the script if you try to use an uninitialized variable
-set -o errtrace  # Trace ERR through 'time command' and other functions
-set -o pipefail  # Trace ERR through pipes
-
-installing_eSignet   # Call function
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+set -o nounset   ## set -u : exit the script if you try to use an uninitialized variable
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o pipefail  # trace ERR through pipes
+installing_eSignet   # calling function
 
 echo "Informational message - Please refer deployment guide to know more about the mock replying party portal installation,"
 echo "having mock relying party portal installed will be helpful to verify the complete eSignet flow. "
