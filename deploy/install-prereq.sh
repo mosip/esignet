@@ -53,8 +53,7 @@ function installing_prerequisites() {
   echo "Creating esignet-global configmap in esignet namespace"
   kubectl -n $NS apply -f esignet-global-cm.yaml
 
-  #declare -a modules=("istio-gateway" "postgres" "captcha" "kafka" "redis" "hsm" "keycloak")
-  declare -a modules=("hsm"  "redis" "kafka" "captcha" "istio-gateway" "postgres" "apiaccesscontrol")
+  declare -a modules=("istio-gateway" "postgres" "kafka" "redis" "softhsm" "captcha" "apiaccesscontrol")
   declare -A prompts=(
     ["hsm"]="Do you want to deploy hsm for esignet service? Please opt for 'n' if you already have hsm installed :(s - for softhsm, e - external, p - for pkcs default): "
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace? Please opt for 'n' if you already have a kafka deployed: Press enter for default y: "
@@ -78,10 +77,10 @@ function installing_prerequisites() {
           prompt_for_input externalhsmpassword "Please provide the password for the externalhsm: "
 
           echo "Creating ConfigMap for external HSM client and host URL"
-          kubectl create configmap esignet-softhsm-share --from-literal=externalhsmclient="$externalhsmclient" --from-literal=externalhsmhosturl="$externalhsmhosturl" -n $NS --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create configmap esignet-softhsm-share --from-literal=externalhsmclient="$externalhsmclient" --from-literal=externalhsmhosturl="$externalhsmhosturl" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
 
           echo "Creating Secret for external HSM password"
-          kubectl create secret generic esignet-softhsm --from-literal=externalhsmpassword="$externalhsmpassword" -n $NS --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic esignet-softhsm --from-literal=externalhsmpassword="$externalhsmpassword" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
 
         elif [[ "$response" == "p" ]]; then
           echo "Proceeding with default PKCS 12."
@@ -103,9 +102,9 @@ function installing_prerequisites() {
         prompt_for_input redisport "Please provide the port number for the redis server: "
         prompt_for_input redispassword "Please provide the password for the redis server: "
         echo "Creating ConfigMap for Redis"
-        kubectl create configmap redis-config --from-literal=redis-host="$redishostname" --from-literal=redis-port="$redisport" -n $NS --dry-run=client -o yaml | kubectl apply -f -
+        kubectl create configmap redis-config --from-literal=redis-host="$redishostname" --from-literal=redis-port="$redisport" -n redis --dry-run=client -o yaml | kubectl apply -f -
         echo "Creating Secret for Redis password"
-        kubectl create secret generic redis --from-literal=redis-password="$redispassword" -n $NS --dry-run=client -o yaml | kubectl apply -f -
+        kubectl create secret generic redis --from-literal=redis-password="$redispassword" -n redis --dry-run=client -o yaml | kubectl apply -f -
       fi
 
       if [[ "$module" == "apiaccesscontrol"  && "$response" == "n"  ]]; then

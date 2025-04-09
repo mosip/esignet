@@ -46,7 +46,7 @@ function installing_eSignet() {
     plugin_no=$(cat /tmp/plugin_no.txt)
     rm /tmp/plugin_no.txt
   fi
-  echo "DEBUG: module=$module, plugin_no=$plugin_no"
+  #echo "DEBUG: module=$module, plugin_no=$plugin_no"
 
    # Run partner-onboarder if plugin_no is 2 (mosip-identity-plugin)
   if [[ "$module" == "esignet-with-plugins" && "$plugin_no" == "2" ]]; then

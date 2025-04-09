@@ -33,11 +33,11 @@ function installing_esignet_with_plugins() {
  helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
-  $COPY_UTIL configmap esignet-softhsm-share softhsm  || true
+  $COPY_UTIL configmap esignet-softhsm-share softhsm
   $COPY_UTIL configmap postgres-config postgres $NS
-  $COPY_UTIL configmap redis-config redis $NS || true
-  $COPY_UTIL secret esignet-softhsm softhsm $NS || true
-  $COPY_UTIL secret redis redis $NS || true
+  $COPY_UTIL configmap redis-config redis $NS
+  $COPY_UTIL secret esignet-softhsm softhsm $NS
+  $COPY_UTIL secret redis redis $NS
 
   while true; do
     read -p "Is Prometheus Service Monitor Operator deployed in the k8s cluster? (y/n): " response

@@ -19,7 +19,7 @@ fi
 echo "Checking if database '$MOSIP_DB_NAME' exists..."
 RESULT=$(PGPASSWORD=$SU_USER_PWD psql -U "$SU_USER" -h "$DB_SERVERIP" -p "$DB_PORT" -tAc "SELECT 1 FROM pg_database WHERE datname='$MOSIP_DB_NAME'")
 if [ "$RESULT" = "1" ]; then
-  echo "Database '$MOSIP_DB_NAME' already exists."
+  echo "Database '$MOSIP_DB_NAME' already exists, please reinitialise after deleting or renaming the same."
   exit 0
 else
   echo "eSignet database was not found. Running the db scripts to create and initialize the eSignet database."
