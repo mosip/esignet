@@ -53,7 +53,7 @@ function installing_prerequisites() {
   echo "Creating esignet-global configmap in esignet namespace"
   kubectl -n $NS apply -f esignet-global-cm.yaml
 
-  declare -a modules=("istio-gateway" "postgres" "kafka" "redis" "softhsm" "captcha" "apiaccesscontrol")
+  declare -a modules=("istio-gateway" "postgres" "kafka" "redis" "hsm" "captcha" "apiaccesscontrol")
   declare -A prompts=(
     ["hsm"]="Do you want to deploy hsm for esignet service? Please opt for 'n' if you already have hsm installed :(s - for softhsm, e - external, p - for pkcs default): "
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace? Please opt for 'n' if you already have a kafka deployed: Press enter for default y: "
