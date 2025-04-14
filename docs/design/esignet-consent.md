@@ -1,18 +1,35 @@
 # Overview
 
-User consent to share claims with a Relying Party is stored in eSignet. If a Relying Party modifies the requested claims, any previously stored consent is disregarded, and eSignet requires the user to provide fresh consent, regardless of earlier approvals.
+In an OIDC flow, consent is typically the user’s approval for a client (application) to access certain resources or data
+(scopes) on their behalf via eSignet.
 
-**Note:** During the QR code-based login, signed consent is stored. Wallet should send the signed consent to eSignet.
+eSignet will re-prompt for consent if the stored consent expires or if the client requests additional scopes later.On save
+of fresh user consent existing consent entry is deleted from the consent table, and a copy of the deleted entry is inserted in
+the consent_history table.
 
-On save of fresh user consent for a specific Relying Party, old entry is deleted from the consent table and an audit entry is added in the consent_history table with all the details.
+**Note:** On wallet-based login, signed consent is stored. Wallet should send the signed consent to eSignet.
 
-## 1.6.0 Changelist
+## Configurable consent lifetime
 
-Time bound the captured user consent. Time to consider the given consent is configurable at every Relying Party level. Fallback to default expires time(global configuration) if nothing is configured for a Relying Party.
+Let's say 'x' is a consent lifetime and 'y' is the access/ID token lifetime.
+Then, `x >= y` is always true in a user flow,
 
-Accepted minimum consent expire time is configurable. 
+Global configuration: By default, the value is infinite. Consent is saved indefinitely.
 
-TODO
+To override global configuration in the client additional configuration use the below key:
 
+`consent_expire_in_mins`
 
+* What happens when `consent_expire_in_mins` is not part of the client additional configuration?
+
+User consent is stored indefinitely. 
+
+* What happens when `consent_expire_in_mins` is less than the default access token expire time?
+
+The access token expire time is set equal to the consent expire time.
+
+* How should the client configure to request consent each time?
+
+Client should use `prompt` request query parameter with `consent` as value. When consent is received in the prompt parameter, 
+consent screen is displayed irrespective of the previously saved consent.
 

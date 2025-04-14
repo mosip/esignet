@@ -37,6 +37,10 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -81,7 +85,7 @@ public class ConsentHelperService {
         }
 
         Optional<ConsentDetail> consent = consentService.getUserConsent(userConsentRequest);
-        transaction.setConsentAction(consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction, consent.get(), linked));
+        transaction.setConsentAction( isConsentPrompt(transaction) || consent.isEmpty() ? ConsentAction.CAPTURE : evaluateConsentAction(transaction, consent.get(), linked));
         if (ConsentAction.NOCAPTURE.equals(transaction.getConsentAction()) && consent.isPresent()) {
             transaction.setAcceptedClaims(consent.get().getAcceptedClaims());
             transaction.setPermittedScopes(consent.get().getPermittedScopes());
@@ -127,6 +131,10 @@ public class ConsentHelperService {
                 log.error("Failed to hash the user consent", e);
                 throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
+
+            //set consent expires datetime
+            userConsent.setExpirydtimes(getConsentExpireDTimes(transaction.getConsentExpireMinutes()));
+
             consentService.saveUserConsent(userConsent);
             auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),transaction),null);
         }
@@ -185,12 +193,17 @@ public class ConsentHelperService {
     private ConsentAction evaluateConsentAction(OIDCTransaction transaction, ConsentDetail consentDetail, boolean linked) {
         String hash;
         try {
-            List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
-
             if(linked && !verifyConsentSignature(consentDetail,transaction)) {
                 log.error("Invalid consent signature found during linked authorization! CAPTURE consent action");
                 return ConsentAction.CAPTURE;
             }
+
+            if(isOlderDate(consentDetail.getExpiredtimes())) {
+                log.error("Consent expired! CAPTURE consent action");
+                return ConsentAction.CAPTURE;
+            }
+
+            List<String> authorizeScope = transaction.getRequestedAuthorizeScopes();
 
             // defaulting the essential boolean flag as false
             Map<String, Boolean> authorizeScopes = authorizeScope != null ? authorizeScope.stream()
@@ -265,5 +278,17 @@ public class ConsentHelperService {
 
     private boolean validateSignatureFormat(String signature) {
         return (StringUtils.isEmpty(signature) || signature.split("\\.").length!=2) ? false:true;
+    }
+
+    private boolean isConsentPrompt(OIDCTransaction transaction) {
+        return transaction.getPrompt() != null && Arrays.asList(transaction.getPrompt()).contains("consent");
+    }
+
+    private boolean isOlderDate(LocalDateTime localDateTime) {
+        return localDateTime != null && localDateTime.isBefore(LocalDateTime.now(ZoneOffset.UTC));
+    }
+
+    private LocalDateTime getConsentExpireDTimes(int consentExpireMinutes) {
+        return consentExpireMinutes <= 0 ?  null : LocalDateTime.now(ZoneOffset.UTC).plusMinutes(consentExpireMinutes).truncatedTo(ChronoUnit.SECONDS);
     }
 }
