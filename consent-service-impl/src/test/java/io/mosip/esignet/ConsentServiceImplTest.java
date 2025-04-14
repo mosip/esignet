@@ -8,9 +8,11 @@ package io.mosip.esignet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.spi.AuditPlugin;
+import io.mosip.esignet.core.dto.ClientDetail;
 import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
 import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.entity.ConsentDetail;
 import io.mosip.esignet.entity.ConsentHistory;
 import io.mosip.esignet.mapper.ConsentMapperImpl;
@@ -32,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 
 @Slf4j
@@ -46,6 +49,9 @@ public class ConsentServiceImplTest {
     ConsentHistoryRepository consentHistoryRepository;
 
     @Mock
+    ClientManagementService clientManagementService;
+
+    @Mock
     AuditPlugin auditWrapper;
 
     @InjectMocks
@@ -58,6 +64,7 @@ public class ConsentServiceImplTest {
     public void initialize() {
         ReflectionTestUtils.setField(consentMapper, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(consentService, "consentMapper", consentMapper);
+        Mockito.when(clientManagementService.getClientDetails(anyString())).thenReturn(new ClientDetail());
     }
 
     @Test

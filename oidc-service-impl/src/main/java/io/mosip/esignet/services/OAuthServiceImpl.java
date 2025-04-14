@@ -111,7 +111,7 @@ public class OAuthServiceImpl implements OAuthService {
             auditWrapper.logAudit(Action.DO_KYC_EXCHANGE, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(), transaction), null);
         }
 
-        TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped);
+        TokenResponse tokenResponse = getTokenResponse(transaction, isTransactionVCScoped, clientDetailDto.getAdditionalConfigConsentExpireInSecs());
         // cache kyc with access-token as key
         cacheUtilService.setUserInfoTransaction(transaction.getAHash(), transaction);
         auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
@@ -233,11 +233,11 @@ public class OAuthServiceImpl implements OAuthService {
         tokenService.verifyClientAssertionToken(clientId, jwk, clientAssertion,audience);
     }
 
-    private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped) {
+    private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped, Optional<Integer> consentExpireInSecs) {
         TokenResponse tokenResponse = new TokenResponse();
         String cNonce = isTransactionVCScoped ? securityHelperService.generateSecureRandomString(20) : null;
-        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
-        tokenResponse.setExpires_in(accessTokenExpireSeconds);
+        tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce, consentExpireInSecs));
+        tokenResponse.setExpires_in(consentExpireInSecs.orElse(accessTokenExpireSeconds));
         tokenResponse.setToken_type(Constants.BEARER);
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
@@ -246,7 +246,7 @@ public class OAuthServiceImpl implements OAuthService {
             tokenResponse.setC_nonce_expires_in(cNonceExpireSeconds);
         }
         else {
-            tokenResponse.setId_token(tokenService.getIDToken(transaction));
+            tokenResponse.setId_token(tokenService.getIDToken(transaction, consentExpireInSecs));
         }
         return tokenResponse;
     }

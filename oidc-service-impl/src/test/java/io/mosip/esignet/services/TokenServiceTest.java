@@ -34,6 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
 
@@ -76,7 +77,7 @@ public class TokenServiceTest {
         transaction.setProvidedAuthFactors(new HashSet<>());
         Mockito.when(authenticationContextClassRefUtil.getACRs(Mockito.any())).thenReturn(Arrays.asList("generated-code", "static-code"));
 
-        String token = tokenService.getIDToken(transaction);
+        String token = tokenService.getIDToken(transaction, Optional.empty());
         Assert.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
@@ -103,7 +104,7 @@ public class TokenServiceTest {
         transaction.setClientId("client-id");
         transaction.setPartnerSpecificUserToken("psut");
         transaction.setPermittedScopes(Arrays.asList("read", "write"));
-        String token = tokenService.getAccessToken(transaction, null);
+        String token = tokenService.getAccessToken(transaction, null, Optional.empty());
         Assert.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
@@ -118,7 +119,7 @@ public class TokenServiceTest {
         transaction.setClientId("client-id");
         transaction.setPartnerSpecificUserToken("psut");
         transaction.setPermittedScopes(Arrays.asList("read", "write"));
-        String token = tokenService.getAccessToken(transaction, "test_cnonce");
+        String token = tokenService.getAccessToken(transaction, "test_cnonce", Optional.empty());
         Assert.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));

@@ -9,9 +9,11 @@ package io.mosip.esignet.services;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
+import io.mosip.esignet.core.dto.ClientDetail;
 import io.mosip.esignet.core.dto.ConsentDetail;
 import io.mosip.esignet.core.dto.UserConsent;
 import io.mosip.esignet.core.dto.UserConsentRequest;
+import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.ConsentService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.entity.ConsentHistory;
@@ -48,6 +50,9 @@ public class ConsentServiceImpl implements ConsentService {
     @Autowired
     private ConsentMapper consentMapper;
 
+    @Autowired
+    private ClientManagementService clientManagementService;
+
     @Override
     public Optional<ConsentDetail> getUserConsent(UserConsentRequest userConsentRequest) {
 
@@ -74,14 +79,19 @@ public class ConsentServiceImpl implements ConsentService {
             consentRepository.deleteByClientIdAndPsuToken(userConsent.getClientId(), userConsent.getPsuToken());
             consentRepository.flush();
         }
+        ClientDetail clientDetail = clientManagementService.getClientDetails(userConsent.getClientId());
+        Optional<Integer> consentExpireInSecs = clientDetail.getAdditionalConfigConsentExpireInSecs();
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         //convert ConsentRequest to Entity
         ConsentHistory consentHistory = consentMapper.toConsentHistoryEntity(userConsent);
         consentHistory.setCreatedtimes(now);
+        consentExpireInSecs.ifPresent(expireInSecs -> consentHistory.setExpiredtimes(now.plusSeconds(expireInSecs)));
+
         consentHistoryRepository.save(consentHistory);
 
         io.mosip.esignet.entity.ConsentDetail consentDetail = consentMapper.toEntity(userConsent);
         consentDetail.setCreatedtimes(now);
+        consentExpireInSecs.ifPresent(expireInSecs -> consentDetail.setExpiredtimes(now.plusSeconds(expireInSecs)));
 
         ConsentDetail consentDetailDto = consentMapper.toDto(consentRepository.save(consentDetail));
         auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),

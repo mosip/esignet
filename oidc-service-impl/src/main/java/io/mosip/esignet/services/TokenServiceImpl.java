@@ -96,9 +96,9 @@ public class TokenServiceImpl implements TokenService {
 
 
     @Override
-    public String getIDToken(@NonNull OIDCTransaction transaction) {
+    public String getIDToken(@NonNull OIDCTransaction transaction, Optional<Integer> consentExpireInSecs) {
         JSONObject payload = buildIDToken(transaction.getPartnerSpecificUserToken(),
-                transaction.getClientId(), idTokenExpireSeconds, transaction, null);
+                transaction.getClientId(), consentExpireInSecs.orElse(idTokenExpireSeconds), transaction, null);
         payload.put(ACCESS_TOKEN_HASH, transaction.getAHash());
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
@@ -111,7 +111,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public String getAccessToken(OIDCTransaction transaction, String cNonce) {
+    public String getAccessToken(OIDCTransaction transaction, String cNonce, Optional<Integer> consentExpireSeconds) {
         JSONObject payload = new JSONObject();
         payload.put(ISS, issuerId);
         payload.put(SUB, transaction.getPartnerSpecificUserToken());
@@ -130,7 +130,7 @@ public class TokenServiceImpl implements TokenService {
                 payload.put(AUD, scopesResourceMapping.getOrDefault(result.get(), ""));
             }
         }
-        payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
+        payload.put(EXP, issueTime + (consentExpireSeconds.orElse(accessTokenExpireSeconds)));
         payload.put(CLIENT_ID, transaction.getClientId());
 
         if(cNonce != null) {
