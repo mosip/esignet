@@ -8,6 +8,7 @@ import { LoadingStates as states } from "../constants/states";
 import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
 import langConfigService from "../services/langConfigService";
+import JsonFormBuilder from "@anushase/json-form-builder/dist/JsonFormBuilder.umd";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -35,7 +36,7 @@ export default function Form({
   const [status, setStatus] = useState(states.LOADED);
 
   useEffect(() => {
-    if (window.DynamicFormBuilder && !window.__form_rendered__) {
+    if (JsonFormBuilder && !window.__form_rendered__) {
       // const formConfig = {
       //   schema: [
       //     {
@@ -96,7 +97,7 @@ export default function Form({
         },
       };
 
-      const form = window.DynamicFormBuilder(
+      const form = JsonFormBuilder(
         formConfig,
         "form-container",
         additionalConfig
@@ -104,8 +105,8 @@ export default function Form({
       form.render();
       formBuilderRef.current = form; // Save the form instance to the ref
       window.__form_rendered__ = true;
-    } else if (!window.DynamicFormBuilder) {
-      console.error("DynamicFormBuilder not loaded");
+    } else if (!JsonFormBuilder) {
+      console.error("JsonFormBuilder not loaded");
     }
 
     // Cleanup on unmount
@@ -126,7 +127,7 @@ export default function Form({
     isSubmitting.current = true;
 
     const formData = formBuilderRef.current?.getFormData();
-    console.log("Form Data:", formData);
+    console.log("Form Data:", formData); // for dev testing
 
     await authenticateUser(formData);
 

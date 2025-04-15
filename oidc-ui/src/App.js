@@ -36,22 +36,6 @@ function App() {
     },
   });
 
-  function loadExternalScript(src, callback) {
-    const script = document.createElement("script");
-    script.src = src;
-    script.defer = true;
-    script.onload = callback;
-    script.onerror = () => console.error(`Failed to load: ${src}`);
-    document.head.appendChild(script);
-  }
-
-  if (window._env_?.FORM_BUILDER_URL) {
-    loadExternalScript(window._env_.FORM_BUILDER_URL, () => {
-      console.log("DynamicFormBuilder loaded!");
-      // You can now use `window.DynamicFormBuilder` here
-    });
-  }
-
   //Loading rtlLangs
   useEffect(() => {
     try {
