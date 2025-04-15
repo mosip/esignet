@@ -118,6 +118,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(AUD, transaction.getClientId());
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
+        payload.put(AZP, transaction.getClientId());
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
         if(!CollectionUtils.isEmpty(transaction.getPermittedScopes())) {
             payload.put(SCOPE, String.join(SPACE, transaction.getPermittedScopes()));

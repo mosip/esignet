@@ -26,6 +26,7 @@ public interface TokenService {
     String C_NONCE = "c_nonce";
     String C_NONCE_EXPIRES_IN = "c_nonce_expires_in";
     String CLIENT_ID = "client_id";
+    String AZP = "azp";
 
 
     /**
