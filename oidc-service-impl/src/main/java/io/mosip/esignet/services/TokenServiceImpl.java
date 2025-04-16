@@ -49,6 +49,8 @@ import static io.mosip.esignet.core.constants.Constants.SPACE;
 @Service
 public class TokenServiceImpl implements TokenService {
 
+    private final int DEFAULT_VALIDITY = 60;
+
     @Autowired
     private SignatureService signatureService;
 
@@ -131,7 +133,7 @@ public class TokenServiceImpl implements TokenService {
                 payload.put(AUD, scopesResourceMapping.getOrDefault(result.get(), ""));
             }
         }
-        payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
+        payload.put(EXP, issueTime + getTokenExpireSeconds(transaction, accessTokenExpireSeconds));
         payload.put(CLIENT_ID, transaction.getClientId());
 
         if(cNonce != null) {
@@ -227,7 +229,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(AUD, audience);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
-        payload.put(EXP, issueTime + (validitySeconds<=0 ? 3600 : validitySeconds));
+        payload.put(EXP, issueTime + getTokenExpireSeconds(transaction, validitySeconds));
         payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
         payload.put(NONCE, nonce == null ? transaction.getNonce() : nonce);
         List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
@@ -242,5 +244,19 @@ public class TokenServiceImpl implements TokenService {
         signatureVerifyRequestDto.setJwtSignatureData(jwt);
         JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
         return responseDto.isSignatureValid();
+    }
+
+    private int getTokenExpireSeconds(OIDCTransaction transaction, int configuredTokenLifetime) {
+        configuredTokenLifetime = configuredTokenLifetime <=0 ? DEFAULT_VALIDITY : configuredTokenLifetime;
+
+        if(transaction.getConsentExpireMinutes() <= 0)
+            return configuredTokenLifetime;
+
+        int consentExpireSeconds = transaction.getConsentExpireMinutes() * 60;
+        if(consentExpireSeconds < configuredTokenLifetime) {
+            log.info("Consent expire time is less than the configured token expire time!!");
+            return consentExpireSeconds;
+        }
+        return configuredTokenLifetime;
     }
 }
