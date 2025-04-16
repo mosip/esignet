@@ -129,6 +129,38 @@ public class TokenServiceTest {
         Assert.assertNotNull(jsonObject.get(C_NONCE_EXPIRES_IN));
     }
 
+    @Test
+    public void getAccessToken_withConsentExpiryLessThanConfiguredTokenValidity_thenPass() throws JSONException {
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setClientId("client-id");
+        transaction.setPartnerSpecificUserToken("psut");
+        transaction.setPermittedScopes(Arrays.asList("read", "write"));
+
+        //Consent expire is set to 0, equivalent to not set
+        transaction.setConsentExpireMinutes(0);
+        String token = tokenService.getAccessToken(transaction, null);
+        Assert.assertNotNull(token);
+        JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        Assert.assertTrue( jsonObject.getInt(EXP) > IdentityProviderUtil.getEpochSeconds());
+
+        //consent expire is greater than access token expire datetime
+        transaction.setConsentExpireMinutes(2);
+        token = tokenService.getAccessToken(transaction, null);
+        Assert.assertNotNull(token);
+        jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        long diff = jsonObject.getInt(EXP) - IdentityProviderUtil.getEpochSeconds();
+        Assert.assertTrue( diff == 60);
+
+        //consent expire is less than access token expire datetime
+        ReflectionTestUtils.setField(tokenService, "accessTokenExpireSeconds", 180);
+        transaction.setConsentExpireMinutes(2);
+        token = tokenService.getAccessToken(transaction, null);
+        Assert.assertNotNull(token);
+        jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        diff = jsonObject.getInt(EXP) - IdentityProviderUtil.getEpochSeconds();
+        Assert.assertTrue( diff == 120);
+    }
+
     @Test(expected = InvalidRequestException.class)
     public void verifyClientAssertionToken_withExpiredTokenNotWithinClockSkew_thenException() throws JOSEException {
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 0);
