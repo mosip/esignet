@@ -55,7 +55,7 @@ function installing_prerequisites() {
 
   declare -a modules=("istio-gateway" "postgres" "kafka" "redis" "hsm" "captcha" "apiaccesscontrol")
   declare -A prompts=(
-    ["hsm"]="Do you want to deploy hsm for esignet service? Please opt for 'n' if you already have hsm installed :(s - for softhsm, e - external, p - for pkcs default): "
+    ["hsm"]="Do you want to deploy hsm for esignet service? Please opt for 'n' if you already have hsm installed :(s - for softhsm, e - external, p - for pkcs12 based key management from mounted file): "
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace? Please opt for 'n' if you already have a kafka deployed: Press enter for default y: "
     ["redis"]="Do you want to deploy redis in the redis namespace? Please opt for 'n' if you already have a kafka deployed  : Press enter for default y: "
     ["apiaccesscontrol"]="Do you want to access control the esignet client management APIs: Please opt for 'n' if not required. Press enter for default y: "
@@ -77,13 +77,13 @@ function installing_prerequisites() {
           prompt_for_input externalhsmpassword "Please provide the password for the externalhsm: "
 
           echo "Creating ConfigMap for external HSM client and host URL"
-          kubectl create configmap esignet-softhsm-share --from-literal=externalhsmclient="$externalhsmclient" --from-literal=externalhsmhosturl="$externalhsmhosturl" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create configmap esignet-softhsm-share --from-literal=hsm_client_zip_url_env="$externalhsmclient" --from-literal=PKCS11_PROXY_SOCKET="$externalhsmhosturl" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
 
           echo "Creating Secret for external HSM password"
-          kubectl create secret generic esignet-softhsm --from-literal=externalhsmpassword="$externalhsmpassword" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic esignet-softhsm --from-literal=security-pin="$externalhsmpassword" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
 
         elif [[ "$response" == "p" ]]; then
-          echo "Proceeding with default PKCS 12."
+          echo "Proceeding with PKCS12."
         elif [[ "$response" == "s" ]]; then
           cd "$ROOT_DIR/softhsm"
           ./install.sh
@@ -93,8 +93,8 @@ function installing_prerequisites() {
       if [[ "$module" == "kafka" && "$response" == "n" ]]; then
         prompt_for_input kafkaurl "Please provide the kafka URL: "
         echo "Creating ConfigMap for Kafka URL"
-        kubectl patch configmap esignet-global -n $NS --type merge -p "{\"data\": {\"mosip-kafka-host\": \"$kafkaurl\"}}"
-        #kubectl create configmap kafka-config --from-literal=kafkaurl="$kafkaurl" -n $NS --dry-run=client -o yaml | kubectl apply -f -
+        #kubectl patch configmap esignet-global -n $NS --type merge -p "{\"data\": {\"mosip-kafka-host\": \"$kafkaurl\"}}"
+        kubectl create configmap kafka-config --from-literal=SPRING_KAFKA_BOOTSTRAP-SERVERS="$kafkaurl" -n $NS --dry-run=client -o yaml | kubectl apply -f -
       fi
 
       if [[ "$module" == "redis" && "$response" == "n" ]]; then

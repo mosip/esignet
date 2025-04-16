@@ -21,7 +21,7 @@ if [ "$flag" = "n" ]; then
 fi
 
 NS=esignet
-CHART_VERSION=1.3.0-beta.1
+CHART_VERSION=0.0.1-develop
 
 echo Create $NS namespace
 kubectl create ns $NS || true
@@ -89,26 +89,55 @@ function installing_onboarder() {
       fi
     done
 
+    read -p "Please provide KEYCLOAK_EXTERNAL_URL: " KEYCLOAK_EXTERNAL_URL
+    if [ -z "KEYCLOAK_EXTERNAL_URL" ]; then
+      echo "ERROR: KEYCLOAK EXTERNAL URL not provided; EXITING;";
+      exit 1;
+    fi
+
+    read -p "Please provide KEYCLOAK ADMIN USER: " KEYCLOAK_ADMIN_USER
+    if [ -z "KEYCLOAK_ADMIN_USER" ]; then
+      echo "ERROR: KEYCLOAK ADMIN USER not provided; EXITING;";
+      exit 1;
+    fi
+    echo "Please provide KEYCLOAK ADMIN PASSWORD"
+    read -s KEYCLOAK_ADMIN_PASSWORD
+    if [ -z "KEYCLOAK_ADMIN_PASSWORD" ]; then
+        echo "ERROR: KEYCLOAK ADMIN PASSWORD not provided; EXITING;";
+        exit 1;
+    fi
+    read -p "Please provide PMS DOMIAN(ex: api-internal.sandbox.mosip.net): " PMS_DOMAIN
+    if [ -z "PMS_DOMAIN" ]; then
+      echo "ERROR: PMS DOMAIN not provided; EXITING;";
+      exit 1;
+    fi
+    echo "Please provide PMS CLIENT SECRET"
+    read -s PMS_CLIENT_SECRET
+    if [ -z "PMS_CLIENT_SECRET" ]; then
+        echo "ERROR: PMS_CLIENT_SECRET not provided; EXITING;";
+        exit 1;
+    fi
+
     echo "Istio label"
     kubectl label ns $NS istio-injection=disabled --overwrite
     helm repo update
 
-    echo "Copy configmaps"
-    COPY_UTIL=../deploy/copy_cm_func.sh
-    $COPY_UTIL configmap keycloak-env-vars keycloak $NS
-    $COPY_UTIL configmap keycloak-host keycloak $NS
+   kubectl -n $NS create configmap esignet-onboarder-config \
+   --from-literal=keycloak-external-url="$KEYCLOAK_EXTERNAL_URL" \
+   --from-literal=KEYCLOAK_ADMIN_USER="$KEYCLOAK_ADMIN_USER" \
+   --from-literal=mosip-api-internal-host="$PMS_DOMAIN" \
+   --dry-run=client -o yaml | kubectl apply -f -
 
-    $COPY_UTIL secret keycloak keycloak $NS
-    $COPY_UTIL secret keycloak-client-secrets keycloak $NS
+   kubectl -n $NS create secret generic esignet-onboarder-secrets \
+   --from-literal=admin-password="$KEYCLOAK_ADMIN_PASSWORD"  \
+   --from-literal=mosip_pms_client_secret="$PMS_CLIENT_SECRET"  \
+   --dry-run=client -o yaml | kubectl apply -f -
 
     echo "Onboarding Esignet MISIP partner client"
     helm -n $NS install esignet-misp-onboarder mosip/partner-onboarder \
       $NFS_OPTION \
       $S3_OPTION \
       --set onboarding.variables.push_reports_to_s3=$push_reports_to_s3 \
-      --set extraEnvVarsCM[0]=esignet-global \
-      --set extraEnvVarsCM[1]=keycloak-env-vars \
-      --set extraEnvVarsCM[2]=keycloak-host \
       $ENABLE_INSECURE \
       -f values.yaml \
       --version $CHART_VERSION \
