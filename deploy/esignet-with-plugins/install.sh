@@ -24,16 +24,13 @@ function installing_esignet_with_plugins() {
       fi
   done
 
-  echo Create $NS namespace
-  kubectl create ns $NS || true
-
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
-  $COPY_UTIL configmap esignet-softhsm-share softhsm
+  $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
   $COPY_UTIL secret esignet-softhsm softhsm $NS
@@ -164,7 +161,7 @@ EOF
     elif [[ "$plugin_no" == "3" ]]; then
       plugin_name="sunbird-rc-plugin.jar"
       read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
-      extra_env_vars_additional+="  - name: mosip_esignet_sunbird-rc_registry-get-url"$'\n'"    value: \"$sunbird_registry_url\""$'\n'
+      extra_env_vars_additional+="  - name: \"mosip_esignet_sunbird-rc_registry-get-url\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
       break
 
     elif [[ "$plugin_no" == "4" ]]; then
@@ -179,17 +176,18 @@ EOF
   done
 
   if kubectl get secret esignet-captcha -n "$NS" &>/dev/null; then
-    extra_env_vars_additional+=$'- name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY\n'
-    extra_env_vars_additional+=$'  valueFrom:\n'
-    extra_env_vars_additional+=$'    secretKeyRef:\n'
-    extra_env_vars_additional+=$'      name: esignet-captcha\n'
-    extra_env_vars_additional+=$'      key: esignet-captcha-site-key\n'
+    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_SITE_KEY\""$'\n'
+    extra_env_vars_additional+="    valueFrom:"$'\n'
+    extra_env_vars_additional+="      secretKeyRef:"$'\n'
+    extra_env_vars_additional+="        name: esignet-captcha"$'\n'
+    extra_env_vars_additional+="        key: esignet-captcha-site-key"$'\n'
   else
-    extra_env_vars_additional+=$'- name: MOSIP_ESIGNET_CAPTCHA_REQUIRED\n'
-    extra_env_vars_additional+=$'  value: ""\n'
-    extra_env_vars_additional+=$'- name: MOSIP_ESIGNET_CAPTCHA_SITE-KEY\n'
-    extra_env_vars_additional+=$'  value: ""\n'
+    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_REQUIRED\""$'\n'
+    extra_env_vars_additional+="    value: \"\""$'\n'
+    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_SITE-KEY\""$'\n'
+    extra_env_vars_additional+="    value: \"\""$'\n'
   fi
+
 
   # Combine pkcs12 and plugin-specific env vars
   plugin_env_file=$(mktemp)
@@ -205,6 +203,10 @@ EOF
 
   if [[ "$plugin_no" == "2" || "$plugin_no" == "3" ]]; then
     plugin_option="--set pluginNameEnv=$plugin_name -f $plugin_env_file"
+  fi
+
+  if [[ "$plugin_no" == "1" || "$plugin_no" == "4" ]]; then
+      plugin_option="$plugin_option -f $plugin_env_file"
   fi
 
   extra_env_vars_cm_set=""

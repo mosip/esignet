@@ -48,7 +48,7 @@ function installing_captcha() {
   done
 
   echo "Installing captcha"
-  helm -n $NS install captcha mosip/captcha --version $CHART_VERSION --set metrics.serviceMonitor.enabled=$servicemonitorflag --wait
+  helm -n $NS install captcha mosip/captcha --version $CHART_VERSION --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   echo "Installed captcha service"
 

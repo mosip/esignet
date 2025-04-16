@@ -16,7 +16,7 @@ function prompt_for_deployment() {
   local prompt_message=$2
   local response
 
-  if [[ "$module_name" == "hsm" || "$module_name" == "apiaccesscontrol" ]]; then
+  if [[ "$module_name" == "hsm" ]]; then
     read -p "$prompt_message" response
     echo "$response"
     return 0
@@ -33,8 +33,10 @@ function prompt_for_deployment() {
   done
 
   if [[ "$response" == "y" || "$response" == "Y" ]]; then
+    if [[ "$module_name" != "apiaccesscontrol" ]]; then
       cd "$ROOT_DIR/$module_name"
       ./install.sh
+    fi
   fi
 
   echo "$response"
@@ -57,7 +59,7 @@ function installing_prerequisites() {
   declare -A prompts=(
     ["hsm"]="Do you want to deploy hsm for esignet service? Please opt for 'n' if you already have hsm installed :(s - for softhsm, e - external, p - for pkcs12 based key management from mounted file): "
     ["kafka"]="Do you want to deploy Kafka in the kafka namespace? Please opt for 'n' if you already have a kafka deployed: Press enter for default y: "
-    ["redis"]="Do you want to deploy redis in the redis namespace? Please opt for 'n' if you already have a kafka deployed  : Press enter for default y: "
+    ["redis"]="Do you want to deploy redis in the redis namespace? Please opt for 'n' if you already have a redis deployed  : Press enter for default y: "
     ["apiaccesscontrol"]="Do you want to access control the esignet client management APIs: Please opt for 'n' if not required. Press enter for default y: "
   )
 
