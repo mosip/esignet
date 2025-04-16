@@ -178,6 +178,19 @@ EOF
     fi
   done
 
+  if kubectl get secret esignet-captcha -n "$NS" &>/dev/null; then
+    extra_env_vars_additional+=$'- name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY\n'
+    extra_env_vars_additional+=$'  valueFrom:\n'
+    extra_env_vars_additional+=$'    secretKeyRef:\n'
+    extra_env_vars_additional+=$'      name: esignet-captcha\n'
+    extra_env_vars_additional+=$'      key: esignet-captcha-site-key\n'
+  else
+    extra_env_vars_additional+=$'- name: MOSIP_ESIGNET_CAPTCHA_REQUIRED\n'
+    extra_env_vars_additional+=$'  value: ""\n'
+    extra_env_vars_additional+=$'- name: MOSIP_ESIGNET_CAPTCHA_SITE-KEY\n'
+    extra_env_vars_additional+=$'  value: ""\n'
+  fi
+
   # Combine pkcs12 and plugin-specific env vars
   plugin_env_file=$(mktemp)
   if [[ -n "${pkcs12_env_file:-}" ]]; then

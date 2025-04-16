@@ -247,11 +247,6 @@ extraEnvVars: |
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
-    valueFrom:
-      secretKeyRef:
-        name: esignet-captcha
-        key: esignet-captcha-site-key
   - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
     value: esignet
   - name: REDIS_HOST
