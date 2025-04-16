@@ -101,13 +101,13 @@ function App() {
       let defaultLang = window._env_.DEFAULT_LANG;
       // checking default language in 2 letter language code
       if (defaultLang in supportedLanguages) {
-        i18n.changeLanguage(defaultLang)
-        return
+        i18n.changeLanguage(defaultLang);
+        return;
       }
       // checking default language in 3 letter language code
       if (defaultLang in langCodeMapping) {
-        i18n.changeLanguage(langCodeMapping[defaultLang])
-        return
+        i18n.changeLanguage(langCodeMapping[defaultLang]);
+        return;
       }
     }
 
@@ -126,7 +126,11 @@ function App() {
     case states.LOADING:
       el = (
         <div className="h-screen flex justify-center content-center">
-          <LoadingIndicator size="medium" message={"loading_msg"} className="align-loading-center" />
+          <LoadingIndicator
+            size="medium"
+            message={"loading_msg"}
+            className="align-loading-center"
+          />
         </div>
       );
       break;
