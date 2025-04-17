@@ -314,6 +314,8 @@ extraEnvVars: |
       secretKeyRef:
         name: esignet-misp-onboarder-key
         key: mosip-esignet-misp-key
+  - name: MOSIP_ESIGNET_INTEGRATION_AUDIT-PLUGIN
+    value: LoggerAuditService
 
 extraEnvVarsAdditional: []
 

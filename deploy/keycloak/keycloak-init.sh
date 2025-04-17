@@ -27,7 +27,7 @@ MPARTNER_DEFAULT_MOBILE_SECRET_KEY='mpartner_default_mobile_secret'
 MPARTNER_DEFAULT_MOBILE_SECRET_VALUE=$(kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$MPARTNER_DEFAULT_MOBILE_SECRET_KEY} | base64 -d)
 
 echo "Copying keycloak configmaps and secret"
-$COPY_UTIL configmap keycloak-host keycloak $NS
+#$COPY_UTIL configmap keycloak-host keycloak $NS
 $COPY_UTIL configmap keycloak-env-vars keycloak $NS
 $COPY_UTIL secret keycloak keycloak $NS
 
@@ -47,6 +47,8 @@ helm -n $NS install esignet-keycloak-init mosip/keycloak-init \
   --set clientSecrets[4].name="$MPARTNER_DEFAULT_MOBILE_SECRET_KEY" \
   --set clientSecrets[4].secret="$MPARTNER_DEFAULT_MOBILE_SECRET_VALUE" \
   --set keycloak.realms.mosip.realm_config.attributes.frontendUrl="https://$IAMHOST_URL/auth" \
+  --set keycloakInternalHost="keycloak.keycloak" \
+  --set keycloakExternalHost="$IAMHOST_URL" \
   --version $CHART_VERSION --wait --wait-for-jobs
 
 MPARTNER_DEFAULT_AUTH_SECRET_VALUE=$(kubectl -n $NS get secrets keycloak-client-secrets -o jsonpath={.data.$MPARTNER_DEFAULT_AUTH_SECRET_KEY})
