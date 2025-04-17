@@ -65,7 +65,7 @@ function installing_esignet_with_plugins() {
   fi
 
   while true; do
-    read -p "For PKCS12, opt 'y' to enable volume (y/n) [ default: n ]: " enable_volume
+    read -p "For PKCS12 mounted keys, opt 'y' to enable volume (y/n) [ default: n ]: " enable_volume
     enable_volume=${enable_volume:-n}
 
     if [[ "$enable_volume" == "y" || "$enable_volume" == "Y" ]]; then
