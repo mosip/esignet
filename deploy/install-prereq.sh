@@ -17,7 +17,15 @@ function prompt_for_deployment() {
   local response
 
   if [[ "$module_name" == "hsm" ]]; then
-    read -p "$prompt_message" response
+    while true; do
+      read -p "$prompt_message" response
+      response=${response,,}  # convert to lowercase
+      if [[ "$response" =~ ^[sepn]$ ]]; then
+        break
+      else
+        echo "Incorrect input. Please enter one of the following: 's' for SoftHSM, 'e' for External HSM, 'p' for PKCS12, or 'n' to skip." >&2
+      fi
+    done
     echo "$response"
     return 0
   fi
@@ -85,7 +93,7 @@ function installing_prerequisites() {
           kubectl create secret generic esignet-softhsm --from-literal=security-pin="$externalhsmpassword" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
 
         elif [[ "$response" == "p" ]]; then
-          echo "Proceeding with PKCS12."
+          echo "To proceed with PKCS12, you will be asked to enable volume mounting during eSignet installation. Please make sure to enable it when prompted."
         elif [[ "$response" == "s" ]]; then
           cd "$ROOT_DIR/softhsm"
           ./install.sh
