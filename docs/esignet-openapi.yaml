@@ -1160,6 +1160,24 @@ paths:
                         enum:
                           - ACTIVE
                           - INACTIVE
+                      name:
+                        type: string
+                      rpId:
+                        type: string
+                      logoUri:
+                        type: string
+                      redirectUris:
+                        type: string
+                      publicKey:
+                        type: string
+                      acrValues:
+                        type: string
+                      grantTypes:
+                        type: string
+                      clientAuthMethods:
+                        type: string
+                      additionalConfig:
+                        type: object
                     required:
                       - clientId
                   errors:
@@ -1192,6 +1210,30 @@ paths:
                         response:
                           clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
                           status: ACTIVE
+                          name: Client Name
+                          rpId: relying-party-id
+                          logoUri: 'http://placeimg.com/640/480'
+                          redirectUris:
+                            - '\"https:\/\/healthservices.com\/userprofile\"'
+                            - '\"io.mosip.residentapp:\/\/oauth\"'
+                            - '\"http:\/\/localhost:3000\/**\"'
+                            - '\"http:\/\/localhost:5000\/registration\/*\"'
+                          claims:
+                            - \"name\"
+                            - \"email\"
+                            - \"gender\"
+                            - \"phone_number\"
+                            - \"picture\"
+                            - \"birthdate\"
+                          acrValues:
+                            - '\"mosip:idp:acr:generated-code\"'
+                            - '\"mosip:idp:acr:password\"'
+                            - '\"mosip:idp:acr:linked-wallet\"'
+                          grantTypes:
+                            - \"authorization_code\"
+                          clientAuthMethods:
+                            - \"private_key_jwt\"
+                          additionalConfig: null
                         errors: []
       security:
         - Authorization-update_oidc_client: []
@@ -1437,6 +1479,24 @@ paths:
                         enum:
                           - ACTIVE
                           - INACTIVE
+                      name:
+                        type: string
+                      rpId:
+                        type: string
+                      logoUri:
+                        type: string
+                      redirectUris:
+                        type: string
+                      publicKey:
+                        type: string
+                      acrValues:
+                        type: string
+                      grantTypes:
+                        type: string
+                      clientAuthMethods:
+                        type: string
+                      additionalConfig:
+                        type: object
                     required:
                       - clientId
                   errors:
@@ -1470,6 +1530,30 @@ paths:
                         response:
                           clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
                           status: ACTIVE
+                          name: Client Name
+                          rpId: relying-party-id
+                          logoUri: 'http://placeimg.com/640/480'
+                          redirectUris:
+                            - '\"https:\/\/healthservices.com\/userprofile\"'
+                            - '\"io.mosip.residentapp:\/\/oauth\"'
+                            - '\"http:\/\/localhost:3000\/**\"'
+                            - '\"http:\/\/localhost:5000\/registration\/*\"'
+                          claims:
+                            - \"name\"
+                            - \"email\"
+                            - \"gender\"
+                            - \"phone_number\"
+                            - \"picture\"
+                            - \"birthdate\"
+                          acrValues:
+                            - '\"mosip:idp:acr:generated-code\"'
+                            - '\"mosip:idp:acr:password\"'
+                            - '\"mosip:idp:acr:linked-wallet\"'
+                          grantTypes:
+                            - \"authorization_code\"
+                          clientAuthMethods:
+                            - \"private_key_jwt\"
+                          additionalConfig: null
                         errors: []
       security:
         - Authorization-update_oidc_client: []
@@ -5104,9 +5188,9 @@ paths:
                     response:
                       maskedEmail: XXdXXaXXhXXkX@gmail.com
                       maskedMobile: XXXXXXX357934
-                    errors: [ ]
+                    errors: []
       security:
-        - Authorization-send_binding_otp: [ ]
+        - Authorization-send_binding_otp: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
