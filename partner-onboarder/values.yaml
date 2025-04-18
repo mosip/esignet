@@ -14,6 +14,9 @@ onboarding:
   modules:
     - name: esignet
       enabled: true
+
+extraEnvVarsCM: []
+extraEnvVarsSecret: []
 #  configmaps:
 #    s3:
 #      s3-host: 'http://minio.minio:9000'

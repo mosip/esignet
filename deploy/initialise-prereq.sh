@@ -52,6 +52,6 @@ function initialising_prerequisites() {
 set -e
 set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 set -o nounset   ## set -u : exit the script if you try to use an uninitialized variable
-set -o errtrace  # trace ERR through 'time command' and other functions
-set -o pipefail  # trace ERR through pipes
-initialising_prerequisites   # calling function
+set -o errtrace  ## trace ERR through 'time command' and other functions
+set -o pipefail  ## trace ERR through pipes
+initialising_prerequisites     ##calling function

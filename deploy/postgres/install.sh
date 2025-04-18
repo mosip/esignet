@@ -17,7 +17,7 @@ function check_and_delete_secret() {
       echo "Secret $secret_name exists in namespace $secret_namespace."
       while true; do
   POSTGRES_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-postgres-host})
-  helm -n $NS install istio-addons chart/istio-addons --set postg          read -p "Do you want to delete secret $secret_name before installation? (Y/n): " yn
+   read -p "Do you want to delete secret $secret_name before installation? (Y/n): " yn
           if [ "$yn" = "Y" ] || [ "$yn" = "y" ]; then
               echo "Deleting secret $secret_name..."
               kubectl -n $secret_namespace delete secret $secret_name || { echo "Failed to delete secret $secret_name"; exit 1; }
@@ -63,7 +63,8 @@ function installing_postgres() {
 
 # Prompt the user if they want to install PostgreSQL
 while true; do
-    read -p "Do you want to install default Postgres ? (y/n): " answer
+    read -p "Do you want to deploy postgres in the postgres namespace? Please opt for 'n' if you already have a postgres server deployed : Press enter for default y: " answer
+    answer=${answer:-Y}
     if [ "$answer" = "Y" ] || [ "$answer" = "y" ]; then
         echo "Continuing with Postgres server deployment..."
         break  # Proceed with the installation

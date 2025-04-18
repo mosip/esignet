@@ -28,6 +28,7 @@
   * Copy `esignet-global-cm.yaml.sample` to `esignet-global-cm.yaml`.
   * Update the domain names in `esignet-global-cm.yaml` correctly for your environment.
   * Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/) and set esignet captcha.
+  * External IAM scope: [TODO]
 * Install pre-requisites
   ```
   ./install-prereq.sh
@@ -40,11 +41,10 @@
   ```
 ### Install esignet and oidc
 During deployment, the system will prompt for user input to select the appropriate plugin. The available options are listed below:
-1. esignet-mock-plugin.jar
-2. mosip-identity-plugin.jar
-
-For current scope of deployment, as it is limited to mock functionality, 
-select option 1 (esignet-mock-plugin.jar).
+1. esignet-mock-plugin
+2. mosip-identity-plugin
+3. sunbird-rc-plugin
+4. custom-plugin"
 ```
 ./install-esignet.sh
 ```
