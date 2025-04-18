@@ -142,6 +142,11 @@ function installing_onboarder() {
         break
       elif [[ "$use_external_keycloak" == "N" || "$use_external_keycloak" == "n" ]]; then
         KEYCLOAK_ARGS="--set extraEnvVarsCM={esignet-global,keycloak-env-vars,keycloak-host} --set extraEnvVarsSecret={keycloak,keycloak-client-secrets}"
+        echo "Copying configmaps and secrets..."
+        COPY_UTIL=../deploy/copy_cm_func.sh
+        $COPY_UTIL configmap keycloak-env-vars keycloak $NS
+        $COPY_UTIL secret keycloak keycloak $NS
+        $COPY_UTIL secret keycloak-client-secrets keycloak $NS
         break
       else
         echo "Invalid option. Please enter 'Y' or 'n'."
