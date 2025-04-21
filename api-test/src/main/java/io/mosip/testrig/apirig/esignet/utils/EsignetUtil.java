@@ -307,6 +307,9 @@ public class EsignetUtil extends AdminTestUtil {
 							&& endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
+			if ((testCaseName.contains("_CreateOIDCClientV3_") || testCaseName.contains("_UpdateOIDCClientV3_"))) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
 
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
