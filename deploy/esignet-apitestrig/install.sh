@@ -7,15 +7,13 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=1.5.0-develop
+CHART_VERSION=0.0.1-develop
 COPY_UTIL=../copy_cm_func.sh
 
 echo Create $NS namespace
 kubectl create ns $NS
 
 function installing_apitestrig() {
-  echo Istio label
-  kubectl label ns $NS istio-injection=disabled --overwrite
   helm repo update
 
   echo Copy Configmaps
