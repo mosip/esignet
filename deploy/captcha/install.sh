@@ -71,13 +71,13 @@ function installing_captcha() {
       ../copy_cm_func.sh secret esignet-captcha esignet $NS
 
       # Update or add environment variable
-      ENV_VAR_EXISTS=$(kubectl -n $NS get deployment captcha -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name=='MOSIP_CAPTCHA_SECRET_ESIGNET')].name}")
+      ENV_VAR_EXISTS=$(kubectl -n $NS get deployment captcha -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name=='MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET')].name}")
       if [[ -z "$ENV_VAR_EXISTS" ]]; then
-          echo "Environment variable 'MOSIP_CAPTCHA_SECRET_ESIGNET' does not exist. Adding it..."
-          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+          echo "Environment variable 'MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET' does not exist. Adding it..."
+          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
       else
-          echo "Environment variable 'MOSIP_CAPTCHA_SECRET_ESIGNET' exists. Updating it..."
-          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env[?(@.name==\"MOSIP_CAPTCHA_SECRET_ESIGNET\")]", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+          echo "Environment variable 'MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET' exists. Updating it..."
+          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env[?(@.name==\"MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET\")]", "value": {"name": "MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
       fi
 
       break
