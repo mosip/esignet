@@ -98,7 +98,8 @@
     "link_code_status": "ស្ថានភាពលេខកូដភ្ជាប់",
     "failed": "បរាជ័យ",
     "refresh": "ផ្ទុកកូដ QR ឡើងវិញ",
-    "open_wallet_app": "បើក {{walletName}} កម្មវិធី"
+    "open_wallet_app": "បើក {{walletName}} កម្មវិធី",
+    "wallet_header": "ស្កេនកូដ QR ជាមួយ {{walletName}} របស់អ្នក"
   },
   "otp": {
     "sign_in_with_otp": "ចូលប្រើតាមលេខកូដផ្ទៀតផ្ទាត់",

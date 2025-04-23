@@ -98,7 +98,8 @@
     "link_code_status": "ಲಿಂಕ್ ಕೋಡ್ ಸ್ಥಿತಿ",
     "failed": "ವಿಫಲವಾಗಿದೆ",
     "refresh": "QR ಕೋಡ್ ಅನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ",
-    "open_wallet_app": "{{walletName}} ಅಪ್ಲಿಕೇಶನ್ ತೆರೆಯಿರಿ"
+    "open_wallet_app": "{{walletName}} ಅಪ್ಲಿಕೇಶನ್ ತೆರೆಯಿರಿ",
+    "wallet_header": "ನಿಮ್ಮ {{walletName}} ಬಳಸಿ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"
   },
   "otp": {
     "sign_in_with_otp": "ಒಟಿಪಿ ಯೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",

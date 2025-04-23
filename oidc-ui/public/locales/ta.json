@@ -98,7 +98,8 @@
     "link_code_status": "இணைப்பு குறியீடு நிலை",
     "failed": "தோல்வி",
     "refresh": "QR குறியீட்டைப் புதுப்பிக்கவும்",
-    "open_wallet_app": "{{walletName}} பயன்பாட்டைத் திறக்கவும்"
+    "open_wallet_app": "{{walletName}} பயன்பாட்டைத் திறக்கவும்",
+    "wallet_header": "உங்கள் {{walletName}} ஐப் பயன்படுத்தி QR குறியீட்டை ஸ்கேன் செய்யவும்."
   },
   "otp": {
     "sign_in_with_otp": "OTP மூலம் உள்நுழையவும்",
