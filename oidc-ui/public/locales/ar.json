@@ -97,7 +97,8 @@
     "link_code_status": "حالة رمز الارتباط",
     "failed": "باءت بالفشل",
     "refresh": "قم بتحديث رمز الاستجابة السريعة",
-    "open_wallet_app": "{{walletName}} افتح تطبيق"
+    "open_wallet_app": "{{walletName}} افتح تطبيق",
+    "wallet_header": "امسح رمز الاستجابة السريعة باستخدام {{walletName}} الخاص بك"
   },
   "otp": {
     "sign_in_with_otp": "تسجيل الدخول باستخدام OTP",

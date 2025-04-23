@@ -97,7 +97,8 @@
     "link_code_status": "Link Code Status",
     "failed": "Failed",
     "refresh": "Refresh QR Code",
-    "open_wallet_app": "Open {{walletName}} App"
+    "open_wallet_app": "Open {{walletName}} App",
+    "wallet_header": "Scan the QR code with your {{walletName}}"
   },
   "otp": {
     "sign_in_with_otp": "Login with OTP",

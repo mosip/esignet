@@ -416,6 +416,10 @@ input[type="number"] {
   z-index: 50 !important;
 }
 
+.qr-title {
+  color: #696969;
+}
+
 @media screen and (max-width: 767px) {
   .multipurpose-login-card {
     border-radius: 0;

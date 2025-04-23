@@ -90,7 +90,7 @@ export const AppRouter = () => {
   return (
     <WithSuspense>
       <div className="section-background">
-        <section className="login-text body-font pt-0 md:py-4">
+        <section className="login-text body-font pt-0 md:py-7">
           <div className="container justify-center flex mx-auto sm:flex-row flex-col">
             {backgroundLogoDiv}
             <Routes>

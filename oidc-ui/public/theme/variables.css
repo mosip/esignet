@@ -91,8 +91,10 @@
   --login-card-box-hover-color: #eb6f2d;
   --login-card-box-focus-color: #eb6f2d;
   --login-background: #f7f9fd;
+  --login-background-image: #f7f9fd;
   --language-icon-color: #ffffff;
   --language-icon-bg-color: #eb6f2d;
+  --login-background-min-height: calc(100vh - 157.6px) !important;
   --brand-only-logo-url: url("/logo.png");
   --brand-logo-url: url("/images/brand_logo.png");
   --background-logo-url: url("/images/illustration_one.png");
@@ -143,8 +145,13 @@
   --multipurpose-login-card-background-color: #ffffff;
   --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
   --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
-  --login-client-logo-image-height: 2.75rem;
-  --login-client-logo-image-width: 2.75rem;
+  --top-left-bg-logo-display: block;
+  --bottom-left-bg-logo-display: none;
+  --top-right-bg-logo-display: none;
+  --bottom-right-bg-logo-display: block;
+  --footer-bg-color: #ffffff;
+  --login-client-logo-image-height: 3.5rem;
+  --login-client-logo-image-width: 3.5rem;
   --login-alternate-arrow: "\21C4";
   --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #333333;
