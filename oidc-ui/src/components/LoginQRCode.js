@@ -495,7 +495,7 @@ export default function LoginQRCode({
         )}
         {qr && (
           <>
-            <p className="text-center mb-3 relative bottom-3 qr-title">
+            <p className="text-center my-3 relative bottom-3 qr-title">
               {t1("wallet_header", {
                 walletName: walletDetail[walletConfigKeys.walletName],
               })}

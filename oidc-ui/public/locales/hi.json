@@ -116,8 +116,8 @@
     "otp_sent_msg": "आपके पंजीकृत {{otpChannels}} पर ओटीपी भेज दिया गया है",
     "resend_otp_counter": "{{min}}:{{sec}} में ओटीपी दोबारा भेजें",
     "mobile_placeholder": "मोबाइल नंबर: {{mobileNumber}}",
-    "email_placeholder": "ईमेल पता: {{emailAddress}}",
-    "mobile_email_placeholder": "मोबाइल नंबर: {{mobileNumber}} और ईमेल पता: {{emailAddress}}"
+    "email_placeholder": "ईमेल आईडी: {{emailAddress}}",
+    "mobile_email_placeholder": "मोबाइल नंबर: {{mobileNumber}} और ईमेल आईडी: {{emailAddress}}"
   },
   "signInOption": {
     "login_option_heading": "चुनें कि आप कैसे लॉगिन करना चाहते हैं:",

@@ -115,8 +115,8 @@
     "otp_sent_msg": "تم إرسال OTP إلى حسابك المسجل في {{otpChannels}}",
     "resend_otp_counter": "إعادة إرسال OTP في {{min}}:{{sec}}",
     "mobile_placeholder": "رقم الجوال: {{mobileNumber}}",
-    "email_placeholder": "عنوان البريد الإلكتروني: {{emailAddress}}",
-    "mobile_email_placeholder": "رقم الجوال: {{mobileNumber}} وعنوان البريد الإلكتروني: {{emailAddress}}"
+    "email_placeholder": "معرف البريد الإلكتروني: {{emailAddress}}",
+    "mobile_email_placeholder": "رقم الهاتف المحمول: {{mobileNumber}} ومعرف البريد الإلكتروني: {{emailAddress}}"
   },
   "signInOption": {
     "login_option_heading": "اختر كيف تريد تسجيل الدخول:",

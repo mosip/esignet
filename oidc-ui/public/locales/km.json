@@ -116,8 +116,8 @@
     "otp_sent_msg": "លេខសម្ងាត់ត្រូវបានផ្ញើទៅកាន់ {{otpChannels}} ដែលអ្នកបានចុះឈ្មោះ",
     "resend_otp_counter": "ផ្ញើលេខសម្ងាត់ឡើងវិញ {{min}}:{{sec}}",
     "mobile_placeholder": "លេខទូរសព្ទដៃ៖ {{mobileNumber}}",
-    "email_placeholder": "​អាសយដ្ឋាន​អ៊ីម៉ែល៖ {{emailAddress}}",
-    "mobile_email_placeholder": "លេខទូរសព្ទដៃ៖ {{mobileNumber}} និង ​អាសយដ្ឋាន​អ៊ីម៉ែល៖ {{emailAddress}}"
+    "email_placeholder": "លេខសម្គាល់អ៊ីមែល៖ {{emailAddress}}",
+    "mobile_email_placeholder": "លេខទូរសព្ទ៖ {{mobileNumber}} និងលេខសម្គាល់អ៊ីមែល៖ {{emailAddress}}"
   },
   "signInOption": {
     "login_option_heading": "ជ្រើសរើសរបៀបដែលអ្នកចង់ចូល៖",
