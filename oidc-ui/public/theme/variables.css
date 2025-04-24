@@ -155,12 +155,8 @@
   --login-alternate-arrow: "\21C4";
   --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #333333;
-  --login-card-separator: linear-gradient(
-    0deg,
-    rgb(0, 0, 0, 0.2) 0%,
-    rgb(0, 0, 0, 0.2) 100%
-  );
-  --login-card-separator-height: 1px;
+  --login-card-separator: linear-gradient(0deg, #fffbf7 0%, #ffffff 100%);
+  --login-card-separator-height: 20px;
   --footer-text-color: #898989;
   --footer-text-size: 14px;
   --language-check-icon-color: #eb6f2d;

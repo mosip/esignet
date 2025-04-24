@@ -191,7 +191,6 @@ export default function OtpGet({
             isRequired={field.isRequired}
             placeholder={t1(field.placeholder)}
             customClass={inputCustomClass}
-            imgPath="images/photo_scan.png"
             tooltipMsg="vid_info"
             prefix={field.prefix}
             errorCode={field.errorCode}

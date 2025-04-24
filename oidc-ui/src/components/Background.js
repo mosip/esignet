@@ -43,16 +43,16 @@ export default function Background({
         conditionalPadding
       }
     >
-      <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3">
+      <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3 mb-[2em]">
         <div className="w-full">
-          <h1 className="flex text-center justify-center title-font mb-3 font-bold text-gray-900 text-xl">
+          <h1 className="flex text-center justify-center title-font mb-3 font-semibold text-gray-900 text-[1.75em]">
             {heading}
           </h1>
-          <h1 className="text-center justify-center title-font mb-3 font-small text-[#838383] text-[14px]">
+          <h1 className="text-center justify-center title-font mb-3 font-small text-[#838383]">
             <Trans i18nKey="header.login_subheading" values={{ clientName: subheading }} components={{strong: <strong />}} />
           </h1>
         </div>
-        <div className="w-full flex mb-4 justify-center items-center">
+        <div className="w-full flex my-4 justify-center items-center">
           <img
             className="object-contain client-logo-size"
             src={clientLogoPath}

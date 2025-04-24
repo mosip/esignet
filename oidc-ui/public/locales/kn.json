@@ -116,8 +116,8 @@
     "otp_sent_msg": "ನಿಮ್ಮ ನೋಂದಾಯಿತ {{otpChannels}} ಗೆ ಒಟಿಪಿ ಅನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ",
     "resend_otp_counter": "{{min}}:{{sec}} ನಲ್ಲಿ OTP ಅನ್ನು ಮರುಕಳುಹಿಸಿ",
     "mobile_placeholder": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ: {{mobileNumber}}",
-    "email_placeholder": "ಇಮೇಲ್ ವಿಳಾಸ: {{emailAddress}}",
-    "mobile_email_placeholder": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ: {{mobileNumber}} ಮತ್ತು ಇಮೇಲ್ ವಿಳಾಸ: {{emailAddress}}"
+    "email_placeholder": "ಇಮೇಲ್ ಐಡಿ: {{ಇಮೇಲ್ ವಿಳಾಸ}}",
+    "mobile_email_placeholder": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ: {{mobileNumber}} ಮತ್ತು ಇಮೇಲ್ ಐಡಿ: {{emailAddress}}"
   },
   "signInOption": {
     "login_option_heading": "ನೀವು ಹೇಗೆ ಲಾಗಿನ್ ಆಗಬೇಕೆಂದು ಆರಿಸಿಕೊಳ್ಳಿ:",
