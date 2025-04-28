@@ -2,17 +2,20 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
-import { configurationKeys } from "../constants/clientConstants";
+import { buttonTypes, configurationKeys } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
-// import ReCAPTCHA from "react-google-recaptcha";
+import FormAction from "./FormAction";
+import InputWithImage from "./InputWithImage";
+import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
 import langConfigService from "../services/langConfigService";
-import JsonFormBuilder from "@anushase/json-form-builder/dist/JsonFormBuilder.umd";
 
+let fieldsState = {};
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function Form({
+  param,
   authService,
   openIDConnectService,
   backButtonDiv,
@@ -28,111 +31,33 @@ export default function Form({
     keyPrefix: i18nKeyPrefix2,
   });
 
-  const formBuilderRef = useRef(null); // Reference to form instance
-  const isSubmitting = useRef(false);
+  const inputCustomClass =
+    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
+
+  const fields = param;
+  fields.forEach((field) => (fieldsState["_form_" + field.id] = ""));
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
+
+  const [loginState, setLoginState] = useState(fieldsState);
+  const [error, setError] = useState(null);
   const [errorBanner, setErrorBanner] = useState([]);
+  const [inputErrorBanner, setInputErrorBanner] = useState([]);
   const [status, setStatus] = useState(states.LOADED);
-
-  useEffect(() => {
-    if (JsonFormBuilder && !window.__form_rendered__) {
-      // const formConfig = {
-      //   schema: [
-      //     {
-      //       id: "individualId",
-      //       controlType: "textbox",
-      //       label: [{ eng: "Policy Number" }],
-      //       validators: [
-      //         {
-      //           type: "regex",
-      //           validator: "",
-      //           langCode: "eng",
-      //           errorCode: "",
-      //         },
-      //       ],
-      //       alignmentGroup: "groupA",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //     {
-      //       id: "phoneNumber",
-      //       controlType: "textbox",
-      //       type: "simpleType",
-      //       label: [{ eng: "Phone Number" }, { khm: "លេខទូរស័ព្ទ" }],
-      //       validators: [
-      //         {
-      //           type: "regex",
-      //           validator: "",
-      //           langCode: "eng",
-      //           errorCode: "",
-      //         },
-      //       ],
-      //       alignmentGroup: "groupB",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //     {
-      //       id: "birthDate",
-      //       controlType: "date",
-      //       type: "date",
-      //       label: [{ eng: "Birth Date" }],
-      //       alignmentGroup: "groupC",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //   ],
-      //   mandatoryLanguages: ["eng"],
-      //   optionalLanguages: ["khm"],
-      // };
-
-      const formConfig = openIDConnectService.getEsignetConfiguration(
-        configurationKeys.authFactorKnowledgeFieldDetails
-      );
-
-      const additionalConfig = {
-        submitButton: {
-          label: t1("login"),
-          action: handleSubmit,
-        },
-      };
-
-      const form = JsonFormBuilder(
-        formConfig,
-        "form-container",
-        additionalConfig
-      );
-      form.render();
-      formBuilderRef.current = form; // Save the form instance to the ref
-      window.__form_rendered__ = true;
-    } else if (!JsonFormBuilder) {
-      console.error("JsonFormBuilder not loaded");
-    }
-
-    // Cleanup on unmount
-    return () => {
-      window.__form_rendered__ = false;
-      formBuilderRef.current = null;
-      const container = document.getElementById("form-container");
-      if (container) container.innerHTML = ""; // optional: clean old content
-    };
-  }, []);
+  const [invalidState, setInvalidState] = useState(true);
 
   useEffect(() => {}, []);
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    if (isSubmitting.current) return; // prevent multiple calls
-    isSubmitting.current = true;
+  const handleChange = (e) => {
+    onCloseHandle();
+    setLoginState({ ...loginState, [e.target.id]: e.target.value });
+  };
 
-    const formData = formBuilderRef.current?.getFormData();
-    console.log("Form Data:", formData); // for dev testing
-
-    await authenticateUser(formData);
-
-    // Reset after authentication is done
-    isSubmitting.current = false;
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    authenticateUser();
   };
 
   const captchaEnableComponents =
@@ -169,18 +94,28 @@ export default function Form({
   };
 
   //Handle Login API Integration here
-  const authenticateUser = async (formData) => {
+  const authenticateUser = async () => {
     try {
-      const { individualId, ...filtered } = formData;
       let transactionId = openIDConnectService.getTransactionId();
       let uin =
-        formData[
-          `${openIDConnectService.getEsignetConfiguration(
-            configurationKeys.authFactorKnowledgeIndividualIdField
-          )}`
+        loginState[
+          "_form_" +
+            openIDConnectService.getEsignetConfiguration(
+              configurationKeys.authFactorKnowledgeIndividualIdField
+            ) ?? ""
         ];
-      // let uin = formData["individualId"];
-      let challenge = btoa(JSON.stringify(filtered));
+      let challengeManipulate = {};
+      fields.forEach(function (field) {
+        if (
+          field.id !==
+          openIDConnectService.getEsignetConfiguration(
+            configurationKeys.authFactorKnowledgeIndividualIdField
+          )
+        ) {
+          challengeManipulate[field.id] = loginState["_form_" + field.id];
+        }
+      });
+      let challenge = btoa(JSON.stringify(challengeManipulate));
 
       let challengeList = [
         {
@@ -227,6 +162,7 @@ export default function Form({
         }
         return;
       } else {
+        setError(null);
         setErrorBanner(null);
         let nonce = openIDConnectService.getNonce();
         let state = openIDConnectService.getState();
@@ -267,8 +203,26 @@ export default function Form({
     loadComponent();
   }, []);
 
+  useEffect(() => {
+    setInvalidState(!Object.values(loginState).every((value) => value?.trim()));
+  }, [loginState]);
+
   const onCloseHandle = () => {
     setErrorBanner(null);
+  };
+
+  const onBlurChange = (e, errors) => {
+    let id = e.target.id;
+    let tempError = inputErrorBanner.map((_) => _);
+    if (errors.length > 0) {
+      tempError.push(id);
+    } else {
+      let errorIndex = tempError.findIndex((_) => _ === id);
+      if (errorIndex !== -1) {
+        tempError.splice(errorIndex, 1);
+      }
+    }
+    setInputErrorBanner(tempError);
   };
 
   return (
@@ -280,7 +234,7 @@ export default function Form({
         </div>
       </div>
 
-      {errorBanner !== null && errorBanner.show && (
+      {errorBanner !== null && (
         <div className="mb-4">
           <ErrorBanner
             showBanner={errorBanner.show}
@@ -290,8 +244,54 @@ export default function Form({
         </div>
       )}
 
-      <div id="form-container"></div>
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        {fields.map((field) => (
+          <div className="-space-y-px" key={"_form-div_" + field.id}>
+            <InputWithImage
+              key={"_form_" + field.id}
+              handleChange={handleChange}
+              blurChange={onBlurChange}
+              value={loginState["_form_" + field.id]}
+              labelText={t1(field.labelText)}
+              labelFor={field.labelFor}
+              id={"_form_" + field.id}
+              name={field.name}
+              type={field.type}
+              isRequired={field.isRequired}
+              placeholder={t1(field.placeholder)}
+              customClass={inputCustomClass}
+              imgPath={null}
+              icon={field.infoIcon}
+              maxLength={field.maxLength}
+              errorCode={field.errorCode}
+              regex={field.regex}
+            />
+          </div>
+        ))}
 
+        {showCaptcha && (
+          <div className="block password-google-reCaptcha">
+            <ReCAPTCHA
+              hl={i18n.language}
+              ref={_reCaptchaRef}
+              onChange={handleCaptchaChange}
+              sitekey={captchaSiteKey}
+              className="flex place-content-center"
+            />
+          </div>
+        )}
+
+        <FormAction
+          type={buttonTypes.submit}
+          text={t1("login")}
+          id="verify_form"
+          disabled={
+            invalidState ||
+            (inputErrorBanner && inputErrorBanner.length > 0) ||
+            (showCaptcha && captchaToken === null)
+          }
+        />
+      </form>
       {status === states.LOADING && (
         <div className="mt-2">
           <LoadingIndicator size="medium" message="authenticating_msg" />

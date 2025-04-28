@@ -65,7 +65,7 @@ function InitiateOtp(openIDConnectService, backButtonDiv, secondaryHeading) {
 
 function InitiateForm(openIDConnectService, backButtonDiv, secondaryHeading) {
   return React.createElement(Form, {
-    // param: generateFieldData(validAuthFactors.KBI, openIDConnectService),
+    param: generateFieldData(validAuthFactors.KBI, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
