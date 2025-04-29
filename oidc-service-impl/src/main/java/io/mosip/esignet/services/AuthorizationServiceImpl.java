@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.claim.*;
 import io.mosip.esignet.api.dto.KycAuthResult;
@@ -31,12 +32,17 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -106,6 +112,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private Environment environment;
+
+    @Value("${mosip.esignet.kbi.schema-url}")
+    private String schemaUrl;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    @PostConstruct
+    public void init() {
+        if (!(uiConfigMap instanceof HashMap)) {
+            uiConfigMap = new HashMap<>(uiConfigMap);
+        }
+        Object fieldDetails = uiConfigMap.get("auth.factor.kbi.field-details");
+        if (fieldDetails == null || (fieldDetails instanceof List && ((List<?>) fieldDetails).isEmpty())) {
+            JsonNode schemaJson = fetchSchemaFromResource(schemaUrl);
+            if (schemaJson != null) {
+                uiConfigMap.put("auth.factor.kbi.field-details", schemaJson);
+                log.info("Loaded KBI filed details from schema URL: {}", schemaUrl);
+            } else {
+                log.warn("Could not load KBI details from URL: {}", schemaUrl);
+            }
+        }
+    }
 
 
     @Override
@@ -527,4 +556,23 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
     }
 
+    private JsonNode fetchSchemaFromResource(String url) {
+        try (InputStream schemaResponse = getResource(url)) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readTree(schemaResponse);
+        } catch (IOException e) {
+            log.error("Error parsing the KBI specification schema: {}", e.getMessage(), e);
+            throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
+        }
+    }
+
+    private InputStream getResource(String url) {
+        try {
+            Resource resource = resourceLoader.getResource(url);
+            return resource.getInputStream();
+        } catch (IOException e) {
+            log.error("Failed to read schema resource: {}", url, e);
+            throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
+        }
+    }
 }
