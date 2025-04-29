@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { configurationKeys } from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
-// import ReCAPTCHA from "react-google-recaptcha";
 import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
 import langConfigService from "../services/langConfigService";
-import JsonFormBuilder from "@anushase/json-form-builder/dist/JsonFormBuilder.umd";
+import { JsonFormBuilder } from "@anushase/json-form-builder";
+import { Buffer } from "buffer";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -35,6 +35,38 @@ export default function Form({
   const [errorBanner, setErrorBanner] = useState([]);
   const [status, setStatus] = useState(states.LOADED);
 
+  const decodedBase64 = Buffer.from(
+    authService.getAuthorizeQueryParam(),
+    "base64"
+  ).toString();
+
+  // Function to extract query parameters
+  const getQueryParam = (url, param) => {
+    const urlParams = new URLSearchParams(url);
+    return urlParams.get(param);
+  };
+
+  // Fetch the value of ui_locales
+  const uiLocales = getQueryParam(decodedBase64, "ui_locales");
+
+  const captchaSiteKey =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.captchaSiteKey
+    ) ?? process.env.REACT_APP_CAPTCHA_SITE_KEY;
+
+  const captchaEnableComponents =
+    openIDConnectService.getEsignetConfiguration(
+      configurationKeys.captchaEnableComponents
+    ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
+
+  const captchaEnableComponentsList = captchaEnableComponents
+    .split(",")
+    .map((x) => x.trim().toLowerCase());
+
+  const [showCaptcha, setShowCaptcha] = useState(
+    captchaEnableComponentsList.indexOf("kbi") !== -1
+  );
+
   useEffect(() => {
     if (JsonFormBuilder && !window.__form_rendered__) {
       // const formConfig = {
@@ -42,12 +74,12 @@ export default function Form({
       //     {
       //       id: "individualId",
       //       controlType: "textbox",
-      //       label: [{ eng: "Policy Number" }],
+      //       label: { en: "Policy Number" },
       //       validators: [
       //         {
       //           type: "regex",
       //           validator: "",
-      //           langCode: "eng",
+      //           langCode: "en",
       //           errorCode: "",
       //         },
       //       ],
@@ -59,12 +91,16 @@ export default function Form({
       //       id: "phoneNumber",
       //       controlType: "textbox",
       //       type: "simpleType",
-      //       label: [{ eng: "Phone Number" }, { khm: "លេខទូរស័ព្ទ" }],
+      //       label: {
+      //         en: "Phone Number",
+      //         km: "លេខទូរស័ព្ទ",
+      //         ar: "رقم التليفون",
+      //       },
       //       validators: [
       //         {
       //           type: "regex",
       //           validator: "",
-      //           langCode: "eng",
+      //           langCode: "en",
       //           errorCode: "",
       //         },
       //       ],
@@ -76,14 +112,14 @@ export default function Form({
       //       id: "birthDate",
       //       controlType: "date",
       //       type: "date",
-      //       label: [{ eng: "Birth Date" }],
+      //       label: { en: "Birth Date", km: "ថ្ងៃខែឆ្នាំកំណើត" },
       //       alignmentGroup: "groupC",
       //       cssClasses: ["classA", "classB"],
       //       required: true,
       //     },
       //   ],
-      //   mandatoryLanguages: ["eng"],
-      //   optionalLanguages: ["khm"],
+      //   mandatoryLanguages: ["en"],
+      //   optionalLanguages: ["km", "ar"],
       // };
 
       const formConfig = openIDConnectService.getEsignetConfiguration(
@@ -94,6 +130,15 @@ export default function Form({
         submitButton: {
           label: t1("login"),
           action: handleSubmit,
+        },
+        recaptcha: {
+          siteKey: captchaSiteKey,
+          enabled: showCaptcha,
+          language: i18n.language,
+        },
+        language: {
+          currentLanguage: uiLocales,
+          defaultLanguage: window._env_.DEFAULT_LANG,
         },
       };
 
@@ -118,7 +163,9 @@ export default function Form({
     };
   }, []);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    formBuilderRef.current?.updateLanguage(i18n.language);
+  }, [i18n.language]);
 
   const navigate = useNavigate();
 
@@ -135,43 +182,10 @@ export default function Form({
     isSubmitting.current = false;
   };
 
-  const captchaEnableComponents =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.captchaEnableComponents
-    ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
-
-  const captchaEnableComponentsList = captchaEnableComponents
-    .split(",")
-    .map((x) => x.trim().toLowerCase());
-
-  const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("kbi") !== -1
-  );
-
-  const captchaSiteKey =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.captchaSiteKey
-    ) ?? process.env.REACT_APP_CAPTCHA_SITE_KEY;
-
-  const [captchaToken, setCaptchaToken] = useState(null);
-  const _reCaptchaRef = useRef(null);
-  const handleCaptchaChange = (value) => {
-    setCaptchaToken(value);
-  };
-
-  /**
-   * Reset the captcha widget
-   * & its token value
-   */
-  const resetCaptcha = () => {
-    _reCaptchaRef.current.reset();
-    setCaptchaToken(null);
-  };
-
   //Handle Login API Integration here
   const authenticateUser = async (formData) => {
     try {
-      const { individualId, ...filtered } = formData;
+      const { individualId, recaptchaToken, ...filtered } = formData;
       let transactionId = openIDConnectService.getTransactionId();
       let uin =
         formData[
@@ -196,7 +210,7 @@ export default function Form({
         transactionId,
         uin,
         challengeList,
-        captchaToken
+        recaptchaToken
       );
 
       setStatus(states.LOADED);
@@ -221,10 +235,6 @@ export default function Form({
             show: true,
           });
         }
-
-        if (showCaptcha) {
-          resetCaptcha();
-        }
         return;
       } else {
         setErrorBanner(null);
@@ -248,10 +258,6 @@ export default function Form({
         show: true,
       });
       setStatus(states.ERROR);
-
-      if (showCaptcha) {
-        resetCaptcha();
-      }
     }
   };
 
