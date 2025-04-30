@@ -665,9 +665,7 @@ nav {
   border-width: 1.75px;
 }
 
-#submit-button {
-  all: unset;
-  box-sizing: border-box;
+.form-button {
   width: 100%;
   padding: 0.75em;
   border: 1px solid var(--primary-button-border-color);
@@ -676,7 +674,6 @@ nav {
   color: var(--primary-button-color);
   background-color: var(--primary-button-bg-color);
   cursor: pointer;
-  display: inline-block;
   text-align: center;
 }
 
