@@ -113,7 +113,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private Environment environment;
 
-    @Value("${mosip.esignet.kbi.schema-url}")
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
     private String schemaUrl;
 
     @Autowired
@@ -126,12 +126,21 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         Object fieldDetails = uiConfigMap.get("auth.factor.kbi.field-details");
         if (fieldDetails == null || (fieldDetails instanceof List && ((List<?>) fieldDetails).isEmpty())) {
-            JsonNode schemaJson = fetchSchemaFromResource(schemaUrl);
-            if (schemaJson != null) {
-                uiConfigMap.put("auth.factor.kbi.field-details", schemaJson);
-                log.info("Loaded KBI filed details from schema URL: {}", schemaUrl);
-            } else {
-                log.warn("Could not load KBI details from URL: {}", schemaUrl);
+            if (schemaUrl == null || schemaUrl.trim().isEmpty()) {
+                log.info("No schema URL configured for KBI field details. Skipping schema load.");
+                return;
+            }
+
+            try {
+                JsonNode schemaJson = fetchSchemaFromResource(schemaUrl);
+                if (schemaJson != null) {
+                    uiConfigMap.put("auth.factor.kbi.field-details", schemaJson);
+                    log.info("Loaded KBI field details from schema URL: {}", schemaUrl);
+                } else {
+                    log.warn("Could not load KBI details from URL: {}", schemaUrl);
+                }
+            } catch (Exception e) {
+                log.error("Error loading schema from URL: {}", schemaUrl, e);
             }
         }
     }
