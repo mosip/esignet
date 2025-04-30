@@ -8,7 +8,6 @@ import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
 import langConfigService from "../services/langConfigService";
 import { JsonFormBuilder } from "@anushase/json-form-builder";
-import { Buffer } from "buffer";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -34,20 +33,6 @@ export default function Form({
   const buildRedirectParams = authService.buildRedirectParams;
   const [errorBanner, setErrorBanner] = useState([]);
   const [status, setStatus] = useState(states.LOADED);
-
-  const decodedBase64 = Buffer.from(
-    authService.getAuthorizeQueryParam(),
-    "base64"
-  ).toString();
-
-  // Function to extract query parameters
-  const getQueryParam = (url, param) => {
-    const urlParams = new URLSearchParams(url);
-    return urlParams.get(param);
-  };
-
-  // Fetch the value of ui_locales
-  const uiLocales = getQueryParam(decodedBase64, "ui_locales");
 
   const captchaSiteKey =
     openIDConnectService.getEsignetConfiguration(
@@ -137,7 +122,7 @@ export default function Form({
           language: i18n.language,
         },
         language: {
-          currentLanguage: uiLocales,
+          currentLanguage: i18n.language,
           defaultLanguage: window._env_.DEFAULT_LANG,
         },
       };
