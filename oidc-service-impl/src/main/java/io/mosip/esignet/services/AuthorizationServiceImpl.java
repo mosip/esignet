@@ -58,6 +58,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
 
+    private static final String KBI_FIELD_DETAILS_CONFIG_KEY = "auth.factor.kbi.field-details";
+
     @Autowired
     private ClientManagementService clientManagementService;
 
@@ -86,7 +88,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private ClaimsHelperService claimsHelperService;
 
     @Value("#{${mosip.esignet.ui.config.key-values}}")
-    private Map<String, Object> uiConfigMap;
+    private HashMap<String, Object> uiConfigMap;
 
     @Value("${mosip.esignet.auth-txn-id-length:10}")
     private int authTransactionIdLength;
@@ -114,34 +116,26 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private Environment environment;
 
     @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
-    private String schemaUrl;
+    private String KbiFormDetailsUrl;
 
     @Autowired
     private ResourceLoader resourceLoader;
 
     @PostConstruct
     public void init() {
-        if (!(uiConfigMap instanceof HashMap)) {
-            uiConfigMap = new HashMap<>(uiConfigMap);
+        if(KbiFormDetailsUrl == null || KbiFormDetailsUrl.isEmpty()) {
+            log.info("No kbi.field-details-url configured for KBI field details. Skipping url load.");
+            return;
         }
-        Object fieldDetails = uiConfigMap.get("auth.factor.kbi.field-details");
-        if (fieldDetails == null || (fieldDetails instanceof List && ((List<?>) fieldDetails).isEmpty())) {
-            if (schemaUrl == null || schemaUrl.trim().isEmpty()) {
-                log.info("No schema URL configured for KBI field details. Skipping schema load.");
+        try {
+            JsonNode fieldDetailsJson = fetchKBIFieldDetailsFromResource(KbiFormDetailsUrl);
+            if (fieldDetailsJson != null) {
+                uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY, fieldDetailsJson);
                 return;
             }
-
-            try {
-                JsonNode schemaJson = fetchSchemaFromResource(schemaUrl);
-                if (schemaJson != null) {
-                    uiConfigMap.put("auth.factor.kbi.field-details", schemaJson);
-                    log.info("Loaded KBI field details from schema URL: {}", schemaUrl);
-                } else {
-                    log.warn("Could not load KBI details from URL: {}", schemaUrl);
-                }
-            } catch (Exception e) {
-                log.error("Error loading schema from URL: {}", schemaUrl, e);
-            }
+            log.error("*** Empty KBI details from URL: {} ***", KbiFormDetailsUrl);
+        } catch (Exception e) {
+            log.error("Error loading form details from URL: {}", KbiFormDetailsUrl, e);
         }
     }
 
@@ -565,14 +559,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
     }
 
-    private JsonNode fetchSchemaFromResource(String url) {
-        try (InputStream schemaResponse = getResource(url)) {
+    private JsonNode fetchKBIFieldDetailsFromResource(String url) {
+        try (InputStream resp = getResource(url)) {
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readTree(schemaResponse);
+            return objectMapper.readTree(resp);
         } catch (IOException e) {
-            log.error("Error parsing the KBI specification schema: {}", e.getMessage(), e);
-            throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
+            log.error("Error parsing the KBI form details: {}", e.getMessage(), e);
         }
+        throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
     }
 
     private InputStream getResource(String url) {
@@ -580,7 +574,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             Resource resource = resourceLoader.getResource(url);
             return resource.getInputStream();
         } catch (IOException e) {
-            log.error("Failed to read schema resource: {}", url, e);
+            log.error("Failed to read resource from : {}", url, e);
             throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
         }
     }
