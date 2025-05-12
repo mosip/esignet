@@ -69,13 +69,52 @@ function installing_esignet() {
     ENABLE_INSECURE='--set enable_insecure=true';
   fi
 
+  while true; do
+    read -p "For PKCS12, opt 'y' to enable volume (y/n) [ default: n ]: " enable_volume
+    enable_volume=${enable_volume:-n}
+
+    if [[ "$enable_volume" == "y" || "$enable_volume" == "Y" ]]; then
+      enable_volume=true
+      break
+    elif [[ "$enable_volume" == "n" || "$enable_volume" == "N" ]]; then
+      enable_volume=false
+      break
+    else
+      echo "Invalid input. Please enter 'y' or 'n'."
+    fi
+  done
+
+  ESIGNET_HELM_ARGS=''
+  if [[ $enable_volume == 'true' ]]; then
+
+    default_volume_size=100M
+    read -p "Provide the size for volume [ default : 100M ]" volume_size
+    volume_size=${volume_size:-$default_volume_size}
+
+    default_volume_mount_path='/home/mosip/config/'
+    read -p "Provide the mount path for volume [ default : '/home/mosip/config/' ] : " volume_mount_path
+    volume_mount_path=${volume_mount_path:-$default_volume_mount_path}
+
+    PVC_CLAIM_NAME='esignet-pkcs12'
+    ESIGNET_HELM_ARGS="--set persistence.enabled=true  \
+            --set volumePermissions.enabled=true \
+            --set persistence.size=$volume_size \
+            --set persistence.mountDir=\"$volume_mount_path\" \
+            --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"  \
+            --set extraEnvVarsCM={'esignet-global','config-server-share','artifactory-share'} \
+            --set extraEnvVarsAdditional[0].name="MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE" \
+            --set extraEnvVarsAdditional[0].value="PKCS12" \
+            "
+  fi
+  echo "ESIGNET HELM ARGS $ESIGNET_HELM_ARGS"
+
   read -p "Provide the URL to download the plugins zip " plugin_url
   read -p "Provide the plugin jar name (with extension eg., test-plugin.jar) " plugin_jar
   plugin_option="--set pluginNameEnv=$plugin_jar --set pluginUrlEnv=$plugin_url"
 
   echo Installing esignet
   helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
-  --set image.repository=mosipid/esignet --set image.tag=1.5.1 \
+  $ESIGNET_HELM_ARGS \
   $ENABLE_INSECURE $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
