@@ -24,11 +24,6 @@ function installing_esignet_with_plugins() {
       fi
   done
 
-  ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
-
-  echo Create $NS namespace
-  kubectl create ns $NS || true
-
   echo Istio label
   kubectl label ns $NS istio-injection=enabled --overwrite
   helm repo add mosip https://mosip.github.io/mosip-helm
@@ -60,49 +55,174 @@ function installing_esignet_with_plugins() {
   read -p "" flag
 
   if [ -z "$flag" ]; then
-    echo "'flag' was provided; EXITING;"
+    echo "'flag' was not provided; EXITING;"
     exit 1;
   fi
+
   ENABLE_INSECURE=''
   if [ "$flag" = "n" ]; then
     ENABLE_INSECURE='--set enable_insecure=true';
   fi
 
   while true; do
-    read -p "Do you want to use the default plugins? (y/n): " ans
-    if [[ "$ans" == "y" || "$ans" == "Y" ]]; then
-      echo "Default plugins are listed below, please provide the correct plugin number."
-      echo "1. esignet-mock-plugin.jar"
-      echo "2. mosip-identity-plugin.jar"
-      read -p "Enter the plugin number: " plugin_no
-        while true; do
-          if [[ "$plugin_no" == "1" ]]; then
-            plugin_option="--set pluginNameEnv=esignet-mock-plugin.jar"
-            break
-          elif [[ "$plugin_no" == "2" ]]; then
-            plugin_option="--set pluginNameEnv=mosip-identity-plugin.jar"
-            break
-          else
-            echo "please provide the correct plugin number (1 or 2)."
-          fi
-        done
+    read -p "For PKCS12 mounted keys, opt 'y' to enable volume (y/n) [ default: n ]: " enable_volume
+    enable_volume=${enable_volume:-n}
+
+    if [[ "$enable_volume" == "y" || "$enable_volume" == "Y" ]]; then
+      enable_volume=true
       break
-    elif [[ "$ans" == "n" || "$ans" == "N" ]]; then
-      read -p "Provide the URL to download the plugins zip " plugin_url
-      read -p "Provide the plugin jar name (with extension eg., test-plugin.jar) " plugin_jar
-      plugin_option="--set pluginNameEnv=$plugin_jar --set pluginUrlEnv=$plugin_url"
+    elif [[ "$enable_volume" == "n" || "$enable_volume" == "N" ]]; then
+      enable_volume=false
       break
     else
-      echo " Invalid response. Please respond with y (yes) or n (no)."
+      echo "Invalid input. Please enter 'y' or 'n'."
     fi
   done
 
-  echo Installing esignet-with-plugins
-  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
-  $ENABLE_INSECURE $plugin_option \
-  --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
+  ESIGNET_HELM_ARGS=''
+  if [[ $enable_volume == 'true' ]]; then
+    default_volume_size=100M
+    read -p "Provide the size for volume [ default : 100M ]" volume_size
+    volume_size=${volume_size:-$default_volume_size}
 
-  kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
+    default_volume_mount_path='/home/mosip/config/'
+    read -p "Provide the mount path for volume [ default : '/home/mosip/config/' ] : " volume_mount_path
+    volume_mount_path=${volume_mount_path:-$default_volume_mount_path}
+
+    pkcs12_env_file=$(mktemp)
+    cat <<EOF > "$pkcs12_env_file"
+extraEnvVarsAdditional:
+  - name: MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE
+    value: "PKCS12"
+EOF
+
+    PVC_CLAIM_NAME='esignet-pkcs12'
+    ESIGNET_HELM_ARGS="--set persistence.enabled=true  \
+                       --set volumePermissions.enabled=true \
+                       --set persistence.size=$volume_size \
+                       --set persistence.mountDir=\"$volume_mount_path\" \
+                       --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"  \
+                      "
+  fi
+
+  echo "Please choose the required plugin to proceed with installation"
+  echo "1. esignet-mock-plugin"
+  echo "2. mosip-identity-plugin"
+  echo "3. sunbird-rc-plugin"
+  echo "4. custom-plugin"
+  read -p "Enter the plugin number: " plugin_no
+  echo "$plugin_no" > /tmp/plugin_no.txt
+
+  extra_env_vars_additional=""
+  plugin_option=""
+
+  while true; do
+    if [[ "$plugin_no" == "1" ]]; then
+      plugin_option="--set pluginNameEnv=esignet-mock-plugin.jar"
+      break
+
+    elif [[ "$plugin_no" == "2" ]]; then
+      plugin_name="mosip-identity-plugin.jar"
+      declare -A urls=(
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL"]="http://mosip-file-server.mosip-file-server/mosip-certs/ida-partner.cer"
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-AUTH-URL"]="http://ida-auth.ida/idauthentication/v1/kyc-auth/delegated/\${mosip.esignet.authenticator.ida.misp-license-key}/"
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-EXCHANGE-URL"]="http://ida-auth.ida/idauthentication/v1/kyc-exchange/delegated/\${mosip.esignet.authenticator.ida.misp-license-key}/"
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND-OTP-URL"]="http://ida-otp.ida/idauthentication/v1/otp/\${mosip.esignet.authenticator.ida.misp-license-key}/"
+        ["MOSIP_ESIGNET_BINDER_IDA_KEY-BINDING-URL"]="http://ida-auth.ida/idauthentication/v1/identity-key-binding/delegated/\${mosip.esignet.authenticator.ida.misp-license-key}/"
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_GET-CERTIFICATES-URL"]="http://ida-internal.ida/idauthentication/v1/internal/getAllCertificates"
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUTH-TOKEN-URL"]="http://authmanager.kernel/v1/authmanager/authenticate/clientidsecretkey"
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUDIT-MANAGER-URL"]="http://auditmanager.kernel/v1/auditmanager/audits"
+        ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_OTP-CHANNELS"]="email,phone"
+      )
+
+      ordered_keys=(
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL"
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-AUTH-URL"
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-EXCHANGE-URL"
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND-OTP-URL"
+        "MOSIP_ESIGNET_BINDER_IDA_KEY-BINDING-URL"
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_GET-CERTIFICATES-URL"
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUTH-TOKEN-URL"
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUDIT-MANAGER-URL"
+        "MOSIP_ESIGNET_AUTHENTICATOR_IDA_OTP-CHANNELS"
+      )
+
+      for key in "${ordered_keys[@]}"; do
+        if [[ "$key" == "MOSIP_ESIGNET_AUTHENTICATOR_IDA_OTP-CHANNELS" ]]; then
+          read -p "Default channels (${urls[$key]})  Please add required channels to override the default channels: " user_input
+        else
+          read -p "Default (${urls[$key]}) - Provide custom value (if applicable) to override the default url: " user_input
+        fi
+        value="${user_input:-${urls[$key]}}"
+        extra_env_vars_additional+="  - name: \"$key\""$'\n'"    value: \"$value\""$'\n'
+      done
+      break
+
+    elif [[ "$plugin_no" == "3" ]]; then
+      plugin_name="sunbird-rc-plugin.jar"
+      read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
+      extra_env_vars_additional+="  - name: \"mosip_esignet_sunbird-rc_registry-get-url\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
+      break
+
+    elif [[ "$plugin_no" == "4" ]]; then
+      read -p "Please provide the url for the custom plugin you want to use :  " plugin_url
+      read -p "Provide the plugin jar name (with extension eg., test-plugin.jar): " plugin_jar
+      plugin_option="--set pluginNameEnv=$plugin_jar --set pluginUrlEnv=$plugin_url"
+      break
+
+    else
+      echo "Please provide the correct plugin number (1, 2, 3, or 4)."
+    fi
+  done
+
+  if kubectl get secret esignet-captcha -n "$NS" &>/dev/null; then
+    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_SITE_KEY\""$'\n'
+    extra_env_vars_additional+="    valueFrom:"$'\n'
+    extra_env_vars_additional+="      secretKeyRef:"$'\n'
+    extra_env_vars_additional+="        name: esignet-captcha"$'\n'
+    extra_env_vars_additional+="        key: esignet-captcha-site-key"$'\n'
+  else
+    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_REQUIRED\""$'\n'
+    extra_env_vars_additional+="    value: \"\""$'\n'
+    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_SITE-KEY\""$'\n'
+    extra_env_vars_additional+="    value: \"\""$'\n'
+  fi
+
+
+  # Combine pkcs12 and plugin-specific env vars
+  plugin_env_file=$(mktemp)
+  if [[ -n "${pkcs12_env_file:-}" ]]; then
+    cat "$pkcs12_env_file" > "$plugin_env_file"
+    echo "$extra_env_vars_additional" >> "$plugin_env_file"
+  elif [[ -n "$extra_env_vars_additional" ]]; then
+    cat <<EOF > "$plugin_env_file"
+extraEnvVarsAdditional:
+$extra_env_vars_additional
+EOF
+  fi
+
+  if [[ "$plugin_no" == "2" || "$plugin_no" == "3" ]]; then
+    plugin_option="--set pluginNameEnv=$plugin_name -f $plugin_env_file"
+  fi
+
+  if [[ "$plugin_no" == "1" || "$plugin_no" == "4" ]]; then
+      plugin_option="$plugin_option -f $plugin_env_file"
+  fi
+
+  extra_env_vars_cm_set=""
+  if kubectl get configmap kafka-config -n "$NS" > /dev/null 2>&1; then
+    extra_env_vars_cm_set="--set extraEnvVarsCM={esignet-softhsm-share,kafka-config}"
+  fi
+
+
+  echo Installing esignet-with-plugins
+  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION  \
+    $ENABLE_INSECURE $plugin_option \
+    $ESIGNET_HELM_ARGS \
+    $extra_env_vars_cm_set \
+    --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
+
+  kubectl -n $NS get deploy -o name | xargs -n1 -t kubectl -n $NS rollout status
 
   echo Installed esignet-with-plugins service
   return 0
