@@ -19,8 +19,25 @@ function installing_oidc-ui() {
       fi
   done
 
+
+ # Prompt for theme
+  read -p "Please provide the theme for the eSignet UI. Please choose between ‘blue' or 'orange’ for esignet default theme : Press enter for the default theme. Please provide URL for the custom theme: " theme
+
+  # Prompt for default language
+  echo "Available languages: en, fr, ara"
+  read -p "Please choose the default language for eSignet (press enter for 'en'): " default_lang
+  if [[ -z "$default_lang" ]]; then
+    default_lang="en"
+  fi
+
+  # Prompt for ID Provider name
+  read -p "Please provide the name for eSignet : Note: This name would be used instead of eSignet on the login page and in other places: " id_provider_name
+  if [[ -z "$id_provider_name" ]]; then
+    id_provider_name="eSignet"
+  fi
+
   NS=esignet
-  CHART_VERSION=1.5.0-develop
+  CHART_VERSION=1.6.0-develop
 
   echo Create $NS namespace
   kubectl create ns $NS || true
@@ -37,8 +54,11 @@ function installing_oidc-ui() {
 
   echo Installing OIDC UI
   helm -n $NS install oidc-ui mosip/oidc-ui \
-  --set istio.hosts\[0\]=$ESIGNET_HOST \
-  --version $CHART_VERSION
+    --version $CHART_VERSION \
+    --set istio.hosts[0]=$ESIGNET_HOST \
+    --set oidc_ui.configmaps.oidc-ui.DEFAULT_THEME="$theme" \
+    --set oidc_ui.configmaps.oidc-ui.DEFAULT_LANG="$default_lang" \
+    --set oidc_ui.configmaps.oidc-ui.DEFAULT_ID_PROVIDER_NAME="$id_provider_name"
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 

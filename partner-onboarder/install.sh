@@ -21,7 +21,7 @@ if [ "$flag" = "n" ]; then
 fi
 
 NS=esignet
-CHART_VERSION=1.5.0-es-develop
+CHART_VERSION=0.0.1-develop
 
 echo Create $NS namespace
 kubectl create ns $NS || true
@@ -89,28 +89,82 @@ function installing_onboarder() {
       fi
     done
 
-    echo "Istio label"
-    kubectl label ns $NS istio-injection=disabled --overwrite
-    helm repo update
+    kubectl -n $NS delete configmap esignet-onboarder-config --ignore-not-found=true
+    kubectl -n $NS delete secret generic esignet-onboarder-secrets --ignore-not-found=true
+    while true; do
+      read -p "Are you using an external Keycloak instance? (Y/n): " use_external_keycloak
+      if [[ "$use_external_keycloak" == "Y" || "$use_external_keycloak" == "y" ]]; then
+        # External Keycloak config starts here
+        read -p "Please provide KEYCLOAK_EXTERNAL_URL: " KEYCLOAK_EXTERNAL_URL
+        if [ -z "$KEYCLOAK_EXTERNAL_URL" ]; then
+          echo "ERROR: KEYCLOAK EXTERNAL URL not provided; EXITING;"
+          exit 1
+        fi
 
-    echo "Copy configmaps"
-    COPY_UTIL=../deploy/copy_cm_func.sh
-    $COPY_UTIL configmap keycloak-env-vars keycloak $NS
-    $COPY_UTIL configmap keycloak-host keycloak $NS
+        read -p "Please provide KEYCLOAK ADMIN USER: " KEYCLOAK_ADMIN_USER
+        if [ -z "$KEYCLOAK_ADMIN_USER" ]; then
+          echo "ERROR: KEYCLOAK ADMIN USER not provided; EXITING;"
+          exit 1
+        fi
 
-    $COPY_UTIL secret keycloak keycloak $NS
-    $COPY_UTIL secret keycloak-client-secrets keycloak $NS
+        echo "Please provide KEYCLOAK ADMIN PASSWORD"
+        read -s KEYCLOAK_ADMIN_PASSWORD
+        if [ -z "$KEYCLOAK_ADMIN_PASSWORD" ]; then
+          echo "ERROR: KEYCLOAK ADMIN PASSWORD not provided; EXITING;"
+          exit 1
+        fi
+
+        read -p "Please provide PMS DOMAIN (ex: api-internal.sandbox.mosip.net): " PMS_DOMAIN
+        if [ -z "$PMS_DOMAIN" ]; then
+          echo "ERROR: PMS DOMAIN not provided; EXITING;"
+          exit 1
+        fi
+
+        echo "Please provide PMS CLIENT SECRET"
+        read -s PMS_CLIENT_SECRET
+        if [ -z "$PMS_CLIENT_SECRET" ]; then
+          echo "ERROR: PMS CLIENT SECRET not provided; EXITING;"
+          exit 1
+        fi
+
+        kubectl -n $NS create configmap esignet-onboarder-config \
+          --from-literal=keycloak-external-url="$KEYCLOAK_EXTERNAL_URL" \
+          --from-literal=KEYCLOAK_ADMIN_USER="$KEYCLOAK_ADMIN_USER" \
+          --from-literal=mosip-api-internal-host="$PMS_DOMAIN" \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+        kubectl -n $NS create secret generic esignet-onboarder-secrets \
+          --from-literal=admin-password="$KEYCLOAK_ADMIN_PASSWORD" \
+          --from-literal=mosip_pms_client_secret="$PMS_CLIENT_SECRET" \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+        KEYCLOAK_ARGS="--set extraEnvVarsCM={esignet-onboarder-config} --set extraEnvVarsSecret={esignet-onboarder-secrets}"
+        break
+      elif [[ "$use_external_keycloak" == "N" || "$use_external_keycloak" == "n" ]]; then
+        KEYCLOAK_ARGS="--set extraEnvVarsCM={esignet-global,keycloak-env-vars,keycloak-host} --set extraEnvVarsSecret={keycloak,keycloak-client-secrets}"
+        echo "Copying configmaps and secrets..."
+        COPY_UTIL=../deploy/copy_cm_func.sh
+        $COPY_UTIL configmap keycloak-env-vars keycloak $NS
+        $COPY_UTIL secret keycloak keycloak $NS
+        $COPY_UTIL secret keycloak-client-secrets keycloak $NS
+        break
+      else
+        echo "Invalid option. Please enter 'Y' or 'n'."
+      fi
+    done
+
+   echo "Istio label"
+   kubectl label ns $NS istio-injection=disabled --overwrite
+   helm repo update
 
     echo "Onboarding Esignet MISIP partner client"
     helm -n $NS install esignet-misp-onboarder mosip/partner-onboarder \
       $NFS_OPTION \
       $S3_OPTION \
       --set onboarding.variables.push_reports_to_s3=$push_reports_to_s3 \
-      --set extraEnvVarsCM[0]=esignet-global \
-      --set extraEnvVarsCM[1]=keycloak-env-vars \
-      --set extraEnvVarsCM[2]=keycloak-host \
       $ENABLE_INSECURE \
       -f values.yaml \
+      $KEYCLOAK_ARGS \
       --version $CHART_VERSION \
       --wait --wait-for-jobs
     echo "Partner onboarder executed and reports are moved to S3 or NFS please check the same to make sure partner was onboarded sucessfully."
