@@ -40,9 +40,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -96,6 +100,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     CaptchaHelper captchaHelper;
+
+    @Mock
+    ResourceLoader resourceLoader;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -1622,6 +1629,60 @@ public class AuthorizationServiceTest {
         }catch(EsignetException e){
             Assert.assertEquals("invalid_transaction",e.getErrorCode());
         }
+    }
+
+    @Test
+    public void init_whenKbiFormDetailsUrlIsNull_shouldSkipLoading() {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", null);
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertTrue(uiConfig.isEmpty());
+    }
+
+    @Test
+    public void init_whenKbiFormDetailsUrlIsEmpty_shouldSkipLoading() {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", "");
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertTrue(uiConfig.isEmpty());
+    }
+
+    @Test
+    public void init_whenValidKbiFormDetails_shouldLoadConfig() throws Exception {
+        String json = "{\"field1\": \"value1\"}";
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes());
+
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getInputStream()).thenReturn(inputStream);
+
+        when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
+        ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
+        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", "classpath:/test/kbi-field.json");
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get("auth.factor.kbi.field-details"));
+    }
+
+    @Test
+    public void init_whenKbiFormDetailsEmptyJson_shouldLogError() throws Exception {
+        String json = "";
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes());
+
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getInputStream()).thenReturn(inputStream);
+        when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
+
+        ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
+        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertFalse(uiConfig.containsKey("KBI_FIELD_DETAILS_CONFIG_KEY"));
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {
