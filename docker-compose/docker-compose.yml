@@ -17,7 +17,7 @@ services:
     restart: always
 
   mock-identity-system:
-    image: 'mosipdev/mock-identity-system:release-0.10.x'
+    image: 'mosipdev/mock-identity-system:release-0.11.x'
     user: root
     ports:
       - 8082:8082
@@ -28,11 +28,12 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - MOSIP_MOCK_IDA_KYC_TRANSACTION_TIMEOUT_SECS=900
+      - MOSIP_ESIGNET_HOST=localhost:8088
     depends_on:
       - database
 
   esignet:
-    image: 'mosipdev/esignet-with-plugins'
+    image: 'mosipdev/esignet-with-plugins:release-1.6.x'
     user: root
     ports: 
       - 8088:8088
@@ -46,13 +47,15 @@ services:
       - SPRING_CACHE_TYPE=redis
       - SPRING_REDIS_HOST=redis-server
       - SPRING_REDIS_PASSWORD=
+      - KAFKA_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
     depends_on:
       - database
       - mock-identity-system
       - redis
 
   esignet-ui:
-    image: 'mosipdev/oidc-ui:develop'
+    image: 'mosipdev/oidc-ui:release-1.6.x'
     user: root
     ports:
       - 3000:3000
