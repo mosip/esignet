@@ -198,7 +198,6 @@ export default function OtpGet({
       let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
 
       let ID = prefix + id + postfix;
-      // let ID = id;
 
       let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
 

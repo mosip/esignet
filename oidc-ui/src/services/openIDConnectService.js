@@ -80,7 +80,7 @@ class openIDConnectService {
     let sha256Hash = sha256(JSON.stringify(this.oAuthDetails));
     let hashB64 = Base64.stringify(sha256Hash);
     // Remove padding characters
-    hashB64 = hashB64.replace(/=+$/, "");
+    hashB64 = hashB64.split('=')[0];
     // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
     hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
     return hashB64;
@@ -111,7 +111,7 @@ class openIDConnectService {
     return {
       label: authFactor[0].type,
       value: authFactor[0],
-      icon: modalityIconPath[authFactor[0].type],
+      icon: authFactor[0].type === "PWD" ? modalityIconPath["PSWD"] : modalityIconPath[authFactor[0].type],
       id: `login_with_${authFactor[0].type.toLowerCase()}`,
     };
   };

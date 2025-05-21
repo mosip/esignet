@@ -207,7 +207,7 @@ export default function InputWithImage({
                         transform="translate(-80 880)"
                         fill="#2D86BA"
                         stroke="#2D86BA"
-                        stroke-width="0.5"
+                        strokeWidth="0.5"
                       />
                     </g>
                   </svg>
@@ -221,6 +221,7 @@ export default function InputWithImage({
                 <img
                   src={infoIcon}
                   className="mx-1 mt-[2px] w-[15px] h-[14px] relative bottom-[1px]"
+                  alt="info-icon"
                 />
               }
               content={
@@ -258,7 +259,7 @@ export default function InputWithImage({
       >
         {imgPath && (
           <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0 z-[11]">
-            <img className="w-6 h-6" src={imgPath} />
+            <img className="w-6 h-6" src={imgPath} alt=""/>
           </div>
         )}
         {prefix && prefix !== "" && <span className="prefix">{prefix}</span>}
@@ -286,11 +287,14 @@ export default function InputWithImage({
             type="button"
             className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 hover:cursor-pointer z-50"
             onClick={changePasswordState}
+            onKeyDown={changePasswordState}
+            role="button"
+            tabIndex={0}
           >
             {showPassword ? (
-              <img className="w-6 h-6" src={passwordShowIcon} />
+              <img className="w-6 h-6" src={passwordShowIcon} alt="close-eye"/>
             ) : (
-              <img className="w-6 h-6" src={passwordHideIcon} />
+              <img className="w-6 h-6" src={passwordHideIcon} alt="open-eye"/>
             )}
           </span>
         )}

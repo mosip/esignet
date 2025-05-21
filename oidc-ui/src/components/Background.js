@@ -41,11 +41,13 @@ export default function Background({
   };
 
   useEffect(() => {
-    if (clientAdditionalConfig?.[configurationKeys.signupBannerRequired]) {
-      toggleSignupBanner(configurationKeys.signupBannerRequired);
+    if (configurationKeys.signupBannerRequired in clientAdditionalConfig) {
+      toggleSignupBanner(
+        clientAdditionalConfig[configurationKeys.signupBannerRequired]
+      );
     } else {
-      if (signupConfig?.[configurationKeys.signupBanner]) {
-        toggleSignupBanner(configurationKeys.signupBanner);
+      if (configurationKeys.signupBanner in signupConfig) {
+        toggleSignupBanner(signupConfig[configurationKeys.signupBanner]);
       } else {
         setSignupBanner(false);
       }
@@ -79,7 +81,12 @@ export default function Background({
               className="text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
               id="login-subheader"
             >
-              <Trans i18nKey={i18nKeyPrefix + "." + subheading} defaults={subheading} values={{ clientName: clientName }} components={{ strong: <strong /> }} />
+              <Trans
+                i18nKey={i18nKeyPrefix + "." + subheading}
+                defaults={subheading}
+                values={{ clientName: clientName }}
+                components={{ strong: <strong /> }}
+              />
             </h1>
           )}
         </div>
