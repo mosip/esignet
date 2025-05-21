@@ -34,7 +34,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
   mock-identity-system:
-    image: 'mosipdev/mock-identity-system:release-0.10.x'
+    image: 'mosipdev/mock-identity-system:release-0.11.x'
     user: root
     ports:
       - 8082:8082
@@ -44,5 +44,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - MOSIP_ESIGNET_HOST=localhost:8088
     depends_on:
       - database
