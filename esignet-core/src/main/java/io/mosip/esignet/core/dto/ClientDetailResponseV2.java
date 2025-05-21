@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Data
 public class ClientDetailResponseV2 extends ClientDetailResponse {
-    private String name;
+   /* private String name;
     private String rpId;
     private String logoUri;
     private String redirectUris;
@@ -17,5 +17,5 @@ public class ClientDetailResponseV2 extends ClientDetailResponse {
     private String acrValues;
     private String grantTypes;
     private String clientAuthMethods;
-    private JsonNode additionalConfig;
+    private JsonNode additionalConfig;*/
 }
