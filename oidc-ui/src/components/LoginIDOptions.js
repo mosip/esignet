@@ -47,58 +47,6 @@ const LoginIDOptions = (props) => {
     ];
   }
 
-  // const loginIDs = [
-  //   {
-  //     id: "mobile",
-  //     svg: "mobile_icon",
-  //     prefixes: [
-  //       {
-  //         label: "IND",
-  //         value: "+91",
-  //         maxLength: "",
-  //         regex: "",
-  //       },
-  //       {
-  //         label: "KHM",
-  //         value: "+855",
-  //         regex: "^[a-zA-Z]+$"
-  //       },
-  //       {
-  //         label: "USA",
-  //         value: "+1",
-  //         maxLength: "5"
-  //       },
-  //     ],
-  //     postfix: "@phone",
-  //     maxLength: 10,
-  //     regex: "^\\d*$",
-  //   },
-  //   {
-  //     id: "nrc",
-  //     svg: "nrc_id_icon",
-  //     prefixes: "",
-  //     postfix: "@NRC",
-  //     maxLength: 5,
-  //     regex: "^\\d*$",
-  //   },
-  //   {
-  //     id: "vid",
-  //     svg: "vid_icon",
-  //     prefixes: "",
-  //     postfix: "@ID",
-  //     maxLength: "",
-  //     regex: "^\\d*$",
-  //   },
-  //   {
-  //     id: "email",
-  //     svg: "email_icon",
-  //     prefixes: "",
-  //     postfix: "@email",
-  //     maxLength: 10,
-  //     regex: "",
-  //   },
-  // ];
-
   const [iconsMap, setIconsMap] = useState({}); // To store preloaded SVGs
   const fetchSvg = async (path) => {
     try {

@@ -40,7 +40,7 @@ export default function ConsentPage() {
   const getOauthDetailsHash = async (value) => {
     let sha256Hash = sha256(JSON.stringify(value));
     let hashB64 = Base64.stringify(sha256Hash)
-      .replace(/=+$/, "")
+      .split("=")[0]
       .replace(/\+/g, "-")
       .replace(/\//g, "_");
     return hashB64;

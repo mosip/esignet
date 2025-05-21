@@ -69,8 +69,8 @@ export default function Password({
     configurationKeys.loginIdOptions
   );
 
-  let forgotPasswordConfig = openIDConnectService.getEsignetConfiguration(
-    configurationKeys.forgotPasswordConfig
+  let forgotPswdConfig = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.forgotPswdConfig
   );
 
   let clientAdditionalConfig = openIDConnectService.getEsignetConfiguration(
@@ -81,7 +81,7 @@ export default function Password({
     if (exist) {
       setForgotPassword(true);
       setForgotPasswordURL(
-        forgotPasswordConfig[configurationKeys.forgotPasswordURL] +
+        forgotPswdConfig[configurationKeys.forgotPswdURL] +
           "#" +
           authService.getAuthorizeQueryParam()
       );
@@ -91,11 +91,11 @@ export default function Password({
   };
 
   useEffect(() => {
-    if (clientAdditionalConfig?.[configurationKeys.forgotPwdLinkRequired]) {
-      toggleForgotPwdBanner(configurationKeys.forgotPwdLinkRequired);
+    if (clientAdditionalConfig?.[configurationKeys.forgotPswdLinkRequired]) {
+      toggleForgotPwdBanner(configurationKeys.forgotPswdLinkRequired);
     } else {
-      if (forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
-        toggleForgotPwdBanner(configurationKeys.forgotPassword);
+      if (forgotPswdConfig?.[configurationKeys.forgotPswd]) {
+        toggleForgotPwdBanner(configurationKeys.forgotPswd);
       } else {
         setForgotPassword(false);
       }
@@ -249,9 +249,9 @@ export default function Password({
       let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
 
       let ID = prefix + id + postfix;
-      let challengeType = challengeTypes.pwd;
+      let challengeType = challengeTypes.pswd;
       let challenge = password;
-      let challengeFormat = challengeFormats.pwd;
+      let challengeFormat = challengeFormats.pswd;
 
       let challengeList = [
         {

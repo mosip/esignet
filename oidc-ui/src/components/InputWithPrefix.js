@@ -138,12 +138,6 @@ const InputWithPrefix = (props) => {
         >
           {props.currentLoginID.input_label}
         </label>
-        {/* {true && (
-          <small className="col-span-12 lg:col-span-7 sm:col-span-7 relative top-[1px] lg:justify-self-end sm:justify-self-end">
-            {" "}
-            Please enter a 10 digit mobile number
-          </small>
-        )} */}
         <div
           className={`flex items-center border rounded-lg md:max-w-md w-full mt-2 relative overflow-visible ${
             !isValid && individualId?.length > 0 && "border-[#FE6B6B]"
