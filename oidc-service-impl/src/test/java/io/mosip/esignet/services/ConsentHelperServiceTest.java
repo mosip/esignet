@@ -211,7 +211,7 @@ public class ConsentHelperServiceTest {
         userConsent.setAuthorizationScopes(Map.of());
         userConsent.setAcceptedClaims(List.of("name","email"));
         userConsent.setSignature("");
-        userConsent.setExpirydtimes(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(10).truncatedTo(ChronoUnit.SECONDS));
+        userConsent.setExpiredtimes(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(10).truncatedTo(ChronoUnit.SECONDS));
         Mockito.verify(consentService).saveUserConsent(userConsent);
     }
 
