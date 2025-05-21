@@ -513,6 +513,7 @@ input {
   font-size: var(--forgot-password-font-size);
   width: var(--forgot-password-width);
   margin-top: var(--forgot-password-margin-top) !important;
+  margin-bottom: var(--forgot-password-margin-bottom) !important;
   font-weight: 500;
 }
 

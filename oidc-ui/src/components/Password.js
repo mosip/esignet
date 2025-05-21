@@ -91,11 +91,11 @@ export default function Password({
   };
 
   useEffect(() => {
-    if (clientAdditionalConfig?.[configurationKeys.forgotPswdLinkRequired]) {
-      toggleForgotPwdBanner(configurationKeys.forgotPswdLinkRequired);
+    if (configurationKeys.forgotPswdLinkRequired in clientAdditionalConfig) {
+      toggleForgotPwdBanner(clientAdditionalConfig[configurationKeys.forgotPswdLinkRequired]);
     } else {
-      if (forgotPswdConfig?.[configurationKeys.forgotPswd]) {
-        toggleForgotPwdBanner(configurationKeys.forgotPswd);
+      if (configurationKeys.forgotPswd in forgotPswdConfig) {
+        toggleForgotPwdBanner(forgotPswdConfig[configurationKeys.forgotPswd]);
       } else {
         setForgotPassword(false);
       }
@@ -526,7 +526,7 @@ export default function Password({
             type={buttonTypes.submit}
             text={t1("login")}
             id="verify_password"
-            className="mt-2"
+            customClassName="mt-4"
             disabled={
               !individualId ||
               !password?.trim() ||
