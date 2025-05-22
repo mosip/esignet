@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { configurationKeys } from "../constants/clientConstants";
+import { checkConfigProperty } from "../helpers/utils";
 
 export default function Background({
   heading,
@@ -41,16 +42,14 @@ export default function Background({
   };
 
   useEffect(() => {
-    if (configurationKeys.signupBannerRequired in clientAdditionalConfig) {
+    if (checkConfigProperty(clientAdditionalConfig, configurationKeys.signupBannerRequired)) {
       toggleSignupBanner(
         clientAdditionalConfig[configurationKeys.signupBannerRequired]
       );
+    } else if (checkConfigProperty(signupConfig, configurationKeys.signupBanner)) {
+      toggleSignupBanner(signupConfig[configurationKeys.signupBanner]);
     } else {
-      if (configurationKeys.signupBanner in signupConfig) {
-        toggleSignupBanner(signupConfig[configurationKeys.signupBanner]);
-      } else {
-        setSignupBanner(false);
-      }
+      setSignupBanner(false);
     }
   }, [i18n.language]);
 
