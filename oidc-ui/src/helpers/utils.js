@@ -8,4 +8,18 @@ const decodeHash = (hash) => {
     return Buffer.from(hash, "base64").toString();
 }
 
-export { encodeString, decodeHash };
+/**
+ * Take a config object and a property name, and check if the property exists
+ * in the config object. If it does, return true, otherwise return false.
+ * @param object config 
+ * @param string property 
+ * @returns boolean
+ */
+const checkConfigProperty = (config, property) => {
+    if (config && config[property]) {
+        return true;
+    }
+    return false;
+}
+
+export { encodeString, decodeHash, checkConfigProperty };

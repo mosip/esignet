@@ -18,6 +18,7 @@ import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
 import LoginIDOptions from "./LoginIDOptions";
 import InputWithPrefix from "./InputWithPrefix";
+import { checkConfigProperty } from "../helpers/utils";
 
 const fields = passwordFields;
 let fieldsState = {};
@@ -82,8 +83,8 @@ export default function Password({
       setForgotPassword(true);
       setForgotPasswordURL(
         forgotPswdConfig[configurationKeys.forgotPswdURL] +
-          "#" +
-          authService.getAuthorizeQueryParam()
+        "#" +
+        authService.getAuthorizeQueryParam()
       );
     } else {
       setForgotPassword(false);
@@ -91,14 +92,12 @@ export default function Password({
   };
 
   useEffect(() => {
-    if (configurationKeys.forgotPswdLinkRequired in clientAdditionalConfig) {
+    if (checkConfigProperty(clientAdditionalConfig, configurationKeys.forgotPswdLinkRequired)) {
       toggleForgotPwdBanner(clientAdditionalConfig[configurationKeys.forgotPswdLinkRequired]);
+    } else if (checkConfigProperty(forgotPswdConfig, configurationKeys.forgotPswd)) {
+      toggleForgotPwdBanner(forgotPswdConfig[configurationKeys.forgotPswd]);
     } else {
-      if (configurationKeys.forgotPswd in forgotPswdConfig) {
-        toggleForgotPwdBanner(forgotPswdConfig[configurationKeys.forgotPswd]);
-      } else {
-        setForgotPassword(false);
-      }
+      setForgotPassword(false);
     }
   }, [i18n.language]);
 
@@ -173,7 +172,7 @@ export default function Password({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     setIsValid(
       (!maxLength || e.target.value.trim().length <= parseInt(maxLength)) &&
-        (!regex || regex.test(e.target.value.trim()))
+      (!regex || regex.test(e.target.value.trim()))
     );
   };
 
@@ -377,9 +376,9 @@ export default function Password({
             {t1(
               secondaryHeading,
               loginIDs &&
-                loginIDs.length === 1 && {
-                  currentID: t1(loginIDs[0].id),
-                }
+              loginIDs.length === 1 && {
+                currentID: t1(loginIDs[0].id),
+              }
             )}
           </div>
         )}
