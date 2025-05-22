@@ -5,8 +5,11 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.claim.*;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
@@ -376,6 +379,69 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         cacheUtilService.removeHaltedTransaction(completeSignupRedirectRequest.getTransactionId());
         throw new EsignetException(oidcTransaction.getVerificationErrorCode() == null ? ErrorConstants.VERIFICATION_INCOMPLETE :
                 oidcTransaction.getVerificationErrorCode());
+    }
+
+    public JsonNode fallbackToDefaultKBISchema(String kbiFieldDetails) {
+        if (kbiFieldDetails == null || kbiFieldDetails.trim().isEmpty()) {
+            log.warn("KBI field details string is empty.");
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode schemaArray = mapper.createArrayNode();
+
+        try {
+            String jsonString = kbiFieldDetails
+                    .trim()
+                    .replaceFirst("^\\{\\{", "[{")
+                    .replaceFirst("}}$", "}]")
+                    .replace("'", "\"");
+
+            List<Map<String, Object>> fieldList = mapper.readValue(jsonString, new TypeReference<>() {});
+
+            for (Map<String, Object> field : fieldList) {
+                ObjectNode fieldNode = mapper.createObjectNode();
+                String fieldId = (String) field.get("id");
+                String type = (String) field.get("type");
+                String regex = (String) field.get("regex");
+
+                fieldNode.put("id", fieldId);
+                fieldNode.put("controlType", "date".equals(type) ? "date" : "textbox");
+                fieldNode.set("label", mapper.createObjectNode().put("en", toTitleCase(fieldId)));
+                fieldNode.put("required", true);
+
+                ArrayNode validators = mapper.createArrayNode();
+                if (regex != null && !regex.isEmpty()) {
+                    ObjectNode validatorNode = mapper.createObjectNode();
+                    validatorNode.put("type", "regex");
+                    validatorNode.put("validator", regex);
+                    validatorNode.put("langCode", "en");
+                    validatorNode.put("errorCode", "");
+                    validators.add(validatorNode);
+                }
+                fieldNode.set("validators", validators);
+
+                if ("date".equals(type)) {
+                    fieldNode.put("type", "date");
+                }
+
+                schemaArray.add(fieldNode);
+            }
+
+            ObjectNode finalSchema = mapper.createObjectNode();
+            finalSchema.set("schema", schemaArray);
+            finalSchema.putArray("mandatoryLanguages").add("en");
+            finalSchema.putArray("optionalLanguages").add("");
+            return finalSchema;
+        } catch (Exception e) {
+            throw new EsignetException(e.getMessage());
+        }
+    }
+
+    private String toTitleCase(String input) {
+        return Arrays.stream(input.split("[._\\-]"))
+                .map(s -> !s.isEmpty() ? Character.toUpperCase(s.charAt(0)) + s.substring(1) : "")
+                .collect(Collectors.joining(" "));
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate

@@ -192,6 +192,34 @@ public class AuthorizationServiceTest {
     }
 
     @Test
+    public void fallbackToDefaultKBISchema_validInput_returnsSchema() {
+        String kbiFieldDetails =
+                 "{{'id': 'individualId', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^\\\\d{12}$'}," +
+                        "{'id':'fullName', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^[A-Za-z\\\\s]{1,}[\\\\.]{0,1}[A-Za-z\\\\s]{0,}$'}," +
+                        "{'id':'dob', 'type':'date', 'format':'dd/mm/yyyy'}}";
+
+        JsonNode result = authorizationServiceImpl.fallbackToDefaultKBISchema(kbiFieldDetails);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.has("schema"));
+        Assert.assertEquals(3, result.get("schema").size());
+
+        JsonNode firstField = result.get("schema").get(0);
+        Assert.assertEquals("individualId", firstField.get("id").asText());
+        Assert.assertEquals("textbox", firstField.get("controlType").asText());
+        Assert.assertFalse(firstField.get("validators").isEmpty());
+    }
+
+    @Test(expected = EsignetException.class)
+    public void fallbackToDefaultKBISchema_invalidJson_throwsException() {
+        String invalidJson = "{{'id': 'individualId', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^\\\\d{12}$'},"
+                + "{'id':'fullName', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^[A-Za-z\\\\s]{1,}[\\\\.]{0,1}[A-Za-z\\\\s]{0,}$'},"
+                + "{'id':'dob', 'type':'date', 'format':'dd/mm/yyyy'}";
+        authorizationServiceImpl.fallbackToDefaultKBISchema(invalidJson);
+    }
+
+
+    @Test
     public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
