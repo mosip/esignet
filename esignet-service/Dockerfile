@@ -79,8 +79,8 @@ ADD configure_start.sh configure_start.sh
 COPY ./target/esignet-service-*.jar esignet-service.jar
 
 # install packages and create user
-RUN apk update \
-&& apk add --no-cache  unzip file sudo wget\
+RUN apt-get -y update \
+&& apt-get install -y --no-install-recommends wget unzip file sudo \
 && groupadd -g ${container_user_gid} ${container_user_group} \
 && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
 && adduser ${container_user} sudo \
@@ -89,7 +89,8 @@ RUN apk update \
 && mkdir -p ${plugins_path} \
 && chmod +x configure_start.sh \
 && wget https://raw.githubusercontent.com/mosip/artifactory-ref-impl/v1.2.0.3/artifacts/src/hsm/client.zip -O client.zip \
-&& chown -R ${container_user}:${container_user} /home/${container_user}
+&& chown -R ${container_user}:${container_user} /home/${container_user} \
+&& rm -rf /var/lib/apt/lists/*
 
 COPY ./src/main/resources/amr_acr_mapping.json ${work_dir}/amr_acr_mapping.json
 

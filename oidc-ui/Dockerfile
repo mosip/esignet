@@ -29,7 +29,7 @@ RUN npm run build
 FROM nginx:1.28.0-alpine3.21-slim
 
 RUN apk update \
-    && apk add --no-cache curl npm wget unzip zip wget
+    && apk add --no-cache shadow curl npm wget unzip zip wget
 
 ARG SOURCE
 ARG COMMIT_HASH
