@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM openjdk:11-jre-slim
 
 ARG SOURCE
 ARG COMMIT_HASH
