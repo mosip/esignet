@@ -28,8 +28,8 @@ RUN npm run build
 
 FROM nginx:1.28.0-alpine3.21-slim
 
-RUN apt-get -y update \
-    && apt-get install -y curl npm wget unzip zip
+RUN apk update \
+    && apk add --no-cache curl npm wget unzip zip
 
 ARG SOURCE
 ARG COMMIT_HASH
