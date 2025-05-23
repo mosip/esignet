@@ -79,8 +79,8 @@ ADD configure_start.sh configure_start.sh
 COPY ./target/esignet-service-*.jar esignet-service.jar
 
 # install packages and create user
-RUN apt-get -y update \
-&& apt-get install -y unzip file sudo \
+RUN apk update \
+&& apk add --no-cache  unzip file sudo wget\
 && groupadd -g ${container_user_gid} ${container_user_group} \
 && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
 && adduser ${container_user} sudo \
