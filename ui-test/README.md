@@ -1,14 +1,14 @@
-# 🧪 Esignet UI Automation Framework
+# 🧪 eSignet UI Automation Framework
 
 ## 🚀 Overview
 
-This project is a UI automation testing framework for **Esignet**, built using **Cucumber**, **TestNG**, and **Selenium WebDriver**, with support for **BrowserStack** and **parallel execution**.
+This project is a UI automation testing framework for **eSignet**, built using **Cucumber**, **TestNG**, and **Selenium WebDriver**, with support for **BrowserStack** and **parallel execution**.
 
-## 🔍 What is Esignet?
+## 🔍 What is eSignet?
 
-Esignet is a reference identity and authentication platform developed under the [MOSIP](https://www.mosip.io) project. It demonstrates how authentication and consent mechanisms can be implemented for foundational ID systems.
+eSignet is a reference identity and authentication platform developed under the [MOSIP](https://www.mosip.io) project. It demonstrates how authentication and consent mechanisms can be implemented for foundational ID systems.
 
-This framework enables automated testing of Esignet's UI features and flows across multiple browsers and devices to ensure consistent and reliable behavior.
+This framework enables automated testing of eSignet's UI features and flows across multiple browsers and devices to ensure consistent and reliable behavior.
 
 ---
 
@@ -224,6 +224,6 @@ Or configure in runner class:
 
 ## 🧾 References
 
-- [MOSIP Docs – Esignet](https://docs.mosip.io/)
+- [MOSIP Docs – eSignet](https://docs.mosip.io/)
 - [BrowserStack Documentation](https://www.browserstack.com/docs)
 - [Cucumber with TestNG Guide](https://cucumber.io/docs/testng-integration/)
