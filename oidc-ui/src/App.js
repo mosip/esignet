@@ -38,8 +38,9 @@ function App() {
 
   //Loading rtlLangs
   useEffect(() => {
-    try {
-      langConfigService.getLocaleConfiguration().then((response) => {
+    const loadLanguages = async () => {
+      try {
+        const response = await langConfigService.getLocaleConfiguration();
         let lookup = {};
         let supportedLanguages = response.languages_2Letters;
         let langData = [];
@@ -62,14 +63,16 @@ function App() {
         });
         setLangOptions(langData);
         setStatusLoading(states.LOADED);
-      });
-    } catch (error) {
-      console.error("Failed to load rtl languages!");
-    }
+      } catch (error) {
+        console.error("Failed to load rtl languages!", error);
+      }
+    };
+  
+    loadLanguages();
 
     window.onbeforeunload = function () {
       return true;
-    };
+    }
   }, []);
 
   const changeLanguage = (loadLang) => {
