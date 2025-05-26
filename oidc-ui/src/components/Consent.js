@@ -349,6 +349,7 @@ export default function Consent({
       <label
         className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
         htmlFor={item}
+        aria-label={item}
       >
         <input
           type="checkbox"

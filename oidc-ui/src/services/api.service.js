@@ -32,13 +32,12 @@ export const setupResponseInterceptor = (navigate) => {
     (response) => response,
     (error) => {
       const state = { code: error.response.status };
-      if (
-        error.response?.status &&
-        allErrorStatusCodes.includes(state.code)
-      ) {
-          navigate(SOMETHING_WENT_WRONG, { state });
+      if (error?.response?.status && allErrorStatusCodes.includes(state.code)) {
+        navigate(SOMETHING_WENT_WRONG, { state });
       } else {
-        return Promise.reject(error);
+        const message = error?.message || "Unknown error occurred";
+        const rejection = error instanceof Error ? error : new Error(message);
+        return Promise.reject(rejection);
       }
     }
   );

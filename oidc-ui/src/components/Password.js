@@ -138,8 +138,7 @@ export default function Password({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue =
-      regex && regex.test(trimmedValue) ? trimmedValue : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
     if (e.target.type === "password") {
