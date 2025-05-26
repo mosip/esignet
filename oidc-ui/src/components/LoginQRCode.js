@@ -56,10 +56,9 @@ export default function LoginQRCode({
       configurationKeys.qrCodeBufferInSecs
     ) ?? process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
-  const qrCodeBuffer =
-    parseInt(qrCodeBufferInSecs) !== "NaN"
-      ? parseInt(qrCodeBufferInSecs)
-      : process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
+  const qrCodeBuffer = !isNaN(parseInt(qrCodeBufferInSecs))
+    ? parseInt(qrCodeBufferInSecs)
+    : parseInt(process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC);
 
   const walletLogoURL =
     walletDetail[walletConfigKeys.walletLogoUrl] ??

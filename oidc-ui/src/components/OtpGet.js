@@ -128,9 +128,7 @@ export default function OtpGet({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
 
@@ -198,7 +196,6 @@ export default function OtpGet({
       let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
 
       let ID = prefix + id + postfix;
-      // let ID = id;
 
       let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
 

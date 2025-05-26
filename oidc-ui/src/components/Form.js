@@ -54,59 +54,6 @@ export default function Form({
 
   useEffect(() => {
     if (JsonFormBuilder && !window.__form_rendered__) {
-      // const formConfig = {
-      //   schema: [
-      //     {
-      //       id: "individualId",
-      //       controlType: "textbox",
-      //       label: { en: "Policy Number" },
-      //       validators: [
-      //         {
-      //           type: "regex",
-      //           validator: "",
-      //           langCode: "en",
-      //           errorCode: "",
-      //         },
-      //       ],
-      //       alignmentGroup: "groupA",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //     {
-      //       id: "phoneNumber",
-      //       controlType: "textbox",
-      //       type: "simpleType",
-      //       label: {
-      //         en: "Phone Number",
-      //         km: "លេខទូរស័ព្ទ",
-      //         ar: "رقم التليفون",
-      //       },
-      //       validators: [
-      //         {
-      //           type: "regex",
-      //           validator: "",
-      //           langCode: "en",
-      //           errorCode: "",
-      //         },
-      //       ],
-      //       alignmentGroup: "groupB",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //     {
-      //       id: "birthDate",
-      //       controlType: "date",
-      //       type: "date",
-      //       label: { en: "Birth Date", km: "ថ្ងៃខែឆ្នាំកំណើត" },
-      //       alignmentGroup: "groupC",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //   ],
-      //   mandatoryLanguages: ["en"],
-      //   optionalLanguages: ["km", "ar"],
-      // };
-
       const formConfig = openIDConnectService.getEsignetConfiguration(
         configurationKeys.authFactorKnowledgeFieldDetails
       );
@@ -178,7 +125,6 @@ export default function Form({
             configurationKeys.authFactorKnowledgeIndividualIdField
           )}`
         ];
-      // let uin = formData["individualId"];
       let challenge = btoa(JSON.stringify(filtered));
 
       let challengeList = [

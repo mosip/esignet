@@ -10,9 +10,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
-//import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-//import java.util.Map;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
@@ -26,8 +26,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.apirig.dbaccess.DBManager;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConstants;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
-//import io.mosip.testrig.apirig.report.EmailableReport;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.ExtractResource;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
@@ -140,6 +140,13 @@ public class MosipTestRunner {
 				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			} else {
+				// Mock ID System
+
+				// In mock ID system also the OTP value is hard coded and not configurable.
+				Map<String, Object> additionalPropertiesMap = new HashMap<String, Object>();
+				additionalPropertiesMap.put(EsignetConstants.USE_PRE_CONFIGURED_OTP_STRING, EsignetConstants.TRUE_STRING);
+				additionalPropertiesMap.put(EsignetConstants.PRE_CONFIGURED_OTP_STRING, EsignetConstants.ALL_ONE_OTP_STRING);
+				EsignetConfigManager.add(additionalPropertiesMap);
 				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			}

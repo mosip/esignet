@@ -9,7 +9,6 @@ import localStorageService from "../services/local-storageService";
 import sbiService from "../services/sbiService";
 import Background from "../components/Background";
 import SignInOptions from "../components/SignInOptions";
-import { multipleIdKey, purposeTypeObj, validAuthFactors } from "../constants/clientConstants";
 import linkAuthService from "../services/linkAuthService";
 import LoginQRCode from "../components/LoginQRCode";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -18,7 +17,7 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 import Form from "../components/Form";
-import { purposeTitleKey, purposeSubTitleKey, authLabelKey, configurationKeys } from "../constants/clientConstants";
+import { multipleIdKey, purposeTypeObj, validAuthFactors, purposeTitleKey, purposeSubTitleKey, authLabelKey, configurationKeys } from "../constants/clientConstants";
 import langConfigService from "./../services/langConfigService";
 
 function InitiateL1Biometrics(openIDConnectService, backButtonDiv, secondaryHeading) {
@@ -45,7 +44,7 @@ function InitiatePin(openIDConnectService, backButtonDiv, secondaryHeading) {
 
 function InitiatePassword(openIDConnectService, backButtonDiv, secondaryHeading) {
   return React.createElement(Password, {
-    param: generateFieldData(validAuthFactors.PWD, openIDConnectService),
+    param: generateFieldData(validAuthFactors.PSWD, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
@@ -123,7 +122,7 @@ function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, seco
     return InitiateL1Biometrics(oidcService, backButtonDiv, tempSecondaryHeading);
   }
 
-  if (authFactorType === validAuthFactors.PWD) {
+  if (authFactorType === validAuthFactors.PSWD) {
     return InitiatePassword(oidcService, backButtonDiv, tempSecondaryHeading);
   }
 
@@ -281,6 +280,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const handleSignInOptionClick = (authFactor, icon, secondaryHeading) => {
     icons = icon;
     setAuthFactorType(authFactor.type);
+    console.log(authFactor)
     //TODO handle multifactor auth
     setCompToShow(
       createDynamicLoginElements(

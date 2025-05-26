@@ -208,7 +208,7 @@ body {
 .signup-banner-hyperlink {
   font-weight: 700;
   color: var(--signup-banner-signup-url-color);
-  font-family: Roboto !important;
+  font-family: Roboto, sans-serif !important;
   letter-spacing: 0.5px;
 }
 
@@ -458,8 +458,7 @@ input {
   letter-spacing: 0px;
   color: #171a1c;
   opacity: 0.6;
-  font: normal normal normal 16px/21px Roboto;
-  letter-spacing: 0px;
+  font: normal normal normal 16px/21px Roboto, sans-serif;
 }
 
 [dir="ltr"] .input-box .prefix {
@@ -487,7 +486,7 @@ input {
   border: none;
   outline: none;
   padding-left: 0rem;
-  font: normal normal normal 16px/20px Roboto;
+  font: normal normal normal 16px/20px Roboto, sans-serif;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
@@ -514,6 +513,7 @@ input {
   font-size: var(--forgot-password-font-size);
   width: var(--forgot-password-width);
   margin-top: var(--forgot-password-margin-top) !important;
+  margin-bottom: var(--forgot-password-margin-bottom) !important;
   font-weight: 500;
 }
 
@@ -550,7 +550,7 @@ input[type="number"] {
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
-  font-family: Roboto !important;
+  font-family: Roboto, sans-serif !important;
 }
 
 .selected_login_id {
@@ -582,7 +582,7 @@ input[type="number"] {
 }
 
 #login-header {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   letter-spacing: 0.25px;
   color: var(--login-header-text-color);
 }
@@ -596,7 +596,7 @@ input[type="number"] {
 }
 
 nav {
-  font-family: Roboto !important;
+  font-family: Roboto, sans-serif !important;
 }
 
 .selectedLang,
@@ -769,7 +769,7 @@ nav {
 
 .error-page-header {
   color: #2c2c2c;
-  font: normal normal bold 24px/29px Inter;
+  font: normal normal bold 24px/29px Inter, sans-serif;
   text-align: center;
   letter-spacing: 0px;
   padding-top: 36px;
@@ -777,7 +777,7 @@ nav {
 
 .error-page-detail {
   color: #7b7b7b;
-  font: normal normal normal 14px/20px Inter;
+  font: normal normal normal 14px/20px Inter, sans-serif;
   text-align: center;
   letter-spacing: 0px;
   padding-top: 10px;
