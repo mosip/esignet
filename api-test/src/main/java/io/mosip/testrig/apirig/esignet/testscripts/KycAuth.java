@@ -28,7 +28,7 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
+//import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
@@ -132,9 +132,9 @@ public class KycAuth extends EsignetUtil implements ITest {
 
 		logger.info(authResBody);
 
-		JSONObject responseBody = new JSONObject(authResponse.getBody().asString());
+		authResponse.getBody().asString();
 
-		String requestJson = null;
+//		String requestJson = null;
 
 		HashMap<String, String> headers = new HashMap<>();
 		headers.put(SIGNATURE_HEADERNAME, signature);
