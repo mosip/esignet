@@ -32,6 +32,7 @@ import io.mosip.esignet.core.util.LinkCodeQueue;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -407,7 +408,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
                 fieldNode.put("id", fieldId);
                 fieldNode.put("controlType", "date".equals(type) ? "date" : "textbox");
-                fieldNode.set("label", mapper.createObjectNode().put("en", toTitleCase(fieldId)));
+                fieldNode.set("label", mapper.createObjectNode().put("eng", WordUtils.capitalizeFully(fieldId, '_', '-', '.')));
                 fieldNode.put("required", true);
 
                 ArrayNode validators = mapper.createArrayNode();
@@ -415,8 +416,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                     ObjectNode validatorNode = mapper.createObjectNode();
                     validatorNode.put("type", "regex");
                     validatorNode.put("validator", regex);
-                    validatorNode.put("langCode", "en");
-                    validatorNode.put("errorCode", "");
                     validators.add(validatorNode);
                 }
                 fieldNode.set("validators", validators);
@@ -431,17 +430,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             ObjectNode finalSchema = mapper.createObjectNode();
             finalSchema.set("schema", schemaArray);
             finalSchema.putArray("mandatoryLanguages").add("en");
-            finalSchema.putArray("optionalLanguages").add("");
             return finalSchema;
         } catch (Exception e) {
-            throw new EsignetException(e.getMessage());
+            log.error("Failed to parse KBI field details schema", e);
+            throw new EsignetException(ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
         }
-    }
-
-    private String toTitleCase(String input) {
-        return Arrays.stream(input.split("[._\\-]"))
-                .map(s -> !s.isEmpty() ? Character.toUpperCase(s.charAt(0)) + s.substring(1) : "")
-                .collect(Collectors.joining(" "));
     }
 
     //As pathFragment is included in the response header, we should sanitize the input to mitigate
