@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -15,6 +16,7 @@ import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
 import io.mosip.esignet.api.dto.VerifiedKycExchangeDto;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -36,14 +38,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.stream.Collectors;
-
 import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
 import static io.mosip.esignet.core.constants.Constants.*;
 
@@ -96,6 +99,9 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Value("${mosip.esignet.par-prefix:}")
     private String parPrefix;
+
+    @Autowired
+    private Validator validator;
 
     @Override
     public TokenResponse getTokens(TokenRequest tokenRequest,boolean isV2) throws EsignetException {
@@ -163,13 +169,56 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     @Override
-    public ParResponse handleParRequest(ParRequest parRequest) {
+    public PushedAuthorizationResponse authorize(MultiValueMap<String,String> paramMap) {
+
+        if (paramMap.containsKey("request_uri")) {
+            throw new EsignetException(io.mosip.esignet.api.util.ErrorConstants.INVALID_REQUEST);
+        }
+
+        PushedAuthorizationRequest pushedAuthorizationRequest = buildPushedAuthorizationRequest(paramMap);
+        Set<ConstraintViolation<PushedAuthorizationRequest>> violations = validator.validate(pushedAuthorizationRequest);
+        if(!violations.isEmpty() && violations.stream().findFirst().isPresent()) {
+            throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value
+        }
+
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(paramMap.getFirst("client_id"));
+        authenticatePARClient(paramMap.getFirst("client_assertion_type"),paramMap.getFirst("client_assertion"),clientDetailDto);
+
         String requestUri = parPrefix + IdentityProviderUtil.createTransactionId(null) ;
-        cacheUtilService.setCacheParRequest(requestUri, parRequest);
-        ParResponse response = new ParResponse();
-        response.setRequestUri(requestUri);
-        response.setExpiresIn(parTtlInSeconds);
+        cacheUtilService.setCacheParRequest(requestUri, pushedAuthorizationRequest);
+        PushedAuthorizationResponse response = new PushedAuthorizationResponse();
+        response.setRequest_uri(requestUri);
+        response.setExpires_in(parTtlInSeconds);
         return response;
+    }
+
+    private PushedAuthorizationRequest buildPushedAuthorizationRequest(MultiValueMap<String, String> paramMap) {
+        PushedAuthorizationRequest req = new PushedAuthorizationRequest();
+        req.setScope(paramMap.getFirst("scope"));
+        req.setResponse_type(paramMap.getFirst("response_type"));
+        req.setClient_id(paramMap.getFirst("client_id"));
+        req.setRedirect_uri(paramMap.getFirst("redirect_uri"));
+        req.setState(paramMap.getFirst("state"));
+        req.setNonce(paramMap.getFirst("nonce"));
+        req.setDisplay(paramMap.getFirst("display"));
+        req.setPrompt(paramMap.getFirst("prompt"));
+        req.setAcr_values(paramMap.getFirst("acr_values"));
+        String claimsJson = paramMap.getFirst("claims");
+        if (claimsJson != null) {
+            try {
+                ClaimsV2 claims = objectMapper.readValue(claimsJson, ClaimsV2.class);
+                req.setClaims(claims);
+            } catch (JsonProcessingException e) {
+                throw new InvalidRequestException("Invalid JSON format for claims parameter");
+            }
+        }
+        req.setMax_age(paramMap.getFirst("max_age") != null ? Integer.parseInt(paramMap.getFirst("max_age")) : null);
+        req.setClaims_locales(paramMap.getFirst("claims_locales"));
+        req.setUi_locales(paramMap.getFirst("ui_locales"));
+        req.setCode_challenge(paramMap.getFirst("code_challenge"));
+        req.setCode_challenge_method(paramMap.getFirst("code_challenge_method"));
+        req.setId_token_hint(paramMap.getFirst("id_token_hint"));
+        return req;
     }
 
     private Map<String, Object> getJwk(String keyId, String certificate, LocalDateTime expireAt)
@@ -233,6 +282,16 @@ public class OAuthServiceImpl implements OAuthService {
             case JWT_BEARER_TYPE:
                 validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion(),
                         isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") :discoveryIssuerId+"/oauth/token");
+                break;
+            default:
+                throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);
+        }
+    }
+
+    private void authenticatePARClient(String client_assertion_type,String client_assertion, ClientDetail clientDetail) throws EsignetException {
+        switch (client_assertion_type) {
+            case JWT_BEARER_TYPE:
+                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), client_assertion, discoveryIssuerId+"/oauth/par");
                 break;
             default:
                 throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);

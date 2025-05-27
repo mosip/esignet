@@ -5,11 +5,11 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.dto.ParRequest;
-import io.mosip.esignet.core.dto.ParResponse;
+import io.mosip.esignet.core.dto.PushedAuthorizationResponse;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
+import org.springframework.util.MultiValueMap;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -43,5 +43,5 @@ public interface OAuthService {
 
     Map<String, Object> getOAuthServerDiscoveryInfo();
 
-    ParResponse handleParRequest(ParRequest parRequest);
+    PushedAuthorizationResponse authorize(MultiValueMap<String,String> paramMap);
 }
