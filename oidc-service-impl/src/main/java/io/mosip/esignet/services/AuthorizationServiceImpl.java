@@ -40,6 +40,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,26 +121,26 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private Environment environment;
 
     @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
-    private String KbiFormDetailsUrl;
+    private String kbiFormDetailsUrl;
+
+    @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
+    private List<Map<String, String>> fieldDetailList;
 
     @Autowired
     private ResourceLoader resourceLoader;
 
     @PostConstruct
     public void init() {
-        if(KbiFormDetailsUrl == null || KbiFormDetailsUrl.isEmpty()) {
-            log.info("No kbi.field-details-url configured for KBI field details. Skipping url load.");
-            return;
-        }
         try {
-            JsonNode fieldDetailsJson = fetchKBIFieldDetailsFromResource(KbiFormDetailsUrl);
-            if (fieldDetailsJson != null) {
-                uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY, fieldDetailsJson);
-                return;
-            }
-            log.error("*** Empty KBI details from URL: {} ***", KbiFormDetailsUrl);
+            JsonNode fieldDetailsJson = StringUtils.hasText(kbiFormDetailsUrl)
+                    ? fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : null;
+
+            uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,
+                    fieldDetailsJson != null ? fieldDetailsJson : migrateKBIFieldDetails(fieldDetailList));
+
         } catch (Exception e) {
-            log.error("Error loading form details from URL: {}", KbiFormDetailsUrl, e);
+            log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
         }
     }
 
@@ -382,9 +383,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 oidcTransaction.getVerificationErrorCode());
     }
 
-    public JsonNode fallbackToDefaultKBISchema(String kbiFieldDetails) {
-        if (kbiFieldDetails == null || kbiFieldDetails.trim().isEmpty()) {
-            log.warn("KBI field details string is empty.");
+    public JsonNode migrateKBIFieldDetails(List<Map<String, String>> fieldList) {
+        if (fieldList == null || fieldList.isEmpty()) {
+            log.warn("KBI field details list is empty.");
             return null;
         }
 
@@ -392,22 +393,21 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         ArrayNode schemaArray = mapper.createArrayNode();
 
         try {
-            String jsonString = kbiFieldDetails
-                    .trim()
-                    .replaceFirst("^\\{\\{", "[{")
-                    .replaceFirst("}}$", "}]")
-                    .replace("'", "\"");
-
-            List<Map<String, Object>> fieldList = mapper.readValue(jsonString, new TypeReference<>() {});
-
-            for (Map<String, Object> field : fieldList) {
+            for (Map<String, String> field : fieldList) {
                 ObjectNode fieldNode = mapper.createObjectNode();
-                String fieldId = (String) field.get("id");
-                String type = (String) field.get("type");
-                String regex = (String) field.get("regex");
+
+
+                String fieldId = field.get("id");
+                String type = field.get("type");
+                String regex = field.get("regex");
+
+                if (fieldId == null || fieldId.trim().isEmpty()) {
+                    log.error("Field Id is missing or empty: {}", field);
+                    throw new EsignetException(ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
+                }
 
                 fieldNode.put("id", fieldId);
-                fieldNode.put("controlType", "date".equals(type) ? "date" : "textbox");
+                fieldNode.put("controlType", "date".equalsIgnoreCase(type) ? "date" : "textbox");
                 fieldNode.set("label", mapper.createObjectNode().put("eng", WordUtils.capitalizeFully(fieldId, '_', '-', '.')));
                 fieldNode.put("required", true);
 
@@ -420,7 +420,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 }
                 fieldNode.set("validators", validators);
 
-                if ("date".equals(type)) {
+                if ("date".equalsIgnoreCase(type)) {
                     fieldNode.put("type", "date");
                 }
 
@@ -429,10 +429,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
             ObjectNode finalSchema = mapper.createObjectNode();
             finalSchema.set("schema", schemaArray);
-            finalSchema.putArray("mandatoryLanguages").add("en");
+            finalSchema.putArray("mandatoryLanguages").add("eng");
+
             return finalSchema;
         } catch (Exception e) {
-            log.error("Failed to parse KBI field details schema", e);
+            log.error("Failed to generate KBI field schema from list", e);
             throw new EsignetException(ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
         }
     }

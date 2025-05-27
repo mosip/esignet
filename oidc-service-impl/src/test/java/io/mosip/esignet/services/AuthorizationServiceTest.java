@@ -46,6 +46,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import javax.servlet.http.Cookie;
@@ -105,6 +106,8 @@ public class AuthorizationServiceTest {
     ResourceLoader resourceLoader;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final String CONFIG_KEY = "auth.factor.kbi.field-details";
 
 
     @Before
@@ -192,13 +195,14 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void fallbackToDefaultKBISchema_validInput_returnsSchema() {
-        String kbiFieldDetails =
-                 "{{'id': 'individualId', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^\\\\d{12}$'}," +
-                        "{'id':'fullName', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^[A-Za-z\\\\s]{1,}[\\\\.]{0,1}[A-Za-z\\\\s]{0,}$'}," +
-                        "{'id':'dob', 'type':'date', 'format':'dd/mm/yyyy'}}";
+    public void migrateKBIFieldDetails_withValidInput_thenPass() {
+        List<Map<String, String>> kbiFieldDetails = List.of(
+                Map.of("id", "individualId", "type", "text", "regex", "^\\d{12}$"),
+                Map.of("id", "fullName", "type", "text", "regex", "^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$"),
+                Map.of("id", "dob", "type", "date")
+        );
 
-        JsonNode result = authorizationServiceImpl.fallbackToDefaultKBISchema(kbiFieldDetails);
+        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.has("schema"));
@@ -210,14 +214,70 @@ public class AuthorizationServiceTest {
         Assert.assertFalse(firstField.get("validators").isEmpty());
     }
 
-    @Test(expected = EsignetException.class)
-    public void fallbackToDefaultKBISchema_invalidJson_throwsException() {
-        String invalidJson = "{{'id': 'individualId', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^\\\\d{12}$'},"
-                + "{'id':'fullName', 'type':'text', 'format':'', 'maxLength': 50, 'regex': '^[A-Za-z\\\\s]{1,}[\\\\.]{0,1}[A-Za-z\\\\s]{0,}$'},"
-                + "{'id':'dob', 'type':'date', 'format':'dd/mm/yyyy'}";
-        authorizationServiceImpl.fallbackToDefaultKBISchema(invalidJson);
+    @Test
+    public void migrateKBIFieldDetails_withEmptyList_thenPass() {
+        List<Map<String, String>> kbiFieldDetails = new ArrayList<>();
+        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
+        Assert.assertNull(result);
     }
 
+    @Test
+    public void migrateKBIFieldDetails_withNullRegex_thenPass() {
+        Map<String, String> field = new HashMap<>();
+        field.put("id", "dob");
+        field.put("type", "date");
+        field.put("regex", null);
+        List<Map<String, String>> kbiFieldDetails = List.of(field);
+        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
+        Assert.assertNotNull(result);
+        JsonNode fieldNode = result.get("schema").get(0);
+        Assert.assertEquals("dob", fieldNode.get("id").asText());
+        Assert.assertEquals("date", fieldNode.get("controlType").asText());
+        Assert.assertTrue(fieldNode.get("validators").isEmpty());
+    }
+
+    @Test
+    public void migrateKBIFieldDetails_withEmptyRegex_thenPass() {
+        List<Map<String, String>> kbiFieldDetails = List.of(
+                Map.of("id", "dob", "type", "date", "regex", "")
+        );
+        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
+        Assert.assertNotNull(result);
+        JsonNode field = result.get("schema").get(0);
+        Assert.assertTrue(field.get("validators").isEmpty());
+    }
+
+    @Test
+    public void migrateKBIFieldDetails_withNullInput_thenPass() {
+        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(null);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void migrateKBIFieldDetails_withEmptyMap_thenFail() {
+        List<Map<String, String>> kbiFieldDetails = List.of(
+                new HashMap<>()
+        );
+        try {
+            authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertEquals(e.getErrorCode(),ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
+        }
+    }
+
+    @Test
+    public void migrateKBIFieldDetails_withInvalidField_thenFail() {
+        Map<String, String> invalidField = new HashMap<>();
+        invalidField.put("type", "text");
+        List<Map<String, String>> kbiFieldDetails = List.of(invalidField);
+        try {
+            authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
+            Assert.fail();
+        }catch (EsignetException e){
+            Assert.assertEquals(e.getErrorCode(),ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
+        }
+    }
 
     @Test
     public void getOauthDetails_withNullClaimsInDbAndNullClaimsInReq_thenPass() throws EsignetException {
@@ -1660,57 +1720,68 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void init_whenKbiFormDetailsUrlIsNull_shouldSkipLoading() {
-        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", null);
-        authorizationServiceImpl.init();
-
-        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertTrue(uiConfig.isEmpty());
-    }
-
-    @Test
-    public void init_whenKbiFormDetailsUrlIsEmpty_shouldSkipLoading() {
-        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", "");
-        authorizationServiceImpl.init();
-
-        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertTrue(uiConfig.isEmpty());
-    }
-
-    @Test
-    public void init_whenValidKbiFormDetails_shouldLoadConfig() throws Exception {
-        String json = "{\"field1\": \"value1\"}";
+    public void init_withValidKbiFormDetails_thenPass() throws Exception {
+        String json = "{\"schema\": [{\"id\": \"field1\"}]}";
         InputStream inputStream = new ByteArrayInputStream(json.getBytes());
-
         Resource mockResource = mock(Resource.class);
         when(mockResource.getInputStream()).thenReturn(inputStream);
-
         when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
         ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", "classpath:/test/kbi-field.json");
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field.json");
 
         authorizationServiceImpl.init();
 
         Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertNotNull(uiConfig.get("auth.factor.kbi.field-details"));
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
     }
 
     @Test
-    public void init_whenKbiFormDetailsEmptyJson_shouldLogError() throws Exception {
+    public void init_withEmptyJson_fallbackToMigrate_thenPas() throws Exception {
         String json = "";
         InputStream inputStream = new ByteArrayInputStream(json.getBytes());
-
         Resource mockResource = mock(Resource.class);
         when(mockResource.getInputStream()).thenReturn(inputStream);
         when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
-
         ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "KbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "test", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+        authorizationServiceImpl.init();
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
+    }
+
+    @Test
+    public void init_withNullUrl_fallbackToMigrate_thenPas() {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "");
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "fallback", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+        authorizationServiceImpl.init();
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
+    }
+
+    @Test
+    public void init_withIOException_fallbackToMigrate_thenPas() throws Exception {
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getInputStream()).thenThrow(new IOException("File read error"));
+        when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
+        ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/broken.json");
+
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "broken", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
 
         authorizationServiceImpl.init();
 
         Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertFalse(uiConfig.containsKey("KBI_FIELD_DETAILS_CONFIG_KEY"));
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {

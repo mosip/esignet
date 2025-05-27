@@ -152,6 +152,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.format", String.class)).thenReturn("base64url-encoded-json");
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(50);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
+        authChallengeFactorFormatValidator.init();
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
         assertTrue(isValid);
     }
