@@ -52,4 +52,5 @@ public class Constants {
     public static final String SERVER_NONCE_SEPARATOR = "~###~";
     public static final String VERIFICATION_COMPLETE = "COMPLETED";
     public static final String VERIFIED_CLAIMS = "verified_claims";
+    public static final String PAR_CACHE = "par";
 }

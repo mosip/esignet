@@ -5,6 +5,8 @@
  */
 package io.mosip.esignet.core.spi;
 
+import io.mosip.esignet.core.dto.ParRequest;
+import io.mosip.esignet.core.dto.ParResponse;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
@@ -40,4 +42,6 @@ public interface OAuthService {
     Map<String, Object> getJwks();
 
     Map<String, Object> getOAuthServerDiscoveryInfo();
+
+    ParResponse handleParRequest(ParRequest parRequest);
 }

@@ -32,7 +32,8 @@ public enum Action {
     KEY_BINDING("key-binding"),
     VC_ISSUANCE("vci-service"),
     CLAIM_DETAILS("esignet-service"),
-    COMPLETE_SIGNUP_REDIRECT("esignet-service");
+    COMPLETE_SIGNUP_REDIRECT("esignet-service"),
+    PAR_REQUEST("PAR_REQUEST");
 
     String module;
 

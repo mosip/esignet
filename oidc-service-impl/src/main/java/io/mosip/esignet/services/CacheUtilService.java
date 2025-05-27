@@ -8,6 +8,7 @@ package io.mosip.esignet.services;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.ApiRateLimit;
+import io.mosip.esignet.core.dto.ParRequest;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -176,6 +177,16 @@ public class CacheUtilService {
             oidcTransaction.setIndividualIdHash(IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256, individualId));
         }
         return oidcTransaction;
+    }
+
+    @CachePut(value = Constants.PAR_CACHE, key = "#requestUri")
+    public ParRequest setCacheParRequest(String requestUri, ParRequest parRequest) {
+        return parRequest;
+    }
+
+    @Cacheable(value = Constants.PAR_CACHE, key = "#requestUri")
+    public ParRequest getCacheParRequest(String requestUri) {
+        return cacheManager.getCache(Constants.PAR_CACHE).get(requestUri, ParRequest.class);
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -91,6 +91,11 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.discovery.issuer-id}")
     private String discoveryIssuerId;
 
+    @Value("${mosip.esignet.par.expire-seconds:60}")
+    private int parTtlInSeconds;
+
+    @Value("${mosip.esignet.par-prefix:}")
+    private String parPrefix;
 
     @Override
     public TokenResponse getTokens(TokenRequest tokenRequest,boolean isV2) throws EsignetException {
@@ -155,6 +160,16 @@ public class OAuthServiceImpl implements OAuthService {
     @Override
     public Map<String, Object> getOAuthServerDiscoveryInfo(){
         return oauthServerDiscoveryMap;
+    }
+
+    @Override
+    public ParResponse handleParRequest(ParRequest parRequest) {
+        String requestUri = parPrefix + IdentityProviderUtil.createTransactionId(null) ;
+        cacheUtilService.setCacheParRequest(requestUri, parRequest);
+        ParResponse response = new ParResponse();
+        response.setRequestUri(requestUri);
+        response.setExpiresIn(parTtlInSeconds);
+        return response;
     }
 
     private Map<String, Object> getJwk(String keyId, String certificate, LocalDateTime expireAt)
