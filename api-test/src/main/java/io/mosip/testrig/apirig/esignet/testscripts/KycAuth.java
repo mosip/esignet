@@ -132,7 +132,7 @@ public class KycAuth extends EsignetUtil implements ITest {
 
 		logger.info(authResBody);
 
-		authResponse.getBody().asString();
+		JSONObject responseBody = new JSONObject(authResponse.getBody().asString());
 
 //		String requestJson = null;
 
