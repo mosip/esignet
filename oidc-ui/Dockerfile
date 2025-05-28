@@ -112,7 +112,7 @@ USER ${container_user_uid}:${container_user_gid}
 
 EXPOSE 3000
 
-ENTRYPOINT [ "./configure_start.sh" ]
+ENTRYPOINT [ "sh", "configure_start.sh" ]
 
 CMD echo "starting nginx" ; \
     nginx ; \
