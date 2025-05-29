@@ -16,7 +16,7 @@ const decodeHash = (hash) => {
  * @returns boolean
  */
 const checkConfigProperty = (config, property) => {
-    if (config && config[property]) {
+    if (config && (property in config)) {
         return true;
     }
     return false;
