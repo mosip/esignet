@@ -110,7 +110,14 @@ function installing_apitestrig() {
           echo "S3 access key not provided; EXITING;"
           exit 1;
         fi
-        S3_OPTION="--set apitestrig.configmaps.s3.s3-host=$s3_host --set apitestrig.configmaps.s3.s3-user-key=$s3_user_key --set apitestrig.configmaps.s3.s3-region=$s3_region"
+
+        read -p "Please provide S3 secret key: " s3_user_secret
+        if [[ -z $s3_user_secret ]]; then
+          echo "S3 access key not provided; EXITING;"
+          exit 1;
+        fi
+
+        S3_OPTION="--set apitestrig.configmaps.s3.s3-host=$s3_host --set apitestrig.configmaps.s3.s3-user-key=$s3_user_key --set secrets.s3.s3-user-secret=$s3_user_secret --set apitestrig.configmaps.s3.s3-region=$s3_region"
         push_reports_to_s3="yes"
         config_complete=true
       elif [[ "$ans" == "n" || "$ans" == "N" ]]; then

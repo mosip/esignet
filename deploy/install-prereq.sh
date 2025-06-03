@@ -101,7 +101,7 @@ function installing_prerequisites() {
       fi
 
       if [[ "$module" == "kafka" && "$response" == "n" ]]; then
-        read -p "Please provide the kafka URL ( default: kafka-0.kafka-headless.kafka.svc.cluster.local}:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092 ): " kafkaurl
+        read -p "Please provide the kafka URL ( default: kafka-0.kafka-headless.kafka.svc.cluster.local:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092 ): " kafkaurl
         kafkaurl=${kafkaurl:-kafka-0.kafka-headless.kafka.svc.cluster.local:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092}
         echo "Creating ConfigMap for Kafka URL"
         kubectl create configmap kafka-config --from-literal=SPRING_KAFKA_BOOTSTRAP-SERVERS="$kafkaurl" -n $NS --dry-run=client -o yaml | kubectl apply -f -
