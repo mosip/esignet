@@ -209,7 +209,7 @@ public class OAuthServiceImpl implements OAuthService {
                 ClaimsV2 claims = objectMapper.readValue(claimsJson, ClaimsV2.class);
                 req.setClaims(claims);
             } catch (JsonProcessingException e) {
-                throw new InvalidRequestException("Invalid JSON format for claims parameter");
+                throw new EsignetException(ErrorConstants.INVALID_CLAIM);
             }
         }
         req.setMax_age(paramMap.getFirst("max_age") != null ? Integer.parseInt(paramMap.getFirst("max_age")) : null);

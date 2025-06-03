@@ -87,7 +87,7 @@ public class OAuthController {
     @PostMapping(value = "/par", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public PushedAuthorizationResponse pushedAuthorizationRequest(@RequestParam MultiValueMap<String, String> paramMap)
+    public PushedAuthorizationResponse authorize(@RequestParam MultiValueMap<String, String> paramMap)
             throws EsignetException {
         try {
             return oAuthService.authorize(paramMap);

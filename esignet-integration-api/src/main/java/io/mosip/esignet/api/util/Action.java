@@ -33,7 +33,7 @@ public enum Action {
     VC_ISSUANCE("vci-service"),
     CLAIM_DETAILS("esignet-service"),
     COMPLETE_SIGNUP_REDIRECT("esignet-service"),
-    PAR_REQUEST("PAR_REQUEST");
+    PAR_REQUEST("par-request");
 
     String module;
 

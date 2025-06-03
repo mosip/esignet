@@ -8,6 +8,7 @@ package io.mosip.esignet.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
+import io.mosip.esignet.core.dto.PushedAuthorizationResponse;
 import io.mosip.esignet.core.dto.TokenRequest;
 import io.mosip.esignet.core.dto.TokenResponse;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -24,6 +25,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -177,5 +180,32 @@ public class OAuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"key\":\"value\"}"))
                 .andExpect(header().string("Content-Type", "application/json"));
+    }
+
+    @Test
+    public void authorize_withValidInput_thenPass() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        PushedAuthorizationResponse mockResponse = new PushedAuthorizationResponse();
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(MultiValueMap.class))).thenReturn(mockResponse);
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    public void authorize_withException_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        EsignetException ex = new EsignetException("Authorization failed");
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(MultiValueMap.class))).thenThrow(ex);
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isInternalServerError());
     }
 }
