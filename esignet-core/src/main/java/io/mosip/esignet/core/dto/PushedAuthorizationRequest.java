@@ -56,10 +56,8 @@ public class PushedAuthorizationRequest implements Serializable {
 
     private String id_token_hint;
 
-    @NotBlank
     private String client_assertion_type;
 
-    @NotBlank
     private String client_assertion;
 
 }
