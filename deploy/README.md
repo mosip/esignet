@@ -32,6 +32,7 @@
   * Update the domain names in `esignet-global-cm.yaml` correctly for your environment.
   * Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/) and set esignet captcha.
   * External IAM scope: [TODO]
+     * If using an external IAM, copy the secrets from the external IAM and create a secret named keycloak-client-secrets in the esignet namespace.
 * Install pre-requisites
   ```
   ./install-prereq.sh
