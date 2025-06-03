@@ -184,12 +184,11 @@ public class CacheUtilService {
         return pushedAuthorizationRequest;
     }
 
-    @Cacheable(value = Constants.PAR_CACHE, key = "#requestUri")
-    public PushedAuthorizationRequest getCacheParRequest(String requestUri) {
-        return cacheManager.getCache(Constants.PAR_CACHE).get(requestUri, PushedAuthorizationRequest.class);
-    }
-
     //------------------------------------------------------------------------------------------------------------------
+
+    public PushedAuthorizationRequest getCacheParRequest(String requestUri) {
+        return cacheManager.getCache(Constants.PAR_CACHE).get(requestUri, PushedAuthorizationRequest.class); //NOSONAR getCache() will not be returning null here.
+    }
 
     public OIDCTransaction getPreAuthTransaction(String transactionId) {
         return cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class); //NOSONAR getCache() will not be returning null here.
