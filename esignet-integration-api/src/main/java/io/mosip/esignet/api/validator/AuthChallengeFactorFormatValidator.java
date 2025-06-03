@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.util.ErrorConstants;
 
+import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -45,6 +46,9 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private KbiSchemaFieldUtil kbiSchemaFieldUtil;
+
     @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
     private List<Map<String, String>> fieldDetailList;
 
@@ -63,8 +67,8 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     public void init() {
         try {
             fieldJson = StringUtils.hasText(kbiFormDetailsUrl)
-                    ? fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
-                    : migrateKBIFieldDetails(fieldDetailList);
+                    ? kbiSchemaFieldUtil.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : kbiSchemaFieldUtil.migrateKBIFieldDetails(fieldDetailList);
         } catch (Exception e) {
             log.error("Error loading KBI form details: {}", kbiFormDetailsUrl, e);
         }
@@ -106,106 +110,55 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             Map<String, String> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
 
             JsonNode schemaArray = fieldJson.path("schema");
-            if (!schemaArray.isArray()) return false;
+            if (!schemaArray.isArray()) {
+                log.warn("Schema is not an array");
+                return false;
+            }
 
             for (JsonNode fieldNode : schemaArray) {
                 String id = fieldNode.path("id").asText();
-                String type = fieldNode.path("type").asText("text");
+                String controlType = fieldNode.path("controlType").asText("textbox");
 
-                if ("text".equalsIgnoreCase(type) && !id.equals(idField)) {
+                if (("textbox".equalsIgnoreCase(controlType) || "date".equalsIgnoreCase(controlType)) && !id.equals(idField)) {
                     String value = challengeMap.get(id);
-                    if (!StringUtils.hasText(value)) return false;
 
-                    int maxLength = fieldNode.path("maxLength").asInt(50);
-                    if (value.length() > maxLength) return false;
+                    if (!StringUtils.hasText(value)) {
+                        log.warn("Validation failed: Missing or empty value for field '{}'", id);
+                        return false;
+                    }
+
+                    JsonNode maxLengthNode = fieldNode.get("maxLength");
+                    if (maxLengthNode != null && maxLengthNode.isInt()) {
+                        int maxLength = maxLengthNode.asInt();
+                        if (value.length() > maxLength) {
+                            log.warn("Validation failed: Value for field '{}' exceeds maxLength {} (actual length: {})", id, maxLength, value.length());
+                            return false;
+                        }
+                    }
 
                     JsonNode validators = fieldNode.path("validators");
-                    if (validators.isArray() && validators.size() > 0) {
-                        String regex = validators.get(0).path("validator").asText();
-                        if (!Pattern.matches(regex, value)) return false;
+                    if (validators.isArray()) {
+                        for (JsonNode validatorNode : validators) {
+                            String validatorType = validatorNode.path("type").asText();
+                            String regex = validatorNode.path("validator").asText();
+
+                            if ("regex".equalsIgnoreCase(validatorType) && StringUtils.hasText(regex)) {
+                                if (!Pattern.matches(regex, value)) {
+                                    log.warn("Validation failed: Value '{}' for field '{}' does not match regex '{}'", value, id, regex);
+                                    return false;
+                                }
+                            }
+                        }
                     }
                 }
             }
 
             return true;
         } catch (Exception e) {
-            log.error("Error validating KBI challenge", e);
+            log.error("Error validating challenge", e);
             return false;
         }
     }
 
-    private JsonNode fetchKBIFieldDetailsFromResource(String url) {
-        try (InputStream resp = getResource(url)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readTree(resp);
-        } catch (IOException e) {
-            log.error("Error parsing the KBI form details: {}", e.getMessage(), e);
-        }
-        return null;
-    }
-
-    private InputStream getResource(String url) {
-        try {
-            Resource resource = resourceLoader.getResource(url);
-            return resource.getInputStream();
-        } catch (IOException e) {
-            log.error("Failed to read resource from : {}", url, e);
-            return null;
-        }
-    }
-
-    private JsonNode migrateKBIFieldDetails(List<Map<String, String>> fieldList) {
-        if (fieldList == null || fieldList.isEmpty()) {
-            log.warn("KBI field details list is empty.");
-            return null;
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode schemaArray = mapper.createArrayNode();
-
-        try {
-            for (Map<String, String> field : fieldList) {
-                ObjectNode fieldNode = mapper.createObjectNode();
-
-
-                String fieldId = field.get("id");
-                String type = field.get("type");
-                String regex = field.get("regex");
-
-                if (fieldId == null || fieldId.trim().isEmpty()) {
-                    log.error("Field Id is missing or empty: {}", field);
-                }
-
-                fieldNode.put("id", fieldId);
-                fieldNode.put("controlType", "date".equalsIgnoreCase(type) ? "date" : "textbox");
-                fieldNode.set("label", mapper.createObjectNode().put("eng", WordUtils.capitalizeFully(fieldId, '_', '-', '.')));
-                fieldNode.put("required", true);
-
-                ArrayNode validators = mapper.createArrayNode();
-                if (regex != null && !regex.isEmpty()) {
-                    ObjectNode validatorNode = mapper.createObjectNode();
-                    validatorNode.put("type", "regex");
-                    validatorNode.put("validator", regex);
-                    validators.add(validatorNode);
-                }
-                fieldNode.set("validators", validators);
-
-                if ("date".equalsIgnoreCase(type)) {
-                    fieldNode.put("type", "date");
-                }
-
-                schemaArray.add(fieldNode);
-            }
-
-            ObjectNode finalSchema = mapper.createObjectNode();
-            finalSchema.set("schema", schemaArray);
-            finalSchema.putArray("mandatoryLanguages").add("eng");
-
-            return finalSchema;
-        } catch (Exception e) {
-            log.error("Failed to generate KBI field schema from list", e);
-            return null;
-        }
-    }
 
 }

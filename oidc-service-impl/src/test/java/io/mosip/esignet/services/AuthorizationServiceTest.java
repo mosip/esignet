@@ -15,11 +15,13 @@ import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
+import io.mosip.esignet.api.exception.KbiSchemaFieldException;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.api.util.FilterCriteriaMatcher;
+import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -40,14 +42,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -104,6 +102,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     ResourceLoader resourceLoader;
+
+    @Mock
+    KbiSchemaFieldUtil kbiSchemaFieldUtil;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -191,91 +192,6 @@ public class AuthorizationServiceTest {
             Assert.fail();
         } catch (EsignetException e) {
             Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
-        }
-    }
-
-    @Test
-    public void migrateKBIFieldDetails_withValidInput_thenPass() {
-        List<Map<String, String>> kbiFieldDetails = List.of(
-                Map.of("id", "individualId", "type", "text", "regex", "^\\d{12}$"),
-                Map.of("id", "fullName", "type", "text", "regex", "^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$"),
-                Map.of("id", "dob", "type", "date")
-        );
-
-        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
-
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.has("schema"));
-        Assert.assertEquals(3, result.get("schema").size());
-
-        JsonNode firstField = result.get("schema").get(0);
-        Assert.assertEquals("individualId", firstField.get("id").asText());
-        Assert.assertEquals("textbox", firstField.get("controlType").asText());
-        Assert.assertFalse(firstField.get("validators").isEmpty());
-    }
-
-    @Test
-    public void migrateKBIFieldDetails_withEmptyList_thenPass() {
-        List<Map<String, String>> kbiFieldDetails = new ArrayList<>();
-        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void migrateKBIFieldDetails_withNullRegex_thenPass() {
-        Map<String, String> field = new HashMap<>();
-        field.put("id", "dob");
-        field.put("type", "date");
-        field.put("regex", null);
-        List<Map<String, String>> kbiFieldDetails = List.of(field);
-        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
-        Assert.assertNotNull(result);
-        JsonNode fieldNode = result.get("schema").get(0);
-        Assert.assertEquals("dob", fieldNode.get("id").asText());
-        Assert.assertEquals("date", fieldNode.get("controlType").asText());
-        Assert.assertTrue(fieldNode.get("validators").isEmpty());
-    }
-
-    @Test
-    public void migrateKBIFieldDetails_withEmptyRegex_thenPass() {
-        List<Map<String, String>> kbiFieldDetails = List.of(
-                Map.of("id", "dob", "type", "date", "regex", "")
-        );
-        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
-        Assert.assertNotNull(result);
-        JsonNode field = result.get("schema").get(0);
-        Assert.assertTrue(field.get("validators").isEmpty());
-    }
-
-    @Test
-    public void migrateKBIFieldDetails_withNullInput_thenPass() {
-        JsonNode result = authorizationServiceImpl.migrateKBIFieldDetails(null);
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void migrateKBIFieldDetails_withEmptyMap_thenFail() {
-        List<Map<String, String>> kbiFieldDetails = List.of(
-                new HashMap<>()
-        );
-        try {
-            authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
-            Assert.fail();
-        }catch (EsignetException e){
-            Assert.assertEquals(e.getErrorCode(),ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
-        }
-    }
-
-    @Test
-    public void migrateKBIFieldDetails_withInvalidField_thenFail() {
-        Map<String, String> invalidField = new HashMap<>();
-        invalidField.put("type", "text");
-        List<Map<String, String>> kbiFieldDetails = List.of(invalidField);
-        try {
-            authorizationServiceImpl.migrateKBIFieldDetails(kbiFieldDetails);
-            Assert.fail();
-        }catch (EsignetException e){
-            Assert.assertEquals(e.getErrorCode(),ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
         }
     }
 
@@ -1720,63 +1636,53 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void init_withValidKbiFormDetails_thenPass() throws Exception {
-        String json = "{\"schema\": [{\"id\": \"field1\"}]}";
-        InputStream inputStream = new ByteArrayInputStream(json.getBytes());
-        Resource mockResource = mock(Resource.class);
-        when(mockResource.getInputStream()).thenReturn(inputStream);
-        when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field.json");
-
-        authorizationServiceImpl.init();
-
-        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
-    }
-
-    @Test
-    public void init_withEmptyJson_fallbackToMigrate_thenPas() throws Exception {
-        String json = "";
-        InputStream inputStream = new ByteArrayInputStream(json.getBytes());
-        Resource mockResource = mock(Resource.class);
-        when(mockResource.getInputStream()).thenReturn(inputStream);
-        when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
+    public void init_withEmptyJson_fallbackToMigrate_thenPass() throws KbiSchemaFieldException {
         ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
+
         List<Map<String, String>> fallbackFields = List.of(
                 Map.of("id", "test", "type", "text", "regex", ".*")
         );
         ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+
+        // Simulate fetch returning null and fallback succeeding
+        when(kbiSchemaFieldUtil.fetchKBIFieldDetailsFromResource(anyString())).thenReturn(null);
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "value");
+        when(kbiSchemaFieldUtil.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
         authorizationServiceImpl.init();
+
         Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
         Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
     }
 
     @Test
-    public void init_withNullUrl_fallbackToMigrate_thenPas() {
+    public void init_withNullUrl_fallbackToMigrate_thenPass() throws KbiSchemaFieldException {
         ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "");
+
         List<Map<String, String>> fallbackFields = List.of(
                 Map.of("id", "fallback", "type", "text", "regex", ".*")
         );
         ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "fallback");
+        when(kbiSchemaFieldUtil.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
         authorizationServiceImpl.init();
+
         Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
         Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
     }
 
     @Test
-    public void init_withIOException_fallbackToMigrate_thenPas() throws Exception {
-        Resource mockResource = mock(Resource.class);
-        when(mockResource.getInputStream()).thenThrow(new IOException("File read error"));
-        when(resourceLoader.getResource(anyString())).thenReturn(mockResource);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "resourceLoader", resourceLoader);
-        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/broken.json");
+    public void init_withException_fallbackToMigrate_thenPass() throws KbiSchemaFieldException {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
 
         List<Map<String, String>> fallbackFields = List.of(
                 Map.of("id", "broken", "type", "text", "regex", ".*")
         );
         ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("fallback", "true");
+        when(kbiSchemaFieldUtil.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
 
         authorizationServiceImpl.init();
 

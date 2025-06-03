@@ -17,6 +17,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
@@ -25,10 +26,7 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
-import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.LinkCodeQueue;
+import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -129,15 +127,18 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private KbiSchemaFieldUtil kbiSchemaFieldUtil;
+
     @PostConstruct
     public void init() {
         try {
             JsonNode fieldDetailsJson = StringUtils.hasText(kbiFormDetailsUrl)
-                    ? fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    ? kbiSchemaFieldUtil.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
                     : null;
 
             uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,
-                    fieldDetailsJson != null ? fieldDetailsJson : migrateKBIFieldDetails(fieldDetailList));
+                    fieldDetailsJson != null ? fieldDetailsJson : kbiSchemaFieldUtil.migrateKBIFieldDetails(fieldDetailList));
 
         } catch (Exception e) {
             log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
@@ -383,61 +384,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 oidcTransaction.getVerificationErrorCode());
     }
 
-    public JsonNode migrateKBIFieldDetails(List<Map<String, String>> fieldList) {
-        if (fieldList == null || fieldList.isEmpty()) {
-            log.warn("KBI field details list is empty.");
-            return null;
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode schemaArray = mapper.createArrayNode();
-
-        try {
-            for (Map<String, String> field : fieldList) {
-                ObjectNode fieldNode = mapper.createObjectNode();
-
-
-                String fieldId = field.get("id");
-                String type = field.get("type");
-                String regex = field.get("regex");
-
-                if (fieldId == null || fieldId.trim().isEmpty()) {
-                    log.error("Field Id is missing or empty: {}", field);
-                    throw new EsignetException(ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
-                }
-
-                fieldNode.put("id", fieldId);
-                fieldNode.put("controlType", "date".equalsIgnoreCase(type) ? "date" : "textbox");
-                fieldNode.set("label", mapper.createObjectNode().put("eng", WordUtils.capitalizeFully(fieldId, '_', '-', '.')));
-                fieldNode.put("required", true);
-
-                ArrayNode validators = mapper.createArrayNode();
-                if (regex != null && !regex.isEmpty()) {
-                    ObjectNode validatorNode = mapper.createObjectNode();
-                    validatorNode.put("type", "regex");
-                    validatorNode.put("validator", regex);
-                    validators.add(validatorNode);
-                }
-                fieldNode.set("validators", validators);
-
-                if ("date".equalsIgnoreCase(type)) {
-                    fieldNode.put("type", "date");
-                }
-
-                schemaArray.add(fieldNode);
-            }
-
-            ObjectNode finalSchema = mapper.createObjectNode();
-            finalSchema.set("schema", schemaArray);
-            finalSchema.putArray("mandatoryLanguages").add("eng");
-
-            return finalSchema;
-        } catch (Exception e) {
-            log.error("Failed to generate KBI field schema from list", e);
-            throw new EsignetException(ErrorConstants.KBI_SCHEMA_PARSE_ERROR);
-        }
-    }
-
     //As pathFragment is included in the response header, we should sanitize the input to mitigate
     //response splitting vulnerability. Removed all whitespace characters
     private String sanitizePathFragment(String pathFragment) {
@@ -619,23 +565,4 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
     }
 
-    private JsonNode fetchKBIFieldDetailsFromResource(String url) {
-        try (InputStream resp = getResource(url)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readTree(resp);
-        } catch (IOException e) {
-            log.error("Error parsing the KBI form details: {}", e.getMessage(), e);
-        }
-        throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
-    }
-
-    private InputStream getResource(String url) {
-        try {
-            Resource resource = resourceLoader.getResource(url);
-            return resource.getInputStream();
-        } catch (IOException e) {
-            log.error("Failed to read resource from : {}", url, e);
-            throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
-        }
-    }
 }
