@@ -15,7 +15,7 @@ extraEnvVarsCM:
 
 extraEnvVarsSecret:
   - apitestrig-esignet-apitestrig
-  - s3
+  - s3-esignet-apitestrig
   - keycloak-client-secrets
   - postgres-postgresql
 
