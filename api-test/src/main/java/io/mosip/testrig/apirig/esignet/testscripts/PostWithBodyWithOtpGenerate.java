@@ -114,8 +114,15 @@ public class PostWithBodyWithOtpGenerate extends EsignetUtil implements ITest {
 		
 		Response otpResponse = null;
 		if (testCaseName.contains("ESignet_WalletBinding")) {
-			otpResponse = postRequestWithCookieAuthHeader(tempUrl + sendOtpEndPoint, inputJson, COOKIENAME,
-					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("mockauthenticationservice") == true) {
+				inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+				otpResponse = EsignetUtil.postRequestWithCookieAndAuthHeader(tempUrl + sendOtpEndPoint, inputJson,
+						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			} else {
+				otpResponse = postRequestWithCookieAuthHeader(tempUrl + sendOtpEndPoint, inputJson, COOKIENAME,
+						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			}
 		} else {
 			otpResponse = postWithBodyAndCookie(ApplnURI + sendOtpEndPoint, inputJson, COOKIENAME,
 					GlobalConstants.RESIDENT, testCaseDTO.getTestCaseName());
@@ -157,8 +164,15 @@ public class PostWithBodyWithOtpGenerate extends EsignetUtil implements ITest {
 		reqJson = EsignetUtil.inputstringKeyWordHandeler(reqJson, testCaseName);
 
 		if (testCaseName.contains("ESignet_WalletBinding")) {
-			response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
-					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("mockauthenticationservice") == true) {
+				reqJson = inputJsonKeyWordHandeler(reqJson, testCaseName);
+				response = EsignetUtil.postRequestWithCookieAndAuthHeader(tempUrl + testCaseDTO.getEndPoint(), reqJson,
+						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			} else {
+				response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
+						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			}
 		} else {
 			response = postRequestWithCookieAndHeader(ApplnURI + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
 					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);

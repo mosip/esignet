@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "3267907a-75db-4d3c-a42e-89050178c6f4",
+		"_postman_id": "0d75592a-b451-4ba0-9601-e06a6faa3c66",
 		"name": "eSignet",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20579541",
-		"_collection_link": "https://mosip-idp.postman.co/workspace/MOSIP-Team-Workspace~76ac5ada-d630-4817-8d7b-25f499b093d4/collection/20579541-3267907a-75db-4d3c-a42e-89050178c6f4?action=share&source=collection_link&creator=20579541"
+		"_collection_link": "https://mosip-idp.postman.co/workspace/MOSIP-Team-Workspace~76ac5ada-d630-4817-8d7b-25f499b093d4/collection/20579541-0d75592a-b451-4ba0-9601-e06a6faa3c66?action=share&source=collection_link&creator=20579541"
 	},
 	"item": [
 		{
@@ -20,8 +20,8 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var jsonData = JSON.parse(responseBody);",
-											"var data = jsonData.response.token;",
+											"var jsonData = JSON.parse(pm.response.text());",
+											"var data = jsonData.access_token;",
 											"console.log(data);",
 											"pm.environment.set(\"authtoken\",data);"
 										],
@@ -34,24 +34,37 @@
 								"method": "POST",
 								"header": [],
 								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"id\": \"string\",\r\n  \"version\": \"string\",\r\n  \"requesttime\": \"{{$isoTimestamp}}\",\r\n  \"metadata\": {},\r\n  \"request\": {\r\n    \"appId\": \"partner\",\r\n    \"clientId\": \"mosip-pms-client\",\r\n    \"secretKey\": \"{{mosip_pms_client_secret}}\"\r\n  }\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "client_secret",
+											"value": "{{mosip_pms_client_secret}}",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "mosip-pms-client",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
 										}
-									}
+									]
 								},
 								"url": {
-									"raw": "{{internal_url}}/v1/authmanager/authenticate/clientidsecretkey",
+									"raw": "{{iam_url}}/auth/realms/mosip/protocol/openid-connect/token",
 									"host": [
-										"{{internal_url}}"
+										"{{iam_url}}"
 									],
 									"path": [
-										"v1",
-										"authmanager",
-										"authenticate",
-										"clientidsecretkey"
+										"auth",
+										"realms",
+										"mosip",
+										"protocol",
+										"openid-connect",
+										"token"
 									]
 								}
 							},
@@ -104,7 +117,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"id\": \"string\",\r\n  \"version\": \"string\",\r\n  \"requesttime\": \"{{$isoTimestamp}}\",\r\n  \"metadata\": {},\r\n  \"request\": {\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"policyId\": \"26123\",\r\n    \"publicKey\": {{client_public_key}},\r\n    \"authPartnerId\": {{relaying_party_id}},\r\n    \"logoUri\": \"{{$randomImageUrl}}\",\r\n    \"redirectUris\": [\r\n      \"{{redirection_url}}\"\r\n    ],\r\n    \"grantTypes\": [\r\n      \"authorization_code\"\r\n    ],\r\n    \"clientAuthMethods\": [\r\n      \"private_key_jwt\"\r\n    ]\r\n  }\r\n}",
+									"raw": "{\r\n  \"id\": \"string\",\r\n  \"version\": \"string\",\r\n  \"requesttime\": \"{{$isoTimestamp}}\",\r\n  \"metadata\": {},\r\n  \"request\": {\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"policyId\": \"26123\",\r\n    \"publicKey\": {{client_public_key}},\r\n    \"authPartnerId\": {{relying_party_id}},\r\n    \"logoUri\": \"{{$randomImageUrl}}\",\r\n    \"redirectUris\": [\r\n      \"{{redirection_url}}\"\r\n    ],\r\n    \"grantTypes\": [\r\n      \"authorization_code\"\r\n    ],\r\n    \"clientAuthMethods\": [\r\n      \"private_key_jwt\"\r\n    ]\r\n  }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -282,7 +295,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"publicKey\": {{client_public_key}},\n        \"relyingPartyId\": \"mock-relying-party-id\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n             \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:3000/**\",\n             \"http://localhost:5000/registration/*\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\",\n                \"title\": {\n                    \"@none\": \"title\"\n                },\n                \"subTitle\": {\n                    \"@none\": \"subtitle\"\n                }\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20\n        }\n    }\n}",
+									"raw": "{    \n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"publicKey\": {{client_public_key}},\n        \"relyingPartyId\": \"mock-relying-party-id\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"picture\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\"\n        ],\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n             \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:5000/**\",\n             \"http://localhost:3000/registration/*\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\"\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20\n        }\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -320,7 +333,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:3000/**\",\n             \"http://localhost:5000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:static-code\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\",\n                \"title\": {\n                    \"@none\": \"title\"\n                },\n                \"subTitle\": {\n                    \"@none\": \"subtitle\"\n                }\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20\n        }\n    }\n}",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:5000/**\",\n             \"http://localhost:3000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:static-code\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\",\n                \"title\": {\n                    \"@none\": \"title\"\n                },\n                \"subTitle\": {\n                    \"@none\": \"subtitle\"\n                }\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20\n        }\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
