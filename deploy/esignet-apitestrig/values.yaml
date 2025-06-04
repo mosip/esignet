@@ -13,6 +13,12 @@ extraEnvVarsCM:
   - db
   - apitestrig
 
+extraEnvVarsSecret:
+  - apitestrig-esignet-apitestrig
+  - s3
+  - keycloak-client-secrets
+  - postgres-postgresql
+
 resources:
   limits:
     cpu: 300m
