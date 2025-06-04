@@ -447,6 +447,210 @@
 					"response": []
 				},
 				{
+					"name": "Par",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.environment.get('pmlib_code'))\r",
+									"\r",
+									"// Set headers for JWT\r",
+									"var header = {\t\r",
+									"\t\"alg\": \"RS256\"\r",
+									"};\r",
+									"\r",
+									"const private_key_jwk = JSON.parse(pm.environment.get(\"client_private_key\"));\r",
+									"\r",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('client_id'), pm.environment.get('par_audience'), exp = 60,  \"RS256\");\r",
+									"\r",
+									"pm.collectionVariables.set(\"par_client_assertion\",signed_jwt);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check request_uri\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.request_uri).not.equals(null);\r",
+									"    pm.environment.set(\"request_uri\", jsonData.request_uri);\r",
+									"}); "
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "{{scope}}",
+									"type": "text"
+								},
+								{
+									"key": "response_type",
+									"value": "code",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirection_url}}",
+									"type": "text"
+								},
+								{
+									"key": "display",
+									"value": "popop",
+									"type": "text"
+								},
+								{
+									"key": "prompt",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "acr_values",
+									"value": "mosip:idp:acr:generated-code",
+									"type": "text"
+								},
+								{
+									"key": "claims",
+									"value": "{{claims}}",
+									"type": "text"
+								},
+								{
+									"key": "nonce",
+									"value": "{{$randomPassword}}",
+									"type": "text"
+								},
+								{
+									"key": "state",
+									"value": "{{state}}",
+									"type": "text"
+								},
+								{
+									"key": "claim_locales",
+									"value": "en",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{par_client_assertion}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/par",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								"par"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Par OAuthdetails",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var btoa = require('btoa');\r",
+									"\r",
+									"pm.test(\"Validate transactionId\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.response.transactionId).not.equals(null);\r",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate auth factors\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"set oauth-details-hash\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));\r",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);\r",
+									"    // Remove padding characters\r",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '');\r",
+									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding\r",
+									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');\r",
+									"    console.log(\"base64Encoded : \" + base64Encoded);\r",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);\r",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"request_uri\": \"{{request_uri}}\",\r\n    \"client_id\": \"{{client_id}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/par-oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								"par-oauth-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Authorize / OAuthdetails request",
 					"event": [
 						{
@@ -1023,6 +1227,210 @@
 								"esignet",
 								"binding",
 								"wallet-binding"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Par",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.environment.get('pmlib_code'))\r",
+									"\r",
+									"// Set headers for JWT\r",
+									"var header = {\t\r",
+									"\t\"alg\": \"RS256\"\r",
+									"};\r",
+									"\r",
+									"const private_key_jwk = JSON.parse(pm.environment.get(\"client_private_key\"));\r",
+									"\r",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('client_id'), pm.environment.get('par_audience'), exp = 60,  \"RS256\");\r",
+									"\r",
+									"pm.collectionVariables.set(\"par_client_assertion\",signed_jwt);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check request_uri\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.request_uri).not.equals(null);\r",
+									"    pm.environment.set(\"request_uri\", jsonData.request_uri);\r",
+									"}); "
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "{{scope}}",
+									"type": "text"
+								},
+								{
+									"key": "response_type",
+									"value": "code",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirection_url}}",
+									"type": "text"
+								},
+								{
+									"key": "display",
+									"value": "popop",
+									"type": "text"
+								},
+								{
+									"key": "prompt",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "acr_values",
+									"value": "mosip:idp:acr:generated-code",
+									"type": "text"
+								},
+								{
+									"key": "claims",
+									"value": "{{claims}}",
+									"type": "text"
+								},
+								{
+									"key": "nonce",
+									"value": "{{$randomPassword}}",
+									"type": "text"
+								},
+								{
+									"key": "state",
+									"value": "{{state}}",
+									"type": "text"
+								},
+								{
+									"key": "claim_locales",
+									"value": "en",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{par_client_assertion}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/par",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								"par"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Par OAuthdetails",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var btoa = require('btoa');\r",
+									"\r",
+									"pm.test(\"Validate transactionId\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.response.transactionId).not.equals(null);\r",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate auth factors\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"set oauth-details-hash\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));\r",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);\r",
+									"    // Remove padding characters\r",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '');\r",
+									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding\r",
+									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');\r",
+									"    console.log(\"base64Encoded : \" + base64Encoded);\r",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);\r",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"request_uri\": \"{{request_uri}}\",\r\n    \"client_id\": \"{{client_id}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/par-oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								"par-oauth-details"
 							]
 						}
 					},
@@ -1646,6 +2054,210 @@
 								"esignet",
 								"csrf",
 								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Par",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.environment.get('pmlib_code'))\r",
+									"\r",
+									"// Set headers for JWT\r",
+									"var header = {\t\r",
+									"\t\"alg\": \"RS256\"\r",
+									"};\r",
+									"\r",
+									"const private_key_jwk = JSON.parse(pm.environment.get(\"client_private_key\"));\r",
+									"\r",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('client_id'), pm.environment.get('par_audience'), exp = 60,  \"RS256\");\r",
+									"\r",
+									"pm.collectionVariables.set(\"par_client_assertion\",signed_jwt);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check request_uri\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.request_uri).not.equals(null);\r",
+									"    pm.environment.set(\"request_uri\", jsonData.request_uri);\r",
+									"}); "
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "{{scope}}",
+									"type": "text"
+								},
+								{
+									"key": "response_type",
+									"value": "code",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirection_url}}",
+									"type": "text"
+								},
+								{
+									"key": "display",
+									"value": "popop",
+									"type": "text"
+								},
+								{
+									"key": "prompt",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "acr_values",
+									"value": "mosip:idp:acr:generated-code",
+									"type": "text"
+								},
+								{
+									"key": "claims",
+									"value": "{{claims}}",
+									"type": "text"
+								},
+								{
+									"key": "nonce",
+									"value": "{{$randomPassword}}",
+									"type": "text"
+								},
+								{
+									"key": "state",
+									"value": "{{state}}",
+									"type": "text"
+								},
+								{
+									"key": "claim_locales",
+									"value": "en",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{par_client_assertion}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/par",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								"par"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Par OAuthdetails",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var btoa = require('btoa');\r",
+									"\r",
+									"pm.test(\"Validate transactionId\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.response.transactionId).not.equals(null);\r",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate auth factors\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.response.authFactors[0].name).to.eql(pm.environment.get(\"expected_amr\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"set oauth-details-hash\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));\r",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);\r",
+									"    // Remove padding characters\r",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '');\r",
+									"    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding\r",
+									"    base64Encoded = base64Encoded.replace(/\\+/g, '-').replace(/\\//g, '_');\r",
+									"    console.log(\"base64Encoded : \" + base64Encoded);\r",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);\r",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"request_uri\": \"{{request_uri}}\",\r\n    \"client_id\": \"{{client_id}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/par-oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								"par-oauth-details"
 							]
 						}
 					},
