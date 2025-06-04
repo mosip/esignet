@@ -2,8 +2,8 @@ modules:
   esignet:
     enabled: true
     image:
-      repository: mosipdev/apitest-esignet
-      tag: release-1.5.x
+      repository: mosipqa/apitest-esignet
+      tag: 1.6.x
       pullPolicy: Always
 
 resources:
@@ -13,3 +13,10 @@ resources:
   requests:
     cpu: 300m
     memory: 500Mi
+
+extraEnvVarsCM:
+  - global
+  - s3
+  - keycloak-host
+  - db
+  - apitestrig
