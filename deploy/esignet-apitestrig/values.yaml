@@ -7,7 +7,7 @@ modules:
       pullPolicy: Always
 
 extraEnvVarsCM:
-  - global
+  - esignet-global
   - s3
   - keycloak-host
   - db
