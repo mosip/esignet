@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.core.spi;
 
+import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
 import io.mosip.esignet.core.dto.PushedAuthorizationResponse;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.dto.TokenRequest;
@@ -43,5 +44,5 @@ public interface OAuthService {
 
     Map<String, Object> getOAuthServerDiscoveryInfo();
 
-    PushedAuthorizationResponse authorize(MultiValueMap<String,String> paramMap);
+    PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest);
 }

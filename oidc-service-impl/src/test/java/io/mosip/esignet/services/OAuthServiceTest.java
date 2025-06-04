@@ -727,18 +727,13 @@ public class OAuthServiceTest {
 
     @Test
     public void authorize_withValidInput_thenPass() {
-        Validator mockValidator = Mockito.mock(Validator.class);
-        Mockito.when(mockValidator.validate(Mockito.any())).thenReturn(Collections.emptySet());
-        ReflectionTestUtils.setField(oAuthService, "validator", mockValidator);
-
-        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
-        paramMap.add("client_assertion", "valid-jwt");
-        paramMap.add("client_id", "34567");
-        paramMap.add("redirect_uri", "http://localhost:8088/v1/idp");
-        paramMap.add("acr_values", "mosip:idp:acr:static-code");
-        paramMap.add("nonce", "test-nonce");
-        paramMap.add("claims", null);
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id("34567");
+        request.setClient_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        request.setClient_assertion("valid-jwt");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setAcr_values("mosip:idp:acr:static-code");
+        request.setNonce("test-nonce");
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("test-client");
@@ -746,91 +741,48 @@ public class OAuthServiceTest {
 
         Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
 
-        PushedAuthorizationResponse response = oAuthService.authorize(paramMap);
+        PushedAuthorizationResponse response = oAuthService.authorize(request);
 
         Assert.assertNotNull(response);
         Assert.assertNotNull(response.getRequest_uri());
     }
 
-
     @Test
-    public void authorize_withRequestUri_thenFail() {
-        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("request_uri", "some-uri");
+    public void authorize_withNullClientId_thenFail() {
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id(null);
+        request.setClient_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        request.setClient_assertion("valid-jwt");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setScope("openid");
+        request.setNonce("test-nonce");
 
         try {
-            oAuthService.authorize(paramMap);
-            Assert.fail("Expected EsignetException to be thrown");
-        } catch (EsignetException ex) {
-            Assert.assertEquals("invalid_request", ex.getMessage());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void authorize_withValidationErrors_thenFail() {
-        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("client_id", "test-client");
-        paramMap.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
-        paramMap.add("client_assertion", "dummy-jwt");
-
-        ConstraintViolation<PushedAuthorizationRequest> violation = Mockito.mock(ConstraintViolation.class);
-        Mockito.when(violation.getMessageTemplate()).thenReturn("Validation error");
-
-        Set violations = new HashSet<>();
-        violations.add(violation);
-
-        Validator mockValidator = Mockito.mock(Validator.class);
-        Mockito.when(mockValidator.validate(Mockito.any())).thenReturn(violations);
-
-        ReflectionTestUtils.setField(oAuthService, "validator", mockValidator);
-
-        try {
-            oAuthService.authorize(paramMap);
-            Assert.fail();
+            oAuthService.authorize(request);
+            Assert.fail("Expected InvalidRequestException due to null client_id");
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals("Validation error", ex.getMessage());
-        }
-    }
-
-    @Test
-    public void authorize_withInvalidClaimsJson_thenFail() {
-        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("client_id", "test-client");
-        paramMap.add("claims", "{invalid-json");
-        ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setId("test-client");
-        clientDetail.setPublicKey("public-key");
-
-        paramMap.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
-        paramMap.add("client_assertion", "some-jwt");
-
-        try {
-            oAuthService.authorize(paramMap);
-            Assert.fail();
-        } catch (EsignetException ex) {
-            Assert.assertEquals("invalid_claim", ex.getMessage());
+            Assert.assertEquals(ErrorConstants.INVALID_CLIENT_ID, ex.getMessage());
         }
     }
 
     @Test
     public void authorize_withUnsupportedAssertionType_thenFail() {
-        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("client_id", "test-client");
-        paramMap.add("client_assertion_type", "unsupported-type");
-        paramMap.add("client_assertion", "some-jwt");
-
-        Validator mockValidator = Mockito.mock(Validator.class);
-        Mockito.when(mockValidator.validate(Mockito.any())).thenReturn(Collections.emptySet());
-        ReflectionTestUtils.setField(oAuthService, "validator", mockValidator);
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id("34567");
+        request.setClient_assertion_type("unsupported-type");
+        request.setClient_assertion("dummy");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setScope("openid");
+        request.setNonce("test-nonce");
 
         ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setId("test-client");
-        clientDetail.setPublicKey("public-key");
-        Mockito.when(clientManagementService.getClientDetails("test-client")).thenReturn(clientDetail);
+        clientDetail.setId("34567");
+        clientDetail.setPublicKey("dummy-key");
+
+        Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
 
         try {
-            oAuthService.authorize(paramMap);
+            oAuthService.authorize(request);
             Assert.fail();
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(ErrorConstants.INVALID_ASSERTION_TYPE, ex.getMessage());

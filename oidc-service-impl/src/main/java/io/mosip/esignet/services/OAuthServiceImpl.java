@@ -169,20 +169,14 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     @Override
-    public PushedAuthorizationResponse authorize(MultiValueMap<String,String> paramMap) {
+    public PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest) {
 
-        if (paramMap.containsKey("request_uri")) {
-            throw new EsignetException(io.mosip.esignet.api.util.ErrorConstants.INVALID_REQUEST);
+        if (pushedAuthorizationRequest == null || pushedAuthorizationRequest.getClient_id() == null) {
+            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
         }
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(pushedAuthorizationRequest.getClient_id());
 
-        PushedAuthorizationRequest pushedAuthorizationRequest = buildPushedAuthorizationRequest(paramMap);
-        Set<ConstraintViolation<PushedAuthorizationRequest>> violations = validator.validate(pushedAuthorizationRequest);
-        if(!violations.isEmpty() && violations.stream().findFirst().isPresent()) {
-            throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value
-        }
-
-        ClientDetail clientDetailDto = clientManagementService.getClientDetails(paramMap.getFirst("client_id"));
-        authenticatePARClient(paramMap.getFirst("client_assertion_type"),paramMap.getFirst("client_assertion"),clientDetailDto);
+        authenticatePARClient(pushedAuthorizationRequest.getClient_assertion_type(),pushedAuthorizationRequest.getClient_assertion(),clientDetailDto);
 
         String requestUri = parPrefix + IdentityProviderUtil.createTransactionId(null) ;
         cacheUtilService.setCacheParRequest(requestUri, pushedAuthorizationRequest);
@@ -190,35 +184,6 @@ public class OAuthServiceImpl implements OAuthService {
         response.setRequest_uri(requestUri);
         response.setExpires_in(parTtlInSeconds);
         return response;
-    }
-
-    private PushedAuthorizationRequest buildPushedAuthorizationRequest(MultiValueMap<String, String> paramMap) {
-        PushedAuthorizationRequest req = new PushedAuthorizationRequest();
-        req.setScope(paramMap.getFirst("scope"));
-        req.setResponse_type(paramMap.getFirst("response_type"));
-        req.setClient_id(paramMap.getFirst("client_id"));
-        req.setRedirect_uri(paramMap.getFirst("redirect_uri"));
-        req.setState(paramMap.getFirst("state"));
-        req.setNonce(paramMap.getFirst("nonce"));
-        req.setDisplay(paramMap.getFirst("display"));
-        req.setPrompt(paramMap.getFirst("prompt"));
-        req.setAcr_values(paramMap.getFirst("acr_values"));
-        String claimsJson = paramMap.getFirst("claims");
-        if (claimsJson != null) {
-            try {
-                ClaimsV2 claims = objectMapper.readValue(claimsJson, ClaimsV2.class);
-                req.setClaims(claims);
-            } catch (JsonProcessingException e) {
-                throw new EsignetException(ErrorConstants.INVALID_CLAIM);
-            }
-        }
-        req.setMax_age(paramMap.getFirst("max_age") != null ? Integer.parseInt(paramMap.getFirst("max_age")) : null);
-        req.setClaims_locales(paramMap.getFirst("claims_locales"));
-        req.setUi_locales(paramMap.getFirst("ui_locales"));
-        req.setCode_challenge(paramMap.getFirst("code_challenge"));
-        req.setCode_challenge_method(paramMap.getFirst("code_challenge_method"));
-        req.setId_token_hint(paramMap.getFirst("id_token_hint"));
-        return req;
     }
 
     private Map<String, Object> getJwk(String keyId, String certificate, LocalDateTime expireAt)

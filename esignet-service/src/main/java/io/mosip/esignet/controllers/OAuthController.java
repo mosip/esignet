@@ -6,9 +6,6 @@
 package io.mosip.esignet.controllers;
 
 import java.util.Map;
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,14 +14,13 @@ import io.mosip.esignet.services.AuthorizationHelperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.MultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
 import io.mosip.esignet.core.util.AuditHelper;
 
@@ -49,13 +45,7 @@ public class OAuthController {
 
     @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public TokenResponse getToken(@RequestParam MultiValueMap<String,String> paramMap)
-            throws EsignetException {
-        TokenRequest tokenRequest = buildTokenRequest(paramMap);
-        Set<ConstraintViolation<TokenRequest>> violations = validator.validate(tokenRequest);
-        if(!violations.isEmpty() && violations.stream().findFirst().isPresent()) {
-        	throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value
-        }
+    public TokenResponse getToken(@Validated @ModelAttribute TokenRequest tokenRequest) {
         try {
         	return oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
@@ -67,14 +57,7 @@ public class OAuthController {
 
     @PostMapping(value = "/v2/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public TokenResponse getTokenV2(@RequestParam MultiValueMap<String,String> paramMap)
-            throws EsignetException {
-        TokenRequest tokenRequest = buildTokenRequest(paramMap);
-        tokenRequest.setCode_verifier(paramMap.getFirst("code_verifier"));
-        Set<ConstraintViolation<TokenRequest>> violations = validator.validate(tokenRequest);
-        if(!violations.isEmpty() && violations.stream().findFirst().isPresent()) {
-            throw new InvalidRequestException(violations.stream().findFirst().get().getMessageTemplate());	//NOSONAR isPresent() check is done before accessing the value
-        }
+    public TokenResponse getTokenV2(@Validated @ModelAttribute TokenRequest tokenRequest) {
         try {
             return oAuthService.getTokens(tokenRequest,true);
         } catch (EsignetException ex) {
@@ -87,13 +70,13 @@ public class OAuthController {
     @PostMapping(value = "/par", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public PushedAuthorizationResponse authorize(@RequestParam MultiValueMap<String, String> paramMap)
+    public PushedAuthorizationResponse authorize(@Validated @ModelAttribute PushedAuthorizationRequest pushedAuthorizationRequest)
             throws EsignetException {
         try {
-            return oAuthService.authorize(paramMap);
+            return oAuthService.authorize(pushedAuthorizationRequest);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.PAR_REQUEST, ActionStatus.ERROR,
-                    AuditHelper.buildAuditDto(paramMap.getFirst("client_id"), "clientId", null), ex);
+                    AuditHelper.buildAuditDto(pushedAuthorizationRequest.getClient_id(), "clientId", null), ex);
             throw ex;
         }
     }
@@ -110,15 +93,4 @@ public class OAuthController {
         return oAuthService.getOAuthServerDiscoveryInfo();
     }
 
-
-    private TokenRequest buildTokenRequest(MultiValueMap<String,String> paramMap) {
-        TokenRequest tokenRequest = new TokenRequest();
-        tokenRequest.setCode(paramMap.getFirst("code"));
-        tokenRequest.setClient_id(paramMap.getFirst("client_id"));
-        tokenRequest.setRedirect_uri(paramMap.getFirst("redirect_uri"));
-        tokenRequest.setGrant_type(paramMap.getFirst("grant_type"));
-        tokenRequest.setClient_assertion_type(paramMap.getFirst("client_assertion_type"));
-        tokenRequest.setClient_assertion(paramMap.getFirst("client_assertion"));
-        return tokenRequest;
-    }
 }

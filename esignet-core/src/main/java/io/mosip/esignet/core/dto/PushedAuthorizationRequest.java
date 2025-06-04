@@ -11,6 +11,7 @@ import java.io.Serializable;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
 
 @Data
+@NoRequestUri
 public class PushedAuthorizationRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -55,4 +56,12 @@ public class PushedAuthorizationRequest implements Serializable {
     private String code_challenge_method;
 
     private String id_token_hint;
+
+    @NotBlank(message = ErrorConstants.INVALID_ASSERTION_TYPE)
+    private String client_assertion_type;
+
+    @NotBlank(message =  ErrorConstants.INVALID_ASSERTION)
+    private String client_assertion;
+
+    private String request_uri;
 }
