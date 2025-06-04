@@ -6,6 +6,13 @@ modules:
       tag: 1.6.x
       pullPolicy: Always
 
+extraEnvVarsCM:
+  - global
+  - s3
+  - keycloak-host
+  - db
+  - apitestrig
+
 resources:
   limits:
     cpu: 300m
@@ -14,9 +21,3 @@ resources:
     cpu: 300m
     memory: 500Mi
 
-extraEnvVarsCM:
-  - global
-  - s3
-  - keycloak-host
-  - db
-  - apitestrig
