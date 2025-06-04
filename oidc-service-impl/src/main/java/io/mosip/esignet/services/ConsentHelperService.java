@@ -133,7 +133,7 @@ public class ConsentHelperService {
             }
 
             //set consent expires datetime
-            userConsent.setExpirydtimes(getConsentExpireDTimes(transaction.getConsentExpireMinutes()));
+            userConsent.setExpiredtimes(getConsentExpireDTimes(transaction.getConsentExpireMinutes()));
 
             consentService.saveUserConsent(userConsent);
             auditWrapper.logAudit(Action.UPDATE_USER_CONSENT, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),transaction),null);
