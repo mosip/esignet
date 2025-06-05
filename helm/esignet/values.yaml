@@ -247,19 +247,8 @@ extraEnvVars: |
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  - name: MOSIP_ESIGNET_CAPTCHA_SITE_KEY
-    valueFrom:
-      secretKeyRef:
-        name: esignet-captcha
-        key: esignet-captcha-site-key
-  - name: MOSIP_ESIGNET_INTEGRATION_AUDIT_PLUGIN
-    value: LoggerAuditService
   - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
     value: esignet
-  - name: IDA_AUTHENTICATOR_ENV
-    value: Staging
-  - name: MOSIP_ESIGNET_UI_CONFIG_USERNAME_PREFIX
-    value: '+91'
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:
@@ -326,6 +315,8 @@ extraEnvVars: |
         name: esignet-misp-onboarder-key
         key: mosip-esignet-misp-key
 
+extraEnvVarsAdditional: []
+
 ## ConfigMap with extra environment variables that used
 ##
 extraEnvVarsCM:
@@ -371,7 +362,7 @@ initContainers:
         value: "true"
     envFrom:
       - configMapRef:
-          name: global
+          name: esignet-global
     image: docker.io/openjdk:11-jre
     imagePullPolicy: Always
     name: cacerts
@@ -420,6 +411,7 @@ persistence:
   mountDir: /home/mosip/config/
   volume_name: config
   # pvc_claim_name: pkcs12-keys.p12
+  pvc_claim_name:
 
 ## Init containers parameters:
 ## volumePermissions: Change the owner and group of the persistent volume mountpoint to runAsUser:fsGroup values from the securityContext section.

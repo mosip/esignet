@@ -3,24 +3,28 @@ package io.mosip.testrig.apirig.esignet.utils;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.lang.JoseException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -33,6 +37,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
+import io.mosip.testrig.apirig.dbaccess.DBManager;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.testrunner.MosipTestRunner;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
@@ -40,138 +45,217 @@ import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
 import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.JWKKeyUtil;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.SkipTestCaseHandler;
+//import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 public class EsignetUtil extends AdminTestUtil {
 
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
+	public static String pluginName = null;
+	private static Faker faker = new Faker();
+	private static String fullNameForSunBirdR = generateFullNameForSunBirdR();
+	private static String dobForSunBirdR = generateDobForSunBirdR();
+	private static String policyNumberForSunBirdR = generateRandomNumberString(9);
 	
-	public static String getIdentityPluginNameFromEsignetActuator() {
-		// Possible values = IdaAuthenticatorImpl, MockAuthenticationService
+	public static void setLogLevel() {
+		if (EsignetConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
+	
+	public static void dBCleanup() {
+		DBManager.executeDBQueries(EsignetConfigManager.getKMDbUrl(), EsignetConfigManager.getKMDbUser(),
+				EsignetConfigManager.getKMDbPass(), EsignetConfigManager.getKMDbSchema(),
+				getGlobalResourcePath() + "/" + "config/keyManagerDataDeleteQueriesForEsignet.txt");
 
-		String plugin = getValueFromEsignetActuator("classpath:/application.properties",
-				"mosip.esignet.integration.authenticator");
+		DBManager.executeDBQueries(EsignetConfigManager.getIdaDbUrl(), EsignetConfigManager.getIdaDbUser(),
+				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getIdaDbSchema(),
+				getGlobalResourcePath() + "/" + "config/idaDeleteQueriesForEsignet.txt");
 
-		if (plugin == null || plugin.isBlank() == true) {
-			plugin = getValueFromEsignetActuator("classpath:/application-default.properties",
-					"mosip.esignet.integration.authenticator");
-		}
-		
-		if (plugin == null || plugin.isBlank() == true) {
-			plugin = getValueFromEsignetActuator("mosip-config/esignet",
-					"mosip.esignet.integration.authenticator");
-		}
+		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
+				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
+				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
 
-		return plugin;
+		DBManager.executeDBQueries(EsignetConfigManager.getPMSDbUrl(), EsignetConfigManager.getPMSDbUser(),
+				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getPMSDbSchema(),
+				getGlobalResourcePath() + "/" + "config/pmsDataDeleteQueries.txt");
 	}
 	
 	public static void getSupportedLanguage() {
-		String supportedLanguages = getValueFromSignupActuator("classpath:/application-default.properties",
-				"mosip.signup.supported-languages");
 
-		if (supportedLanguages != null && supportedLanguages.isBlank() == false) {
-			supportedLanguages = supportedLanguages.replace("{", "").replace("}", "").replace("'", "");
-
-			// Split the string by commas
-			String[] languages = supportedLanguages.split(",");
-
-			// Use a TreeSet to sort the languages
-			Set<String> sortedLanguages = new TreeSet<>();
-			for (String language : languages) {
-				sortedLanguages.add(language.trim()); // Trim to remove any extra spaces
-			}
-
-			// Add sorted languages to the languageList
-			BaseTestCase.languageList.addAll(sortedLanguages);
-
-			logger.info("languageList " + BaseTestCase.languageList);
+		if (EsignetConfigManager.getproperty("esignetSupportedLanguage") != null) {
+			BaseTestCase.languageList.add(EsignetConfigManager.getproperty(EsignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
+			logger.info("Supported Language = " + EsignetConfigManager.getproperty(EsignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
 		} else {
 			logger.error("Language not found");
 		}
 	}
 	
-//	private static final Map<String, String> actuatorValueCache = new HashMap<>();
+	public static JSONArray esignetActiveProfiles = null;
+	
+	public static String getIdentityPluginNameFromEsignetActuator() {
+		// Possible values = IdaAuthenticatorImpl, MockAuthenticationService, SunbirdRCAuthenticationService
+		if (pluginName != null && !pluginName.isBlank()) {
+			return pluginName;
+		}
+		pluginName = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+				"mosip.esignet.integration.authenticator");
+
+		return pluginName;
+	}
+	
+	public static JSONArray getActiveProfilesFromActuator(String url, String key) {
+		JSONArray activeProfiles = null;
+
+		try {
+			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+			JSONObject responseJson = new JSONObject(response.getBody().asString());
+
+			// If the key exists in the response, return the associated JSONArray
+			if (responseJson.has(key)) {
+				activeProfiles = responseJson.getJSONArray(key);
+			} else {
+				logger.warn("The key '" + key + "' was not found in the response.");
+			}
+
+		} catch (Exception e) {
+			// Handle other errors like network issues, etc.
+			logger.error("Error fetching active profiles from the actuator: " + e.getMessage());
+		}
+
+		return activeProfiles;
+	}
+	
+	public static String getValueFromEsignetActuator(String section, String key) {
+		String value = null;
+
+		// Try to fetch profiles if not already fetched
+		if (esignetActiveProfiles == null || esignetActiveProfiles.length() == 0) {
+			esignetActiveProfiles = getActiveProfilesFromActuator(EsignetConstants.ESIGNET_ACTUATOR_URL,
+					EsignetConstants.ACTIVE_PROFILES);
+		}
+
+		// Normalize the key
+		String keyForEnvVariableSection = key.toUpperCase().replace("-", "_").replace(".", "_");
+
+		// Try fetching the value from different sections
+		value = getValueFromEsignetActuator(EsignetConstants.SYSTEM_ENV_SECTION, keyForEnvVariableSection,
+				EsignetConstants.ESIGNET_ACTUATOR_URL);
+
+		// Fallback to other sections if value is not found
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES, key,
+					EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_DEFAULT_PROPERTIES, key,
+					EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		// Try profiles from active profiles if available
+		if (value == null || value.isBlank()) {
+			if (esignetActiveProfiles != null && esignetActiveProfiles.length() > 0) {
+				for (int i = 0; i < esignetActiveProfiles.length(); i++) {
+					String propertySection = esignetActiveProfiles.getString(i).equals(EsignetConstants.DEFAULT_STRING)
+							? EsignetConstants.MOSIP_CONFIG_APPLICATION_HYPHEN_STRING
+									+ esignetActiveProfiles.getString(i) + EsignetConstants.DOT_PROPERTIES_STRING
+							: esignetActiveProfiles.getString(i) + EsignetConstants.DOT_PROPERTIES_STRING;
+
+					value = getValueFromEsignetActuator(propertySection, key, EsignetConstants.ESIGNET_ACTUATOR_URL);
+
+					if (value != null && !value.isBlank()) {
+						break;
+					}
+				}
+			} else {
+				logger.warn("No active profiles were retrieved.");
+			}
+		}
+
+		// Fallback to a default section
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(), key,
+					EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		// Final fallback to the original section if no value was found
+		if (value == null || value.isBlank()) {
+			value = getValueFromEsignetActuator(section, key, EsignetConstants.ESIGNET_ACTUATOR_URL);
+		}
+
+		// Log the final result or an error message if not found
+		if (value == null || value.isBlank()) {
+			logger.error("Value not found for section: " + section + ", key: " + key);
+		}
+
+		return value;
+	}
+
 	
 	public static JSONArray esignetActuatorResponseArray = null;
 
-	public static String getValueFromEsignetActuator(String section, String key) {
-		String url = EsignetConfigManager.getEsignetBaseUrl() + EsignetConfigManager.getproperty("actuatorEsignetEndpoint");
+	public static String getValueFromEsignetActuator(String section, String key, String url) {
+		// Combine the cache key to uniquely identify each request
 		String actuatorCacheKey = url + section + key;
+
+		// Check if the value is already cached
 		String value = actuatorValueCache.get(actuatorCacheKey);
-		if (value != null && !value.isEmpty())
-			return value;
+		if (value != null && !value.isEmpty()) {
+			return value; // Return cached value if available
+		}
 
 		try {
+			// Fetch the actuator response array if it's not already populated
 			if (esignetActuatorResponseArray == null) {
-				Response response = null;
-				JSONObject responseJson = null;
-				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
-				responseJson = new JSONObject(response.getBody().asString());
+				Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+				JSONObject responseJson = new JSONObject(response.getBody().asString());
 				esignetActuatorResponseArray = responseJson.getJSONArray("propertySources");
 			}
 
+			// Loop through the "propertySources" to find the matching section and key
 			for (int i = 0, size = esignetActuatorResponseArray.length(); i < size; i++) {
 				JSONObject eachJson = esignetActuatorResponseArray.getJSONObject(i);
+				// Check if the section matches
 				if (eachJson.get("name").toString().contains(section)) {
-					logger.info(eachJson.getJSONObject(GlobalConstants.PROPERTIES));
-					value = eachJson.getJSONObject(GlobalConstants.PROPERTIES).getJSONObject(key)
-							.get(GlobalConstants.VALUE).toString();
-					if (EsignetConfigManager.IsDebugEnabled())
-						logger.info("Actuator: " + url + " key: " + key + " value: " + value);
-					break;
+					// Get the value from the properties object
+					JSONObject properties = eachJson.getJSONObject(GlobalConstants.PROPERTIES);
+					if (properties.has(key)) {
+						value = properties.getJSONObject(key).get(GlobalConstants.VALUE).toString();
+						// Log the value if debug is enabled
+						if (EsignetConfigManager.IsDebugEnabled()) {
+							logger.info("Actuator: " + url + " key: " + key + " value: " + value);
+						}
+						break; // Exit the loop once the value is found
+					} else {
+						logger.warn("Key '" + key + "' not found in section '" + section + "'.");
+					}
 				}
 			}
-			actuatorValueCache.put(actuatorCacheKey, value);
 
-			return value;
-		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return value;
-		}
-
-	}
-	
-	public static JSONArray signupActuatorResponseArray = null;
-
-	public static String getValueFromSignupActuator(String section, String key) {
-		String url = EsignetConfigManager.getSignupBaseUrl() + EsignetConfigManager.getproperty("actuatorSignupEndpoint");
-		String actuatorCacheKey = url + section + key;
-		String value = actuatorValueCache.get(actuatorCacheKey);
-		if (value != null && !value.isEmpty())
-			return value;
-
-		try {
-			if (signupActuatorResponseArray == null) {
-				Response response = null;
-				JSONObject responseJson = null;
-				response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
-				responseJson = new JSONObject(response.getBody().asString());
-				signupActuatorResponseArray = responseJson.getJSONArray("propertySources");
+			// Cache the retrieved value for future lookups
+			if (value != null && !value.isEmpty()) {
+				actuatorValueCache.put(actuatorCacheKey, value);
+			} else {
+				logger.warn("No value found for section: " + section + ", key: " + key);
 			}
 
-			for (int i = 0, size = signupActuatorResponseArray.length(); i < size; i++) {
-				JSONObject eachJson = signupActuatorResponseArray.getJSONObject(i);
-				if (eachJson.get("name").toString().contains(section)) {
-					logger.info(eachJson.getJSONObject(GlobalConstants.PROPERTIES));
-					value = eachJson.getJSONObject(GlobalConstants.PROPERTIES).getJSONObject(key)
-							.get(GlobalConstants.VALUE).toString();
-					if (EsignetConfigManager.IsDebugEnabled())
-						logger.info("Actuator: " + url + " key: " + key + " value: " + value);
-					break;
-				}
-			}
-			actuatorValueCache.put(actuatorCacheKey, value);
-
 			return value;
+		} catch (JSONException e) {
+			// Handle JSON parsing exceptions separately
+			logger.error("JSON parsing error for section: " + section + ", key: " + key + " - " + e.getMessage());
+			return null; // Return null if JSON parsing fails
 		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return value;
+			// Catch any other exceptions (e.g., network issues)
+			logger.error("Error fetching value for section: " + section + ", key: " + key + " - " + e.getMessage());
+			return null; // Return null if any other exception occurs
 		}
-
 	}
 	
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
@@ -201,7 +285,9 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
 					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke")
-					|| testCaseName.contains("ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke"))) {
+					|| testCaseName.contains("ESignet_AuthenticateUserIDP_NonAuth_uin_Otp_Valid_Smoke")
+					|| testCaseName.contains("ESignet_UpdateOIDCClient_StatusCode_Diff_Token_Neg")
+					|| testCaseName.contains("ESignet_CreateOIDCClient_StatusCode_Diff_Token_Neg"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
@@ -221,6 +307,9 @@ public class EsignetUtil extends AdminTestUtil {
 							&& endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
+			if ((testCaseName.contains("_CreateOIDCClientV3_") || testCaseName.contains("_UpdateOIDCClientV3_"))) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
 
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
@@ -235,7 +324,7 @@ public class EsignetUtil extends AdminTestUtil {
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice")) {
 			// Let run test cases eSignet & Sunbird (for identity)   -- only KBI 
 			
-			String endpoint = testCaseDTO.getEndPoint();
+//			String endpoint = testCaseDTO.getEndPoint();
 			
 			if (testCaseName.contains("SunBird") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
@@ -266,12 +355,18 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	public static String inputstringKeyWordHandeler(String jsonString, String testCaseName) {
 		if (jsonString.contains("$ID:")) {
-			String autoGenIdFileName = esignetAutoGeneratedIdPropFileName;
-			jsonString = replaceIdWithAutogeneratedId(jsonString, "$ID:", autoGenIdFileName);
+			jsonString = replaceIdWithAutogeneratedId(jsonString, "$ID:");
 		}
 		
 		if (jsonString.contains(GlobalConstants.TIMESTAMP)) {
 			jsonString = replaceKeywordValue(jsonString, GlobalConstants.TIMESTAMP, generateCurrentUTCTimeStamp());
+		}
+		
+		if (jsonString.contains("$SUNBIRD_SCOPE$")) {
+			jsonString = replaceKeywordValue(jsonString, "$SUNBIRD_SCOPE$",
+					getValueFromEsignetActuator(jsonString,
+							EsignetConstants.MOSIP_ESIGNET_SUPPORTED_CREDENTIAL_SCOPES_LANGUAGE).replace("{'", "")
+							.replace("'}", ""));
 		}
 		
 		if (testCaseName.contains("ESignet_GenerateApiKey_")) {
@@ -287,23 +382,22 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		
 		if (jsonString.contains("$POLICYNUMBERFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordValue(jsonString, "$POLICYNUMBERFORSUNBIRDRC$",
-					properties.getProperty("policyNumberForSunBirdRC"));
+			jsonString = replaceKeywordValue(jsonString, "$POLICYNUMBERFORSUNBIRDRC$", policyNumberForSunBirdR);
 		}
 		
 		if (jsonString.contains("$FULLNAMEFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordValue(jsonString, "$FULLNAMEFORSUNBIRDRC$", fullNameForSunBirdRC);
+			jsonString = replaceKeywordValue(jsonString, "$FULLNAMEFORSUNBIRDRC$", fullNameForSunBirdR);
 		}
 		
 		if (jsonString.contains("$DOBFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordValue(jsonString, "$DOBFORSUNBIRDRC$", dobForSunBirdRC);
+			jsonString = replaceKeywordValue(jsonString, "$DOBFORSUNBIRDRC$", dobForSunBirdR);
 		}
 		
 		if (jsonString.contains("$CHALLENGEVALUEFORSUNBIRDC$")) {
 
 			HashMap<String, String> mapForChallenge = new HashMap<String, String>();
-			mapForChallenge.put(GlobalConstants.FULLNAME, fullNameForSunBirdRC);
-			mapForChallenge.put(GlobalConstants.DOB, dobForSunBirdRC);
+			mapForChallenge.put(GlobalConstants.FULLNAME, fullNameForSunBirdR);
+			mapForChallenge.put(GlobalConstants.DOB, dobForSunBirdR);
 
 			String challenge = gson.toJson(mapForChallenge);
 
@@ -334,12 +428,10 @@ public class EsignetUtil extends AdminTestUtil {
 		if (jsonString.contains("$BINDINGJWKKEY$")) {
 			String jwkKey = "";
 			if (gettriggerESignetKeyGen3()) {
-//				jwkKey = generateAndWriteJWKKey(bindingJWK1);
 				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGJWK1);
 
 				settriggerESignetKeyGen3(false);
 			} else {
-//				jwkKey = getJWKKey(BINDINGJWK1);
 				jwkKey = JWKKeyUtil.getJWKKey(BINDINGJWK1);
 
 			}
@@ -595,7 +687,7 @@ public class EsignetUtil extends AdminTestUtil {
 		
 		if (jsonString.contains("$WLATOKENCONSENTUSER2$")) {
 			jsonString = replaceKeywordValue(jsonString, "$WLATOKENCONSENTUSER2$",
-					generateWLAToken(jsonString, BINDINGCONSENTUSER2JWK, BINDINGCERTCONSENTSAMECLAIMFILE));
+					generateWLAToken(jsonString, BINDINGCONSENTUSER2JWK, BINDINGCERTCONSENTUSER2FILE));
 		}
 		
 		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREUSER2$")) {
@@ -605,12 +697,12 @@ public class EsignetUtil extends AdminTestUtil {
 		
 		if (jsonString.contains("$WLATOKENCONSENTVIDUSER2$")) {
 			jsonString = replaceKeywordValue(jsonString, "$WLATOKENCONSENTVIDUSER2$",
-					generateWLAToken(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTCONSENTSAMECLAIMFILE));
+					generateWLAToken(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTVIDCONSENTUSER2FILE));
 		}
 		
 		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREVIDUSER2$")) {
 			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREVIDUSER2$",
-					generateDetachedSignature(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTCONSENTSAMECLAIMFILE));
+					generateDetachedSignature(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTVIDCONSENTUSER2FILE));
 		}
 		
 		if (jsonString.contains("$PROOFJWT$")) {
@@ -663,9 +755,6 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = request.toString();
 			tempUrl = getValueFromEsignetWellKnownEndPoint("issuer", EsignetConfigManager.getEsignetBaseUrl());
-			if (tempUrl.contains("esignet.")) {
-				tempUrl = tempUrl.replace("esignet.", EsignetConfigManager.getproperty("esignetMockBaseURL"));
-			}
 			jsonString = replaceKeywordValue(jsonString, "$PROOF_JWT_2$",
 					signJWKForMock(clientId, accessToken, oidcJWKKey4, testCaseName, tempUrl));
 		}
@@ -686,6 +775,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 		}
 	}
+	
 	public static String getAuthTransactionId(String oidcTransactionId) {
 		final String transactionId = oidcTransactionId.replaceAll("_|-", "");
 		String lengthOfTransactionId = getValueFromEsignetActuator(
@@ -734,9 +824,6 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	public static String signJWKKeyForMock(String clientId, RSAKey jwkKey) {
 		String tempUrl = getValueFromEsignetWellKnownEndPoint("token_endpoint", EsignetConfigManager.getEsignetBaseUrl());
-		if (tempUrl.contains("esignet.")) {
-			tempUrl = tempUrl.replace("esignet.", EsignetConfigManager.getproperty("esignetMockBaseURL"));
-		}
 		int idTokenExpirySecs = Integer
 				.parseInt(getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(),
 						GlobalConstants.MOSIP_ESIGNET_ID_TOKEN_EXPIRE_SECONDS));
@@ -758,7 +845,7 @@ public class EsignetUtil extends AdminTestUtil {
 			Date expirationTime = calendar.getTime();
 
 			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId).audience(tempUrl).issuer(clientId)
-					.issueTime(currentTime).expirationTime(expirationTime).build();
+					.issueTime(currentTime).expirationTime(expirationTime).jwtID(clientId).build();
 
 			logger.info("JWT current and expiry time " + currentTime + " & " + expirationTime);
 
@@ -925,7 +1012,7 @@ public class EsignetUtil extends AdminTestUtil {
 				idTokenExpirySecs = 0;
 
 			claimsSet = new JWTClaimsSet.Builder().audience(tempUrl).claim("nonce", nonce).issuer(clientId)
-					.issueTime(currentTime).expirationTime(expirationTime).build();
+					.issueTime(currentTime).expirationTime(expirationTime).jwtID(clientId).build();
 
 			if (testCaseName.contains("_Missing_Typ_")) {
 				signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwkHeader).build(), claimsSet);
@@ -979,7 +1066,7 @@ public class EsignetUtil extends AdminTestUtil {
 			String nonce = new ObjectMapper().readTree(jwtPayload).get("c_nonce").asText();
 
 			claimsSet = new JWTClaimsSet.Builder().audience(tempUrl).claim("nonce", nonce).issuer(clientId)
-					.issueTime(currentTime).expirationTime(expirationTime).build();
+					.issueTime(currentTime).expirationTime(expirationTime).jwtID(clientId).build();
 			signedJWT = new SignedJWT(
 					new JWSHeader.Builder(JWSAlgorithm.RS256).type(new JOSEObjectType(typ)).jwk(jwkHeader).build(),
 					claimsSet);
@@ -1014,7 +1101,7 @@ public class EsignetUtil extends AdminTestUtil {
 			Date expirationTime = calendar.getTime();
 
 			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId).audience(tempUrl).issuer(clientId)
-					.issueTime(currentTime).expirationTime(expirationTime).build();
+					.issueTime(currentTime).expirationTime(expirationTime).jwtID(clientId).build();
 
 			logger.info("JWT current and expiry time " + currentTime + " & " + expirationTime);
 
@@ -1058,6 +1145,16 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String BINDINGCONSENTEMPTYCLAIMJWK = "bindingConsentEmptyClaimJWK";
 	protected static final String BINDINGCONSENTUSER2JWK = "bindingConsentUser2JWK";
 	protected static final String BINDINGCONSENTVIDUSER2JWK = "bindingConsentVidUser2JWK";
+	
+	public static final String BINDINGCERTFILE = "BINDINGCERTFile";
+	public static final String BINDINGCERTFILEVID = "BINDINGCERTFileVid";
+	public static final String BINDINGCERTCONSENTFILE = "BINDINGCERTCONSENTFile";
+	public static final String BINDINGCERTCONSENTVIDFILE = "BINDINGCERTCONSENTVidFile";
+	public static final String BINDINGCERTCONSENTSAMECLAIMFILE = "BINDINGCERTCONSENTSAMECLAIMFile";
+	public static final String BINDINGCERTCONSENTVIDSAMECLAIMFILE = "BINDINGCERTCONSENTVIDSAMECLAIMFile";
+	public static final String BINDINGCERTCONSENTEMPTYCLAIMFILE = "BINDINGCERTCONSENTEMPTYCLAIMFile";
+	public static final String BINDINGCERTCONSENTUSER2FILE = "BINDINGCERTCONSENTUSER2File";
+	public static final String BINDINGCERTVIDCONSENTUSER2FILE = "BINDINGCERTCONSENTVIDUSER2File";
 	
 	protected static final String OIDCJWK1 = "oidcJWK1";
 	protected static final String OIDCJWK2 = "oidcJWK2";
@@ -1184,5 +1281,235 @@ public class EsignetUtil extends AdminTestUtil {
 
 	private static boolean gettriggerESignetKeyGen13() {
 		return triggerESignetKeyGen13;
+	}
+
+	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
+			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
+	private static final String GRANT_TYPE = "client_credentials";
+	private static final String CLIENT_ID = "client_id";
+	private static final String CLIENT_SECRET = "client_secret";
+	private static final String GRANT_TYPE_KEY = "grant_type";
+	private static final String ACCESS_TOKEN = "access_token";
+
+    private static String partnerCookie = null;
+    private static String mobileAuthCookie = null;
+	
+	private static Response sendPostRequest(String url, Map<String, String> params) {
+		try {
+			return RestClient.postRequestWithFormDataBody(url, params);
+		} catch (Exception e) {
+			logger.error("Error sending POST request to URL: " + url, e);
+			return null;
+		}
+	}
+	
+    public static String getAuthTokenFromKeyCloak(String clientId, String clientSecret) {
+        Map<String, String> params = new HashMap<>();
+        params.put(CLIENT_ID, clientId);
+        params.put(CLIENT_SECRET, clientSecret);
+        params.put(GRANT_TYPE_KEY, GRANT_TYPE);
+
+        Response response = sendPostRequest(TOKEN_URL, params);
+
+        if (response == null) {
+            return "";
+        }
+        logger.info(response.getBody().asString());
+
+        JSONObject responseJson = new JSONObject(response.getBody().asString());
+        return responseJson.optString(ACCESS_TOKEN, "");
+    }
+    
+    public static String getAuthTokenByRole(String role) {
+        if (role == null) return "";
+
+        String roleLowerCase = role.toLowerCase();
+        switch (roleLowerCase) {
+            case "partner":
+                if (!AdminTestUtil.isValidToken(partnerCookie)) {
+                    partnerCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getPmsClientId(), EsignetConfigManager.getPmsClientSecret());
+                }
+                return partnerCookie;
+            case "mobileauth":
+                if (!AdminTestUtil.isValidToken(mobileAuthCookie)) {
+                    mobileAuthCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getMPartnerMobileClientId(), EsignetConfigManager.getMPartnerMobileClientSecret());
+                }
+                return mobileAuthCookie;
+            default:
+                return "";
+        }
+    }
+
+	public static Response postRequestWithCookieAndAuthHeader(String url, String jsonInput, String cookieName, String role,
+			String testCaseName) {
+		Response response = null;
+		token = getAuthTokenByRole(role);
+		String apiKey = null;
+		String partnerId = null;
+		JSONObject req = new JSONObject(jsonInput);
+		apiKey = req.getString(GlobalConstants.APIKEY);
+		req.remove(GlobalConstants.APIKEY);
+		partnerId = req.getString(GlobalConstants.PARTNERID);
+		req.remove(GlobalConstants.PARTNERID);
+
+		HashMap<String, String> headers = new HashMap<>();
+		headers.put("PARTNER-API-KEY", apiKey);
+		headers.put("PARTNER-ID", partnerId);
+		headers.put(cookieName, "Bearer " + token);
+		jsonInput = req.toString();
+		if (BaseTestCase.currentModule.equals(GlobalConstants.ESIGNET)) {
+			jsonInput = smtpOtpHandler(jsonInput, testCaseName);
+		}
+
+		logger.info(GlobalConstants.POST_REQ_URL + url);
+		GlobalMethods.reportRequest(headers.toString(), jsonInput, url);
+		try {
+			response = RestClient.postRequestWithMultipleHeadersWithoutCookie(url, jsonInput,
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, headers);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
+	}
+	
+	public static Response postWithBodyAndBearerToken(String url, String jsonInput, String cookieName,
+			String role, String testCaseName, String idKeyName) {
+		Response response = null;
+		if (testCaseName.contains("Invalid_Token")) {
+			token = "xyz";
+		} else if (testCaseName.contains("NOAUTH")) {
+			token = "";
+		} else {
+			token = getAuthTokenByRole(role);
+		}
+		logger.info(GlobalConstants.POST_REQ_URL + url);
+		GlobalMethods.reportRequest(null, jsonInput, url);
+		try {
+			response = RestClient.postRequestWithBearerToken(url, jsonInput, MediaType.APPLICATION_JSON,
+					MediaType.APPLICATION_JSON, cookieName, token);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
+	}
+	
+	public static Response putWithPathParamsAndBodyAndBearerToken(String url, String jsonInput, String cookieName, String role,
+			String testCaseName, String pathParams) {
+		Response response = null;
+		logger.info("inputJson is::" + jsonInput);
+		JSONObject req = new JSONObject(jsonInput);
+		logger.info(GlobalConstants.REQ_STR + req);
+		HashMap<String, String> pathParamsMap = new HashMap<>();
+		String[] params = pathParams.split(",");
+		for (String param : params) {
+			logger.info("param is::" + param);
+			if (req.has(param)) {
+				logger.info(GlobalConstants.REQ_STR + req);
+				pathParamsMap.put(param, req.get(param).toString());
+				req.remove(param);
+			} else
+				logger.error(GlobalConstants.ERROR_STRING_2 + param + GlobalConstants.IN_STRING + jsonInput);
+		}
+		if (testCaseName.contains("Invalid_Token")) {
+			token = "xyz";
+		} else {
+			token = getAuthTokenByRole(role);
+		}
+		logger.info(GlobalConstants.PUT_REQ_STRING + url);
+		GlobalMethods.reportRequest(null, req.toString(), url);
+		try {
+			response = RestClient.putWithPathParamsBodyAndBearerToken(url, pathParamsMap, req.toString(),
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, cookieName, token);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
+	}
+	
+	protected Response postRequestWithCookieAuthHeaderForAutoGenId(String url, String jsonInput, String cookieName,
+			String role, String testCaseName, String idKeyName) {
+		Response response = null;
+		String inputJson = inputJsonKeyWordHandeler(jsonInput, testCaseName);
+		token = kernelAuthLib.getTokenByRole(role);
+		String apiKey = null;
+		String partnerId = null;
+		JSONObject req = new JSONObject(inputJson);
+		apiKey = req.getString(GlobalConstants.APIKEY);
+		req.remove(GlobalConstants.APIKEY);
+		partnerId = req.getString(GlobalConstants.PARTNERID);
+		req.remove(GlobalConstants.PARTNERID);
+
+		HashMap<String, String> headers = new HashMap<>();
+		headers.put("PARTNER-API-KEY", apiKey);
+		headers.put("PARTNER-ID", partnerId);
+		headers.put(cookieName, "Bearer " + token);
+		inputJson = req.toString();
+		if (BaseTestCase.currentModule.equals(GlobalConstants.ESIGNET)) {
+			inputJson = smtpOtpHandler(inputJson, testCaseName);
+		}
+		logger.info(GlobalConstants.POST_REQ_URL + url);
+		GlobalMethods.reportRequest(headers.toString(), inputJson, url);
+		try {
+			response = RestClient.postRequestWithMultipleHeadersWithoutCookie(url, inputJson,
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, headers);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			if (testCaseName.toLowerCase().contains("_sid")) {
+				writeAutoGeneratedId(response, idKeyName, testCaseName);
+			}
+
+			if (testCaseName.toLowerCase().contains("_scert")) {
+				cacheCertificate(response, testCaseName);
+			}
+			return response;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
+	}
+
+	public static void cacheCertificate(Response response, String testCaseName) {
+		String certsKey = null;
+		if (testCaseName.contains("Wla_uin_")) {
+			certsKey = BINDINGCERTFILE;
+		} else if (testCaseName.contains("Wla_Vid_")) {
+			certsKey = BINDINGCERTFILEVID;
+		} else if (testCaseName.contains("_Consentuin_")) {
+			certsKey = BINDINGCERTCONSENTFILE;
+		} else if (testCaseName.contains("_ConsentVid_")) {
+			certsKey = BINDINGCERTCONSENTVIDFILE;
+		} else if (testCaseName.contains("_Consent_SameClaim_uin_")) {
+			certsKey = BINDINGCERTCONSENTSAMECLAIMFILE;
+		} else if (testCaseName.contains("_Consent_SameClaim_Vid_")) {
+			certsKey = BINDINGCERTCONSENTVIDSAMECLAIMFILE;
+		} else if (testCaseName.contains("_Consent_EmptyClaim_uin_")) {
+			certsKey = BINDINGCERTCONSENTEMPTYCLAIMFILE;
+		} else if (testCaseName.contains("_Consent_User2_uin_SCert_")) {
+			certsKey = BINDINGCERTCONSENTUSER2FILE;
+		} else if (testCaseName.contains("_Consent_User2_Vid_SCert_")) {
+			certsKey = BINDINGCERTVIDCONSENTUSER2FILE;
+		}
+
+		String certificateData = new JSONObject(response.getBody().asString()).getJSONObject(GlobalConstants.RESPONSE)
+				.get("certificate").toString();
+
+		CertsUtil.addCertificateToCache(certsKey, certificateData);
+	}
+	
+	public static String generateFullNameForSunBirdR() {
+		return faker.name().fullName();
+	}
+
+	public static String generateDobForSunBirdR() {
+		Faker faker = new Faker();
+		LocalDate dob = faker.date().birthday().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		return dob.format(formatter);
 	}
 }

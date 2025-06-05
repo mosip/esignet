@@ -33,9 +33,10 @@ import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
-public class SimplePost extends AdminTestUtil implements ITest {
+public class SimplePost extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(SimplePost.class);
 	protected String testCaseName = "";
 	public Response response = null;
@@ -81,7 +82,7 @@ public class SimplePost extends AdminTestUtil implements ITest {
 	 * @throws AdminTestException
 	 */
 	@Test(dataProvider = "testcaselist")
-	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
+	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		auditLogCheck = testCaseDTO.isAuditLogCheck();
@@ -121,8 +122,6 @@ public class SimplePost extends AdminTestUtil implements ITest {
 
 		else {
 			String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
-			if (testCaseDTO.getEndPoint().contains("/signup/"))
-				tempUrl = EsignetConfigManager.getSignupBaseUrl();
 			if (testCaseName.contains("ESignet_")) {
 
 				if ((testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC"))
@@ -135,36 +134,33 @@ public class SimplePost extends AdminTestUtil implements ITest {
 				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC")) {
-//					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
-//						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
-
-					if (EsignetConfigManager.getEsignetMockBaseURL() != null
-							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
-						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
-					response = postWithBodyAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
-							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
+
+					response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
+							inputJson, COOKIENAME, testCaseDTO.getTestCaseName());
 				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$")
 						&& testCaseName.contains("SunBirdR")) {
-
-//					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
-//						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
 					if (EsignetConfigManager.getSunBirdBaseURL() != null
 							&& !EsignetConfigManager.getSunBirdBaseURL().isBlank())
 						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
-					// Once sunbird registry is pointing to specific env, remove the above line and
-					// uncomment below line
-					// tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL,
-					// ConfigManager.getSunBirdBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 
 					response = postWithBodyAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
 							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
 
 				} else if (testCaseName.contains("ESignet_SendBindingOtp")) {
-					response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+
+					if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+							.contains("mockauthenticationservice") == true) {
+						inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+						response = EsignetUtil.postRequestWithCookieAndAuthHeader(tempUrl + testCaseDTO.getEndPoint(),
+								inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					} else {
+						response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+					}
+
 				} else {
 					response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
 							inputJson, COOKIENAME, testCaseDTO.getTestCaseName());

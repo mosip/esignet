@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-family) !important;
 }
 
 .navbar-header {
@@ -206,13 +206,10 @@ body {
 }
 
 .signup-banner-hyperlink {
-  font-style: normal;
-  font-variant: normal;
-  font-weight: bold;
-  font-size: 16px;
-  line-height: 21px;
-  letter-spacing: 0px;
+  font-weight: 700;
   color: var(--signup-banner-signup-url-color);
+  font-family: Roboto, sans-serif !important;
+  letter-spacing: 0.5px;
 }
 
 .signup-banner-hyperlink:hover {
@@ -445,7 +442,7 @@ input[type="checkbox"]:hover {
 }
 
 input {
-  overflow: hidden;
+  overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
 
@@ -454,15 +451,14 @@ input {
   align-items: center;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .input-box .prefix {
   letter-spacing: 0px;
   color: #171a1c;
   opacity: 0.6;
-  font: normal normal normal 16px/21px Roboto;
-  letter-spacing: 0px;
+  font: normal normal normal 16px/21px Roboto, sans-serif;
 }
 
 [dir="ltr"] .input-box .prefix {
@@ -490,9 +486,9 @@ input {
   border: none;
   outline: none;
   padding-left: 0rem;
-  font: normal normal normal 16px/20px Roboto;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font: normal normal normal 16px/20px Roboto, sans-serif;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 [dir="ltr"] .input-box input {
@@ -509,6 +505,7 @@ input {
 
 .checkIcon {
   stroke: var(--language-check-icon-color);
+  stroke-width: 2px;
 }
 
 .forgot-password-hyperlink {
@@ -516,6 +513,8 @@ input {
   font-size: var(--forgot-password-font-size);
   width: var(--forgot-password-width);
   margin-top: var(--forgot-password-margin-top) !important;
+  margin-bottom: var(--forgot-password-margin-bottom) !important;
+  font-weight: 500;
 }
 
 [dir="ltr"] .forgot-password-hyperlink {
@@ -551,6 +550,7 @@ input[type="number"] {
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
+  font-family: Roboto, sans-serif !important;
 }
 
 .selected_login_id {
@@ -582,7 +582,7 @@ input[type="number"] {
 }
 
 #login-header {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   letter-spacing: 0.25px;
   color: var(--login-header-text-color);
 }
@@ -593,6 +593,149 @@ input[type="number"] {
 
 .caps_lock {
   color: var(--caps-lock-text-color);
+}
+
+nav {
+  font-family: Roboto, sans-serif !important;
+}
+
+.selectedLang,
+.langDropdown:hover {
+  font-weight: 500;
+  color: var(--selected-lang-text-color);
+}
+
+.border-button {
+  color: var(--border-button-text-color);
+  border-color: var(--border-button-border-color);
+
+  &:hover {
+    background-color: var(--border-button-text-color);
+    color: white;
+  }
+}
+
+.form-group {
+  margin-bottom: 0.5em;
+}
+
+.form-group[style*="flex"] {
+  gap: 0.5em;
+}
+
+.form-group .form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group .input_box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0.25em 0 0.4em;
+  padding: 0.5em 2.5em 0.5em 0.75em;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.5em;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.form-group select.input_box {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #fff
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20,50 70,100 120,50' fill='none' stroke='%23333' stroke-width='15'/%3E%3C/svg%3E")
+    no-repeat right 0.75em center;
+  background-size: 0.65em;
+  cursor: pointer;
+}
+
+.form-group select.input_box option {
+  margin: 0 0.25em;
+  color: black;
+}
+
+.form-group .required {
+  color: #fe6b6b;
+}
+
+.form-group .input_box.error {
+  border-color: #fe6b6b;
+  border-width: 1.75px;
+}
+
+.form-button {
+  width: 100%;
+  padding: 0.75em;
+  border: 1px solid var(--primary-button-border-color);
+  border-radius: var(--primary-button-border-radius);
+  font-weight: 500;
+  color: var(--primary-button-color);
+  background-color: var(--primary-button-bg-color);
+  cursor: pointer;
+  text-align: center;
+}
+
+.form-group .error-message {
+  position: relative;
+  bottom: 0.25em;
+  color: #fe6b6b;
+  font-size: 0.75em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+/* Date input with custom calendar icon */
+.form-group input[type="date"] {
+  position: relative;
+  width: 100%;
+  padding: 0.5em 1em 0.5em 2.25em; /* space for custom icon */
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.375em;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%23666' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4h18M8 2v4M16 2v4M3 10h18M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.75em center;
+  background-size: 1em;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #a0a8ac;
+}
+
+.form-group input[type="date"]::placeholder {
+  text-indent: 0.5em; /* ensure placeholder doesn't overlap */
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.form-group .select-placeholder {
+  color: #a0a8ac;
+}
+
+.form-group .input_box:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 2px rgba(0, 123, 255, 0.4);
+}
+
+.form-group .error-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 12px;
+  height: 12px;
+}
+
+.form-group .error-text {
+  margin: auto 0.25em;
 }
 
 @media screen and (max-width: 767px) {
@@ -626,7 +769,7 @@ input[type="number"] {
 
 .error-page-header {
   color: #2c2c2c;
-  font: normal normal bold 24px/29px Inter;
+  font: normal normal bold 24px/29px Inter, sans-serif;
   text-align: center;
   letter-spacing: 0px;
   padding-top: 36px;
@@ -634,14 +777,14 @@ input[type="number"] {
 
 .error-page-detail {
   color: #7b7b7b;
-  font: normal normal normal 14px/20px Inter;
+  font: normal normal normal 14px/20px Inter, sans-serif;
   text-align: center;
   letter-spacing: 0px;
   padding-top: 10px;
 }
 
-input[type='password']::-ms-reveal,
-input[type='password']::-ms-clear {
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
   display: none;
 }
 

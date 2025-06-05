@@ -27,14 +27,15 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
+//import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
-public class PostWithAutogenIdWithOtpGenerateForWla extends AdminTestUtil implements ITest {
+public class PostWithAutogenIdWithOtpGenerateForWla extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(PostWithAutogenIdWithOtpGenerateForWla.class);
 	protected String testCaseName = "";
 	public String idKeyName = null;
@@ -79,7 +80,7 @@ public class PostWithAutogenIdWithOtpGenerateForWla extends AdminTestUtil implem
 	 * @throws AdminTestException
 	 */
 	@Test(dataProvider = "testcaselist")
-	public void test(TestCaseDTO testCaseDTO) throws AdminTestException {
+	public void test(TestCaseDTO testCaseDTO) throws AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {

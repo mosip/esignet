@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { configurationKeys } from "../constants/clientConstants";
+import { checkConfigProperty } from "../helpers/utils";
 
 export default function Background({
   heading,
@@ -23,16 +24,33 @@ export default function Background({
     configurationKeys.signupConfig
   );
 
-  useEffect(() => {
-    if (signupConfig?.[configurationKeys.signupBanner]) {
+  let clientAdditionalConfig = oidcService.getEsignetConfiguration(
+    configurationKeys.additionalConfig
+  );
+
+  const toggleSignupBanner = (exist) => {
+    if (exist) {
       setSignupBanner(true);
       setSignupURL(
         signupConfig[configurationKeys.signupURL] +
           "#" +
           authService.getAuthorizeQueryParam()
       );
+    } else {
+      setSignupBanner(false);
     }
-    // document.getElementById("language_dropdown")?.style?.display="none"
+  };
+
+  useEffect(() => {
+    if (checkConfigProperty(clientAdditionalConfig, configurationKeys.signupBannerRequired)) {
+      toggleSignupBanner(
+        clientAdditionalConfig[configurationKeys.signupBannerRequired]
+      );
+    } else if (checkConfigProperty(signupConfig, configurationKeys.signupBanner)) {
+      toggleSignupBanner(signupConfig[configurationKeys.signupBanner]);
+    } else {
+      setSignupBanner(false);
+    }
   }, [i18n.language]);
 
   // check signup banner is present or not,
@@ -45,7 +63,7 @@ export default function Background({
   return (
     <div
       className={
-        "multipurpose-login-card shadow w-full md:w-3/6 lg:max-w-sm md:z-10 m-0 md:m-auto " +
+        "multipurpose-login-card shadow-sm m-3 !rounded-lg w-auto sm:w-3/6 lg:max-w-sm md:z-10 md:m-auto " +
         conditionalPadding
       }
     >
@@ -57,14 +75,17 @@ export default function Background({
           >
             {heading}
           </h1>
-          {clientName && (
+          {subheading && (
             <h1
-              className="flex text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
+              className="text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
               id="login-subheader"
             >
-              {t("subheading", {
-                clientName: subheading["@none"],
-              })}
+              <Trans
+                i18nKey={i18nKeyPrefix + "." + subheading}
+                defaults={subheading}
+                values={{ clientName: clientName }}
+                components={{ strong: <strong /> }}
+              />
             </h1>
           )}
         </div>

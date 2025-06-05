@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { useTranslation } from "react-i18next";
 import PopoverContainer from "../common/Popover";
 
@@ -34,8 +34,9 @@ export default function InputWithImage({
   isInvalid,
   individualId,
   currenti18nPrefix,
+  idx
 }) {
-  const { t } = useTranslation("translation");
+  const { t, i18n } = useTranslation("translation");
   const { t: t1 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix1,
   });
@@ -47,7 +48,13 @@ export default function InputWithImage({
   const [errorBanner, setErrorBanner] = useState([]);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
 
-  const inputVal = useRef(value);
+  const inputVal = useRef(null);
+
+  useLayoutEffect(() => {
+    if (inputVal.current && idx === 0) {
+      inputVal.current.focus();
+    }
+  }, [i18n.language, idx]);
 
   const changePasswordState = () => {
     let passwordRef = document.getElementById(id);
@@ -200,7 +207,7 @@ export default function InputWithImage({
                         transform="translate(-80 880)"
                         fill="#2D86BA"
                         stroke="#2D86BA"
-                        stroke-width="0.5"
+                        strokeWidth="0.5"
                       />
                     </g>
                   </svg>
@@ -214,6 +221,7 @@ export default function InputWithImage({
                 <img
                   src={infoIcon}
                   className="mx-1 mt-[2px] w-[15px] h-[14px] relative bottom-[1px]"
+                  alt="info-icon"
                 />
               }
               content={
@@ -251,7 +259,7 @@ export default function InputWithImage({
       >
         {imgPath && (
           <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0 z-[11]">
-            <img className="w-6 h-6" src={imgPath} />
+            <img className="w-6 h-6" src={imgPath} alt=""/>
           </div>
         )}
         {prefix && prefix !== "" && <span className="prefix">{prefix}</span>}
@@ -271,6 +279,7 @@ export default function InputWithImage({
           placeholder={placeholder}
           title={t1(tooltipMsg)}
           onWheelCapture={(e) => e.target.blur()}
+          autoFocus={true}
         />
         {id.includes("Password") && type === "password" && value && (
           <span
@@ -278,11 +287,14 @@ export default function InputWithImage({
             type="button"
             className="flex absolute inset-y-0 p-3 pt-2 ltr:right-0 rtl:left-0 hover:cursor-pointer z-50"
             onClick={changePasswordState}
+            onKeyDown={changePasswordState}
+            role="button"
+            tabIndex={0}
           >
             {showPassword ? (
-              <img className="w-6 h-6" src={passwordShowIcon} />
+              <img className="w-6 h-6" src={passwordShowIcon} alt="close-eye"/>
             ) : (
-              <img className="w-6 h-6" src={passwordHideIcon} />
+              <img className="w-6 h-6" src={passwordHideIcon} alt="open-eye"/>
             )}
           </span>
         )}

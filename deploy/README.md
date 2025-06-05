@@ -26,8 +26,12 @@
 ### Install Pre-requisites
 * `esignet-global` configmap: For eSignet K8's env, `esignet-global` configmap in `esignet` namespace contains Domain related information. Follow below steps to add domain details for `esignet-global` configmap.
   * Copy `esignet-global-cm.yaml.sample` to `esignet-global-cm.yaml`.
+     ````
+      cp esignet-global-cm.yaml.sample esignet-global-cm.yaml
+     ````
   * Update the domain names in `esignet-global-cm.yaml` correctly for your environment.
   * Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/) and set esignet captcha.
+  * External IAM scope: [TODO]
 * Install pre-requisites
   ```
   ./install-prereq.sh
@@ -40,11 +44,10 @@
   ```
 ### Install esignet and oidc
 During deployment, the system will prompt for user input to select the appropriate plugin. The available options are listed below:
-1. esignet-mock-plugin.jar
-2. mosip-identity-plugin.jar
-
-For current scope of deployment, as it is limited to mock functionality, 
-select option 1 (esignet-mock-plugin.jar).
+1. esignet-mock-plugin
+2. mosip-identity-plugin
+3. sunbird-rc-plugin
+4. custom-plugin"
 ```
 ./install-esignet.sh
 ```
@@ -64,6 +67,7 @@ Download and import eSignet-with-mock.postman_environment.json and eSignet.postm
      * Retrieve the Keycloak URL from the config-map under keycloak-host → keycloak-external-url.
 2. Fetch the CSRF Token
    * Navigate to "OIDC Client Mgmt" → "Mock" → "Get CSRF Token" to obtain the CSRF token.
+   * Update the "url" to ge the CSRF Token. 
 3. Update the Request Fields for OIDC Client Creation
    * Before executing the "Create OIDC Client" request, update the following fields in the request body:
      * url

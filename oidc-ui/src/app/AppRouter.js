@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import {
   LoginPage,
@@ -18,9 +18,12 @@ import {
   SOMETHING_WENT_WRONG,
   ESIGNET_DETAIL,
   CLAIM_DETAIL,
+  NETWORK_ERROR,
 } from "../constants/routes";
 import configService from "../services/configService";
 import ClaimDetails from "../components/ClaimDetails";
+import NetworkError from "../pages/NetworkError";
+import { Detector } from "react-detect-offline";
 
 const config = await configService();
 
@@ -30,10 +33,23 @@ const WithSuspense = ({ children }) => (
   </Suspense>
 );
 
+const POLLING_BASE_URL =
+  process.env.NODE_ENV === "development"
+    ? process.env.REACT_APP_ESIGNET_API_URL
+    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
+
 export const AppRouter = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const [currentUrl, setCurrentUrl] = useState(window.location.href);
+  const pollingUrl = POLLING_BASE_URL + "/actuator/health";
+
+  useEffect(() => {
+    if (location.pathname !== NETWORK_ERROR) {
+      setCurrentUrl(window.location.href);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     setupResponseInterceptor(navigate);
@@ -46,7 +62,7 @@ export const AppRouter = () => {
   }
 
   const checkRoute = (currentRoute) =>
-    [LOGIN, AUTHORIZE, CONSENT].includes(currentRoute);
+    [LOGIN, AUTHORIZE, CONSENT, NETWORK_ERROR].includes(currentRoute);
 
   // checking the pathname if login, consent, authorize
   // is present then only show the background
@@ -92,6 +108,7 @@ export const AppRouter = () => {
     { route: CONSENT, component: <ConsentPage /> },
     { route: CLAIM_DETAIL, component: <ClaimDetails /> },
     { route: SOMETHING_WENT_WRONG, component: <SomethingWrongPage /> },
+    { route: NETWORK_ERROR, component: <NetworkError /> },
     { route: PAGE_NOT_FOUND, component: <PageNotFoundPage /> },
     { route: "*", component: <PageNotFoundPage /> },
   ];
@@ -101,6 +118,22 @@ export const AppRouter = () => {
       <div className="section-background">
         <section className="login-text body-font pt-0 md:py-4">
           <div className="container justify-center flex mx-auto sm:flex-row flex-col">
+            <Detector
+              polling={{
+                  url: pollingUrl, // Set the polling URL dynamically
+                  interval: 10000, // Optional: Check every 5 seconds (default is 5000ms)
+                  timeout: 5000,  // Optional: Timeout after 3 seconds (default is 5000ms)
+              }}
+              render={({ online }) => {
+                if (!online) {
+                  navigate(NETWORK_ERROR, {
+                    state: {
+                      path: currentUrl,
+                    },
+                  });
+                }
+              }}
+            />
             {backgroundLogoDiv}
             <Routes>
               {esignetRoutes.map((route) => (

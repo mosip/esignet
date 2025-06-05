@@ -33,9 +33,10 @@ import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
-public class PutWithPathParamsAndBody extends AdminTestUtil implements ITest {
+public class PutWithPathParamsAndBody extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(PutWithPathParamsAndBody.class);
 	protected String testCaseName = "";
 	String pathParams = null;
@@ -80,7 +81,7 @@ public class PutWithPathParamsAndBody extends AdminTestUtil implements ITest {
 	 * @throws AdminTestException
 	 */
 	@Test(dataProvider = "testcaselist")
-	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
+	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		String[] templateFields = testCaseDTO.getTemplateFields();
@@ -122,8 +123,15 @@ public class PutWithPathParamsAndBody extends AdminTestUtil implements ITest {
 			
 			if (testCaseName.contains("ESignet_")) {
 				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
-				response = putWithPathParamsBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+				if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == true){
+					inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+					response = EsignetUtil.putWithPathParamsAndBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+				}else {
+					response = putWithPathParamsBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+				}
+				
 			} else {
 				response = putWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 						testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);

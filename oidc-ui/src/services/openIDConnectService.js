@@ -6,6 +6,7 @@ import {
   validAuthFactors,
   configurationKeys,
   modalityIconPath,
+  purposeTypeObj,
 } from "../constants/clientConstants";
 
 class openIDConnectService {
@@ -79,7 +80,7 @@ class openIDConnectService {
     let sha256Hash = sha256(JSON.stringify(this.oAuthDetails));
     let hashB64 = Base64.stringify(sha256Hash);
     // Remove padding characters
-    hashB64 = hashB64.replace(/=+$/, "");
+    hashB64 = hashB64.split('=')[0];
     // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
     hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
     return hashB64;
@@ -110,7 +111,7 @@ class openIDConnectService {
     return {
       label: authFactor[0].type,
       value: authFactor[0],
-      icon: modalityIconPath[authFactor[0].type],
+      icon: authFactor[0].type === "PWD" ? modalityIconPath["PSWD"] : modalityIconPath[authFactor[0].type],
       id: `login_with_${authFactor[0].type.toLowerCase()}`,
     };
   };
@@ -138,6 +139,53 @@ class openIDConnectService {
     });
     return loginOptions;
   };
+
+  /**
+   * Get purpose object, to check heading & subheading
+   * @returns purpose object
+   */
+  getPurpose = () => {
+    // default purpose object
+    const purposeObj = {
+      type: purposeTypeObj.login,
+      title: null,
+      subTitle: null,
+    }
+
+    // getting client additional config object,
+    // which may contains purpose object
+    const additionalConfig = this.getEsignetConfiguration(configurationKeys.additionalConfig);
+
+    if (additionalConfig?.purpose && this.checkPurposeObjIsNotEmpty(additionalConfig.purpose)) {
+      const tempPurpose = additionalConfig.purpose;
+      purposeObj.type = tempPurpose.type;
+      if (tempPurpose.type === purposeTypeObj.none) {
+        return purposeObj;
+      }
+      purposeObj.title = this.checkTitleAndSubTitle(tempPurpose.title);
+      purposeObj.subTitle = this.checkTitleAndSubTitle(tempPurpose.subTitle);
+      
+    }
+
+    return purposeObj;
+  }
+
+  // check purpose object has any of the property,
+  // otherwise use deafault purpose object
+  checkPurposeObjIsNotEmpty = (purposeObj) => {
+    if (purposeObj && (('title' in purposeObj) || ('subTitle' in purposeObj) || ('type' in purposeObj))) {
+      return true;
+    }
+    return false;
+  }
+
+  // check if title & subtitle is obj or not
+  checkTitleAndSubTitle = (dataObj) => {
+    if (dataObj === null || dataObj === undefined) {
+      return null;
+    }
+    return dataObj;
+  }
 }
 
 export default openIDConnectService;

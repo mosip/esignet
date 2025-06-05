@@ -25,6 +25,7 @@ import org.testng.internal.TestResult;
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConstants;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
@@ -34,9 +35,10 @@ import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
-public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
+public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(SimplePostForAutoGenId.class);
 	protected String testCaseName = "";
 	public String idKeyName = null;
@@ -86,7 +88,7 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 	 */
 	@Test(dataProvider = "testcaselist")
 	public void test(TestCaseDTO testCaseDTO)
-			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException {
+			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
@@ -103,14 +105,14 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 		String[] templateFields = testCaseDTO.getTemplateFields();
 		String inputJson = "";
 
-		if (BaseTestCase.currentModule.equals(GlobalConstants.MASTERDATA)
+		if ((BaseTestCase.currentModule.equals(GlobalConstants.MASTERDATA) || BaseTestCase.currentModule.equals(EsignetConstants.DSL))
 				&& testCaseName.startsWith("Esignet_CreateOIDCClient")) {
 			inputJson = testCaseDTO.getInput();
 		} else {
 			inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 		}
 
-		String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
+//		String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
 
 		if (testCaseDTO.getTemplateFields() != null && templateFields.length > 0) {
 			ArrayList<JSONObject> inputtestCases = AdminTestUtil.getInputTestCase(testCaseDTO);
@@ -138,41 +140,67 @@ public class SimplePostForAutoGenId extends AdminTestUtil implements ITest {
 				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 					throw new SkipException("esignet is not deployed hence skipping the testcase");
 				}
-				
+
 				String tempUrl = null;
 				if (testCaseDTO.getEndPoint().contains("/signup/")) {
 					tempUrl = EsignetConfigManager.getSignupBaseUrl();
 				} else {
 					tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 				}
-				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
-						&& testCaseName.contains("SunBirdC")) {
+				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$") && testCaseName.contains("SunBirdC")) {
 					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
-					if (EsignetConfigManager.getEsignetMockBaseURL() != null
-							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
-						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
-				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$") && testCaseName.contains("SunBirdR")) {
+				} else if (testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$")
+						&& testCaseName.contains("SunBirdR")) {
 
 					if (EsignetConfigManager.isInServiceNotDeployedList("sunbirdrc"))
 						throw new SkipException(GlobalConstants.SERVICE_NOT_DEPLOYED_MESSAGE);
 
-					if (EsignetConfigManager.getSunBirdBaseURL() != null && !EsignetConfigManager.getSunBirdBaseURL().isBlank())
+					if (EsignetConfigManager.getSunBirdBaseURL() != null
+							&& !EsignetConfigManager.getSunBirdBaseURL().isBlank())
 						tempUrl = EsignetConfigManager.getSunBirdBaseURL();
-						//Once sunbird registry is pointing to specific env, remove the above line and uncomment below line
-						//tempUrl = ApplnURI.replace(GlobalConstants.API_INTERNAL, ConfigManager.getSunBirdBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
 				}
 				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
-				if ((testCaseName.contains("_AuthorizationCode_")) || (testCaseName.contains("_AuthToken_Xsrf_"))) {
+				if ((testCaseName.contains("_AuthorizationCode_")) || (testCaseName.contains("_AuthToken_Xsrf_"))
+						|| (testCaseName.contains("_OAuthDetailsRequest_"))
+						|| (testCaseName.contains("_GenerateLinkCode_")) || (testCaseName.contains("_LinkTransaction_"))
+						|| (testCaseName.contains("_LinkAuthorizationCode_"))) {
 					response = postRequestWithCookieAuthHeaderAndXsrfTokenForAutoGenId(
 							tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME, testCaseDTO.getTestCaseName(),
 							idKeyName);
 				} else {
-					response = postWithBodyAndBearerTokenForAutoGeneratedId(tempUrl + testCaseDTO.getEndPoint(),
-							inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
+					if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+							.contains("mockauthenticationservice") == true
+							|| (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+									.contains("sunbirdrcauthenticationservice") == true
+									&& testCaseName
+											.contains("ESignet_CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid"))) {
+						inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+						response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(),
+								inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
+						if (testCaseName.toLowerCase().contains("_sid")) {
+							writeAutoGeneratedId(testCaseName, idKeyName, new JSONObject(response.getBody().asString())
+									.getJSONObject(GlobalConstants.RESPONSE).getString(idKeyName).toString());
+						}
+					} else {
+						// Adding the while loop for try creating sunbird policy in registry for 3 times
+						// if gets failed
+						int currLoopCount = 0;
+						do {
+							response = postWithBodyAndBearerTokenForAutoGeneratedId(tempUrl + testCaseDTO.getEndPoint(),
+									inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(),
+									idKeyName);
+
+							if (response != null && !response.asString().contains("UNSUCCESSFUL")) {
+								break;
+							}
+							currLoopCount++;
+						} while (currLoopCount < 10);
+					}
+
 				}
 			} else {
 				inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);

@@ -27,14 +27,15 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
+//import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
-public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements ITest {
+public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(PostWithAutogenIdWithOtpGenerate.class);
 	protected String testCaseName = "";
 	public String idKeyName = null;
@@ -83,7 +84,7 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 	 */
 	@Test(dataProvider = "testcaselist")
 	public void test(TestCaseDTO testCaseDTO)
-			throws AuthenticationTestException, AdminTestException, NumberFormatException, InterruptedException {
+			throws AuthenticationTestException, AdminTestException, NumberFormatException, InterruptedException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
@@ -99,7 +100,7 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 			}
 		}
 
-		String inputJson = testCaseDTO.getInput().toString();
+//		String inputJson = testCaseDTO.getInput().toString();
 		JSONObject req = new JSONObject(testCaseDTO.getInput());
 
 		auditLogCheck = testCaseDTO.isAuditLogCheck();
@@ -143,8 +144,6 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 						+ " as UIN not available in database");
 				try {
 					Thread.sleep(Long.parseLong(properties.getProperty("uinGenDelayTime")));
-//					SlackChannelIntegration.sendMessageToSlack("UIN not available in database in :" + ApplnURI + "Env") ;
-
 				} catch (NumberFormatException | InterruptedException e) {
 					logger.error(e.getMessage());
 					Thread.currentThread().interrupt();
@@ -174,7 +173,6 @@ public class PostWithAutogenIdWithOtpGenerate extends AdminTestUtil implements I
 
 			if (!OutputValidationUtil.publishOutputResult(ouputValidOtp)) {
 				if (otpResponse.asString().contains("IDA-OTA-001")) {
-//					SlackChannelIntegration.sendMessageToSlack("Exceeded number of OTP requests in a given time, :" + ApplnURI + "Env") ;
 					throw new AdminTestException(
 							"Exceeded number of OTP requests in a given time, Increase otp.request.flooding.max-count");
 				}

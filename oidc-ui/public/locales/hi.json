@@ -65,9 +65,14 @@
     "invalid_input": "कृपया वैध {{id}} दर्ज करें",
     "mobile": "मोबाइल नंबर",
     "nrc": "एनआरसी आईडी",
-    "vid": "वी.आई.डी",
+    "vid": "यू.आई.एन/वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "pin": {
@@ -81,9 +86,14 @@
     "invalid_input": "कृपया वैध {{id}} दर्ज करें",
     "mobile": "मोबाइल नंबर",
     "nrc": "एनआरसी आईडी",
-    "vid": "वी.आई.डी",
+    "vid": "यू.आई.एन/वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "password": {
@@ -99,9 +109,14 @@
     "invalid_input": "कृपया वैध {{id}} दर्ज करें",
     "mobile": "मोबाइल नंबर",
     "nrc": "एनआरसी आईडी",
-    "vid": "वी.आई.डी",
+    "vid": "यू.आई.एन/वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें"
   },
   "Form": {
@@ -113,7 +128,10 @@
     "policyNumber_placeholder": "नीति संख्या",
     "fullName_placeholder": "पूरा नाम",
     "dob_placeholder": "जन्म तिथि",
-    "login_with_kbi": "KBI के साथ लॉगिन करें"
+    "login_with_kbi": "KBI के साथ लॉगिन करें",
+    "login_with_id": "KBI के साथ लॉगिन करें",
+    "verify_with_id": "KBI से सत्यापित करें",
+    "link_using_id": "KBI का उपयोग करके लिंक करें"
   },
   "LoginQRCode": {
     "scan_with_wallet": "के साथ स्कैन करें {{walletName}} लॉगिन करने के लिए",
@@ -124,6 +142,8 @@
     "refresh": "क्यूआर कोड रिफ्रेश करें",
     "open_wallet_app": "खुला {{walletName}} अनुप्रयोग",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
     "wallet_header": "{{walletName}} ऐप से QR कोड को स्कैन करें"
   },
   "otp": {
@@ -146,9 +166,14 @@
     "invalid_input": "कृपया वैध {{id}} दर्ज करें",
     "mobile": "मोबाइल नंबर",
     "nrc": "एनआरसी आईडी",
-    "vid": "वी.आई.डी",
+    "vid": "यू.आई.एन/वी.आई.डी",
     "email": "ईमेल",
     "login_with_id": "{{currentID}} से लॉगिन करें",
+    "verify_with_id": "{{currentID}} से सत्यापित करें",
+    "link_using_id": "{{currentID}} का उपयोग करके लिंक करें",
+    "login_with_id_multiple": "लॉगिन करने के लिए एक पसंदीदा आईडी चुनें",
+    "verify_with_id_multiple": "सत्यापित करने के लिए एक पसंदीदा आईडी चुनें",
+    "link_using_id_multiple": "लिंक करने के लिए एक पसंदीदा आईडी चुनें",
     "multiple_login_ids": "एक लॉगिन आईडी विकल्प चुनें",
     "enter_otp": "ओटीपी दर्ज करें",
     "and": "और"
@@ -156,6 +181,8 @@
   "signInOption": {
     "login_option_heading": "चुनें कि आप कैसे लॉगिन करना चाहते हैं:",
     "login_with_id": "{{option}} से लॉगिन करें",
+    "verify_with_id": "{{option}} से सत्यापित करें",
+    "link_using_id": "{{option}} का उपयोग करके लिंक करें ",
     "PIN": "नत्थी करना",
     "Biometrics": "बॉयोमेट्रिक्स",
     "BIO": "बॉयोमेट्रिक्स",
@@ -164,6 +191,7 @@
     "PWD": "पासवर्ड",
     "walletName": "इंजी",
     "preferred_mode_of_login": "लॉगिन का पसंदीदा तरीका चुनें",
+    "preferred_mode_to_continue": "जारी रखने के लिए एक पसंदीदा मोड चुनें",
     "more_ways_to_sign_in": "साइन इन करने के और भी तरीके",
     "or": "या",
     "sign_in_with": "का उपयोग करके सत्यापित करें {{idProviderName}}",
@@ -179,7 +207,9 @@
     "login_heading": "eSignet का उपयोग करके लॉग इन करें",
     "verify_heading": "eSignet का उपयोग करके सत्यापित करें",
     "link_heading": "eSignet का उपयोग करके लिंक करें",
-    "login_subheading": "कृपया अपना पंजीकृत उपयोगकर्ता नाम और पासवर्ड दर्ज करें",
+    "login_subheading": "<strong>{{clientName}}</strong> लॉगिन के लिए प्रमाणीकरण का अनुरोध कर रहा है",
+    "verify_subheading": "<strong>{{clientName}}</strong> सत्यापन के लिए प्रमाणीकरण का अनुरोध कर रहा है",
+    "link_subheading": "<strong>{{clientName}}</strong> आपके खाते को लिंक करने के लिए प्रमाणीकरण का अनुरोध कर रहा है",
     "login_linkName": "पूर्वपंजीकरण",
     "more_ways_to_sign_in": "लॉगिन करने के और भी तरीके",
     "invalid_auth_factor": "अमान्य प्रामाणिक कारक. ",
@@ -270,21 +300,21 @@
     "buttons": {
       "mobile": "मोबाइल नंबर",
       "nrc": "एनआरसी आईडी",
-      "vid": "वी.आई.डी",
+      "vid": "यू.आई.एन/वी.आई.डी",
       "email": "ईमेल"
     },
     "input": {
       "label": {
         "mobile": "मोबाइल नंबर",
         "nrc": "एनआरसी आईडी",
-        "vid": "वी.आई.डी",
+        "vid": "यू.आई.एन/वी.आई.डी",
         "email": "ईमेल"
       },
       "placeholder": {
         "mobile": "मोबाइल नंबर दर्ज करें",
         "nrc": "एनआरसी आईडी दर्ज करें",
-        "vid": "वीआईडी ​​दर्ज करें",
-        "email": "यहां ईमेल दर्ज करें"
+        "vid": "यू.आई.एन/वी.आई.डी ​​दर्ज करें",
+        "email": "ईमेल आईडी दर्ज करें"
       }
     }
   },
@@ -669,6 +699,11 @@
       "508": "अनुरोध संसाधित करते समय सर्वर ने एक अनंत लूप का पता लगाया है",
       "510": "अनुरोध को पूरा करने में सक्षम होने के लिए सर्वर को और विस्तार की आवश्यकता है",
       "511": "नेटवर्क पहुंच प्राप्त करने के लिए क्लाइंट को प्रमाणित करने की आवश्यकता है"
+    },
+    "network_error": {
+      "header": "नेटवर्क त्रुटि!",
+      "subHeader": "अपने इंटरनेट कनेक्शन की जाँच करें और पुन: प्रयास करें।",
+      "button": "पुनः प्रयास करें"
     }
   }
 }

@@ -531,7 +531,6 @@ paths:
                     - userClaims
                     - grantTypes
                     - clientAuthMethods
-                    - additionalConfig
                   properties:
                     clientId:
                       type: string
@@ -628,12 +627,6 @@ paths:
                         const: private_key_jwt
                     additionalConfig:
                       type: object
-                      required:
-                        - userinfo_response_type
-                        - purpose
-                        - signup_banner_required
-                        - forgot_pwd_link_required
-                        - consent_expire_in_days
                       description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
                       properties:
                         userinfo_response_type:
@@ -650,8 +643,6 @@ paths:
                           description: 'Relying Parties should indicate the purpose of using eSignet (e.g., for login, verification) during registration, allowing for specific customisation.'
                           required:
                             - type
-                            - title
-                            - subTitle
                           properties:
                             type:
                               x-stoplight:
@@ -661,11 +652,13 @@ paths:
                                 - Link
                                 - Login
                             title:
-                              type: string
+                              type: object
+                              description: Title needs the key @none
                               x-stoplight:
                                 id: 7brcj2q2o7yyi
                             subTitle:
-                              type: string
+                              type: object
+                              description: Subtitle needs the key @none
                               x-stoplight:
                                 id: qagoh90f7hecz
                         signup_banner_required:
@@ -678,12 +671,12 @@ paths:
                           x-stoplight:
                             id: s1pb151yorc5y
                           description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
-                        consent_expire_in_days:
+                        consent_expire_in_mins:
                           type: number
                           x-stoplight:
                             id: peyhsfc3w4ajc
-                          minimum: 0
-                          description: The number of days after which a user's given consent will expire.
+                          minimum: 10
+                          description: The number of minuets after which a user's given consent will expire.
             examples:
               example-1:
                 value:
@@ -721,12 +714,14 @@ paths:
                     additionalConfig:
                       userinfo_response_type: JWS
                       purpose:
-                        title: Verify your info with e-Signet
+                        title:
+                          '@none': Title
                         type: Verify
-                        subTitle: Please verify the required details
+                        subTitle:
+                          '@none': subTitle
                       signup_banner_required: true
                       forgot_pwd_link_required: true
-                      consent_expire_in_days: 30
+                      consent_expire_in_mins: 30
       responses:
         '200':
           description: OK
@@ -1165,6 +1160,24 @@ paths:
                         enum:
                           - ACTIVE
                           - INACTIVE
+                      name:
+                        type: string
+                      rpId:
+                        type: string
+                      logoUri:
+                        type: string
+                      redirectUris:
+                        type: string
+                      publicKey:
+                        type: string
+                      acrValues:
+                        type: string
+                      grantTypes:
+                        type: string
+                      clientAuthMethods:
+                        type: string
+                      additionalConfig:
+                        type: object
                     required:
                       - clientId
                   errors:
@@ -1197,6 +1210,30 @@ paths:
                         response:
                           clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
                           status: ACTIVE
+                          name: Client Name
+                          rpId: relying-party-id
+                          logoUri: 'http://placeimg.com/640/480'
+                          redirectUris:
+                            - '\"https:\/\/healthservices.com\/userprofile\"'
+                            - '\"io.mosip.residentapp:\/\/oauth\"'
+                            - '\"http:\/\/localhost:3000\/**\"'
+                            - '\"http:\/\/localhost:5000\/registration\/*\"'
+                          claims:
+                            - \"name\"
+                            - \"email\"
+                            - \"gender\"
+                            - \"phone_number\"
+                            - \"picture\"
+                            - \"birthdate\"
+                          acrValues:
+                            - '\"mosip:idp:acr:generated-code\"'
+                            - '\"mosip:idp:acr:password\"'
+                            - '\"mosip:idp:acr:linked-wallet\"'
+                          grantTypes:
+                            - \"authorization_code\"
+                          clientAuthMethods:
+                            - \"private_key_jwt\"
+                          additionalConfig: null
                         errors: []
       security:
         - Authorization-update_oidc_client: []
@@ -1250,7 +1287,6 @@ paths:
                     - authContextRefs
                     - grantTypes
                     - clientAuthMethods
-                    - additionalConfig
                   properties:
                     clientName:
                       type: string
@@ -1332,12 +1368,6 @@ paths:
                     additionalConfig:
                       type: object
                       description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
-                      required:
-                        - userinfo_response_type
-                        - purpose
-                        - signup_banner_required
-                        - forgot_pwd_link_required
-                        - consent_expire_in_days
                       properties:
                         userinfo_response_type:
                           x-stoplight:
@@ -1353,8 +1383,6 @@ paths:
                           description: 'Relying Parties should indicate the purpose of using eSignet (e.g., for login, verification) during registration, allowing for specific customisation.'
                           required:
                             - type
-                            - title
-                            - subTitle
                           properties:
                             type:
                               x-stoplight:
@@ -1364,11 +1392,13 @@ paths:
                                 - Link
                                 - Login
                             title:
-                              type: string
+                              type: object
+                              description: Title needs the key @none
                               x-stoplight:
                                 id: 7brcj2q2o7yyi
                             subTitle:
-                              type: string
+                              type: object
+                              description: subtitle needs the key @none
                               x-stoplight:
                                 id: qagoh90f7hecz
                         signup_banner_required:
@@ -1381,12 +1411,12 @@ paths:
                           x-stoplight:
                             id: s1pb151yorc5y
                           description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
-                        consent_expire_in_days:
+                        consent_expire_in_mins:
                           type: number
                           x-stoplight:
                             id: peyhsfc3w4ajc
-                          minimum: 0
-                          description: The number of days after which a user's given consent will expire.
+                          minimum: 10
+                          description: The number of minuets after which a user's given consent will expire.
             examples:
               Example 1:
                 value:
@@ -1419,12 +1449,14 @@ paths:
                     additionalConfig:
                       userinfo_response_type: JWS
                       purpose:
-                        title: Verify your info with e-Signet
+                        title:
+                          '@none': Title
                         type: Verify
-                        subTitle: Please verify the required details
+                        subTitle:
+                          '@none': subTitle
                       signup_banner_required: true
                       forgot_pwd_link_required: true
-                      consent_expire_in_days: 30
+                      consent_expire_in_mins: 30
       responses:
         '200':
           description: OK
@@ -1447,6 +1479,24 @@ paths:
                         enum:
                           - ACTIVE
                           - INACTIVE
+                      name:
+                        type: string
+                      rpId:
+                        type: string
+                      logoUri:
+                        type: string
+                      redirectUris:
+                        type: string
+                      publicKey:
+                        type: string
+                      acrValues:
+                        type: string
+                      grantTypes:
+                        type: string
+                      clientAuthMethods:
+                        type: string
+                      additionalConfig:
+                        type: object
                     required:
                       - clientId
                   errors:
@@ -1480,6 +1530,30 @@ paths:
                         response:
                           clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
                           status: ACTIVE
+                          name: Client Name
+                          rpId: relying-party-id
+                          logoUri: 'http://placeimg.com/640/480'
+                          redirectUris:
+                            - '\"https:\/\/healthservices.com\/userprofile\"'
+                            - '\"io.mosip.residentapp:\/\/oauth\"'
+                            - '\"http:\/\/localhost:3000\/**\"'
+                            - '\"http:\/\/localhost:5000\/registration\/*\"'
+                          claims:
+                            - \"name\"
+                            - \"email\"
+                            - \"gender\"
+                            - \"phone_number\"
+                            - \"picture\"
+                            - \"birthdate\"
+                          acrValues:
+                            - '\"mosip:idp:acr:generated-code\"'
+                            - '\"mosip:idp:acr:password\"'
+                            - '\"mosip:idp:acr:linked-wallet\"'
+                          grantTypes:
+                            - \"authorization_code\"
+                          clientAuthMethods:
+                            - \"private_key_jwt\"
+                          additionalConfig: null
                         errors: []
       security:
         - Authorization-update_oidc_client: []
@@ -5014,7 +5088,7 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
-        id: d3di5edwwt70b
+        id: t315hcecaulyy
   /binding/v2/binding-otp:
     post:
       tags:
@@ -5114,9 +5188,9 @@ paths:
                     response:
                       maskedEmail: XXdXXaXXhXXkX@gmail.com
                       maskedMobile: XXXXXXX357934
-                    errors: [ ]
+                    errors: []
       security:
-        - Authorization-send_binding_otp: [ ]
+        - Authorization-send_binding_otp: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
@@ -5970,8 +6044,6 @@ components:
                     x-stoplight:
                       id: 5q6luh9khretn
                     description: |2-
-
-
 
 
 

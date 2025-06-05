@@ -129,6 +129,38 @@ public class TokenServiceTest {
         Assert.assertNotNull(jsonObject.get(C_NONCE_EXPIRES_IN));
     }
 
+    @Test
+    public void getAccessToken_withConsentExpiryLessThanConfiguredTokenValidity_thenPass() throws JSONException {
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setClientId("client-id");
+        transaction.setPartnerSpecificUserToken("psut");
+        transaction.setPermittedScopes(Arrays.asList("read", "write"));
+
+        //Consent expire is set to 0, equivalent to not set
+        transaction.setConsentExpireMinutes(0);
+        String token = tokenService.getAccessToken(transaction, null);
+        Assert.assertNotNull(token);
+        JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        Assert.assertTrue( jsonObject.getInt(EXP) > IdentityProviderUtil.getEpochSeconds());
+
+        //consent expire is greater than access token expire datetime
+        transaction.setConsentExpireMinutes(2);
+        token = tokenService.getAccessToken(transaction, null);
+        Assert.assertNotNull(token);
+        jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        long diff = jsonObject.getInt(EXP) - IdentityProviderUtil.getEpochSeconds();
+        Assert.assertTrue( diff == 60);
+
+        //consent expire is less than access token expire datetime
+        ReflectionTestUtils.setField(tokenService, "accessTokenExpireSeconds", 180);
+        transaction.setConsentExpireMinutes(2);
+        token = tokenService.getAccessToken(transaction, null);
+        Assert.assertNotNull(token);
+        jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
+        diff = jsonObject.getInt(EXP) - IdentityProviderUtil.getEpochSeconds();
+        Assert.assertTrue( diff == 120);
+    }
+
     @Test(expected = InvalidRequestException.class)
     public void verifyClientAssertionToken_withExpiredTokenNotWithinClockSkew_thenException() throws JOSEException {
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 0);
@@ -138,6 +170,22 @@ public class TokenServiceTest {
                 .audience("audience")
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() - 3000))
+                .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+    }
+
+    @Test(expected = InvalidRequestException.class)
+    public void verifyClientAssertionToken_withTokenWithoutJTI_thenException() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("audience")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis()))
                 .issuer("client-id")
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
@@ -154,6 +202,7 @@ public class TokenServiceTest {
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() - 3000))
                 .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);

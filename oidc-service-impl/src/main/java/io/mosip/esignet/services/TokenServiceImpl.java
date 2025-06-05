@@ -49,6 +49,8 @@ import static io.mosip.esignet.core.constants.Constants.SPACE;
 @Service
 public class TokenServiceImpl implements TokenService {
 
+    private final int DEFAULT_VALIDITY = 60;
+
     @Autowired
     private SignatureService signatureService;
 
@@ -79,15 +81,19 @@ public class TokenServiceImpl implements TokenService {
     @Value("${mosip.esignet.client-assertion-jwt.leeway-seconds:5}")
     private int maxClockSkew;
     
+    private static Set<String> REQUIRED_TOKEN_CLAIMS;
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
 
     static {
-        REQUIRED_CLIENT_ASSERTION_CLAIMS = new HashSet<>();
-        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("sub");
-        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("aud");
-        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("exp");
-        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iss");
-        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("iat");
+        REQUIRED_TOKEN_CLAIMS = new HashSet<>();
+        REQUIRED_TOKEN_CLAIMS.add("sub");
+        REQUIRED_TOKEN_CLAIMS.add("aud");
+        REQUIRED_TOKEN_CLAIMS.add("exp");
+        REQUIRED_TOKEN_CLAIMS.add("iss");
+        REQUIRED_TOKEN_CLAIMS.add("iat");
+
+        REQUIRED_CLIENT_ASSERTION_CLAIMS = new HashSet<>(REQUIRED_TOKEN_CLAIMS);
+        REQUIRED_CLIENT_ASSERTION_CLAIMS.add("jti");
     }
 
 
@@ -114,6 +120,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(AUD, transaction.getClientId());
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
+        payload.put(AZP, transaction.getClientId());
         //TODO Need to discuss -> jsonObject.put(JTI, transaction.getUserToken());
         if(!CollectionUtils.isEmpty(transaction.getPermittedScopes())) {
             payload.put(SCOPE, String.join(SPACE, transaction.getPermittedScopes()));
@@ -126,7 +133,7 @@ public class TokenServiceImpl implements TokenService {
                 payload.put(AUD, scopesResourceMapping.getOrDefault(result.get(), ""));
             }
         }
-        payload.put(EXP, issueTime + (accessTokenExpireSeconds<=0 ? 3600 : accessTokenExpireSeconds));
+        payload.put(EXP, issueTime + getTokenExpireSeconds(transaction, accessTokenExpireSeconds));
         payload.put(CLIENT_ID, transaction.getClientId());
 
         if(cNonce != null) {
@@ -174,7 +181,7 @@ public class TokenServiceImpl implements TokenService {
                     .audience(clientId)
                     .issuer(issuerId)
                     .subject(subject)
-                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
+                    .build(), REQUIRED_TOKEN_CLAIMS);
             claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
         } catch (Exception e) {
             log.error("Access token claims verification failed", e);
@@ -193,7 +200,7 @@ public class TokenServiceImpl implements TokenService {
             JWTClaimsSetVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(clientId)
                     .issuer(issuerId)
-                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
+                    .build(), REQUIRED_TOKEN_CLAIMS);
             claimsSetVerifier.verify(jwt.getJWTClaimsSet(), null);
         } catch (Exception e) {
             log.error("ID token claims verification failed", e);
@@ -222,7 +229,7 @@ public class TokenServiceImpl implements TokenService {
         payload.put(AUD, audience);
         long issueTime = IdentityProviderUtil.getEpochSeconds();
         payload.put(IAT, issueTime);
-        payload.put(EXP, issueTime + (validitySeconds<=0 ? 3600 : validitySeconds));
+        payload.put(EXP, issueTime + getTokenExpireSeconds(transaction, validitySeconds));
         payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
         payload.put(NONCE, nonce == null ? transaction.getNonce() : nonce);
         List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
@@ -237,5 +244,19 @@ public class TokenServiceImpl implements TokenService {
         signatureVerifyRequestDto.setJwtSignatureData(jwt);
         JWTSignatureVerifyResponseDto responseDto = signatureService.jwtVerify(signatureVerifyRequestDto);
         return responseDto.isSignatureValid();
+    }
+
+    private int getTokenExpireSeconds(OIDCTransaction transaction, int configuredTokenLifetime) {
+        configuredTokenLifetime = configuredTokenLifetime <=0 ? DEFAULT_VALIDITY : configuredTokenLifetime;
+
+        if(transaction.getConsentExpireMinutes() <= 0)
+            return configuredTokenLifetime;
+
+        int consentExpireSeconds = transaction.getConsentExpireMinutes() * 60;
+        if(consentExpireSeconds < configuredTokenLifetime) {
+            log.info("Consent expire time is less than the configured token expire time!!");
+            return consentExpireSeconds;
+        }
+        return configuredTokenLifetime;
     }
 }

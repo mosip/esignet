@@ -65,9 +65,14 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
+    "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "pin": {
@@ -81,9 +86,14 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
+    "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "password": {
@@ -99,9 +109,14 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
+    "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល"
   },
   "Form": {
@@ -113,7 +128,10 @@
     "policyNumber_placeholder": "លេខគោលនយោបាយ",
     "fullName_placeholder": "ឈ្មោះពេញ",
     "dob_placeholder": "DOB",
-    "login_with_kbi": "ចូលជាមួយ KBI"
+    "login_with_kbi": "ចូលជាមួយ KBI",
+    "login_with_id": "ចូលជាមួយ KBI",
+    "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ KBI",
+    "link_using_id": "ភ្ជាប់ដោយប្រើ KBI"
   },
   "LoginQRCode": {
     "scan_with_wallet": "ស្កេនជាមួយ {{walletName}} ដើម្បីចូល",
@@ -124,6 +142,8 @@
     "refresh": "ផ្ទុកកូដ QR ឡើងវិញ",
     "open_wallet_app": "បើក {{walletName}} កម្មវិធី",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
+    "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
     "wallet_header": "ស្កេនកូដ QR ជាមួយកម្មវិធី {{walletName}}"
   },
   "otp": {
@@ -146,9 +166,14 @@
     "invalid_input": "សូមបញ្ចូលសុពលភាព {{id}}",
     "mobile": "លេខទូរសព្ទ",
     "nrc": "លេខសម្គាល់ NRC",
-    "vid": "វីឌី",
+    "vid": "យូអ៊ីន/វីឌី",
     "email": "អ៊ីមែល",
     "login_with_id": "ចូលដោយប្រើ {{currentID}}",
+    "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{currentID}}",
+    "link_using_id": "ភ្ជាប់ដោយប្រើ {{currentID}}",
+    "login_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីចូល",
+    "verify_with_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីផ្ទៀងផ្ទាត់",
+    "link_using_id_multiple": "ជ្រើសរើសអត្តសញ្ញាណប័ណ្ណដែលអ្នកចូលចិត្តដើម្បីភ្ជាប់",
     "multiple_login_ids": "ជ្រើសរើសជម្រើសលេខសម្គាល់ចូល",
     "enter_otp": "បញ្ចូល OTP",
     "and": "និង"
@@ -156,6 +181,8 @@
   "signInOption": {
     "login_option_heading": "ជ្រើសរើសរបៀបដែលអ្នកចង់ចូល៖",
     "login_with_id": "ចូលដោយប្រើ {{option}}",
+    "verify_with_id": "ផ្ទៀងផ្ទាត់ជាមួយ {{option}}",
+    "link_using_id": "ភ្ជាប់ដោយប្រើ {{option}}",
     "PIN": "លេខសម្ងាត់",
     "Biometrics": "ជីវមាត្រ",
     "BIO": "ជីវមាត្រ",
@@ -164,6 +191,7 @@
     "PWD": "ពាក្យសម្ងាត់",
     "walletName": "អ៊ីនជី",
     "preferred_mode_of_login": "ជ្រើសរើសរបៀបចូលដែលពេញចិត្ត",
+    "preferred_mode_to_continue": "ជ្រើសរើសរបៀបដែលអ្នកពេញចិត្តដើម្បីបន្ត",
     "more_ways_to_sign_in": "វិធីច្រើនទៀតដើម្បីចូល",
     "or": "ឬ",
     "sign_in_with": "ផ្ទៀងផ្ទាត់ការប្រើប្រាស់ {{idProviderName}}",
@@ -179,7 +207,9 @@
     "login_heading": "ចូលដោយប្រើ eSignet",
     "verify_heading": "ផ្ទៀងផ្ទាត់ដោយប្រើ eSignet",
     "link_heading": "ភ្ជាប់ដោយប្រើ eSignet",
-    "login_subheading": "សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ និងពាក្យសម្ងាត់ដែលបានចុះឈ្មោះរបស់អ្នក។",
+    "login_subheading": "<strong>{{clientName}}</strong> កំពុងស្នើសុំការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវសម្រាប់ការចូល",
+    "verify_subheading": "<strong>{{clientName}}</strong> កំពុងស្នើសុំការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវសម្រាប់ការផ្ទៀងផ្ទាត់",
+    "link_subheading": "<strong>{{clientName}}</strong> កំពុងស្នើសុំការផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវសម្រាប់ភ្ជាប់គណនីរបស់អ្នក",
     "login_linkName": "ចុះឈ្មោះជាមុន",
     "more_ways_to_sign_in": "វិធីច្រើនទៀតដើម្បីចូល",
     "invalid_auth_factor": "កត្តាផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ។ ",
@@ -270,21 +300,21 @@
     "buttons": {
       "mobile": "លេខទូរសព្ទ",
       "nrc": "លេខសម្គាល់ NRC",
-      "vid": "វីឌី",
+      "vid": "យូអ៊ីន/វីឌី",
       "email": "អ៊ីមែល"
     },
     "input": {
       "label": {
         "mobile": "លេខទូរសព្ទ",
         "nrc": "លេខសម្គាល់ NRC",
-        "vid": "វីឌី",
+        "vid": "យូអ៊ីន/វីឌី",
         "email": "អ៊ីមែល"
       },
       "placeholder": {
         "mobile": "បញ្ចូលលេខទូរស័ព្ទ",
         "nrc": "បញ្ចូលលេខសម្គាល់ NRC",
-        "vid": "បញ្ចូល VID",
-        "email": "បញ្ចូលអ៊ីមែលនៅទីនេះ"
+        "vid": "បញ្ចូល យូអ៊ីន/វីឌី",
+        "email": "បញ្ចូលលេខសម្គាល់អ៊ីមែល"
       }
     }
   },
@@ -669,6 +699,11 @@
       "508": "ម៉ាស៊ីនមេបានរកឃើញរង្វិលជុំគ្មានកំណត់ ខណៈពេលកំពុងដំណើរការសំណើ",
       "510": "ផ្នែកបន្ថែមបន្ថែមត្រូវបានទាមទារសម្រាប់ម៉ាស៊ីនមេ ដើម្បីអាចបំពេញសំណើបាន។",
       "511": "អតិថិជនត្រូវការផ្ទៀងផ្ទាត់ ដើម្បីទទួលបានការចូលប្រើបណ្តាញ"
+    },
+    "network_error": {
+      "header": "បណ្តាញមានបញ្ហា!",
+      "subHeader": "សូមពិនិត្យមើលការតភ្ជាប់អ៊ីនធឺណិតរបស់អ្នក ហើយព្យាយាមម្តងទៀត។",
+      "button": "ព្យាយាមម្តងទៀត"
     }
   }
 }

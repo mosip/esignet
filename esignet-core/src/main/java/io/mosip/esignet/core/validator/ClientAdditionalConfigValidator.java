@@ -18,20 +18,16 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
 public class ClientAdditionalConfigValidator implements
-        ConstraintValidator<ClientAdditionalConfig, Map<String, Object>> {
+        ConstraintValidator<ClientAdditionalConfig, JsonNode> {
 
     @Value("${mosip.esignet.additional-config.schema.url}")
     private String schemaUrl;
 
     private JsonSchema schema;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -49,18 +45,10 @@ public class ClientAdditionalConfigValidator implements
     }
 
     @Override
-    public boolean isValid(Map<String, Object> additionalConfig, ConstraintValidatorContext context) {
-        if (additionalConfig == null) {
-            return false;
-        }
-        Set<ValidationMessage> errors = null;
-        try {
-            JsonNode jsonNode = objectMapper.valueToTree(additionalConfig);
-            errors = schema.validate(jsonNode);
-            if (errors.isEmpty()) return true;
-        } catch (Exception e) {
-            log.error("Error validating additional_config schema: ", e);
-        }
+    public boolean isValid(JsonNode additionalConfig, ConstraintValidatorContext context) {
+        if(additionalConfig == null || additionalConfig.isNull()) return true;
+        Set<ValidationMessage> errors = schema.validate(additionalConfig);
+        if (errors.isEmpty()) return true;
         log.error("Validation failed for additional_config ---> {}", errors);
         return false;
     }

@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Esignet UI Test Suite">
+	<test name="Esignet UI Tests">
+		<classes>
+			<class name="runners.Runner" />
+		</classes>
+	</test>
+</suite>

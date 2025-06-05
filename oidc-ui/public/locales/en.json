@@ -65,9 +65,14 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
+    "verify_with_id": "Verify with {{currentID}}",
+    "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option"
   },
   "pin": {
@@ -81,9 +86,14 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
+    "verify_with_id": "Verify with {{currentID}}",
+    "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option"
   },
   "password": {
@@ -99,9 +109,14 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
+    "verify_with_id": "Verify with {{currentID}}",
+    "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option"
   },
   "Form": {
@@ -113,7 +128,10 @@
     "policyNumber_placeholder": "Policy Number",
     "fullName_placeholder": "Full Name",
     "dob_placeholder": "DOB",
-    "login_with_kbi": "Login with KBI"
+    "login_with_kbi": "Login with KBI",
+    "login_with_id": "Login with KBI",
+    "verify_with_id": "Verify with KBI",
+    "link_using_id": "Link using KBI"
   },
   "LoginQRCode": {
     "scan_with_wallet": "Scan with {{walletName}} to login",
@@ -124,6 +142,8 @@
     "refresh": "Refresh QR Code",
     "open_wallet_app": "Open {{walletName}} App",
     "login_with_id": "Login with {{currentID}}",
+    "verify_with_id": "Verify with {{currentID}}",
+    "link_using_id": "Link using {{currentID}}",
     "wallet_header": "Scan the QR code with {{walletName}} app"
   },
   "otp": {
@@ -146,9 +166,14 @@
     "invalid_input": "Please Enter Valid {{id}}",
     "mobile": "Mobile Number",
     "nrc": "NRC ID",
-    "vid": "VID",
+    "vid": "UIN/VID",
     "email": "Email",
     "login_with_id": "Login with {{currentID}}",
+    "verify_with_id": "Verify with {{currentID}}",
+    "link_using_id": "Link using {{currentID}}",
+    "login_with_id_multiple": "Select a preferred ID to Login",
+    "verify_with_id_multiple": "Select a preferred ID to Verify",
+    "link_using_id_multiple": "Select a preferred ID to Link",
     "multiple_login_ids": "Select a Login ID Option",
     "enter_otp": "Enter OTP",
     "and": "and"
@@ -156,6 +181,8 @@
   "signInOption": {
     "login_option_heading": "Choose How You Want to Login:",
     "login_with_id": "Login with {{option}}",
+    "verify_with_id": "Verify with {{option}}",
+    "link_using_id": "Link using {{option}}",
     "PIN": "PIN",
     "Biometrics": "Biometrics",
     "BIO": "Biometrics",
@@ -164,6 +191,7 @@
     "PWD": "Password",
     "walletName": "Inji",
     "preferred_mode_of_login": "Select a preferred mode of login",
+    "preferred_mode_to_continue": "Select a preferred mode to continue",
     "more_ways_to_sign_in": "More ways to sign in",
     "or": "OR",
     "sign_in_with": "Verify using {{idProviderName}}",
@@ -179,7 +207,9 @@
     "login_heading": "Login using eSignet",
     "verify_heading": "Verify using eSignet",
     "link_heading": "Link using eSignet",
-    "login_subheading": "Please enter your registered username and password",
+    "login_subheading": "<strong>{{clientName}}</strong> is requesting authentication for login",
+    "verify_subheading": "<strong>{{clientName}}</strong> is requesting authentication for verification",
+    "link_subheading": "<strong>{{clientName}}</strong> is requesting authentication to link your account",
     "login_linkName": "Preregister",
     "more_ways_to_sign_in": "More Ways to Login",
     "invalid_auth_factor": "Invalid Auth Factors. Please Try Again...",
@@ -270,21 +300,21 @@
     "buttons": {
       "mobile": "Mobile Number",
       "nrc": "NRC ID",
-      "vid": "VID",
+      "vid": "UIN/VID",
       "email": "Email"
     },
     "input": {
       "label": {
         "mobile": "Mobile Number",
         "nrc": "NRC ID",
-        "vid": "VID",
+        "vid": "UIN/VID",
         "email": "Email"
       },
       "placeholder": {
         "mobile": "Enter Mobile Number",
         "nrc": "Enter NRC ID",
-        "vid": "Enter VID",
-        "email": "Enter Email Here"
+        "vid": "Enter UIN/VID",
+        "email": "Enter Email ID"
       }
     }
   },
@@ -669,6 +699,11 @@
       "508": "Server has detected an infinite loop while processing the request",
       "510": "Further extensions are required for the server to be able to fulfil the request",
       "511": "Client needs to authenticate to gain network access"
+    },
+    "network_error": {
+      "header": "Network Error!",
+      "subHeader": "Please check your internet connection and try again.",
+      "button": "Try Again"
     }
   }
 }

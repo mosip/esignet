@@ -34,8 +34,8 @@ const ErrorIndicator = ({
 
     let nonce = searchParams.get("nonce");
     let state = searchParams.get("state");
-    var decodeOAuth = Buffer.from(response, "base64")?.toString();
-    var OAuthDetails = JSON.parse(decodeOAuth);
+    const decodeOAuth = Buffer.from(response, "base64")?.toString();
+    const OAuthDetails = JSON.parse(decodeOAuth);
 
     let redirect_uri = OAuthDetails.redirectUri;
 

@@ -30,6 +30,7 @@ export default function Pin({
   authService,
   openIDConnectService,
   backButtonDiv,
+  secondaryHeading,
   i18nKeyPrefix1 = "pin",
   i18nKeyPrefix2 = "errors",
 }) {
@@ -116,9 +117,7 @@ export default function Pin({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
     if (e.target.type === "password") {
@@ -318,11 +317,14 @@ export default function Pin({
         {backButtonDiv}
         {currentLoginID && (
           <div className="inline mx-2 font-semibold my-3">
-            {loginIDs && loginIDs.length > 1
-              ? t1("multiple_login_ids")
-              : `${t1("login_with_id", {
-                currentID: `${t1(currentLoginID.id)}`
-              })}`}
+            {/*
+              according to the login id option, secondary heading value will be changed
+              if the login id option is single, then with secondary heading will pass a object with current id
+              if the login id option is multiple, then secondary heading will be passed as it is
+            */}
+            {t1(secondaryHeading, loginIDs && loginIDs.length === 1 && {
+              currentID: t1(loginIDs[0].id)
+            })}
           </div>
         )}
       </div>
@@ -421,6 +423,7 @@ export default function Pin({
                     maxLength={idx === 1 ? field.maxLength : ""}
                     regex={idx === 1 ? field.regex : ""}
                     currenti18nPrefix={idx === 0 ? i18nKeyPrefix1 : ""}
+                    idx={idx}
                   />
                 </div>
               ))}

@@ -25,6 +25,7 @@ import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
@@ -44,6 +45,9 @@ public class CacheUtilService {
 
     @Value("${mosip.esignet.nonce-expire-seconds:86400}")
     private int nonceValidity;
+
+    @Value("${spring.cache.type}")
+    private String cacheType;
 
     @Autowired
     CacheManager cacheManager;
@@ -97,8 +101,11 @@ public class CacheUtilService {
     }
 
     public long checkNonce(String nonce) {
+        if("simple".equalsIgnoreCase(cacheType))
+            return 1L;
+
         if (redisConnectionFactory.getConnection() != null) {
-            if (nonceScriptHash == null) {
+            if (isScriptNotLoaded(nonceScriptHash)) {
                 nonceScriptHash = redisConnectionFactory.getConnection().scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
             }
             log.info("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
@@ -241,5 +248,11 @@ public class CacheUtilService {
 
     public String getSharedIDVResult(String transactionId) {
         return cacheManager.getCache(Constants.SHARED_IDV_RESULT).get(transactionId, String.class); //NOSONAR getCache() will not be returning null here.
+    }
+
+    private boolean isScriptNotLoaded(String scriptHash) {
+        if(scriptHash == null) return true;
+        List<Boolean> scriptExists = redisConnectionFactory.getConnection().scriptingCommands().scriptExists(scriptHash);
+        return scriptExists == null || !scriptExists.get(0);
     }
 }

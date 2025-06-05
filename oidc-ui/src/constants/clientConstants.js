@@ -9,7 +9,7 @@ const challengeTypes = {
   pin: "PIN",
   otp: "OTP",
   wallet: "WALLET",
-  pwd: "PWD",
+  pswd: "PWD",
 };
 
 const challengeFormats = {
@@ -17,14 +17,14 @@ const challengeFormats = {
   pin: "number",
   otp: "alpha-numeric",
   wallet: "jwt",
-  pwd: "alpha-numeric",
+  pswd: "alpha-numeric",
 };
 
 const validAuthFactors = {
   PIN: "PIN",
   OTP: "OTP",
   BIO: "BIO",
-  PWD: "PWD",
+  PSWD: "PWD",
   WLA: "WLA",
   KBI: "KBI"
 };
@@ -73,8 +73,8 @@ const configurationKeys = {
   qrCodeBufferInSecs: "wallet.qr-code-buffer-in-secs",
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
-  passwordRegex: "password.regex",
-  passwordMaxLength: "password.max-length",
+  pswdRegex: "password.regex",
+  pswdMaxLength: "password.max-length",
   usernameRegex: "username.regex",
   usernamePrefix: "username.prefix",
   usernamePostfix: "username.postfix",
@@ -87,14 +87,21 @@ const configurationKeys = {
   signupConfig: "signup.config",
   signupBanner: "signup.banner",
   signupURL: "signup.url",
-  forgotPasswordConfig: "forgot-password.config",
-  forgotPassword: "forgot-password",
-  forgotPasswordURL: "forgot-password.url",
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswdConfig: "forgot-password.config",
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswd: "forgot-password",
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswdURL: "forgot-password.url",
   eKYCStepsConfig: "eKYC-steps.config",
   bannerCloseTimer: "error.banner.close-timer",
   authFactorKnowledgeFieldDetails: "auth.factor.kbi.field-details",
   authFactorKnowledgeIndividualIdField: "auth.factor.kbi.individual-id-field",
-  loginIdOptions: "login-id.options"
+  loginIdOptions: "login-id.options",
+  additionalConfig: "clientAdditionalConfig",
+  signupBannerRequired: "signup_banner_required",
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswdLinkRequired: "forgot_pwd_link_required"
 };
 
 const modalityIconPath = {
@@ -102,7 +109,7 @@ const modalityIconPath = {
   OTP: "images/otp_icon.svg",
   WALLET: "images/wallet_icon.svg",
   BIO: "images/bio_icon.svg",
-  PWD: "images/pwd_icon.svg",
+  PSWD: "images/pwd_icon.svg",
   KBI: "images/kbi_icon.svg"
 };
 
@@ -114,10 +121,35 @@ const errorCodeObj = {
   no_ekyc_provider: "no_ekyc_provider"
 };
 
-const purposeObj = {
+const purposeTitleKey = {
   login: "login_heading",
   verify: "verify_heading",
   link: "link_heading"
+}
+
+const purposeSubTitleKey = {
+  login: "login_subheading",
+  verify: "verify_subheading",
+  link: "link_subheading"
+}
+
+const authLabelKey = {
+  login: "login_with_id",
+  verify: "verify_with_id",
+  link: "link_using_id",
+}
+
+const multipleIdKey = {
+  login: "login_with_id_multiple",
+  verify: "verify_with_id_multiple",
+  link: "link_using_id_multiple",
+}
+
+const purposeTypeObj = {
+  login: "login",
+  verify: "verify",
+  link: "link",
+  none: "none"
 }
 
 export {
@@ -131,5 +163,9 @@ export {
   walletConfigKeys,
   modalityIconPath,
   errorCodeObj,
-  purposeObj
+  purposeTitleKey,
+  purposeTypeObj,
+  purposeSubTitleKey,
+  authLabelKey,
+  multipleIdKey
 };

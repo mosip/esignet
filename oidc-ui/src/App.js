@@ -38,8 +38,9 @@ function App() {
 
   //Loading rtlLangs
   useEffect(() => {
-    try {
-      langConfigService.getLocaleConfiguration().then((response) => {
+    const loadLanguages = async () => {
+      try {
+        const response = await langConfigService.getLocaleConfiguration();
         let lookup = {};
         let supportedLanguages = response.languages_2Letters;
         let langData = [];
@@ -62,14 +63,16 @@ function App() {
         });
         setLangOptions(langData);
         setStatusLoading(states.LOADED);
-      });
-    } catch (error) {
-      console.error("Failed to load rtl languages!");
-    }
+      } catch (error) {
+        console.error("Failed to load rtl languages!", error);
+      }
+    };
+  
+    loadLanguages();
 
     window.onbeforeunload = function () {
       return true;
-    };
+    }
   }, []);
 
   const changeLanguage = (loadLang) => {
@@ -101,13 +104,13 @@ function App() {
       let defaultLang = window._env_.DEFAULT_LANG;
       // checking default language in 2 letter language code
       if (defaultLang in supportedLanguages) {
-        i18n.changeLanguage(defaultLang)
-        return
+        i18n.changeLanguage(defaultLang);
+        return;
       }
       // checking default language in 3 letter language code
       if (defaultLang in langCodeMapping) {
-        i18n.changeLanguage(langCodeMapping[defaultLang])
-        return
+        i18n.changeLanguage(langCodeMapping[defaultLang]);
+        return;
       }
     }
 
@@ -126,7 +129,11 @@ function App() {
     case states.LOADING:
       el = (
         <div className="h-screen flex justify-center content-center">
-          <LoadingIndicator size="medium" message={"loading_msg"} className="align-loading-center" />
+          <LoadingIndicator
+            size="medium"
+            message={"loading_msg"}
+            className="align-loading-center"
+          />
         </div>
       );
       break;

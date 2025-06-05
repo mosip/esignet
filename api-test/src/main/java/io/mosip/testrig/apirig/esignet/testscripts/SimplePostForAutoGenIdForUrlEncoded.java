@@ -33,9 +33,10 @@ import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
-public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implements ITest {
+public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(SimplePostForAutoGenIdForUrlEncoded.class);
 	protected String testCaseName = "";
 	public String idKeyName = null;
@@ -82,7 +83,7 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 	 */
 	@Test(dataProvider = "testcaselist")
 	public void test(TestCaseDTO testCaseDTO)
-			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException {
+			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException, SecurityXSSException{
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
@@ -147,17 +148,9 @@ public class SimplePostForAutoGenIdForUrlEncoded extends AdminTestUtil implement
 				if (testCaseDTO.getEndPoint().startsWith("$ESIGNETMOCKBASEURL$")
 						&& testCaseName.contains("SunBirdC")) {
 
-					if (EsignetConfigManager.getEsignetMockBaseURL() != null
-							&& !EsignetConfigManager.getEsignetMockBaseURL().isBlank())
-						tempUrl = ApplnURI.replace("api-internal.", EsignetConfigManager.getEsignetMockBaseURL());
 					testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$ESIGNETMOCKBASEURL$", ""));
 				}
 				String endPoint = tempUrl + testCaseDTO.getEndPoint();
-				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMRESIDENTACTUATOR$")
-						&& BaseTestCase.currentModule.equalsIgnoreCase("resident")) {
-					endPoint = getValueFromActuator("mosip-config/resident-default.properties",
-							"mosip.iam.token_endpoint");
-				}
 				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMWELLKNOWN$")
 						&& BaseTestCase.currentModule.equalsIgnoreCase("esignet")) {
 					endPoint = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint", EsignetConfigManager.getEsignetBaseUrl());

@@ -53,4 +53,6 @@ public class Constants {
     public static final String VERIFICATION_COMPLETE = "COMPLETED";
     public static final String VERIFIED_CLAIMS = "verified_claims";
     public static final String PAR_CACHE = "par";
+    public static final String USERINFO_RESPONSE_TYPE = "userinfo_response_type";
+    public static final String CONSENT_EXPIRE_IN_MINS = "consent_expire_in_mins";
 }

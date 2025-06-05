@@ -27,7 +27,7 @@ ALTER DATABASE mosip_esignet SET search_path TO esignet,pg_catalog,public;
 
 CREATE TABLE esignet.client_detail(
   id character varying(100) NOT NULL,
-  name character varying(256) NOT NULL,
+  name character varying(600) NOT NULL,
   rp_id character varying(100) NOT NULL,
   logo_uri character varying(2048) NOT NULL,
   redirect_uris character varying NOT NULL,

@@ -6,6 +6,7 @@
 package io.mosip.esignet.core.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,10 +17,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -40,23 +44,22 @@ public class AuthenticationContextClassRefUtil {
     private static final String AMR_KEY = "amr";
     private static final String ACR_AMR = "acr_amr";
 
-    @Value("${mosip.esignet.amr-acr-mapping-file-path:/home/mosip/amr_acr_mapping.json}")
+    @Value("${mosip.esignet.amr-acr-mapping-file-path:file:/home/mosip/amr_acr_mapping.json}")
     private String mappingFilePath;
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     private String mappingJson;
 
     private String getMappingJson() throws IOException {
         if(StringUtils.isEmpty(mappingJson)) {
             log.info("Fetching AMR-ACR mapping json from : {}", mappingFilePath);
-            Path path = Paths.get(mappingFilePath);
-            if(!path.toFile().exists()) {
-                path = Paths.get(new ClassPathResource(mappingFilePath).getURI());
-            }
-            byte[] fileBytes = Files.readAllBytes(path);
-            mappingJson = new String(fileBytes);
+            Resource resource = resourceLoader.getResource(mappingFilePath);
+            mappingJson = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
         }
         return mappingJson;
     }

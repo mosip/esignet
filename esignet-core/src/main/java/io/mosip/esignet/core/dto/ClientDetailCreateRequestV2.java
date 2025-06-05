@@ -22,9 +22,9 @@ import java.util.Map;
 @NoArgsConstructor
 public class ClientDetailCreateRequestV2 extends ClientDetailCreateRequest {
 
-    @NotEmpty(message = ErrorConstants.INVALID_CLIENT_NAME)
     private Map<@ClientNameLang String,
-            @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) String> clientNameLangMap;
+            @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) @Size(max = 50,
+                    message = ErrorConstants.INVALID_CLIENT_NAME_LENGTH) String> clientNameLangMap;
             
     public ClientDetailCreateRequestV2(String clientId, String clientName, Map<String, Object> publicKey, String relyingPartyId,
                                        List<String> userClaims, List<String> authContextRefs, String logoUri,

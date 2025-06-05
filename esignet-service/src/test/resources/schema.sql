@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS client_detail(
 	id character varying(100) NOT NULL,
-	name character varying(256) NOT NULL,
+	name character varying(600) NOT NULL,
 	rp_id character varying(100) NOT NULL,
 	logo_uri character varying(2048) NOT NULL,
 	redirect_uris character varying NOT NULL,
@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS public_key_registry(
 	public_key_hash character varying(100) NOT NULL,
 	certificate character varying NOT NULL,
 	cr_dtimes timestamp NOT NULL,
+	thumbprint character varying NOT NULL,
 	CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash, auth_factor)
 );
 

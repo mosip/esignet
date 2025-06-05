@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.mosip.esignet.core.util.ClientAdditionalConfigConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,6 @@ import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
@@ -79,5 +79,5 @@ public class ClientDetail {
 
     @Convert(converter = ClientAdditionalConfigConverter.class)
     @Column(name = "additional_config", columnDefinition = "jsonb")
-    private Map<String, Object> additionalConfig;
+    private JsonNode additionalConfig;
 }

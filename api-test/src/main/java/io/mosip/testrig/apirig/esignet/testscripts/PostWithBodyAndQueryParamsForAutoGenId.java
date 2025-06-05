@@ -27,16 +27,17 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
+//import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthTestsUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.PartnerTypes;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
-public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implements ITest {
+public class PostWithBodyAndQueryParamsForAutoGenId extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(PostWithBodyAndQueryParamsForAutoGenId.class);
 	protected String testCaseName = "";
 	String queryParams = null;
@@ -66,7 +67,7 @@ public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implem
 	}
 
 	@Test(dataProvider = "testcaselist")
-	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
+	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
@@ -141,18 +142,6 @@ public class PostWithBodyAndQueryParamsForAutoGenId extends AdminTestUtil implem
 			throw new AdminTestException("Failed to Update Partner Certificate");
 		}
 		logger.info("Is update partner certificate " + str);
-
-//		if (testCaseName.contains("_AuthDemoUrl_")) {
-//			String url = ConfigManager.getAuthDemoServiceUrl();
-//
-//			logger.info("******Post request Json to EndPointUrl: " + url + testCaseDTO.getEndPoint() + " *******");
-//
-//			response = postWithQueryParamsBodyAndCookie(url + testCaseDTO.getEndPoint(),
-//					getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()), COOKIENAME,
-//					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), queryParams, idKeyName);
-//		} else {
-//			logger.info("Not Getting" + GlobalConstants.POST_REQ_URL + testCaseDTO.getTestCaseName() + " *******");
-//		}
 
 		Map<String, List<OutputValidationDto>> ouputValid = null;
 		if (testCaseName.contains("_StatusCode")) {

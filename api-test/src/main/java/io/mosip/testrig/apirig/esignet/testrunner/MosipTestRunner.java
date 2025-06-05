@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -26,8 +26,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.apirig.dbaccess.DBManager;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConstants;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
-import io.mosip.testrig.apirig.report.EmailableReport;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.ExtractResource;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
@@ -37,7 +37,9 @@ import io.mosip.testrig.apirig.utils.AuthTestsUtil;
 import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.JWKKeyUtil;
+import io.mosip.testrig.apirig.utils.KernelAuthentication;
 import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.utils.MispPartnerAndLicenseKeyGeneration;
@@ -67,11 +69,8 @@ public class MosipTestRunner {
 	public static void main(String[] arg) {
 
 		try {
-			Map<String, String> envMap = System.getenv();
-			LOGGER.info("** ------------- Get ALL ENV varibales --------------------------------------------- **");
-			for (String envName : envMap.keySet()) {
-				LOGGER.info(String.format("ENV %s = %s%n", envName, envMap.get(envName)));
-			}
+			LOGGER.info("** ------------- API Test Rig Run Started --------------------------------------------- **");
+			
 			BaseTestCase.setRunContext(getRunType(), jarUrl);
 
 			ExtractResource.removeOldMosipTestTestResource();
@@ -84,6 +83,7 @@ public class MosipTestRunner {
 			EsignetConfigManager.init();
 			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
+			GlobalMethods.setModuleNameAndReCompilePattern(EsignetConfigManager.getproperty("moduleNamePattern"));
 			setLogLevels();
 
 //			HealthChecker healthcheck = new HealthChecker();
@@ -99,12 +99,14 @@ public class MosipTestRunner {
 
 			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == false
 					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice") == false) {				
+				EsignetUtil.dBCleanup();
+				
 				KeycloakUserManager.removeUser();
 				KeycloakUserManager.createUsers();
 				KeycloakUserManager.closeKeycloakInstance();
 				AdminTestUtil.getRequiredField();
 
-				List<String> localLanguageList = new ArrayList<>(BaseTestCase.getLanguageList());
+				BaseTestCase.getLanguageList();
 				AdminTestUtil.getLocationData();
 				
 				
@@ -124,12 +126,27 @@ public class MosipTestRunner {
 
 				BiometricDataProvider.generateBiometricTestData("Registration");
 
-				if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty())
+				if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty()) {
 					LOGGER.error("partnerKeyURL is null");
-				else
+				} else {
 					startTestRunner();
+					EsignetUtil.dBCleanup();
+					KeycloakUserManager.removeUser();
+					KeycloakUserManager.closeKeycloakInstance();
+				}
+
+			} else if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("sunbirdrcauthenticationservice") == true) {
+				EsignetUtil.getSupportedLanguage();
+				startTestRunner();
 			} else {
-				BaseTestCase.isTargetEnvLatest = true;
+				// Mock ID System
+
+				// In mock ID system also the OTP value is hard coded and not configurable.
+				Map<String, Object> additionalPropertiesMap = new HashMap<String, Object>();
+				additionalPropertiesMap.put(EsignetConstants.USE_PRE_CONFIGURED_OTP_STRING, EsignetConstants.TRUE_STRING);
+				additionalPropertiesMap.put(EsignetConstants.PRE_CONFIGURED_OTP_STRING, EsignetConstants.ALL_ONE_OTP_STRING);
+				EsignetConfigManager.add(additionalPropertiesMap);
 				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			}
@@ -137,6 +154,7 @@ public class MosipTestRunner {
 		} catch (Exception e) {
 			LOGGER.error("Exception " + e.getMessage());
 		}
+		
 		OTPListener.bTerminate = true;
 
 		HealthChecker.bTerminate = true;
@@ -158,15 +176,6 @@ public class MosipTestRunner {
 		}
 		BaseTestCase.currentModule = GlobalConstants.ESIGNET;
 		BaseTestCase.certsForModule = GlobalConstants.ESIGNET;
-		DBManager.executeDBQueries(EsignetConfigManager.getKMDbUrl(), EsignetConfigManager.getKMDbUser(),
-				EsignetConfigManager.getKMDbPass(), EsignetConfigManager.getKMDbSchema(),
-				getGlobalResourcePath() + "/" + "config/keyManagerDataDeleteQueriesForEsignet.txt");
-		DBManager.executeDBQueries(EsignetConfigManager.getIdaDbUrl(), EsignetConfigManager.getIdaDbUser(),
-				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getIdaDbSchema(),
-				getGlobalResourcePath() + "/" + "config/idaDeleteQueriesForEsignet.txt");
-		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
-				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
-				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
 		AdminTestUtil.initiateesignetTest();
 		BaseTestCase.otpListener = new OTPListener();
 		BaseTestCase.otpListener.run();
@@ -180,6 +189,12 @@ public class MosipTestRunner {
 		MispPartnerAndLicenseKeyGeneration.setLogLevel();
 		JWKKeyUtil.setLogLevel();
 		CertsUtil.setLogLevel();
+		KernelAuthentication.setLogLevel();
+		BaseTestCase.setLogLevel();
+		EsignetUtil.setLogLevel();
+		KeycloakUserManager.setLogLevel();
+		DBManager.setLogLevel();
+		BiometricDataProvider.setLogLevel();
 	}
 
 	/**

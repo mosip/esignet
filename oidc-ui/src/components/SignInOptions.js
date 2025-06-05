@@ -13,6 +13,7 @@ export default function SignInOptions({
   handleSignInOptionClick,
   i18nKeyPrefix = "signInOption",
   icons,
+  authLabel
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
 
@@ -131,7 +132,7 @@ export default function SignInOptions({
     let loginOptions = getAllAuthFactors(authFactors, wlaList);
 
     if (loginOptions.length === 1) {
-      handleSignInOptionClick(loginOptions[0].value);
+      handleSignInOptionClick(loginOptions[0].value, null, authLabel);
     }
 
     setSinginOptions(loginOptions);
@@ -142,7 +143,7 @@ export default function SignInOptions({
   return (
     <>
       <h1 className="text-base leading-5 font-sans font-medium my-2">
-        {t("preferred_mode_of_login")}
+        {t("preferred_mode_to_continue")}
       </h1>
 
       {status.state === states.LOADING && (
@@ -163,15 +164,20 @@ export default function SignInOptions({
                   className="w-full flex py-[0.6rem] px-1 my-1 cursor-pointer login-list-box-style overflow-hidden"
                   id={option.id}
                   onClick={(e) =>
-                    handleSignInOptionClick(option.value, iconsMap)
+                    handleSignInOptionClick(option.value, iconsMap, authLabel)
                   }
+                  onKeyDown={(e) =>
+                    handleSignInOptionClick(option.value, iconsMap, authLabel)
+                  }
+                  role="button"
+                  tabIndex={0}
                 >
                   {option.icon !== walletLogoUrl ? (
                     <div
                       dangerouslySetInnerHTML={{
                         __html: iconsMap[option.id] || "",
                       }}
-                      className="mx-2 relative top-[3px] w-6"
+                      className="mx-2 relative top-[2.5px] w-6"
                     ></div>
                   ) : (
                     <img
@@ -180,8 +186,8 @@ export default function SignInOptions({
                       alt={option.id}
                     />
                   )}
-                  <div className="font-medium truncate ltr:text-left rtl:text-right ltr:ml-1.5 rtl:mr-1.5">
-                    {t("login_with_id", {
+                  <div className="font-medium truncate ltr:text-left rtl:text-right ltr:ml-1.5 rtl:mr-1.5 relative bottom-[1px]">
+                    {t(authLabel, {
                       option: t(option.label, option.label),
                     })}
                   </div>
@@ -194,7 +200,10 @@ export default function SignInOptions({
         <div
           className="text-center cursor-pointer font-medium text-[#0953FA] mt-3 flex flex-row rtl:flex-row-reverse items-center justify-center"
           onClick={() => setShowMoreOptions(false)}
+          onKeyDown={() => setShowMoreOptions(false)}
           id="show-more-options"
+          role="button"
+          tabIndex={0}
         >
           <span className="mr-2 rtl:ml-2 more-signin-options">
             {t("more_ways_to_sign_in")}

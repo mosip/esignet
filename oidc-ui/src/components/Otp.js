@@ -14,6 +14,7 @@ export default function Otp({
   authService,
   openIDConnectService,
   backButtonDiv,
+  secondaryHeading,
   i18nKeyPrefix = "otp",
 }) {
   const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
@@ -85,11 +86,14 @@ export default function Otp({
         )}
         {otpStatus === OTPStatusEnum.getOtp && (
           <div className="inline mx-2 font-semibold my-3">
-            {loginIDs && loginIDs.length > 1
-              ? t("multiple_login_ids")
-              : `${t("login_with_id", {
-                currentID: `${t(loginIDs[0].id)}`
-              })}`}
+            {/*
+              according to the login id option, secondary heading value will be changed
+              if the login id option is single, then with secondary heading will pass a object with current id
+              if the login id option is multiple, then secondary heading will be passed as it is
+            */}
+            {t(secondaryHeading, loginIDs && loginIDs.length === 1 && {
+              currentID: t(loginIDs[0].id)
+            })}
           </div>
         )}
       </div>

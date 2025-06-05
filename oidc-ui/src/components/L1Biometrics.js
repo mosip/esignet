@@ -25,6 +25,7 @@ export default function L1Biometrics({
   authService,
   openIDConnectService,
   backButtonDiv,
+  secondaryHeading,
   i18nKeyPrefix1 = "l1Biometrics",
   i18nKeyPrefix2 = "errors",
 }) {
@@ -54,7 +55,6 @@ export default function L1Biometrics({
   });
 
   const [errorBanner, setErrorBanner] = useState(null);
-  const [inputError, setInputError] = useState(null);
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
@@ -66,9 +66,6 @@ export default function L1Biometrics({
   const [isValid, setIsValid] = useState(false);
   const [isBtnDisabled, setIsBtnDisabled] = useState(true);
   const [prevLanguage, setPrevLanguage] = useState(i18n.language);
-
-  const iso = require("iso-3166-1");
-  const countries = iso.all();
 
   var loginIDs = openIDConnectService.getEsignetConfiguration(
     configurationKeys.loginIdOptions
@@ -129,9 +126,7 @@ export default function L1Biometrics({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
 
@@ -400,11 +395,14 @@ export default function L1Biometrics({
         {backButtonDiv}
         {currentLoginID && (
           <div className="inline mx-2 font-semibold my-3">
-            {loginIDs && loginIDs.length > 1
-              ? t1("multiple_login_ids")
-              : `${t1("login_with_id", {
-                currentID: `${t1(currentLoginID.id)}`
-              })}`}
+            {/*
+              according to the login id option, secondary heading value will be changed
+              if the login id option is single, then with secondary heading will pass a object with current id
+              if the login id option is multiple, then secondary heading will be passed as it is
+            */}
+            {t1(secondaryHeading, loginIDs && loginIDs.length === 1 && {
+              currentID: t1(loginIDs[0].id)
+            })}
           </div>
         )}
       </div>

@@ -388,6 +388,7 @@ export default function OtpVerify({
             autoSelect={true}
             ref={(n) => (pin = n)}
             disabled={status.state === states.LOADING}
+            focus={true}
           />
         </div>
 
@@ -403,7 +404,9 @@ export default function OtpVerify({
         )}
 
         <FormAction
-          disabled={otpValue.length !== otpLength || status.state === states.LOADING}
+          disabled={
+            otpValue.length !== otpLength || status.state === states.LOADING
+          }
           type={buttonTypes.submit}
           text={t1("verify")}
           id="verify_otp"

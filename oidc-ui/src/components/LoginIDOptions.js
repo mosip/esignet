@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import openIDConnectService from "../services/openIDConnectService";
 import { configurationKeys } from "../constants/clientConstants";
+import { decodeHash } from "../helpers/utils";
 
 const LoginIDOptions = (props) => {
   const [selectedOption, setSelectedOption] = useState();
@@ -20,7 +21,7 @@ const LoginIDOptions = (props) => {
   const code = urlObj.hash.substring(1);
 
   // Decoding the Base64-encoded string (excluding the first character)
-  const decodedBase64 = atob(code);
+  const decodedBase64 = decodeHash(code);
 
   // Creating an instance of the openIDConnectService with decodedBase64, nonce, and state parameters
   const oidcService = new openIDConnectService(
@@ -45,58 +46,6 @@ const LoginIDOptions = (props) => {
       },
     ];
   }
-
-  // const loginIDs = [
-  //   {
-  //     id: "mobile",
-  //     svg: "mobile_icon",
-  //     prefixes: [
-  //       {
-  //         label: "IND",
-  //         value: "+91",
-  //         maxLength: "",
-  //         regex: "",
-  //       },
-  //       {
-  //         label: "KHM",
-  //         value: "+855",
-  //         regex: "^[a-zA-Z]+$"
-  //       },
-  //       {
-  //         label: "USA",
-  //         value: "+1",
-  //         maxLength: "5"
-  //       },
-  //     ],
-  //     postfix: "@phone",
-  //     maxLength: 10,
-  //     regex: "^\\d*$",
-  //   },
-  //   {
-  //     id: "nrc",
-  //     svg: "nrc_id_icon",
-  //     prefixes: "",
-  //     postfix: "@NRC",
-  //     maxLength: 5,
-  //     regex: "^\\d*$",
-  //   },
-  //   {
-  //     id: "vid",
-  //     svg: "vid_icon",
-  //     prefixes: "",
-  //     postfix: "@ID",
-  //     maxLength: "",
-  //     regex: "^\\d*$",
-  //   },
-  //   {
-  //     id: "email",
-  //     svg: "email_icon",
-  //     prefixes: "",
-  //     postfix: "@email",
-  //     maxLength: 10,
-  //     regex: "",
-  //   },
-  // ];
 
   const [iconsMap, setIconsMap] = useState({}); // To store preloaded SVGs
   const fetchSvg = async (path) => {

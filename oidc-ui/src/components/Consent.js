@@ -347,8 +347,9 @@ export default function Consent({
   const sliderButtonDiv = (item, handleOnchange) => (
     <div>
       <label
-        labelfor={item}
         className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
+        htmlFor={item}
+        aria-label={item}
       >
         <input
           type="checkbox"
@@ -476,7 +477,6 @@ export default function Consent({
                               onClick={(e) => {
                                 e.preventDefault();
                               }}
-                              role="tooltip"
                             >
                               &#9432;
                             </button>
@@ -516,7 +516,7 @@ export default function Consent({
                                 <div className="flex justify-end">
                                   {claimScope?.required && (
                                     <label
-                                      labelfor={item}
+                                      htmlFor={item}
                                       className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
                                     >
                                       {t("required")}

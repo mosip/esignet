@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.core.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
 import java.util.List;
@@ -27,5 +28,24 @@ public class ClientDetail implements Serializable {
     private String status;
     private List<String> grantTypes;
     private List<String> clientAuthMethods;
-    private Map<String, Object> additionalConfig;
+    private JsonNode additionalConfig;
+
+    public <T> T getAdditionalConfig(String key, T defaultValue) {
+        if (this.additionalConfig == null || key == null || !this.additionalConfig.has(key)) {
+            return defaultValue;
+        }
+        JsonNode valueNode = this.additionalConfig.get(key);
+        if (defaultValue instanceof String) {
+            return (T) (valueNode.isTextual() ? valueNode.asText() : defaultValue);
+        } else if (defaultValue instanceof Integer) {
+            return (T) (valueNode.isInt() ? Integer.valueOf(valueNode.asInt()) : defaultValue);
+        } else if (defaultValue instanceof Long) {
+            return (T) (valueNode.isLong() ? Long.valueOf(valueNode.asLong()) : defaultValue);
+        } else if (defaultValue instanceof Double) {
+            return (T) (valueNode.isDouble() ? Double.valueOf(valueNode.asDouble()) : defaultValue);
+        } else if (defaultValue instanceof Boolean) {
+            return (T) (valueNode.isBoolean() ? Boolean.valueOf(valueNode.asBoolean()) : defaultValue);
+        }
+        return defaultValue;
+    }
 }

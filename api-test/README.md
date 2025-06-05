@@ -4,6 +4,8 @@
 
 The **eSignet API Test Rig** is designed for the execution of module-wise automation API tests for the eSignet service. This test rig utilizes **Java REST Assured** and **TestNG** frameworks to automate testing of the eSignet API functionalities. The key focus is to validate the authentication, signature generation, and related functionalities provided by the eSignet module.
 
+For more detailed information about eSignet, please refer to the [eSignet Documentation](https://docs.esignet.io/).
+
 ---
 
 ## Test Categories
@@ -19,15 +21,33 @@ This test rig covers only **external API endpoints** exposed by the eSignet modu
 
 ---
 
-## Pre-requisites
+### Pre-requisites
+Before setting up the eSignet API Test Rig, ensure the following prerequisites are met:
 
-Before running the automation tests, ensure the following software is installed on the machine:
+1. **Java 21 (or a compatible version)**  
+   - Ensure that Java 21 (or a compatible version) is installed on your machine.
+   - You can download Java from the [official website](https://www.oracle.com/java/technologies/javase-jdk21-downloads.html).
 
-- **Java 21** (or a compatible version)
-- **Maven 3.9.6** (or higher)
-- **Lombok** (Refer to [Lombok Project](https://projectlombok.org/))
-- **setting.xml** ([download here](https://github.com/mosip/mosip-functional-tests/blob/master/settings.xml))
-- **apitest-commons** library should be cloned and the JAR should be built. Refer to ([README](https://github.com/mosip/mosip-functional-tests/blob/release-1.3.0/apitest-commons/README.md))
+2. **Maven 3.9.6 (or higher)**  
+   - Download and install Maven from [here](https://maven.apache.org/download.cgi).
+   - Verify the installation by running `mvn -v` in the terminal.
+
+3. **Lombok**  
+   - Lombok simplifies your code by generating boilerplate code such as getters and setters.
+   - You can find installation instructions on the [Lombok project page](https://projectlombok.org/).
+
+4. **setting.xml**  
+   - Download the `setting.xml` configuration file from [this link](https://github.com/mosip/mosip-functional-tests/blob/master/settings.xml) and place it in your Maven configuration directory.
+
+5. **IDE (e.g., Eclipse)**  
+   - A code editor is needed to write and execute tests. We recommend using Eclipse for ease of use.
+
+6. **apitest-commons Library**  
+   - Clone the `apitest-commons` repository and build the JAR file by following the [README](https://github.com/mosip/mosip-functional-tests/blob/release-1.3.1/apitest-commons/README.md).
+   - GitHub Repository: [apitest-commons-1.3.1](https://github.com/mosip/mosip-functional-tests/tree/release-1.3.1/apitest-commons).
+
+7. **eSignet Repository**  
+   - Ensure you have access to the eSignet API repository. The code can be cloned from [the eSignet repo](https://github.com/mosip/esignet).
 
 ### For Windows
 
@@ -41,6 +61,44 @@ Before running the automation tests, ensure the following software is installed 
   - Under `/usr/local/maven/conf/`
 
 ---
+
+# API Test Rig Configuration
+
+The API Test Rig is configured to work with different core service plugins, such as MOSIP-ID, Mock-Identity-System, and Sunbird Insurance. It allows for dynamic testing and validation of workflows related to identity management and authentication.
+
+## Integration of eSignet API Test Rig with Core Service Plugins
+
+The Test Rig is dynamically configured based on the core service plugin being tested (either MOSIP-ID, Mock-Identity-System, or Sunbird Insurance). The configuration is as follows:
+
+### 1. Configuration for MOSIP-ID Plugin:
+- **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the MOSIP-ID service.
+- **mosip_components_base_urls**: A string defining the base URLs for various components.
+- **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
+
+### 2. Configuration for Mock-Identity-System Plugin:
+- **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the Mock-Identity-service.
+- **mosip_components_base_urls**: A string defining the base URLs for various components.
+- **usePreConfiguredOtp**: A flag to use pre-configured OTPs. Set to "true" for OTP-based workflows.
+- **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
+- **esignetSupportedLanguage**: Any 3-letter valid language code to create OIDC client (e.g., "eng", "hin", "tam").
+
+### 3. Configuration for Sunbird Insurance Use Case:
+- **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the Sunbird insurance service.
+- **sunBirdBaseURL**: The Test Rig will use the live Sunbird registry instance integrated with the Sunbird insurance service.
+- **esignetMockBaseURL**: Specifies the baseURL of Sunbird instance (e.g., "esignet-sunbird.").
+- **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
+- **esignetSupportedLanguage**: Any 3-letter valid language code to create OIDC client (e.g., "eng", "hin", "tam").
+
+### eSignet Deployment Configuration (Required for API Test Rig):
+These configurations need to be added as part of the eSignet service deployment to support the API Test Rig:
+
+- **MOSIP_ESIGNET_AUTHENTICATE_ATTEMPTS**: 300
+- **MOSIP_ESIGNET_SEND_OTP_ATTEMPTS**: 300
+- **MOSIP_ESIGNET_AUTH_CHALLENGE_BIO_MAX_LENGTH**: 200000
+- **MOSIP_ESIGNET_PREAUTHENTICATION_EXPIRE_IN_SECS**: 600
+- **MOSIP_ESIGNET_CAPTCHA_REQUIRED**: (empty)
+
+These parameters must be included in the eSignet deployment YAML for the API Test Rig to function correctly, independent of which plugin is being used.
 
 ## Access Test Automation Code
 
@@ -67,15 +125,14 @@ You can access the test automation code using either of the following methods:
 
 Once the repository is cloned or downloaded, follow these steps to build and install the test automation code:
 
-1. Navigate to the project directory:
-   ```sh
-   cd api-test
-   ```
+1. **Open Command Prompt**  
+   - Before proceeding with the project setup, open the Command Prompt or terminal on your system.
 
-2. Build the project using Maven:
-   ```sh
-   mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true
-   ```
+2. **Navigate to the project directory**:  
+   "cd api-test"
+
+3. **Build the project using Maven**:  
+   "mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true"
 
 This will download the required dependencies and prepare the test suite for execution.
 
@@ -96,7 +153,7 @@ To execute the tests using Jar, use the following steps:
 
 2. Run the automation test suite JAR file:
    ```
-   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.2.1-SNAPSHOT-jar-with-dependencies.jar
+   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.6.0-SNAPSHOT-jar-with-dependencies.jar
    ```
    
 # Using Eclipse IDE
@@ -144,9 +201,9 @@ To execute the tests using Eclipse IDE, use the following steps:
 ## 6. **View Test Results**
 
    - After the tests are executed, you can view the detailed results in the `api-test\testng-report` directory.
-   - Two reports will gets generated
-       - First report is for pre-requisite testcases
-       - Second report is for core testcases
+   - The report will have two sections:
+       - One section for pre-requisite APIs test cases.
+       - Another section for core test cases.
 
 ---
   
@@ -155,7 +212,7 @@ To execute the tests using Eclipse IDE, use the following steps:
 - **env.user**: Replace `<env_name>` with the appropriate environment name (e.g., `dev`, `qa`, etc.).
 - **env.endpoint**: The environment where the application under test is deployed. Replace `<base_env>` with the correct base URL for the environment (e.g., `https://api-internal.<env_name>.mosip.net`).
 - **env.testLevel**: Set this to `smoke` to run only smoke test cases, or `smokeAndRegression` to run both smoke and regression tests.
-- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.2.1-SNAPSHOT-jar-with-dependencies.jar`.
+- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.6.0-SNAPSHOT-jar-with-dependencies.jar`.
 
 ### Build and Run Info
 

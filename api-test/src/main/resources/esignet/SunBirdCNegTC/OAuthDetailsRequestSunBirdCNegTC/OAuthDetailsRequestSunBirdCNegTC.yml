@@ -1,5 +1,5 @@
 OAuthDetailsRequestSunBirdCNegTC:
-   ESignet_OAuthDetailsRequest_SunBirdC_all_Valid_Smoke_with_other_acrs:
+   ESignet_OAuthDetailsRequest_SunBirdC_all_Valid_with_other_acrs:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_01
       description: To request OAuthDetails for SunBirdC with all valid dataand with other acrs
@@ -11,7 +11,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -33,7 +33,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/SunBCC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
+      inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
       	"requestTime": "$TIMESTAMP$",
@@ -147,7 +147,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       output: '{
        
 }'
-   ESignet_OAuthDetailsRequest_SunBirdC_with_openid_profile_sunbird_data:
+   ESignet_OAuthDetailsRequest_SunBirdC_with_openid_profile_sunbird_data_Pos:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_06
       description: To request OAuthDetails for SunBirdC with openid profile sunbird value in scope
@@ -155,7 +155,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
-      outputTemplate: esignet/error
+      outputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdCResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
@@ -172,11 +172,6 @@ OAuthDetailsRequestSunBirdCNegTC:
         "codeChallengeMethod": "S256"
 }'
       output: '{
-  "errors": [
-    {
-      "erroCode": "invalid_scope"
-    }
-  ]
 }'
    ESignet_OAuthDetailsRequest_SunBirdC_with_random_codeChallenege_data:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
@@ -190,7 +185,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -217,7 +212,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -249,7 +244,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -280,7 +275,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -307,7 +302,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -338,7 +333,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -369,7 +364,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -389,7 +384,7 @@ OAuthDetailsRequestSunBirdCNegTC:
   ]
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_all_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_all_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_14
       description: To request OAuthDetails for SunBirdC with valid data
@@ -401,7 +396,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -417,7 +412,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_15
       description: To request OAuthDetails for SunBirdC with valid data
@@ -429,7 +424,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -445,7 +440,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_16
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -457,7 +452,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -473,7 +468,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_17
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -485,7 +480,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -501,7 +496,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_18
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -513,7 +508,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -529,7 +524,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_19
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -541,7 +536,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -557,7 +552,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_20
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -569,7 +564,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -585,7 +580,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen1_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_21
       description: To request OAuthDetails for SunBirdC with valid AuthCode
@@ -597,7 +592,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -613,7 +608,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen2_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_22
       description: To request OAuthDetails for SunBirdC with different different valid AuthCode
@@ -625,7 +620,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -641,7 +636,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen3_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_23
       description: To request OAuthDetails for SunBirdC with different valid AuthCode
@@ -653,7 +648,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -669,7 +664,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen4_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_24
       description: To request OAuthDetails for SunBirdC with different  valid Authcode
@@ -681,7 +676,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -697,7 +692,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen5_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_25
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -709,7 +704,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -725,7 +720,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen6_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_26
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -737,7 +732,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -753,7 +748,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen7_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_27
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -765,7 +760,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
@@ -781,7 +776,7 @@ OAuthDetailsRequestSunBirdCNegTC:
        
 }'
 
-   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_Smoke_sid:
+   ESignet_OAuthDetailsRequest_SunBirdCNegTC_Scen8_AuthCode_Valid_sid:
       endPoint: $ESIGNETMOCKBASEURL$/v1/esignet/authorization/v2/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_28
       description: To request OAuthDetails for SunBirdC with different valid data
@@ -793,7 +788,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClientV2SunBirdC_all_Valid_Smoke_sid_clientId$",
-      	"scope": "sunbird_rc_insurance_vc_ldp",
+      	"scope": "$SUNBIRD_SCOPE$",
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
