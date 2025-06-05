@@ -11,7 +11,7 @@ The additionalConfig is validated using a JSON schema. The url for the JSON sche
 The following fields are there currently in additionalConfig
 
 **userinfo_response_type**
-: Available options for this field are **JWS** and **JWE**. Same is sent to IDA in kyc-exchange where response is expected in that format. 
+: Available options for this field are **JWS** and **JWE**. Same is sent to the ID System in kyc-exchange where response is expected in that format. 
 
 **purpose** - [Documentation]()
 
@@ -31,8 +31,12 @@ The following fields are there currently in additionalConfig
 {
   "userinfo_response_type": "JWS",
   "purpose": {
+    "type": "verify",
     "title": {
       "@none": "title"
+    },
+    "subTitle": {
+      "@none": "subtitle"
     }
   },
   "signup_banner_required": true,
