@@ -21,7 +21,6 @@ import org.jose4j.lang.JoseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.testng.Reporter;
 import org.testng.SkipException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
