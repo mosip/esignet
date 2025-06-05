@@ -21,6 +21,7 @@ import org.jose4j.lang.JoseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.SkipException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,6 +109,14 @@ public class EsignetUtil extends AdminTestUtil {
 				"mosip.esignet.integration.authenticator");
 
 		return pluginName;
+	}
+	public static boolean isCaptchaEnabled() {
+		String temp = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+				EsignetConstants.MOSIP_ESIGNET_CAPTCHA_REQUIRED);
+		if(temp.isEmpty()) {
+			return false;
+		}
+		return true;	
 	}
 	
 	public static JSONArray getActiveProfilesFromActuator(String url, String key) {
@@ -260,6 +269,11 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
 		String testCaseName = testCaseDTO.getTestCaseName();
+		
+		//When the captcha is enabled we cannot execute the test case as we can not generate the captcha token
+		if (isCaptchaEnabled() == true) {
+			throw new SkipException(GlobalConstants.CAPTCHA_ENABLED_MESSAGE);
+		}
 		
 		
 		if (MosipTestRunner.skipAll == true) {
