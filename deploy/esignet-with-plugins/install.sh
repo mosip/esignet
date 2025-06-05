@@ -6,7 +6,7 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=esignet-1
+NS=esignet
 CHART_VERSION=1.6.0-develop
 echo Create $NS namespace
 kubectl create ns $NS
