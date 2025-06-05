@@ -51,7 +51,7 @@ import io.mosip.testrig.apirig.utils.JWKKeyUtil;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.SkipTestCaseHandler;
-import io.restassured.RestAssured;
+//import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 public class EsignetUtil extends AdminTestUtil {
@@ -338,7 +338,7 @@ public class EsignetUtil extends AdminTestUtil {
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice")) {
 			// Let run test cases eSignet & Sunbird (for identity)   -- only KBI 
 			
-			String endpoint = testCaseDTO.getEndPoint();
+//			String endpoint = testCaseDTO.getEndPoint();
 			
 			if (testCaseName.contains("SunBird") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
