@@ -13,13 +13,14 @@ The configuration for rendering multiple login IDs is defined in the `applicatio
 If `mosip.esignet.ui.config.login-id.options` is set to an empty string, `null`, or an empty array, the UI defaults to using **VID login** as the fallback login ID.
 
 - Example:
-
+  ```properties
   mosip.esignet.ui.config.login-id.options={ \
   { "id": "mobile", "svg": "mobile_icon", "prefixes": [{"label": "IND", "value": "+91", "maxLength": "", "regex": ""}, {"label": "KHM", "value": "+855"}], "postfix": "@phone", "maxLength": "", "regex": "" }, \ 
   { "id": "nrc", "svg": "nrc_id_icon", "prefixes": "", "postfix": "@NRC", "maxLength": "", "regex": "" }, \
   { "id": "vid", "svg": "vid_icon", "prefixes": "", "postfix": "@ID", "maxLength": "", "regex": "" }, \
   { "id": "email", "svg": "email_icon", "prefixes": "", "postfix": "@email", "maxLength": "", "regex": "" } \
   } 
+  ```
 
     - Each ID configured in `mosip.esignet.ui.config.login-id.options` will create a button for the user to select and use as a login ID type.
 
@@ -34,3 +35,7 @@ If `mosip.esignet.ui.config.login-id.options` is set to an empty string, `null`,
     - The postfix should always be a single text value.
 
     - The maxLength and regex properties are optional for prefixes. If specified within a prefix, the values from the prefix will take precedence; otherwise, the outer values will be used. This follows a scope hierarchy where the inner scope takes priority over the outer scope.
+  
+Here is an image which shows the different login button for different options, by using the above configuration:
+
+![Esignet Login Id types](../esignet-login-id-type.png "Esignet Login Id types")
