@@ -17,7 +17,9 @@ Esignet UI contains the following pages:
 - **/login**:
   This is a login page where list of auth factor (OTP / BIO / KBI / PIN / Wallet) will be shown, and user can select any one for Login/Verify/Link purpose.
   
-  For more details check this [document](../docs/design/esignet-login-purpose.md)
+  For more details how purpose work check [Login Purpose](../docs/design/esignet-login-purpose.md)
+
+  For more details how multiple login id work check [Login ID Types](../docs/design/loginid-types.md)
 
 - **/consent**: is a page that prompts the user to provide consent to share one's details from the MOSIP to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
 
