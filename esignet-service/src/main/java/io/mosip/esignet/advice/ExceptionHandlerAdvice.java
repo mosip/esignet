@@ -188,7 +188,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         if (ex instanceof BindException) {
             FieldError fieldError = ((BindException) ex).getFieldError();
             String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_REQUEST, message), HttpStatus.BAD_REQUEST);
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

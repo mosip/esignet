@@ -8,10 +8,7 @@ package io.mosip.esignet.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
-import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
-import io.mosip.esignet.core.dto.PushedAuthorizationResponse;
-import io.mosip.esignet.core.dto.TokenRequest;
-import io.mosip.esignet.core.dto.TokenResponse;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
@@ -88,7 +85,7 @@ public class OAuthControllerTest {
     @Test
     public void getToken_withValidInput_thenPass() throws Exception {
         TokenResponse tokenResponse = new TokenResponse();
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenReturn(tokenResponse);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenReturn(tokenResponse);
 
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -114,7 +111,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withInvalidInput_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(InvalidRequestException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(InvalidRequestException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest());
@@ -126,7 +123,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withRuntimeFailure_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(EsignetException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(EsignetException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .param("code", "code")
@@ -147,7 +144,7 @@ public class OAuthControllerTest {
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
 
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(NullPointerException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .param("code", "code")
@@ -221,7 +218,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_input"));
+                .andExpect(jsonPath("$.error").value("invalid_request"));
     }
 
     @Test
@@ -236,7 +233,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_input"))
+                .andExpect(jsonPath("$.error").value("invalid_request"))
                 .andExpect(jsonPath("$.error_description").value("invalid_redirect_uri"));
 
     }
@@ -253,7 +250,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_input"))
+                .andExpect(jsonPath("$.error").value("invalid_request"))
                 .andExpect(jsonPath("$.error_description").value("invalid_scope"));
     }
 
@@ -269,7 +266,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_input"))
+                .andExpect(jsonPath("$.error").value("invalid_request"))
                 .andExpect(jsonPath("$.error_description").value("invalid_assertion_type"));
     }
 
@@ -287,7 +284,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_input"));
+                .andExpect(jsonPath("$.error").value("invalid_request"));
 
     }
 

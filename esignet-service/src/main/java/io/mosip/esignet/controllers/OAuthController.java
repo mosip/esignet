@@ -11,6 +11,7 @@ import javax.validation.Validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.services.AuthorizationHelperService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,7 +48,9 @@ public class OAuthController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public TokenResponse getToken(@Validated @ModelAttribute TokenRequest tokenRequest) {
         try {
-        	return oAuthService.getTokens(tokenRequest,false);
+            TokenRequestV2 tokenRequestV2 = new TokenRequestV2();
+            BeanUtils.copyProperties(tokenRequest, tokenRequestV2);  // tokenRequestV2.setCodeVerifier(null);
+            return oAuthService.getTokens(tokenRequestV2, false);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
                     AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()), "codeHash", null), ex);
@@ -57,7 +60,7 @@ public class OAuthController {
 
     @PostMapping(value = "/v2/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public TokenResponse getTokenV2(@Validated @ModelAttribute TokenRequest tokenRequest) {
+    public TokenResponse getTokenV2(@Validated @ModelAttribute TokenRequestV2 tokenRequest) {
         try {
             return oAuthService.getTokens(tokenRequest,true);
         } catch (EsignetException ex) {

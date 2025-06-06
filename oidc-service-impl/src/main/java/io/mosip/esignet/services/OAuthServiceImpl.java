@@ -5,7 +5,6 @@
  */
 package io.mosip.esignet.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -16,7 +15,6 @@ import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
 import io.mosip.esignet.api.dto.VerifiedKycExchangeDto;
-import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.exception.KycExchangeException;
 import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
@@ -38,10 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -95,7 +91,7 @@ public class OAuthServiceImpl implements OAuthService {
     private String discoveryIssuerId;
 
     @Value("${mosip.esignet.par.expire-seconds:60}")
-    private int parTtlInSeconds;
+    private int parTTLInSeconds;
 
     @Value("${mosip.esignet.par-prefix:}")
     private String parPrefix;
@@ -104,7 +100,7 @@ public class OAuthServiceImpl implements OAuthService {
     private Validator validator;
 
     @Override
-    public TokenResponse getTokens(TokenRequest tokenRequest,boolean isV2) throws EsignetException {
+    public TokenResponse getTokens(TokenRequestV2 tokenRequest,boolean isV2) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
 
@@ -171,18 +167,18 @@ public class OAuthServiceImpl implements OAuthService {
     @Override
     public PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest) {
 
-        if (pushedAuthorizationRequest == null || pushedAuthorizationRequest.getClient_id() == null) {
-            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
-        }
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(pushedAuthorizationRequest.getClient_id());
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
+        authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
 
         authenticatePARClient(pushedAuthorizationRequest.getClient_assertion_type(),pushedAuthorizationRequest.getClient_assertion(),clientDetailDto);
 
         String requestUri = parPrefix + IdentityProviderUtil.createTransactionId(null) ;
-        cacheUtilService.setCacheParRequest(requestUri, pushedAuthorizationRequest);
+        cacheUtilService.savePAR(requestUri, pushedAuthorizationRequest);
         PushedAuthorizationResponse response = new PushedAuthorizationResponse();
         response.setRequest_uri(requestUri);
-        response.setExpires_in(parTtlInSeconds);
+        response.setExpires_in(parTTLInSeconds);
         return response;
     }
 
@@ -204,7 +200,7 @@ public class OAuthServiceImpl implements OAuthService {
         return map;
     }
 
-    private void validateRequestParametersWithTransaction(TokenRequest tokenRequest, OIDCTransaction transaction) {
+    private void validateRequestParametersWithTransaction(TokenRequestV2 tokenRequest, OIDCTransaction transaction) {
         if(transaction == null || transaction.getKycToken() == null)
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 

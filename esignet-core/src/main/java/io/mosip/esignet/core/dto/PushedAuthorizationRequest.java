@@ -11,7 +11,7 @@ import java.io.Serializable;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
 
 @Data
-@NoRequestUri
+@RequestUri(strictNo = true)
 public class PushedAuthorizationRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -187,13 +187,13 @@ public class CacheUtilService {
     }
 
     @CachePut(value = Constants.PAR_CACHE, key = "#requestUri")
-    public PushedAuthorizationRequest setCacheParRequest(String requestUri, PushedAuthorizationRequest pushedAuthorizationRequest) {
+    public PushedAuthorizationRequest savePAR(String requestUri, PushedAuthorizationRequest pushedAuthorizationRequest) {
         return pushedAuthorizationRequest;
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
-    public PushedAuthorizationRequest getCacheParRequest(String requestUri) {
+    public PushedAuthorizationRequest getPAR(String requestUri) {
         return cacheManager.getCache(Constants.PAR_CACHE).get(requestUri, PushedAuthorizationRequest.class); //NOSONAR getCache() will not be returning null here.
     }
 

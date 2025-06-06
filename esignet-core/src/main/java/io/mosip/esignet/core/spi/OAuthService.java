@@ -5,12 +5,8 @@
  */
 package io.mosip.esignet.core.spi;
 
-import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
-import io.mosip.esignet.core.dto.PushedAuthorizationResponse;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.dto.TokenRequest;
-import io.mosip.esignet.core.dto.TokenResponse;
-import org.springframework.util.MultiValueMap;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -34,7 +30,7 @@ public interface OAuthService {
      * @return
      * @throws EsignetException
      */
-    TokenResponse getTokens(@Valid TokenRequest tokenRequest,boolean isV2) throws EsignetException;
+    TokenResponse getTokens(@Valid TokenRequestV2 tokenRequest, boolean isV2) throws EsignetException;
 
     /**
      * API to get list of IdP public keys
@@ -42,7 +38,17 @@ public interface OAuthService {
      */
     Map<String, Object> getJwks();
 
+    /**
+     * Retrieves the OpenID Connect Discovery metadata as defined by the OpenID Connect Discovery specification.
+     * This includes supported endpoints, scopes, response types, grant types, and other server capabilities.
+     * @return a map representing the server's discovery information.
+     */
     Map<String, Object> getOAuthServerDiscoveryInfo();
 
+    /**
+     * Initiates a Pushed Authorization Request (PAR) to the authorization server.
+     * This method accepts the full set of authorization parameters and returns a request URI that the client can later reference in the authorization endpoint.
+     * @return a response containing a request URI and expiration time
+     */
     PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest);
 }

@@ -6,14 +6,16 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = NoRequestUriValidator.class)
+@Constraint(validatedBy = RequestUriValidator.class)
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NoRequestUri {
+public @interface RequestUri {
 
     String message() default ErrorConstants.INVALID_REQUEST;
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    boolean strictNo() default true;
 }
