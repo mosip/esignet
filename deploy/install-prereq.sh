@@ -101,21 +101,28 @@ function installing_prerequisites() {
       fi
 
       if [[ "$module" == "kafka" && "$response" == "n" ]]; then
-        prompt_for_input kafkaurl "Please provide the kafka URL: "
+        read -p "Please provide the kafka URL ( default: kafka-0.kafka-headless.kafka.svc.cluster.local:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092 ): " kafkaurl
+        kafkaurl=${kafkaurl:-kafka-0.kafka-headless.kafka.svc.cluster.local:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092}
         echo "Creating ConfigMap for Kafka URL"
-        #kubectl patch configmap esignet-global -n $NS --type merge -p "{\"data\": {\"mosip-kafka-host\": \"$kafkaurl\"}}"
         kubectl create configmap kafka-config --from-literal=SPRING_KAFKA_BOOTSTRAP-SERVERS="$kafkaurl" -n $NS --dry-run=client -o yaml | kubectl apply -f -
       fi
 
       if [[ "$module" == "redis" && "$response" == "n" ]]; then
-        prompt_for_input redishostname "Please provide the hostname for the redis server: "
-        prompt_for_input redisport "Please provide the port number for the redis server: "
-        prompt_for_input redispassword "Please provide the password for the redis server: "
-        echo "Creating ConfigMap for Redis"
-        kubectl create configmap redis-config --from-literal=redis-host="$redishostname" --from-literal=redis-port="$redisport" -n redis --dry-run=client -o yaml | kubectl apply -f -
-        echo "Creating Secret for Redis password"
-        kubectl create secret generic redis --from-literal=redis-password="$redispassword" -n redis --dry-run=client -o yaml | kubectl apply -f -
+        read -p "Do you want to configure Redis? (y/n): " configure_redis
+        configure_redis=${configure_redis,,}
+        if [[ "$configure_redis" == "y" ]]; then
+          prompt_for_input redishostname "Please provide the hostname for the Redis server: "
+          prompt_for_input redisport "Please provide the port number for the Redis server: "
+          prompt_for_input redispassword "Please provide the password for the Redis server: "
+          echo "Creating ConfigMap for Redis"
+          kubectl create configmap redis-config --from-literal=redis-host="$redishostname" --from-literal=redis-port="$redisport" -n redis --dry-run=client -o yaml | kubectl apply -f -
+          echo "Creating Secret for Redis password"
+          kubectl create secret generic redis --from-literal=redis-password="$redispassword" -n redis --dry-run=client -o yaml | kubectl apply -f -
+        else
+          echo "Skipping Redis configuration."
+        fi
       fi
+
 
       if [[ "$module" == "apiaccesscontrol"  && "$response" == "n"  ]]; then
           echo "Warning! You have chosen to skip the IAM initialization. The internal API’s of eSignet will run without access control."
