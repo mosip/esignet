@@ -113,7 +113,7 @@ function installing_apitestrig() {
 
         read -p "Please provide S3 secret key: " s3_user_secret
         if [[ -z $s3_user_secret ]]; then
-          echo "S3 access key not provided; EXITING;"
+          echo "S3 secret key not provided; EXITING;"
           exit 1;
         fi
 
