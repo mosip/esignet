@@ -96,7 +96,7 @@ export default function Form({
   }, []);
 
   useEffect(() => {
-    formBuilderRef.current?.updateLanguage(i18n.language);
+    formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
   }, [i18n.language]);
 
   const navigate = useNavigate();
