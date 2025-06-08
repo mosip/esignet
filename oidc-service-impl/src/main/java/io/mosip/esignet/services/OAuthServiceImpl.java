@@ -93,11 +93,8 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.par.expire-seconds:60}")
     private int parTTLInSeconds;
 
-    @Value("${mosip.esignet.par-prefix:}")
+    @Value("${mosip.esignet.par.request-uri.prefix:urn:ietf:params:oauth:request_uri:}")
     private String parPrefix;
-
-    @Autowired
-    private Validator validator;
 
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest,boolean isV2) throws EsignetException {
