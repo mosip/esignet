@@ -13,7 +13,7 @@ The following fields are there currently in additionalConfig
 **userinfo_response_type**
 : Available options for this field are **JWS** and **JWE**. Same is sent to the ID System in kyc-exchange where response is expected in that format. 
 
-**purpose** - [Documentation]()
+**purpose** - [Documentation](esignet-login-purpose.md)
 
 **signup_banner_required**
 : This boolean field is for showing "Signup with Unified Portal" banner at the bottom of login page.
