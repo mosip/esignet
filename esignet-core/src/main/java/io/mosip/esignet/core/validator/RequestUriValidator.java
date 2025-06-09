@@ -1,11 +1,9 @@
 package io.mosip.esignet.core.validator;
 
-import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class RequestUriValidator implements ConstraintValidator<RequestUri, PushedAuthorizationRequest> {
+public class RequestUriValidator implements ConstraintValidator<RequestUri, String> {
 
     private boolean strictNo;
 
@@ -15,10 +13,10 @@ public class RequestUriValidator implements ConstraintValidator<RequestUri, Push
     }
 
     @Override
-    public boolean isValid(PushedAuthorizationRequest request, ConstraintValidatorContext context) {
-        if (request == null || !strictNo) {
+    public boolean isValid(String requestUri, ConstraintValidatorContext context) {
+        if (!strictNo) {
             return true;
         }
-        return request.getRequest_uri() == null;
+        return requestUri == null;
     }
 }
