@@ -271,6 +271,7 @@ public class EsignetUtil extends AdminTestUtil {
 		
 		//When the captcha is enabled we cannot execute the test case as we can not generate the captcha token
 		if (isCaptchaEnabled() == true) {
+			GlobalMethods.reportServerError(GlobalConstants.CAPTCHA_ENABLED, true);
 			throw new SkipException(GlobalConstants.CAPTCHA_ENABLED_MESSAGE);
 		}
 		
