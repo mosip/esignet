@@ -8,6 +8,7 @@ package io.mosip.esignet.services;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.ApiRateLimit;
+import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -185,7 +186,16 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    @CachePut(value = Constants.PAR_CACHE, key = "#requestUri")
+    public PushedAuthorizationRequest savePAR(String requestUri, PushedAuthorizationRequest pushedAuthorizationRequest) {
+        return pushedAuthorizationRequest;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
+
+    public PushedAuthorizationRequest getPAR(String requestUri) {
+        return cacheManager.getCache(Constants.PAR_CACHE).get(requestUri, PushedAuthorizationRequest.class); //NOSONAR getCache() will not be returning null here.
+    }
 
     public OIDCTransaction getPreAuthTransaction(String transactionId) {
         return cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class); //NOSONAR getCache() will not be returning null here.

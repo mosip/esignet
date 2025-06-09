@@ -8,8 +8,7 @@ package io.mosip.esignet.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
-import io.mosip.esignet.core.dto.TokenRequest;
-import io.mosip.esignet.core.dto.TokenResponse;
+import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
@@ -24,6 +23,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class OAuthControllerTest {
     @Test
     public void getToken_withValidInput_thenPass() throws Exception {
         TokenResponse tokenResponse = new TokenResponse();
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenReturn(tokenResponse);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenReturn(tokenResponse);
 
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -110,7 +111,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withInvalidInput_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(InvalidRequestException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(InvalidRequestException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest());
@@ -122,7 +123,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withRuntimeFailure_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(EsignetException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(EsignetException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .param("code", "code")
@@ -143,7 +144,7 @@ public class OAuthControllerTest {
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
 
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequest.class),Mockito.anyBoolean())).thenThrow(NullPointerException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .param("code", "code")
@@ -178,4 +179,132 @@ public class OAuthControllerTest {
                 .andExpect(content().string("{\"key\":\"value\"}"))
                 .andExpect(header().string("Content-Type", "application/json"));
     }
+
+    @Test
+    public void authorize_withValidInput_thenPass() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri","http://testexample.com");
+        params.add("scope","openid");
+
+        PushedAuthorizationResponse mockResponse = new PushedAuthorizationResponse();
+        mockResponse.setRequest_uri("urn:example:request_uri");
+        mockResponse.setExpires_in(3600);
+
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class))).thenReturn(mockResponse);
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.request_uri").value("urn:example:request_uri"))
+                .andExpect(jsonPath("$.expires_in").value(3600));
+    }
+
+    @Test
+    public void authorize_withRequestUri_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri", "http://testexample.com");
+        params.add("scope", "openid");
+        params.add("request_uri", "invalid-uri");
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_request"));
+    }
+
+    @Test
+    public void authorize_withMissingRedirectUri_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion", "assertion");
+        params.add("scope", "openid");
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_request"))
+                .andExpect(jsonPath("$.error_description").value("invalid_redirect_uri"));
+
+    }
+
+    @Test
+    public void authorize_withMissingScope_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri", "http://testexample.com");
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_request"))
+                .andExpect(jsonPath("$.error_description").value("invalid_scope"));
+    }
+
+    @Test
+    public void authorize_withUnsupportedAssertionType_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri", "http://testexample.com");
+        params.add("scope", "openid");
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_request"))
+                .andExpect(jsonPath("$.error_description").value("invalid_assertion_type"));
+    }
+
+    @Test
+    public void authorize_withInvalidClaimsJson_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri", "http://testexample.com");
+        params.add("scope", "openid");
+        params.add("claims", "{invalid-json");
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_request"));
+
+    }
+
+    @Test
+    public void authorize_withException_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri","http://testexample.com");
+        params.add("scope","openid");
+
+        EsignetException ex = new EsignetException("Authorization failed");
+
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class))).thenThrow(ex);
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isInternalServerError());
+    }
+
 }

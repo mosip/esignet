@@ -95,5 +95,6 @@ public class ErrorConstants {
     public static final String INVALID_VERIFIED_CLAIMS = "invalid_verified_claims";
     public static final String INVALID_PURPOSE="invalid_purpose";
     public static final String VERIFICATION_INCOMPLETE = "verification_incomplete";
+    public static final String PAYLOAD_TOO_LARGE = "payload_too_large";
     public static final String KBI_SPEC_NOT_FOUND= "kbi_spec_not_found";
 }

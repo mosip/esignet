@@ -112,9 +112,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.signup-id-token-audience}")
     private String signupIDTokenAudience;
 
-    @Autowired
-    private Environment environment;
-
     @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
     private String KbiFormDetailsUrl;
 
@@ -433,7 +430,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                                                                                     OAuthDetailResponse oAuthDetailResponse) {
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
-        validateNonce(oauthDetailReqDto.getNonce());
+        authorizationHelperService.validateNonce(oauthDetailReqDto.getNonce());
 
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
@@ -547,17 +544,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return new String(authTransactionIdBytes);
     }
 
-    private void validateNonce(String nonce) {
-        if(isLocalEnvironment() || nonce == null || nonce.isBlank())
-            return;
 
-        if(cacheUtilService.checkNonce(nonce.trim()) == 0L)
-            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
-    }
-
-    private boolean isLocalEnvironment() {
-        return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
-    }
 
     private JsonNode fetchKBIFieldDetailsFromResource(String url) {
         try (InputStream resp = getResource(url)) {
