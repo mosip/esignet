@@ -30,6 +30,7 @@ import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,9 @@ public class AuthorizationHelperService {
 
     @Autowired
     private ClaimsHelperService claimsHelperService;
+
+    @Autowired
+    private Environment environment;
 
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
@@ -431,5 +435,17 @@ public class AuthorizationHelperService {
             log.error("Failed to parse the given IDTokenHint as JWT", e);
         }
         throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+    }
+
+    protected void validateNonce(String nonce) {
+        if(isLocalEnvironment() || nonce == null || nonce.isBlank())
+            return;
+
+        if(cacheUtilService.checkNonce(nonce.trim()) == 0L)
+            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+    }
+
+    private boolean isLocalEnvironment() {
+        return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
     }
 }

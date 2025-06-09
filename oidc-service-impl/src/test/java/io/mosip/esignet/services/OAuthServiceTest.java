@@ -16,6 +16,7 @@ import io.mosip.esignet.api.exception.KycSigningCertificateException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
@@ -34,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -83,7 +83,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withValidRequest_thenPass() throws KycExchangeException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -120,7 +120,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withValidRequestWithPKCE_thenPass() throws KycExchangeException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -159,7 +159,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withValidVerifiedClaimRequest_thenPass() throws KycExchangeException, JsonProcessingException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -214,7 +214,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withListOfVerifiedClaimRequest_thenPass() throws KycExchangeException, JsonProcessingException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -271,7 +271,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withInternalKycExchange_thenPass() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -309,7 +309,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withInvalidAuthCode_thenFail() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
@@ -319,7 +319,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withNullClientIdInRequest_thenPass() throws KycExchangeException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
         tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
@@ -354,7 +354,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withEmptyClientIdInRequest_thenPass() throws KycExchangeException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("  ");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -390,7 +390,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withInvalidClientIdInRequest_thenFail() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("t");
 
@@ -409,7 +409,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withInvalidRedirectUri_thenFail() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
 
@@ -439,7 +439,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withEmptyCodeVerifier_thenFail() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -471,7 +471,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withInvalidAssertionType_thenFail() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE+1);
@@ -503,7 +503,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withFailedDataExchange_thenFail() throws KycExchangeException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
@@ -540,7 +540,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_dataExchangeRuntimeException_thenFail() throws KycExchangeException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
@@ -612,7 +612,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withInvalidPKCE_thenFail() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -644,7 +644,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withInvalidChallengeMethod_thenFail() {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -677,7 +677,7 @@ public class OAuthServiceTest {
 
     @Test
     public void getTokens_withVCScopedTransaction_thenPass() throws KycExchangeException {
-        TokenRequest tokenRequest = new TokenRequest();
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
@@ -721,4 +721,53 @@ public class OAuthServiceTest {
         ReflectionTestUtils.setField(oAuthService, "oauthServerDiscoveryMap", new HashMap<>());
         Assert.assertNotNull(oAuthService.getOAuthServerDiscoveryInfo());
     }
+
+    @Test
+    public void authorize_withValidInput_thenPass() {
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id("34567");
+        request.setClient_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        request.setClient_assertion("valid-jwt");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setAcr_values("mosip:idp:acr:static-code");
+        request.setNonce("test-nonce");
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("test-client");
+        clientDetail.setPublicKey("public-key");
+        clientDetail.setRedirectUris(List.of("http://localhost:8088/v1/idp"));
+
+        Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
+
+        PushedAuthorizationResponse response = oAuthService.authorize(request);
+
+        Assert.assertNotNull(response);
+        Assert.assertNotNull(response.getRequest_uri());
+    }
+
+    @Test
+    public void authorize_withUnsupportedAssertionType_thenFail() {
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id("34567");
+        request.setClient_assertion_type("unsupported-type");
+        request.setClient_assertion("dummy");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setScope("openid");
+        request.setNonce("test-nonce");
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setPublicKey("dummy-key");
+        clientDetail.setRedirectUris(List.of("http://localhost:8088/v1/idp"));
+
+        Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
+
+        try {
+            oAuthService.authorize(request);
+            Assert.fail();
+        } catch (InvalidRequestException ex) {
+            Assert.assertEquals(ErrorConstants.INVALID_ASSERTION_TYPE, ex.getMessage());
+        }
+    }
+
 }
