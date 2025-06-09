@@ -26,6 +26,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.ServletException;
@@ -88,6 +90,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
                                                         HttpStatus status, WebRequest request) {
+        return handleExceptions(ex, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers,
+                                                         HttpStatus status, WebRequest request) {
         return handleExceptions(ex, request);
     }
 
@@ -168,9 +176,19 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             String errorCode = ((EsignetException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
         }
+        if (ex instanceof MaxUploadSizeExceededException) {
+            long maxUploadSize = ((MaxUploadSizeExceededException) ex).getMaxUploadSize();
+            String message = "Maximum upload size exceeded. Limit is " + maxUploadSize + " bytes.";
+            return new ResponseEntity<OAuthError>(getErrorRespDto(PAYLOAD_TOO_LARGE, message), HttpStatus.PAYLOAD_TOO_LARGE);
+        }
         if(ex instanceof EsignetException) {
             String errorCode = ((EsignetException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (ex instanceof BindException) {
+            FieldError fieldError = ((BindException) ex).getFieldError();
+            String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_REQUEST, message), HttpStatus.BAD_REQUEST);
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

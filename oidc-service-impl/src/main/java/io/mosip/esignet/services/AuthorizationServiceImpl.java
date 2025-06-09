@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.claim.*;
 import io.mosip.esignet.api.dto.KycAuthResult;
@@ -31,12 +32,17 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,6 +57,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 @Slf4j
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
+
+    private static final String KBI_FIELD_DETAILS_CONFIG_KEY = "auth.factor.kbi.field-details";
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -80,7 +88,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private ClaimsHelperService claimsHelperService;
 
     @Value("#{${mosip.esignet.ui.config.key-values}}")
-    private Map<String, Object> uiConfigMap;
+    private HashMap<String, Object> uiConfigMap;
 
     @Value("${mosip.esignet.auth-txn-id-length:10}")
     private int authTransactionIdLength;
@@ -104,8 +112,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${mosip.esignet.signup-id-token-audience}")
     private String signupIDTokenAudience;
 
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
+    private String KbiFormDetailsUrl;
+
     @Autowired
-    private Environment environment;
+    private ResourceLoader resourceLoader;
+
+    @PostConstruct
+    public void init() {
+        if(KbiFormDetailsUrl == null || KbiFormDetailsUrl.isEmpty()) {
+            log.info("No kbi.field-details-url configured for KBI field details. Skipping url load.");
+            return;
+        }
+        try {
+            JsonNode fieldDetailsJson = fetchKBIFieldDetailsFromResource(KbiFormDetailsUrl);
+            if (fieldDetailsJson != null) {
+                uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY, fieldDetailsJson);
+                return;
+            }
+            log.error("*** Empty KBI details from URL: {} ***", KbiFormDetailsUrl);
+        } catch (Exception e) {
+            log.error("Error loading form details from URL: {}", KbiFormDetailsUrl, e);
+        }
+    }
 
 
     @Override
@@ -402,7 +431,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                                                                                     OAuthDetailResponse oAuthDetailResponse) {
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
-        validateNonce(oauthDetailReqDto.getNonce());
+        authorizationHelperService.validateNonce(oauthDetailReqDto.getNonce());
 
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
@@ -448,6 +477,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setInternalAuthSuccess(false);
         oidcTransaction.setRequestedClaimDetails(oauthDetailReqDto.getClaims()!=null? oauthDetailReqDto.getClaims().getUserinfo() : null);
         oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
+        oidcTransaction.setPrompt(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getPrompt(), Constants.SPACE));
+        oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -514,16 +545,25 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return new String(authTransactionIdBytes);
     }
 
-    private void validateNonce(String nonce) {
-        if(isLocalEnvironment() || nonce == null || nonce.isBlank())
-            return;
 
-        if(cacheUtilService.checkNonce(nonce.trim()) == 0L)
-            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+
+    private JsonNode fetchKBIFieldDetailsFromResource(String url) {
+        try (InputStream resp = getResource(url)) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readTree(resp);
+        } catch (IOException e) {
+            log.error("Error parsing the KBI form details: {}", e.getMessage(), e);
+        }
+        throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
     }
 
-    private boolean isLocalEnvironment() {
-        return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
+    private InputStream getResource(String url) {
+        try {
+            Resource resource = resourceLoader.getResource(url);
+            return resource.getInputStream();
+        } catch (IOException e) {
+            log.error("Failed to read resource from : {}", url, e);
+            throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
+        }
     }
-
 }

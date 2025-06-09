@@ -253,12 +253,12 @@ const generateFieldData = (fieldName, openIDConnectService) => {
 
   const passwordMaxLength =
     openIDConnectService.getEsignetConfiguration(
-      configurationKeys.passwordMaxLength
+      configurationKeys.pswdMaxLength
     ) ?? "";
 
   const passwordRegexValue =
     openIDConnectService.getEsignetConfiguration(
-      configurationKeys.passwordRegex
+      configurationKeys.pswdRegex
     ) ?? process.env.REACT_APP_PASSWORD_REGEX;
 
   const usernameRegexValue =
@@ -288,7 +288,7 @@ const generateFieldData = (fieldName, openIDConnectService) => {
       fieldData = bioLoginFields;
       Object.assign(fieldData.inputFields[0], individualFields);
       break;
-    case validAuthFactors.PWD:
+    case validAuthFactors.PSWD:
       fieldData = passwordFields;
       Object.assign(fieldData[0], individualFields);
       fieldData[1].maxLength = passwordMaxLength;

@@ -18,6 +18,7 @@ import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
 import LoginIDOptions from "./LoginIDOptions";
 import InputWithPrefix from "./InputWithPrefix";
+import { checkConfigProperty } from "../helpers/utils";
 
 const fields = passwordFields;
 let fieldsState = {};
@@ -69,8 +70,8 @@ export default function Password({
     configurationKeys.loginIdOptions
   );
 
-  let forgotPasswordConfig = openIDConnectService.getEsignetConfiguration(
-    configurationKeys.forgotPasswordConfig
+  let forgotPswdConfig = openIDConnectService.getEsignetConfiguration(
+    configurationKeys.forgotPswdConfig
   );
 
   let clientAdditionalConfig = openIDConnectService.getEsignetConfiguration(
@@ -81,9 +82,9 @@ export default function Password({
     if (exist) {
       setForgotPassword(true);
       setForgotPasswordURL(
-        forgotPasswordConfig[configurationKeys.forgotPasswordURL] +
-          "#" +
-          authService.getAuthorizeQueryParam()
+        forgotPswdConfig[configurationKeys.forgotPswdURL] +
+        "#" +
+        authService.getAuthorizeQueryParam()
       );
     } else {
       setForgotPassword(false);
@@ -91,14 +92,12 @@ export default function Password({
   };
 
   useEffect(() => {
-    if (clientAdditionalConfig?.[configurationKeys.forgotPwdLinkRequired]) {
-      toggleForgotPwdBanner(configurationKeys.forgotPwdLinkRequired);
+    if (checkConfigProperty(clientAdditionalConfig, configurationKeys.forgotPswdLinkRequired)) {
+      toggleForgotPwdBanner(clientAdditionalConfig[configurationKeys.forgotPswdLinkRequired]);
+    } else if (checkConfigProperty(forgotPswdConfig, configurationKeys.forgotPswd)) {
+      toggleForgotPwdBanner(forgotPswdConfig[configurationKeys.forgotPswd]);
     } else {
-      if (forgotPasswordConfig?.[configurationKeys.forgotPassword]) {
-        toggleForgotPwdBanner(configurationKeys.forgotPassword);
-      } else {
-        setForgotPassword(false);
-      }
+      setForgotPassword(false);
     }
   }, [i18n.language]);
 
@@ -139,8 +138,7 @@ export default function Password({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue =
-      regex && regex.test(trimmedValue) ? trimmedValue : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
     if (e.target.type === "password") {
@@ -173,7 +171,7 @@ export default function Password({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     setIsValid(
       (!maxLength || e.target.value.trim().length <= parseInt(maxLength)) &&
-        (!regex || regex.test(e.target.value.trim()))
+      (!regex || regex.test(e.target.value.trim()))
     );
   };
 
@@ -249,9 +247,9 @@ export default function Password({
       let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
 
       let ID = prefix + id + postfix;
-      let challengeType = challengeTypes.pwd;
+      let challengeType = challengeTypes.pswd;
       let challenge = password;
-      let challengeFormat = challengeFormats.pwd;
+      let challengeFormat = challengeFormats.pswd;
 
       let challengeList = [
         {
@@ -377,9 +375,9 @@ export default function Password({
             {t1(
               secondaryHeading,
               loginIDs &&
-                loginIDs.length === 1 && {
-                  currentID: t1(loginIDs[0].id),
-                }
+              loginIDs.length === 1 && {
+                currentID: t1(loginIDs[0].id),
+              }
             )}
           </div>
         )}
@@ -526,7 +524,7 @@ export default function Password({
             type={buttonTypes.submit}
             text={t1("login")}
             id="verify_password"
-            className="mt-2"
+            customClassName="mt-4"
             disabled={
               !individualId ||
               !password?.trim() ||

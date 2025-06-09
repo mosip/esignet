@@ -18,7 +18,7 @@ public class UserConsent {
     String clientId;
     Claims Claims;
     Map<String, Boolean> authorizationScopes;
-    LocalDateTime expirydtimes;
+    LocalDateTime expiredtimes;
     String signature;
     String hash;
     List<String> acceptedClaims;

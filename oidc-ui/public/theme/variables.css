@@ -89,7 +89,8 @@
   --forgot-password-color: var(--primary-color);
   --forgot-password-font-size: small;
   --forgot-password-width: max-content;
-  --forgot-password-margin-top: 1rem;
+  --forgot-password-margin-top: 0.5rem;
+  --forgot-password-margin-bottom: 0.5rem;
   --password-google-reCaptcha-margin-top: 3rem;
   --password-google-reCaptcha-margin-bottom: 1rem;
   --navbar-position: relative;
@@ -231,7 +232,8 @@
   --forgot-password-color: var(--primary-color);
   --forgot-password-font-size: small;
   --forgot-password-width: max-content;
-  --forgot-password-margin-top: 1rem;
+  --forgot-password-margin-top: 0.5rem;
+  --forgot-password-margin-bottom: 0.5rem;
   --password-google-reCaptcha-margin-top: 3rem;
   --password-google-reCaptcha-margin-bottom: 1rem;
   --navbar-position: relative;
@@ -379,7 +381,8 @@
   --forgot-password-color: var(--primary-color);
   --forgot-password-font-size: small;
   --forgot-password-width: max-content;
-  --forgot-password-margin-top: 1rem;
+  --forgot-password-margin-top: 0.5rem;
+  --forgot-password-margin-bottom: 0.5rem;
   --password-google-reCaptcha-margin-top: 3rem;
   --password-google-reCaptcha-margin-bottom: 1rem;
   --navbar-position: relative;

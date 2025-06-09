@@ -42,7 +42,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-
 import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
 import static io.mosip.esignet.core.constants.Constants.*;
 
@@ -90,9 +89,14 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.discovery.issuer-id}")
     private String discoveryIssuerId;
 
+    @Value("${mosip.esignet.par.expire-seconds:60}")
+    private int parTTLInSeconds;
+
+    @Value("${mosip.esignet.par.request-uri.prefix:urn:ietf:params:oauth:request_uri:}")
+    private String parPrefix;
 
     @Override
-    public TokenResponse getTokens(TokenRequest tokenRequest,boolean isV2) throws EsignetException {
+    public TokenResponse getTokens(TokenRequestV2 tokenRequest,boolean isV2) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
 
@@ -156,6 +160,24 @@ public class OAuthServiceImpl implements OAuthService {
         return oauthServerDiscoveryMap;
     }
 
+    @Override
+    public PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest) {
+
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(pushedAuthorizationRequest.getClient_id());
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
+        authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
+
+        authenticatePARClient(pushedAuthorizationRequest.getClient_assertion_type(),pushedAuthorizationRequest.getClient_assertion(),clientDetailDto);
+
+        String requestUri = parPrefix + IdentityProviderUtil.createTransactionId(null) ;
+        cacheUtilService.savePAR(requestUri, pushedAuthorizationRequest);
+        PushedAuthorizationResponse response = new PushedAuthorizationResponse();
+        response.setRequest_uri(requestUri);
+        response.setExpires_in(parTTLInSeconds);
+        return response;
+    }
+
     private Map<String, Object> getJwk(String keyId, String certificate, LocalDateTime expireAt)
             throws JOSEException {
         JWK jwk = JWK.parseFromPEMEncodedX509Cert(certificate);
@@ -174,7 +196,7 @@ public class OAuthServiceImpl implements OAuthService {
         return map;
     }
 
-    private void validateRequestParametersWithTransaction(TokenRequest tokenRequest, OIDCTransaction transaction) {
+    private void validateRequestParametersWithTransaction(TokenRequestV2 tokenRequest, OIDCTransaction transaction) {
         if(transaction == null || transaction.getKycToken() == null)
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
@@ -217,6 +239,16 @@ public class OAuthServiceImpl implements OAuthService {
             case JWT_BEARER_TYPE:
                 validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion(),
                         isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") :discoveryIssuerId+"/oauth/token");
+                break;
+            default:
+                throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);
+        }
+    }
+
+    private void authenticatePARClient(String client_assertion_type,String client_assertion, ClientDetail clientDetail) throws EsignetException {
+        switch (client_assertion_type) {
+            case JWT_BEARER_TYPE:
+                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), client_assertion, discoveryIssuerId+"/oauth/par");
                 break;
             default:
                 throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);

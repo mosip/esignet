@@ -30,12 +30,21 @@ public class ClientDetail implements Serializable {
     private List<String> clientAuthMethods;
     private JsonNode additionalConfig;
 
-    public String getAdditionalConfig(String fieldName, String defaultValue) {
-        if (this.additionalConfig != null) {
-            JsonNode fieldNode = this.additionalConfig.get(fieldName);
-            if (fieldNode != null) {
-                return fieldNode.asText();
-            }
+    public <T> T getAdditionalConfig(String key, T defaultValue) {
+        if (this.additionalConfig == null || key == null || !this.additionalConfig.has(key)) {
+            return defaultValue;
+        }
+        JsonNode valueNode = this.additionalConfig.get(key);
+        if (defaultValue instanceof String) {
+            return (T) (valueNode.isTextual() ? valueNode.asText() : defaultValue);
+        } else if (defaultValue instanceof Integer) {
+            return (T) (valueNode.isInt() ? Integer.valueOf(valueNode.asInt()) : defaultValue);
+        } else if (defaultValue instanceof Long) {
+            return (T) (valueNode.isLong() ? Long.valueOf(valueNode.asLong()) : defaultValue);
+        } else if (defaultValue instanceof Double) {
+            return (T) (valueNode.isDouble() ? Double.valueOf(valueNode.asDouble()) : defaultValue);
+        } else if (defaultValue instanceof Boolean) {
+            return (T) (valueNode.isBoolean() ? Boolean.valueOf(valueNode.asBoolean()) : defaultValue);
         }
         return defaultValue;
     }

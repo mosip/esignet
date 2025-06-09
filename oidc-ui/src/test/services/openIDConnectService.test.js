@@ -59,7 +59,7 @@ describe("openIDConnectService", () => {
 
   test("getOauthDetailsHash returns base64 URL encoded SHA-256 hash", async () => {
     const sha256Hash = sha256(JSON.stringify(mockOAuthDetails));
-    let hashB64 = Base64.stringify(sha256Hash).replace(/=+$/, "");
+    let hashB64 = Base64.stringify(sha256Hash).split('=')[0];
     hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
 
     const response = await service.getOauthDetailsHash();

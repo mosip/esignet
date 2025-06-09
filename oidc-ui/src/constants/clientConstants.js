@@ -9,7 +9,7 @@ const challengeTypes = {
   pin: "PIN",
   otp: "OTP",
   wallet: "WALLET",
-  pwd: "PWD",
+  pswd: "PWD",
 };
 
 const challengeFormats = {
@@ -17,14 +17,14 @@ const challengeFormats = {
   pin: "number",
   otp: "alpha-numeric",
   wallet: "jwt",
-  pwd: "alpha-numeric",
+  pswd: "alpha-numeric",
 };
 
 const validAuthFactors = {
   PIN: "PIN",
   OTP: "OTP",
   BIO: "BIO",
-  PWD: "PWD",
+  PSWD: "PWD",
   WLA: "WLA",
   KBI: "KBI"
 };
@@ -73,8 +73,8 @@ const configurationKeys = {
   qrCodeBufferInSecs: "wallet.qr-code-buffer-in-secs",
   authTxnIdLength: "auth.txnid.length",
   otpLength: "otp.length",
-  passwordRegex: "password.regex",
-  passwordMaxLength: "password.max-length",
+  pswdRegex: "password.regex",
+  pswdMaxLength: "password.max-length",
   usernameRegex: "username.regex",
   usernamePrefix: "username.prefix",
   usernamePostfix: "username.postfix",
@@ -87,9 +87,12 @@ const configurationKeys = {
   signupConfig: "signup.config",
   signupBanner: "signup.banner",
   signupURL: "signup.url",
-  forgotPasswordConfig: "forgot-password.config",
-  forgotPassword: "forgot-password",
-  forgotPasswordURL: "forgot-password.url",
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswdConfig: "forgot-password.config",
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswd: "forgot-password",
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswdURL: "forgot-password.url",
   eKYCStepsConfig: "eKYC-steps.config",
   bannerCloseTimer: "error.banner.close-timer",
   authFactorKnowledgeFieldDetails: "auth.factor.kbi.field-details",
@@ -97,7 +100,8 @@ const configurationKeys = {
   loginIdOptions: "login-id.options",
   additionalConfig: "clientAdditionalConfig",
   signupBannerRequired: "signup_banner_required",
-  forgotPwdLinkRequired: "forgot_pwd_link_required"
+  /** @SuppressWarnings("javascript:s2068") */
+  forgotPswdLinkRequired: "forgot_pwd_link_required"
 };
 
 const modalityIconPath = {
@@ -105,7 +109,7 @@ const modalityIconPath = {
   OTP: "images/otp_icon.svg",
   WALLET: "images/wallet_icon.svg",
   BIO: "images/bio_icon.svg",
-  PWD: "images/pwd_icon.svg",
+  PSWD: "images/pwd_icon.svg",
   KBI: "images/kbi_icon.svg"
 };
 

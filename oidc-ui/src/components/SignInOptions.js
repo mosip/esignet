@@ -166,6 +166,11 @@ export default function SignInOptions({
                   onClick={(e) =>
                     handleSignInOptionClick(option.value, iconsMap, authLabel)
                   }
+                  onKeyDown={(e) =>
+                    handleSignInOptionClick(option.value, iconsMap, authLabel)
+                  }
+                  role="button"
+                  tabIndex={0}
                 >
                   {option.icon !== walletLogoUrl ? (
                     <div
@@ -195,7 +200,10 @@ export default function SignInOptions({
         <div
           className="text-center cursor-pointer font-medium text-[#0953FA] mt-3 flex flex-row rtl:flex-row-reverse items-center justify-center"
           onClick={() => setShowMoreOptions(false)}
+          onKeyDown={() => setShowMoreOptions(false)}
           id="show-more-options"
+          role="button"
+          tabIndex={0}
         >
           <span className="mr-2 rtl:ml-2 more-signin-options">
             {t("more_ways_to_sign_in")}

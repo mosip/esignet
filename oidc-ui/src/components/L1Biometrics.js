@@ -55,7 +55,6 @@ export default function L1Biometrics({
   });
 
   const [errorBanner, setErrorBanner] = useState(null);
-  const [inputError, setInputError] = useState(null);
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
@@ -67,9 +66,6 @@ export default function L1Biometrics({
   const [isValid, setIsValid] = useState(false);
   const [isBtnDisabled, setIsBtnDisabled] = useState(true);
   const [prevLanguage, setPrevLanguage] = useState(i18n.language);
-
-  const iso = require("iso-3166-1");
-  const countries = iso.all();
 
   var loginIDs = openIDConnectService.getEsignetConfiguration(
     configurationKeys.loginIdOptions
@@ -130,9 +126,7 @@ export default function L1Biometrics({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
 

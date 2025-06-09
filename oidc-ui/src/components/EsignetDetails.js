@@ -35,7 +35,7 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
   return (
     <div className="lg:flex-grow md:w-1/2 flex flex-col md:items-start text-left items-center">
       <div className="w-full flex justify-center">
-        <img className="mb-4 h-20 brand-only-logo" />
+        <img className="mb-4 h-20 brand-only-logo" alt="brand-logo"/>
       </div>
       <div className="w-full">
         <h1 className="flex justify-center title-font sm:text-3xl text-3xl mb-16 font-medium text-gray-900">
@@ -50,13 +50,16 @@ export default function EsignetDetails({ i18nKeyPrefix = "esignetDetails" }) {
                 {details.map((detail, idx) => (
                   <div className="px-2 py-1 grid grid-cols-3">
                     <div className="col-span-1 flex justify-start">
-                      {detail.icon && <img src={detail.icon} />}
+                      {detail.icon && <img src={detail.icon} alt=""/>}
                       {!detail.icon && detail.name}
                     </div>
                     <div
                       id={`detail-${detail.name.replaceAll(" ","-")}`}
                       className="col-span-2 flex justify-start cursor-pointer"
                       onClick={() => openWellKnownEndpoint(detail.value)}
+                      onKeyDown={() => openWellKnownEndpoint(detail.value)}
+                      role="button"
+                      tabIndex={0}
                     >
                       {detail.value}
                     </div>

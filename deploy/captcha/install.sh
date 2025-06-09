@@ -12,15 +12,20 @@ CHART_VERSION=0.1.0-develop
 
 function installing_captcha() {
   while true; do
-      read -p "Do you want to continue installing captcha validation service? (y/n): " ans
+      echo "Do you want to install captcha validation service? Press Enter for default 'y' option (y/n): "
+      echo "Warning: It is not recommended to use eSignet without a captcha site key and captcha secret key in a production environment."
+      read ans
+      ans=${ans:-y}  # Default to 'y' if the user presses Enter
+
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
-          exit 1
+          exit 0
       else
           echo "Please provide a correct option (Y or N)"
       fi
   done
+
 
   echo "Creating $NS namespace"
   kubectl create ns $NS || true
@@ -43,7 +48,7 @@ function installing_captcha() {
   done
 
   echo "Installing captcha"
-  helm -n $NS install captcha mosip/captcha --version $CHART_VERSION --set metrics.serviceMonitor.enabled=$servicemonitorflag --wait
+  helm -n $NS install captcha mosip/captcha --version $CHART_VERSION --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   echo "Installed captcha service"
 
@@ -66,13 +71,13 @@ function installing_captcha() {
       ../copy_cm_func.sh secret esignet-captcha esignet $NS
 
       # Update or add environment variable
-      ENV_VAR_EXISTS=$(kubectl -n $NS get deployment captcha -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name=='MOSIP_CAPTCHA_SECRET_ESIGNET')].name}")
+      ENV_VAR_EXISTS=$(kubectl -n $NS get deployment captcha -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name=='MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET')].name}")
       if [[ -z "$ENV_VAR_EXISTS" ]]; then
-          echo "Environment variable 'MOSIP_CAPTCHA_SECRET_ESIGNET' does not exist. Adding it..."
-          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+          echo "Environment variable 'MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET' does not exist. Adding it..."
+          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
       else
-          echo "Environment variable 'MOSIP_CAPTCHA_SECRET_ESIGNET' exists. Updating it..."
-          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env[?(@.name==\"MOSIP_CAPTCHA_SECRET_ESIGNET\")]", "value": {"name": "MOSIP_CAPTCHA_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
+          echo "Environment variable 'MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET' exists. Updating it..."
+          kubectl patch deployment -n $NS captcha --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env[?(@.name==\"MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET\")]", "value": {"name": "MOSIP_CAPTCHA_GOOGLERECAPTCHAV2_SECRET_ESIGNET", "valueFrom": {"secretKeyRef": {"name": "esignet-captcha", "key": "esignet-captcha-secret-key"}}}}]'
       fi
 
       break

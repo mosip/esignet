@@ -276,7 +276,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
                               x2="29"
                               y2="0"
                               stroke="#fff"
-                              stroke-width="1"
+                              strokeWidth="1"
                             />
                           </svg>
                         </DropdownMenu.Arrow>
