@@ -154,6 +154,20 @@ public class AuthorizationController {
         return responseWrapper;
     }
 
+    @PostMapping("/par-oauth-details")
+    public ResponseWrapper<OAuthDetailResponseV2> getPAROAuthDetails(@Valid @RequestBody RequestWrapper<PAROAuthDetailsRequest>
+                                                                                 requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
+        ResponseWrapper<OAuthDetailResponseV2> responseWrapper = new ResponseWrapper<>();
+        try {
+            responseWrapper.setResponse(authorizationService.getPAROAuthDetails(requestWrapper.getRequest(),httpServletRequest));
+            responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(Action.GET_PAR_OAUTH_DETAILS, ActionStatus.ERROR, AuditHelper.buildAuditDto(requestWrapper.getRequest().getClientId()), ex);
+            throw ex;
+        }
+        return responseWrapper;
+    }
+
     @GetMapping("/claim-details")
     public ResponseWrapper<ClaimDetailResponse> getClaimDetails(@Valid @NotBlank(message = INVALID_TRANSACTION)
                                                                 @RequestHeader("oauth-details-key") String transactionId) {

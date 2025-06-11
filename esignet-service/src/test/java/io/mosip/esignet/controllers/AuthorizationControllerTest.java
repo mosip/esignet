@@ -1621,4 +1621,44 @@ public class AuthorizationControllerTest {
                 .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_TRANSACTION));
     }
 
+    @Test
+    public void getPAROAuthDetails_withValidDetails_thenOAuthDetailsResponse() throws Exception {
+        RequestWrapper<PAROAuthDetailsRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        request.setRequestUri("requestUri");
+        request.setClientId("clientId");
+        requestWrapper.setRequest(request);
+
+        OAuthDetailResponseV2 response = new OAuthDetailResponseV2();
+        response.setTransactionId("transactionId123");
+
+        when(authorizationService.getPAROAuthDetails(Mockito.any(), Mockito.any())).thenReturn(response);
+
+        mockMvc.perform(post("/authorization/par-oauth-details")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value(response.getTransactionId()));
+    }
+
+    @Test
+    public void getPAROAuthDetails_withInvalidRequestUri_thenThrowError() throws Exception {
+        RequestWrapper<PAROAuthDetailsRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        request.setRequestUri("requestUri");
+        request.setClientId("clientId");
+        requestWrapper.setRequest(request);
+
+        when(authorizationService.getPAROAuthDetails(Mockito.any(), Mockito.any())).thenThrow(new EsignetException(ErrorConstants.INVALID_REQUEST));
+
+        mockMvc.perform(post("/authorization/par-oauth-details")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_REQUEST));
+    }
+
 }
