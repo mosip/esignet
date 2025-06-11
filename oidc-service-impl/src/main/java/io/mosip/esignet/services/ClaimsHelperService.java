@@ -164,7 +164,8 @@ public class ClaimsHelperService {
 
         //if the claim is requested without any verification metadata
         if(CollectionUtils.isEmpty(claimDetails) || claimDetails.stream().allMatch( m -> m.get("verification") == null))
-            return new ClaimStatus(claim, !storedVerificationMetadata.getOrDefault(claim, Collections.emptyList()).isEmpty(),
+            return new ClaimStatus(claim, (storedVerificationMetadata.getOrDefault(claim, Collections.emptyList())!=null
+                    && !storedVerificationMetadata.getOrDefault(claim, Collections.emptyList()).isEmpty()),
                     storedVerificationMetadata.containsKey(claim));
 
         log.info("Request to fetch verification metadata for {} with filter criteria : {}", claim, claimDetails);
