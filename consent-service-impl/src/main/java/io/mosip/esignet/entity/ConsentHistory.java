@@ -21,8 +21,10 @@ import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name="consent_history")
 public class ConsentHistory {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;

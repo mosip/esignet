@@ -29,8 +29,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {"io.mosip.esignet.repository", "io.mosip.kernel.keymanagerservice.repository"})
-@EntityScan(basePackages = {"io.mosip.esignet.entity", "io.mosip.kernel.keymanagerservice.entity"})
 @Slf4j
 public class AppConfig implements ApplicationRunner {
 

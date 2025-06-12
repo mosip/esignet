@@ -9,6 +9,15 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  mysqldb:
+    image: mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=postgres
+    volumes:
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+
   redis:
     image: redis:6.0
     ports:

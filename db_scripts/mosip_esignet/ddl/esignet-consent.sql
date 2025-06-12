@@ -14,7 +14,7 @@
 -- ------------------------------------------------------------------------------------------
 
 create table consent_detail (
-    id UUID NOT NULL,
+    id BINARY(16) NOT NULL,
     client_id VARCHAR NOT NULL,
     psu_token VARCHAR NOT NULL,
     claims VARCHAR NOT NULL,
