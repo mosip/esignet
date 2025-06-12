@@ -521,21 +521,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
-        try {
-            String json = objectMapper.writeValueAsString(oauthDetailResponse);
-            return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
-        } catch (Exception e) {
-            log.error("Failed to generate oauth-details-response hash", e);
-        }
-        throw new EsignetException(ErrorConstants.FAILED_TO_GENERATE_HEADER_HASH);
-    }
-
-    private String getOauthDetailsResponseHash(OAuthDetailResponseV2 oauthDetailResponseV2) {
         ObjectMapper oAuthMapper = new ObjectMapper();
         oAuthMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
         oAuthMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         try {
-            String json = oAuthMapper.writeValueAsString(oauthDetailResponseV2);
+            String json = oAuthMapper.writeValueAsString(oauthDetailResponse);
             return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
         } catch (Exception e) {
             log.error("Failed to generate oauth-details-response hash", e);
