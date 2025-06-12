@@ -1,6 +1,4 @@
 import { Buffer } from "buffer";
-import sha256 from "crypto-js/sha256";
-import Base64 from "crypto-js/enc-base64";
 import {
   walletConfigKeys,
   validAuthFactors,

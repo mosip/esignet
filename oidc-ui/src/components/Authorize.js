@@ -4,8 +4,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
-import sha256 from "crypto-js/sha256";
-import Base64 from "crypto-js/enc-base64";
 import { decodeHash, getOauthDetailsHash } from "../helpers/utils";
 
 export default function Authorize({ authService }) {

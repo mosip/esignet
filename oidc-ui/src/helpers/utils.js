@@ -1,4 +1,6 @@
 import { Buffer } from "buffer";
+import sha256 from "crypto-js/sha256";
+import Base64 from "crypto-js/enc-base64";
 
 const encodeString = (str) => {
     return Buffer.from(str).toString("base64");
@@ -45,4 +47,4 @@ const getOauthDetailsHash = async (value) => {
     return hashB64;
 };
 
-export { encodeString, decodeHash, checkConfigProperty, getOauthDetailsHash };
+export { encodeString, decodeHash, checkConfigProperty, sortKeysDeep, getOauthDetailsHash };

@@ -5,8 +5,6 @@ import { Buffer } from "buffer";
 import { useLocation, useSearchParams } from "react-router-dom";
 import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
-import sha256 from "crypto-js/sha256";
-import Base64 from "crypto-js/enc-base64";
 import { errorCodeObj } from "../constants/clientConstants";
 import { decodeHash, getOauthDetailsHash } from "../helpers/utils";
 
