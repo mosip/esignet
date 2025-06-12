@@ -22,4 +22,27 @@ const checkConfigProperty = (config, property) => {
     return false;
 }
 
-export { encodeString, decodeHash, checkConfigProperty };
+const sortKeysDeep = obj => {
+    if (Array.isArray(obj)) {
+      return obj.map(sortKeysDeep);
+    } else if (obj !== null && typeof obj === "object") {
+      return Object.keys(obj)
+        .sort()
+        .reduce((result, key) => {
+          result[key] = sortKeysDeep(obj[key]);
+          return result;
+        }, {});
+    }
+    return obj;
+};
+
+const getOauthDetailsHash = async (value) => {
+    let sha256Hash = sha256(JSON.stringify(sortKeysDeep(value)));
+    let hashB64 = Base64.stringify(sha256Hash)
+        .split("=")[0]
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+    return hashB64;
+};
+
+export { encodeString, decodeHash, checkConfigProperty, getOauthDetailsHash };

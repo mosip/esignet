@@ -6,7 +6,7 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
-import { decodeHash } from "../helpers/utils";
+import { decodeHash, getOauthDetailsHash } from "../helpers/utils";
 
 export default function Authorize({ authService }) {
   const get_CsrfToken = authService.get_CsrfToken;
@@ -38,15 +38,6 @@ export default function Authorize({ authService }) {
     const code = "code";
 
     return { uuid, code };
-  };
-
-  const getOauthDetailsHash = async (value) => {
-    let sha256Hash = sha256(JSON.stringify(value));
-    let hashB64 = Base64.stringify(sha256Hash)
-      .split("=")[0]
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_");
-    return hashB64;
   };
 
   useEffect(() => {
