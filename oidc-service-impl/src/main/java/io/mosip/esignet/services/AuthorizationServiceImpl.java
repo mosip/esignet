@@ -459,7 +459,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             config.put("clientAdditionalConfig", objectMapper.treeToValue(clientDetailDto.getAdditionalConfig(), Object.class));
         } catch (JsonProcessingException e) {
             log.error("Additional Config cannot be converted to Object");
-            throw new RuntimeException(ErrorConstants.UNKNOWN_ERROR);
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
         }
         oAuthDetailResponse.setConfigs(config);
         oAuthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
