@@ -7,11 +7,8 @@ import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-<<<<<<< sachin-dev
 import javax.validation.constraints.Null;
-=======
 import java.io.IOException;
->>>>>>> develop
 import java.io.Serializable;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
