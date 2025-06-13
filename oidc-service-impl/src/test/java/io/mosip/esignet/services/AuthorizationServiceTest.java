@@ -1023,8 +1023,8 @@ public class AuthorizationServiceTest {
         Assert.assertTrue(oAuthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
-    @Test(expected = EsignetException.class)
-    public void getPAROAuthDetails_withInvalidRequestUri_thenThrowException() {
+    @Test
+    public void getPAROAuthDetails_withInvalidRequestUri_thenFail() {
         PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
         request.setRequestUri("requestUri");
         request.setClientId("client123");
@@ -1032,11 +1032,16 @@ public class AuthorizationServiceTest {
 
         when(cacheUtilService.getAndEvictPAR(request.getRequestUri())).thenReturn(null);
 
-        OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
+        try {
+            OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
+        }
     }
 
-    @Test(expected = EsignetException.class)
-    public void getPAROAuthDetails_withInvalidClientId_thenThrowException() {
+    @Test
+    public void getPAROAuthDetails_withInvalidClientId_thenFail() {
         PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
         request.setRequestUri("requestUri");
         request.setClientId("client123");
@@ -1044,18 +1049,13 @@ public class AuthorizationServiceTest {
 
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setClient_id("differentId");
-        par.setScope("openid");
-        par.setRedirect_uri("http://localhost:8088/v1/idp");
-        par.setNonce("test-nonce");
-        ClaimsV2 claims = new ClaimsV2();
-        Map<String, JsonNode> userClaims = new HashMap<>();
-        userClaims.put("given_name",  getClaimDetail(null, null, true));
-        claims.setUserinfo(userClaims);
-        par.setClaims(claims);
-        par.setAcr_values("mosip:idp:acr:static-code");
         when(cacheUtilService.getAndEvictPAR(request.getRequestUri())).thenReturn(par);
-
-        OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
+        try {
+            OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
+        }
     }
 
     @Test

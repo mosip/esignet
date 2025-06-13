@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
@@ -62,6 +63,6 @@ public class PushedAuthorizationRequest implements Serializable {
     @NotBlank(message =  ErrorConstants.INVALID_ASSERTION)
     private String client_assertion;
 
-    @RequestUri(strictNo = true)
+    @Null(message = ErrorConstants.INVALID_REQUEST)
     private String request_uri;
 }

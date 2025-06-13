@@ -92,9 +92,6 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.par.expire-seconds:60}")
     private int parTTLInSeconds;
 
-    @Value("${mosip.esignet.par.request-uri.prefix:urn:ietf:params:oauth:request_uri:}")
-    private String parPrefix;
-
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest,boolean isV2) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
@@ -170,7 +167,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         authenticatePARClient(pushedAuthorizationRequest.getClient_assertion_type(),pushedAuthorizationRequest.getClient_assertion(),clientDetailDto);
 
-        String requestUri = parPrefix + IdentityProviderUtil.createTransactionId(null) ;
+        String requestUri = PAR_REQUEST_URI_PREFIX + IdentityProviderUtil.createTransactionId(null) ;
         cacheUtilService.savePAR(requestUri, pushedAuthorizationRequest);
         PushedAuthorizationResponse response = new PushedAuthorizationResponse();
         response.setRequest_uri(requestUri);

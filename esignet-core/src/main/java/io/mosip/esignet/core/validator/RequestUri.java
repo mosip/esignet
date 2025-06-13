@@ -17,5 +17,4 @@ public @interface RequestUri {
 
     Class<? extends Payload>[] payload() default {};
 
-    boolean strictNo() default true;
 }
