@@ -227,7 +227,7 @@ export default function Form({
         </div>
       )}
 
-      <div id="form-container"></div>
+      <div id="form-container" className="kbi_form"></div>
 
       {status === states.LOADING && (
         <div className="mt-2">
