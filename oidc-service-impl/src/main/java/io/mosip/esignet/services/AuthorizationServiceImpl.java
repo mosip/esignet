@@ -300,7 +300,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .stream()
                 .anyMatch( entry -> entry.getValue().stream()
                         .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
-                                transaction.getClaimMetadata().getOrDefault(entry.getKey(), Collections.EMPTY_LIST).isEmpty() ));
+                                (transaction.getClaimMetadata().getOrDefault(entry.getKey(), Collections.EMPTY_LIST)!=null
+                                        && transaction.getClaimMetadata().getOrDefault(entry.getKey(), Collections.EMPTY_LIST).isEmpty()) ));
         claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 

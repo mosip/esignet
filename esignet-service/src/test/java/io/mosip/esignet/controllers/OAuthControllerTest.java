@@ -39,8 +39,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(value = OAuthController.class)
 public class OAuthControllerTest {
 
-    ObjectMapper objectMapper = new ObjectMapper();
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -189,6 +187,7 @@ public class OAuthControllerTest {
         params.add("client_assertion", "assertion");
         params.add("redirect_uri","http://testexample.com");
         params.add("scope","openid");
+        params.add("response_type","code");
 
         PushedAuthorizationResponse mockResponse = new PushedAuthorizationResponse();
         mockResponse.setRequest_uri("urn:example:request_uri");
@@ -229,6 +228,7 @@ public class OAuthControllerTest {
         params.add("client_assertion_type", "assertion-type");
         params.add("client_assertion", "assertion");
         params.add("scope", "openid");
+        params.add("response_type","code");
 
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -246,6 +246,7 @@ public class OAuthControllerTest {
         params.add("client_assertion_type", "assertion-type");
         params.add("client_assertion", "assertion");
         params.add("redirect_uri", "http://testexample.com");
+        params.add("response_type","code");
 
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -256,12 +257,30 @@ public class OAuthControllerTest {
     }
 
     @Test
+    public void authorize_withMissingResponseType_thenFail() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri", "http://testexample.com");
+        params.add("scope", "openid");
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_request"))
+                .andExpect(jsonPath("$.error_description").value("invalid_response_type"));
+    }
+
+    @Test
     public void authorize_withUnsupportedAssertionType_thenFail() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", "test-client-id");
         params.add("client_assertion", "assertion");
         params.add("redirect_uri", "http://testexample.com");
         params.add("scope", "openid");
+        params.add("response_type","code");
 
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -279,6 +298,7 @@ public class OAuthControllerTest {
         params.add("client_assertion", "assertion");
         params.add("redirect_uri","http://testexample.com");
         params.add("scope","openid");
+        params.add("response_type","code");
 
         EsignetException ex = new EsignetException("Authorization failed");
 

@@ -302,13 +302,13 @@ public class OAuthServiceImpl implements OAuthService {
                         ArrayNode arrayNode = objectMapper.createArrayNode();
                         Iterator<JsonNode> itr = verifiedClaims.iterator();
                         while(itr.hasNext()) {
-                            JsonNode jsonNode = removeDeniedClaims(transaction.getAcceptedClaims(), itr.next());
+                            JsonNode jsonNode = removeDeniedClaims(transaction.getAcceptedClaims(), itr.next(), acceptedClaimDetails);
                             if(jsonNode != null) { arrayNode.add(jsonNode); }
                         }
                         acceptedClaimDetails.put(VERIFIED_CLAIMS, arrayNode);
                     }
                     else {
-                        JsonNode jsonNode = removeDeniedClaims(transaction.getAcceptedClaims(), verifiedClaims);
+                        JsonNode jsonNode = removeDeniedClaims(transaction.getAcceptedClaims(), verifiedClaims, acceptedClaimDetails);
                         if(jsonNode != null) { acceptedClaimDetails.put(VERIFIED_CLAIMS, verifiedClaims); }
                     }
                 }
@@ -354,13 +354,15 @@ public class OAuthServiceImpl implements OAuthService {
                         .anyMatch(scope -> transaction.getRequestedCredentialScopes().contains(scope)));
     }
 
-    private JsonNode removeDeniedClaims(List<String> acceptedClaims, JsonNode verifiedClaim) {
+    private JsonNode removeDeniedClaims(List<String> acceptedClaims, JsonNode verifiedClaim, Map<String, JsonNode> acceptedClaimDetails) {
         if(verifiedClaim.hasNonNull("claims")) {
             Iterator<String> requestedClaims = verifiedClaim.get("claims").deepCopy().fieldNames();
             while(requestedClaims.hasNext()) {
                 String claimName = requestedClaims.next();
                 if(!acceptedClaims.contains(claimName)) {
                     ((ObjectNode)verifiedClaim.get("claims")).remove(claimName);
+                } else {
+                    acceptedClaimDetails.remove(claimName);
                 }
             }
             return verifiedClaim.get("claims").isEmpty() ? null : verifiedClaim;

@@ -1,4 +1,5 @@
 package io.mosip.esignet.core.dto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.*;
@@ -6,7 +7,11 @@ import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+<<<<<<< sachin-dev
 import javax.validation.constraints.Null;
+=======
+import java.io.IOException;
+>>>>>>> develop
 import java.io.Serializable;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
@@ -19,7 +24,7 @@ public class PushedAuthorizationRequest implements Serializable {
     @OIDCScope
     private String scope;
 
-    @OIDCPrompt
+    @OIDCResponseType
     private String response_type;
 
     @NotBlank(message = INVALID_CLIENT_ID)
@@ -65,4 +70,17 @@ public class PushedAuthorizationRequest implements Serializable {
 
     @Null(message = ErrorConstants.INVALID_REQUEST)
     private String request_uri;
+
+    public void setClaims(String claimsJson) {
+        if (claimsJson == null || claimsJson.trim().isEmpty()) {
+            this.claims = null;
+            return;
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            this.claims = mapper.readValue(claimsJson, ClaimsV2.class);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(ErrorConstants.INVALID_CLAIM, e);
+        }
+    }
 }
