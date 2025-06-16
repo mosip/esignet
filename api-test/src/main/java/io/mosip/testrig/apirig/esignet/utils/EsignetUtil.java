@@ -109,6 +109,16 @@ public class EsignetUtil extends AdminTestUtil {
 
 		return pluginName;
 	}
+	public static String getPluginName() {
+	    String pluginServiceName = EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase();
+	    if (pluginServiceName.contains("mockauthenticationservice")) {
+	        return "mock";
+	    } else if (pluginServiceName.contains("sunbirdrcauthenticationservice")) {
+	        return "sunbirdrc";
+	    } else {
+	        return "mosip-id";
+	    }
+	}
 	public static boolean isCaptchaEnabled() {
 		String temp = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
 				EsignetConstants.MOSIP_ESIGNET_CAPTCHA_REQUIRED);
