@@ -150,7 +150,7 @@ export default function Form({
 
       if (errors != null && errors.length > 0) {
         let errorCodeCondition =
-          langConfig.errors.otp[errors[0].errorCode] !== undefined &&
+          langConfig.errors.kbi[errors[0].errorCode] !== undefined &&
           langConfig.errors.kbi[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
