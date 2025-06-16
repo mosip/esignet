@@ -31,7 +31,7 @@ This is the docker compose setup to run esignet UI and esignet-service with mock
    b. `redirect_uri` -> As updated in step 5
 
 8. Add a user in the mock-identity-system. Invoke `Creat User` request under `User Mgmt` -> `Mock` folder in the postman. 
-9. Now the setup is completely ready to start the OIDC flow. [Refer eSignet user guides](https://docs.esignet.io/end-user-guide) for more information.
+9. Now the setup is completely ready to start the OIDC flow. [Refer eSignet user guides](https://docs.esignet.io/test/end-user-guide) for more information.
 
 `Note: To know more about the relying party onboard and query parameters used in the eSignet authorize URL `[refer eSignet docs](https://docs.esignet.io/integration/relying-party)
 
