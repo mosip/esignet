@@ -100,6 +100,16 @@ export default function Authorize({ authService }) {
         const handleResponse = async (oAuthDetailsResponse) => {
           if (oAuthDetailsResponse.errors.length === 0) {
             setOAuthDetailResponse(oAuthDetailsResponse);
+            if (
+              oAuthDetailsResponse.response &&
+              oAuthDetailsResponse.response.configs &&
+              oAuthDetailsResponse.response.configs["polling.config"]
+            ) {
+              sessionStorage.setItem(
+                "esignet-polling-config",
+                JSON.stringify(oAuthDetailsResponse.response.configs["polling.config"])
+              );
+            }
 
             if (request.idTokenHint) {
               const { uuid, code } = getDataFromCookie(request.idTokenHint);

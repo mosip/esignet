@@ -7,13 +7,9 @@ import openIDConnectService from "../services/openIDConnectService";
 import authService from "../services/authService";
 import { Buffer } from "buffer";
 import { Detector } from "react-detect-offline";
+import { getPollingConfig } from "../helpers/utils";
 
 const config = await configService();
-
-const POLLING_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? process.env.REACT_APP_ESIGNET_API_URL
-    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
 
 export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   const { t, i18n } = useTranslation("translation", {
@@ -23,8 +19,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   const authServices = new authService(openIDConnectService);
   const authorizeQueryParam = "authorize_query_param";
   const ui_locales = "ui_locales";
-  const pollingUrl = POLLING_BASE_URL + "/actuator/health";
-
+  const pollingConfig = getPollingConfig();
   // Decode the authorize query param
   const decodedBase64 = Buffer.from(
     authServices.getAuthorizeQueryParam(),
@@ -140,9 +135,9 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
         </div>
         <Detector
           polling={{
-            url: pollingUrl, // Set the polling URL dynamically
-            interval: 10000, // Optional: Check every 5 seconds (default is 5000ms)
-            timeout: 5000,  // Optional: Timeout after 3 seconds (default is 5000ms)
+            url: pollingConfig.url, // Set the polling URL dynamically
+            interval: pollingConfig.interval, // Optional: Check every 5 seconds (default is 5000ms)
+            timeout: pollingConfig.timeout, // Optional: Timeout after 3 seconds (default is 5000ms)
           }}
           render={({ online }) =>
             online && (
