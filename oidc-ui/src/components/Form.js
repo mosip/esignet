@@ -117,7 +117,7 @@ export default function Form({
   //Handle Login API Integration here
   const authenticateUser = async (formData) => {
     try {
-      const { individualId, recaptchaToken, ...filtered } = formData;
+      const { recaptchaToken, ...filtered } = formData;
       let transactionId = openIDConnectService.getTransactionId();
       let uin =
         formData[
