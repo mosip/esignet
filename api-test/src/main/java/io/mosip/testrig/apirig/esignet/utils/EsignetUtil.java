@@ -110,14 +110,19 @@ public class EsignetUtil extends AdminTestUtil {
 		return pluginName;
 	}
 	public static String getPluginName() {
-	    String pluginServiceName = EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase();
-	    if (pluginServiceName.contains("mockauthenticationservice")) {
-	        return "mock";
-	    } else if (pluginServiceName.contains("sunbirdrcauthenticationservice")) {
-	        return "sunbirdrc";
-	    } else {
-	        return "mosip-id";
-	    }
+		try {
+			String pluginServiceName = EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase();
+		    if (pluginServiceName.contains("mockauthenticationservice")) {
+		        return "mock";
+		    } else if (pluginServiceName.contains("sunbirdrcauthenticationservice")) {
+		        return "sunbirdrc";
+		    } else {
+		        return "mosip-id";
+		    }
+		} catch(Exception e) {
+			logger.error("Failed to get plugin name from actuator", e);			
+		}
+		return "null";
 	}
 	public static boolean isCaptchaEnabled() {
 		String temp = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,

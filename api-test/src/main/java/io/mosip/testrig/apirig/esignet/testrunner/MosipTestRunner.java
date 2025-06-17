@@ -227,7 +227,12 @@ public class MosipTestRunner {
 				List<String> suitefiles = new ArrayList<>();
 
 				if (file.getName().toLowerCase().contains("mastertestsuite")) {
-					BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-" + MosipTestRunner.PLUGIN_NAME);
+					if (MosipTestRunner.PLUGIN_NAME != null) {
+				        BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-" + MosipTestRunner.PLUGIN_NAME);
+				    } else {
+				        LOGGER.warn("Plugin name is null. Using default report name: signup");
+				        BaseTestCase.setReportName(GlobalConstants.ESIGNET);
+				    }
 					suitefiles.add(file.getAbsolutePath());
 					runner.setTestSuites(suitefiles);
 					System.getProperties().setProperty("testng.outpur.dir", "testng-report");
