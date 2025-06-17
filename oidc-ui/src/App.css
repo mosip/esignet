@@ -176,6 +176,19 @@ body {
   right: 2px;
 }
 
+[dir="rtl"] .kbi_form {
+  input[type="date"] {
+    display: flex;
+    justify-content: end;
+    background-position: right 0.75em center !important;
+    padding: 0.5em 2.25em 0.5em 1em !important;
+  }
+
+  .input_box {
+    padding: 0.5em 0.75em 0.5em 1em !important;
+  }
+}
+
 .footer-brand-logo {
   content: var(--footer-brand-logo-url);
   height: 25px;
@@ -615,127 +628,132 @@ nav {
   }
 }
 
-.form-group {
-  margin-bottom: 0.5em;
-}
+.kbi_form {
+  .form-group {
+    margin-bottom: 0.5em;
 
-.form-group[style*="flex"] {
-  gap: 0.5em;
-}
+    &[style*="flex"] {
+      gap: 0.5em;
+    }
 
-.form-group .form-field {
-  display: flex;
-  flex-direction: column;
-}
+    .form-field {
+      display: flex;
+      flex-direction: column;
+    }
 
-.form-group .input_box {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin: 0.25em 0 0.4em;
-  padding: 0.5em 2.5em 0.5em 0.75em;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 0.5em;
-  background-color: #fff;
-  overflow: hidden;
-}
+    .checkbox-container {
+      flex-direction: row;
+    }
 
-.form-group select.input_box {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: #fff
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20,50 70,100 120,50' fill='none' stroke='%23333' stroke-width='15'/%3E%3C/svg%3E")
-    no-repeat right 0.75em center;
-  background-size: 0.65em;
-  cursor: pointer;
-}
+    .input_box {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin: 0.25em 0 0.4em;
+      padding: 0.5em 2.5em 0.5em 0.75em;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 0.5em;
+      background-color: #fff;
+      overflow: hidden;
 
-.form-group select.input_box option {
-  margin: 0 0.25em;
-  color: black;
-}
+      &.error {
+        border-color: #fe6b6b;
+        border-width: 1.75px;
+      }
 
-.form-group .required {
-  color: #fe6b6b;
-}
+      &:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 2px rgba(0, 123, 255, 0.4);
+      }
+    }
 
-.form-group .input_box.error {
-  border-color: #fe6b6b;
-  border-width: 1.75px;
-}
+    select.input_box {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: #fff
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20,50 70,100 120,50' fill='none' stroke='%23333' stroke-width='15'/%3E%3C/svg%3E")
+        no-repeat right 0.75em center;
+      background-size: 0.65em;
+      cursor: pointer;
 
-.form-button {
-  width: 100%;
-  padding: 0.75em;
-  border: 1px solid var(--primary-button-border-color);
-  border-radius: var(--primary-button-border-radius);
-  font-weight: 500;
-  color: var(--primary-button-color);
-  background-color: var(--primary-button-bg-color);
-  cursor: pointer;
-  text-align: center;
-}
+      option {
+        margin: 0 0.25em;
+        color: black;
+      }
+    }
 
-.form-group .error-message {
-  position: relative;
-  bottom: 0.25em;
-  color: #fe6b6b;
-  font-size: 0.75em;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-}
+    .required {
+      color: #fe6b6b;
+    }
 
-/* Date input with custom calendar icon */
-.form-group input[type="date"] {
-  position: relative;
-  width: 100%;
-  padding: 0.5em 1em 0.5em 2.25em; /* space for custom icon */
-  border: 1.5px solid #e5e7eb;
-  border-radius: 0.375em;
-  background-color: #fff;
-  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%23666' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4h18M8 2v4M16 2v4M3 10h18M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: left 0.75em center;
-  background-size: 1em;
-  font-size: 1rem;
-  font-family: inherit;
-  color: #a0a8ac;
-}
+    .error-message {
+      position: relative;
+      bottom: 0.25em;
+      color: #fe6b6b;
+      font-size: 0.75em;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
 
-.form-group input[type="date"]::placeholder {
-  text-indent: 0.5em; /* ensure placeholder doesn't overlap */
-}
+    input[type="date"] {
+      position: relative;
+      width: 100%;
+      padding: 0.5em 1em 0.5em 2.25em;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 0.375em;
+      background-color: #fff;
+      background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%23666' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4h18M8 2v4M16 2v4M3 10h18M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 0.75em center;
+      background-size: 1em;
+      font-size: 1rem;
+      font-family: inherit;
+      /* color: #a0a8ac; */
 
-.form-group input[type="date"]::-webkit-calendar-picker-indicator {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
+      &::placeholder {
+        text-indent: 0.5em;
+      }
 
-.form-group .select-placeholder {
-  color: #a0a8ac;
-}
+      &::-webkit-calendar-picker-indicator {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+    }
 
-.form-group .input_box:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 2px rgba(0, 123, 255, 0.4);
-}
+    .select-placeholder {
+      color: #a0a8ac;
+    }
 
-.form-group .error-icon {
-  display: inline-block;
-  vertical-align: middle;
-  width: 12px;
-  height: 12px;
-}
+    .error-icon {
+      display: inline-block;
+      vertical-align: middle;
+      width: 12px;
+      height: 12px;
+    }
 
-.form-group .error-text {
-  margin: auto 0.25em;
+    .error-text {
+      margin: auto 0.25em;
+    }
+  }
+
+  .form-button {
+    width: 100%;
+    padding: 0.75em;
+    border: 1px solid var(--primary-button-border-color);
+    border-radius: var(--primary-button-border-radius);
+    font-weight: 500;
+    color: var(--primary-button-color);
+    background-color: var(--primary-button-bg-color);
+    cursor: pointer;
+    text-align: center;
+  }
 }
 
 @media screen and (max-width: 767px) {

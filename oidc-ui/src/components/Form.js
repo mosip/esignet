@@ -117,7 +117,7 @@ export default function Form({
   //Handle Login API Integration here
   const authenticateUser = async (formData) => {
     try {
-      const { individualId, recaptchaToken, ...filtered } = formData;
+      const { recaptchaToken, ...filtered } = formData;
       let transactionId = openIDConnectService.getTransactionId();
       let uin =
         formData[
@@ -150,7 +150,7 @@ export default function Form({
 
       if (errors != null && errors.length > 0) {
         let errorCodeCondition =
-          langConfig.errors.otp[errors[0].errorCode] !== undefined &&
+          langConfig.errors.kbi[errors[0].errorCode] !== undefined &&
           langConfig.errors.kbi[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
@@ -227,7 +227,7 @@ export default function Form({
         </div>
       )}
 
-      <div id="form-container"></div>
+      <div id="form-container" className="kbi_form"></div>
 
       {status === states.LOADING && (
         <div className="mt-2">
