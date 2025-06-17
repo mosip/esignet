@@ -230,7 +230,6 @@ public class MosipTestRunner {
 					if (MosipTestRunner.PLUGIN_NAME != null) {
 				        BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-" + MosipTestRunner.PLUGIN_NAME);
 				    } else {
-				        LOGGER.warn("Plugin name is null. Using default report name: signup");
 				        BaseTestCase.setReportName(GlobalConstants.ESIGNET);
 				    }
 					suitefiles.add(file.getAbsolutePath());
