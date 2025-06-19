@@ -1,6 +1,8 @@
 package io.mosip.testrig.apirig.esignet.utils;
 
-public class EsignetConstants {
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+
+public class EsignetConstants extends GlobalConstants {
 	public static final String ACTIVE_PROFILES = "activeProfiles";
 
 	public static final String ESIGNET_ACTUATOR_ENDPOINT_KEYWORD = "actuatorEsignetEndpoint";
