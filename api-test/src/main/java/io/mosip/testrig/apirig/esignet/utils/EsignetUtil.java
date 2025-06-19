@@ -110,6 +110,30 @@ public class EsignetUtil extends AdminTestUtil {
 		return pluginName;
 	}
 	
+	public static String getPluginName() {
+		try {
+			String pluginServiceName = EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase();
+		    if (pluginServiceName.contains("mockauthenticationservice")) {
+		        return "mock";
+		    } else if (pluginServiceName.contains("sunbirdrcauthenticationservice")) {
+		        return "sunbirdrc";
+		    } else {
+		        return "mosip-id";
+		    }
+		} catch(Exception e) {
+			logger.error("Failed to get plugin name from actuator", e);			
+		}
+		return "null";
+	}
+	public static boolean isCaptchaEnabled() {
+		String temp = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+				EsignetConstants.MOSIP_ESIGNET_CAPTCHA_REQUIRED);
+		if(temp.isEmpty()) {
+			return false;
+		}
+		return true;	
+	}
+	
 	public static JSONArray getActiveProfilesFromActuator(String url, String key) {
 		JSONArray activeProfiles = null;
 
@@ -260,8 +284,15 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
 		String testCaseName = testCaseDTO.getTestCaseName();
-		
-		
+
+		// When the captcha is enabled we cannot execute the test case as we can not generate the captcha token
+		if (isCaptchaEnabled() == true) {
+			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, true);
+			throw new SkipException(GlobalConstants.CAPTCHA_ENABLED_MESSAGE);
+		} else {
+			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, false);
+		}
+
 		if (MosipTestRunner.skipAll == true) {
 			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
 		}
