@@ -287,10 +287,10 @@ public class EsignetUtil extends AdminTestUtil {
 
 		// When the captcha is enabled we cannot execute the test case as we can not generate the captcha token
 		if (isCaptchaEnabled() == true) {
-			GlobalMethods.reportCaptchaStatus(EsignetConstants.CAPTCHA_ENABLED, true);
-			throw new SkipException(EsignetConstants.CAPTCHA_ENABLED_MESSAGE);
+			GlobalMethods.reportCaptchaStatus(EsignetConstants.CAPTCHA_ENABLED_STRING, true);
+			throw new SkipException(EsignetConstants.CAPTCHA_ENABLED_MESSAGE_STRING);
 		} else {
-			GlobalMethods.reportCaptchaStatus(EsignetConstants.CAPTCHA_ENABLED, false);
+			GlobalMethods.reportCaptchaStatus(EsignetConstants.CAPTCHA_ENABLED_STRING, false);
 		}
 
 		if (MosipTestRunner.skipAll == true) {

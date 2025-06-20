@@ -39,5 +39,9 @@ public class EsignetConstants extends GlobalConstants {
 	public static final String ALL_ONE_OTP_STRING = "111111";
 	
 	public static final String DSL = "dsl";
+	
+	public static final String CAPTCHA_ENABLED_MESSAGE_STRING = "captcha feature not supported. Hence skipping the testcase";
+	
+	public static final String CAPTCHA_ENABLED_STRING = "Captcha_enabled";
 
 }
