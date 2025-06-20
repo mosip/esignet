@@ -60,6 +60,7 @@ public class MosipTestRunner {
 	public static String jarUrl = MosipTestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 	public static List<String> languageList = new ArrayList<>();
 	public static boolean skipAll = false;
+	public static String pluginName = null;
 
 	/**
 	 * C Main method to start mosip test execution
@@ -203,6 +204,7 @@ public class MosipTestRunner {
 	 * @throws IOException
 	 */
 	public static void startTestRunner() {
+		pluginName = EsignetUtil.getPluginName();
 		File homeDir = null;
 		String os = System.getProperty("os.name");
 		LOGGER.info(os);
@@ -222,7 +224,11 @@ public class MosipTestRunner {
 				List<String> suitefiles = new ArrayList<>();
 
 				if (file.getName().toLowerCase().contains("mastertestsuite")) {
-					BaseTestCase.setReportName(GlobalConstants.ESIGNET);
+					if (pluginName != null) {
+				        BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-" + pluginName);
+				    } else {
+				        BaseTestCase.setReportName(GlobalConstants.ESIGNET);
+				    }
 					suitefiles.add(file.getAbsolutePath());
 					runner.setTestSuites(suitefiles);
 					System.getProperties().setProperty("testng.outpur.dir", "testng-report");

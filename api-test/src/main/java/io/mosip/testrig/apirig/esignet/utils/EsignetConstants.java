@@ -1,6 +1,8 @@
 package io.mosip.testrig.apirig.esignet.utils;
 
-public class EsignetConstants {
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+
+public class EsignetConstants extends GlobalConstants {
 	public static final String ACTIVE_PROFILES = "activeProfiles";
 
 	public static final String ESIGNET_ACTUATOR_ENDPOINT_KEYWORD = "actuatorEsignetEndpoint";
@@ -13,6 +15,8 @@ public class EsignetConstants {
 	public static final String SYSTEM_ENV_SECTION = "systemEnvironment";
 	
 	public static final String CLASS_PATH_APPLICATION_PROPERTIES = "classpath:/application.properties";
+	
+	public static final String MOSIP_ESIGNET_CAPTCHA_REQUIRED = "mosip.esignet.captcha.required";
 	
 	public static final String CLASS_PATH_APPLICATION_DEFAULT_PROPERTIES = "classpath:/application-default.properties";
 
@@ -35,5 +39,9 @@ public class EsignetConstants {
 	public static final String ALL_ONE_OTP_STRING = "111111";
 	
 	public static final String DSL = "dsl";
+	
+	public static final String CAPTCHA_ENABLED_MESSAGE_STRING = "captcha feature not supported. Hence skipping the testcase";
+	
+	public static final String CAPTCHA_ENABLED_STRING = "Captcha_enabled";
 
 }
