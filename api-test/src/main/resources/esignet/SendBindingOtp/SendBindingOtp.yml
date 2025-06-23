@@ -17,8 +17,6 @@ SendBindingOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-    "maskedEmail": "$IGNORE$",
-    "maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendBindingOtp_Vid_Valid_Smoke_sid:
@@ -39,8 +37,6 @@ SendBindingOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-    "maskedEmail": "$IGNORE$",
-    "maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendBindingOtp_uin_Email_Valid_Smoke_sid:
@@ -61,8 +57,6 @@ SendBindingOtp:
 	    "otpChannels": [{channel: "email"}]
 }'
       output: '{
-    "maskedEmail": "$IGNORE$",
-    "maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendBindingOtp_uin_Phone_Valid_Smoke_sid:
@@ -83,8 +77,6 @@ SendBindingOtp:
 	    "otpChannels": [{channel: "phone"}]
 }'
       output: '{
-    "maskedEmail": "$IGNORE$",
-    "maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendBindingOtp_uin_Invalid_RequestTime_Neg:
@@ -106,8 +98,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -131,8 +122,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -156,8 +146,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -181,8 +170,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -206,8 +194,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -232,8 +219,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -258,8 +244,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -282,8 +267,6 @@ SendBindingOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-    "maskedEmail": "$IGNORE$",
-    "maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendBindingOtp_uin_NR_Phone_IndividualId_Neg:
@@ -304,8 +287,6 @@ SendBindingOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-    "maskedEmail": "$IGNORE$",
-    "maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendBindingOtp_uin_Missing_IndividualId_Neg:
@@ -327,8 +308,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -352,8 +332,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -377,8 +356,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -402,8 +380,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -427,8 +404,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -452,8 +428,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -477,8 +452,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -502,8 +476,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -527,8 +500,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -552,8 +524,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -577,8 +548,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -602,8 +572,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -627,8 +596,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -652,8 +620,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -677,8 +644,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -702,8 +668,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -727,8 +692,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -752,8 +716,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -777,8 +740,7 @@ SendBindingOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'

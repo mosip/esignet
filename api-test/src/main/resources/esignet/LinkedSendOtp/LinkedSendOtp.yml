@@ -12,8 +12,6 @@ LinkedSendOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-        "maskedEmail": "$IGNORE$",
-    	"maskedphone": "$IGNORE$"
 }'
 
    ESignet_LinkedSendOtp_NR_Email_Uin_Neg:
@@ -31,8 +29,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_individualId",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_individualId"
     }
   ]
 }'
@@ -52,8 +49,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_individualId",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_individualId"
     }
   ]
 }'
@@ -71,8 +67,6 @@ LinkedSendOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-        "maskedEmail": "$IGNORE$",
-    	"maskedphone": "$IGNORE$"
 }'
 
    ESignet_LinkedSendOtp_SpaceSeparated_otpChannels_Neg:
@@ -90,8 +84,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -111,8 +104,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -132,8 +124,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -153,8 +144,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -174,8 +164,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -195,8 +184,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -216,8 +204,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -237,8 +224,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -258,8 +244,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -279,8 +264,7 @@ LinkedSendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -300,8 +284,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "mock-ida-001",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "mock-ida-001"
     }
   ]
 }'
@@ -321,8 +304,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -342,8 +324,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -363,8 +344,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "mock-ida-001",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "mock-ida-001"
     }
   ]
 }'
@@ -384,8 +364,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -405,8 +384,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -426,8 +404,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -447,8 +424,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -468,8 +444,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -489,8 +464,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "unknown_error",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "unknown_error"
     }
   ]
 }'
@@ -510,8 +484,7 @@ LinkedSendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "unknown_error",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "unknown_error"
     }
   ]
 }'

@@ -15,7 +15,6 @@ AuthorizationCodeConsent:
       	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'
 
    ESignet_AuthorizationCode_Consent_Vid_Claim2_All_Valid_Smoke_sid:
@@ -34,7 +33,6 @@ AuthorizationCodeConsent:
       	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'
 
    ESignet_AuthorizationCode_Consent_uin_All_Valid_Smoke_sid:
@@ -53,7 +51,6 @@ AuthorizationCodeConsent:
       	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'
 
    ESignet_AuthorizationCode_Consent_Vid_All_Valid_Smoke_sid:
@@ -72,5 +69,4 @@ AuthorizationCodeConsent:
       	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'

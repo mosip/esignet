@@ -26,7 +26,6 @@ OIDCClientV2:
       	"clientNameLang": "MOSIP OIDC Client"
 }'
       output: '{
-        "clientId": "$IGNORE$",
     	"status": "ACTIVE"
 }'
 
@@ -57,7 +56,6 @@ OIDCClientV2:
       	"clientNameLang": "MOSIP OIDC Client"
 }'
       output: '{
-        "clientId": "$IGNORE$",
     	"status": "ACTIVE"
 }'
 
@@ -88,6 +86,5 @@ OIDCClientV2:
       	"clientNameLang": "MOSIP OIDC Client"
 }'
       output: '{
-        "clientId": "$IGNORE$",
     	"status": "ACTIVE"
 }'
