@@ -84,6 +84,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private static ObjectMapper oAuthMapper;
+    static {
+        oAuthMapper = new ObjectMapper()
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+    }
+
     @Autowired
     private ConsentHelperService consentHelperService;
 
@@ -521,9 +528,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
-        ObjectMapper oAuthMapper = new ObjectMapper();
-        oAuthMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
-        oAuthMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         try {
             String json = oAuthMapper.writeValueAsString(oauthDetailResponse);
             return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
