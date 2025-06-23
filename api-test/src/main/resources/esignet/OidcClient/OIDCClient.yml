@@ -18,7 +18,6 @@ CreateOIDCClient:
         "clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
 
@@ -41,7 +40,6 @@ CreateOIDCClient:
         "clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
 
@@ -64,7 +62,6 @@ CreateOIDCClient:
         "clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
 
@@ -87,7 +84,6 @@ CreateOIDCClient:
         "clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
 
@@ -502,8 +498,7 @@ CreateOIDCClient:
       output: '{
   "errors": [
     {
-      "errorCode": "PMS_PRT_058",
-      "message": "$IGNORE$"
+      "errorCode": "PMS_PRT_058"
     }
   ]
 }'
