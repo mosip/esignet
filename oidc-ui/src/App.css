@@ -630,8 +630,6 @@ nav {
 
 .kbi_form {
   .form-group {
-    margin-bottom: 0.5em;
-
     &[style*="flex"] {
       gap: 0.5em;
     }
@@ -639,6 +637,11 @@ nav {
     .form-field {
       display: flex;
       flex-direction: column;
+
+      label {
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
+      }
     }
 
     .checkbox-container {
@@ -664,7 +667,6 @@ nav {
       &:focus {
         border-color: #80bdff;
         outline: 0;
-        box-shadow: 0 0 2px rgba(0, 123, 255, 0.4);
       }
     }
 
@@ -753,6 +755,10 @@ nav {
     background-color: var(--primary-button-bg-color);
     cursor: pointer;
     text-align: center;
+
+    div > svg {
+      fill: white;
+    }
   }
 }
 
