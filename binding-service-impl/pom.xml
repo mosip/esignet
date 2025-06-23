@@ -13,6 +13,7 @@
 
 	<groupId>io.mosip.esignet</groupId>
 	<artifactId>binding-service-impl</artifactId>
+	<name>binding-service-impl</name>
 	<version>${project.parent.version}</version>
 
 	<properties>
