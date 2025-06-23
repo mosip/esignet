@@ -8,6 +8,7 @@ import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
 import langConfigService from "../services/langConfigService";
 import { JsonFormBuilder } from "@anushase/json-form-builder";
+import { encodeString } from "../helpers/utils";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -125,7 +126,7 @@ export default function Form({
             configurationKeys.authFactorKnowledgeIndividualIdField
           )}`
         ];
-      let challenge = btoa(JSON.stringify(filtered));
+      let challenge = encodeString(JSON.stringify(filtered));
 
       let challengeList = [
         {
