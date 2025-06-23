@@ -73,6 +73,7 @@
 		</repository>
 	</distributionManagement>
 
+
 	<properties>
 		<java.version>11</java.version>
 		<esignet-plugins.location>target</esignet-plugins.location>
@@ -131,6 +132,7 @@
 					<overWriteIfNewer>true</overWriteIfNewer>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
