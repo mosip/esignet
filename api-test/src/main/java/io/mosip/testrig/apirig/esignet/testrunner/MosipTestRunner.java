@@ -61,7 +61,7 @@ public class MosipTestRunner {
 	public static List<String> languageList = new ArrayList<>();
 	public static boolean skipAll = false;
 	
-	public static String PLUGIN_NAME = null;
+	public static String pluginName = null;
 
 	/**
 	 * C Main method to start mosip test execution
@@ -206,7 +206,7 @@ public class MosipTestRunner {
 	 */
 	public static void startTestRunner() {
 		
-		MosipTestRunner.PLUGIN_NAME = EsignetUtil.getPluginName();
+		pluginName = EsignetUtil.getPluginName();
 		
 		File homeDir = null;
 		String os = System.getProperty("os.name");
@@ -227,8 +227,8 @@ public class MosipTestRunner {
 				List<String> suitefiles = new ArrayList<>();
 
 				if (file.getName().toLowerCase().contains("mastertestsuite")) {
-					if (MosipTestRunner.PLUGIN_NAME != null) {
-				        BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-" + MosipTestRunner.PLUGIN_NAME);
+					if (pluginName != null) {
+				        BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-" + pluginName);
 				    } else {
 				        BaseTestCase.setReportName(GlobalConstants.ESIGNET);
 				    }

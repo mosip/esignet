@@ -172,18 +172,18 @@ public class EsignetUtil extends AdminTestUtil {
 				EsignetConstants.ESIGNET_ACTUATOR_URL);
 
 		// Fallback to other sections if value is not found
-		if (value == null || value.isBlank()) {
+		if (value == null) {
 			value = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES, key,
 					EsignetConstants.ESIGNET_ACTUATOR_URL);
 		}
 
-		if (value == null || value.isBlank()) {
+		if (value == null) {
 			value = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_DEFAULT_PROPERTIES, key,
 					EsignetConstants.ESIGNET_ACTUATOR_URL);
 		}
 
 		// Try profiles from active profiles if available
-		if (value == null || value.isBlank()) {
+		if (value == null) {
 			if (esignetActiveProfiles != null && esignetActiveProfiles.length() > 0) {
 				for (int i = 0; i < esignetActiveProfiles.length(); i++) {
 					String propertySection = esignetActiveProfiles.getString(i).equals(EsignetConstants.DEFAULT_STRING)
@@ -193,7 +193,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 					value = getValueFromEsignetActuator(propertySection, key, EsignetConstants.ESIGNET_ACTUATOR_URL);
 
-					if (value != null && !value.isBlank()) {
+					if (value != null) {
 						break;
 					}
 				}
@@ -203,18 +203,18 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 
 		// Fallback to a default section
-		if (value == null || value.isBlank()) {
+		if (value == null) {
 			value = getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(), key,
 					EsignetConstants.ESIGNET_ACTUATOR_URL);
 		}
 
 		// Final fallback to the original section if no value was found
-		if (value == null || value.isBlank()) {
+		if (value == null) {
 			value = getValueFromEsignetActuator(section, key, EsignetConstants.ESIGNET_ACTUATOR_URL);
 		}
 
 		// Log the final result or an error message if not found
-		if (value == null || value.isBlank()) {
+		if (value == null) {
 			logger.error("Value not found for section: " + section + ", key: " + key);
 		}
 
@@ -230,7 +230,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 		// Check if the value is already cached
 		String value = actuatorValueCache.get(actuatorCacheKey);
-		if (value != null && !value.isEmpty()) {
+		if (value != null) {
 			return value; // Return cached value if available
 		}
 
@@ -263,7 +263,7 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 
 			// Cache the retrieved value for future lookups
-			if (value != null && !value.isEmpty()) {
+			if (value != null) {
 				actuatorValueCache.put(actuatorCacheKey, value);
 			} else {
 				logger.warn("No value found for section: " + section + ", key: " + key);
@@ -299,7 +299,6 @@ public class EsignetUtil extends AdminTestUtil {
 		
 		
 		if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice")) {
-			
 			// TO DO - need to conform whether esignet distinguishes between UIN and VID. BAsed on that need to remove VID test case from YAML.
 			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN"));
 			
