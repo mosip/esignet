@@ -345,3 +345,122 @@ LinkTransaction:
   ]
         
 }'
+
+   ESignet_LinkTransaction_forInvalidAcceptedClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransaction_18
+      description: link transaction with valid details for InvalidAcceptedClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_InvalidAcceptedClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransaction_19
+      description: link transaction with valid details for withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_forPartialEseentialAndOptionalClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransaction_20
+      description: link transaction with valid details for PartialEseentialAndOptionalClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forPartialEseentialAndOptionalClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_forOnlyEseentialClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransaction_21
+      description: link transaction with valid details for forOnlyEseentialClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forOnlyEseentialClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_forEmptyAsAcceptedClaim_EseentialClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransaction_22
+      description: link transaction with valid details forEmptyAsAcceptedClaim_EseentialClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forEmptyAsAcceptedClaim_EseentialClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_forOnlyOptionalClaimIfRequestedOptional_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransaction_23
+      description: link transaction with valid details forOnlyOptionalClaimIfRequestedOptional
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forOnlyOptionalClaimIfRequestedOptional_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_forEmptyAcceptedClaimIfRequestedIsOptional_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransaction_24
+      description: link transaction with valid details forEmptyAcceptedClaimIfRequestedIsOptional
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forEmptyAcceptedClaimIfRequestedIsOptional_sid_linkCode$"
+}'
+      output: '{
+        
+}'

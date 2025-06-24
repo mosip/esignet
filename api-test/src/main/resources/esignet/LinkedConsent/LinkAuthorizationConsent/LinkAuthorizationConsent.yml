@@ -38,3 +38,163 @@ LinkAuthorizationConsent:
       output: '{
     
 }'
+
+   ESignet_LinkedAuthorizationConsent_Consent_forAcceptedClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_03
+      description: Linked Authorization conset UIN with all valid details for accepted claims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forAcceptedClaims_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "residenceStatus"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_forOptionalClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_04
+      description: Linked Authorization conset UIN with all valid details for Optional claims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forOptionalClaims_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "picture"},{claim: "gender"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_forPartialEssentialOptionalClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_05
+      description: Linked Authorization conset UIN with all valid details for PartialEssential OptionalClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forPartialEssentialOptionalClaims_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "picture"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_forOnlyEssentialClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_06
+      description: Linked Authorization conset UIN with all valid details for OnlyEssentialClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forOnlyEssentialClaims_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+    
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_forNullAsEssentialClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_07
+      description: Linked Authorization conset UIN with all valid details for Null As accepted claims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forNullAsEssentialClaims_sid_linkTransactionId$",
+      	"acceptedClaims": [],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_forOnlyOptionalClaimAsRequested_AcceptedClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_08
+      description: Linked Authorization conset UIN with all valid details for OnlyOptionalClaimAsRequested
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_OnlyOptionalClaimAsRequested_AcceptedClaim_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+    
+}'
+
+   ESignet_LinkedAuthorizationConsent_Consent_without_AcceptedClaim_IfOnlyOptionalRequested_sid:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_09
+      description: Linked Authorization conset UIN with all valid details without_AcceptedClaim_IfOnlyOptionalRequested
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_without_AcceptedClaim_IfOnlyOptionalRequested_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"}],
+      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+}'
+      output: '{
+    
+}'

@@ -391,3 +391,163 @@ LinkedAuthorizationConsent:
     }
   ]
 }'
+
+   ESignet_LinkedAuthorizationConsent_InvalidAcceptedClaim_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_20
+      description: Linked authorization consent with InvalidAcceptedClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_forInvalidAcceptedClaim_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "residenceStatus"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREACCEPTEDCLAIM$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_21
+      description: Linked authorization consent with withOnlyOptionalClaim IfEssAndOptAsRequestedClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "picture"},{claim: "gender"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_forPartialEseentialAndOptionalClaim_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_22
+      description: Linked authorization consent for PartialEseentialAndOptionalClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_forPartialEseentialAndOptionalClaim_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "picture"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_forOnlyEseentialClaim_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_23
+      description: Linked authorization consent for forOnlyEseentialClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_forOnlyEseentialClaim_sid_linkTransactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "email"}],
+      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+}'
+      output: '{
+
+}'
+
+   ESignet_LinkedAuthorizationConsent_forEmptyAsAcceptedClaim_EseentialClaim_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_24
+      description: Linked authorization consent for EmptyAsAcceptedClaim_EseentialClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/error
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_forEmptyAsAcceptedClaim_EseentialClaim_sid_linkTransactionId$",
+      	"acceptedClaims": [],
+      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim",
+      "errorMessage": "$IGNORE$"
+    }
+  ]
+}'
+
+   ESignet_LinkedAuthorizationConsent_forOnlyOptionalClaimIfRequestedOptional_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_25
+      description: Linked authorization consent for optional claim if requested claim is optional
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_forOnlyOptionalClaimIfRequestedOptional_sid_linkTransactionId$",
+      	"acceptedClaims": [],
+      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+}'
+      output: '{
+
+}'
+
+   ESignet_LinkedAuthorizationConsent_forEmptyAcceptedClaimIfRequestedIsOptional_Pos:
+      endPoint: /v1/esignet/linked-authorization/v2/consent
+      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_26
+      description: Linked authorization consent for Empty Accepted Claim If Requested Is Optional
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
+      outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"linkedTransactionId": "$ID:LinkTransaction_forEmptyAcceptedClaimIfRequestedIsOptional_sid_linkTransactionId$",
+      	"acceptedClaims": [],
+      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+}'
+      output: '{
+
+}'

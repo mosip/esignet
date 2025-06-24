@@ -526,6 +526,17 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTVIDUSER2JWKKEY$", jwkKey);
 		}
 		
+		if (jsonString.contains("$BINDINGCONSENTACCEPTEDCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen17()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTACCEPTEDCLAIMJWK);
+				settriggerESignetKeyGen17(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTACCEPTEDCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTACCEPTEDCLAIMJWKKEY$", jwkKey);
+		}
+		
 		if (jsonString.contains("$OIDCJWKKEY$")) {
 			String jwkKey = "";
 			if (gettriggerESignetKeyGen1()) {
@@ -703,6 +714,16 @@ public class EsignetUtil extends AdminTestUtil {
 		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREVIDUSER2$")) {
 			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREVIDUSER2$",
 					generateDetachedSignature(jsonString, BINDINGCONSENTVIDUSER2JWK, BINDINGCERTVIDCONSENTUSER2FILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENCONSENTACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENCONSENTACCEPTEDCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTACCEPTEDCLAIMJWK, BINDINGCERTCONSENTACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREACCEPTEDCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTACCEPTEDCLAIMJWK, BINDINGCERTCONSENTACCEPTEDCLAIMFILE));
 		}
 		
 		if (jsonString.contains("$PROOFJWT$")) {
@@ -1145,6 +1166,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String BINDINGCONSENTEMPTYCLAIMJWK = "bindingConsentEmptyClaimJWK";
 	protected static final String BINDINGCONSENTUSER2JWK = "bindingConsentUser2JWK";
 	protected static final String BINDINGCONSENTVIDUSER2JWK = "bindingConsentVidUser2JWK";
+	protected static final String BINDINGCONSENTACCEPTEDCLAIMJWK = "bindingConsentAcceptedClaimJWK";
 	
 	public static final String BINDINGCERTFILE = "BINDINGCERTFile";
 	public static final String BINDINGCERTFILEVID = "BINDINGCERTFileVid";
@@ -1155,6 +1177,7 @@ public class EsignetUtil extends AdminTestUtil {
 	public static final String BINDINGCERTCONSENTEMPTYCLAIMFILE = "BINDINGCERTCONSENTEMPTYCLAIMFile";
 	public static final String BINDINGCERTCONSENTUSER2FILE = "BINDINGCERTCONSENTUSER2File";
 	public static final String BINDINGCERTVIDCONSENTUSER2FILE = "BINDINGCERTCONSENTVIDUSER2File";
+	public static final String BINDINGCERTCONSENTACCEPTEDCLAIMFILE = "BINDINGCERTCONSENTACCEPTEDCLAIMFile";
 	
 	protected static final String OIDCJWK1 = "oidcJWK1";
 	protected static final String OIDCJWK2 = "oidcJWK2";
@@ -1178,6 +1201,9 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGen11 = true;
 	protected static boolean triggerESignetKeyGen12 = true;
 	protected static boolean triggerESignetKeyGen13 = true;
+	protected static boolean triggerESignetKeyGen15 = true;
+	protected static boolean triggerESignetKeyGen16 = true;
+	protected static boolean triggerESignetKeyGen17 = true;
 	
 	private static boolean gettriggerESignetKeyGen3() {
 		return triggerESignetKeyGen3;
@@ -1281,6 +1307,28 @@ public class EsignetUtil extends AdminTestUtil {
 
 	private static boolean gettriggerESignetKeyGen13() {
 		return triggerESignetKeyGen13;
+	}
+	
+	private static void settriggerESignetKeyGen15(boolean value) {
+		triggerESignetKeyGen15 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen15() {
+		return triggerESignetKeyGen15;
+	}
+	private static void settriggerESignetKeyGen16(boolean value) {
+		triggerESignetKeyGen16 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen16() {
+		return triggerESignetKeyGen16;
+	}
+	private static void settriggerESignetKeyGen17(boolean value) {
+		triggerESignetKeyGen17 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen17() {
+		return triggerESignetKeyGen17;
 	}
 
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
@@ -1494,6 +1542,8 @@ public class EsignetUtil extends AdminTestUtil {
 			certsKey = BINDINGCERTCONSENTUSER2FILE;
 		} else if (testCaseName.contains("_Consent_User2_Vid_SCert_")) {
 			certsKey = BINDINGCERTVIDCONSENTUSER2FILE;
+		} else if (testCaseName.contains("_SCert_InvalidAcceptedClaim_")) {
+			certsKey = BINDINGCERTCONSENTACCEPTEDCLAIMFILE;
 		}
 
 		String certificateData = new JSONObject(response.getBody().asString()).getJSONObject(GlobalConstants.RESPONSE)
