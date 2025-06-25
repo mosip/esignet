@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>oidc-service-impl</artifactId>
+    <name>oidc-service-impl</name>
     <version>${project.parent.version}</version>
 
     <properties>
