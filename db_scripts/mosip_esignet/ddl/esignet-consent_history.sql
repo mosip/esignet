@@ -14,7 +14,7 @@
 -- ------------------------------------------------------------------------------------------
 
 create table consent_history (
-    id BINARY(16) NOT NULL,
+    id UUID NOT NULL,
     client_id VARCHAR NOT NULL,
     psu_token VARCHAR NOT NULL,
     claims VARCHAR NOT NULL,
