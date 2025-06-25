@@ -212,13 +212,14 @@ public class OAuthControllerTest {
         params.add("client_assertion", "assertion");
         params.add("redirect_uri", "http://testexample.com");
         params.add("scope", "openid");
+        params.add("response_type","code");
         params.add("request_uri", "invalid-uri");
 
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
     }
 
     @Test
@@ -269,8 +270,8 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"))
-                .andExpect(jsonPath("$.error_description").value("invalid_response_type"));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_RESPONSE_TYPE))
+                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_RESPONSE_TYPE));
     }
 
     @Test

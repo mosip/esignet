@@ -168,9 +168,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public OAuthDetailResponseV2 getPAROAuthDetails(PAROAuthDetailsRequest parOAuthDetailsRequest, HttpServletRequest httpServletRequest) throws EsignetException {
-        PushedAuthorizationRequest pushedAuthorizationRequest = cacheUtilService.getAndEvictPAR(parOAuthDetailsRequest.getRequestUri());
+        String requestUriUniqueId = parOAuthDetailsRequest.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length());
+        PushedAuthorizationRequest pushedAuthorizationRequest = cacheUtilService.getAndEvictPAR(requestUriUniqueId);
         if(pushedAuthorizationRequest == null) {
-            log.error("There is not par reqeust with this requestUri: {}", parOAuthDetailsRequest.getRequestUri());
+            log.error("There is no par request with this requestUri: {}", parOAuthDetailsRequest.getRequestUri());
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
         }
         if(!pushedAuthorizationRequest.getClient_id().equals(parOAuthDetailsRequest.getClientId())) {

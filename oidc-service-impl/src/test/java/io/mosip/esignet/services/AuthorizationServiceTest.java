@@ -48,8 +48,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static io.mosip.esignet.core.constants.Constants.SERVER_NONCE_SEPARATOR;
-import static io.mosip.esignet.core.constants.Constants.VERIFICATION_COMPLETE;
+import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -987,9 +986,9 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getPAROAuthDetails_withValidRequest_thenPass() {
+    public void getPAROAuthDetails_withValidRequest_thenPass() throws JsonProcessingException {
         PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
-        request.setRequestUri("requestUri");
+        request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
         request.setClientId("client123");
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();
 
@@ -1002,9 +1001,9 @@ public class AuthorizationServiceTest {
         Map<String, JsonNode> userClaims = new HashMap<>();
         userClaims.put("given_name",  getClaimDetail(null, null, true));
         claims.setUserinfo(userClaims);
-        par.setClaims(claims);
+        par.setClaims(objectMapper.writeValueAsString(claims));
         par.setAcr_values("mosip:idp:acr:static-code");
-        when(cacheUtilService.getAndEvictPAR(request.getRequestUri())).thenReturn(par);
+        when(cacheUtilService.getAndEvictPAR(request.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length()))).thenReturn(par);
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId(request.getClientId());
@@ -1026,11 +1025,11 @@ public class AuthorizationServiceTest {
     @Test
     public void getPAROAuthDetails_withInvalidRequestUri_thenFail() {
         PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
-        request.setRequestUri("requestUri");
+        request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
         request.setClientId("client123");
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();
 
-        when(cacheUtilService.getAndEvictPAR(request.getRequestUri())).thenReturn(null);
+        when(cacheUtilService.getAndEvictPAR(request.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length()))).thenReturn(null);
 
         try {
             OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
@@ -1043,13 +1042,13 @@ public class AuthorizationServiceTest {
     @Test
     public void getPAROAuthDetails_withInvalidClientId_thenFail() {
         PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
-        request.setRequestUri("requestUri");
+        request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
         request.setClientId("client123");
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();
 
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setClient_id("differentId");
-        when(cacheUtilService.getAndEvictPAR(request.getRequestUri())).thenReturn(par);
+        when(cacheUtilService.getAndEvictPAR(request.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length()))).thenReturn(par);
         try {
             OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
             Assert.fail();

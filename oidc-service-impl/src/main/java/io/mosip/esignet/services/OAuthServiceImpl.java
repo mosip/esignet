@@ -167,8 +167,9 @@ public class OAuthServiceImpl implements OAuthService {
 
         authenticatePARClient(pushedAuthorizationRequest.getClient_assertion_type(),pushedAuthorizationRequest.getClient_assertion(),clientDetailDto);
 
-        String requestUri = PAR_REQUEST_URI_PREFIX + IdentityProviderUtil.createTransactionId(null) ;
-        cacheUtilService.savePAR(requestUri, pushedAuthorizationRequest);
+        String requestUriUniqueId = IdentityProviderUtil.createTransactionId(null);
+        String requestUri = PAR_REQUEST_URI_PREFIX + requestUriUniqueId;
+        cacheUtilService.savePAR(requestUriUniqueId, pushedAuthorizationRequest);
         PushedAuthorizationResponse response = new PushedAuthorizationResponse();
         response.setRequest_uri(requestUri);
         response.setExpires_in(parTTLInSeconds);
