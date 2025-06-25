@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>client-management-service-impl</artifactId>
+    <name>client-management-service-impl</name>
     <version>${project.parent.version}</version>
 
     <properties>
