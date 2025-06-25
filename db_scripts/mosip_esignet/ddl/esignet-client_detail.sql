@@ -30,10 +30,10 @@ CREATE TABLE client_detail(
 	additional_config jsonb,
 	cr_dtimes timestamp NOT NULL,
 	upd_dtimes timestamp,
-	CONSTRAINT pk_clntdtl_id PRIMARY KEY (id),
-	public_key_n VARCHAR(64) GENERATED ALWAYS AS (SHA2(JSON_UNQUOTE(JSON_EXTRACT(public_key, '$.n')), 256)) STORED,
-    UNIQUE INDEX idx_public_key_n (public_key_n)
+	CONSTRAINT pk_clntdtl_id PRIMARY KEY (id)
 );
+
+CREATE UNIQUE INDEX unique_n_value ON client_detail ((public_key->>'n'));
 
 COMMENT ON TABLE client_detail IS 'Contains key alias and  metadata of all the keys used in MOSIP system.';
 

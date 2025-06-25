@@ -213,7 +213,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
                         Arrays.asList("https://logo-url/png"), Arrays.asList("authorization_code"),
                         Arrays.asList("private_key_jwt"), new HashMap<String, String>() {{
                     put("eng", "clientname");
-                }}, validAdditionalConfigs.get((i++)%size)), null, null, "unknown_error"),
+                }}, validAdditionalConfigs.get((i++)%size)), null, null, "duplicate_public_key"),
                 new TestCase("update with invalid clientId", null, new ClientDetailUpdateRequestV3("https://logo-url/png",
                         Arrays.asList("https://logo-url/png"), Arrays.asList("given_name"),
                         Arrays.asList("mosip:idp:acr:static-code"), "ACTIVE", Arrays.asList("authorization_code"),

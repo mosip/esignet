@@ -29,6 +29,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.util.StringUtils;
 
 
 @Slf4j
@@ -85,7 +86,9 @@ public class eSignetDaoConfig {
         hikariConfig.setJdbcUrl(environment.getProperty("mosip.esignet.database.url"));
         hikariConfig.setUsername(environment.getProperty("mosip.esignet.database.username"));
         hikariConfig.setPassword(environment.getProperty("mosip.esignet.database.password"));
-        hikariConfig.setSchema(schema);
+        if(!StringUtils.isEmpty(schema)) {
+            hikariConfig.setSchema(schema);
+        }
         hikariConfig.setMaximumPoolSize(maximumPoolSize);
         hikariConfig.setValidationTimeout(validationTimeout);
         hikariConfig.setConnectionTimeout(connectionTimeout);
