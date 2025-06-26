@@ -1,0 +1,79 @@
+OAuthDetailsRequestV3:
+   ESignet_OAuthDetailsRequest_V3_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
+      description: Get OAuth details with claims as prerequisite
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest
+      outputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:CreateOIDCClientV3_all_Valid_forUserInfo_Smoke_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "urlInfo1724138417665",
+        "claimsLocales": "en",
+        "uiLocales": "en-US"
+}'
+      output: '{
+       
+}'
+   ESignet_OAuthDetailsRequest_V3_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
+      description: Get OAuth details with claims as prerequisite
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest
+      outputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:CreateOIDCClientV3_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "urlInfo1724138417665",
+        "claimsLocales": "en",
+        "uiLocales": "en-US"
+}'
+      output: '{
+       
+}'
+   ESignet_OAuthDetailsRequest_V3_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
+      description: Get OAuth details with claims as prerequisite
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest
+      outputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:CreateOIDCClientV3_all_Valid_forUserInfoToUpdateClient_Smoke_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "urlInfo1724138417665",
+        "claimsLocales": "en",
+        "uiLocales": "en-US"
+}'
+      output: '{
+       
+}'

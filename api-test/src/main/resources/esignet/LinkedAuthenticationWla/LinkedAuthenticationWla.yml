@@ -355,7 +355,7 @@ LinkedAuthenticationWla:
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid:
+   ESignet_LinkedAuthenticationWla_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
       uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_08
       description: Linked AuthenticationWla VID SCert all valid details
@@ -370,7 +370,7 @@ LinkedAuthenticationWla:
       "linkTransactionId": "$ID:LinkTransaction_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENTUSER2$",
+        "challenge": "$WLATOKENFOROPTIONALUSER1CLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -391,7 +391,7 @@ LinkedAuthenticationWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTUSER2JWKKEY$",
+          "publicKey": "$BINDINGFOROPTIONALUSER1CLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -407,7 +407,7 @@ LinkedAuthenticationWla:
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_forPartialEseentialAndOptionalClaim_sid:
+   ESignet_LinkedAuthenticationWla_forPartialEseentialAndOptionalClaim_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
       uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_09
       description: Linked AuthenticationWla VID SCert all valid details
@@ -422,7 +422,7 @@ LinkedAuthenticationWla:
       "linkTransactionId": "$ID:LinkTransaction_forPartialEseentialAndOptionalClaim_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENTUSER2$",
+        "challenge": "$WLATOKENFORPARTIALESSENTIALOPTIONALUSER1CLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -443,7 +443,7 @@ LinkedAuthenticationWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTUSER2JWKKEY$",
+          "publicKey": "$BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -459,7 +459,7 @@ LinkedAuthenticationWla:
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_forOnlyEseentialClaim_sid:
+   ESignet_LinkedAuthenticationWla_forOnlyEseentialClaim_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
       uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_10
       description: Linked AuthenticationWla VID SCert all valid details
@@ -474,7 +474,7 @@ LinkedAuthenticationWla:
       "linkTransactionId": "$ID:LinkTransaction_forOnlyEseentialClaim_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENTUSER2$",
+        "challenge": "$WLATOKENFORONLYESSENTIALUSER1CLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -495,7 +495,7 @@ LinkedAuthenticationWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTUSER2JWKKEY$",
+          "publicKey": "$BINDINGFORONLYESSENTIALUSER1CLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -511,7 +511,7 @@ LinkedAuthenticationWla:
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_forEmptyAsAcceptedClaim_EseentialClaim_sid:
+   ESignet_LinkedAuthenticationWla_forEmptyAsAcceptedClaim_EseentialClaim_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
       uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_11
       description: Linked AuthenticationWla VID SCert all valid details
@@ -526,7 +526,7 @@ LinkedAuthenticationWla:
       "linkTransactionId": "$ID:LinkTransaction_forEmptyAsAcceptedClaim_EseentialClaim_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENTUSER2$",
+        "challenge": "$WLATOKENFORNULLESSENTIALUSER1CLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -547,7 +547,7 @@ LinkedAuthenticationWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTUSER2JWKKEY$",
+          "publicKey": "$BINDINGFORNULLESSENTIALUSER1CLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -563,7 +563,7 @@ LinkedAuthenticationWla:
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_forOnlyOptionalClaimIfRequestedOptional_sid:
+   ESignet_LinkedAuthenticationWla_forOnlyOptionalClaimIfRequestedOptional_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
       uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_12
       description: Linked AuthenticationWla VID SCert all valid details
@@ -578,7 +578,7 @@ LinkedAuthenticationWla:
       "linkTransactionId": "$ID:LinkTransaction_forOnlyOptionalClaimIfRequestedOptional_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENTUSER2$",
+        "challenge": "$WLATOKENFOROPTIONALACCEPTEDUSER1CLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -599,7 +599,7 @@ LinkedAuthenticationWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTUSER2JWKKEY$",
+          "publicKey": "$BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -615,7 +615,7 @@ LinkedAuthenticationWla:
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_forEmptyAcceptedClaimIfRequestedIsOptional_sid:
+   ESignet_LinkedAuthenticationWla_forEmptyAcceptedClaimIfRequestedIsOptional_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/authenticate
       uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_13
       description: Linked AuthenticationWla for EmptyAcceptedClaimIfRequestedIsOptional
@@ -630,7 +630,7 @@ LinkedAuthenticationWla:
       "linkTransactionId": "$ID:LinkTransaction_forEmptyAcceptedClaimIfRequestedIsOptional_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENTUSER2$",
+        "challenge": "$WLATOKENFORNULLACCEPTEDUSER1CLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -651,7 +651,7 @@ LinkedAuthenticationWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTUSER2JWKKEY$",
+          "publicKey": "$BINDINGFORNULLACCEPTEDUSER1CLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }

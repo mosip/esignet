@@ -149,7 +149,7 @@ LinkedAuthenticationConsentWla:
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_Consentuin_SCert_forAcceptedClaims_sid:
+   ESignet_LinkedAuthenticationWla_Consent_forAcceptedClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for accepted claims
       role: resident
@@ -163,7 +163,7 @@ LinkedAuthenticationConsentWla:
       "linkTransactionId": "$ID:LinkTransaction_Consent_uin_forAcceptedClaims_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_forAcceptedClaims_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENT$",
+        "challenge": "$WLATOKENFORACCEPTEDCLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -184,7 +184,7 @@ LinkedAuthenticationConsentWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_forAcceptedClaims_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "publicKey": "$BINDINGCONSENTFORACCEPTEDCLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -192,16 +192,14 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_Consentuin_SCert_forOptionalClaims_sid:
+   ESignet_LinkedAuthenticationWla_Consent_forOptionalClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for optional claims
       role: resident
@@ -215,7 +213,7 @@ LinkedAuthenticationConsentWla:
       "linkTransactionId": "$ID:LinkTransaction_Consent_uin_forOptionalClaims_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_forOptionalClaims_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENT$",
+        "challenge": "$WLATOKENFOROPTIONALCLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -236,7 +234,7 @@ LinkedAuthenticationConsentWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_forOptionalClaims_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "publicKey": "$BINDINGCONSENTFOROPTIONALCLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -244,16 +242,14 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_Consentuin_SCert_forPartialEssentialOptionalClaims_sid:
+   ESignet_LinkedAuthenticationWla_Consent_forPartialEssentialOptionalClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for PartialEssential OptionalClaims
       role: resident
@@ -267,7 +263,7 @@ LinkedAuthenticationConsentWla:
       "linkTransactionId": "$ID:LinkTransaction_Consent_uin_forPartialEssentialOptionalClaims_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_forPartialEssentialOptionalClaims_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENT$",
+        "challenge": "$WLATOKENFORPARTIALESSENTIALOPTIONALCLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -288,7 +284,7 @@ LinkedAuthenticationConsentWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_forPartialEssentialOptionalClaims_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "publicKey": "$BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -296,16 +292,14 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_Consentuin_SCert_forOnlyEssentialClaims_sid:
+   ESignet_LinkedAuthenticationWla_Consent_forOnlyEssentialClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for only essential Claims
       role: resident
@@ -319,7 +313,7 @@ LinkedAuthenticationConsentWla:
       "linkTransactionId": "$ID:LinkTransaction_Consent_uin_forOnlyEssentialClaims_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_foronlyEssentialClaims_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENT$",
+        "challenge": "$WLATOKENFORONLYESSENTIALCLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -340,7 +334,7 @@ LinkedAuthenticationConsentWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_foronlyEssentialClaims_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "publicKey": "$BINDINGCONSENTFORONLYESSENTIALCLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -348,16 +342,14 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_Consentuin_SCert_forNullAsEssentialClaims_sid:
+   ESignet_LinkedAuthenticationWla_Consent_forNullAsEssentialClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for NullAsEssentialClaims
       role: resident
@@ -371,7 +363,7 @@ LinkedAuthenticationConsentWla:
       "linkTransactionId": "$ID:LinkTransaction_Consent_uin_forNullAsEssentialClaims_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_for_null_asEssentialClaims_AcceptedClaim_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENT$",
+        "challenge": "$WLATOKENFORNULLESSENTIALCLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -392,7 +384,7 @@ LinkedAuthenticationConsentWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_for_null_asEssentialClaims_AcceptedClaim_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "publicKey": "$BINDINGCONSENTFORNULLESSENTIALCLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -400,16 +392,14 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_Consentuin_SCert_forOnlyOptionalClaimAsRequested_AcceptedClaim_sid:
+   ESignet_LinkedAuthenticationWla_Consent_forOnlyOptionalClaimAsRequested_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for forOnlyOptionalClaimAsRequested
       role: resident
@@ -423,7 +413,7 @@ LinkedAuthenticationConsentWla:
       "linkTransactionId": "$ID:LinkTransaction_Consent_uin_OnlyOptionalClaimAsRequested_AcceptedClaim_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_for_OnlyOptionalClaimAsRequested_AcceptedClaim_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENT$",
+        "challenge": "$WLATOKENFOROPTIONALACCEPTEDCLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -444,7 +434,7 @@ LinkedAuthenticationConsentWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_for_OnlyOptionalClaimAsRequested_AcceptedClaim_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "publicKey": "$BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -452,16 +442,14 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
        }
 }'
 
-   ESignet_LinkedAuthenticationWla_Consentuin_SCert_without_AcceptedClaim_IfOnlyOptionalRequested_sid:
+   ESignet_LinkedAuthenticationWla_Consent_without_AcceptedClaim_IfOnlyOptionalRequested_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
       description: LinkedAuthenticationWla consent UIN SCert with all valid details without_AcceptedClaim_IfOnlyOptionalRequested
       role: resident
@@ -475,7 +463,7 @@ LinkedAuthenticationConsentWla:
       "linkTransactionId": "$ID:LinkTransaction_Consent_uin_without_AcceptedClaim_IfOnlyOptionalRequested_sid_linkTransactionId$",
       "individualId": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_for_without_AcceptedClaim_IfOnlyOptionalRequested_Pos_UIN$",
         "authFactorType": "WLA",
-        "challenge": "$WLATOKENCONSENT$",
+        "challenge": "$WLATOKENFORNULLACCEPTEDCLAIM$",
         "format": "jwt",
         "sendOtp":{
       "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
@@ -496,7 +484,7 @@ LinkedAuthenticationConsentWla:
           "authFactorType": "OTP",
           "challenge": "$ID:AddIdentity_L2_Valid_Parameters_linkedconsent_for_without_AcceptedClaim_IfOnlyOptionalRequested_Pos_EMAIL$",
           "format": "alpha-numeric",
-          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "publicKey": "$BINDINGCONSENTFORNULLACCEPTEDCLAIMJWKKEY$",
           "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
           "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
       }
@@ -504,9 +492,7 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"

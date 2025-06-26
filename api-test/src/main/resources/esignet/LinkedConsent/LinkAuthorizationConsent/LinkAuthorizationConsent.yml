@@ -53,7 +53,7 @@ LinkAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forAcceptedClaims_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "residenceStatus"}],
-      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORACCEPTEDCLAIM$"
 }'
       output: '{
       	"errors": [
@@ -78,7 +78,7 @@ LinkAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forOptionalClaims_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "picture"},{claim: "gender"}],
-      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFOROPTIONALCLAIM$"
 }'
       output: '{
       	"errors": [
@@ -103,7 +103,7 @@ LinkAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forPartialEssentialOptionalClaims_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "picture"}],
-      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORPARTIALESSENTIALOPTIONALCLAIM$"
 }'
       output: '{
       	"errors": [
@@ -128,7 +128,7 @@ LinkAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forOnlyEssentialClaims_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "name"},{claim: "email"}],
-      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORONLYESSENTIALCLAIM$"
 }'
       output: '{
     
@@ -148,7 +148,7 @@ LinkAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_forNullAsEssentialClaims_sid_linkTransactionId$",
       	"acceptedClaims": [],
-      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORNULLESSENTIALCLAIM$"
 }'
       output: '{
       	"errors": [
@@ -173,7 +173,7 @@ LinkAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_OnlyOptionalClaimAsRequested_AcceptedClaim_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "name"},{claim: "gender"}],
-      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFOROPTIONALACCEPTEDCLAIM$"
 }'
       output: '{
     
@@ -193,7 +193,7 @@ LinkAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_Consent_uin_without_AcceptedClaim_IfOnlyOptionalRequested_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "name"},{claim: "gender"}],
-      	"signature": "$CONSENTDETACHEDSIGNATURE$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORNULLACCEPTEDCLAIM$"
 }'
       output: '{
     

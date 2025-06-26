@@ -2291,3 +2291,79 @@ OAuthDetailsRequest:
     }
   ]
 }'
+
+   ESignet_OAuthDetailsRequest_all_Valid_for_authCode_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_87
+      description: Oauthdetails request with all valid details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:generated-code",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+   ESignet_OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_88
+      description: Oauthdetails request with all valid details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestOptionalClaim
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:generated-code",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+   ESignet_OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_user2_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_89
+      description: Oauthdetails request with all valid details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestOptionalClaim
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:generated-code",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'

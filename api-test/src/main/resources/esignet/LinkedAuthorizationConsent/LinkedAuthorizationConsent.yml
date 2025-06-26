@@ -431,7 +431,7 @@ LinkedAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "picture"},{claim: "gender"}],
-      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFOROPTIONALUSER1CLAIM$"
 }'
       output: '{
       	"errors": [
@@ -456,7 +456,7 @@ LinkedAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_forPartialEseentialAndOptionalClaim_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "picture"}],
-      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORPARTIALESSENTIALOPTIONALUSER1CLAIM$"
 }'
       output: '{
       	"errors": [
@@ -481,7 +481,7 @@ LinkedAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_forOnlyEseentialClaim_sid_linkTransactionId$",
       	"acceptedClaims": [{claim: "name"},{claim: "email"}],
-      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORONLYESSENTIAUSER1LCLAIM$"
 }'
       output: '{
 
@@ -501,7 +501,7 @@ LinkedAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_forEmptyAsAcceptedClaim_EseentialClaim_sid_linkTransactionId$",
       	"acceptedClaims": [],
-      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORNULLESSENTIALUSER1CLAIM$"
 }'
       output: '{
       	"errors": [
@@ -526,7 +526,7 @@ LinkedAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_forOnlyOptionalClaimIfRequestedOptional_sid_linkTransactionId$",
       	"acceptedClaims": [],
-      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFOROPTIONALACCEPTEDUSER1CLAIM$"
 }'
       output: '{
 
@@ -546,7 +546,7 @@ LinkedAuthorizationConsent:
       	"requestTime": "$TIMESTAMP$",
       	"linkedTransactionId": "$ID:LinkTransaction_forEmptyAcceptedClaimIfRequestedIsOptional_sid_linkTransactionId$",
       	"acceptedClaims": [],
-      	"signature": "$CONSENTDETACHEDSIGNATUREUSER2$"
+      	"signature": "$CONSENTDETACHEDSIGNATUREFORNULLACCEPTEDUSER1CLAIM$"
 }'
       output: '{
 

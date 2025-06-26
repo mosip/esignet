@@ -937,7 +937,6 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
     output: '{
-      "clientId": "$IGNORE$",
       "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_subtitle_languageMap_Smoke_sid:
@@ -976,6 +975,5 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
     output: '{
-      "clientId": "$IGNORE$",
       "status": "ACTIVE"
 }'

@@ -487,6 +487,70 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
+	
+	<!-- Start of end to end v3 with mock flow test cases -->
+	<test name="OIDCClientV3">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="UpdateClientV3">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClient.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
+		</classes>
+	</test>
+	<test name="OAuthDetailsRequestV3">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="AuthenticateUserV3">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUser.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="AuthorizeCode">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode.yml" />
+		<parameter name="idKeyName" value="code" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="GenerateTokenV2">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3/GenerateToken/GenerateToken.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="UserInfo">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3/UserInfo/GetOidcUserInfo.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<!-- End of end to end v3 with mock flow test cases -->
 
 	<!-- Removed kyc delegated demo auth as it is not supported 
 	<test name="KycDemoAuth">

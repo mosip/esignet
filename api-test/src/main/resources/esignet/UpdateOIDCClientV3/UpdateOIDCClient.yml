@@ -1025,7 +1025,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_SubtitleLangMap_Smoke:
@@ -1063,6 +1062,5 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'

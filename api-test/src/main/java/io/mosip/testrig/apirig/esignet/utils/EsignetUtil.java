@@ -307,9 +307,11 @@ public class EsignetUtil extends AdminTestUtil {
 							&& endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
-			if ((testCaseName.contains("_CreateOIDCClientV3_") || testCaseName.contains("_UpdateOIDCClientV3_"))) {
-				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
-			}
+			
+//			if ((testCaseName.contains("_CreateOIDCClientV3_") || testCaseName.contains("_UpdateOIDCClientV3_"))) {
+//				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+//			}
+			 
 
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
@@ -537,6 +539,151 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTACCEPTEDCLAIMJWKKEY$", jwkKey);
 		}
 		
+		if (jsonString.contains("$BINDINGCONSENTFORACCEPTEDCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen18()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTFORACCEPTEDCLAIMJWK);
+				settriggerESignetKeyGen18(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTFORACCEPTEDCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTFORACCEPTEDCLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGCONSENTFOROPTIONALCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen19()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTFOROPTIONALCLAIMJWK);
+				settriggerESignetKeyGen19(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTFOROPTIONALCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTFOROPTIONALCLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen20()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWK);
+				settriggerESignetKeyGen20(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGCONSENTFORONLYESSENTIALCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen21()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTFORONLYESSENTIALCLAIMJWK);
+				settriggerESignetKeyGen21(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTFORONLYESSENTIALCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTFORONLYESSENTIALCLAIMJWKKEY$",
+					jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGCONSENTFORNULLESSENTIALCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen22()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTFORNULLESSENTIALCLAIMJWK);
+				settriggerESignetKeyGen22(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTFORNULLESSENTIALCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTFORNULLESSENTIALCLAIMJWKKEY$",
+					jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen23()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWK);
+				settriggerESignetKeyGen23(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGCONSENTFORNULLACCEPTEDCLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen24()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGCONSENTFORNULLACCEPTEDCLAIMJWK);
+				settriggerESignetKeyGen24(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGCONSENTFORNULLACCEPTEDCLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGCONSENTFORNULLACCEPTEDCLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGFOROPTIONALUSER1CLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen25()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGFOROPTIONALUSER1CLAIMJWK);
+				settriggerESignetKeyGen25(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGFOROPTIONALUSER1CLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGFOROPTIONALUSER1CLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen26()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWK);
+				settriggerESignetKeyGen26(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGFORONLYESSENTIALUSER1CLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen27()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGFORONLYESSENTIALUSER1CLAIMJWK);
+				settriggerESignetKeyGen27(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGFORONLYESSENTIALUSER1CLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGFORONLYESSENTIALUSER1CLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGFORNULLESSENTIALUSER1CLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen28()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGFORNULLESSENTIALUSER1CLAIMJWK);
+				settriggerESignetKeyGen28(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGFORNULLESSENTIALUSER1CLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGFORNULLESSENTIALUSER1CLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen29()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWK);
+				settriggerESignetKeyGen29(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWKKEY$", jwkKey);
+		}
+		
+		if (jsonString.contains("$BINDINGFORNULLACCEPTEDUSER1CLAIMJWKKEY$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen30()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(BINDINGFORNULLACCEPTEDUSER1CLAIMJWK);
+				settriggerESignetKeyGen30(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(BINDINGFORNULLACCEPTEDUSER1CLAIMJWK);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$BINDINGFORNULLACCEPTEDUSER1CLAIMJWKKEY$", jwkKey);
+		}
+		
 		if (jsonString.contains("$OIDCJWKKEY$")) {
 			String jwkKey = "";
 			if (gettriggerESignetKeyGen1()) {
@@ -579,6 +726,27 @@ public class EsignetUtil extends AdminTestUtil {
 				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK4);
 			}
 			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY4$", jwkKey);
+		}
+		
+		if (jsonString.contains("$OIDCJWKKEY5$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen15()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDCJWK5);
+				settriggerESignetKeyGen15(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK5);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY5$", jwkKey);
+		}
+		if (jsonString.contains("$OIDCJWKKEY6$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen16()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDCJWK6);
+				settriggerESignetKeyGen16(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK6);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY6$", jwkKey);
 		}
 		
 		if (jsonString.contains("$CLIENT_ASSERTION_JWK$")) {
@@ -638,6 +806,41 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER4_JWK$",
 					signJWKKeyForMock(clientId, oidcJWKKey4));
+		}
+		
+		if (jsonString.contains("$CLIENT_ASSERTION_USER5_JWK$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK5);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidcJWKKey5 = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidcJWKKey5 =" + oidcJWKKey5);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+			JSONObject request = new JSONObject(jsonString);
+			String clientId = null;
+			if (request.has("client_id")) {
+				clientId = request.get("client_id").toString();
+			}
+			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER5_JWK$",
+					signJWKKeyForMock(clientId, oidcJWKKey5));
+		}
+		if (jsonString.contains("$CLIENT_ASSERTION_USER6_JWK$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK6);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidcJWKKey6 = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidcJWKKey6 =" + oidcJWKKey6);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+			JSONObject request = new JSONObject(jsonString);
+			String clientId = null;
+			if (request.has("client_id")) {
+				clientId = request.get("client_id").toString();
+			}
+			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER6_JWK$",
+					signJWKKeyForMock(clientId, oidcJWKKey6));
 		}
 		
 		if (jsonString.contains("$WLATOKEN$")) {
@@ -724,6 +927,136 @@ public class EsignetUtil extends AdminTestUtil {
 		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREACCEPTEDCLAIM$")) {
 			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREACCEPTEDCLAIM$",
 					generateDetachedSignature(jsonString, BINDINGCONSENTACCEPTEDCLAIMJWK, BINDINGCERTCONSENTACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFORACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORACCEPTEDCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTFORACCEPTEDCLAIMJWK, BINDINGCERTCONSENTFORACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORACCEPTEDCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTFORACCEPTEDCLAIMJWK, BINDINGCERTCONSENTFORACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFOROPTIONALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFOROPTIONALCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTFOROPTIONALCLAIMJWK, BINDINGCERTCONSENTFOROPTIONALCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFOROPTIONALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFOROPTIONALCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTFOROPTIONALCLAIMJWK, BINDINGCERTCONSENTFOROPTIONALCLAIMFILE));
+		}
+				
+		if (jsonString.contains("$WLATOKENFORPARTIALESSENTIALOPTIONALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORPARTIALESSENTIALOPTIONALCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWK, BINDINGCERTCONSENTFORPARTIALESSENTIALOPTIONALCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORPARTIALESSENTIALOPTIONALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORPARTIALESSENTIALOPTIONALCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWK, BINDINGCERTCONSENTFORPARTIALESSENTIALOPTIONALCLAIMFILE));
+		}
+				
+		if (jsonString.contains("$WLATOKENFORONLYESSENTIALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORONLYESSENTIALCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTFORONLYESSENTIALCLAIMJWK, BINDINGCERTCONSENTFORONLYESSENTIALCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORONLYESSENTIALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORONLYESSENTIALCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTFORONLYESSENTIALCLAIMJWK, BINDINGCERTCONSENTFORONLYESSENTIALCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFORNULLESSENTIALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORNULLESSENTIALCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTFORNULLESSENTIALCLAIMJWK, BINDINGCERTCONSENTFORNULLESSENTIALCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORNULLESSENTIALCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORNULLESSENTIALCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTFORNULLESSENTIALCLAIMJWK, BINDINGCERTCONSENTFORNULLESSENTIALCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFOROPTIONALACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFOROPTIONALACCEPTEDCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWK, BINDINGCERTCONSENTFOROPTIONALACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFOROPTIONALACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFOROPTIONALACCEPTEDCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWK, BINDINGCERTCONSENTFOROPTIONALACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFORNULLACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORNULLACCEPTEDCLAIM$",
+					generateWLAToken(jsonString, BINDINGCONSENTFORNULLACCEPTEDCLAIMJWK, BINDINGCERTCONSENTFORNULLACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORNULLACCEPTEDCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORNULLACCEPTEDCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGCONSENTFORNULLACCEPTEDCLAIMJWK, BINDINGCERTCONSENTFORNULLACCEPTEDCLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFOROPTIONALUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFOROPTIONALUSER1CLAIM$",
+					generateWLAToken(jsonString, BINDINGFOROPTIONALUSER1CLAIMJWK, BINDINGCERTFOROPTIONALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFOROPTIONALUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFOROPTIONALUSER1CLAIM$",
+					generateDetachedSignature(jsonString, BINDINGFOROPTIONALUSER1CLAIMJWK, BINDINGCERTFOROPTIONALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFORPARTIALESSENTIALOPTIONALUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORPARTIALESSENTIALOPTIONALUSER1CLAIM$",
+					generateWLAToken(jsonString, BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWK, BINDINGCERTFORPARTIALESSENTIALOPTIONALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORPARTIALESSENTIALOPTIONALUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORPARTIALESSENTIALOPTIONALUSER1CLAIM$",
+					generateDetachedSignature(jsonString, BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWK, BINDINGCERTFORPARTIALESSENTIALOPTIONALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFORONLYESSENTIALUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORONLYESSENTIALUSER1CLAIM$",
+					generateWLAToken(jsonString, BINDINGFORONLYESSENTIALUSER1CLAIMJWK, BINDINGCERTFORONLYESSENTIALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORONLYESSENTIAUSER1LCLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORONLYESSENTIAUSER1LCLAIM$",
+					generateDetachedSignature(jsonString, BINDINGFORONLYESSENTIALUSER1CLAIMJWK, BINDINGCERTFORONLYESSENTIALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFORNULLESSENTIALUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORNULLESSENTIALUSER1CLAIM$",
+					generateWLAToken(jsonString, BINDINGFORNULLESSENTIALUSER1CLAIMJWK, BINDINGCERTFORNULLESSENTIALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORNULLESSENTIALUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORNULLESSENTIALUSER1CLAIM$",
+					generateDetachedSignature(jsonString, BINDINGFORNULLESSENTIALUSER1CLAIMJWK, BINDINGCERTFORNULLESSENTIALUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFOROPTIONALACCEPTEDUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFOROPTIONALACCEPTEDUSER1CLAIM$",
+					generateWLAToken(jsonString, BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWK, BINDINGCERTFOROPTIONALACCEPTEDUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFOROPTIONALACCEPTEDUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFOROPTIONALACCEPTEDUSER1CLAIM$",
+					generateDetachedSignature(jsonString, BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWK, BINDINGCERTFOROPTIONALACCEPTEDUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$WLATOKENFORNULLACCEPTEDUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$WLATOKENFORNULLACCEPTEDUSER1CLAIM$",
+					generateWLAToken(jsonString, BINDINGFORNULLACCEPTEDUSER1CLAIMJWK, BINDINGCERTFORNULLACCEPTEDUSER1CLAIMFILE));
+		}
+		
+		if (jsonString.contains("$CONSENTDETACHEDSIGNATUREFORNULLACCEPTEDUSER1CLAIM$")) {
+			jsonString = replaceKeywordValue(jsonString, "$CONSENTDETACHEDSIGNATUREFORNULLACCEPTEDUSER1CLAIM$",
+					generateDetachedSignature(jsonString, BINDINGFORNULLACCEPTEDUSER1CLAIMJWK, BINDINGCERTFORNULLACCEPTEDUSER1CLAIMFILE));
 		}
 		
 		if (jsonString.contains("$PROOFJWT$")) {
@@ -1167,6 +1500,20 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String BINDINGCONSENTUSER2JWK = "bindingConsentUser2JWK";
 	protected static final String BINDINGCONSENTVIDUSER2JWK = "bindingConsentVidUser2JWK";
 	protected static final String BINDINGCONSENTACCEPTEDCLAIMJWK = "bindingConsentAcceptedClaimJWK";
+	protected static final String BINDINGCONSENTFORACCEPTEDCLAIMJWK = "bindingConsentForAcceptedClaimJWK";
+	protected static final String BINDINGCONSENTFOROPTIONALCLAIMJWK = "bindingConsentForOptionalClaimJWK";
+	protected static final String BINDINGCONSENTFORPARTIALESSENTIALOPTIONALCLAIMJWK = "bindingConsentForPartialEssentialOptionalClaimJWK";
+	protected static final String BINDINGCONSENTFORONLYESSENTIALCLAIMJWK = "bindingConsentForOnlyEssentialClaimJWK";
+	protected static final String BINDINGCONSENTFORNULLESSENTIALCLAIMJWK = "bindingConsentForNullEssentialClaimJWK";
+	protected static final String BINDINGCONSENTFOROPTIONALACCEPTEDCLAIMJWK = "bindingConsentForOptionalAcceptedClaimJWK";
+	protected static final String BINDINGCONSENTFORNULLACCEPTEDCLAIMJWK = "bindingConsentForNullAcceptedClaimJWK";
+	protected static final String BINDINGFOROPTIONALUSER1CLAIMJWK = "bindingForOptionalUser1ClaimJWK";
+	protected static final String BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWK = "bindingForPartialEssentialOptionalUser1ClaimJWK";
+	protected static final String BINDINGFORONLYESSENTIALUSER1CLAIMJWK = "bindingForOnlyEssentialUser1ClaimJWK";
+	protected static final String BINDINGFORNULLESSENTIALUSER1CLAIMJWK = "bindingForNullEssentialUser1ClaimJWK";
+	protected static final String BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWK = "bindingForOptionalAcceptedUser1ClaimJWK";
+	protected static final String BINDINGFORNULLACCEPTEDUSER1CLAIMJWK = "bindingForNullAcceptedUser1ClaimJWK";
+	
 	
 	public static final String BINDINGCERTFILE = "BINDINGCERTFile";
 	public static final String BINDINGCERTFILEVID = "BINDINGCERTFileVid";
@@ -1178,15 +1525,32 @@ public class EsignetUtil extends AdminTestUtil {
 	public static final String BINDINGCERTCONSENTUSER2FILE = "BINDINGCERTCONSENTUSER2File";
 	public static final String BINDINGCERTVIDCONSENTUSER2FILE = "BINDINGCERTCONSENTVIDUSER2File";
 	public static final String BINDINGCERTCONSENTACCEPTEDCLAIMFILE = "BINDINGCERTCONSENTACCEPTEDCLAIMFile";
+	public static final String BINDINGCERTCONSENTFORACCEPTEDCLAIMFILE = "BINDINGCERTCONSENTFORACCEPTEDCLAIMFile";
+	public static final String BINDINGCERTCONSENTFOROPTIONALCLAIMFILE = "BINDINGCERTCONSENTFOROPTIONALCLAIMFile";
+	public static final String BINDINGCERTCONSENTFORPARTIALESSENTIALOPTIONALCLAIMFILE = "BINDINGCERTCONSENTFORPARTIALESSENTIALOPTIONALCLAIMFile";
+	public static final String BINDINGCERTCONSENTFORONLYESSENTIALCLAIMFILE = "BINDINGCERTCONSENTFORONLYESSENTIALCLAIMFile";
+	public static final String BINDINGCERTCONSENTFORNULLESSENTIALCLAIMFILE = "BINDINGCERTCONSENTFORNULLESSENTIALCLAIMFile";
+	public static final String BINDINGCERTCONSENTFOROPTIONALACCEPTEDCLAIMFILE = "BINDINGCERTCONSENTFOROPTIONALACCEPTEDCLAIMFile";
+	public static final String BINDINGCERTCONSENTFORNULLACCEPTEDCLAIMFILE = "BINDINGCERTCONSENTFORNULLACCEPTEDCLAIMFile";
+	public static final String BINDINGCERTFOROPTIONALUSER1CLAIMFILE = "BINDINGCERTFOROPTIONALUSER1CLAIMFILE";
+	public static final String BINDINGCERTFORPARTIALESSENTIALOPTIONALUSER1CLAIMFILE = "BINDINGCERTFORPARTIALESSENTIALOPTIONALUSER1CLAIMFILE";
+	public static final String BINDINGCERTFORONLYESSENTIALUSER1CLAIMFILE = "BINDINGCERTFORONLYESSENTIALUSER1CLAIMFILE";
+	public static final String BINDINGCERTFORNULLESSENTIALUSER1CLAIMFILE = "BINDINGCERTFORNULLESSENTIALUSER1CLAIMFILE";
+	public static final String BINDINGCERTFOROPTIONALACCEPTEDUSER1CLAIMFILE = "BINDINGCERTFOROPTIONALACCEPTEDUSER1CLAIMFILE";
+	public static final String BINDINGCERTFORNULLACCEPTEDUSER1CLAIMFILE = "BINDINGCERTFORNULLACCEPTEDUSER1CLAIMFILE";
 	
 	protected static final String OIDCJWK1 = "oidcJWK1";
 	protected static final String OIDCJWK2 = "oidcJWK2";
 	protected static final String OIDCJWK3 = "oidcJWK3";
 	protected static final String OIDCJWK4 = "oidcJWK4";
+	protected static final String OIDCJWK5 = "oidcJWK5";
+	protected static final String OIDCJWK6 = "oidcJWK6";
 	
 	protected static RSAKey oidcJWKKey1 = null;
 	protected static RSAKey oidcJWKKey3 = null;
 	protected static RSAKey oidcJWKKey4 = null;
+	protected static RSAKey oidcJWKKey5 = null;
+	protected static RSAKey oidcJWKKey6 = null;
 	
 	protected static boolean triggerESignetKeyGen1 = true;
 	protected static boolean triggerESignetKeyGen2 = true;
@@ -1204,6 +1568,20 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGen15 = true;
 	protected static boolean triggerESignetKeyGen16 = true;
 	protected static boolean triggerESignetKeyGen17 = true;
+	protected static boolean triggerESignetKeyGen18 = true;
+	protected static boolean triggerESignetKeyGen19 = true;
+	protected static boolean triggerESignetKeyGen20 = true;
+	protected static boolean triggerESignetKeyGen21 = true;
+	protected static boolean triggerESignetKeyGen22 = true;
+	protected static boolean triggerESignetKeyGen23 = true;
+	protected static boolean triggerESignetKeyGen24 = true;
+	protected static boolean triggerESignetKeyGen25 = true;
+	protected static boolean triggerESignetKeyGen26 = true;
+	protected static boolean triggerESignetKeyGen27 = true;
+	protected static boolean triggerESignetKeyGen28 = true;
+	protected static boolean triggerESignetKeyGen29 = true;
+	protected static boolean triggerESignetKeyGen30 = true;
+	
 	
 	private static boolean gettriggerESignetKeyGen3() {
 		return triggerESignetKeyGen3;
@@ -1329,6 +1707,110 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static boolean gettriggerESignetKeyGen17() {
 		return triggerESignetKeyGen17;
+	}
+	
+	private static void settriggerESignetKeyGen18(boolean value) {
+		triggerESignetKeyGen18 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen18() {
+		return triggerESignetKeyGen18;
+	}
+	
+	private static void settriggerESignetKeyGen19(boolean value) {
+		triggerESignetKeyGen19 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen19() {
+		return triggerESignetKeyGen19;
+	}
+	
+	private static void settriggerESignetKeyGen20(boolean value) {
+		triggerESignetKeyGen20 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen20() {
+		return triggerESignetKeyGen20;
+	}
+	
+	private static void settriggerESignetKeyGen21(boolean value) {
+		triggerESignetKeyGen21 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen21() {
+		return triggerESignetKeyGen21;
+	}
+	
+	private static void settriggerESignetKeyGen22(boolean value) {
+		triggerESignetKeyGen22 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen22() {
+		return triggerESignetKeyGen22;
+	}
+	
+	private static void settriggerESignetKeyGen23(boolean value) {
+		triggerESignetKeyGen23 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen23() {
+		return triggerESignetKeyGen23;
+	}
+	
+	private static void settriggerESignetKeyGen24(boolean value) {
+		triggerESignetKeyGen24 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen24() {
+		return triggerESignetKeyGen24;
+	}
+	
+	private static void settriggerESignetKeyGen25(boolean value) {
+		triggerESignetKeyGen25 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen25() {
+		return triggerESignetKeyGen25;
+	}
+	
+	private static void settriggerESignetKeyGen26(boolean value) {
+		triggerESignetKeyGen26 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen26() {
+		return triggerESignetKeyGen26;
+	}
+	
+	private static void settriggerESignetKeyGen27(boolean value) {
+		triggerESignetKeyGen27 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen27() {
+		return triggerESignetKeyGen27;
+	}
+	
+	private static void settriggerESignetKeyGen28(boolean value) {
+		triggerESignetKeyGen28 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen28() {
+		return triggerESignetKeyGen28;
+	}
+	
+	private static void settriggerESignetKeyGen29(boolean value) {
+		triggerESignetKeyGen29 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen29() {
+		return triggerESignetKeyGen29;
+	}
+	
+	private static void settriggerESignetKeyGen30(boolean value) {
+		triggerESignetKeyGen30 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen30() {
+		return triggerESignetKeyGen30;
 	}
 
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
@@ -1544,8 +2026,35 @@ public class EsignetUtil extends AdminTestUtil {
 			certsKey = BINDINGCERTVIDCONSENTUSER2FILE;
 		} else if (testCaseName.contains("_SCert_InvalidAcceptedClaim_")) {
 			certsKey = BINDINGCERTCONSENTACCEPTEDCLAIMFILE;
-		}
-
+		} else if (testCaseName.contains("_Consent_forAcceptedClaims_SCert_")) {
+			certsKey = BINDINGCERTCONSENTFORACCEPTEDCLAIMFILE;
+		} else if (testCaseName.contains("_Consent_forOptionalClaims_SCert_")) {
+			certsKey = BINDINGCERTCONSENTFOROPTIONALCLAIMFILE;
+		} else if (testCaseName.contains("_Consent_forPartialEssentialOptionalClaims_SCert_")) {
+			certsKey = BINDINGCERTCONSENTFORPARTIALESSENTIALOPTIONALCLAIMFILE;
+        } else if (testCaseName.contains("_Consent_forOnlyEssentialClaims_SCert_")) {
+			certsKey = BINDINGCERTCONSENTFORONLYESSENTIALCLAIMFILE;
+        } else if (testCaseName.contains("_Consent_forNullAsEssentialClaims_SCert_")) {
+        	certsKey = BINDINGCERTCONSENTFORNULLESSENTIALCLAIMFILE;
+        } else if (testCaseName.contains("_Consent_forOnlyOptionalClaimAsRequested_SCert_")) {
+        	certsKey = BINDINGCERTCONSENTFOROPTIONALACCEPTEDCLAIMFILE;
+        } else if (testCaseName.contains("_Consent_without_AcceptedClaim_IfOnlyOptionalRequested_SCert_")) {
+        	certsKey = BINDINGCERTCONSENTFORNULLACCEPTEDCLAIMFILE;
+        } else if (testCaseName.contains("_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_SCert_")) {
+        	            certsKey = BINDINGCERTFOROPTIONALUSER1CLAIMFILE;
+        } else if (testCaseName.contains("_forPartialEseentialAndOptionalClaim_SCert_")) {
+        	certsKey = BINDINGCERTFORPARTIALESSENTIALOPTIONALUSER1CLAIMFILE;
+        } else if (testCaseName.contains("_forOnlyEseentialClaim_SCert_")) {
+        	certsKey = BINDINGCERTFORONLYESSENTIALUSER1CLAIMFILE;
+        } else if (testCaseName.contains("_forEmptyAsAcceptedClaim_EseentialClaim_SCert_")) {
+        	certsKey = BINDINGCERTFORNULLESSENTIALUSER1CLAIMFILE;
+        } else if (testCaseName.contains("_forOnlyOptionalClaimIfRequestedOptional_SCert_")) {
+        	certsKey = BINDINGCERTFOROPTIONALACCEPTEDUSER1CLAIMFILE;
+        } else if (testCaseName.contains("_forEmptyAcceptedClaimIfRequestedIsOptional_SCert_")) {
+        	certsKey = BINDINGCERTFORNULLACCEPTEDUSER1CLAIMFILE;
+        }
+		
+		
 		String certificateData = new JSONObject(response.getBody().asString()).getJSONObject(GlobalConstants.RESPONSE)
 				.get("certificate").toString();
 
