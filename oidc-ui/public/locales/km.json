@@ -49,7 +49,7 @@
       "stay_btn": "ស្នាក់នៅ",
       "discontinue_btn": "បញ្ឈប់"
     },
-    "noRecordClaimsMessage": "បច្ចុប្បន្ន យើងមិនមានកំណត់ត្រារបស់អ្នកទេ។ {{claims}}.  {{claims}}.",
+    "noRecordClaimsMessage": "ព័ត៌មានដែលអ្នកយល់ព្រមចំពោះខាងលើនឹងត្រូវបានចែករំលែកជាមួយកម្មវិធី ឬគេហទំព័រ {{clientName}}។",
     "and": "និង"
   },
   "l1Biometrics": {
@@ -278,7 +278,7 @@
     "phone_number_verified": "លេខទូរស័ព្ទដែលបានផ្ទៀងផ្ទាត់",
     "registration_type": "ប្រភេទនៃការចុះឈ្មោះ",
     "header": "ការយកចិត្តទុកដាក់",
-    "sub-header": "{{clientName}} កំពុងស្នើសុំសិទ្ធិចូលប្រើព័ត៌មានខាងក្រោម ដើម្បីបន្តទៅមុខទៀត។ ",
+    "sub-header": "{{clientName}} កំពុងស្នើសុំដើម្បីផ្ទៀងផ្ទាត់ព័ត៌មានខាងក្រោម៖",
     "verified": "ផ្ទៀងផ្ទាត់",
     "not-verified": "មិនបានផ្ទៀងផ្ទាត់",
     "available": "មាន",

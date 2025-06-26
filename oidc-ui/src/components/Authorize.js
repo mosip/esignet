@@ -7,6 +7,8 @@ import { LoadingStates as states } from "../constants/states";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
 import { decodeHash } from "../helpers/utils";
+import { validAuthFactors } from "../constants/clientConstants";
+import { AUTHORIZE } from "../constants/routes";
 
 export default function Authorize({ authService }) {
   const get_CsrfToken = authService.get_CsrfToken;
@@ -104,54 +106,84 @@ export default function Authorize({ authService }) {
             if (request.idTokenHint) {
               const { uuid, code } = getDataFromCookie(request.idTokenHint);
 
+              // check for the obj that contain IDT authFactor alone
+              function hasOnlyIDT(data) {
+                const objects = [];
+
+                function flatten(entry) {
+                  if (Array.isArray(entry)) {
+                    entry.forEach(flatten);
+                  } else if (entry && typeof entry === "object") {
+                    objects.push(entry);
+                  }
+                }
+
+                flatten(data);
+
+                return objects.length === 1 &&
+                  objects[0].type === validAuthFactors.IDT
+                  ? validAuthFactors.IDT
+                  : null;
+              }
+
               if (code) {
                 const { transactionId, authFactors } =
                   oAuthDetailsResponse.response;
-                const challenge = { token: request.idTokenHint, code };
-                const encodedChallenge = btoa(JSON.stringify(challenge));
-                const challengeList = [
-                  {
-                    format: "base64url-encoded-json",
-                    challenge: encodedChallenge,
-                    authFactorType: authFactors[0][0].type,
-                  },
-                ];
 
-                const hash = await getOauthDetailsHash(
-                  oAuthDetailsResponse.response
-                );
-
-                const authenticateResponse = await post_AuthenticateUser(
-                  transactionId,
-                  uuid,
-                  challengeList,
-                  null,
-                  hash
-                );
-                if (authenticateResponse.errors.length === 0) {
-                  const authCodeResponse = await post_AuthCode(
+                const isOnlyIDTAuth = hasOnlyIDT(authFactors);
+                if (isOnlyIDTAuth) {
+                  const challenge = { token: request.idTokenHint, code };
+                  const encodedChallenge = btoa(JSON.stringify(challenge));
+                  const challengeList = [
+                    {
+                      format: "base64url-encoded-json",
+                      challenge: encodedChallenge,
+                      authFactorType: authFactors[0][0].type,
+                    },
+                  ];
+                  const hash = await getOauthDetailsHash(
+                    oAuthDetailsResponse.response
+                  );
+                  const authenticateResponse = await post_AuthenticateUser(
                     transactionId,
-                    [],
-                    [],
+                    uuid,
+                    challengeList,
+                    null,
                     hash
                   );
-                  if (authCodeResponse.errors.length === 0) {
-                    window.onbeforeunload = null;
-                    const paramObj = {
-                      state: authCodeResponse.response.state,
-                      code: authCodeResponse.response.code,
-                      ui_locales: request.uiLocales,
-                    };
-
-                    const redirectParams = new URLSearchParams(
-                      paramObj
-                    ).toString();
-
-                    const encodedValue = btoa(redirectParams);
-                    window.location.replace(
-                      `${authCodeResponse.response.redirectUri}#${encodedValue}`
+                  if (authenticateResponse.errors.length === 0) {
+                    const authCodeResponse = await post_AuthCode(
+                      transactionId,
+                      [],
+                      [],
+                      hash
                     );
+                    if (authCodeResponse.errors.length === 0) {
+                      window.onbeforeunload = null;
+                      const paramObj = {
+                        state: authCodeResponse.response.state,
+                        code: authCodeResponse.response.code,
+                        ui_locales: request.uiLocales,
+                      };
+                      const redirectParams = new URLSearchParams(
+                        paramObj
+                      ).toString();
+                      const encodedValue = btoa(redirectParams);
+                      window.location.replace(
+                        `${authCodeResponse.response.redirectUri}#${encodedValue}`
+                      );
+                    }
                   }
+                } else {
+                  setOAuthDetailResponse(oAuthDetailsResponse);
+
+                  // navigate back to the esignet login screen
+                  let params =
+                    "?" + decodeHash(authService.getAuthorizeQueryParam());
+                  navigate(process.env.PUBLIC_URL + AUTHORIZE + params, {
+                    replace: true,
+                  });
+                  setStatus(states.LOADED);
                 }
               }
             } else {

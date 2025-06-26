@@ -206,6 +206,7 @@ const ClaimDetails = ({
         const encodedIdToken = btoa(
           `id_token_hint=${response.idToken}&ui_locales=${i18n.language}`
         );
+        sessionStorage.setItem("idtHint", response.idToken);
         window.location.replace(
           `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
         );
@@ -275,21 +276,21 @@ const ClaimDetails = ({
   ) : (
     <>
       <img
-          className="top_left_bg_logo hidden md:block"
-          alt="top left background"
-        />
-        <img
-          className="bottom_left_bg_logo hidden md:block"
-          alt="bottom left background"
-        />
-        <img
-          className="top_right_bg_logo hidden md:block"
-          alt="top right background"
-        />
-        <img
-          className="bottom_right_bg_logo hidden md:block"
-          alt="bottom right background"
-        />
+        className="top_left_bg_logo hidden md:block"
+        alt="top left background"
+      />
+      <img
+        className="bottom_left_bg_logo hidden md:block"
+        alt="bottom left background"
+      />
+      <img
+        className="top_right_bg_logo hidden md:block"
+        alt="top right background"
+      />
+      <img
+        className="bottom_right_bg_logo hidden md:block"
+        alt="bottom right background"
+      />
       <div
         className="relative z-50 consent-details"
         aria-labelledby="modal-title"
@@ -366,7 +367,10 @@ const ClaimDetails = ({
 
                           <div className="divide-y">
                             {claimScope?.values?.map((item, index) => (
-                              <ul key={`claim-${index}`} className="list-disc marker:text-[#B9B9B9] ml-4 !border-0">
+                              <ul
+                                key={`claim-${index}`}
+                                className="list-disc marker:text-[#B9B9B9] ml-4 !border-0"
+                              >
                                 <li key={item} className="mb-1">
                                   <div className="claimsGrid">
                                     <div className="flex justify-start relative items-center mb-1 mt-1">
@@ -377,7 +381,7 @@ const ClaimDetails = ({
                                             : null
                                         }`}
                                       >
-                                        <span className="mr-1">
+                                        <span className="mr-1 text-black">
                                           {t1(item.claim)}
                                         </span>
                                         {item.verified ? (
