@@ -76,21 +76,6 @@ export default function Consent({
     );
   }, [claims, openIDConnectService]);
 
-  const formatArray = (arr) => {
-    if (arr.length === 0) return "";
-    if (arr.length === 1) return arr[0];
-    if (arr.length === 2) return arr.join(` ${t("and")} `);
-
-    return arr.slice(0, -1).join(", ") + ` ${t("and")} ` + arr[arr.length - 1];
-  };
-
-  const translateClaims = (claims) => {
-    return claims.map((claim) => t(claim));
-  };
-
-  // Format and translate the claims
-  const formattedClaims = formatArray(translateClaims(voluntaryClaims));
-
   const handleScopeChange = (e) => {
     let id = e.target.id;
 
@@ -537,7 +522,7 @@ export default function Consent({
               )}
               {voluntaryClaims.length !== 0 && (
                 <div className="no-claims-record-banner">
-                  {t("noRecordClaimsMessage", { claims: formattedClaims })}
+                  {t("noRecordClaimsMessage", { clientName: clientName })}
                 </div>
               )}
               {

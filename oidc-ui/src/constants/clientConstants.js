@@ -9,7 +9,9 @@ const challengeTypes = {
   pin: "PIN",
   otp: "OTP",
   wallet: "WALLET",
-  pwd: "PWD",
+  pswd: "PWD",
+  kbi: "KBI",
+  idt: "IDT"
 };
 
 const challengeFormats = {
@@ -17,7 +19,9 @@ const challengeFormats = {
   pin: "number",
   otp: "alpha-numeric",
   wallet: "jwt",
-  pwd: "alpha-numeric",
+  pswd: "alpha-numeric",
+  kbi: "base64url-encoded-json",
+  idt: "base64url-encoded-json"
 };
 
 const validAuthFactors = {
@@ -26,7 +30,8 @@ const validAuthFactors = {
   BIO: "BIO",
   PWD: "PWD",
   WLA: "WLA",
-  KBI: "KBI"
+  KBI: "KBI",
+  IDT: "IDT"
 };
 
 const buttonTypes = {

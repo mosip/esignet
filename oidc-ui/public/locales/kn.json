@@ -49,7 +49,7 @@
       "stay_btn": "ಉಳಿಯಿರಿ",
       "discontinue_btn": "ಸ್ಥಗಿತಗೊಳಿಸಿ"
     },
-    "noRecordClaimsMessage": "ನಾವು ಪ್ರಸ್ತುತ ನಿಮ್ಮ ದಾಖಲೆಯನ್ನು ಹೊಂದಿಲ್ಲ {{claims}}.  {{claims}}.",
+    "noRecordClaimsMessage": "ನೀವು ಮೇಲೆ ಒಪ್ಪುವ ಮಾಹಿತಿಯನ್ನು {{clientName}} ಅಪ್ಲಿಕೇಶನ್ ಅಥವಾ ಸೈಟ್‌ನೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತದೆ.",
     "and": "ಮತ್ತು"
   },
   "l1Biometrics": {
@@ -278,7 +278,7 @@
     "phone_number_verified": "ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ",
     "registration_type": "ನೋಂದಣಿ ಪ್ರಕಾರ",
     "header": "ಗಮನ",
-    "sub-header": "{{clientName}} ಮತ್ತಷ್ಟು ಮುಂದುವರೆಯಲು ಕೆಳಗಿನ ಮಾಹಿತಿಗೆ ಪ್ರವೇಶವನ್ನು ವಿನಂತಿಸುತ್ತಿದೆ. ",
+    "sub-header": "{{clientName}} ಅವರು ಈ ಕೆಳಗಿನ ಮಾಹಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಲು ವಿನಂತಿಸುತ್ತಿದ್ದಾರೆ:",
     "verified": "ಪರಿಶೀಲಿಸಲಾಗಿದೆ",
     "not-verified": "ಪರಿಶೀಲಿಸಲಾಗಿಲ್ಲ",
     "available": "ಲಭ್ಯವಿದೆ",

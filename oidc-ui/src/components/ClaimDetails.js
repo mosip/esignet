@@ -30,6 +30,7 @@ const ClaimDetails = ({
   // Extracting the value of the 'state' and 'nonce' parameter from the URL
   const state = urlObj.searchParams.get("state");
   const nonce = urlObj.searchParams.get("nonce");
+  const uiLocales = urlObj.searchParams.get("ui_locales");
 
   // Extracting the hash part of the URL (excluding the # character)
   const code = urlObj.hash.substring(1);
@@ -153,7 +154,7 @@ const ClaimDetails = ({
             );
           } else {
             window.location.replace(
-              `${authCodeResponse.redirectUri}?state=${authCodeResponse.state}&code=${authCodeResponse.code}`
+              `${authCodeResponse.redirectUri}?state=${authCodeResponse.state}&code=${authCodeResponse.code}&ui_locales=${uiLocales}`
             );
           }
         }
@@ -275,21 +276,21 @@ const ClaimDetails = ({
   ) : (
     <>
       <img
-          className="top_left_bg_logo hidden md:block"
-          alt="top left background"
-        />
-        <img
-          className="bottom_left_bg_logo hidden md:block"
-          alt="bottom left background"
-        />
-        <img
-          className="top_right_bg_logo hidden md:block"
-          alt="top right background"
-        />
-        <img
-          className="bottom_right_bg_logo hidden md:block"
-          alt="bottom right background"
-        />
+        className="top_left_bg_logo hidden md:block"
+        alt="top left background"
+      />
+      <img
+        className="bottom_left_bg_logo hidden md:block"
+        alt="bottom left background"
+      />
+      <img
+        className="top_right_bg_logo hidden md:block"
+        alt="top right background"
+      />
+      <img
+        className="bottom_right_bg_logo hidden md:block"
+        alt="bottom right background"
+      />
       <div
         className="relative z-50 consent-details"
         aria-labelledby="modal-title"
@@ -366,7 +367,10 @@ const ClaimDetails = ({
 
                           <div className="divide-y">
                             {claimScope?.values?.map((item, index) => (
-                              <ul key={`claim-${index}`} className="list-disc marker:text-[#B9B9B9] ml-4 !border-0">
+                              <ul
+                                key={`claim-${index}`}
+                                className="list-disc marker:text-[#B9B9B9] ml-4 !border-0"
+                              >
                                 <li key={item} className="mb-1">
                                   <div className="claimsGrid">
                                     <div className="flex justify-start relative items-center mb-1 mt-1">
@@ -377,7 +381,7 @@ const ClaimDetails = ({
                                             : null
                                         }`}
                                       >
-                                        <span className="mr-1">
+                                        <span className="mr-1 text-black">
                                           {t1(item.claim)}
                                         </span>
                                         {item.verified ? (
