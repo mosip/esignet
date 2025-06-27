@@ -2,7 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
-import { configurationKeys } from "../constants/clientConstants";
+import {
+  configurationKeys,
+  challengeFormats,
+  challengeTypes,
+} from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
@@ -107,7 +111,6 @@ export default function Form({
     isSubmitting.current = true;
 
     const formData = formBuilderRef.current?.getFormData();
-    console.log("Form Data:", formData); // for dev testing
 
     await authenticateUser(formData);
 
@@ -127,12 +130,13 @@ export default function Form({
           )}`
         ];
       let challenge = encodeString(JSON.stringify(filtered));
-
+      let challengeType = challengeTypes.kbi;
+      let challengeFormat = challengeFormats.kbi;
       let challengeList = [
         {
-          authFactorType: "KBI",
+          authFactorType: challengeType,
           challenge: challenge,
-          format: "base64url-encoded-json",
+          format: challengeFormat,
         },
       ];
 
@@ -167,6 +171,7 @@ export default function Form({
             show: true,
           });
         }
+        formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
         return;
       } else {
         setErrorBanner(null);
@@ -189,6 +194,7 @@ export default function Form({
         errorCode: "kbi.auth_failed",
         show: true,
       });
+      formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
       setStatus(states.ERROR);
     }
   };

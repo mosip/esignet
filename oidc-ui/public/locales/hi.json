@@ -49,7 +49,7 @@
       "stay_btn": "रहना",
       "discontinue_btn": "बंद"
     },
-    "noRecordClaimsMessage": "फिलहाल हमारे पास आपका कोई रिकॉर्ड नहीं है {{claims}}.  {{claims}}.",
+    "noRecordClaimsMessage": "आपके द्वारा ऊपर दी गई सहमति वाली जानकारी {{clientName}} ऐप या साइट के साथ साझा की जाएगी।",
     "and": "और"
   },
   "l1Biometrics": {
@@ -278,7 +278,7 @@
     "phone_number_verified": "फ़ोन नंबर सत्यापित",
     "registration_type": "पंजीकरण प्रकार",
     "header": "ध्यान",
-    "sub-header": "{{clientName}} आगे बढ़ने के लिए नीचे दी गई जानकारी तक पहुंच का अनुरोध कर रहा है। ",
+    "sub-header": "{{clientName}} नीचे दी गई जानकारी को सत्यापित करने का अनुरोध कर रहा है:",
     "verified": "सत्यापित",
     "not-verified": "सत्यापित नहीं है",
     "available": "उपलब्ध",
