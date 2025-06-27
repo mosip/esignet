@@ -30,6 +30,7 @@ const ClaimDetails = ({
   // Extracting the value of the 'state' and 'nonce' parameter from the URL
   const state = urlObj.searchParams.get("state");
   const nonce = urlObj.searchParams.get("nonce");
+  const uiLocales = urlObj.searchParams.get("ui_locales");
 
   // Extracting the hash part of the URL (excluding the # character)
   const code = urlObj.hash.substring(1);
@@ -153,7 +154,7 @@ const ClaimDetails = ({
             );
           } else {
             window.location.replace(
-              `${authCodeResponse.redirectUri}?state=${authCodeResponse.state}&code=${authCodeResponse.code}`
+              `${authCodeResponse.redirectUri}?state=${authCodeResponse.state}&code=${authCodeResponse.code}&ui_locales=${uiLocales}`
             );
           }
         }
@@ -206,7 +207,6 @@ const ClaimDetails = ({
         const encodedIdToken = btoa(
           `id_token_hint=${response.idToken}&ui_locales=${i18n.language}`
         );
-        sessionStorage.setItem("idtHint", response.idToken);
         window.location.replace(
           `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
         );

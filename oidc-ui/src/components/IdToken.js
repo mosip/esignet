@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { challengeFormats, challengeTypes } from "../constants/clientConstants";
 import redirectOnError from "../helpers/redirectOnError";
 import { useTranslation } from "react-i18next";
-import { decodeHash } from "../helpers/utils";
+import { getOauthDetailsHash, base64UrlDecode } from "../helpers/utils";
+import { Buffer } from "buffer";
 
 export default function IdToken({
   authService,
@@ -17,15 +18,9 @@ export default function IdToken({
   const navigate = useNavigate();
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const base64UrlDecode = (str) => {
-    return decodeURIComponent(
-      decodeHash(str.replace(/-/g, "+").replace(/_/g, "/"))
-        .split("")
-        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
-        .join("")
-    );
-  };
+  const extractParam = (param) => searchParams.get(param);
 
   const getDataFromCookie = (idTokenHint) => {
     const uuid = JSON.parse(base64UrlDecode(idTokenHint.split(".")[1])).sub;
@@ -41,7 +36,14 @@ export default function IdToken({
       let transactionId = openIDConnectService.getTransactionId();
       let challengeType = challengeTypes.idt;
       let challengeFormat = challengeFormats.idt;
-      let idtHint = sessionStorage.getItem("idtHint");
+      const idtFromAuthorizeQueryParam = (encoded) =>
+        new URLSearchParams(
+          decodeURIComponent(Buffer.from(encoded, "base64").toString("utf-8"))
+        ).get("id_token_hint") || null;
+
+      const idtHint =
+        extractParam("id_token_hint") ||
+        idtFromAuthorizeQueryParam(authService.getAuthorizeQueryParam());
 
       const { uuid, code } = getDataFromCookie(idtHint);
       const challenge = { token: idtHint, code };
@@ -54,10 +56,16 @@ export default function IdToken({
         },
       ];
 
+      const oAuthDetails = openIDConnectService.getOAuthDetails();
+      const hash = await getOauthDetailsHash(oAuthDetails);
+      // Authenticate the user with the provided transactionId, uuid, challengeList, and hash
+      // The hash is used to verify the integrity of the OAuth details
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
         uuid,
-        challengeList
+        challengeList,
+        null,
+        hash
       );
 
       const { response, errors } = authenticateResponse;
