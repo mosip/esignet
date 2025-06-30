@@ -17,8 +17,6 @@ SendOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-        "maskedEmail": "$IGNORE$",
-    	"maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendOtp_NR_Email_Uin_Neg:
@@ -39,8 +37,6 @@ SendOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-        "maskedEmail": "$IGNORE$",
-    	"maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendOtp_NR_Phone_Uin_Neg:
@@ -61,8 +57,6 @@ SendOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-        "maskedEmail": "$IGNORE$",
-    	"maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendOtp_Vid_all_Valid_Smoke:
@@ -83,8 +77,6 @@ SendOtp:
 	    "otpChannels": [{channel: "email"},{channel: "phone"}]
 }'
       output: '{
-        "maskedEmail": "$IGNORE$",
-    	"maskedMobile": "$IGNORE$"
 }'
 
    ESignet_SendOtp_uin_SpaceSeparated_otpChannels_Neg:
@@ -106,8 +98,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -131,8 +122,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -156,8 +146,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -181,8 +170,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -206,8 +194,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -231,8 +218,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -256,8 +242,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -281,8 +266,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -306,8 +290,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -331,8 +314,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -357,8 +339,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -382,8 +363,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -407,8 +387,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -433,8 +412,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -458,8 +436,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -483,8 +460,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -508,8 +484,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -533,8 +508,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -558,8 +532,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -583,8 +556,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -608,8 +580,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -633,8 +604,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -658,8 +628,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -683,8 +652,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -708,8 +676,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -733,8 +700,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -758,8 +724,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -783,8 +748,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -808,8 +772,7 @@ SendOtp:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -833,8 +796,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -858,8 +820,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -883,8 +844,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -908,8 +868,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ]
 }'
@@ -933,8 +892,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -958,8 +916,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -983,8 +940,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -1008,8 +964,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_otp_channel",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_otp_channel"
     }
   ]
 }'
@@ -1033,8 +988,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -1058,8 +1012,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -1083,8 +1036,7 @@ SendOtp:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'

@@ -42,9 +42,7 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -94,9 +92,7 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -146,9 +142,7 @@ LinkedAuthenticationConsentWla:
       output: '{
          "consentAction": "CAPTURE",
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"

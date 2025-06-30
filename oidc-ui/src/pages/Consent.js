@@ -6,7 +6,7 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import { errorCodeObj } from "../constants/clientConstants";
-import { decodeHash, getOauthDetailsHash } from "../helpers/utils";
+import { getOauthDetailsHash, decodeHash } from "../helpers/utils";
 
 export default function ConsentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,9 +30,6 @@ export default function ConsentPage() {
 
   // Initialize URLSearchParams with the search part of the URL object
   const urlInfoParams = new URLSearchParams(urlInfoObj.search);
-
-  // Initialize URLSearchParams with the search part of the current window location
-  const params = new URLSearchParams(window.location.search);
 
   const handleRedirection = (redirect_uri, errorCode) => {
     urlInfoParams.set("error", errorCode);
@@ -69,8 +66,8 @@ export default function ConsentPage() {
 
         window.onbeforeunload = null;
 
-        if (errorCodeObj[errorCode]) {
-          handleRedirection(redirect_uri, errorCodeObj[errorCode]);
+        if (errorCode) {
+          handleRedirection(redirect_uri, errorCodeObj[errorCode] || errorCode);
         } else {
           const { errors } = await authServices.resume(
             transactionId,

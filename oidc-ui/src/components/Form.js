@@ -2,12 +2,17 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
-import { configurationKeys } from "../constants/clientConstants";
+import {
+  configurationKeys,
+  challengeFormats,
+  challengeTypes,
+} from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
 import langConfigService from "../services/langConfigService";
 import { JsonFormBuilder } from "@anushase/json-form-builder";
+import { encodeString } from "../helpers/utils";
 
 const langConfig = await langConfigService.getEnLocaleConfiguration();
 
@@ -106,7 +111,6 @@ export default function Form({
     isSubmitting.current = true;
 
     const formData = formBuilderRef.current?.getFormData();
-    console.log("Form Data:", formData); // for dev testing
 
     await authenticateUser(formData);
 
@@ -117,7 +121,7 @@ export default function Form({
   //Handle Login API Integration here
   const authenticateUser = async (formData) => {
     try {
-      const { individualId, recaptchaToken, ...filtered } = formData;
+      const { recaptchaToken, ...filtered } = formData;
       let transactionId = openIDConnectService.getTransactionId();
       let uin =
         formData[
@@ -125,13 +129,14 @@ export default function Form({
             configurationKeys.authFactorKnowledgeIndividualIdField
           )}`
         ];
-      let challenge = btoa(JSON.stringify(filtered));
-
+      let challenge = encodeString(JSON.stringify(filtered));
+      let challengeType = challengeTypes.kbi;
+      let challengeFormat = challengeFormats.kbi;
       let challengeList = [
         {
-          authFactorType: "KBI",
+          authFactorType: challengeType,
           challenge: challenge,
-          format: "base64url-encoded-json",
+          format: challengeFormat,
         },
       ];
 
@@ -150,7 +155,7 @@ export default function Form({
 
       if (errors != null && errors.length > 0) {
         let errorCodeCondition =
-          langConfig.errors.otp[errors[0].errorCode] !== undefined &&
+          langConfig.errors.kbi[errors[0].errorCode] !== undefined &&
           langConfig.errors.kbi[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
@@ -166,6 +171,7 @@ export default function Form({
             show: true,
           });
         }
+        formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
         return;
       } else {
         setErrorBanner(null);
@@ -188,6 +194,7 @@ export default function Form({
         errorCode: "kbi.auth_failed",
         show: true,
       });
+      formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
       setStatus(states.ERROR);
     }
   };
@@ -227,7 +234,7 @@ export default function Form({
         </div>
       )}
 
-      <div id="form-container"></div>
+      <div id="form-container" className="kbi_form"></div>
 
       {status === states.LOADING && (
         <div className="mt-2">
