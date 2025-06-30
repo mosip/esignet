@@ -39,7 +39,7 @@ const getPollingConfig = () => {
 
   return { url, interval, timeout, enabled };
 };
-export { encodeString, decodeHash, checkConfigProperty, getPollingConfig };
+
 /**
  * Generates a base64url-encoded SHA-256 hash of the given value.
  *
@@ -71,4 +71,4 @@ const base64UrlDecode = (str) => {
   );
 };
 
-export { encodeString, decodeHash, checkConfigProperty, getOauthDetailsHash, base64UrlDecode };
+export { encodeString, decodeHash, checkConfigProperty, getOauthDetailsHash, base64UrlDecode, getPollingConfig };
