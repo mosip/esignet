@@ -2,6 +2,7 @@ import openIDConnectService from "../../services/openIDConnectService";
 import { Buffer } from "buffer";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
+import { sortKeysDeep } from "../../helpers/utils";
 
 const mockOAuthDetails = {
   redirectUri: "https://example.com",
@@ -58,7 +59,7 @@ describe("openIDConnectService", () => {
   });
 
   test("getOauthDetailsHash returns base64 URL encoded SHA-256 hash", async () => {
-    const sha256Hash = sha256(JSON.stringify(mockOAuthDetails));
+    const sha256Hash = sha256(JSON.stringify(sortKeysDeep(mockOAuthDetails)));
     let hashB64 = Base64.stringify(sha256Hash).split('=')[0];
     hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
 

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
+import { decodeHash, getOauthDetailsHash } from "../helpers/utils";
 
 export default function Authorize({ authService }) {
   const get_CsrfToken = authService.get_CsrfToken;
