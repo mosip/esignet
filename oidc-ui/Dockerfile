@@ -8,6 +8,10 @@ ARG defaultWellknown
 ARG defaultFevicon
 ARG defaultTitle
 ARG defaultIdProviderName
+ARG pollingUrl
+ARG pollingInterval
+ARG pollingTimeout
+ARG pollingEnabled
 
 ENV OIDC_UI_PUBLIC_URL=$oidcUIPublicUrl
 ENV DEFAULT_THEME=$uiDefaultTheme
@@ -16,6 +20,10 @@ ENV DEFAULT_WELLKNOWN=$defaultWellknown
 ENV DEFAULT_FEVICON=$defaultFevicon
 ENV DEFAULT_TITLE=$defaultTitle
 ENV DEFAULT_ID_PROVIDER_NAME=$defaultIdProviderName
+ENV POLLING_URL=$pollingUrl
+ENV POLLING_INTERVAL=$pollingInterval
+ENV POLLING_TIMEOUT=$pollingTimeout
+ENV POLLING_ENABLED=$pollingEnabled
 
 # Set the environment variable as a placeholder for PUBLIC_URL
 ENV PUBLIC_URL=_PUBLIC_URL_
@@ -100,6 +108,10 @@ RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env \
     && echo "DEFAULT_FEVICON=$DEFAULT_FEVICON" >> ${work_dir}/env.env env \
     && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env \
     && echo "DEFAULT_ID_PROVIDER_NAME=$DEFAULT_ID_PROVIDER_NAME" >> ${work_dir}/env.env \
+    && echo "POLLING_URL=$POLLING_URL" >> ${work_dir}/env.env \
+    && echo "POLLING_INTERVAL=$POLLING_INTERVAL" >> ${work_dir}/env.env \
+    && echo "POLLING_TIMEOUT=$POLLING_TIMEOUT" >> ${work_dir}/env.env \
+    && echo "POLLING_ENABLED=$POLLING_ENABLED" >> ${work_dir}/env.env \
     && wget --no-check-certificate --no-cache --no-cookies https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip -O ${plugins_path}/temp/sign-in-button-plugin.zip
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}

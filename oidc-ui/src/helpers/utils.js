@@ -55,4 +55,19 @@ const base64UrlDecode = (str) => {
   );
 };
 
-export { encodeString, decodeHash, checkConfigProperty, getOauthDetailsHash, base64UrlDecode };
+const getPollingConfig = () => {
+  const url =
+    window._env_?.POLLING_URL ||
+    (process.env.NODE_ENV === "development"
+      ? process.env.REACT_APP_ESIGNET_API_URL + "/actuator/health"
+      : window.origin + "/v1/esignet/actuator/health");
+  const interval = Number(window._env_?.POLLING_INTERVAL) || 10000;
+  const timeout = Number(window._env_?.POLLING_TIMEOUT) || 5000;
+  const enabled =
+    typeof window._env_?.POLLING_ENABLED !== "undefined"
+      ? window._env_.POLLING_ENABLED === "true" || window._env_.POLLING_ENABLED === true
+      : true;
+  return { url, interval, timeout, enabled };
+};
+
+export { encodeString, decodeHash, checkConfigProperty, getOauthDetailsHash, base64UrlDecode, getPollingConfig };
