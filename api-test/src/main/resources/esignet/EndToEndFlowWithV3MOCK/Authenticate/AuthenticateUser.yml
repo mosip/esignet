@@ -1,23 +1,23 @@
 AuthenticateUserV3:
-   ESignet_AuthenticateUser_V3_MOSIPID_AuthToken_Xsrf__uin_Otp_Valid_forUserInfo_Smoke:
+   ESignet_AuthenticateUser_V3_MOCK_AuthToken_Xsrf__uin_Otp_Valid_forUserInfo_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUser
-      outputTemplate: esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUserResult
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/Authenticate/AuthenticateUser
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/Authenticate/AuthenticateUserResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_transactionId$",
       	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_forUserInfo_smoke_Pos_UIN$",
       	"authFactorType" : "OTP",
       	"challenge" : "$ID:AddIdentity_L2_Valid_Parameters_forUserInfo_smoke_Pos_EMAIL$",
         "sendOtp":{
-    "encodedHash": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_encodedResp$",
+    "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_encodedResp$",
     "requestTime": "$TIMESTAMP$",
-    "transactionId": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_transactionId$",
+    "transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_transactionId$",
     "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forUserInfo_smoke_Pos_UIN$",
     "otpChannels": [{channel: "email"},{channel: "phone"}],
     "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
@@ -29,25 +29,25 @@ AuthenticateUserV3:
         "sendOtpResTemplate":"signup/SendOtp/SendOtpResult"
     }
 }'
-   ESignet_AuthenticateUser_V3_MOSIPID_AuthToken_Xsrf__uin_Otp_Valid_forUserInfoJWE_Smoke:
+   ESignet_AuthenticateUser_V3_MOCK_AuthToken_Xsrf__uin_Otp_Valid_forUserInfoJWE_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUser
-      outputTemplate: esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUserResult
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/Authenticate/AuthenticateUser
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/Authenticate/AuthenticateUserResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_transactionId$",
       	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_forUserInfoJWE_smoke_Pos_UIN$",
       	"authFactorType" : "OTP",
       	"challenge" : "$ID:AddIdentity_L2_Valid_Parameters_forUserInfoJWE_smoke_Pos_EMAIL$",
         "sendOtp":{
-    "encodedHash": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_encodedResp$",
+    "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_encodedResp$",
     "requestTime": "$TIMESTAMP$",
-    "transactionId": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_transactionId$",
+    "transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_transactionId$",
     "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forUserInfoJWE_smoke_Pos_UIN$",
     "otpChannels": [{channel: "email"},{channel: "phone"}],
     "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
@@ -59,25 +59,25 @@ AuthenticateUserV3:
         "sendOtpResTemplate":"signup/SendOtp/SendOtpResult"
     }
 }'
-   ESignet_AuthenticateUser_V3_MOSIPID_AuthToken_Xsrf__uin_Otp_Valid_ForJWSUpdatedToJWEInfo_Smoke:
+   ESignet_AuthenticateUser_V3_MOCK_AuthToken_Xsrf__uin_Otp_Valid_forUserInfoUpdatedJWE_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUser
-      outputTemplate: esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUserResult
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/Authenticate/AuthenticateUser
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/Authenticate/AuthenticateUserResult
       input: '{
-        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid_encodedResp$",
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
-      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid_transactionId$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid_transactionId$",
       	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_forUserInfoUpdatedJWE_smoke_Pos_UIN$",
       	"authFactorType" : "OTP",
       	"challenge" : "$ID:AddIdentity_L2_Valid_Parameters_forUserInfoUpdatedJWE_smoke_Pos_EMAIL$",
         "sendOtp":{
-    "encodedHash": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid_encodedResp$",
+    "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid_encodedResp$",
     "requestTime": "$TIMESTAMP$",
-    "transactionId": "$ID:OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid_transactionId$",
+    "transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid_transactionId$",
     "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forUserInfoUpdatedJWE_smoke_Pos_UIN$",
     "otpChannels": [{channel: "email"},{channel: "phone"}],
     "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",

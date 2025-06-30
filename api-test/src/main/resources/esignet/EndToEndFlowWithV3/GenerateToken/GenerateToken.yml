@@ -1,5 +1,5 @@
 GenerateToken:
-   ESignet_GenerateToken_uin_Valid_forUserInfo_Smoke_sid:
+   ESignet_GenerateToken_MOSIPID_uin_Valid_forUserInfo_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_GenerateToken_01
       description: Generate token with all valid details UIN for user info
@@ -10,19 +10,19 @@ GenerateToken:
       outputTemplate: esignet/EndToEndFlowWithV3/GenerateToken/GenerateTokenResult
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_uin_All_Valid_forUserInfo_Smoke_sid_code$",
-		  "client_id": "$ID:CreateOIDCClientV3_all_Valid_forUserInfo_Smoke_sid_clientId$",
+		  "code": "$ID:AuthorizationCode_MOSIPID_uin_All_Valid_forUserInfo_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_forUserInfoJWS_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-		  "client_assertion": "$CLIENT_ASSERTION_USER5_JWK$",
+		  "client_assertion": "$CLIENT_ASSERTION_USER7_JWK$",
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
    		"token_type": "Bearer" 
 }'
-   ESignet_GenerateToken_uin_Valid_forUserInfoJWE_Smoke_sid:
+   ESignet_GenerateToken_MOSIPID_uin_Valid_forUserInfoJWE_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_GenerateToken_02
-      description: Generate token with all valid details UIN for user info JWE
+      description: Generate token with all valid details UIN for user info
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -30,8 +30,8 @@ GenerateToken:
       outputTemplate: esignet/EndToEndFlowWithV3/GenerateToken/GenerateTokenResult
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_uin_All_Valid_forUserInfoJWE_Smoke_sid_code$",
-		  "client_id": "$ID:CreateOIDCClientV3_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+		  "code": "$ID:AuthorizationCode_MOSIPID_uin_All_Valid_forUserInfoJWE_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_forUserInfoJWE_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER4_JWK$",
 		  "redirect_uri": "$IDPREDIRECTURI$"
@@ -39,10 +39,10 @@ GenerateToken:
       output: '{
    		"token_type": "Bearer" 
 }'
-   ESignet_GenerateToken_uin_Valid_forUserInfoUpdatedJWE_Smoke_sid:
+   ESignet_GenerateToken_MOSIPID_uin_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_GenerateToken_03
-      description: Generate token with all valid details UIN for user info JWE
+      description: Generate token with all valid details UIN for user info
       role: resident
       restMethod: post
       validityCheckRequired: true
@@ -50,8 +50,8 @@ GenerateToken:
       outputTemplate: esignet/EndToEndFlowWithV3/GenerateToken/GenerateTokenResult
       input: '{
 		  "grant_type": "authorization_code",
-		  "code": "$ID:AuthorizationCode_uin_All_Valid_forUserInfoUpdatedJWE_Smoke_sid_code$",
-		  "client_id": "$ID:CreateOIDCClientV3_all_Valid_forUserInfoToUpdateClient_Smoke_sid_clientId$",
+		  "code": "$ID:AuthorizationCode_MOSIPID_uin_All_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClient_all_ForJWSUpdatedToJWEInfo_Valid_Smoke_sid_clientId$",
 		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
 		  "client_assertion": "$CLIENT_ASSERTION_USER6_JWK$",
 		  "redirect_uri": "$IDPREDIRECTURI$"

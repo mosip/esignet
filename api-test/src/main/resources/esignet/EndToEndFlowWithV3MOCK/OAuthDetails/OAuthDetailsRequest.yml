@@ -1,16 +1,16 @@
 OAuthDetailsRequestV3:
-   ESignet_OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid:
+   ESignet_OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
       description: Get OAuth details with claims as prerequisite
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest
-      outputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequestResult
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequestResult
       input: '{
         "requestTime": "$TIMESTAMP$",
-        "clientId": "$ID:CreateOIDCClient_all_forUserInfoJWS_Valid_Smoke_sid_clientId$",
+        "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfo_Smoke_sid_clientId$",
         "scope": "openid profile",
         "responseType": "code",
         "redirectUri": "$IDPREDIRECTURI$",
@@ -25,18 +25,18 @@ OAuthDetailsRequestV3:
       output: '{
        
 }'
-   ESignet_OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid:
+   ESignet_OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
       description: Get OAuth details with claims as prerequisite
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest
-      outputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequestResult
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequestResult
       input: '{
         "requestTime": "$TIMESTAMP$",
-        "clientId": "$ID:CreateOIDCClient_all_forUserInfoJWE_Valid_Smoke_sid_clientId$",
+        "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
         "scope": "openid profile",
         "responseType": "code",
         "redirectUri": "$IDPREDIRECTURI$",
@@ -51,18 +51,18 @@ OAuthDetailsRequestV3:
       output: '{
        
 }'
-   ESignet_OAuthDetailsRequest_V3_MOSIPID_AuthToken_Xsrf_uin_all_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid:
+   ESignet_OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
       description: Get OAuth details with claims as prerequisite
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
-      inputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest
-      outputTemplate: esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequestResult
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequestResult
       input: '{
         "requestTime": "$TIMESTAMP$",
-        "clientId": "$ID:CreateOIDCClient_all_ForJWSUpdatedToJWEInfo_Valid_Smoke_sid_clientId$",
+        "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoToUpdateClient_Smoke_sid_clientId$",
         "scope": "openid profile",
         "responseType": "code",
         "redirectUri": "$IDPREDIRECTURI$",

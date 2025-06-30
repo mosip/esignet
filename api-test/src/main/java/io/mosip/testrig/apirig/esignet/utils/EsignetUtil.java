@@ -290,6 +290,14 @@ public class EsignetUtil extends AdminTestUtil {
 					|| testCaseName.contains("ESignet_CreateOIDCClient_StatusCode_Diff_Token_Neg"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
+			if ((testCaseName.contains("_UpdateOIDCClientV3_MOSIPID_")
+					|| testCaseName.contains("_OAuthDetailsRequest_V3_MOSIPID_")
+					|| testCaseName.contains("_AuthenticateUser_V3_MOSIPID_")
+					|| testCaseName.contains("_AuthorizationCode_MOSIPID_")
+					|| testCaseName.contains("_GenerateToken_MOSIPID_")
+					|| testCaseName.contains("_GetOidcUserInfo_MOSIPID_"))) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
 
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("idaauthenticatorimpl")) {
 			// Let run test cases eSignet & MOSIP API calls --- both UIN and VID
@@ -311,6 +319,16 @@ public class EsignetUtil extends AdminTestUtil {
 //			if ((testCaseName.contains("_CreateOIDCClientV3_") || testCaseName.contains("_UpdateOIDCClientV3_"))) {
 //				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 //			}
+			
+			if ((testCaseName.contains("_CreateOIDCClientV3_MOCK_")
+					|| testCaseName.contains("_UpdateOIDCClientV3_MOCK_")
+					|| testCaseName.contains("_OAuthDetailsRequest_V3_MOCK_")
+					|| testCaseName.contains("_AuthenticateUser_V3_MOCK_")
+					|| testCaseName.contains("_AuthorizationCode_MOCK_")
+					|| testCaseName.contains("_GenerateToken_MOCK_")
+					|| testCaseName.contains("_GetOidcUserInfo_MOCK_"))) {
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
 			 
 
 			JSONArray individualBiometricsArray = new JSONArray(
@@ -748,6 +766,36 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY6$", jwkKey);
 		}
+		if (jsonString.contains("$OIDCJWKKEY7$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen31()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDCJWK7);
+				settriggerESignetKeyGen31(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK7);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY7$", jwkKey);
+		}
+		if (jsonString.contains("$OIDCJWKKEY8$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen32()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDCJWK8);
+				settriggerESignetKeyGen32(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK8);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY8$", jwkKey);
+		}
+		if (jsonString.contains("$OIDCJWKKEY9$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen33()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDCJWK9);
+				settriggerESignetKeyGen33(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK9);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY9$", jwkKey);
+		}
 		
 		if (jsonString.contains("$CLIENT_ASSERTION_JWK$")) {
 			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK1);
@@ -841,6 +889,57 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER6_JWK$",
 					signJWKKeyForMock(clientId, oidcJWKKey6));
+		}
+		if (jsonString.contains("$CLIENT_ASSERTION_USER7_JWK$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK7);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidcJWKKey7 = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidcJWKKey7 =" + oidcJWKKey7);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+			JSONObject request = new JSONObject(jsonString);
+			String clientId = null;
+			if (request.has("client_id")) {
+				clientId = request.get("client_id").toString();
+			}
+			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER7_JWK$",
+					signJWKKeyForMock(clientId, oidcJWKKey7));
+		}
+		if (jsonString.contains("$CLIENT_ASSERTION_USER8_JWK$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK8);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidcJWKKey8 = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidcJWKKey8 =" + oidcJWKKey8);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+			JSONObject request = new JSONObject(jsonString);
+			String clientId = null;
+			if (request.has("client_id")) {
+				clientId = request.get("client_id").toString();
+			}
+			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER8_JWK$",
+					signJWKKeyForMock(clientId, oidcJWKKey8));
+		}
+		if (jsonString.contains("$CLIENT_ASSERTION_USER9_JWK$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK9);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidcJWKKey9 = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidcJWKKey9 =" + oidcJWKKey9);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+			JSONObject request = new JSONObject(jsonString);
+			String clientId = null;
+			if (request.has("client_id")) {
+				clientId = request.get("client_id").toString();
+			}
+			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER9_JWK$",
+					signJWKKeyForMock(clientId, oidcJWKKey9));
 		}
 		
 		if (jsonString.contains("$WLATOKEN$")) {
@@ -1545,12 +1644,18 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDCJWK4 = "oidcJWK4";
 	protected static final String OIDCJWK5 = "oidcJWK5";
 	protected static final String OIDCJWK6 = "oidcJWK6";
+	protected static final String OIDCJWK7= "oidcJWK7";
+	protected static final String OIDCJWK8= "oidcJWK8";
+	protected static final String OIDCJWK9= "oidcJWK9";
 	
 	protected static RSAKey oidcJWKKey1 = null;
 	protected static RSAKey oidcJWKKey3 = null;
 	protected static RSAKey oidcJWKKey4 = null;
 	protected static RSAKey oidcJWKKey5 = null;
 	protected static RSAKey oidcJWKKey6 = null;
+	protected static RSAKey oidcJWKKey7 = null;
+	protected static RSAKey oidcJWKKey8 = null;
+	protected static RSAKey oidcJWKKey9 = null;
 	
 	protected static boolean triggerESignetKeyGen1 = true;
 	protected static boolean triggerESignetKeyGen2 = true;
@@ -1581,6 +1686,9 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGen28 = true;
 	protected static boolean triggerESignetKeyGen29 = true;
 	protected static boolean triggerESignetKeyGen30 = true;
+	protected static boolean triggerESignetKeyGen31 = true;
+	protected static boolean triggerESignetKeyGen32 = true;
+	protected static boolean triggerESignetKeyGen33 = true;
 	
 	
 	private static boolean gettriggerESignetKeyGen3() {
@@ -1811,6 +1919,30 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static boolean gettriggerESignetKeyGen30() {
 		return triggerESignetKeyGen30;
+	}
+	
+	private static void settriggerESignetKeyGen31(boolean value) {
+		triggerESignetKeyGen31 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen31() {
+		return triggerESignetKeyGen31;
+	}
+	
+	private static void settriggerESignetKeyGen32(boolean value) {
+		triggerESignetKeyGen32 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen32() {
+		return triggerESignetKeyGen32;
+	}
+	
+	private static void settriggerESignetKeyGen33(boolean value) {
+		triggerESignetKeyGen33 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen33() {
+		return triggerESignetKeyGen33;
 	}
 
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")

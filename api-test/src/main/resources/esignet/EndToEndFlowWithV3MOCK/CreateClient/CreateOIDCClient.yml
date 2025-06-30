@@ -1,12 +1,12 @@
 OIDCClientV3:
-  ESignet_CreateOIDCClientV3_all_Valid_forUserInfo_Smoke_sid:
+  ESignet_CreateOIDCClientV3_MOCK_all_Valid_forUserInfo_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
     uniqueIdentifier: TC_ESignet_OIDCClientV3_01
     description: To create OIDC Client V3 with all valid data with JWS
     role: partner
     restMethod: post
-    inputTemplate: esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClient
-    outputTemplate: esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClientResult
+    inputTemplate: esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClient
+    outputTemplate: esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
       "clientId": "$RANDOMPARTNERID$",
@@ -36,14 +36,14 @@ OIDCClientV3:
     output: '{
       "status": "ACTIVE"
 }'
-  ESignet_CreateOIDCClientV3_all_Valid_forUserInfoJWE_Smoke_sid:
+  ESignet_CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
     uniqueIdentifier: TC_ESignet_OIDCClientV3_02
     description: To create OIDC Client V3 with all valid data with JWE
     role: partner
     restMethod: post
-    inputTemplate: esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClient
-    outputTemplate: esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClientResult
+    inputTemplate: esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClient
+    outputTemplate: esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
       "clientId": "$RANDOMPARTNERID$",
@@ -51,7 +51,7 @@ OIDCClientV3:
       "logoUri": "https://health-services.com/logo.png",
       "relyingPartyId": "Bharathi-Inc",
       "redirectUris": "$IDPREDIRECTURI$",
-      "publicKey": "$OIDCJWKKEY4$",
+      "publicKey": "$OIDCJWKKEY8$",
       "userClaims1": "name",
       "userClaims2": "email",
       "userClaims3": "gender",
@@ -73,14 +73,14 @@ OIDCClientV3:
     output: '{
       "status": "ACTIVE"
 }'
-  ESignet_CreateOIDCClientV3_all_Valid_forUserInfoToUpdateClient_Smoke_sid:
+  ESignet_CreateOIDCClientV3_MOCK_all_Valid_forUserInfoToUpdateClient_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
     uniqueIdentifier: TC_ESignet_OIDCClientV3_03
     description: To create OIDC Client V3 with all valid data with JWS
     role: partner
     restMethod: post
-    inputTemplate: esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClient
-    outputTemplate: esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClientResult
+    inputTemplate: esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClient
+    outputTemplate: esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
       "clientId": "$RANDOMPARTNERID$",
@@ -88,7 +88,7 @@ OIDCClientV3:
       "logoUri": "https://health-services.com/logo.png",
       "relyingPartyId": "Bharathi-Inc",
       "redirectUris": "$IDPREDIRECTURI$",
-      "publicKey": "$OIDCJWKKEY6$",
+      "publicKey": "$OIDCJWKKEY9$",
       "userClaims1": "name",
       "userClaims2": "email",
       "userClaims3": "gender",

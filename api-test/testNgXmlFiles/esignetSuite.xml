@@ -488,17 +488,8 @@
 		</classes>
 	</test>
 	
-	<!-- Start of end to end v3 with mock flow test cases -->
-	<test name="OIDCClientV3">
-		<parameter name="ymlFile"
-			value="esignet/EndToEndFlowWithV3/OIDCClientV3/CreateOIDCClient.yml" />
-		<parameter name="idKeyName" value="clientId" />
-		<classes>
-			<class
-				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
-		</classes>
-	</test>
-	<test name="UpdateClientV3">
+	<!-- Start of end to end v3 with mosipId flow test cases -->
+	<test name="UpdateClientV3IDA">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClient.yml" />
 		<parameter name="pathParams" value="clientId" />
@@ -507,7 +498,7 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
-	<test name="OAuthDetailsRequestV3">
+	<test name="OAuthDetailsRequestV3IDA">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3/OAuthDetailsRequestV3/OAuthDetailsRequest.yml" />
 		<parameter name="idKeyName" value="transactionId,encodedResp" />
@@ -516,7 +507,7 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="AuthenticateUserV3">
+	<test name="AuthenticateUserV3IDA">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3/AuthenticateUserV3/AuthenticateUser.yml" />
 		<classes>
@@ -524,7 +515,7 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
 		</classes>
 	</test>
-	<test name="AuthorizeCode">
+	<test name="AuthorizeCodeIDA">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode.yml" />
 		<parameter name="idKeyName" value="code" />
@@ -533,7 +524,7 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	<test name="GenerateTokenV2">
+	<test name="GenerateTokenV2IDA">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3/GenerateToken/GenerateToken.yml" />
 		<parameter name="idKeyName" value="access_token" />
@@ -542,9 +533,73 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
-	<test name="UserInfo">
+	<test name="UserInfoIDA">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3/UserInfo/GetOidcUserInfo.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<!-- End of end to end v3 with mosipId flow test cases -->
+	
+	<!-- Start of end to end v3 with mock flow test cases -->
+	<test name="OIDCClientV3MOCK">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="UpdateClientV3MOCK">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3MOCK/UpdateClient/UpdateOIDCClient.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
+		</classes>
+	</test>
+	<test name="OAuthDetailsRequestV3MOCK">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequest.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="AuthenticateUserV3MOCK">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3MOCK/Authenticate/AuthenticateUser.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="AuthorizeCodeMOCK">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCode.yml" />
+		<parameter name="idKeyName" value="code" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="GenerateTokenV2MOCK">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3MOCK/GenToken/GenerateToken.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="UserInfoMOCK">
+		<parameter name="ymlFile"
+			value="esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo.yml" />
 		<classes>
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
