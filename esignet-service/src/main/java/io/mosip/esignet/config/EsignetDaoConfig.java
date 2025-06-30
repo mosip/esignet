@@ -3,7 +3,6 @@ package io.mosip.esignet.config;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -39,7 +38,7 @@ import org.springframework.util.StringUtils;
         basePackages = {"io.mosip.esignet.repository", "io.mosip.kernel.keymanagerservice.repository"},
         entityManagerFactoryRef = "esignetEntityManagerFactory",
         transactionManagerRef = "esignetTransactionManager")
-public class eSignetDaoConfig {
+public class EsignetDaoConfig {
 
     private static final String HIBERNATE_GENERATE_STATISTICS = "hibernate.generate_statistics";
     private static final String HIBERNATE_CACHE_USE_STRUCTURED_ENTRIES = "hibernate.cache.use_structured_entries";
@@ -67,16 +66,20 @@ public class eSignetDaoConfig {
 
     @Value("${mosip.esignet.jdbc.schema:esignet}")
     private String schema;
-    @Value("${mosip.esignet.hikari.maximumPoolSize:25}")
+    @Value("${mosip.esignet.hikari.maximum.pool.size:25}")
     private int maximumPoolSize;
-    @Value("${mosip.esignet.hikari.validationTimeout:3000}")
+    @Value("${mosip.esignet.hikari.validation.timeout:3000}")
     private int validationTimeout;
-    @Value("${mosip.esignet.hikari.connectionTimeout:60000}")
+    @Value("${mosip.esignet.hikari.connection.timeout:60000}")
     private int connectionTimeout;
-    @Value("${mosip.esignet.hikari.idleTimeout:200000}")
+    @Value("${mosip.esignet.hikari.idle.timeout:200000}")
     private int idleTimeout;
-    @Value("${mosip.esignet.hikari.minimumIdle:0}")
+    @Value("${mosip.esignet.hikari.minimum.idle:0}")
     private int minimumIdle;
+    @Value("${mosip.esignet.jdbc.show.sql:false}")
+    private boolean showSQL;
+    @Value("${mosip.esignet.jdbc.generate.ddl:false}")
+    private boolean generateDDL;
 
     @Primary
     @Bean
@@ -119,8 +122,8 @@ public class eSignetDaoConfig {
     @Bean
     public JpaVendorAdapter esignetJpaVendorAdapter() {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setShowSql(true);
+        vendorAdapter.setGenerateDdl(generateDDL);
+        vendorAdapter.setShowSql(showSQL);
         return vendorAdapter;
     }
 
@@ -181,7 +184,6 @@ public class eSignetDaoConfig {
             try {
                 if (environment.containsProperty(property)) {
                     jpaProperties.put(property,
-                            // encryptionInterceptor());
                             BeanUtils.instantiateClass(Class.forName(environment.getProperty(property))));
                 }
                 /**
