@@ -77,6 +77,10 @@ JSON configuration variables (`theme/config.json`)
   - **DEFAULT_FEVICON**: favicon icon for the platform in the browser tab,
   - **DEFAULT_TITLE**: title of the platform in the browser tab,
   - **DEFAULT_ID_PROVIDER_NAME**: name to be shown in the platform for the provider name
+  - **POLLING_URL**: URL to be used for network polling to check backend/service health 
+  - **POLLING_INTERVAL**: Interval (in milliseconds) between each polling attempt
+  - **POLLING_TIMEOUT**: Timeout (in milliseconds) for each polling request
+  - **POLLING_ENABLED**: Boolean to enable or disable polling
 
 - Build and run Docker for a service:
 

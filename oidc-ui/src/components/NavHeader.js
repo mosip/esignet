@@ -136,8 +136,9 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
         <Detector
           polling={{
             url: pollingConfig.url, // Set the polling URL dynamically
-            interval: pollingConfig.interval, // Optional: Check every 5 seconds (default is 5000ms)
-            timeout: pollingConfig.timeout, // Optional: Timeout after 3 seconds (default is 5000ms)
+            interval: pollingConfig.interval, // Optional: Check every 10 seconds (default is 10000ms)
+            timeout: pollingConfig.timeout, // Optional: Timeout after 5 seconds (default is 5000ms)
+            enabled: pollingConfig.enabled, // Optional: Enable or disable polling (default is true)
           }}
           render={({ online }) =>
             online && (

@@ -116,9 +116,10 @@ export const AppRouter = () => {
           <div className="container justify-center flex mx-auto sm:flex-row flex-col">
             <Detector
               polling={{
-                  url: pollingConfig.url, // Set the polling URL dynamically
-                  interval: pollingConfig.interval, // Optional: Check every 5 seconds (default is 5000ms)
-                  timeout: pollingConfig.timeout,  // Optional: Timeout after 3 seconds (default is 5000ms)
+                url: pollingConfig.url, // Set the polling URL dynamically
+                interval: pollingConfig.interval, // Optional: Check every 10 seconds (default is 10000ms)
+                timeout: pollingConfig.timeout, // Optional: Timeout after 5 seconds (default is 5000ms)
+                enabled: pollingConfig.enabled, // Optional: Enable or disable polling (default is true)
               }}
               render={({ online }) => {
                 if (!online) {

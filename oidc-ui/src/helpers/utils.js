@@ -22,32 +22,19 @@ const checkConfigProperty = (config, property) => {
     return false;
 }
 
-const POLLING_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? process.env.REACT_APP_ESIGNET_API_URL
-    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
 const getPollingConfig = () => {
-    const defaultConfig = {
-    url: POLLING_BASE_URL + "/actuator/health",
-    interval: 10000,
-    timeout: 5000,
-    enabled: true,
-  };
+  const url =
+    window._env_?.POLLING_URL ||
+    (process.env.NODE_ENV === "development"
+      ? process.env.REACT_APP_ESIGNET_API_URL + "/actuator/health"
+      : window.origin + "/v1/esignet/actuator/health");
+  const interval = Number(window._env_?.POLLING_INTERVAL) || 10000;
+  const timeout = Number(window._env_?.POLLING_TIMEOUT) || 5000;
+  const enabled =
+    typeof window._env_?.POLLING_ENABLED !== "undefined"
+      ? window._env_.POLLING_ENABLED === "true" || window._env_.POLLING_ENABLED === true
+      : true;
 
-  const storedPollingConfig = sessionStorage.getItem("esignet-polling-config");
-  if (storedPollingConfig) {
-    try {
-      const stored = JSON.parse(storedPollingConfig);
-      return {
-        url: stored.url ? stored.url + "/v1/esignet/actuator/health" : defaultConfig.url,
-        interval: stored.interval ?? defaultConfig.interval,
-        timeout: stored.timeout ?? defaultConfig.timeout,
-        enabled: stored.enabled ?? defaultConfig.enabled,
-      };
-    } catch {
-      // If parsing fails, fall through to return defaultConfig
-    }
-  }
-  return defaultConfig;
-}
+  return { url, interval, timeout, enabled };
+};
 export { encodeString, decodeHash, checkConfigProperty, getPollingConfig };
