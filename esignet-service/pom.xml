@@ -72,7 +72,6 @@
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
 	</dependencies>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
