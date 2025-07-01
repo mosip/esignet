@@ -8,11 +8,12 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.6.0-SNAPSHOT</version>
+		<version>1.6.1-SNAPSHOT</version>
 	</parent>
 
 	<groupId>io.mosip.esignet</groupId>
 	<artifactId>binding-service-impl</artifactId>
+	<name>binding-service-impl</name>
 	<version>${project.parent.version}</version>
 
 	<properties>
