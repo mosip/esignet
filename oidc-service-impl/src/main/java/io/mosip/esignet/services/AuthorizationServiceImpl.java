@@ -530,6 +530,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
         try {
             String json = oAuthMapper.writeValueAsString(oauthDetailResponse);
+            log.info("Oauth details json: {}", json);
             return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
         } catch (Exception e) {
             log.error("Failed to generate oauth-details-response hash", e);
