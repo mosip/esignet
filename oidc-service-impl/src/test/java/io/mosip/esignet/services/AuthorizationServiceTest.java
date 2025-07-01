@@ -1474,7 +1474,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getClaimDetails_withUnVerifiedClaimsRequest_thenPass(){
+    public void getClaimDetails_withUnVerifiedClaimsRequest_thenPass() throws JsonProcessingException {
         OIDCTransaction transaction=new OIDCTransaction();
 	Claims resolvedClaims = new Claims();
 	resolvedClaims.setUserinfo(new HashMap<>());
