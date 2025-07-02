@@ -462,12 +462,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oAuthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
         Map<String, Object> config = new HashMap<>(uiConfigMap);
-        try {
-            config.put("clientAdditionalConfig", objectMapper.treeToValue(clientDetailDto.getAdditionalConfig(), Object.class));
-        } catch (JsonProcessingException e) {
-            log.error("Additional Config cannot be converted to Object");
-            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
-        }
+        config.put("clientAdditionalConfig", clientDetailDto.getAdditionalConfig());
         oAuthDetailResponse.setConfigs(config);
         oAuthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
         oAuthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
@@ -529,7 +524,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
         try {
-            String json = oAuthMapper.writeValueAsString(oauthDetailResponse);
+            String json = oAuthMapper.writeValueAsString(objectMapper.convertValue(oauthDetailResponse, Object.class));
             log.info("Oauth details json: {}", json);
             return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
         } catch (Exception e) {
