@@ -68,14 +68,19 @@ const base64UrlDecode = (str) => {
   );
 };
 
+const parsePositiveInt = (value, defaultValue) => {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0 ? num : defaultValue;
+};
+
 const getPollingConfig = () => {
   const url =
     window._env_?.POLLING_URL ||
     (process.env.NODE_ENV === "development"
       ? process.env.REACT_APP_ESIGNET_API_URL + "/actuator/health"
       : window.origin + "/v1/esignet/actuator/health");
-  const interval = Number(window._env_?.POLLING_INTERVAL) || 10000;
-  const timeout = Number(window._env_?.POLLING_TIMEOUT) || 5000;
+  const interval = parsePositiveInt(window._env_?.POLLING_INTERVAL, 10000);
+  const timeout = parsePositiveInt(window._env_?.POLLING_TIMEOUT, 5000);
   const enabled =
     typeof window._env_?.POLLING_ENABLED !== "undefined"
       ? window._env_.POLLING_ENABLED === "true" || window._env_.POLLING_ENABLED === true
