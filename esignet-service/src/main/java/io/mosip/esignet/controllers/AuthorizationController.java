@@ -155,7 +155,7 @@ public class AuthorizationController {
     }
 
     @PostMapping("/par-oauth-details")
-    public ResponseWrapper<OAuthDetailResponseV2> getPAROAuthDetails(@Valid @RequestBody RequestWrapper<PAROAuthDetailsRequest>
+    public ResponseWrapper<OAuthDetailResponseV2> getPAROAuthDetails(@Valid @RequestBody RequestWrapper<PushedOAuthDetailRequest>
                                                                                  requestWrapper, HttpServletRequest httpServletRequest) throws EsignetException {
         ResponseWrapper<OAuthDetailResponseV2> responseWrapper = new ResponseWrapper<>();
         try {

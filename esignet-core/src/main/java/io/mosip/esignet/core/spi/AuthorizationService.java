@@ -51,12 +51,12 @@ public interface AuthorizationService {
      * Validated the provided input and match with the par cache.
      * If all the input parameters pass the validation, starts the transaction.
      *
-     * @param parOAuthDetailsRequest
+     * @param pushedOAuthDetailRequest
      * @param httpServletRequest
      * @return
      * @throws EsignetException
      */
-    OAuthDetailResponseV2 getPAROAuthDetails(PAROAuthDetailsRequest parOAuthDetailsRequest, HttpServletRequest httpServletRequest) throws EsignetException;
+    OAuthDetailResponseV2 getPAROAuthDetails(PushedOAuthDetailRequest pushedOAuthDetailRequest, HttpServletRequest httpServletRequest) throws EsignetException;
 
 
     /**

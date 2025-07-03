@@ -7,7 +7,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class PAROAuthDetailsRequest {
+public class PushedOAuthDetailRequest {
 
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_ID)
     private String clientId;

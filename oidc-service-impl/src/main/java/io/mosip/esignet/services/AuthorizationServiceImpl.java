@@ -167,14 +167,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public OAuthDetailResponseV2 getPAROAuthDetails(PAROAuthDetailsRequest parOAuthDetailsRequest, HttpServletRequest httpServletRequest) throws EsignetException {
-        String requestUriUniqueId = parOAuthDetailsRequest.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length());
+    public OAuthDetailResponseV2 getPAROAuthDetails(PushedOAuthDetailRequest pushedOAuthDetailRequest, HttpServletRequest httpServletRequest) throws EsignetException {
+        String requestUriUniqueId = pushedOAuthDetailRequest.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length());
         PushedAuthorizationRequest pushedAuthorizationRequest = cacheUtilService.getAndEvictPAR(requestUriUniqueId);
         if(pushedAuthorizationRequest == null) {
-            log.error("There is no par request with this requestUri: {}", parOAuthDetailsRequest.getRequestUri());
+            log.error("There is no par request with this requestUri: {}", pushedOAuthDetailRequest.getRequestUri());
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
         }
-        if(!pushedAuthorizationRequest.getClient_id().equals(parOAuthDetailsRequest.getClientId())) {
+        if(!pushedAuthorizationRequest.getClient_id().equals(pushedOAuthDetailRequest.getClientId())) {
             log.error("clientId does not match with the clientId in par cache");
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
         }

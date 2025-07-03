@@ -987,7 +987,7 @@ public class AuthorizationServiceTest {
 
     @Test
     public void getPAROAuthDetails_withValidRequest_thenPass() throws JsonProcessingException {
-        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
         request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
         request.setClientId("client123");
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();
@@ -1024,7 +1024,7 @@ public class AuthorizationServiceTest {
 
     @Test
     public void getPAROAuthDetails_withInvalidRequestUri_thenFail() {
-        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
         request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
         request.setClientId("client123");
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();
@@ -1041,7 +1041,7 @@ public class AuthorizationServiceTest {
 
     @Test
     public void getPAROAuthDetails_withInvalidClientId_thenFail() {
-        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
         request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
         request.setClientId("client123");
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();

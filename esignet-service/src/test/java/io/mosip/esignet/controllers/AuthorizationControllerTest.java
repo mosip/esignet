@@ -1624,9 +1624,9 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getPAROAuthDetails_withValidDetails_thenPass() throws Exception {
-        RequestWrapper<PAROAuthDetailsRequest> requestWrapper = new RequestWrapper<>();
+        RequestWrapper<PushedOAuthDetailRequest> requestWrapper = new RequestWrapper<>();
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
         request.setRequestUri(Constants.PAR_REQUEST_URI_PREFIX+"requestUri");
         request.setClientId("clientId");
         requestWrapper.setRequest(request);
@@ -1645,9 +1645,9 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getPAROAuthDetails_withInvalidRequestUri_thenFail() throws Exception {
-        RequestWrapper<PAROAuthDetailsRequest> requestWrapper = new RequestWrapper<>();
+        RequestWrapper<PushedOAuthDetailRequest> requestWrapper = new RequestWrapper<>();
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
         request.setRequestUri("requestUri");
         request.setClientId("clientId");
         requestWrapper.setRequest(request);
@@ -1662,14 +1662,12 @@ public class AuthorizationControllerTest {
 
     @Test
     public void getPAROAuthDetails_withoutClientId_thenFail() throws Exception {
-        RequestWrapper<PAROAuthDetailsRequest> requestWrapper = new RequestWrapper<>();
+        RequestWrapper<PushedOAuthDetailRequest> requestWrapper = new RequestWrapper<>();
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-        PAROAuthDetailsRequest request = new PAROAuthDetailsRequest();
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
         request.setClientId(null);
         request.setRequestUri(Constants.PAR_REQUEST_URI_PREFIX+"request_uri");
         requestWrapper.setRequest(request);
-
-        when(authorizationService.getPAROAuthDetails(Mockito.any(), Mockito.any())).thenThrow(new EsignetException(ErrorConstants.INVALID_REQUEST));
 
         mockMvc.perform(post("/authorization/par-oauth-details")
                         .content(objectMapper.writeValueAsString(requestWrapper))
