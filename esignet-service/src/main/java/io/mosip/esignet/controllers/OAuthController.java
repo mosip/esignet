@@ -55,7 +55,7 @@ public class OAuthController {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
                     AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()), "codeHash", null), ex);
             throw ex;
-        }
+        }               
     }
 
     @PostMapping(value = "/v2/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
