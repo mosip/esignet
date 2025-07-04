@@ -1330,7 +1330,13 @@ public class EsignetUtil extends AdminTestUtil {
 			String role, String testCaseName, String idKeyName) {
 		Response response = null;
 		String inputJson = inputJsonKeyWordHandeler(jsonInput, testCaseName);
-		token = kernelAuthLib.getTokenByRole(role);
+		token = "";
+		if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+				.contains("mockauthenticationservice") == true) {
+			token = getAuthTokenByRole(role);
+		}else {
+			token = kernelAuthLib.getTokenByRole(role);
+		}
 		String apiKey = null;
 		String partnerId = null;
 		JSONObject req = new JSONObject(inputJson);

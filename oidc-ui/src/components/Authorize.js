@@ -4,17 +4,13 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorIndicator from "../common/ErrorIndicator";
 import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
-import sha256 from "crypto-js/sha256";
-import Base64 from "crypto-js/enc-base64";
-import { decodeHash } from "../helpers/utils";
+import { decodeHash, getOauthDetailsHash } from "../helpers/utils";
 
 export default function Authorize({ authService }) {
   const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails_v3 = authService.post_OauthDetails_v3;
   const buildRedirectParams = authService.buildRedirectParams;
   const storeQueryParam = authService.storeQueryParam;
-  const post_AuthenticateUser = authService.post_AuthenticateUser;
-  const post_AuthCode = authService.post_AuthCode;
 
   const [status, setStatus] = useState(states.LOADING);
   const [oAuthDetailResponse, setOAuthDetailResponse] = useState(null);
@@ -22,32 +18,6 @@ export default function Authorize({ authService }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const navigate = useNavigate();
-
-  const base64UrlDecode = (str) => {
-    return decodeURIComponent(
-      decodeHash(str.replace(/-/g, "+").replace(/_/g, "/"))
-        .split("")
-        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
-        .join("")
-    );
-  };
-
-  const getDataFromCookie = (idTokenHint) => {
-    const uuid = JSON.parse(base64UrlDecode(idTokenHint.split(".")[1])).sub;
-
-    const code = "code";
-
-    return { uuid, code };
-  };
-
-  const getOauthDetailsHash = async (value) => {
-    let sha256Hash = sha256(JSON.stringify(value));
-    let hashB64 = Base64.stringify(sha256Hash)
-      .split("=")[0]
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_");
-    return hashB64;
-  };
 
   useEffect(() => {
     const callAuthorize = async () => {
@@ -86,10 +56,8 @@ export default function Authorize({ authService }) {
           }
         }
 
-        if (!request.idTokenHint) {
-          await get_CsrfToken();
-          storeQueryParam(searchParams.toString());
-        }
+        await get_CsrfToken();
+        storeQueryParam(searchParams.toString());
 
         const filteredRequest = Object.fromEntries(
           Object.entries({ ...request, claims: claimsDecoded }).filter(
@@ -98,67 +66,10 @@ export default function Authorize({ authService }) {
         );
 
         const handleResponse = async (oAuthDetailsResponse) => {
+          setStatus(states.LOADED);
           if (oAuthDetailsResponse.errors.length === 0) {
             setOAuthDetailResponse(oAuthDetailsResponse);
-
-            if (request.idTokenHint) {
-              const { uuid, code } = getDataFromCookie(request.idTokenHint);
-
-              if (code) {
-                const { transactionId, authFactors } =
-                  oAuthDetailsResponse.response;
-                const challenge = { token: request.idTokenHint, code };
-                const encodedChallenge = btoa(JSON.stringify(challenge));
-                const challengeList = [
-                  {
-                    format: "base64url-encoded-json",
-                    challenge: encodedChallenge,
-                    authFactorType: authFactors[0][0].type,
-                  },
-                ];
-
-                const hash = await getOauthDetailsHash(
-                  oAuthDetailsResponse.response
-                );
-
-                const authenticateResponse = await post_AuthenticateUser(
-                  transactionId,
-                  uuid,
-                  challengeList,
-                  null,
-                  hash
-                );
-                if (authenticateResponse.errors.length === 0) {
-                  const authCodeResponse = await post_AuthCode(
-                    transactionId,
-                    [],
-                    [],
-                    hash
-                  );
-                  if (authCodeResponse.errors.length === 0) {
-                    window.onbeforeunload = null;
-                    const paramObj = {
-                      state: authCodeResponse.response.state,
-                      code: authCodeResponse.response.code,
-                      ui_locales: request.uiLocales,
-                    };
-
-                    const redirectParams = new URLSearchParams(
-                      paramObj
-                    ).toString();
-
-                    const encodedValue = btoa(redirectParams);
-                    window.location.replace(
-                      `${authCodeResponse.response.redirectUri}#${encodedValue}`
-                    );
-                  }
-                }
-              }
-            } else {
-              setStatus(states.LOADED);
-            }
           } else {
-            setStatus(states.LOADED);
             setOAuthDetailResponse(null);
             setError(oAuthDetailsResponse.errors[0].errorCode);
             setStatus(states.ERROR);

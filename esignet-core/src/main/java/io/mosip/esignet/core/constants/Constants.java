@@ -55,4 +55,6 @@ public class Constants {
     public static final String PAR_CACHE = "par";
     public static final String USERINFO_RESPONSE_TYPE = "userinfo_response_type";
     public static final String CONSENT_EXPIRE_IN_MINS = "consent_expire_in_mins";
+
+    public static final String PAR_REQUEST_URI_PREFIX = "urn:ietf:params:oauth:request_uri:";
 }
