@@ -48,8 +48,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static io.mosip.esignet.core.constants.Constants.SERVER_NONCE_SEPARATOR;
-import static io.mosip.esignet.core.constants.Constants.VERIFICATION_COMPLETE;
+import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -983,6 +982,78 @@ public class AuthorizationServiceTest {
             Assert.fail();
         } catch (EsignetException e) {
             Assert.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getPAROAuthDetails_withValidRequest_thenPass() throws JsonProcessingException {
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
+        request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
+        request.setClientId("client123");
+        HttpServletRequest httpServletRequest = new MockHttpServletRequest();
+
+        PushedAuthorizationRequest par = new PushedAuthorizationRequest();
+        par.setClient_id(request.getClientId());
+        par.setScope("openid");
+        par.setRedirect_uri("http://localhost:8088/v1/idp");
+        par.setNonce("test-nonce");
+        ClaimsV2 claims = new ClaimsV2();
+        Map<String, JsonNode> userClaims = new HashMap<>();
+        userClaims.put("given_name",  getClaimDetail(null, null, true));
+        claims.setUserinfo(userClaims);
+        par.setClaims(objectMapper.writeValueAsString(claims));
+        par.setAcr_values("mosip:idp:acr:static-code");
+        when(cacheUtilService.getAndEvictPAR(request.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length()))).thenReturn(par);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId(request.getClientId());
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(Arrays.asList("email","given_name"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+        when(clientManagementService.getClientDetails(request.getClientId())).thenReturn(clientDetail);
+
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+
+        OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
+        Assert.assertNotNull(oAuthDetailResponse);
+        Assert.assertTrue(oAuthDetailResponse.getEssentialClaims().size() == 1);
+        Assert.assertTrue(oAuthDetailResponse.getVoluntaryClaims().isEmpty());
+    }
+
+    @Test
+    public void getPAROAuthDetails_withInvalidRequestUri_thenFail() {
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
+        request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
+        request.setClientId("client123");
+        HttpServletRequest httpServletRequest = new MockHttpServletRequest();
+
+        when(cacheUtilService.getAndEvictPAR(request.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length()))).thenReturn(null);
+
+        try {
+            OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
+        }
+    }
+
+    @Test
+    public void getPAROAuthDetails_withInvalidClientId_thenFail() {
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
+        request.setRequestUri(PAR_REQUEST_URI_PREFIX+"requestUri");
+        request.setClientId("client123");
+        HttpServletRequest httpServletRequest = new MockHttpServletRequest();
+
+        PushedAuthorizationRequest par = new PushedAuthorizationRequest();
+        par.setClient_id("differentId");
+        when(cacheUtilService.getAndEvictPAR(request.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length()))).thenReturn(par);
+        try {
+            OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
         }
     }
 

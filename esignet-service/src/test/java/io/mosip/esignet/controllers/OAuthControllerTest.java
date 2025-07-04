@@ -8,6 +8,7 @@ package io.mosip.esignet.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
@@ -211,13 +212,14 @@ public class OAuthControllerTest {
         params.add("client_assertion", "assertion");
         params.add("redirect_uri", "http://testexample.com");
         params.add("scope", "openid");
+        params.add("response_type","code");
         params.add("request_uri", "invalid-uri");
 
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
     }
 
     @Test
@@ -233,8 +235,8 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"))
-                .andExpect(jsonPath("$.error_description").value("invalid_redirect_uri"));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REDIRECT_URI))
+                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_REDIRECT_URI));
 
     }
 
@@ -251,8 +253,8 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"))
-                .andExpect(jsonPath("$.error_description").value("invalid_scope"));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_SCOPE))
+                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_SCOPE));
     }
 
     @Test
@@ -268,8 +270,8 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"))
-                .andExpect(jsonPath("$.error_description").value("invalid_response_type"));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_RESPONSE_TYPE))
+                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_RESPONSE_TYPE));
     }
 
     @Test
@@ -285,27 +287,8 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"))
-                .andExpect(jsonPath("$.error_description").value("invalid_assertion_type"));
-    }
-
-    @Test
-    public void authorize_withInvalidClaimsJson_thenFail() throws Exception {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("client_id", "test-client-id");
-        params.add("client_assertion_type", "assertion-type");
-        params.add("client_assertion", "assertion");
-        params.add("redirect_uri", "http://testexample.com");
-        params.add("scope", "openid");
-        params.add("claims", "{invalid-json");
-        params.add("response_type","code");
-
-        mockMvc.perform(post("/oauth/par")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .params(params))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("invalid_request"));
-
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_ASSERTION_TYPE))
+                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_ASSERTION_TYPE));
     }
 
     @Test

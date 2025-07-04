@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.util.Pair;
@@ -150,6 +149,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1);
         oAuthDetailResponseV1 = (OAuthDetailResponseV1) pair.getFirst();
@@ -164,50 +164,35 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
-        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
-        oAuthDetailResponseV2 = (OAuthDetailResponseV2) pair.getFirst();
-        oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
-
-        OIDCTransaction oidcTransaction = pair.getSecond();
-
-        //TODO - Need to check to persist credential scopes in consent registry
-        oAuthDetailResponseV2.setCredentialScopes(oidcTransaction.getRequestedCredentialScopes());
-
-        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
-
-        //PKCE support
-        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance(oauthDetailReqDto.getCodeChallenge(),
-                oauthDetailReqDto.getCodeChallengeMethod()));
-
-        if(mandatePKCEForVC && CollectionUtils.isNotEmpty(oidcTransaction.getRequestedCredentialScopes()) &&
-                oidcTransaction.getProofKeyCodeExchange() == null) {
-            log.error("PKCE is mandated for VC scoped transactions");
-            throw new EsignetException(ErrorConstants.INVALID_PKCE_CHALLENGE);
-        }
-
-        cacheUtilService.setTransaction(oAuthDetailResponseV2.getTransactionId(), pair.getSecond());
-        auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oAuthDetailResponseV2.getTransactionId(),
-                pair.getSecond()), null);
-        return oAuthDetailResponseV2;
+        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
     }
 
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
         //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
-        if (oauthDetailReqDto.getIdTokenHint() != null) {
-            Pair<String, String> pair = authorizationHelperService.validateAndGetSubjectAndNonce(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
-            if(httpServletRequest.getCookies() == null)
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(pair.getFirst())).findFirst();
-            if (result.isEmpty()) {
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-            }
-            String[] parts = result.get().getValue().split(SERVER_NONCE_SEPARATOR);
-            oauthDetailReqDto.setNonce(pair.getSecond());
-            oauthDetailReqDto.setState(parts.length == 2? parts[1] : result.get().getValue());
-        }
+        handleIdTokenHint(oauthDetailReqDto, httpServletRequest);
         return getOauthDetailsV2(oauthDetailReqDto);
+    }
+
+    @Override
+    public OAuthDetailResponseV2 getPAROAuthDetails(PushedOAuthDetailRequest pushedOAuthDetailRequest, HttpServletRequest httpServletRequest) throws EsignetException {
+        String requestUriUniqueId = pushedOAuthDetailRequest.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length());
+        PushedAuthorizationRequest pushedAuthorizationRequest = cacheUtilService.getAndEvictPAR(requestUriUniqueId);
+        if(pushedAuthorizationRequest == null) {
+            log.error("There is no par request with this requestUri: {}", pushedOAuthDetailRequest.getRequestUri());
+            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+        }
+        if(!pushedAuthorizationRequest.getClient_id().equals(pushedOAuthDetailRequest.getClientId())) {
+            log.error("clientId does not match with the clientId in par cache");
+            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+        }
+        OAuthDetailRequestV3 oAuthDetailRequestV3 = mapPushedAuthorizationRequestToOAuthDetailsRequest(pushedAuthorizationRequest);
+        handleIdTokenHint(oAuthDetailRequestV3, httpServletRequest);
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(oAuthDetailRequestV3.getClientId());
+        OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
+        return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2);
     }
 
     @Override
@@ -436,13 +421,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return transaction;
     }
 
-    private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
-                                                                                    ClientDetail clientDetailDto,
-                                                                                    OAuthDetailResponse oAuthDetailResponse) {
-        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
-        authorizationHelperService.validateNonce(oauthDetailReqDto.getNonce());
+    private void validateRedirectURIAndNonce(OAuthDetailRequest oAuthDetailRequest, ClientDetail clientDetail) {
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oAuthDetailRequest.getNonce());
+        IdentityProviderUtil.validateRedirectURI(clientDetail.getRedirectUris(), oAuthDetailRequest.getRedirectUri());
+        authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
+    }
 
+    private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
+                                                                                    ClientDetail clientDetailDto, OAuthDetailResponse oAuthDetailResponse) {
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
@@ -491,6 +477,38 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
+
+    private OAuthDetailResponseV2 buildTransactionAndOAuthDetailResponse(OAuthDetailRequestV2 oauthDetailReqDto,
+                                                                         ClientDetail clientDetailDto, OAuthDetailResponseV2 oAuthDetailResponseV2) {
+
+        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
+        oAuthDetailResponseV2 = (OAuthDetailResponseV2) pair.getFirst();
+        oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
+
+        OIDCTransaction oidcTransaction = pair.getSecond();
+
+        //TODO - Need to check to persist credential scopes in consent registry
+        oAuthDetailResponseV2.setCredentialScopes(oidcTransaction.getRequestedCredentialScopes());
+
+        oidcTransaction.setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV2));
+
+        //PKCE support
+        oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance(oauthDetailReqDto.getCodeChallenge(),
+                oauthDetailReqDto.getCodeChallengeMethod()));
+
+        if(mandatePKCEForVC && CollectionUtils.isNotEmpty(oidcTransaction.getRequestedCredentialScopes()) &&
+                oidcTransaction.getProofKeyCodeExchange() == null) {
+            log.error("PKCE is mandated for VC scoped transactions");
+            throw new EsignetException(ErrorConstants.INVALID_PKCE_CHALLENGE);
+        }
+
+        cacheUtilService.setTransaction(oAuthDetailResponseV2.getTransactionId(), pair.getSecond());
+        auditWrapper.logAudit(Action.TRANSACTION_STARTED, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(oAuthDetailResponseV2.getTransactionId(),
+                pair.getSecond()), null);
+
+        return oAuthDetailResponseV2;
+    }
+
 
     private Map<String, Object> resolveACRClaim(List<String> registeredACRs, String requestedAcr, Map<String, ClaimDetail> requestedIdToken) throws EsignetException {
         Map<String, Object> map = new HashMap<>();
@@ -567,4 +585,40 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
         }
     }
+
+    private OAuthDetailRequestV3 mapPushedAuthorizationRequestToOAuthDetailsRequest(PushedAuthorizationRequest pushedAuthorizationRequest) {
+        OAuthDetailRequestV3 oAuthDetailRequestV3 = new OAuthDetailRequestV3();
+        oAuthDetailRequestV3.setClientId(pushedAuthorizationRequest.getClient_id());
+        oAuthDetailRequestV3.setScope(pushedAuthorizationRequest.getScope());
+        oAuthDetailRequestV3.setResponseType(pushedAuthorizationRequest.getResponse_type());
+        oAuthDetailRequestV3.setRedirectUri(pushedAuthorizationRequest.getRedirect_uri());
+        oAuthDetailRequestV3.setDisplay(pushedAuthorizationRequest.getDisplay());
+        oAuthDetailRequestV3.setPrompt(pushedAuthorizationRequest.getPrompt());
+        oAuthDetailRequestV3.setNonce(pushedAuthorizationRequest.getNonce());
+        oAuthDetailRequestV3.setScope(pushedAuthorizationRequest.getScope());
+        oAuthDetailRequestV3.setAcrValues(pushedAuthorizationRequest.getAcr_values());
+        oAuthDetailRequestV3.setMaxAge(pushedAuthorizationRequest.getMax_age());
+        oAuthDetailRequestV3.setClaims(pushedAuthorizationRequest.getClaims());
+        oAuthDetailRequestV3.setClaimsLocales(pushedAuthorizationRequest.getClaims_locales());
+        oAuthDetailRequestV3.setUiLocales(pushedAuthorizationRequest.getUi_locales());
+        oAuthDetailRequestV3.setCodeChallenge(pushedAuthorizationRequest.getCode_challenge());
+        oAuthDetailRequestV3.setCodeChallengeMethod(pushedAuthorizationRequest.getCode_challenge_method());
+        return oAuthDetailRequestV3;
+    }
+
+    private void handleIdTokenHint(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) {
+        if (oauthDetailReqDto.getIdTokenHint() != null) {
+            Pair<String, String> pair = authorizationHelperService.validateAndGetSubjectAndNonce(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
+            if(httpServletRequest.getCookies() == null)
+                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(pair.getFirst())).findFirst();
+            if (result.isEmpty()) {
+                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            }
+            String[] parts = result.get().getValue().split(SERVER_NONCE_SEPARATOR);
+            oauthDetailReqDto.setNonce(pair.getSecond());
+            oauthDetailReqDto.setState(parts.length == 2? parts[1] : result.get().getValue());
+        }
+    }
+
 }
