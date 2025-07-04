@@ -86,6 +86,7 @@ public class MosipTestRunner {
 			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
 			GlobalMethods.setModuleNameAndReCompilePattern(EsignetConfigManager.getproperty("moduleNamePattern"));
+			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, false);
 			setLogLevels();
 
 //			HealthChecker healthcheck = new HealthChecker();

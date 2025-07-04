@@ -154,10 +154,7 @@ public class EsignetUtil extends AdminTestUtil {
 		if (isCaptchaEnabled() == true) {
 			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, true);
 			throw new SkipException(GlobalConstants.CAPTCHA_ENABLED_MESSAGE);
-		}else {
-			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, false);
 		}
-		
 		
 		if (MosipTestRunner.skipAll == true) {
 			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
