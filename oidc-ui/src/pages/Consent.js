@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Consent from "../components/Consent";
 import authService from "../services/authService";
 import { Buffer } from "buffer";
@@ -10,6 +10,7 @@ import { getOauthDetailsHash, decodeHash } from "../helpers/utils";
 
 export default function ConsentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isParFlow, setIsParFlow] = useState(true);
   
   const location = useLocation();
 
@@ -41,6 +42,7 @@ export default function ConsentPage() {
   useEffect(() => {
     if (key && urlInfo && !hasResumed) {
       hasResumed = true;
+      setIsParFlow(false);
       // Parse the hash from the URL info
       const hash = JSON.parse(decodeHash(urlInfo.split("#")[1]));
 
@@ -115,7 +117,7 @@ export default function ConsentPage() {
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
   return (
-    state && (
+    (state || isParFlow) &&
       <Consent
         backgroundImgPath="images/illustration_one.png"
         authService={new authService(oidcService)}
@@ -123,6 +125,5 @@ export default function ConsentPage() {
         consentAction={consentAction}
         authTime={authTime}
       />
-    )
   );
 }
