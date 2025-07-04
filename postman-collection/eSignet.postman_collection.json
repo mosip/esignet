@@ -986,7 +986,7 @@
 								},
 								{
 									"key": "display",
-									"value": "popop",
+									"value": "popup",
 									"type": "text"
 								},
 								{
@@ -1055,6 +1055,20 @@
 								"exec": [
 									"var btoa = require('btoa');\r",
 									"\r",
+									"const sortKeysDeep = obj => {\r",
+									"    if (Array.isArray(obj)) {\r",
+									"      return obj.map(sortKeysDeep);\r",
+									"    } else if (obj !== null && typeof obj === \"object\") {\r",
+									"      return Object.keys(obj)\r",
+									"        .sort()\r",
+									"        .reduce((result, key) => {\r",
+									"          result[key] = sortKeysDeep(obj[key]);\r",
+									"          return result;\r",
+									"        }, {});\r",
+									"    }\r",
+									"    return obj;\r",
+									"};\r",
+									"\r",
 									"pm.test(\"Validate transactionId\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.response.transactionId).not.equals(null);\r",
@@ -1068,7 +1082,7 @@
 									"\r",
 									"pm.test(\"set oauth-details-hash\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));\r",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(sortKeysDeep(jsonData.response)));\r",
 									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);\r",
 									"    // Remove padding characters\r",
 									"    base64Encoded = base64Encoded.replace(/=+$/, '');\r",
@@ -1095,7 +1109,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"request_uri\": \"{{request_uri}}\",\r\n    \"client_id\": \"{{client_id}}\"\r\n}",
+							"raw": "{\r\n    \"requestTime\": \"{{$isoTimestamp}}\",\r\n    \"request\": {\r\n        \"requestUri\": \"{{request_uri}}\",\r\n        \"clientId\": \"{{client_id}}\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1103,14 +1117,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/v1/esignet/oauth/par-oauth-details",
+							"raw": "{{url}}/v1/esignet/authorization/par-oauth-details",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"v1",
 								"esignet",
-								"oauth",
+								"authorization",
 								"par-oauth-details"
 							]
 						}
