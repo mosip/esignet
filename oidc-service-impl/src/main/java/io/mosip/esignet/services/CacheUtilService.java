@@ -15,6 +15,7 @@ import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
@@ -193,8 +195,12 @@ public class CacheUtilService {
 
     //------------------------------------------------------------------------------------------------------------------
 
-    public PushedAuthorizationRequest getPAR(String requestUri) {
-        return cacheManager.getCache(Constants.PAR_CACHE).get(requestUri, PushedAuthorizationRequest.class); //NOSONAR getCache() will not be returning null here.
+    public PushedAuthorizationRequest getAndEvictPAR(String requestUri) {
+        Cache cache = cacheManager.getCache(Constants.PAR_CACHE);
+        if(Objects.isNull(cache)) return null;
+        PushedAuthorizationRequest par = cache.get(requestUri, PushedAuthorizationRequest.class);
+        cache.evict(requestUri);
+        return par;
     }
 
     public OIDCTransaction getPreAuthTransaction(String transactionId) {

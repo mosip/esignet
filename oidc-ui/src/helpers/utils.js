@@ -24,6 +24,20 @@ const checkConfigProperty = (config, property) => {
   return false;
 };
 
+const sortKeysDeep = obj => {
+    if (Array.isArray(obj)) {
+      return obj.map(sortKeysDeep);
+    } else if (obj !== null && typeof obj === "object") {
+      return Object.keys(obj)
+        .sort()
+        .reduce((result, key) => {
+          result[key] = sortKeysDeep(obj[key]);
+          return result;
+        }, {});
+    }
+    return obj;
+};
+
 /**
  * Generates a base64url-encoded SHA-256 hash of the given value.
  *
@@ -31,12 +45,12 @@ const checkConfigProperty = (config, property) => {
  * @returns {Promise<string>} A Promise that resolves to the base64url-encoded hash string.
  */
 const getOauthDetailsHash = async (value) => {
-  let sha256Hash = sha256(JSON.stringify(value));
-  let hashB64 = Base64.stringify(sha256Hash)
-    .split("=")[0]
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-  return hashB64;
+    let sha256Hash = sha256(JSON.stringify(sortKeysDeep(value)));
+    let hashB64 = Base64.stringify(sha256Hash)
+        .split("=")[0]
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+    return hashB64;
 };
 
 /**
@@ -45,7 +59,6 @@ const getOauthDetailsHash = async (value) => {
  * @param {string} str - The base64url-encoded string (e.g., a JWT part).
  * @returns {string} The decoded UTF-8 string.
  */
-
 const base64UrlDecode = (str) => {
   return decodeURIComponent(
     decodeHash(str.replace(/-/g, "+").replace(/_/g, "/"))
@@ -55,4 +68,24 @@ const base64UrlDecode = (str) => {
   );
 };
 
-export { encodeString, decodeHash, checkConfigProperty, getOauthDetailsHash, base64UrlDecode };
+const parsePositiveInt = (value, defaultValue) => {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0 ? num : defaultValue;
+};
+
+const getPollingConfig = () => {
+  const url =
+    window._env_?.POLLING_URL ||
+    (process.env.NODE_ENV === "development"
+      ? process.env.REACT_APP_ESIGNET_API_URL + "/actuator/health"
+      : window.origin + "/v1/esignet/actuator/health");
+  const interval = parsePositiveInt(window._env_?.POLLING_INTERVAL, 10000);
+  const timeout = parsePositiveInt(window._env_?.POLLING_TIMEOUT, 5000);
+  const enabled =
+    typeof window._env_?.POLLING_ENABLED !== "undefined"
+      ? window._env_.POLLING_ENABLED === "true" || window._env_.POLLING_ENABLED === true
+      : true;
+  return { url, interval, timeout, enabled };
+};
+
+export { encodeString, decodeHash, checkConfigProperty, sortKeysDeep, getOauthDetailsHash, base64UrlDecode, getPollingConfig };

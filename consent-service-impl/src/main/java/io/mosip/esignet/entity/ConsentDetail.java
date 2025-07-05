@@ -19,7 +19,7 @@ import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name="consent_detail")
 public class ConsentDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
