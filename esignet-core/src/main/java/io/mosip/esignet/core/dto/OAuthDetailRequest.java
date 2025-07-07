@@ -63,7 +63,7 @@ public class OAuthDetailRequest {
      * the End-User was actively authenticated by the OP. If the elapsed time is greater than this value,
      * the OP MUST attempt to actively re-authenticate the End-User.
      */
-    private int maxAge;
+    private Integer maxAge;
 
     /**
      * Optional value

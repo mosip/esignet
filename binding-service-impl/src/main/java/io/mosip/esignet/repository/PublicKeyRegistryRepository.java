@@ -29,8 +29,8 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
     Optional<PublicKeyRegistry> findOptionalByPublicKeyHashAndPsuTokenNot(String publicKeyHash, String psuToken);
 
 	@Modifying
-	@Query("UPDATE PublicKeyRegistry  pkr set pkr.publicKey= :publicKey , pkr.publicKeyHash= :publicKeyHash , pkr.expiredtimes= :expireDTimes, " +
-			"pkr.certificate= :certificate where pkr.psuToken= :psuToken and pkr.authFactor= :authFactor")
+	@Query(value = "UPDATE public_key_registry  pkr set pkr.public_key= :publicKey , pkr.public_key_hash= :publicKeyHash , pkr.expire_dtimes= :expireDTimes, " +
+            "pkr.certificate= :certificate where pkr.psu_token= :psuToken and pkr.auth_factor= :authFactor", nativeQuery = true)
 	int updatePublicKeyRegistry(String publicKey, String publicKeyHash, LocalDateTime expireDTimes, String psuToken, String certificate, String authFactor);
 
 	Optional<PublicKeyRegistry>findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(String idHash, String thumbPrint, LocalDateTime currentDate);

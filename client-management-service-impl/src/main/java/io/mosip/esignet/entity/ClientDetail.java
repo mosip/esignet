@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
 @Data
-@Entity
+@Entity(name= "client_detail")
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClientDetail {

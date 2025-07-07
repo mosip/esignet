@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -64,7 +65,7 @@ public class PushedAuthorizationRequest implements Serializable {
     @NotBlank(message =  ErrorConstants.INVALID_ASSERTION)
     private String client_assertion;
 
-    @RequestUri(strictNo = true)
+    @Null(message = ErrorConstants.INVALID_REQUEST)
     private String request_uri;
 
     public void setClaims(String claimsJson) {
