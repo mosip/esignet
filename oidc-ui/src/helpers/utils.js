@@ -74,17 +74,22 @@ const parsePositiveInt = (value, defaultValue) => {
 };
 
 const getPollingConfig = () => {
+  const { POLLING_URL, POLLING_INTERVAL, POLLING_TIMEOUT, POLLING_ENABLED } =
+    window._env_ || {};
+
   const url =
-    window._env_?.POLLING_URL ||
+    POLLING_URL ||
     (process.env.NODE_ENV === "development"
-      ? process.env.REACT_APP_ESIGNET_API_URL + "/actuator/health"
-      : window.origin + "/v1/esignet/actuator/health");
-  const interval = parsePositiveInt(window._env_?.POLLING_INTERVAL, 10000);
-  const timeout = parsePositiveInt(window._env_?.POLLING_TIMEOUT, 5000);
+      ? `${process.env.REACT_APP_ESIGNET_API_URL}/actuator/health`
+      : `${window.origin}/v1/esignet/actuator/health`);
+
+  const interval = parsePositiveInt(POLLING_INTERVAL, 10000);
+  const timeout = parsePositiveInt(POLLING_TIMEOUT, 5000);
+
   const enabled =
-    typeof window._env_?.POLLING_ENABLED !== "undefined"
-      ? window._env_.POLLING_ENABLED === "true" || window._env_.POLLING_ENABLED === true
-      : true;
+    POLLING_ENABLED === undefined || POLLING_ENABLED === ""
+      ? true
+      : String(POLLING_ENABLED).toLowerCase() === "true";
   return { url, interval, timeout, enabled };
 };
 
