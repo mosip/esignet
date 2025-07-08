@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class OIDCDisplayValidator implements ConstraintValidator<OIDCDisplay, String> {
 
-    @Value("#{${mosip.esignet..supported.ui.displays}}")
+    @Value("#{${mosip.esignet.supported.ui.displays}}")
     private List<String> supportedDisplays;
 
     @Override
