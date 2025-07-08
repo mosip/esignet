@@ -98,6 +98,14 @@ public class BasePage {
 			}
 		}
 	}
+	
+	public String getElementAttribute(WebElement element, String attribute) {
+		
+		waitForElementVisible(element);
+		String text = element.getAttribute(attribute);;
+		LOGGER.info("Retrieved text: {}", text);
+		return text;
+	}
 
 	private void validateLink(String url) {
 		try {
@@ -161,6 +169,15 @@ public class BasePage {
 				.equals("complete"));
 		LOGGER.info("Page fully loaded");
 	}
+	
+	
+	public String getElementTagName(WebElement element) {
+		waitForElementVisible(element);
+		String text = element.getTagName();
+		LOGGER.info("Retrieved text: {}", text);
+		return text;
+	}
+
 
 	public void captureScreenshot(String filename) {
 		try {
