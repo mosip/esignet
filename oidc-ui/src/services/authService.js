@@ -113,9 +113,8 @@ class authService {
 
   /**
    * Triggers /par-oauth-details API on ESIGNET service
-   * @param {string} clientId
-   * @param {string} requestUri
-   * @returns /PAROauthDetails API response
+   * @param {Object} params /Contains clientId and requestUri.
+   * @returns {Promise<Object>} /PAROauthDetails API response
    */
   post_ParOauthDetails = async (params) => {
     let request = {
