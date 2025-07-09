@@ -990,7 +990,7 @@ UpdateOIDCClientV3:
     }
   ]
 }'
-  ESignet_UpdateOIDCClientV3_with_TitleLangMap_Smoke:
+  ESignet_UpdateOIDCClientV3_with_TitleLangMap_Pos:
       endPoint: /v1/esignet/client-mgmt/client/{clientId}
       uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_27
       description: To update OIDC Client V3 with Title LangMap
@@ -1027,7 +1027,7 @@ UpdateOIDCClientV3:
       output: '{
         "status": "ACTIVE"
 }'
-  ESignet_UpdateOIDCClientV3_with_SubtitleLangMap_Smoke:
+  ESignet_UpdateOIDCClientV3_with_SubtitleLangMap_Pos:
       endPoint: /v1/esignet/client-mgmt/client/{clientId}
       uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_28
       description: To update OIDC Client V3 with Subtitle LangMap

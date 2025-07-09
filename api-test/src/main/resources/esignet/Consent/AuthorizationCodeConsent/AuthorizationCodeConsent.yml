@@ -69,15 +69,13 @@ AuthorizationCodeConsent:
       	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "email"}]
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'
 
-   ESignet_AuthorizationCode_Consent_uin_invalid_AcceptedClaim_sid:
+   ESignet_AuthorizationCode_Consent_uin_invalid_AcceptedClaim:
       endPoint: /v1/esignet/authorization/auth-code
       uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_01
       description: AuthorizationCode consent with invalid_AcceptedClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
@@ -91,18 +89,16 @@ AuthorizationCodeConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
 
-   ESignet_AuthorizationCode_Consent_uin_AcceptedClaim_without_EssentialClaim_sid:
+   ESignet_AuthorizationCode_Consent_uin_AcceptedClaim_without_EssentialClaim:
       endPoint: /v1/esignet/authorization/auth-code
       uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_02
       description: AuthorizationCode consent without_EssentialClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
@@ -116,18 +112,16 @@ AuthorizationCodeConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
 
-   ESignet_AuthorizationCode_Consent_uin_with_OneessentialClaimAllOptionalClaim_sid:
+   ESignet_AuthorizationCode_Consent_uin_with_OneessentialClaimAllOptionalClaim:
       endPoint: /v1/esignet/authorization/auth-code
       uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_03
       description: AuthorizationCode with One essential Claim and All OptionalClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
@@ -141,18 +135,16 @@ AuthorizationCodeConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
 
-   ESignet_AuthorizationCode_Consent_uin_withoutEssentialClaim_sid:
+   ESignet_AuthorizationCode_Consent_uin_withoutEssentialClaim:
       endPoint: /v1/esignet/authorization/auth-code
       uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_05
       description: AuthorizationCode without essential claim if there is requested essential claim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
@@ -166,8 +158,7 @@ AuthorizationCodeConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
@@ -189,7 +180,6 @@ AuthorizationCodeConsent:
         "acceptedClaims": [{claim: "name"},{claim: "email"}]
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'
 
    ESignet_AuthorizationCode_Consent_uin_withOnly_OptionalClaim_sid:
@@ -209,7 +199,6 @@ AuthorizationCodeConsent:
         "acceptedClaims": [{claim: "gender"},{claim: "name"}]
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'
 
    ESignet_AuthorizationCode_Consent_uin_without_acceptedClaimValue_sid:
@@ -229,5 +218,4 @@ AuthorizationCodeConsent:
         "acceptedClaims": []
 }'
       output: '{
-      	"redirectUri": "$IGNORE$"
 }'

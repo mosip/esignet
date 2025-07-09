@@ -346,9 +346,7 @@ LinkedAuthenticationWla:
 }'
       output: '{
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -398,9 +396,7 @@ LinkedAuthenticationWla:
 }'
       output: '{
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -450,9 +446,7 @@ LinkedAuthenticationWla:
 }'
       output: '{
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -502,9 +496,7 @@ LinkedAuthenticationWla:
 }'
       output: '{
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -554,9 +546,7 @@ LinkedAuthenticationWla:
 }'
       output: '{
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -606,9 +596,7 @@ LinkedAuthenticationWla:
 }'
       output: '{
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
@@ -658,9 +646,7 @@ LinkedAuthenticationWla:
 }'
       output: '{
          "sendOtpResp":{
-          "maskedMobile": "$IGNORE$",
-          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-          "maskedEmail": "$IGNORE$"
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
        "validateOtpResp":{
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"

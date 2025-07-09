@@ -118,7 +118,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_07
       description: Linked authorization consent with invalid requestTime
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -139,7 +138,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_08
       description: Linked authorization consent with past value in requestTime
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -160,7 +158,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_09
       description: Linked authorization consent with future value in requestTime
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -181,7 +178,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_10
       description: Linked authorization consent with only space in requestTime
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -202,7 +198,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_11
       description: Linked authorization consent with empty value in requestTime
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -223,7 +218,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_12
       description: Linked authorization consent with invalid transactionId
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -244,7 +238,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_13
       description: Linked authorization consent without transactionId
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -265,7 +258,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_14
       description: Linked authorization consent with empty transactionId
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -286,7 +278,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_15
       description: Linked authorization consent with space in transactionId
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -307,7 +298,6 @@ LinkedAuthorizationConsent:
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_16
       description: Linked authorization consent with invalid accepted claims
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
@@ -392,12 +382,11 @@ LinkedAuthorizationConsent:
   ]
 }'
 
-   ESignet_LinkedAuthorizationConsent_InvalidAcceptedClaim_Pos:
+   ESignet_LinkedAuthorizationConsent_InvalidAcceptedClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_20
       description: Linked authorization consent with InvalidAcceptedClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -411,18 +400,16 @@ LinkedAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
 
-   ESignet_LinkedAuthorizationConsent_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos:
+   ESignet_LinkedAuthorizationConsent_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_21
       description: Linked authorization consent with withOnlyOptionalClaim IfEssAndOptAsRequestedClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -436,18 +423,16 @@ LinkedAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
 
-   ESignet_LinkedAuthorizationConsent_forPartialEseentialAndOptionalClaim_Pos:
+   ESignet_LinkedAuthorizationConsent_forPartialEseentialAndOptionalClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_22
       description: Linked authorization consent for PartialEseentialAndOptionalClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -461,8 +446,7 @@ LinkedAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
@@ -487,12 +471,11 @@ LinkedAuthorizationConsent:
 
 }'
 
-   ESignet_LinkedAuthorizationConsent_forEmptyAsAcceptedClaim_EseentialClaim_Pos:
+   ESignet_LinkedAuthorizationConsent_forEmptyAsAcceptedClaim_EseentialClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_24
       description: Linked authorization consent for EmptyAsAcceptedClaim_EseentialClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -506,8 +489,7 @@ LinkedAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'

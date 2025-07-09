@@ -1,5 +1,5 @@
 GetOidcUserInfo:
-   ESignet_GetOidcUserInfo_MOSIPID_uin_IdpAccessToken_StatusCode_forJWSInfo_Valid_Smoke_sid:
+   ESignet_GetOidcUserInfo_MOSIPID_uin_IdpAccessToken_StatusCode_forJWSInfo_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_01
       description: Get OIDC user info with all valid details UIN
@@ -13,7 +13,7 @@ GetOidcUserInfo:
 }'
       output: "200"
 
-   ESignet_GetOidcUserInfo_MOSIPID_uin_IdpAccessToken_StatusCode_forJWEInfo_Valid_Smoke_sid:
+   ESignet_GetOidcUserInfo_MOSIPID_uin_IdpAccessToken_StatusCode_forJWEInfo_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_02
       description: Get OIDC user info with all valid details UIN
@@ -27,7 +27,7 @@ GetOidcUserInfo:
 }'
       output: "200"
 
-   ESignet_GetOidcUserInfo_MOSIPID_uin_IdpAccessToken_StatusCode_ForJWSUpdatedToJWEInfo_Valid_Smoke_sid:
+   ESignet_GetOidcUserInfo_MOSIPID_uin_IdpAccessToken_StatusCode_ForJWSUpdatedToJWEInfo_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_03
       description: Get OIDC user info with all valid details UIN

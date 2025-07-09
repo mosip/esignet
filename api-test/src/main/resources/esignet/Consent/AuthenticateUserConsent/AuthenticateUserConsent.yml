@@ -375,9 +375,7 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -410,9 +408,7 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -445,8 +441,6 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'

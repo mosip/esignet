@@ -39,12 +39,11 @@ LinkAuthorizationConsent:
     
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_forAcceptedClaim_sid:
+   ESignet_LinkedAuthorizationConsent_Consent_forAcceptedClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_03
       description: Linked Authorization conset UIN with all valid details for accepted claims
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -58,18 +57,16 @@ LinkAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_forOptionalClaim_sid:
+   ESignet_LinkedAuthorizationConsent_Consent_forOptionalClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_04
       description: Linked Authorization conset UIN with all valid details for Optional claims
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -83,18 +80,16 @@ LinkAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_forPartialEssentialOptionalClaim_sid:
+   ESignet_LinkedAuthorizationConsent_Consent_forPartialEssentialOptionalClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_05
       description: Linked Authorization conset UIN with all valid details for PartialEssential OptionalClaim
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -108,8 +103,7 @@ LinkAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'
@@ -134,12 +128,11 @@ LinkAuthorizationConsent:
     
 }'
 
-   ESignet_LinkedAuthorizationConsent_Consent_forNullAsEssentialClaim_sid:
+   ESignet_LinkedAuthorizationConsent_Consent_forNullAsEssentialClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
       uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_07
       description: Linked Authorization conset UIN with all valid details for Null As accepted claims
       role: resident
-      checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
@@ -153,8 +146,7 @@ LinkAuthorizationConsent:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_accepted_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_accepted_claim"
     }
   ]
 }'

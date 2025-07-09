@@ -769,7 +769,6 @@ AuthorizationCode:
       description: Authorization code request without essential claim
       role: resident
       restMethod: post
-      checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/AuthorizationCode/AuthorizationCode
       outputTemplate: esignet/error
@@ -793,7 +792,6 @@ AuthorizationCode:
       description: Authorization code request with essential claim and optional Claims
       role: resident
       restMethod: post
-      checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/AuthorizationCode/AuthorizationCode
       outputTemplate: esignet/error
