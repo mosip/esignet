@@ -28,7 +28,6 @@ import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
 import io.mosip.kernel.signature.service.SignatureService;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers;
@@ -41,10 +40,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import javax.annotation.PostConstruct;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -272,6 +271,7 @@ public class TestAuthenticationService implements Authenticator {
 
     private void setupMockIDAKey() {
         KeyPairGenerateRequestDto mockIDAMasterKeyRequest = new KeyPairGenerateRequestDto();
+        mockIDAMasterKeyRequest.setReferenceId("");
         mockIDAMasterKeyRequest.setApplicationId(APPLICATION_ID);
         keymanagerService.generateMasterKey("CSR", mockIDAMasterKeyRequest);
         log.info("===================== MOCK_IDA_SERVICES MASTER KEY SETUP COMPLETED ========================");

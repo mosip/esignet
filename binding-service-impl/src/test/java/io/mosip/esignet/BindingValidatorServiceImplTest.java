@@ -1,5 +1,6 @@
 package io.mosip.esignet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
@@ -18,14 +19,13 @@ import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.jose4j.jws.JsonWebSignature;
 import org.json.simple.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.security.auth.x500.X500Principal;
@@ -36,6 +36,7 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
 import static io.mosip.esignet.KeyBindingServiceTest.generateJWK_RSA;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +44,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BindingValidatorServiceImplTest {
 
     @InjectMocks
@@ -58,13 +59,14 @@ public class BindingValidatorServiceImplTest {
     @Mock
     KeymanagerUtil keymanagerUtil;
 
+	private ObjectMapper objectMapper = new ObjectMapper();
+
     private JWK clientJWK = generateJWK_RSA();
 
     private String audienceId = "esignet-binding";
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(bindingValidatorServiceImpl, "bindingAudienceId", audienceId);
 
         keyBindingHelperService = mock(KeyBindingHelperService.class);
@@ -97,7 +99,7 @@ public class BindingValidatorServiceImplTest {
 		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
 
 		BindingAuthResult bindingAuthResult = bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-		Assert.assertEquals(bindingAuthResult.getTransactionId(), transactionId);
+		Assertions.assertEquals(bindingAuthResult.getTransactionId(), transactionId);
 	}
 
 	@Test
@@ -111,10 +113,10 @@ public class BindingValidatorServiceImplTest {
 		X509Certificate certificate = getCertificate(clientJWK);
 		String wlaToken = signJwt(individualId, certificate, true);
 		JWT jwt = JWTParser.parse(wlaToken);
-		net.minidev.json.JSONObject headerJson = jwt.getHeader().toJSONObject();
+		Map<String, Object> headerJson = jwt.getHeader().toJSONObject();
 		headerJson.put("x5t#S256", "test-header");
 		String[] chunks = wlaToken.split("\\.");
-		authChallenge.setChallenge(IdentityProviderUtil.b64Encode(headerJson.toJSONString())+"."+chunks[1]+"."+chunks[2]);
+		authChallenge.setChallenge(IdentityProviderUtil.b64Encode(objectMapper.writeValueAsString(headerJson))+"."+chunks[1]+"."+chunks[2]);
 
 		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
 				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
@@ -125,9 +127,9 @@ public class BindingValidatorServiceImplTest {
 
 		try {
 			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
+			Assertions.fail();
 		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+			Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
 		}
 	}
 
@@ -152,9 +154,9 @@ public class BindingValidatorServiceImplTest {
 
 		try {
 			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
+			Assertions.fail();
 		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+			Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
 		}
 	}
 
@@ -171,9 +173,9 @@ public class BindingValidatorServiceImplTest {
 
 		try {
 			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
+			Assertions.fail();
 		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_NOT_FOUND));
+			Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_NOT_FOUND));
 		}
 	}
 
@@ -197,9 +199,9 @@ public class BindingValidatorServiceImplTest {
 
 		try {
 			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallengeWLA, authChallengeHWA));
-			Assert.fail();
+			Assertions.fail();
 		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.UNBOUND_AUTH_FACTOR));
+			Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.UNBOUND_AUTH_FACTOR));
 		}
 	}
 
@@ -219,9 +221,9 @@ public class BindingValidatorServiceImplTest {
 
 		try {
 			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
+			Assertions.fail();
 		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+			Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
 		}
 	}
 

@@ -26,14 +26,14 @@ import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -44,7 +44,7 @@ import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static io.mosip.esignet.core.spi.OAuthService.JWT_BEARER_TYPE;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuthServiceTest {
 
     @InjectMocks
@@ -76,7 +76,7 @@ public class OAuthServiceTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Before
+    @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(oAuthService, "objectMapper", objectMapper);
     }
@@ -111,11 +111,11 @@ public class OAuthServiceTest {
         Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNotNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNotNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
     }
 
     @Test
@@ -150,11 +150,11 @@ public class OAuthServiceTest {
         Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNotNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNotNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
     }
 
     @Test
@@ -205,11 +205,11 @@ public class OAuthServiceTest {
         Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNotNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNotNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
     }
 
     @Test
@@ -262,11 +262,11 @@ public class OAuthServiceTest {
         Mockito.when(tokenService.getAccessToken(Mockito.any(),Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNotNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNotNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
     }
 
     @Test
@@ -300,11 +300,11 @@ public class OAuthServiceTest {
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         Mockito.when(tokenService.getSignedJWT(Mockito.anyString(), Mockito.any())).thenReturn("encrypted-kyc");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNotNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertEquals("encrypted-kyc", oidcTransaction.getEncryptedKyc());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNotNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertEquals("encrypted-kyc", oidcTransaction.getEncryptedKyc());
     }
 
     @Test
@@ -313,7 +313,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -345,11 +345,11 @@ public class OAuthServiceTest {
         Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNotNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNotNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
     }
 
     @Test
@@ -381,11 +381,11 @@ public class OAuthServiceTest {
         Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
         Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNotNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNotNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertEquals(kycExchangeResult.getEncryptedKyc(), oidcTransaction.getEncryptedKyc());
     }
 
     @Test
@@ -403,7 +403,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_CLIENT_ID, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_CLIENT_ID, ex.getErrorCode());
         }
     }
 
@@ -423,7 +423,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
         }
 
         ClientDetail clientDetail = new ClientDetail();
@@ -433,7 +433,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
         }
     }
 
@@ -465,7 +465,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
-            Assert.assertEquals(INVALID_PKCE_CODE_VERFIER, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_PKCE_CODE_VERFIER, ex.getErrorCode());
         }
     }
 
@@ -490,14 +490,14 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_ASSERTION_TYPE, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_ASSERTION_TYPE, ex.getErrorCode());
         }
 
         tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_ASSERTION, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_ASSERTION, ex.getErrorCode());
         }
     }
 
@@ -528,13 +528,13 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
-            Assert.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
+            Assertions.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
         }
 
         try {
             oAuthService.getTokens(tokenRequest,false);
         } catch (EsignetException ex) {
-            Assert.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
+            Assertions.assertEquals(DATA_EXCHANGE_FAILED, ex.getErrorCode());
         }
     }
 
@@ -562,9 +562,9 @@ public class OAuthServiceTest {
                 .thenThrow(new KycExchangeException("test-err-1"));
         try {
             oAuthService.getTokens(tokenRequest,false);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals("test-err-1", ex.getErrorCode());
+            Assertions.assertEquals("test-err-1", ex.getErrorCode());
         }
     }
 
@@ -606,8 +606,8 @@ public class OAuthServiceTest {
         Mockito.when(authenticationWrapper.getAllKycSigningCertificates()).thenReturn(allAuthCerts);
 
         Map<String, Object> maps = oAuthService.getJwks();
-        Assert.assertNotNull(maps);
-        Assert.assertTrue(!maps.isEmpty());
+        Assertions.assertNotNull(maps);
+        Assertions.assertTrue(!maps.isEmpty());
     }
 
     @Test
@@ -636,9 +636,9 @@ public class OAuthServiceTest {
 
         try {
             oAuthService.getTokens(tokenRequest,true);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(PKCE_FAILED, ex.getErrorCode());
+            Assertions.assertEquals(PKCE_FAILED, ex.getErrorCode());
         }
     }
 
@@ -669,9 +669,9 @@ public class OAuthServiceTest {
 
         try {
             oAuthService.getTokens(tokenRequest,true);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(UNSUPPORTED_PKCE_CHALLENGE_METHOD, ex.getErrorCode());
+            Assertions.assertEquals(UNSUPPORTED_PKCE_CHALLENGE_METHOD, ex.getErrorCode());
         }
     }
 
@@ -708,18 +708,18 @@ public class OAuthServiceTest {
 
         TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest,false);
         Mockito.verifyNoInteractions(authenticationWrapper);
-        Assert.assertNotNull(tokenResponse);
-        Assert.assertNull(tokenResponse.getId_token());
-        Assert.assertNotNull(tokenResponse.getAccess_token());
-        Assert.assertEquals(BEARER, tokenResponse.getToken_type());
-        Assert.assertNotNull(tokenResponse.getC_nonce());
-        Assert.assertNotNull(tokenResponse.getC_nonce_expires_in());
+        Assertions.assertNotNull(tokenResponse);
+        Assertions.assertNull(tokenResponse.getId_token());
+        Assertions.assertNotNull(tokenResponse.getAccess_token());
+        Assertions.assertEquals(BEARER, tokenResponse.getToken_type());
+        Assertions.assertNotNull(tokenResponse.getC_nonce());
+        Assertions.assertNotNull(tokenResponse.getC_nonce_expires_in());
     }
 
     @Test
     public void getOAuthServerDiscoveryInfo_test() {
         ReflectionTestUtils.setField(oAuthService, "oauthServerDiscoveryMap", new HashMap<>());
-        Assert.assertNotNull(oAuthService.getOAuthServerDiscoveryInfo());
+        Assertions.assertNotNull(oAuthService.getOAuthServerDiscoveryInfo());
     }
 
     @Test
@@ -741,8 +741,8 @@ public class OAuthServiceTest {
 
         PushedAuthorizationResponse response = oAuthService.authorize(request);
 
-        Assert.assertNotNull(response);
-        Assert.assertNotNull(response.getRequest_uri());
+        Assertions.assertNotNull(response);
+        Assertions.assertNotNull(response.getRequest_uri());
     }
 
     @Test
@@ -764,9 +764,9 @@ public class OAuthServiceTest {
 
         try {
             oAuthService.authorize(request);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidRequestException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_ASSERTION_TYPE, ex.getMessage());
+            Assertions.assertEquals(ErrorConstants.INVALID_ASSERTION_TYPE, ex.getMessage());
         }
     }
 

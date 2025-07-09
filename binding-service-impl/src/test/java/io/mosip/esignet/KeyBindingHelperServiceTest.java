@@ -9,15 +9,16 @@ import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.KeyBindingHelperService;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.security.auth.x500.X500Principal;
@@ -33,7 +34,7 @@ import java.util.UUID;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KEY;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KeyBindingHelperServiceTest {
 
     private static final String certificateString="-----BEGIN CERTIFICATE-----\n" +
@@ -63,7 +64,7 @@ public class KeyBindingHelperServiceTest {
     @Mock
     private PublicKeyRegistryRepository publicKeyRegistryRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
@@ -71,7 +72,7 @@ public class KeyBindingHelperServiceTest {
 
     @Test
     public void getIndividualIdHash_withValidValue_thenPass() {
-        Assert.assertNotNull(keyBindingHelperService.getIndividualIdHash("individualId"));
+        Assertions.assertNotNull(keyBindingHelperService.getIndividualIdHash("individualId"));
     }
 
     @Test
@@ -89,7 +90,7 @@ public class KeyBindingHelperServiceTest {
 
         publicKeyRegistry = keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
                 certificateString, "WLA");
-        Assert.assertNotNull(publicKeyRegistry);
+        Assertions.assertNotNull(publicKeyRegistry);
     }
 
     @Test
@@ -100,9 +101,9 @@ public class KeyBindingHelperServiceTest {
         try {
             keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
                     "certificate", "WLA");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(DUPLICATE_PUBLIC_KEY, e.getErrorCode());
+            Assertions.assertEquals(DUPLICATE_PUBLIC_KEY, e.getErrorCode());
         }
     }
 
@@ -115,7 +116,7 @@ public class KeyBindingHelperServiceTest {
         Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),
                 Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(new PublicKeyRegistry());
-        Assert.assertNotNull(keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
+        Assertions.assertNotNull(keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
                 certificateString, "WLA"));
     }
 

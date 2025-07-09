@@ -18,14 +18,14 @@ import io.mosip.esignet.repository.ConsentHistoryRepository;
 import io.mosip.esignet.repository.ConsentRepository;
 import io.mosip.esignet.services.ConsentServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -35,7 +35,7 @@ import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
 import static org.mockito.Mockito.doNothing;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConsentServiceImplTest {
 
 
@@ -54,7 +54,7 @@ public class ConsentServiceImplTest {
     @InjectMocks
     ConsentMapperImpl consentMapper;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         ReflectionTestUtils.setField(consentMapper, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(consentService, "consentMapper", consentMapper);
@@ -78,9 +78,9 @@ public class ConsentServiceImplTest {
         userConsentRequest.setPsuToken("psuValue");
 
         Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
-        Assert.assertNotNull(userConsentDto);
-        Assert.assertEquals("1234", userConsentDto.get().getClientId());
-        Assert.assertEquals("psuValue", userConsentDto.get().getPsuToken());
+        Assertions.assertNotNull(userConsentDto);
+        Assertions.assertEquals("1234", userConsentDto.get().getClientId());
+        Assertions.assertEquals("psuValue", userConsentDto.get().getPsuToken());
 
     }
 
@@ -102,9 +102,9 @@ public class ConsentServiceImplTest {
         userConsentRequest.setPsuToken("psuValue");
         try{
             Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
-            Assert.fail();
+            Assertions.fail();
         }catch (EsignetException e){
-            Assert.assertTrue(e.getErrorCode().equals(INVALID_CLAIM));
+            Assertions.assertTrue(e.getErrorCode().equals(INVALID_CLAIM));
         }
     }
 
@@ -117,7 +117,7 @@ public class ConsentServiceImplTest {
         userConsentRequest.setPsuToken("psuValue");
 
             Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
-            Assert.assertEquals(Optional.empty(), userConsentDto);
+            Assertions.assertEquals(Optional.empty(), userConsentDto);
     }
 
     @Test
@@ -164,8 +164,8 @@ public class ConsentServiceImplTest {
         Mockito.when(consentHistoryRepository.save(Mockito.any())).thenReturn(new ConsentHistory());
         Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.any(),Mockito.any())).thenReturn(Optional.empty());
         io.mosip.esignet.core.dto.ConsentDetail userConsentDtoDetail = consentService.saveUserConsent(userConsent);
-        Assert.assertNotNull(userConsentDtoDetail);
-        Assert.assertEquals("1234", userConsentDtoDetail.getClientId());
+        Assertions.assertNotNull(userConsentDtoDetail);
+        Assertions.assertEquals("1234", userConsentDtoDetail.getClientId());
 
     }
 
@@ -215,8 +215,8 @@ public class ConsentServiceImplTest {
         Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.any(),Mockito.any())).thenReturn(Optional.of(consentDetail));
         doNothing().when(consentRepository).deleteByClientIdAndPsuToken(Mockito.any(),Mockito.any());
         io.mosip.esignet.core.dto.ConsentDetail userConsentDtoDetail = consentService.saveUserConsent(userConsent);
-        Assert.assertNotNull(userConsentDtoDetail);
-        Assert.assertEquals("1234", userConsentDtoDetail.getClientId());
+        Assertions.assertNotNull(userConsentDtoDetail);
+        Assertions.assertEquals("1234", userConsentDtoDetail.getClientId());
 
     }
 

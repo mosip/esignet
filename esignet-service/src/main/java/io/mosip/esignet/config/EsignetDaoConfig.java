@@ -59,7 +59,6 @@ public class EsignetDaoConfig {
     private static final String HIBERNATE = "hibernate";
     private static final String HIBERNATE_EJB_INTERCEPTOR = "hibernate.ejb.interceptor";
     private static final String EMPTY_INTERCEPTOR = "hibernate.empty.interceptor";
-    private static final String POSTGRESQL_95_DIALECT = "org.hibernate.dialect.PostgreSQL95Dialect";
 
     @Autowired
     private Environment environment;
@@ -85,7 +84,6 @@ public class EsignetDaoConfig {
     @Bean
     public DataSource esignetDataSource() {
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(environment.getProperty("mosip.esignet.database.driver"));
         hikariConfig.setJdbcUrl(environment.getProperty("mosip.esignet.database.url"));
         hikariConfig.setUsername(environment.getProperty("mosip.esignet.database.username"));
         hikariConfig.setPassword(environment.getProperty("mosip.esignet.database.password"));
@@ -149,7 +147,6 @@ public class EsignetDaoConfig {
     public Map<String, Object> esignetJpaProperties() {
         HashMap<String, Object> jpaProperties = new HashMap<>();
         getProperty(jpaProperties, HIBERNATE_HBM2DDL_AUTO, NONE);
-        getProperty(jpaProperties, HIBERNATE_DIALECT, POSTGRESQL_95_DIALECT);
         getProperty(jpaProperties, HIBERNATE_SHOW_SQL, FALSE);
         getProperty(jpaProperties, HIBERNATE_FORMAT_SQL, FALSE);
         getProperty(jpaProperties, HIBERNATE_CONNECTION_CHAR_SET, UTF8);

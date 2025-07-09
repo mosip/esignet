@@ -4,17 +4,18 @@ import io.mosip.esignet.entity.PublicKeyRegistry;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.PublicKeyRegistryServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.Optional;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PublicKeyRegistryServiceImplTest {
 
     @Mock
@@ -34,8 +35,8 @@ public class PublicKeyRegistryServiceImplTest {
         Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.of(publicKeyRegistry));
 
         Optional<io.mosip.esignet.core.dto.PublicKeyRegistry>publicKeyRegistryOptional= publicKeyRegistryService.findLatestPublicKeyByPsuTokenAndAuthFactor(Mockito.anyString(),Mockito.anyString());
-        Assert.assertEquals(publicKeyRegistryOptional.get().getPublicKey(),publicKeyRegistry.getPublicKey());
-        Assert.assertEquals(publicKeyRegistryOptional.get().getPsuToken(),publicKeyRegistry.getPsuToken());
+        Assertions.assertEquals(publicKeyRegistryOptional.get().getPublicKey(),publicKeyRegistry.getPublicKey());
+        Assertions.assertEquals(publicKeyRegistryOptional.get().getPsuToken(),publicKeyRegistry.getPsuToken());
     }
 
     @Test
@@ -43,7 +44,7 @@ public class PublicKeyRegistryServiceImplTest {
         Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.empty());
 
         Optional<io.mosip.esignet.core.dto.PublicKeyRegistry>publicKeyRegistryOptional= publicKeyRegistryService.findLatestPublicKeyByPsuTokenAndAuthFactor(Mockito.anyString(),Mockito.anyString());
-        Assert.assertEquals(Optional.empty(),publicKeyRegistryOptional);
+        Assertions.assertEquals(Optional.empty(),publicKeyRegistryOptional);
     }
 
     @Test
@@ -57,8 +58,8 @@ public class PublicKeyRegistryServiceImplTest {
         Mockito.when(publicKeyRegistryRepository.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.anyString(),Mockito.anyString(),Mockito.any())).thenReturn(Optional.of(publicKeyRegistry));
 
         Optional<io.mosip.esignet.core.dto.PublicKeyRegistry>publicKeyRegistryOptional= publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes("idHash","thumbprint");
-        Assert.assertEquals(publicKeyRegistryOptional.get().getPublicKey(),publicKeyRegistry.getPublicKey());
-        Assert.assertEquals(publicKeyRegistryOptional.get().getPsuToken(),publicKeyRegistry.getPsuToken());
+        Assertions.assertEquals(publicKeyRegistryOptional.get().getPublicKey(),publicKeyRegistry.getPublicKey());
+        Assertions.assertEquals(publicKeyRegistryOptional.get().getPsuToken(),publicKeyRegistry.getPsuToken());
     }
 
     @Test
@@ -66,6 +67,6 @@ public class PublicKeyRegistryServiceImplTest {
         Mockito.when(publicKeyRegistryRepository.findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc(Mockito.anyString(),Mockito.anyString(),Mockito.any())).thenReturn(Optional.empty());
 
         Optional<io.mosip.esignet.core.dto.PublicKeyRegistry>publicKeyRegistryOptional= publicKeyRegistryService.findFirstByIdHashAndThumbprintAndExpiredtimes("idHash","thumbprint");
-        Assert.assertEquals(Optional.empty(),publicKeyRegistryOptional);
+        Assertions.assertEquals(Optional.empty(),publicKeyRegistryOptional);
     }
 }

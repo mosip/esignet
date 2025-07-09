@@ -5,14 +5,11 @@
  */
 package io.mosip.esignet.core;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
 
 import io.mosip.esignet.core.util.LinkCodeQueue;
+import org.junit.jupiter.api.Test;
 
-@RunWith(MockitoJUnitRunner.class)
 public class LinkCodeQueueTest {
 	
 	LinkCodeQueue linkCodeQueue = new LinkCodeQueue(1);
@@ -20,14 +17,14 @@ public class LinkCodeQueueTest {
 	@Test
 	public void test_addLinkCode_firstEntry() {
 		String linkCode = linkCodeQueue.addLinkCode("10");
-		Assert.assertNull(linkCode);
+		Assertions.assertNull(linkCode);
 	}
 	
 	@Test
 	public void test_addLinkCode_withTwoEntries() {
 		linkCodeQueue.addLinkCode("10");
 		String linkCode = linkCodeQueue.addLinkCode("20");
-		Assert.assertEquals(linkCode, "10");
+		Assertions.assertEquals(linkCode, "10");
 	}
 
 }

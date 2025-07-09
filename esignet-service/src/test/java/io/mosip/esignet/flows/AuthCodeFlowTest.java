@@ -34,13 +34,13 @@ import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.json.simple.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -48,7 +48,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisScriptingCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -71,9 +70,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(addFilters = false)
 @Slf4j
+@EnableAutoConfiguration(exclude = {
+        org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
+})
 public class AuthCodeFlowTest {
 
     @Autowired
@@ -113,7 +114,7 @@ public class AuthCodeFlowTest {
     private String oauthDetailsHashHeader = null;
     private String oauthDetailsKeyHeader = null;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         createOIDCClient(clientId, clientJWK.toPublicJWK(), replyingPartyId);
         log.info("Successfully create OIDC Client {}", clientId);
@@ -149,14 +150,14 @@ public class AuthCodeFlowTest {
         log.info("Successfully completed kyc auth : {}", authResponse);
 
         code = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
-        Assert.assertTrue(code != null && !code.isBlank());
+        Assertions.assertTrue(code != null && !code.isBlank());
         log.info("Authorization code generated : {}", code);
 
         TokenResponse tokenResponse = getAccessToken(clientId, code, redirectionUrl, clientJWK);
         log.info("Successfully fetched auth token in exchange with auth_code : {}", tokenResponse);
 
         String usertoken = getUserInfo(tokenResponse.getAccess_token());
-        Assert.assertNotNull(usertoken);
+        Assertions.assertNotNull(usertoken);
 
         JsonWebEncryption decrypt = new JsonWebEncryption();
         decrypt.setKey(getRelyingPartyPrivateKey(replyingPartyId));
@@ -235,9 +236,9 @@ public class AuthCodeFlowTest {
         String[] parts = result.getResponse().getRedirectedUrl().split("\\?");
         for(String param : parts[1].split("&")) {
             if(param.startsWith("state"))
-                Assert.assertTrue(param.endsWith(state));
+                Assertions.assertTrue(param.endsWith(state));
             if(param.startsWith("nonce"))
-                Assert.assertTrue(param.endsWith(nonce));
+                Assertions.assertTrue(param.endsWith(nonce));
             if(param.startsWith("code"))
                 code = param.split("=")[1];
         }

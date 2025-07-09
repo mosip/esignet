@@ -26,14 +26,14 @@ import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.jose4j.keys.X509Util;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.security.*;
@@ -52,7 +52,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @Slf4j
 public class ConsentHelperServiceTest {
 
@@ -112,7 +112,7 @@ public class ConsentHelperServiceTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup()  {
         ReflectionTestUtils.setField(consentHelperService,"objectMapper", new ObjectMapper());
     }
@@ -308,9 +308,9 @@ public class ConsentHelperServiceTest {
 
         consentHelperService.processConsent(oidcTransaction,true);
 
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
-        Assert.assertEquals(oidcTransaction.getAcceptedClaims(),consentDetail.getAcceptedClaims());
-        Assert.assertEquals(oidcTransaction.getPermittedScopes(),consentDetail.getPermittedScopes());
+        Assertions.assertEquals(ConsentAction.NOCAPTURE, oidcTransaction.getConsentAction());
+        Assertions.assertEquals(oidcTransaction.getAcceptedClaims(),consentDetail.getAcceptedClaims());
+        Assertions.assertEquals(oidcTransaction.getPermittedScopes(),consentDetail.getPermittedScopes());
     }
 
     @Test
@@ -399,7 +399,7 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,true);
 
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+        Assertions.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
 
     }
 
@@ -419,7 +419,7 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.empty());
 
         consentHelperService.processConsent(oidcTransaction,true);
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+        Assertions.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
     }
 
     @Test
@@ -439,7 +439,7 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.empty());
 
         consentHelperService.processConsent(oidcTransaction,true);
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+        Assertions.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
     }
 
     @Test
@@ -460,7 +460,7 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
 
         consentHelperService.processConsent(oidcTransaction,false);
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+        Assertions.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
     }
 
     @Test
@@ -536,7 +536,7 @@ public class ConsentHelperServiceTest {
 
         consentHelperService.processConsent(oidcTransaction,true);
 
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+        Assertions.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
     }
 
     @Test
@@ -559,9 +559,9 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         try{
             consentHelperService.processConsent(oidcTransaction,true);
-            Assert.fail();
+            Assertions.fail();
         }catch (Exception e){
-            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_AUTH_TOKEN);
+            Assertions.assertEquals(e.getMessage(),ErrorConstants.INVALID_AUTH_TOKEN);
         }
     }
 
@@ -577,7 +577,7 @@ public class ConsentHelperServiceTest {
         userConsentRequest.setClientId(oidcTransaction.getClientId());
         userConsentRequest.setPsuToken(oidcTransaction.getPartnerSpecificUserToken());
         consentHelperService.processConsent(oidcTransaction,true);
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
+        Assertions.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.NOCAPTURE);
     }
 
     @Test
@@ -607,7 +607,7 @@ public class ConsentHelperServiceTest {
         Mockito.when(consentService.getUserConsent(userConsentRequest)).thenReturn(Optional.of(consentDetail));
         consentHelperService.processConsent(oidcTransaction,false);
 
-        Assert.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
+        Assertions.assertEquals(oidcTransaction.getConsentAction(),ConsentAction.CAPTURE);
     }
 
 

@@ -17,9 +17,9 @@
 	<version>${project.parent.version}</version>
 
 	<properties>
-		<java.version>11</java.version>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<java.version>21</java.version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<esignet.core.version>${project.version}</esignet.core.version>
 	</properties>
@@ -35,6 +35,11 @@
 			<groupId>io.mosip.esignet</groupId>
 			<artifactId>esignet-core</artifactId>
 			<version>${esignet.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
     </dependencies>
 </project>

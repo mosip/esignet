@@ -9,18 +9,20 @@ import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -28,9 +30,9 @@ import java.util.Map;
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-//@Profile(value = {"!test"})
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableMethodSecurity(prePostEnabled = true)
+@Profile("!test")
+public class SecurityConfig {
 
     @Autowired
     private LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
@@ -53,57 +55,57 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${mosip.esignet.security.ignore-csrf-urls}")
     private String[] ignoreCsrfCheckUrls;
 
+    @Autowired
+    private Environment environment;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers(ignoreCsrfCheckUrls)
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(localAuthenticationEntryPoint))
+                .authorizeHttpRequests(auth -> {
+                    if (environment.acceptsProfiles(Profiles.of("local"))) {
+                        auth.anyRequest().permitAll();
+                        return;
+                    }
 
-        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry urlRegistry = http
-                .csrf()
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringAntMatchers(ignoreCsrfCheckUrls)
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(localAuthenticationEntryPoint)
-                .and()
-                .authorizeRequests()
-                .antMatchers(ignoreAuthUrls).permitAll();
+                    auth.requestMatchers(ignoreAuthUrls).permitAll();
 
-        if(CollectionUtils.isEmpty(securePostUrls) && CollectionUtils.isEmpty(securePutUrls) && CollectionUtils.isEmpty(secureGetUrls)) {
-            return;
-        }
+                    if (securePostUrls != null) {
+                        securePostUrls.forEach((pattern, roles) ->
+                                auth.requestMatchers(HttpMethod.POST, pattern)
+                                        .hasAnyAuthority(roles.toArray(new String[0]))
+                        );
+                    }
 
-        urlRegistry = urlRegistry.and().authorizeRequests();
+                    if (securePutUrls != null) {
+                        securePutUrls.forEach((pattern, roles) ->
+                                auth.requestMatchers(HttpMethod.PUT, pattern)
+                                        .hasAnyAuthority(roles.toArray(new String[0]))
+                        );
+                    }
 
-        log.info("Securing the configured URLs");
-        for(Map.Entry<String, List<String>> entry : securePostUrls.entrySet()) {
-            urlRegistry = urlRegistry.antMatchers(HttpMethod.POST, entry.getKey())
-                    .hasAnyAuthority(entry.getValue().toArray(new String[0]));
-        }
+                    if (secureGetUrls != null) {
+                        secureGetUrls.forEach((pattern, roles) ->
+                                auth.requestMatchers(HttpMethod.GET, pattern)
+                                        .hasAnyAuthority(roles.toArray(new String[0]))
+                        );
+                    }
 
-        for(Map.Entry<String, List<String>> entry : securePutUrls.entrySet()) {
-            urlRegistry = urlRegistry.antMatchers(HttpMethod.PUT, entry.getKey())
-                    .hasAnyAuthority(entry.getValue().toArray(new String[0]));
-        }
+                    auth.anyRequest().authenticated();
+                })
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
-        for(Map.Entry<String, List<String>> entry : secureGetUrls.entrySet()) {
-            urlRegistry = urlRegistry.antMatchers(HttpMethod.GET, entry.getKey())
-                    .hasAnyAuthority(entry.getValue().toArray(new String[0]));
-        }
-
-        urlRegistry.anyRequest().authenticated()
-                .and().oauth2ResourceServer(oauth2 -> oauth2.jwt());
+        return http.build();
     }
 
-
-    @Override
-    public void configure(WebSecurity webSecurity) throws Exception {
-        //Nullifying security filters on userinfo endpoint.
-        //Reason:
-        //Even though oidc/** is part of ignore-auth-urls, bearer token is getting validated in the security filters and fails with 401 error.
-        //Bearer token of the userinfo endpoint is signed with IDP keys.
-        //We currently donot have a way to set 2 different authentication providers in spring security.
-        webSecurity.ignoring().antMatchers(servletPath+"/oidc/userinfo", servletPath+"/vci/credential");
-    }
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return web -> web.ignoring()
+//                .requestMatchers("/oidc/userinfo", "/vci/credential");
+//    }
 }

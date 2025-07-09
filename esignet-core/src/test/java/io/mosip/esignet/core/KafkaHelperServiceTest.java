@@ -7,18 +7,18 @@ package io.mosip.esignet.core;
 
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import io.mosip.esignet.core.util.KafkaHelperService;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KafkaHelperServiceTest {
 	
 	KafkaHelperService kafkaHelperService = new KafkaHelperService();
@@ -26,14 +26,14 @@ public class KafkaHelperServiceTest {
 	@Mock
 	KafkaTemplate<String,String> kafkaTemplate;
 	
-	@Before
+	@BeforeEach
     public void setup() throws IOException {
         ReflectionTestUtils.setField(kafkaHelperService, "kafkaTemplate", kafkaTemplate);
 	}
 	
 	@Test
 	public void test_publish_withValidValues_thenPass() {
-		Assert.assertNotNull(kafkaTemplate);
+		Assertions.assertNotNull(kafkaTemplate);
 		kafkaHelperService.publish("test-topic", "test-message");
 	}
 
