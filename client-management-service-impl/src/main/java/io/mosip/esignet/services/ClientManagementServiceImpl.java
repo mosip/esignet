@@ -254,7 +254,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         ClientDetail clientDetail = buildClient(clientDetailCreateRequestV3);
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
-        } catch (ConstraintViolationException cve) {
+        } catch (ConstraintViolationException | DataIntegrityViolationException cve) {
             log.error("Failed to create client details", cve);
             throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }

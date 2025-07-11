@@ -20,17 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {"io.mosip.esignet.repository", "io.mosip.kernel.keymanagerservice.repository"})
-@EntityScan(basePackages = {"io.mosip.esignet.entity", "io.mosip.kernel.keymanagerservice.entity"})
 @Slf4j
 public class AppConfig implements ApplicationRunner {
 

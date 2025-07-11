@@ -41,7 +41,9 @@ services:
       - container_user=mosip
       - active_profile_env=default,local
       - plugin_name_env=esignet-mock-plugin.jar
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_esignet?currentSchema=esignet
+      - MOSIP_ESIGNET_DATABASE_URL=jdbc:postgresql://database:5432/mosip_esignet?currentSchema=esignet
+      - MOSIP_ESIGNET_DATABASE_USERNAME=postgres
+      - MOSIP_ESIGNET_DATABASE_PASSWORD=postgres
       - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
       - MOSIP_ESIGNET_INTEGRATION_KEY_BINDER=MockKeyBindingWrapperService
       - SPRING_CACHE_TYPE=redis
