@@ -9,6 +9,7 @@ import { decodeHash, getOauthDetailsHash } from "../helpers/utils";
 export default function Authorize({ authService }) {
   const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails_v3 = authService.post_OauthDetails_v3;
+  const post_ParOauthDetails = authService.post_ParOauthDetails;
   const buildRedirectParams = authService.buildRedirectParams;
   const storeQueryParam = authService.storeQueryParam;
 
@@ -23,47 +24,7 @@ export default function Authorize({ authService }) {
     const callAuthorize = async () => {
       try {
         setStatus(states.LOADING);
-
-        const extractParam = (param) => searchParams.get(param);
-
-        const request = {
-          nonce: extractParam("nonce"),
-          state: extractParam("state"),
-          clientId: extractParam("client_id"),
-          redirectUri: extractParam("redirect_uri"),
-          responseType: extractParam("response_type"),
-          scope: extractParam("scope"),
-          acrValues: extractParam("acr_values"),
-          claims: extractParam("claims"),
-          claimsLocales: extractParam("claims_locales"),
-          display: extractParam("display"),
-          maxAge: extractParam("max_age"),
-          prompt: extractParam("prompt"),
-          uiLocales: extractParam("ui_locales"),
-          codeChallenge: extractParam("code_challenge"),
-          codeChallengeMethod: extractParam("code_challenge_method"),
-          idTokenHint: extractParam("id_token_hint"),
-        };
-
-        let claimsDecoded = null;
-        if (request.claims) {
-          try {
-            claimsDecoded = JSON.parse(decodeURI(request.claims));
-          } catch {
-            setError("parsing_error_msg");
-            setStatus(states.ERROR);
-            return;
-          }
-        }
-
         await get_CsrfToken();
-        storeQueryParam(searchParams.toString());
-
-        const filteredRequest = Object.fromEntries(
-          Object.entries({ ...request, claims: claimsDecoded }).filter(
-            ([_, value]) => value !== null
-          )
-        );
 
         const handleResponse = async (oAuthDetailsResponse) => {
           setStatus(states.LOADED);
@@ -76,7 +37,59 @@ export default function Authorize({ authService }) {
           }
         };
 
-        await post_OauthDetails_v3(filteredRequest).then(handleResponse);
+        const clientId = searchParams.get("client_id");
+        const requestUri = searchParams.get("request_uri");
+
+        const isParFlow =
+          clientId && requestUri && [...searchParams.keys()].length === 2;
+
+        if (isParFlow) {
+          storeQueryParam(searchParams.toString());
+          const payload = { clientId, requestUri };
+          await post_ParOauthDetails(payload).then(handleResponse);
+        } else {
+          const extractParam = (param) => searchParams.get(param);
+
+          const request = {
+            nonce: extractParam("nonce"),
+            state: extractParam("state"),
+            clientId: extractParam("client_id"),
+            redirectUri: extractParam("redirect_uri"),
+            responseType: extractParam("response_type"),
+            scope: extractParam("scope"),
+            acrValues: extractParam("acr_values"),
+            claims: extractParam("claims"),
+            claimsLocales: extractParam("claims_locales"),
+            display: extractParam("display"),
+            maxAge: extractParam("max_age"),
+            prompt: extractParam("prompt"),
+            uiLocales: extractParam("ui_locales"),
+            codeChallenge: extractParam("code_challenge"),
+            codeChallengeMethod: extractParam("code_challenge_method"),
+            idTokenHint: extractParam("id_token_hint"),
+          };
+
+          let claimsDecoded = null;
+          if (request.claims) {
+            try {
+              claimsDecoded = JSON.parse(decodeURI(request.claims));
+            } catch {
+              setError("parsing_error_msg");
+              setStatus(states.ERROR);
+              return;
+            }
+          }
+
+          storeQueryParam(searchParams.toString());
+
+          const filteredRequest = Object.fromEntries(
+            Object.entries({ ...request, claims: claimsDecoded }).filter(
+              ([_, value]) => value !== null
+            )
+          );
+
+          await post_OauthDetails_v3(filteredRequest).then(handleResponse);
+        }
       } catch (error) {
         setStatus(states.LOADED);
         setOAuthDetailResponse(null);
@@ -95,6 +108,11 @@ export default function Authorize({ authService }) {
   }, [status]);
 
   const redirectToLogin = async () => {
+    const isParFlow =
+      searchParams.get("client_id") &&
+      searchParams.get("request_uri") &&
+      [...searchParams.keys()].length === 2;
+
     if (!oAuthDetailResponse) {
       return;
     }
@@ -109,8 +127,8 @@ export default function Authorize({ authService }) {
       return;
     } else {
       try {
-        let nonce = searchParams.get("nonce");
-        let state = searchParams.get("state");
+        let nonce = isParFlow ? null : searchParams.get("nonce");
+        let state = isParFlow ? null : searchParams.get("state");
         let params = buildRedirectParams(nonce, state, response);
 
         navigate(process.env.PUBLIC_URL + "/login" + params, {
