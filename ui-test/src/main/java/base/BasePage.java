@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
+import utils.OtpReader;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.JavascriptExecutor;
@@ -41,7 +42,7 @@ public class BasePage {
 		LOGGER.info("Clicking on element: {}", element);
 		element.click();
 	}
-
+	
 	public boolean isElementVisible(WebElement element) {
 		try {
 			waitForElementVisible(element);
@@ -190,4 +191,18 @@ public class BasePage {
 			LOGGER.error("Failed to capture screenshot: {}", e.getMessage());
 		}
 	}
+	
+	public void enterOtp(List<WebElement> otpInputs, String otp) {
+	    if (otp == null || otp.length() != otpInputs.size()) {
+	        throw new IllegalArgumentException("OTP length must match number of input fields");
+	    }
+
+	    for (int i = 0; i < otp.length(); i++) {
+	        otpInputs.get(i).clear();
+	        otpInputs.get(i).sendKeys(Character.toString(otp.charAt(i)));
+	    }
+	}
+
+
+	
 }
