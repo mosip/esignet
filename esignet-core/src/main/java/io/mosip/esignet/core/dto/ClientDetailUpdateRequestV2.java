@@ -10,7 +10,7 @@ import io.mosip.esignet.core.validator.ClientNameLang;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 

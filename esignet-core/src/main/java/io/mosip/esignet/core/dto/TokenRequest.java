@@ -11,7 +11,7 @@ import io.mosip.esignet.core.validator.OIDCClientAssertionType;
 import lombok.Data;
 import io.mosip.esignet.core.validator.RedirectURL;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class TokenRequest {

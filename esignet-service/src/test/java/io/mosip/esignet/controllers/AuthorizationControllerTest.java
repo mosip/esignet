@@ -25,11 +25,11 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.RestTemplate;
@@ -47,7 +47,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_AUTH_FACTOR_TYPE_FORMAT;
 import static io.mosip.esignet.api.util.ErrorConstants.INVALID_CHALLENGE_LENGTH;
@@ -59,7 +59,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(value = AuthorizationController.class)
 public class AuthorizationControllerTest {
 
@@ -100,7 +100,7 @@ public class AuthorizationControllerTest {
 
 
 
-    @Before
+    @BeforeEach
     public void init() throws EsignetException, JsonProcessingException {
         HashSet<String> acrValues = new HashSet<>();
         acrValues.add("mosip:idp:acr:static-code");
@@ -1149,16 +1149,16 @@ public class AuthorizationControllerTest {
 
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 
         mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
         responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -1190,16 +1190,16 @@ public class AuthorizationControllerTest {
         List<String> errorCodes = Arrays.asList(INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,INVALID_CHALLENGE_FORMAT,
                 INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 
         mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
         responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -1228,16 +1228,16 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk()).andReturn();
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 
         mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
         responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -1266,16 +1266,16 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk()).andReturn();
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT, INVALID_AUTH_FACTOR_TYPE_FORMAT);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
 
         mvcResult=mockMvc.perform(post("/authorization/v3/authenticate")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
         responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
     }
 
     @Test
@@ -1526,7 +1526,7 @@ public class AuthorizationControllerTest {
        }
     
     @Test
-    @Ignore
+    @Disabled
     public void prepareSignupRedirect_withInvalidPathFragment_thenFail() throws Exception {
     	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
     	signupRedirectRequest.setTransactionId("Transaction_Id");

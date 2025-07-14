@@ -7,3 +7,4 @@
 \ir ddl/esignet-public_key_registry.sql
 \ir ddl/esignet-consent.sql
 \ir ddl/esignet-consent_history.sql
+\ir ddl/esignet-ca_cert_store.sql

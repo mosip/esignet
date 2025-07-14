@@ -7,6 +7,7 @@ package io.mosip.esignet.core;
 
 import io.mosip.esignet.core.util.SecurityHelperService;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.Assert;
@@ -19,6 +20,6 @@ public class SecurityHelperServiceTest {
 
     @Test
     public void test_generateSecureRandomString_thenPass() {
-        Assert.notNull(securityHelperService.generateSecureRandomString(20));
+        Assertions.assertNotNull(securityHelperService.generateSecureRandomString(20));
     }
 }

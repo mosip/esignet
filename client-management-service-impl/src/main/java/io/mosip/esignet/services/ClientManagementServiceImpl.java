@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +28,6 @@ import io.mosip.esignet.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.json.simple.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -139,8 +139,11 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     private String getClientNameLanguageMapAsJsonString(Map<String, String> clientNameMap, String clientName) {
         if(clientNameMap == null) clientNameMap = new HashMap<>();
         clientNameMap.put(Constants.NONE_LANG_KEY, clientName);
-        JSONObject clientNameObject = new JSONObject(clientNameMap);
-        return clientNameObject.toString();
+        try {
+            return objectMapper.writeValueAsString(clientNameMap);
+        } catch (JsonProcessingException e) {
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        }
     }
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")

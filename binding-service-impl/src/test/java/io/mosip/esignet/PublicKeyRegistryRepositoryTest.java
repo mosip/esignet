@@ -5,29 +5,26 @@
  */
 package io.mosip.esignet;
 
-import static org.junit.Assert.assertEquals;
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 
 import io.mosip.esignet.entity.RegistryId;
 import io.mosip.esignet.repository.PublicKeyRegistryRepository;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ContextConfiguration;
 
 import io.mosip.esignet.entity.PublicKeyRegistry;
 
-@RunWith(SpringRunner.class)
 @DataJpaTest
+@ContextConfiguration(classes = TestApplication.class)
 public class PublicKeyRegistryRepositoryTest {
 
 	@Autowired
@@ -48,43 +45,43 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
-		Assert.assertNotNull(publicKeyRegistry);
+		Assertions.assertNotNull(publicKeyRegistry);
 
 		Optional<PublicKeyRegistry> publicKeyRegistryOptional=publicKeyRegistryRepository.
 				findFirstByIdHashAndThumbprintAndExpiredtimesGreaterThanOrderByExpiredtimesDesc("test_id_hash","thumbprint",LocalDateTime.now().plus(4,ChronoUnit.DAYS));
-		Assert.assertFalse(publicKeyRegistryOptional.isEmpty());
-		Assert.assertEquals(publicKeyRegistryOptional.get(),publicKeyRegistry);
+		Assertions.assertFalse(publicKeyRegistryOptional.isEmpty());
+		Assertions.assertEquals(publicKeyRegistryOptional.get(),publicKeyRegistry);
 
 		List<PublicKeyRegistry> list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLA"), LocalDateTime.now());
-		Assert.assertFalse(list.isEmpty());
+		Assertions.assertFalse(list.isEmpty());
 
 		list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLA"), LocalDateTime.now().plus(4, ChronoUnit.DAYS));
-		Assert.assertFalse(list.isEmpty());
+		Assertions.assertFalse(list.isEmpty());
 
 		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findById(new RegistryId("test_id_hash","WLA"));
-		Assert.assertFalse(result.isEmpty());
+		Assertions.assertFalse(result.isEmpty());
 
 		list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash_2",
 				Set.of("WLA"), LocalDateTime.now());
-		Assert.assertTrue(list.isEmpty());
+		Assertions.assertTrue(list.isEmpty());
 
 		list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLA"), LocalDateTime.now().plus(5, ChronoUnit.DAYS));
-		Assert.assertTrue(list.isEmpty());
+		Assertions.assertTrue(list.isEmpty());
 
 		list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLA"), LocalDateTime.now().plus(10, ChronoUnit.DAYS));
-		Assert.assertTrue(list.isEmpty());
+		Assertions.assertTrue(list.isEmpty());
 
 		list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLQ"), LocalDateTime.now());
-		Assert.assertTrue(list.isEmpty());
+		Assertions.assertTrue(list.isEmpty());
 
 		list = publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan("test_id_hash",
 				Set.of("WLQ", "WLA"), LocalDateTime.now());
-		Assert.assertFalse(list.isEmpty());
+		Assertions.assertFalse(list.isEmpty());
 	}
 
 	@Test
@@ -103,11 +100,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("psuToken")));
 			return;
 		} catch (Exception e) {}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -126,11 +123,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("publicKey")));
 			return;
 		}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -149,11 +146,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("publicKey")));
 			return;
 		}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -172,11 +169,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("walletBindingId")));
 			return;
 		}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -195,11 +192,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("walletBindingId")));
 			return;
 		}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -218,11 +215,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("certificate")));
 			return;
 		}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -241,11 +238,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("authFactor")));
 			return;
 		}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -264,11 +261,11 @@ public class PublicKeyRegistryRepositoryTest {
 			publicKeyRegistryRepository.save(publicKeyRegistry);
 			publicKeyRegistryRepository.flush();
 		} catch (ConstraintViolationException e) {
-			Assert.assertTrue(e.getConstraintViolations().stream()
+			Assertions.assertTrue(e.getConstraintViolations().stream()
 					.anyMatch(v -> v.getPropertyPath().toString().equals("certificate")));
 			return;
 		}
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -286,7 +283,7 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setAuthFactor("WLA");
 		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
-		Assert.assertNotNull(publicKeyRegistry);
+		Assertions.assertNotNull(publicKeyRegistry);
 
 		publicKeyRegistry = new PublicKeyRegistry();
 		publicKeyRegistry.setIdHash("test_id_hash_2");
@@ -300,13 +297,13 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setAuthFactor("WLA");
 		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
-		Assert.assertNotNull(publicKeyRegistry);
+		Assertions.assertNotNull(publicKeyRegistry);
 
 		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(psu_token, "WLA");
-		Assert.assertTrue(result.isPresent());
+		Assertions.assertTrue(result.isPresent());
 
 		result = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(psu_token+" ", "WLA");
-		Assert.assertFalse(result.isPresent());
+		Assertions.assertFalse(result.isPresent());
 	}
 
 	@Test
@@ -323,11 +320,11 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setAuthFactor("WLA");
 		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
-		Assert.assertNotNull(publicKeyRegistry);
+		Assertions.assertNotNull(publicKeyRegistry);
 
 		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository
 				.findOptionalByPublicKeyHashAndPsuTokenNot("test_public_key_hash", "test_token_2");
-		Assert.assertTrue(result.isPresent());
+		Assertions.assertTrue(result.isPresent());
 	}
 
 	@Test
@@ -345,16 +342,16 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry.setThumbprint("thumbprint");
 		publicKeyRegistryRepository.save(publicKeyRegistry);
 		publicKeyRegistryRepository.flush();
-		Assert.assertNotNull(publicKeyRegistry);
+		Assertions.assertNotNull(publicKeyRegistry);
 		int updatedRows = publicKeyRegistryRepository.updatePublicKeyRegistry("test_public_key_updated",
 				"test_public_key_hash_updated",	LocalDateTime.now(), "test_token",
 				"certificate2", "WLA");
-		assertEquals(1, updatedRows);
+		Assertions.assertEquals(1, updatedRows);
 
 		updatedRows = publicKeyRegistryRepository.updatePublicKeyRegistry("test_public_key_updated",
 				"test_public_key_hash_updated",	LocalDateTime.now(), "test_token",
 				"certificate2", "WLQ");
-		assertEquals(0, updatedRows);
+		Assertions.assertEquals(0, updatedRows);
 	}
 
 }

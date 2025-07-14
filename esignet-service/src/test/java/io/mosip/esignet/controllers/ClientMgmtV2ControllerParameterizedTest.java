@@ -14,6 +14,8 @@ import lombok.AllArgsConstructor;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -33,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@EnableAutoConfiguration(exclude = {ManagementWebSecurityAutoConfiguration.class})
 @AutoConfigureMockMvc
 public class ClientMgmtV2ControllerParameterizedTest {
 
@@ -300,7 +303,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
                     .andExpect(jsonPath("$.errors").isEmpty())
                     .andExpect(jsonPath("$.response").isNotEmpty())
                     .andExpect(jsonPath("$.response.clientId").value(clientId))
-                    .andExpect(jsonPath("$.response.status").value(Constants.CLIENT_ACTIVE_STATUS));
+                    .andExpect(jsonPath("$.response.status").value(status));
         }
     }
 

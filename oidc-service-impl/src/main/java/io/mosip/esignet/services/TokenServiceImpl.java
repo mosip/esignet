@@ -28,6 +28,7 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.kernel.partnercertservice.service.impl.PartnerCertificateManagerServiceImpl;
 import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
 import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
 import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
@@ -80,6 +81,8 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.client-assertion-jwt.leeway-seconds:5}")
     private int maxClockSkew;
+
+    private PartnerCertificateManagerServiceImpl a;
     
     private static Set<String> REQUIRED_TOKEN_CLAIMS;
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;

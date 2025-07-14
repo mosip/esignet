@@ -10,16 +10,16 @@ import io.mosip.esignet.core.spi.TokenService;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OpenIdConnectServiceTest {
 
     @InjectMocks
@@ -38,36 +38,36 @@ public class OpenIdConnectServiceTest {
     public void getOpenIdConfiguration_test() {
     	Map<String, Object> discoveryMap = new HashMap<>();
 		ReflectionTestUtils.setField(openIdConnectService, "discoveryMap", discoveryMap);
-        Assert.assertNotNull(openIdConnectService.getOpenIdConfiguration());
+        Assertions.assertNotNull(openIdConnectService.getOpenIdConfiguration());
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void getUserInfo_withNullAccessToken_thenFail() {
-        openIdConnectService.getUserInfo(null);
+        Assertions.assertThrows(NotAuthenticatedException.class, () -> openIdConnectService.getUserInfo(null));
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void getUserInfo_withEmptyAccessToken_thenFail() {
-        openIdConnectService.getUserInfo("");
+        Assertions.assertThrows(NotAuthenticatedException.class, () -> openIdConnectService.getUserInfo(""));
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void getUserInfo_withNonBearerAccessToken_thenFail() {
-        openIdConnectService.getUserInfo("access-token");
+        Assertions.assertThrows(NotAuthenticatedException.class, () -> openIdConnectService.getUserInfo("access-token"));
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void getUserInfo_withInvalidAccessToken_thenFail() {
-        openIdConnectService.getUserInfo("Bearer1 access-token");
+        Assertions.assertThrows(NotAuthenticatedException.class, () -> openIdConnectService.getUserInfo("Bearer1 access-token"));
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void getUserInfo_withInvalidTransaction_thenFail() {
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(null);
-        openIdConnectService.getUserInfo("Bearer access-token");
+        Assertions.assertThrows(NotAuthenticatedException.class, () -> openIdConnectService.getUserInfo("Bearer access-token"));
     }
 
-    @Test(expected = EsignetException.class)
+    @Test
     public void getUserInfo_withInValidAccessToken_thenFail() {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setClientId("client-id");
@@ -75,7 +75,7 @@ public class OpenIdConnectServiceTest {
         oidcTransaction.setEncryptedKyc("encrypted-kyc");
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.doThrow(EsignetException.class).when(tokenService).verifyAccessToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-        openIdConnectService.getUserInfo("Bearer access-token");
+        Assertions.assertThrows(EsignetException.class, () -> openIdConnectService.getUserInfo("Bearer access-token"));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class OpenIdConnectServiceTest {
         oidcTransaction.setEncryptedKyc("encrypted-kyc");
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         String kyc = openIdConnectService.getUserInfo("Bearer access-token");
-        Assert.assertNotNull(kyc);
-        Assert.assertEquals("encrypted-kyc", kyc);
+        Assertions.assertNotNull(kyc);
+        Assertions.assertEquals("encrypted-kyc", kyc);
     }
 }

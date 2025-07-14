@@ -27,15 +27,14 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.KafkaHelperService;
 import io.mosip.esignet.core.util.LinkCodeQueue;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -46,7 +45,7 @@ import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LinkedAuthorizationServiceTest {
 
     @InjectMocks
@@ -82,10 +81,8 @@ public class LinkedAuthorizationServiceTest {
     @Mock
     FilterCriteriaMatcher filterCriteriaMatcher;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         ObjectMapper objectMapper = new ObjectMapper();
         ReflectionTestUtils.setField(filterCriteriaMatcher, "objectMapper", objectMapper);
 
@@ -115,22 +112,22 @@ public class LinkedAuthorizationServiceTest {
         LinkCodeRequest linkCodeRequest = new LinkCodeRequest();
         linkCodeRequest.setTransactionId(transactionId);
         LinkCodeResponse linkCodeResponse = linkedAuthorizationService.generateLinkCode(linkCodeRequest);
-        Assert.assertNotNull(linkCodeResponse);
-        Assert.assertEquals(transactionId, linkCodeResponse.getTransactionId());
-        Assert.assertEquals(2, transaction.getCurrentLinkCodeLimit());
-        Assert.assertTrue(transaction.getLinkCodeQueue().size() == 1);
+        Assertions.assertNotNull(linkCodeResponse);
+        Assertions.assertEquals(transactionId, linkCodeResponse.getTransactionId());
+        Assertions.assertEquals(2, transaction.getCurrentLinkCodeLimit());
+        Assertions.assertTrue(transaction.getLinkCodeQueue().size() == 1);
 
         linkCodeResponse = linkedAuthorizationService.generateLinkCode(linkCodeRequest);
-        Assert.assertNotNull(linkCodeResponse);
-        Assert.assertEquals(transactionId, linkCodeResponse.getTransactionId());
-        Assert.assertEquals(1, transaction.getCurrentLinkCodeLimit());
-        Assert.assertTrue(transaction.getLinkCodeQueue().size() == 2);
+        Assertions.assertNotNull(linkCodeResponse);
+        Assertions.assertEquals(transactionId, linkCodeResponse.getTransactionId());
+        Assertions.assertEquals(1, transaction.getCurrentLinkCodeLimit());
+        Assertions.assertTrue(transaction.getLinkCodeQueue().size() == 2);
 
         linkCodeResponse = linkedAuthorizationService.generateLinkCode(linkCodeRequest);
-        Assert.assertNotNull(linkCodeResponse);
-        Assert.assertEquals(transactionId, linkCodeResponse.getTransactionId());
-        Assert.assertEquals(0, transaction.getCurrentLinkCodeLimit());
-        Assert.assertTrue(transaction.getLinkCodeQueue().size() == 2);
+        Assertions.assertNotNull(linkCodeResponse);
+        Assertions.assertEquals(transactionId, linkCodeResponse.getTransactionId());
+        Assertions.assertEquals(0, transaction.getCurrentLinkCodeLimit());
+        Assertions.assertTrue(transaction.getLinkCodeQueue().size() == 2);
     }
 
     @Test
@@ -139,9 +136,9 @@ public class LinkedAuthorizationServiceTest {
         linkCodeRequest.setTransactionId("invalid_transaction_id");
         try {
             linkedAuthorizationService.generateLinkCode(linkCodeRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -157,9 +154,9 @@ public class LinkedAuthorizationServiceTest {
         linkCodeRequest.setTransactionId(transactionId);
         try {
             linkedAuthorizationService.generateLinkCode(linkCodeRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(ErrorConstants.LINK_CODE_LIMIT_REACHED, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.LINK_CODE_LIMIT_REACHED, ex.getErrorCode());
         }
     }
 
@@ -178,10 +175,10 @@ public class LinkedAuthorizationServiceTest {
         LinkCodeRequest linkCodeRequest = new LinkCodeRequest();
         linkCodeRequest.setTransactionId(transactionId);
         LinkCodeResponse linkCodeResponse = linkedAuthorizationService.generateLinkCode(linkCodeRequest);
-        Assert.assertNotNull(linkCodeResponse);
-        Assert.assertEquals(transactionId, linkCodeResponse.getTransactionId());
-        Assert.assertEquals(2, transaction.getCurrentLinkCodeLimit());
-        Assert.assertTrue(transaction.getLinkCodeQueue().size() == 1);
+        Assertions.assertNotNull(linkCodeResponse);
+        Assertions.assertEquals(transactionId, linkCodeResponse.getTransactionId());
+        Assertions.assertEquals(2, transaction.getCurrentLinkCodeLimit());
+        Assertions.assertTrue(transaction.getLinkCodeQueue().size() == 1);
     }
 
     @Test
@@ -200,9 +197,9 @@ public class LinkedAuthorizationServiceTest {
         linkCodeRequest.setTransactionId(transactionId);
         try {
             linkedAuthorizationService.generateLinkCode(linkCodeRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(ErrorConstants.LINK_CODE_GEN_FAILED, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.LINK_CODE_GEN_FAILED, ex.getErrorCode());
         }
     }
 
@@ -240,10 +237,10 @@ public class LinkedAuthorizationServiceTest {
         LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
         linkTransactionRequest.setLinkCode("link-code");
         LinkTransactionResponseV1 linkTransactionResponse = linkedAuthorizationService.linkTransaction(linkTransactionRequest);
-        Assert.assertNotNull(linkTransactionResponse);
-        Assert.assertEquals(clientDetail.getName().get(Constants.NONE_LANG_KEY), linkTransactionResponse.getClientName());
-        Assert.assertEquals(clientDetail.getLogoUri(), linkTransactionResponse.getLogoUrl());
-        Assert.assertNotNull(linkTransactionResponse.getLinkTransactionId());
+        Assertions.assertNotNull(linkTransactionResponse);
+        Assertions.assertEquals(clientDetail.getName().get(Constants.NONE_LANG_KEY), linkTransactionResponse.getClientName());
+        Assertions.assertEquals(clientDetail.getLogoUri(), linkTransactionResponse.getLogoUrl());
+        Assertions.assertNotNull(linkTransactionResponse.getLinkTransactionId());
     }
 
     @Test
@@ -252,9 +249,9 @@ public class LinkedAuthorizationServiceTest {
         linkTransactionRequest.setLinkCode("link-code");
         try {
             linkedAuthorizationService.linkTransaction(linkTransactionRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_LINK_CODE, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_LINK_CODE, ex.getErrorCode());
         }
     }
 
@@ -268,9 +265,9 @@ public class LinkedAuthorizationServiceTest {
 
         try {
             linkedAuthorizationService.linkTransaction(linkTransactionRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -308,10 +305,10 @@ public class LinkedAuthorizationServiceTest {
         LinkTransactionRequest linkTransactionRequest = new LinkTransactionRequest();
         linkTransactionRequest.setLinkCode("link-code");
         LinkTransactionResponseV2 linkTransactionResponseV2 = linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
-        Assert.assertNotNull(linkTransactionResponseV2);
-        Assert.assertEquals(clientDetail.getName(), linkTransactionResponseV2.getClientName());
-        Assert.assertEquals(clientDetail.getLogoUri(), linkTransactionResponseV2.getLogoUrl());
-        Assert.assertNotNull(linkTransactionResponseV2.getLinkTransactionId());
+        Assertions.assertNotNull(linkTransactionResponseV2);
+        Assertions.assertEquals(clientDetail.getName(), linkTransactionResponseV2.getClientName());
+        Assertions.assertEquals(clientDetail.getLogoUri(), linkTransactionResponseV2.getLogoUrl());
+        Assertions.assertNotNull(linkTransactionResponseV2.getLinkTransactionId());
     }
 
     @Test
@@ -320,9 +317,9 @@ public class LinkedAuthorizationServiceTest {
         linkTransactionRequest.setLinkCode("link-code");
         try {
             linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_LINK_CODE, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_LINK_CODE, ex.getErrorCode());
         }
     }
 
@@ -336,9 +333,9 @@ public class LinkedAuthorizationServiceTest {
 
         try {
             linkedAuthorizationService.linkTransactionV2(linkTransactionRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -358,9 +355,9 @@ public class LinkedAuthorizationServiceTest {
         Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(sendOtpResult);
 
         OtpResponse otpResponse = linkedAuthorizationService.sendOtp(otpRequest);
-        Assert.assertEquals(otpResponse.getTransactionId(), otpResponse.getTransactionId());
-        Assert.assertEquals(sendOtpResult.getMaskedEmail(), otpResponse.getMaskedEmail());
-        Assert.assertEquals(sendOtpResult.getMaskedMobile(), otpResponse.getMaskedMobile());
+        Assertions.assertEquals(otpResponse.getTransactionId(), otpResponse.getTransactionId());
+        Assertions.assertEquals(sendOtpResult.getMaskedEmail(), otpResponse.getMaskedEmail());
+        Assertions.assertEquals(sendOtpResult.getMaskedMobile(), otpResponse.getMaskedMobile());
     }
 
     @Test
@@ -370,9 +367,9 @@ public class LinkedAuthorizationServiceTest {
 
         try {
             linkedAuthorizationService.sendOtp(otpRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -402,8 +399,8 @@ public class LinkedAuthorizationServiceTest {
         linkedKycAuthRequest.setChallengeList(authChallenges);
 
         LinkedKycAuthResponse authResponse = linkedAuthorizationService.authenticateUser(linkedKycAuthRequest);
-        Assert.assertNotNull(authResponse);
-        Assert.assertEquals(linkedKycAuthRequest.getLinkedTransactionId(), authResponse.getLinkedTransactionId());
+        Assertions.assertNotNull(authResponse);
+        Assertions.assertEquals(linkedKycAuthRequest.getLinkedTransactionId(), authResponse.getLinkedTransactionId());
     }
 
     @Test
@@ -413,9 +410,9 @@ public class LinkedAuthorizationServiceTest {
 
         try {
             linkedAuthorizationService.authenticateUser(linkedKycAuthRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -446,8 +443,8 @@ public class LinkedAuthorizationServiceTest {
         linkedKycAuthRequest.setChallengeList(authChallenges);
 
         LinkedKycAuthResponseV2 authResponse = linkedAuthorizationService.authenticateUserV2(linkedKycAuthRequest);
-        Assert.assertNotNull(authResponse);
-        Assert.assertEquals(linkedKycAuthRequest.getLinkedTransactionId(), authResponse.getLinkedTransactionId());
+        Assertions.assertNotNull(authResponse);
+        Assertions.assertEquals(linkedKycAuthRequest.getLinkedTransactionId(), authResponse.getLinkedTransactionId());
     }
 
     @Test
@@ -457,9 +454,9 @@ public class LinkedAuthorizationServiceTest {
 
         try {
             linkedAuthorizationService.authenticateUser(linkedKycAuthRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -469,8 +466,8 @@ public class LinkedAuthorizationServiceTest {
         LinkedConsentRequest linkedConsentRequest = new LinkedConsentRequest();
         linkedConsentRequest.setLinkedTransactionId("link-transaction-id");
         LinkedConsentResponse linkedConsentResponse = linkedAuthorizationService.saveConsent(linkedConsentRequest);
-        Assert.assertNotNull(linkedConsentResponse);
-        Assert.assertEquals(linkedConsentRequest.getLinkedTransactionId(), linkedConsentResponse.getLinkedTransactionId());
+        Assertions.assertNotNull(linkedConsentResponse);
+        Assertions.assertEquals(linkedConsentRequest.getLinkedTransactionId(), linkedConsentResponse.getLinkedTransactionId());
     }
 
     @Test
@@ -479,9 +476,9 @@ public class LinkedAuthorizationServiceTest {
         linkedConsentRequest.setLinkedTransactionId("link-transaction-id");
         try {
             linkedAuthorizationService.saveConsent(linkedConsentRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -491,8 +488,8 @@ public class LinkedAuthorizationServiceTest {
         LinkedConsentRequestV2 linkedConsentRequestV2 = new LinkedConsentRequestV2();
         linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
         LinkedConsentResponse linkedConsentResponse = linkedAuthorizationService.saveConsentV2(linkedConsentRequestV2);
-        Assert.assertNotNull(linkedConsentResponse);
-        Assert.assertEquals(linkedConsentRequestV2.getLinkedTransactionId(), linkedConsentResponse.getLinkedTransactionId());
+        Assertions.assertNotNull(linkedConsentResponse);
+        Assertions.assertEquals(linkedConsentRequestV2.getLinkedTransactionId(), linkedConsentResponse.getLinkedTransactionId());
     }
 
     @Test
@@ -501,9 +498,9 @@ public class LinkedAuthorizationServiceTest {
         linkedConsentRequestV2.setLinkedTransactionId("link-transaction-id");
         try {
             linkedAuthorizationService.saveConsentV2(linkedConsentRequestV2);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -520,11 +517,11 @@ public class LinkedAuthorizationServiceTest {
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         linkedAuthorizationService.getLinkStatus(deferredResult, linkStatusRequest);
-        Assert.assertTrue(deferredResult.isSetOrExpired());
-        Assert.assertNotNull(deferredResult.getResult());
+        Assertions.assertTrue(deferredResult.isSetOrExpired());
+        Assertions.assertNotNull(deferredResult.getResult());
         ResponseWrapper<LinkStatusResponse> responseWrapper = (ResponseWrapper<LinkStatusResponse>) deferredResult.getResult();
-        Assert.assertNotNull(responseWrapper.getResponse());
-        Assert.assertTrue(responseWrapper.getResponse().getLinkStatus().equals("LINKED"));
+        Assertions.assertNotNull(responseWrapper.getResponse());
+        Assertions.assertTrue(responseWrapper.getResponse().getLinkStatus().equals("LINKED"));
     }
 
     @Test
@@ -539,7 +536,7 @@ public class LinkedAuthorizationServiceTest {
         try {
             linkedAuthorizationService.getLinkStatus(deferredResult, linkStatusRequest);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_LINK_CODE);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_LINK_CODE);
         }
     }
 
@@ -556,11 +553,11 @@ public class LinkedAuthorizationServiceTest {
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         linkedAuthorizationService.getLinkStatus(deferredResult, linkStatusRequest);
-        Assert.assertTrue(deferredResult.isSetOrExpired());
-        Assert.assertNotNull(deferredResult.getResult());
+        Assertions.assertTrue(deferredResult.isSetOrExpired());
+        Assertions.assertNotNull(deferredResult.getResult());
         ResponseWrapper<LinkStatusResponse> responseWrapper = (ResponseWrapper<LinkStatusResponse>) deferredResult.getResult();
-        Assert.assertNotNull(responseWrapper.getResponse());
-        Assert.assertTrue(responseWrapper.getResponse().getLinkStatus().equals("LINKED"));
+        Assertions.assertNotNull(responseWrapper.getResponse());
+        Assertions.assertTrue(responseWrapper.getResponse().getLinkStatus().equals("LINKED"));
     }
 
     @Test
@@ -576,7 +573,7 @@ public class LinkedAuthorizationServiceTest {
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         linkedAuthorizationService.getLinkStatus(deferredResult, linkStatusRequest);
-        Assert.assertNull(deferredResult.getResult());
+        Assertions.assertNull(deferredResult.getResult());
     }
 
     @Test
@@ -597,14 +594,14 @@ public class LinkedAuthorizationServiceTest {
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         linkedAuthorizationService.getLinkAuthCode(deferredResult, linkAuthCodeRequest);
-        Assert.assertTrue(deferredResult.isSetOrExpired());
-        Assert.assertNotNull(deferredResult.getResult());
+        Assertions.assertTrue(deferredResult.isSetOrExpired());
+        Assertions.assertNotNull(deferredResult.getResult());
         ResponseWrapper<LinkAuthCodeResponse> responseWrapper = (ResponseWrapper<LinkAuthCodeResponse>) deferredResult.getResult();
-        Assert.assertNotNull(responseWrapper.getResponse());
-        Assert.assertNotNull(responseWrapper.getResponse().getCode());
-        Assert.assertEquals(oidcTransaction.getNonce(), responseWrapper.getResponse().getNonce());
-        Assert.assertEquals(oidcTransaction.getState(), responseWrapper.getResponse().getState());
-        Assert.assertEquals(oidcTransaction.getRedirectUri(), responseWrapper.getResponse().getRedirectUri());
+        Assertions.assertNotNull(responseWrapper.getResponse());
+        Assertions.assertNotNull(responseWrapper.getResponse().getCode());
+        Assertions.assertEquals(oidcTransaction.getNonce(), responseWrapper.getResponse().getNonce());
+        Assertions.assertEquals(oidcTransaction.getState(), responseWrapper.getResponse().getState());
+        Assertions.assertEquals(oidcTransaction.getRedirectUri(), responseWrapper.getResponse().getRedirectUri());
     }
 
     @Test
@@ -622,7 +619,7 @@ public class LinkedAuthorizationServiceTest {
         try {
             linkedAuthorizationService.getLinkAuthCode(deferredResult, linkAuthCodeRequest);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_LINK_CODE);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_LINK_CODE);
         }
     }
 
@@ -639,7 +636,7 @@ public class LinkedAuthorizationServiceTest {
         setTimeoutHandler(deferredResult);
         setErrorHandler(deferredResult);
         linkedAuthorizationService.getLinkAuthCode(deferredResult, linkAuthCodeRequest);
-        Assert.assertNull(deferredResult.getResult());
+        Assertions.assertNull(deferredResult.getResult());
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {

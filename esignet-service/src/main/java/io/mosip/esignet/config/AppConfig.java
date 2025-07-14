@@ -14,8 +14,10 @@ import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.dto.SymmetricKeyGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.TimeValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -45,17 +47,21 @@ public class AppConfig implements ApplicationRunner {
 
     @Bean
     public ObjectMapper objectMapper() {
+        AfterburnerModule afterburnerModule = new AfterburnerModule();
+        afterburnerModule.setUseValueClassLoader(false);
         return JsonMapper.builder()
-                .addModule(new AfterburnerModule())
+                .addModule(afterburnerModule)
                 .addModule(new JavaTimeModule())
                 .build();
     }
 
     @Bean
     public RestTemplate restTemplate() {
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal(defaultTotalMaxConnection);
+        connectionManager.setDefaultMaxPerRoute(defaultMaxConnectionPerRoute);
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
-                .setMaxConnPerRoute(defaultMaxConnectionPerRoute)
-                .setMaxConnTotal(defaultTotalMaxConnection)
+                .setConnectionManager(connectionManager)
                 .disableCookieManagement();
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setHttpClient(httpClientBuilder.build());
@@ -67,12 +73,15 @@ public class AppConfig implements ApplicationRunner {
         log.info("===================== IDP_SERVICE ROOT KEY CHECK ========================");
         String objectType = "CSR";
         KeyPairGenerateRequestDto rootKeyRequest = new KeyPairGenerateRequestDto();
+        rootKeyRequest.setReferenceId("");
         rootKeyRequest.setApplicationId(Constants.ROOT_KEY);
         keymanagerService.generateMasterKey(objectType, rootKeyRequest);
         log.info("===================== IDP_SERVICE MASTER KEY CHECK ========================");
         KeyPairGenerateRequestDto masterKeyRequest = new KeyPairGenerateRequestDto();
+        masterKeyRequest.setReferenceId("");
         masterKeyRequest.setApplicationId(Constants.OIDC_SERVICE_APP_ID);
         keymanagerService.generateMasterKey(objectType, masterKeyRequest);
+
 
         if(!StringUtils.isEmpty(cacheSecretKeyRefId)) {
             SymmetricKeyGenerateRequestDto symmetricKeyGenerateRequestDto = new SymmetricKeyGenerateRequestDto();
@@ -85,6 +94,7 @@ public class AppConfig implements ApplicationRunner {
 
         log.info("===================== IDP_PARTNER MASTER KEY CHECK ========================");
         KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
+        partnerMasterKeyRequest.setReferenceId("");
         partnerMasterKeyRequest.setApplicationId(Constants.OIDC_PARTNER_APP_ID);
         keymanagerService.generateMasterKey(objectType, partnerMasterKeyRequest);
         log.info("===================== IDP KEY SETUP COMPLETED ========================");

@@ -2,8 +2,8 @@ package io.mosip.esignet.core.validator;
 
 import io.mosip.esignet.core.dto.OAuthDetailRequestV2;
 import org.springframework.util.StringUtils;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class CodeChallengeValidator implements ConstraintValidator<CodeChallenge, OAuthDetailRequestV2> {
 

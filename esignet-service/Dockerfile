@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:21-jre
 
 ARG SOURCE
 ARG COMMIT_HASH
@@ -88,7 +88,7 @@ RUN apt-get -y update \
 && mkdir -p ${loader_path} \
 && mkdir -p ${plugins_path} \
 && chmod +x configure_start.sh \
-&& wget https://raw.githubusercontent.com/mosip/artifactory-ref-impl/v1.2.0.3/artifacts/src/hsm/client.zip -O client.zip \
+&& wget https://raw.githubusercontent.com/mosip/artifactory-ref-impl/v1.3.0-beta.2/artifacts/src/hsm/client.zip -O client.zip \
 && chown -R ${container_user}:${container_user} /home/${container_user} \
 && rm -rf /var/lib/apt/lists/*
 

@@ -5,9 +5,9 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.*;
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Null;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import java.io.IOException;
 import java.io.Serializable;
 

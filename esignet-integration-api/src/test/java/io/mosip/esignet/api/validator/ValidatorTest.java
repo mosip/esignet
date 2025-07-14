@@ -3,26 +3,25 @@ package io.mosip.esignet.api.validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.util.ErrorConstants;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.List;
 import java.util.Map;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ValidatorTest {
 
     @InjectMocks
@@ -37,7 +36,7 @@ public class ValidatorTest {
     @Mock
     private ConstraintValidatorContext constraintValidatorContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ReflectionTestUtils.setField(purposeValidator, "minLength", 3);
         ReflectionTestUtils.setField(purposeValidator, "maxLength", 300);
@@ -47,28 +46,28 @@ public class ValidatorTest {
     public void testIsValid_WithValidPurpose_thenPass() {
         String purpose = "Purpose";
         boolean isValid = purposeValidator.isValid(purpose, constraintValidatorContext);
-        assertTrue(isValid);
+        Assertions.assertTrue(isValid);
     }
 
     @Test
     public void testIsValid_WithPurposeWithInvalidLength_thenFail() {
         String purpose = "In";
         boolean isValid = purposeValidator.isValid(purpose, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
     public void testIsValid_WithNullPurpose_theFail() {
         String purpose = null;
         boolean isValid = purposeValidator.isValid(purpose, constraintValidatorContext);
-        assertTrue(isValid);
+        Assertions.assertTrue(isValid);
     }
 
     @Test
     public void testIsValid_WithEmptyPurpose_thenFail() {
         String purpose = "";
         boolean isValid = purposeValidator.isValid(purpose, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
@@ -81,7 +80,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.OTP.min-length", Integer.TYPE, 50)).thenReturn(6);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.OTP.max-length", Integer.TYPE, 50)).thenReturn(6);
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertTrue(isValid);
+        Assertions.assertTrue(isValid);
     }
 
     @Test
@@ -94,7 +93,7 @@ public class ValidatorTest {
                 .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
         Mockito.verify(constraintValidatorContext).buildConstraintViolationWithTemplate(ErrorConstants.INVALID_AUTH_FACTOR_TYPE);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
@@ -107,7 +106,7 @@ public class ValidatorTest {
                 .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
         Mockito.verify(constraintValidatorContext).buildConstraintViolationWithTemplate(ErrorConstants.INVALID_AUTH_FACTOR_TYPE);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
@@ -120,7 +119,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.OTP.min-length", Integer.TYPE, 50)).thenReturn(6);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.OTP.max-length", Integer.TYPE, 50)).thenReturn(6);
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
@@ -133,7 +132,7 @@ public class ValidatorTest {
         Mockito.when(constraintValidatorContext.buildConstraintViolationWithTemplate(anyString()))
                 .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
 
     }
 
@@ -153,7 +152,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(50);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertTrue(isValid);
+        Assertions.assertTrue(isValid);
     }
 
     @Test
@@ -172,7 +171,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(50);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
@@ -191,7 +190,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(50);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
@@ -210,7 +209,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(30);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
     @Test
@@ -229,7 +228,7 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(30);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
-        assertFalse(isValid);
+        Assertions.assertFalse(isValid);
     }
 
 }

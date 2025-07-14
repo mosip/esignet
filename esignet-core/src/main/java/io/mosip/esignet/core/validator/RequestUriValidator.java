@@ -2,8 +2,8 @@ package io.mosip.esignet.core.validator;
 
 import io.mosip.esignet.core.constants.Constants;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class RequestUriValidator implements ConstraintValidator<RequestUri, String> {
 

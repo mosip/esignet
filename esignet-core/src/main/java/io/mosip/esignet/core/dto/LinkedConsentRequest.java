@@ -8,7 +8,7 @@ package io.mosip.esignet.core.dto;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @Data

@@ -27,7 +27,6 @@ import io.mosip.esignet.core.spi.PublicKeyRegistryService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -40,7 +39,6 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -270,7 +268,12 @@ public class ConsentHelperService {
         payLoadMap.put(ACCEPTED_CLAIMS, acceptedClaims);
         payLoadMap.put(PERMITTED_AUTHORIZED_SCOPES, permittedScopes);
 
-        Payload payload = new Payload(new JSONObject(payLoadMap).toJSONString());
+        Payload payload = null;
+        try {
+            payload = new Payload(objectMapper.writeValueAsString(payLoadMap));
+        } catch (JsonProcessingException e) {
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(header).append(".").append(payload.toBase64URL()).append(".").append(signature);
         return sb.toString();

@@ -8,7 +8,7 @@ package io.mosip.esignet.core.spi;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.Map;
 
 public interface OAuthService {

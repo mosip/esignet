@@ -44,7 +44,7 @@ import com.nimbusds.jose.util.ByteUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 import static org.apache.commons.validator.routines.UrlValidator.ALLOW_ALL_SCHEMES;
 import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;

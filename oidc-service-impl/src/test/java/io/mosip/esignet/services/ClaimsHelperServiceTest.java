@@ -18,12 +18,12 @@ import io.mosip.esignet.core.dto.OAuthDetailRequest;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
@@ -33,7 +33,7 @@ import static io.mosip.esignet.core.constants.Constants.VOLUNTARY;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ClaimsHelperServiceTest {
 
     @InjectMocks
@@ -42,7 +42,7 @@ public class ClaimsHelperServiceTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         Map<String, List<String>> scopeClaimsMapping = new HashMap<>();
         scopeClaimsMapping.put("profile", Arrays.asList("name", "gender", "email"));
@@ -71,11 +71,11 @@ public class ClaimsHelperServiceTest {
         userinfoClaims.put("gender", null);
         resolvedClaims.setUserinfo(userinfoClaims);
         Map<String, List<String>> result = claimsHelperService.getClaimNames(resolvedClaims);
-        Assert.assertNotNull(result);
-        Assert.assertNotNull(result.get(ESSENTIAL));
-        Assert.assertTrue(result.get(ESSENTIAL).containsAll(Arrays.asList("name", "birthdate")));
-        Assert.assertNotNull(result.get(VOLUNTARY));
-        Assert.assertTrue(result.get(VOLUNTARY).containsAll(Arrays.asList("address", "gender")));
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.get(ESSENTIAL));
+        Assertions.assertTrue(result.get(ESSENTIAL).containsAll(Arrays.asList("name", "birthdate")));
+        Assertions.assertNotNull(result.get(VOLUNTARY));
+        Assertions.assertTrue(result.get(VOLUNTARY).containsAll(Arrays.asList("address", "gender")));
     }
 
     @Test
@@ -90,9 +90,9 @@ public class ClaimsHelperServiceTest {
             claimsHelperService.validateAcceptedClaims(
                     new OIDCTransaction(), Arrays.asList("name", "gender")
             );
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
+            Assertions.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
         }
     }
     @Test
@@ -103,9 +103,9 @@ public class ClaimsHelperServiceTest {
         oidcTransaction.setResolvedClaims(resolvedClaims);
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "gender"));
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
+            Assertions.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
         }
     }
 
@@ -127,9 +127,9 @@ public class ClaimsHelperServiceTest {
         oidcTransaction.setResolvedClaims(resolvedClaims);
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("email", "phone_number"));
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
+            Assertions.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
         }
     }
 
@@ -190,9 +190,9 @@ public class ClaimsHelperServiceTest {
         oidcTransaction.setEssentialClaims(Arrays.asList("name", "birthdate"));
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("name", "address"));
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
+            Assertions.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
         }
     }
 
@@ -214,9 +214,9 @@ public class ClaimsHelperServiceTest {
         oidcTransaction.setResolvedClaims(resolvedClaims);
         try {
             claimsHelperService.validateAcceptedClaims(oidcTransaction, Arrays.asList("email", "phone_number"));
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
+            Assertions.assertEquals(INVALID_ACCEPTED_CLAIM, e.getErrorCode());
         }
     }
 
@@ -233,9 +233,9 @@ public class ClaimsHelperServiceTest {
 
         try {
             claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, new ClientDetail());
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_SCOPE, e.getErrorCode());
+            Assertions.assertEquals(INVALID_SCOPE, e.getErrorCode());
         }
     }
 
@@ -255,14 +255,14 @@ public class ClaimsHelperServiceTest {
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
         Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
-        Assert.assertNotNull(claims);
-        Assert.assertEquals(2, claims.getUserinfo().size());
-        Assert.assertTrue(claims.getUserinfo().containsKey("name"));
-        Assert.assertTrue(claims.getUserinfo().containsKey("gender"));
-        Assert.assertEquals(1, claims.getUserinfo().get("name").size());
-        Assert.assertEquals(0, claims.getUserinfo().get("gender").size());
-        Assert.assertTrue((boolean)claims.getUserinfo().get("name").get(0).get("essential"));
-        Assert.assertNotNull(claims.getUserinfo().get("gender"));
+        Assertions.assertNotNull(claims);
+        Assertions.assertEquals(2, claims.getUserinfo().size());
+        Assertions.assertTrue(claims.getUserinfo().containsKey("name"));
+        Assertions.assertTrue(claims.getUserinfo().containsKey("gender"));
+        Assertions.assertEquals(1, claims.getUserinfo().get("name").size());
+        Assertions.assertEquals(0, claims.getUserinfo().get("gender").size());
+        Assertions.assertTrue((boolean)claims.getUserinfo().get("name").get(0).get("essential"));
+        Assertions.assertNotNull(claims.getUserinfo().get("gender"));
     }
 
     @Test
@@ -282,16 +282,16 @@ public class ClaimsHelperServiceTest {
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setClaims(claimsV2);
         Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
-        Assert.assertNotNull(claims);
-        Assert.assertEquals(3, claims.getUserinfo().size());
-        Assert.assertTrue(claims.getUserinfo().containsKey("name"));
-        Assert.assertTrue(claims.getUserinfo().containsKey("gender"));
-        Assert.assertTrue(claims.getUserinfo().containsKey("email"));
-        Assert.assertEquals(2, claims.getUserinfo().get("name").size());
-        Assert.assertEquals(1, claims.getUserinfo().get("gender").size());
-        Assert.assertEquals(0, claims.getUserinfo().get("email").size());
-        Assert.assertTrue((boolean)claims.getUserinfo().get("name").get(0).get("essential"));
-        Assert.assertTrue((boolean)claims.getUserinfo().get("gender").get(0).get("essential"));
+        Assertions.assertNotNull(claims);
+        Assertions.assertEquals(3, claims.getUserinfo().size());
+        Assertions.assertTrue(claims.getUserinfo().containsKey("name"));
+        Assertions.assertTrue(claims.getUserinfo().containsKey("gender"));
+        Assertions.assertTrue(claims.getUserinfo().containsKey("email"));
+        Assertions.assertEquals(2, claims.getUserinfo().get("name").size());
+        Assertions.assertEquals(1, claims.getUserinfo().get("gender").size());
+        Assertions.assertEquals(0, claims.getUserinfo().get("email").size());
+        Assertions.assertTrue((boolean)claims.getUserinfo().get("name").get(0).get("essential"));
+        Assertions.assertTrue((boolean)claims.getUserinfo().get("gender").get(0).get("essential"));
     }
 
     @Test
@@ -313,24 +313,24 @@ public class ClaimsHelperServiceTest {
         Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         ClaimStatus nameClaimStatus = claimsHelperService.getClaimStatus("name", claims.getUserinfo().get("name"), null);
-        Assert.assertNotNull(nameClaimStatus);
-        Assert.assertNotNull(nameClaimStatus.getClaim());
-        Assert.assertFalse(nameClaimStatus.isAvailable());
-        Assert.assertFalse(nameClaimStatus.isVerified());
+        Assertions.assertNotNull(nameClaimStatus);
+        Assertions.assertNotNull(nameClaimStatus.getClaim());
+        Assertions.assertFalse(nameClaimStatus.isAvailable());
+        Assertions.assertFalse(nameClaimStatus.isVerified());
 
         Map<String, List<JsonNode>> storedVerificationMetadata = new HashMap<>();
         storedVerificationMetadata.put("gender", null);
         storedVerificationMetadata.put("email", Arrays.asList());
         ClaimStatus genderClaimStatus = claimsHelperService.getClaimStatus("gender", claims.getUserinfo().get("gender"), storedVerificationMetadata);
-        Assert.assertNotNull(genderClaimStatus);
-        Assert.assertNotNull(genderClaimStatus.getClaim());
-        Assert.assertTrue(genderClaimStatus.isAvailable());
-        Assert.assertFalse(genderClaimStatus.isVerified());
+        Assertions.assertNotNull(genderClaimStatus);
+        Assertions.assertNotNull(genderClaimStatus.getClaim());
+        Assertions.assertTrue(genderClaimStatus.isAvailable());
+        Assertions.assertFalse(genderClaimStatus.isVerified());
         ClaimStatus emailClaimStatus = claimsHelperService.getClaimStatus("email", claims.getUserinfo().get("email"), storedVerificationMetadata);
-        Assert.assertNotNull(emailClaimStatus);
-        Assert.assertNotNull(emailClaimStatus.getClaim());
-        Assert.assertTrue(emailClaimStatus.isAvailable());
-        Assert.assertFalse(emailClaimStatus.isVerified());
+        Assertions.assertNotNull(emailClaimStatus);
+        Assertions.assertNotNull(emailClaimStatus.getClaim());
+        Assertions.assertTrue(emailClaimStatus.isAvailable());
+        Assertions.assertFalse(emailClaimStatus.isVerified());
     }
 
     @Test
@@ -362,28 +362,28 @@ public class ClaimsHelperServiceTest {
         Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         ClaimStatus nameClaimStatus = claimsHelperService.getClaimStatus("name", claims.getUserinfo().get("name"), storedVerificationMetadata);
-        Assert.assertNotNull(nameClaimStatus);
-        Assert.assertNotNull(nameClaimStatus.getClaim());
-        Assert.assertTrue(nameClaimStatus.isAvailable());
-        Assert.assertTrue(nameClaimStatus.isVerified());
+        Assertions.assertNotNull(nameClaimStatus);
+        Assertions.assertNotNull(nameClaimStatus.getClaim());
+        Assertions.assertTrue(nameClaimStatus.isAvailable());
+        Assertions.assertTrue(nameClaimStatus.isVerified());
 
         ClaimStatus genderClaimStatus = claimsHelperService.getClaimStatus("gender", claims.getUserinfo().get("gender"), storedVerificationMetadata);
-        Assert.assertNotNull(genderClaimStatus);
-        Assert.assertNotNull(genderClaimStatus.getClaim());
-        Assert.assertTrue(genderClaimStatus.isAvailable());
-        Assert.assertFalse(genderClaimStatus.isVerified());
+        Assertions.assertNotNull(genderClaimStatus);
+        Assertions.assertNotNull(genderClaimStatus.getClaim());
+        Assertions.assertTrue(genderClaimStatus.isAvailable());
+        Assertions.assertFalse(genderClaimStatus.isVerified());
 
         ClaimStatus emailClaimStatus = claimsHelperService.getClaimStatus("email", claims.getUserinfo().get("email"), storedVerificationMetadata);
-        Assert.assertNotNull(emailClaimStatus);
-        Assert.assertNotNull(emailClaimStatus.getClaim());
-        Assert.assertFalse(emailClaimStatus.isAvailable());
-        Assert.assertFalse(emailClaimStatus.isVerified());
+        Assertions.assertNotNull(emailClaimStatus);
+        Assertions.assertNotNull(emailClaimStatus.getClaim());
+        Assertions.assertFalse(emailClaimStatus.isAvailable());
+        Assertions.assertFalse(emailClaimStatus.isVerified());
 
         ClaimStatus phoneClaimStatus = claimsHelperService.getClaimStatus("phone_number", claims.getUserinfo().get("phone_number"), storedVerificationMetadata);
-        Assert.assertNotNull(phoneClaimStatus);
-        Assert.assertNotNull(phoneClaimStatus.getClaim());
-        Assert.assertFalse(phoneClaimStatus.isAvailable());
-        Assert.assertFalse(phoneClaimStatus.isVerified());
+        Assertions.assertNotNull(phoneClaimStatus);
+        Assertions.assertNotNull(phoneClaimStatus.getClaim());
+        Assertions.assertFalse(phoneClaimStatus.isAvailable());
+        Assertions.assertFalse(phoneClaimStatus.isVerified());
     }
 
     @Test
@@ -415,10 +415,10 @@ public class ClaimsHelperServiceTest {
         Claims claims = claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
 
         ClaimStatus nameClaimStatus = claimsHelperService.getClaimStatus("name", claims.getUserinfo().get("name"), storedVerificationMetadata);
-        Assert.assertNotNull(nameClaimStatus);
-        Assert.assertNotNull(nameClaimStatus.getClaim());
-        Assert.assertTrue(nameClaimStatus.isAvailable());
-        Assert.assertFalse(nameClaimStatus.isVerified());
+        Assertions.assertNotNull(nameClaimStatus);
+        Assertions.assertNotNull(nameClaimStatus.getClaim());
+        Assertions.assertTrue(nameClaimStatus.isAvailable());
+        Assertions.assertFalse(nameClaimStatus.isVerified());
     }
 
     @Test
@@ -441,7 +441,7 @@ public class ClaimsHelperServiceTest {
 
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setResolvedClaims(claims);
-        Assert.assertTrue(claimsHelperService.isVerifiedClaimRequested(oidcTransaction));
+        Assertions.assertTrue(claimsHelperService.isVerifiedClaimRequested(oidcTransaction));
     }
 
     @Test
@@ -462,7 +462,7 @@ public class ClaimsHelperServiceTest {
 
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setResolvedClaims(claims);
-        Assert.assertFalse(claimsHelperService.isVerifiedClaimRequested(oidcTransaction));
+        Assertions.assertFalse(claimsHelperService.isVerifiedClaimRequested(oidcTransaction));
     }
 
     @Test
@@ -482,9 +482,9 @@ public class ClaimsHelperServiceTest {
         oAuthDetailRequest.setClaims(claimsV2);
         try {
             claimsHelperService.resolveRequestedClaims(oAuthDetailRequest, clientDetail);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_VERIFICATION, e.getErrorCode());
+            Assertions.assertEquals(INVALID_VERIFICATION, e.getErrorCode());
         }
     }
 }

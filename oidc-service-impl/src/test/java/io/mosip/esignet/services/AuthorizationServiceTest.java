@@ -30,31 +30,29 @@ import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.CaptchaHelper;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthorizationServiceTest {
 
     @Mock
@@ -99,9 +97,8 @@ public class AuthorizationServiceTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         Map<String, List<String>> claims = new HashMap<>();
         claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
         claims.put("email", Arrays.asList("email","email_verified"));
@@ -129,17 +126,17 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationServiceImpl,"captchaRequired",Arrays.asList("bio","pwd"));
         ReflectionTestUtils.setField(authorizationServiceImpl, "uiConfigMap", new HashMap<String, Object>());
 
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
+//        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
     }
 
     
-    @Test(expected = InvalidTransactionException.class)
+    @Test
     public void prepareSignupRedirect_withInvalidTransactionId_throwsException() {
     	SignupRedirectRequest signupRedirectRequest = new SignupRedirectRequest();
     	signupRedirectRequest.setTransactionId("transactionId");
     	signupRedirectRequest.setPathFragment("pathFragment");
     	when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
-    	authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse);
+    	Assertions.assertThrows(InvalidTransactionException.class, () -> authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse));
     }
     
     @Test
@@ -151,16 +148,16 @@ public class AuthorizationServiceTest {
     	oidcTransaction.setServerNonce("secretCode");
     	when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
     	SignupRedirectResponse signupRedirectResponse = authorizationServiceImpl.prepareSignupRedirect(signupRedirectRequest, httpServletResponse);
-    	Assert.assertEquals(signupRedirectResponse.getTransactionId(), "transactionId");
+    	Assertions.assertEquals(signupRedirectResponse.getTransactionId(), "transactionId");
     }
     
-    @Test(expected = InvalidClientException.class)
+    @Test
     public void getOauthDetails_withInvalidClientId_throwsException() throws EsignetException {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setNonce("test-nonce");
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenThrow(InvalidClientException.class);
-        authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        Assertions.assertThrows(InvalidClientException.class, () -> authorizationServiceImpl.getOauthDetails(oauthDetailRequest));
     }
 
     @Test
@@ -177,9 +174,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
+            Assertions.assertEquals(ErrorConstants.INVALID_REDIRECT_URI, e.getErrorCode());
         }
     }
 
@@ -203,11 +200,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
+        Assertions.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -236,11 +234,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
+        Assertions.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -268,11 +267,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertTrue(oauthDetailResponse.getEssentialClaims().size() == 1);
-        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertTrue(oauthDetailResponse.getEssentialClaims().size() == 1);
+        Assertions.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -300,11 +300,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(new ArrayList<>());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertTrue(oauthDetailResponse.getEssentialClaims().isEmpty());
+        Assertions.assertTrue(oauthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -324,12 +325,12 @@ public class AuthorizationServiceTest {
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
-
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.NO_ACR_REGISTERED));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.NO_ACR_REGISTERED));
         }
     }
 
@@ -357,10 +358,10 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
                 "mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
-
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 2);
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertTrue(oauthDetailResponse.getAuthFactors().size() == 2);
     }
 
     @Test
@@ -385,10 +386,11 @@ public class AuthorizationServiceTest {
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
     }
 
     @Test
@@ -413,10 +415,11 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet",
                 "mosip:idp:acr:generated-code"})).thenReturn(null);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertNull(oauthDetailResponse.getAuthFactors());
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertNull(oauthDetailResponse.getAuthFactors());
     }
 
     @Test
@@ -447,10 +450,11 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponse);
-        Assert.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
+        Assertions.assertNotNull(oauthDetailResponse);
+        Assertions.assertTrue(oauthDetailResponse.getAuthFactors().size() == 1);
     }
 
     @Test
@@ -475,22 +479,23 @@ public class AuthorizationServiceTest {
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_SCOPE));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_SCOPE));
         }
     }
 
-    @Test(expected = InvalidClientException.class)
+    @Test
     public void getOauthDetailsV2_withInvalidClientId_throwsException() throws EsignetException {
         OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
         oauthDetailRequest.setNonce("test-nonce");
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenThrow(InvalidClientException.class);
-        authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
+        Assertions.assertThrows(InvalidClientException.class, () -> authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest));
     }
 
     @Test
@@ -507,9 +512,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
         }
     }
 
@@ -519,9 +524,9 @@ public class AuthorizationServiceTest {
         oauthDetailReqDto.setIdTokenHint("invalid_id_token_hint");
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
-            Assert.fail();
+            Assertions.fail();
         }catch (EsignetException e){
-            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
         }
     }
 
@@ -532,9 +537,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
-            Assert.fail();
+            Assertions.fail();
         }catch (EsignetException e){
-            Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_ID_TOKEN_HINT));
         }
     }
 
@@ -558,11 +563,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
+        Assertions.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -590,11 +596,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
+        Assertions.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -622,11 +629,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().size() == 1);
-        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertTrue(oauthDetailResponseV2.getEssentialClaims().size() == 1);
+        Assertions.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -654,11 +662,12 @@ public class AuthorizationServiceTest {
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(new ArrayList<>());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
-        Assert.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertTrue(oauthDetailResponseV2.getEssentialClaims().isEmpty());
+        Assertions.assertTrue(oauthDetailResponseV2.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -678,12 +687,13 @@ public class AuthorizationServiceTest {
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         try {
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.NO_ACR_REGISTERED));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.NO_ACR_REGISTERED));
         }
     }
 
@@ -709,12 +719,13 @@ public class AuthorizationServiceTest {
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         authFactors.add(Collections.emptyList());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code",
                 "mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 2);
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 2);
     }
 
     @Test
@@ -738,11 +749,12 @@ public class AuthorizationServiceTest {
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 1);
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 1);
     }
 
     @Test
@@ -767,10 +779,11 @@ public class AuthorizationServiceTest {
         //NOTE: if order differs then below mock will not be used, hence will not return null
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet",
                 "mosip:idp:acr:generated-code"})).thenReturn(null);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertNull(oauthDetailResponseV2.getAuthFactors());
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertNull(oauthDetailResponseV2.getAuthFactors());
     }
 
     @Test
@@ -801,10 +814,11 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-        Assert.assertNotNull(oauthDetailResponseV2);
-        Assert.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 1);
+        Assertions.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertTrue(oauthDetailResponseV2.getAuthFactors().size() == 1);
     }
 
     @Test
@@ -827,14 +841,15 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setClaims(claims);
         oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
 
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_SCOPE));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_SCOPE));
         }
     }
 
@@ -861,6 +876,7 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
         oauthDetailRequest.setScope("sample_ldp_vc");
 
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
@@ -871,9 +887,9 @@ public class AuthorizationServiceTest {
         try {
             ReflectionTestUtils.setField(authorizationServiceImpl, "mandatePKCEForVC", true);
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_PKCE_CHALLENGE, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_PKCE_CHALLENGE, e.getErrorCode());
         }
     }
 
@@ -905,12 +921,13 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie("qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI", "5Y4ToFkWToXJrRFmPWPHDZLkciML4"+SERVER_NONCE_SEPARATOR+"test-state"));
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-        Assert.assertNotNull(oauthDetailResponseV2);
+        Assertions.assertNotNull(oauthDetailResponseV2);
     }
 
     @Test
@@ -941,9 +958,9 @@ public class AuthorizationServiceTest {
 
         try {
             OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-            Assert.assertNotNull(oauthDetailResponseV2);
+            Assertions.assertNotNull(oauthDetailResponseV2);
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
         }
     }
 
@@ -955,9 +972,9 @@ public class AuthorizationServiceTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
         }
     }
 
@@ -970,18 +987,18 @@ public class AuthorizationServiceTest {
         //No audience claim
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
         }
 
         //wrong audience
         oauthDetailRequest.setIdTokenHint("eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhbGljZSIsImF1ZCI6ImF1ZGllbmNlIiwiaXNzIjoidGVzdC1pc3N1ZXIiLCJleHAiOjE3MjUyNzA4OTgsImlhdCI6MTIzfQ.Z42f2G4xO7JKgKmA-JwCXOEDnXIGNwaB0Rksk0tkXrbfE2dtkASfGDej8FtQZlHsY1rdnjL7vP0NdoKmDUehYzhh-RESfqs6XdOCgNMS0NF5girKts0iAKSU4Exj3xjxpUsUOCmGU129m91WWYZZFTapByKf9UF4PGqiZEn_CIpojDv-D_qzH4XsU2oYy51PecNXF_KWL0Ix3IS8YaC0gTL5a7FZETQfao98vhZ88aWMqgVHVM_esXIpmAKYU-KiKGMW0zIVaoGX8gAV65XTlNGdPKSQUwrJ1hTmVXvWRLStyP8Bp9bjXMqCY1zFf2J-DpfrSnBhuGNIewrB4LHJ9A");
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
         }
     }
 
@@ -1017,9 +1034,9 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
-        Assert.assertNotNull(oAuthDetailResponse);
-        Assert.assertTrue(oAuthDetailResponse.getEssentialClaims().size() == 1);
-        Assert.assertTrue(oAuthDetailResponse.getVoluntaryClaims().isEmpty());
+        Assertions.assertNotNull(oAuthDetailResponse);
+        Assertions.assertTrue(oAuthDetailResponse.getEssentialClaims().size() == 1);
+        Assertions.assertTrue(oAuthDetailResponse.getVoluntaryClaims().isEmpty());
     }
 
     @Test
@@ -1033,9 +1050,9 @@ public class AuthorizationServiceTest {
 
         try {
             OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
+            Assertions.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
         }
     }
 
@@ -1051,9 +1068,9 @@ public class AuthorizationServiceTest {
         when(cacheUtilService.getAndEvictPAR(request.getRequestUri().substring(PAR_REQUEST_URI_PREFIX.length()))).thenReturn(par);
         try {
             OAuthDetailResponseV2 oAuthDetailResponse = authorizationServiceImpl.getPAROAuthDetails(request, httpServletRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
+            Assertions.assertEquals(e.getErrorCode(), ErrorConstants.INVALID_REQUEST);
         }
     }
 
@@ -1066,9 +1083,9 @@ public class AuthorizationServiceTest {
         authRequest.setTransactionId(transactionId);
         try {
             authorizationServiceImpl.authenticateUser(authRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
         }
     }
 
@@ -1100,8 +1117,8 @@ public class AuthorizationServiceTest {
         authRequest.setChallengeList(authChallenges);
 
         AuthResponse authResponse = authorizationServiceImpl.authenticateUser(authRequest);
-        Assert.assertNotNull(authResponse);
-        Assert.assertEquals(transactionId, authResponse.getTransactionId());
+        Assertions.assertNotNull(authResponse);
+        Assertions.assertEquals(transactionId, authResponse.getTransactionId());
     }
 
     @Test
@@ -1128,9 +1145,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.authenticateUser(authRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }
 
@@ -1163,8 +1180,8 @@ public class AuthorizationServiceTest {
         authRequest.setChallengeList(authChallenges);
 
         AuthResponse authResponse = authorizationServiceImpl.authenticateUser(authRequest);
-        Assert.assertNotNull(authResponse);
-        Assert.assertEquals(transactionId, authResponse.getTransactionId());
+        Assertions.assertNotNull(authResponse);
+        Assertions.assertEquals(transactionId, authResponse.getTransactionId());
     }
 
     @Test
@@ -1192,9 +1209,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.authenticateUser(authRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }
 
@@ -1207,9 +1224,9 @@ public class AuthorizationServiceTest {
         authRequest.setTransactionId(transactionId);
         try {
             authorizationServiceImpl.authenticateUserV2(authRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
         }
     }
 
@@ -1241,8 +1258,8 @@ public class AuthorizationServiceTest {
         authRequest.setChallengeList(authChallenges);
 
         AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV2(authRequest);
-        Assert.assertNotNull(authResponseV2);
-        Assert.assertEquals(transactionId, authResponseV2.getTransactionId());
+        Assertions.assertNotNull(authResponseV2);
+        Assertions.assertEquals(transactionId, authResponseV2.getTransactionId());
     }
 
     @Test
@@ -1267,9 +1284,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.authenticateUserV2(authRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }
 
@@ -1302,9 +1319,9 @@ public class AuthorizationServiceTest {
         authRequest.setChallengeList(authChallenges);
 
         AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV2(authRequest);
-        Assert.assertNotNull(authResponseV2);
-        Assert.assertEquals(transactionId, authResponseV2.getTransactionId());
-        //Assert.assertEquals(consentAction,authResponseV2.getConsentAction());
+        Assertions.assertNotNull(authResponseV2);
+        Assertions.assertEquals(transactionId, authResponseV2.getTransactionId());
+        //Assertions.assertEquals(consentAction,authResponseV2.getConsentAction());
     }
 
     @Test
@@ -1330,9 +1347,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.authenticateUserV2(authRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.AUTH_FACTOR_MISMATCH));
         }
     }
 
@@ -1350,9 +1367,9 @@ public class AuthorizationServiceTest {
 
         try {
             authorizationServiceImpl.authenticateUserV3(authRequest,httpServletRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
+            Assertions.assertTrue(ex.getErrorCode().equals(ErrorConstants.INVALID_TRANSACTION));
         }
     }
 
@@ -1387,8 +1404,8 @@ public class AuthorizationServiceTest {
 
         AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV3(authRequest, httpServletRequest);
         verify(captchaHelper, times(1)).validateCaptcha("captcha-token");
-        Assert.assertNotNull(authResponseV2);
-        Assert.assertEquals(transactionId, authResponseV2.getTransactionId());
+        Assertions.assertNotNull(authResponseV2);
+        Assertions.assertEquals(transactionId, authResponseV2.getTransactionId());
     }
 
     @Test
@@ -1418,9 +1435,9 @@ public class AuthorizationServiceTest {
 
         try{
             AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV3(authRequest, httpServletRequest);
-            Assert.assertNotNull(authResponseV2);
+            Assertions.assertNotNull(authResponseV2);
         }catch (EsignetException ex){
-            Assert.assertEquals(ErrorConstants.INVALID_INDIVIDUAL_ID,ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_INDIVIDUAL_ID,ex.getErrorCode());
         }
     }
 
@@ -1460,7 +1477,7 @@ public class AuthorizationServiceTest {
 
         AuthResponseV2 authResponseV2 = authorizationServiceImpl.authenticateUserV3(authRequest, httpServletRequest);
         verify(captchaHelper, times(0)).validateCaptcha("captcha-token");
-        Assert.assertNotNull(authResponseV2);
+        Assertions.assertNotNull(authResponseV2);
     }
 
     @Test
@@ -1472,7 +1489,7 @@ public class AuthorizationServiceTest {
         oidcTransaction.setVerificationStatus(VERIFICATION_COMPLETE);
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(oidcTransaction);
         CompleteSignupRedirectResponse result = authorizationServiceImpl.completeSignupRedirect(completeSignupRedirectRequest);
-        Assert.assertEquals(Constants.VERIFICATION_COMPLETE, result.getStatus());
+        Assertions.assertEquals(Constants.VERIFICATION_COMPLETE, result.getStatus());
     }
 
     @Test
@@ -1481,7 +1498,7 @@ public class AuthorizationServiceTest {
         CompleteSignupRedirectRequest completeSignupRedirectRequest = new CompleteSignupRedirectRequest();
         completeSignupRedirectRequest.setTransactionId(transactionId);
         when(cacheUtilService.getHaltedTransaction(transactionId)).thenReturn(null);
-        assertThrows(InvalidTransactionException.class, () -> {
+        Assertions.assertThrows(InvalidTransactionException.class, () -> {
             authorizationServiceImpl.completeSignupRedirect(completeSignupRedirectRequest);
         });
     }
@@ -1497,7 +1514,7 @@ public class AuthorizationServiceTest {
         try{
             authorizationServiceImpl.completeSignupRedirect(completeSignupRedirectRequest);
         }catch (EsignetException ex){
-            Assert.assertEquals(ErrorConstants.VERIFICATION_INCOMPLETE,ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.VERIFICATION_INCOMPLETE,ex.getErrorCode());
         }
     }
 
@@ -1525,8 +1542,8 @@ public class AuthorizationServiceTest {
 		transaction.setResolvedClaims(requestedClaims);
 		Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 		Mockito.when(cacheUtilService.setAuthCodeGeneratedTransaction(Mockito.anyString(), Mockito.any())).thenReturn(transaction);
-		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getNonce(), "test-nonce");
-		Assert.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getState(), "test-state");
+		Assertions.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getNonce(), "test-nonce");
+		Assertions.assertEquals(authorizationServiceImpl.getAuthCode(authCodeRequest).getState(), "test-state");
     }
 
     @Test
@@ -1538,67 +1555,67 @@ public class AuthorizationServiceTest {
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(null);
         try{
             authorizationServiceImpl.getAuthCode(authCodeRequest);
-            Assert.fail();
+            Assertions.fail();
         }catch (EsignetException e){
-            Assert.assertEquals("invalid_transaction",e.getErrorCode());
+            Assertions.assertEquals("invalid_transaction",e.getErrorCode());
         }
     }
 
     @Test
     public void getClaimDetails_withUnVerifiedClaimsRequest_thenPass() throws JsonProcessingException {
         OIDCTransaction transaction=new OIDCTransaction();
-	Claims resolvedClaims = new Claims();
-	resolvedClaims.setUserinfo(new HashMap<>());
-	Map<String, Object> map = new HashMap<>();
-	map.put("essential", true);
-    	Map<String, Object> requestedMetadata = new HashMap<>();
-	requestedMetadata.put("trust_framework", objectMapper.readValue("{\"values\":[\"ABC TF\"]}", Map.class));
-	map.put("verification", requestedMetadata);
-	resolvedClaims.getUserinfo().put("name", Arrays.asList(map));
-	resolvedClaims.getUserinfo().put("email", Arrays.asList(map));
-	
-	Map<String, Object> phoneClaimRequest = new HashMap<>();
-	phoneClaimRequest.put("essential", false);
-	resolvedClaims.getUserinfo().put("phone_number", Arrays.asList(phoneClaimRequest));
-	
-	transaction.setResolvedClaims(resolvedClaims);
-	transaction.setEssentialClaims(List.of("name", "email"));
-	transaction.setVoluntaryClaims(List.of("phone_number"));
-	
-	Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
-	claimMetadata.put("name", null);
-	List<JsonNode> verificationList =  new ArrayList<>();
-	verificationList.add(objectMapper.readTree("{\"trust_framework\":\"ABC TF\"}"));
-	claimMetadata.put("email", verificationList);
-	
-	transaction.setClaimMetadata(claimMetadata);
-	
-	transaction.setConsentAction(ConsentAction.NOCAPTURE);
-	Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
-	
-	ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
-	Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
-	Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
-	Assert.assertTrue(claimDetailResponse.isProfileUpdateRequired());
-	Assert.assertNotNull(claimDetailResponse.getClaimStatus());
-	for(ClaimStatus claimStatus : claimDetailResponse.getClaimStatus()) {
-	        switch (claimStatus.getClaim()) {
-	            case "email" :
-	                Assert.assertTrue(claimStatus.isAvailable());
-	                Assert.assertTrue(claimStatus.isVerified());
-	                break;
-	
-	            case "name" :
-	                Assert.assertTrue(claimStatus.isAvailable());
-	                Assert.assertFalse(claimStatus.isVerified());
-	                break;
-	
-	            case "phone_number" :
-	                Assert.assertFalse(claimStatus.isAvailable());
-	                Assert.assertFalse(claimStatus.isVerified());
-	                break;
-	        }
-	}
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+        Map<String, Object> requestedMetadata = new HashMap<>();
+        requestedMetadata.put("trust_framework", objectMapper.readValue("{\"values\":[\"ABC TF\"]}", Map.class));
+        map.put("verification", requestedMetadata);
+        resolvedClaims.getUserinfo().put("name", Arrays.asList(map));
+        resolvedClaims.getUserinfo().put("email", Arrays.asList(map));
+
+        Map<String, Object> phoneClaimRequest = new HashMap<>();
+        phoneClaimRequest.put("essential", false);
+        resolvedClaims.getUserinfo().put("phone_number", Arrays.asList(phoneClaimRequest));
+
+        transaction.setResolvedClaims(resolvedClaims);
+        transaction.setEssentialClaims(List.of("name", "email"));
+        transaction.setVoluntaryClaims(List.of("phone_number"));
+
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        claimMetadata.put("name", null);
+        List<JsonNode> verificationList =  new ArrayList<>();
+        verificationList.add(objectMapper.readTree("{\"trust_framework\":\"ABC TF\"}"));
+        claimMetadata.put("email", verificationList);
+
+        transaction.setClaimMetadata(claimMetadata);
+
+        transaction.setConsentAction(ConsentAction.NOCAPTURE);
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assertions.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.NOCAPTURE);
+        Assertions.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
+        Assertions.assertTrue(claimDetailResponse.isProfileUpdateRequired());
+        Assertions.assertNotNull(claimDetailResponse.getClaimStatus());
+        for(ClaimStatus claimStatus : claimDetailResponse.getClaimStatus()) {
+            switch (claimStatus.getClaim()) {
+                case "email" :
+                    Assertions.assertTrue(claimStatus.isAvailable());
+                    Assertions.assertTrue(claimStatus.isVerified());
+                    break;
+
+                case "name" :
+                    Assertions.assertTrue(claimStatus.isAvailable());
+                    Assertions.assertFalse(claimStatus.isVerified());
+                    break;
+
+                case "phone_number" :
+                    Assertions.assertFalse(claimStatus.isAvailable());
+                    Assertions.assertFalse(claimStatus.isVerified());
+                    break;
+            }
+        }
     }
 
     @Test
@@ -1622,10 +1639,10 @@ public class AuthorizationServiceTest {
         Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
 
         ClaimDetailResponse claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
-        Assert.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.CAPTURE);
-        Assert.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
-        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().allMatch(cs -> !cs.isVerified() && !cs.isAvailable()));
-        Assert.assertTrue(claimDetailResponse.isProfileUpdateRequired());
+        Assertions.assertEquals(claimDetailResponse.getConsentAction(),ConsentAction.CAPTURE);
+        Assertions.assertEquals(claimDetailResponse.getTransactionId(),"transactionId");
+        Assertions.assertTrue(claimDetailResponse.getClaimStatus().stream().allMatch(cs -> !cs.isVerified() && !cs.isAvailable()));
+        Assertions.assertTrue(claimDetailResponse.isProfileUpdateRequired());
 
         Map<String, Object> emailMap = new HashMap<>();
         emailMap.put("essential", true);
@@ -1636,10 +1653,10 @@ public class AuthorizationServiceTest {
         claimMetadata.put("name", Arrays.asList(objectMapper.readTree("{\"verification\": {\"trust_framework\": \"XYZ TF\"}}")));
         claimMetadata.put("phone_number", Arrays.asList());
         claimDetailResponse = authorizationServiceImpl.getClaimDetails("transactionId");
-        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("name") && cs.isVerified() && cs.isAvailable()));
-        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("email") && !cs.isVerified() && !cs.isAvailable()));
-        Assert.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("phone_number") && !cs.isVerified() && cs.isAvailable()));
-        Assert.assertFalse(claimDetailResponse.isProfileUpdateRequired());
+        Assertions.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("name") && cs.isVerified() && cs.isAvailable()));
+        Assertions.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("email") && !cs.isVerified() && !cs.isAvailable()));
+        Assertions.assertTrue(claimDetailResponse.getClaimStatus().stream().anyMatch(cs -> cs.getClaim().equals("phone_number") && !cs.isVerified() && cs.isAvailable()));
+        Assertions.assertFalse(claimDetailResponse.isProfileUpdateRequired());
     }
 
     @Test
@@ -1648,7 +1665,7 @@ public class AuthorizationServiceTest {
         try{
             authorizationServiceImpl.getClaimDetails("transactionId");
         }catch (InvalidTransactionException ex){
-            Assert.assertEquals(ex.getErrorCode(),ErrorConstants.INVALID_TRANSACTION);
+            Assertions.assertEquals(ex.getErrorCode(),ErrorConstants.INVALID_TRANSACTION);
         }
     }
 
@@ -1684,10 +1701,10 @@ public class AuthorizationServiceTest {
 
         Mockito.when(authenticationWrapper.sendOtp("relyingPartyId","clientId",sendOtpDto)).thenReturn(sendOtpResult);
         OtpResponse otpResponse = authorizationServiceImpl.sendOtp(otpRequest);
-        Assert.assertNotNull(otpResponse);
-        Assert.assertEquals("transactionId", otpResponse.getTransactionId());
-        Assert.assertEquals("maskedEmail", otpResponse.getMaskedEmail());
-        Assert.assertEquals("maskedMobile", otpResponse.getMaskedMobile());
+        Assertions.assertNotNull(otpResponse);
+        Assertions.assertEquals("transactionId", otpResponse.getTransactionId());
+        Assertions.assertEquals("maskedEmail", otpResponse.getMaskedEmail());
+        Assertions.assertEquals("maskedMobile", otpResponse.getMaskedMobile());
     }
 
     @Test
@@ -1712,7 +1729,7 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.sendOtp(otpRequest);
         }catch(EsignetException e)
         {
-            Assert.assertEquals(ErrorConstants.INDIVIDUAL_ID_BLOCKED,e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INDIVIDUAL_ID_BLOCKED,e.getErrorCode());
         }
     }
 
@@ -1723,9 +1740,9 @@ public class AuthorizationServiceTest {
         when(cacheUtilService.getPreAuthTransaction("invalidTransactionId")).thenReturn(null);
         try{
             authorizationServiceImpl.sendOtp(otpRequest);
-            Assert.fail();
+            Assertions.fail();
         }catch(EsignetException e){
-            Assert.assertEquals("invalid_transaction",e.getErrorCode());
+            Assertions.assertEquals("invalid_transaction",e.getErrorCode());
         }
     }
 

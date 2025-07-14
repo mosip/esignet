@@ -12,7 +12,6 @@ public class AccessLogSleuthConfiguration implements WebServerFactoryCustomizer<
 
     public AccessLogSleuthConfiguration(SleuthValve sleuthValve) {
         this.sleuthValve = sleuthValve;
-        this.sleuthValve.setAsyncSupported(true);
     }
 
     @Override

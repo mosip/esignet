@@ -7,20 +7,17 @@ package io.mosip.esignet;
 
 import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 
-@RunWith(SpringRunner.class)
 @DataJpaTest
 public class ClientDetailRepositoryTest {
 
@@ -43,19 +40,19 @@ public class ClientDetailRepositoryTest {
         clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
         clientDetail.setCreatedtimes(LocalDateTime.now());
         clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
-        Assert.assertNotNull(clientDetail);
+        Assertions.assertNotNull(clientDetail);
 
         Optional<ClientDetail> result = clientDetailRepository.findById("C01");
-        Assert.assertTrue(result.isPresent());
+        Assertions.assertTrue(result.isPresent());
 
         result = clientDetailRepository.findById("C02");
-        Assert.assertFalse(result.isPresent());
+        Assertions.assertFalse(result.isPresent());
 
         result = clientDetailRepository.findByIdAndStatus("C01", "ACTIVE");
-        Assert.assertTrue(result.isPresent());
+        Assertions.assertTrue(result.isPresent());
 
         result = clientDetailRepository.findByIdAndStatus("C01", "INACTIVE");
-        Assert.assertFalse(result.isPresent());
+        Assertions.assertFalse(result.isPresent());
     }
 
     @Test
@@ -76,11 +73,11 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("id")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -101,11 +98,11 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("publicKey")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -126,11 +123,11 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("publicKey")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -151,11 +148,11 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("name")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -176,11 +173,11 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("rpId")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -201,11 +198,11 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("redirectUris")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -226,11 +223,11 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("status")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -251,10 +248,10 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -275,10 +272,10 @@ public class ClientDetailRepositoryTest {
         try {
             clientDetailRepository.saveAndFlush(clientDetail);
         } catch (ConstraintViolationException e) {
-            Assert.assertTrue(e.getConstraintViolations().stream()
+            Assertions.assertTrue(e.getConstraintViolations().stream()
                     .anyMatch( v -> v.getPropertyPath().toString().equals("status")));
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 }

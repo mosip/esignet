@@ -10,10 +10,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -24,7 +24,7 @@ import io.mosip.esignet.api.dto.AuditDTO;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.util.AuditHelper;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuditHelperTest {
 	
 	AuditHelper auditHelper = new AuditHelper();
@@ -32,7 +32,7 @@ public class AuditHelperTest {
 	@Test
 	public void test_buildAuditDto_withClientID() {
 		AuditDTO auditDTO = AuditHelper.buildAuditDto("test-client-id");
-		Assert.assertSame(auditDTO.getClientId(), "test-client-id");
+		Assertions.assertSame(auditDTO.getClientId(), "test-client-id");
 	}
 	
 	@Test
@@ -43,10 +43,10 @@ public class AuditHelperTest {
 		transaction.setRelyingPartyId("test-relyingparty-id");
 		transaction.setClientId("test-client-id");
 		AuditDTO auditDTO = AuditHelper.buildAuditDto("1234567890", transaction);
-		Assert.assertSame(auditDTO.getLinkedTransactionId(), "89019103");
-		Assert.assertSame(auditDTO.getAuthTransactionId(), "90910310");
-		Assert.assertSame(auditDTO.getRelyingPartyId(), "test-relyingparty-id");
-		Assert.assertSame(auditDTO.getClientId(), "test-client-id");
+		Assertions.assertSame(auditDTO.getLinkedTransactionId(), "89019103");
+		Assertions.assertSame(auditDTO.getAuthTransactionId(), "90910310");
+		Assertions.assertSame(auditDTO.getRelyingPartyId(), "test-relyingparty-id");
+		Assertions.assertSame(auditDTO.getClientId(), "test-client-id");
 	}
 	
 	@Test
@@ -54,7 +54,7 @@ public class AuditHelperTest {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(getTestAuthentication(true, true));
 		String claimValue = AuditHelper.getClaimValue(context, "fullName");
-		Assert.assertEquals(claimValue, "Test Name");
+		Assertions.assertEquals(claimValue, "Test Name");
 	}
 	
 	@Test
@@ -62,7 +62,7 @@ public class AuditHelperTest {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(null);
 		String claimValue = AuditHelper.getClaimValue(context, "fullName");
-		Assert.assertNull(claimValue);
+		Assertions.assertNull(claimValue);
 	}
 	
 	@Test
@@ -70,7 +70,7 @@ public class AuditHelperTest {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(getTestAuthentication(false, false));
 		String claimValue = AuditHelper.getClaimValue(context, "fullName");
-		Assert.assertNull(claimValue);
+		Assertions.assertNull(claimValue);
 	}
 	
 	@Test
@@ -78,7 +78,7 @@ public class AuditHelperTest {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(getTestAuthentication(true, false));
 		String claimValue = AuditHelper.getClaimValue(context, "fullName");
-		Assert.assertNull(claimValue);
+		Assertions.assertNull(claimValue);
 	}
 
 	private Authentication getTestAuthentication(boolean isPrincipalRequired, boolean isJwtRequired) {
