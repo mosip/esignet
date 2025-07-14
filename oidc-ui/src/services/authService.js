@@ -7,6 +7,7 @@ import {
   AUTHENTICATE,
   OAUTH_DETAIL_V2,
   OAUTH_DETAIL_V3,
+  PAR_OAUTH_DETAIL,
   AUTHCODE,
   CSRF,
   CLAIM_DETAILS,
@@ -102,6 +103,26 @@ class authService {
     };
 
     let response = await ApiService.post(OAUTH_DETAIL_V3, request, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+      },
+    });
+    return response.data;
+  };
+
+  /**
+   * Triggers /par-oauth-details API on ESIGNET service
+   * @param {Object} params /Contains clientId and requestUri.
+   * @returns {Promise<Object>} /PAROauthDetails API response
+   */
+  post_ParOauthDetails = async (params) => {
+    let request = {
+      requestTime: new Date().toISOString(),
+      request: params,
+    };
+
+    let response = await ApiService.post(PAR_OAUTH_DETAIL, request, {
       headers: {
         "Content-Type": "application/json",
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),

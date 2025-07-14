@@ -3,6 +3,7 @@ export const SEND_OTP = "/authorization/send-otp";
 export const AUTHENTICATE = "/authorization/v3/authenticate";
 export const OAUTH_DETAIL_V2 = "/authorization/v2/oauth-details";
 export const OAUTH_DETAIL_V3 = "/authorization/v3/oauth-details";
+export const PAR_OAUTH_DETAIL = "/authorization/par-oauth-details";
 export const AUTHCODE = "/authorization/auth-code";
 export const CSRF = "/csrf/token";
 export const CLAIM_DETAILS = "/authorization/claim-details";
