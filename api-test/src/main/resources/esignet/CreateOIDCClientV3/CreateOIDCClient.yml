@@ -34,7 +34,6 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
     output: '{
-      "clientId": "$IGNORE$",
       "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_all_Valid_responseType_Smoke_sid:
@@ -72,7 +71,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
     output: '{
+<<<<<<< HEAD
       "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
       "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_invalid_responseType:
@@ -112,8 +114,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -154,8 +160,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -196,8 +206,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -238,8 +252,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -280,8 +298,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -320,7 +342,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_purpose_type_login_Smoke_sid:
@@ -358,7 +383,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_invalid_purpose_type:
@@ -398,8 +426,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -440,8 +472,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -482,8 +518,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -524,8 +564,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -564,7 +608,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_empty_subtitle_Smoke_sid:
@@ -602,7 +649,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_empty_stringValue_title_Smoke_sid:
@@ -640,7 +690,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_empty_stringValue_in_subtitle_Smoke_sid:
@@ -678,7 +731,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_false_signup_banner_required_Smoke_sid:
@@ -716,7 +772,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_invalid_signup_banner_required_Value:
@@ -756,8 +815,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -796,7 +859,10 @@ CreateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
+<<<<<<< HEAD
         "clientId": "$IGNORE$",
+=======
+>>>>>>> upstream/develop
     "status": "ACTIVE"
 }'
   ESignet_CreateOIDCClientV3_with_invalid_forgot_pwd_link_required_Value:
@@ -836,8 +902,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -878,8 +948,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'
@@ -919,8 +993,12 @@ CreateOIDCClientV3:
       output: '{
       "errors": [
     {
+<<<<<<< HEAD
       "errorCode": "invalid_additional_config",
       "errorMessage": "$IGNORE$"
+=======
+      "errorCode": "invalid_additional_config"
+>>>>>>> upstream/develop
     }
   ]
 }'

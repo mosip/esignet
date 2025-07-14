@@ -13,5 +13,4 @@ GetPolicySunBirdR:
         "insuranceid": "$ID:SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_Sid_osid$"
     }'
       output: '{
-	"policyNumber": "$IGNORE$"
 }'
