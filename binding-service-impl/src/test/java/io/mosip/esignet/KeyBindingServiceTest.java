@@ -86,10 +86,6 @@ public class KeyBindingServiceTest {
 	@BeforeEach
 	public void setUp() {
 		ReflectionTestUtils.setField(keyBindingService, "encryptBindingId", true);
-//
-//		mockKeyBindingWrapperService = mock(KeyBinder.class);
-//		when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
-//				.thenReturn(Arrays.asList("jwt", "alpha-numeric"));
 
 		captchaHelper = new CaptchaHelper(restTemplate, "https://test-api.example.com/v1/captcha/validatecaptcha",
 				"esignet", List.of("binding-otp"));
