@@ -109,10 +109,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_invalid_responseType_Neg:
@@ -349,10 +345,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_valid_subtitle_Smoke:
@@ -389,10 +381,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_empty_title_Smoke:
@@ -429,10 +417,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_empty_subtitle_Smoke:
@@ -469,10 +453,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_empty_stringValueAs_title_Smoke:
@@ -509,10 +489,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_empty_stringValueAs_subtitle_Smoke:
@@ -549,10 +525,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_without_purpose_type_Neg:
@@ -628,10 +600,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_login_purposeType_Smoke:
@@ -668,10 +636,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_invalid_purposeType_Neg:
@@ -868,10 +832,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_invalid_signup_banner_required_Neg:
@@ -948,10 +908,6 @@ UpdateOIDCClientV3:
       "consent_expire_in_mins": 30
 }'
       output: '{
-<<<<<<< HEAD
-        "clientId": "$IGNORE$",
-=======
->>>>>>> upstream/develop
         "status": "ACTIVE"
 }'
   ESignet_UpdateOIDCClientV3_with_invalid_forgot_pwd_link_required_Neg:
