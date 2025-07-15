@@ -184,6 +184,22 @@ export default function OtpGet({
     getCaptchaToken(null);
   };
 
+  function getFieldSpecificErrorKey(errorCode, currentLoginID, t2) {
+    if (errorCode !== "IDA-MLC-009" || !currentLoginID?.id) return null;
+    const errorKey = `invalid_${currentLoginID.id}`;
+    console.log("Error key: ", errorKey)
+    const translated = t2(errorKey);
+    console.log("Translated error key: ", translated)
+    if (
+      errorKey &&
+      translated !== errorKey &&
+      !translated.startsWith("errors.")
+    ) {
+      return errorKey;
+    }
+    return null;
+  }
+
   const sendOTP = async () => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
@@ -209,19 +225,30 @@ export default function OtpGet({
       setStatus({ state: states.LOADED, msg: "" });
 
       const { response, errors } = sendOtpResponse;
-
       if (errors != null && errors.length > 0) {
+        if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+          return;
+        }
+
+        const fieldSpecificErrorKey = getFieldSpecificErrorKey(
+          errors[0].errorCode,
+          currentLoginID,
+          t2
+        );
         let errorCodeCondition =
           langConfig.errors.otp[errors[0].errorCode] !== undefined &&
           langConfig.errors.otp[errors[0].errorCode] !== null;
-
-        if (errorCodeCondition) {
+        if (fieldSpecificErrorKey) {
+          setErrorBanner({
+            errorCode: fieldSpecificErrorKey,
+            show: true,
+          });
+        } else if (errorCodeCondition) {
           setErrorBanner({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true,
           });
-        } else if (errors[0].errorCode === "invalid_transaction") {
-          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         } else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
