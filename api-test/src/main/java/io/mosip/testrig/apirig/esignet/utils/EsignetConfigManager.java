@@ -33,6 +33,8 @@ public class EsignetConfigManager extends ConfigManager{
 		init(moduleSpecificPropertiesMap);
 	}
 
-
+	public static void add(Map<String, Object> additionalPropertiesMap) {
+		propertiesMap.putAll(additionalPropertiesMap);
+	}
 
 }
