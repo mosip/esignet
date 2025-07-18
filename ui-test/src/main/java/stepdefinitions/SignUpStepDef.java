@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.openqa.selenium.WebDriver;
 
+import base.BasePage;
 import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -19,6 +20,7 @@ public class SignUpStepDef {
 	public WebDriver driver;
 	BaseTest baseTest;
 	SignUpPage signUpPage;
+	BasePage basePage;
 	LoginOptionsPage loginOptionsPage;
 	RegistrationPage registrationPage;
 
@@ -26,6 +28,7 @@ public class SignUpStepDef {
 		this.baseTest = baseTest;
 		this.driver = BaseTest.getDriver();
 		signUpPage = new SignUpPage(driver);
+		basePage = new BasePage(driver);
 		loginOptionsPage = new LoginOptionsPage(driver);
 		registrationPage = new RegistrationPage(driver);
 	}
@@ -35,7 +38,7 @@ public class SignUpStepDef {
 		assertTrue(loginOptionsPage.isSignUpWithUnifiedLoginOptionDisplayed());
 	}
 
-	@Given("user clicks on the Sign-Up with Unified Login hyperlink")
+	@When("user clicks on the Sign-Up with Unified Login hyperlink")
 	public void userClicksOnSignUpWithUnifiedLoginHyperlink() {
 		loginOptionsPage.clickOnSignUpWithUnifiedLogin();
 	}
@@ -156,7 +159,7 @@ public class SignUpStepDef {
 
 	@When("user clicks the browser back button")
 	public void userClicksTheBrowserBackButton() {
-		registrationPage.browserBackButton();
+		basePage.browserBackButton();
 	}
 
 	@Then("user clicks on the Continue button")
@@ -238,6 +241,16 @@ public class SignUpStepDef {
 	public void verifyOtpExpiredErrorMessage() {
 		assertTrue(registrationPage.isOtpExpiredMessageDisplayed());
 	}
+	
+	@When("user clicks on the close icon of the error message")
+	public void userClicksOnErrorCloseIcon() {
+	    registrationPage.clickOnErrorCloseIcon();
+	}
+
+	@Then("verify the error message is not visible")
+	public void verifyErrorMessageIsGone() {
+		registrationPage.verifyErrorIsGoneAfterClose();
+	}
 
 	@Then("user clicks on the Resend OTP button")
 	public void userClicksOnResendButton() {
@@ -247,6 +260,16 @@ public class SignUpStepDef {
 	@Then("verify an error message OTP authentication failed. Please try again. is displayed at the top")
 	public void verifyIncorrectOtpMessage() {
 		assertTrue(registrationPage.isIncorrectOtpErrorDisplayed());
+	}
+	
+	@Then("verify error message disappears after 10 seconds")
+	public void waitForErrorMessageToDisappear() {
+	    registrationPage.verifyErrorMessageDisappesAfterTenSeconds();
+	}
+	
+	@Then("verify error message disappears as user starts typing in the input field")
+	public void verifyUserStartsTypingAndErrorMessageDisappear() {
+	    registrationPage.verifyErrorMessageDisappesAsUserStartsTyping();
 	}
 
 	@Then("verify OTP field is rejecting special characters")
@@ -324,5 +347,5 @@ public class SignUpStepDef {
 	public void continueButtonShouldBeDisplayed() {
 		assertTrue(registrationPage.isContinueButtonDisplayed());
 	}
-
+	
 }

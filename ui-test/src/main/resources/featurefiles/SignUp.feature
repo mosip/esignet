@@ -8,7 +8,7 @@ Scenario Outline: Signup and Mobile Number Registration
   Then validate that the logo is displayed
   Then verify Sign-Up with Unified Login option should be displayed
 
-  Given user clicks on the Sign-Up with Unified Login hyperlink
+  When user clicks on the Sign-Up with Unified Login hyperlink
   Then verify user is navigated to the Mobile Number Registration screen
 
   Then user verify header text
@@ -27,7 +27,7 @@ Scenario Outline: Signup and Mobile Number Registration
 
   When user enters "<8 digit number>" in the mobile number text box
   Then the placeholder will be replaced with the entered mobile number
-  And user tabs out
+  And user tabs out 
   Then validate that the Continue button enabled
   And verify no error message is displayed
   
@@ -64,7 +64,7 @@ Scenario Outline: Signup and Mobile Number Registration
   When user clicks on the navigate back button
   Then verify user is redirected to the previous screen
   
-  Given user clicks on the Sign-Up with Unified Login hyperlink
+  When user clicks on the Sign-Up with Unified Login hyperlink
   When user clicks the browser back button
   Then verify user is redirected to the previous screen
 
@@ -76,7 +76,7 @@ Examples:
 @smoke @OtpPage
 Scenario Outline: OTP input acceptance and Verify button state
   Given click on Sign In with eSignet
-  Given user clicks on the Sign-Up with Unified Login hyperlink
+  When user clicks on the Sign-Up with Unified Login hyperlink
   When user enters "<already registered number>" in the mobile number text box
   And user clicks on the Continue button
   Then verify user is navigated to the OTP screen
@@ -101,14 +101,22 @@ Scenario Outline: OTP input acceptance and Verify button state
   When user enters "<expired_otp>" as a Otp 
   And user clicks on the Verify OTP button
   Then verify an error message OTP expired. Please request a new one and try again. is displayed at the top
-
+  When user clicks on the close icon of the error message
+  Then verify the error message is not visible
+  
   Then user clicks on the Resend OTP button
   When user enters "<invalid_otp>" as a Otp
   And user clicks on the Verify OTP button
   Then verify an error message OTP authentication failed. Please try again. is displayed at the top
- 
+  And verify error message disappears after 10 seconds
+  
+  When user enters "<invalid_otp>" as a Otp
+  And user clicks on the Verify OTP button
+  Then verify an error message OTP authentication failed. Please try again. is displayed at the top
+  
   When user enters "<special_characters>" as a Otp
-  Then verify OTP field is rejecting special characters
+  Then verify error message disappears as user starts typing in the input field
+  And verify OTP field is rejecting special characters
 
   When user enters "<alphabets>" as a Otp
   Then verify OTP field is rejecting alphabets
@@ -128,7 +136,7 @@ Scenario Outline: OTP input acceptance and Verify button state
   And verify a Login button is visible
 
   Then user clicks on the Login button
-  Given user clicks on the Sign-Up with Unified Login hyperlink
+  When user clicks on the Sign-Up with Unified Login hyperlink
   When user enters "<valid mobile number>" in the mobile number text box
   And user clicks on the Continue button
   Then verify user is navigated to the OTP screen

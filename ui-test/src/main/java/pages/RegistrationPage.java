@@ -1,6 +1,7 @@
 package pages;
 
 import base.BasePage;
+import utils.EsignetConfigManager;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,7 +13,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.List;
 import java.time.Duration;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
 public class RegistrationPage extends BasePage {
@@ -40,20 +40,23 @@ public class RegistrationPage extends BasePage {
 	@FindBy(id = "language-select-button")
 	WebElement languageSelection;
 
-	@FindBy(xpath = "//*[@id=\"root\"]/div/div/div/footer/span")
+	@FindBy(xpath = "//*[@id='root']/div/div/div/footer/span")
 	WebElement footerText;
 
 	@FindBy(xpath = "//img[@class='footer-brand-logo']")
 	WebElement footerLogo;
 
-	@FindBy(xpath = "//div[@id=\":r4:-form-item\"]/span")
+	@FindBy(xpath = "//div[@id=':r4:-form-item']/span")
 	WebElement prefilledCountryCode;
 
 	@FindBy(id = "phone_input")
 	WebElement helpTextInTextBox;
 
-	@FindBy(xpath = "//p[@class='rounded-b-lg bg-destructive-foreground p-2 text-sm font-medium text-destructive w-full']")
+	@FindBy(id = ":r4:-form-item-message")
 	WebElement numberCannotStartWithZeroErrorMessage;
+	
+	@FindBy(id = ":r4:-form-item-message")
+	List<WebElement> enterValidUserNameError;
 
 	@FindBy(id = "login-header")
 	WebElement loginPageHeader;
@@ -114,6 +117,9 @@ public class RegistrationPage extends BasePage {
 
 	@FindBy(id = "login-header")
 	WebElement loginScreen;
+	
+	@FindBy(id = "cross_icon")
+	WebElement errorCloseIcon;
 
 	public boolean isRegistrationScreenDisplayed() {
 		return isElementVisible(registrationScreen);
@@ -196,13 +202,21 @@ public class RegistrationPage extends BasePage {
 	}
 
 	public boolean isErrorMessageDisplayed() {
-		List<WebElement> elements = driver.findElements(By.xpath(
-				"//p[@class='rounded-b-lg bg-destructive-foreground p-2 text-sm font-medium text-destructive w-full']"));
-		return !elements.isEmpty() && elements.get(0).isDisplayed();
+	    return !enterValidUserNameError.isEmpty() && enterValidUserNameError.get(0).isDisplayed();
+	}
+	
+	public void verifyErrorIsGoneAfterClose() {
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+	    wait.until(ExpectedConditions.invisibilityOf(otpExpiredError));
 	}
 
-	public void waitForErrorMessageToDisappear() {
+	public void verifyErrorMessageDisappesAfterTenSeconds() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(12));
+		wait.until(ExpectedConditions.invisibilityOf(incorrectOtpError));
+	}
+	
+	public void verifyErrorMessageDisappesAsUserStartsTyping() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
 		wait.until(ExpectedConditions.invisibilityOf(incorrectOtpError));
 	}
 
@@ -235,10 +249,6 @@ public class RegistrationPage extends BasePage {
 
 	public boolean isPreviousScreenVisible() {
 		return isElementVisible(loginPageHeader);
-	}
-
-	public void browserBackButton() {
-		driver.navigate().back();
 	}
 
 	public boolean isEnterOtpPageDisplayed() {
@@ -274,14 +284,16 @@ public class RegistrationPage extends BasePage {
 	}
 
 	public void waitUntilOtpTimerExpires() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(90));
+		int otpExpiry = Integer.parseInt(EsignetConfigManager.getProperty("otp.expiry.seconds", ""));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(otpExpiry));
 		wait.until(ExpectedConditions.textToBePresentInElement(otpCountDownTimer, "00:00"));
 		wait.until(ExpectedConditions.elementToBeClickable(resendOtpButton));
 		resendOtpButton.click();
 	}
 
 	public void waitUntilOtpExpires() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(90));
+		int otpExpiry = Integer.parseInt(EsignetConfigManager.getProperty("otp.expiry.seconds", ""));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(otpExpiry));
 		wait.until(ExpectedConditions.textToBePresentInElement(otpCountDownTimer, "00:00"));
 	}
 
@@ -393,6 +405,10 @@ public class RegistrationPage extends BasePage {
 
 	public void clickOnContinueButtonInSucessScreen() {
 		clickOnElement(continueButtonInSuccessPage);
+	}
+	
+	public void clickOnErrorCloseIcon() {
+		clickOnElement(errorCloseIcon);
 	}
 
 }
