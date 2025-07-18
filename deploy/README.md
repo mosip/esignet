@@ -53,10 +53,11 @@ During deployment, the system will prompt for user input to select the appropria
 ./install-esignet.sh
 ```
 ### Note:
-* Before proceeding with the **Onboarding** steps, please ensure that the mock relying party services are deployed and running.
+* Before proceeding with the **Onboarding** steps, please ensure that the Mock Relying Party services are deployed and running.
 * You can refer to the default mock relying party implementation here:mosip/esignet-mock-services
   * [mosip/esignet-mock-services](https://github.com/mosip/esignet-mock-services)
-* Once the mock relying party is deployed, proceed with the onboarding process.
+* **Note:** Deployment of the mock Relying Party portal is optional if you already have your own Relying Party portal.
+* Once the Relying Party is deployed, proceed with the onboarding.
 ## Onboarder
 * There are two ways to proceed, either with mosip identity plugin or with mock plugin.
 ### MOSIP Identity Plugin
