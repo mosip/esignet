@@ -9,13 +9,12 @@ import { Buffer } from "buffer";
 import { Detector } from "react-detect-offline";
 import { getPollingConfig } from "../helpers/utils";
 
-const config = await configService();
-
 export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   const { t, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,
   });
   const [selectedLang, setSelectedLang] = useState();
+  const [config, setConfig] = useState({});
   const authServices = new authService(openIDConnectService);
   const authorizeQueryParam = "authorize_query_param";
   const ui_locales = "ui_locales";
@@ -57,6 +56,15 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
       }),
     }),
   };
+
+  // ✅ Fetch config asynchronously
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const cfg = await configService();
+      setConfig(cfg || {});
+    };
+    fetchConfig();
+  }, []);
 
   useEffect(() => {
     //Gets fired when changeLanguage got called.

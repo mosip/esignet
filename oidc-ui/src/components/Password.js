@@ -24,8 +24,6 @@ const fields = passwordFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState["Password_" + field.id] = ""));
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();
-
 export default function Password({
   param,
   authService,
@@ -42,6 +40,22 @@ export default function Password({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
@@ -83,8 +97,8 @@ export default function Password({
       setForgotPassword(true);
       setForgotPasswordURL(
         forgotPswdConfig[configurationKeys.forgotPswdURL] +
-        "#" +
-        authService.getAuthorizeQueryParam()
+          "#" +
+          authService.getAuthorizeQueryParam()
       );
     } else {
       setForgotPassword(false);
@@ -92,9 +106,18 @@ export default function Password({
   };
 
   useEffect(() => {
-    if (checkConfigProperty(clientAdditionalConfig, configurationKeys.forgotPswdLinkRequired)) {
-      toggleForgotPwdBanner(clientAdditionalConfig[configurationKeys.forgotPswdLinkRequired]);
-    } else if (checkConfigProperty(forgotPswdConfig, configurationKeys.forgotPswd)) {
+    if (
+      checkConfigProperty(
+        clientAdditionalConfig,
+        configurationKeys.forgotPswdLinkRequired
+      )
+    ) {
+      toggleForgotPwdBanner(
+        clientAdditionalConfig[configurationKeys.forgotPswdLinkRequired]
+      );
+    } else if (
+      checkConfigProperty(forgotPswdConfig, configurationKeys.forgotPswd)
+    ) {
       toggleForgotPwdBanner(forgotPswdConfig[configurationKeys.forgotPswd]);
     } else {
       setForgotPassword(false);
@@ -171,7 +194,7 @@ export default function Password({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     setIsValid(
       (!maxLength || e.target.value.trim().length <= parseInt(maxLength)) &&
-      (!regex || regex.test(e.target.value.trim()))
+        (!regex || regex.test(e.target.value.trim()))
     );
   };
 
@@ -375,9 +398,9 @@ export default function Password({
             {t1(
               secondaryHeading,
               loginIDs &&
-              loginIDs.length === 1 && {
-                currentID: t1(loginIDs[0].id),
-              }
+                loginIDs.length === 1 && {
+                  currentID: t1(loginIDs[0].id),
+                }
             )}
           </div>
         )}

@@ -12,8 +12,6 @@ import redirectOnError from "../helpers/redirectOnError";
 import LoginIDOptions from "./LoginIDOptions";
 import InputWithPrefix from "./InputWithPrefix";
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();
-
 export default function OtpGet({
   param,
   authService,
@@ -30,6 +28,22 @@ export default function OtpGet({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";

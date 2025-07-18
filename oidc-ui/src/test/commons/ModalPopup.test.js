@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import ModalPopup from "../../../common/ModalPopup";
+import ModalPopup from "../../common/ModalPopup";
 
 describe("ModalPopup Component", () => {
   it("renders without crashing", () => {
