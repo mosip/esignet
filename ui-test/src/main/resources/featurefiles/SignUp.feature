@@ -137,7 +137,7 @@ Scenario Outline: OTP input acceptance and Verify button state
 
   Then user clicks on the Login button
   When user clicks on the Sign-Up with Unified Login hyperlink
-  When user enters "<valid mobile number>" in the mobile number text box
+  And user enters "<valid mobile number>" in the mobile number text box
   And user clicks on the Continue button
   Then verify user is navigated to the OTP screen
   When user enters the complete 6-digit OTP
