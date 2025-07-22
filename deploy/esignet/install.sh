@@ -23,7 +23,7 @@ function installing_esignet() {
   done
 
   NS=esignet
-  CHART_VERSION=1.6.0-develop
+  CHART_VERSION=1.6.0
 
   ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
 
