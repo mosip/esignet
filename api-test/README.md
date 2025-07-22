@@ -81,6 +81,7 @@ The Test Rig is dynamically configured based on the core service plugin being te
 - **usePreConfiguredOtp**: A flag to use pre-configured OTPs. Set to "true" for OTP-based workflows.
 - **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
 - **esignetSupportedLanguage**: Any 3-letter valid language code to create OIDC client (e.g., "eng", "hin", "tam").
+- **servicesNotDeployed**: Add the value as **sunbirdrc**.
 
 ### 3. Configuration for Sunbird Insurance Use Case:
 - **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the Sunbird insurance service.
@@ -96,7 +97,7 @@ These configurations need to be added as part of the eSignet service deployment 
 - **MOSIP_ESIGNET_SEND_OTP_ATTEMPTS**: 300
 - **MOSIP_ESIGNET_AUTH_CHALLENGE_BIO_MAX_LENGTH**: 200000
 - **MOSIP_ESIGNET_PREAUTHENTICATION_EXPIRE_IN_SECS**: 600
-- **MOSIP_ESIGNET_CAPTCHA_REQUIRED**: (empty)
+- **MOSIP_ESIGNET_CAPTCHA_REQUIRED**: false
 
 These parameters must be included in the eSignet deployment YAML for the API Test Rig to function correctly, independent of which plugin is being used.
 
