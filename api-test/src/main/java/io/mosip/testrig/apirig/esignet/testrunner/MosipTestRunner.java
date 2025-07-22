@@ -36,6 +36,7 @@ import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthTestsUtil;
 import io.mosip.testrig.apirig.utils.CertificateGenerationUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
+import io.mosip.testrig.apirig.utils.DependencyResolver;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.JWKKeyUtil;
@@ -88,6 +89,8 @@ public class MosipTestRunner {
 			GlobalMethods.setModuleNameAndReCompilePattern(EsignetConfigManager.getproperty("moduleNamePattern"));
 			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, false);
 			setLogLevels();
+			
+			String testCasesToExecuteString = EsignetConfigManager.getproperty("testCasesToExecute");
 
 //			HealthChecker healthcheck = new HealthChecker();
 //			healthcheck.setCurrentRunningModule(BaseTestCase.currentModule);
@@ -132,7 +135,16 @@ public class MosipTestRunner {
 				if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty()) {
 					LOGGER.error("partnerKeyURL is null");
 				} else {
+					
+					DependencyResolver.loadDependencies(getGlobalResourcePath() + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
+					if (!testCasesToExecuteString.isBlank()) {
+						EsignetUtil.testCasesInRunScope = DependencyResolver.getDependencies(testCasesToExecuteString);
+					}
+					
 					startTestRunner();
+					//AdminTestUtil.generateTestCaseInterDependencies(getGlobalResourcePath()
+					//        + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
+					
 					EsignetUtil.dBCleanup();
 					KeycloakUserManager.removeUser();
 					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.partnerId);
@@ -145,7 +157,17 @@ public class MosipTestRunner {
 			} else if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
 					.contains("sunbirdrcauthenticationservice") == true) {
 				EsignetUtil.getSupportedLanguage();
+
+				
+				DependencyResolver.loadDependencies(getGlobalResourcePath() + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
+				if (!testCasesToExecuteString.isBlank()) {
+					EsignetUtil.testCasesInRunScope = DependencyResolver.getDependencies(testCasesToExecuteString);
+				}
+				 
+
 				startTestRunner();
+				//AdminTestUtil.generateTestCaseInterDependencies(getGlobalResourcePath()
+				//        + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
 			} else {
 				// Mock ID System
 
@@ -155,7 +177,16 @@ public class MosipTestRunner {
 				additionalPropertiesMap.put(EsignetConstants.PRE_CONFIGURED_OTP_STRING, EsignetConstants.ALL_ONE_OTP_STRING);
 				EsignetConfigManager.add(additionalPropertiesMap);
 				EsignetUtil.getSupportedLanguage();
+				
+				
+				DependencyResolver.loadDependencies(getGlobalResourcePath() + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
+				if (!testCasesToExecuteString.isBlank()) {
+					EsignetUtil.testCasesInRunScope = DependencyResolver.getDependencies(testCasesToExecuteString);
+				}
+				
 				startTestRunner();
+				//AdminTestUtil.generateTestCaseInterDependencies(getGlobalResourcePath()
+				//        + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
 			}
 
 		} catch (Exception e) {
