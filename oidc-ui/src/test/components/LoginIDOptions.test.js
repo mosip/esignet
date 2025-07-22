@@ -72,7 +72,7 @@ function setupMocks({
           ok: true,
           text: () => Promise.resolve(svgText),
         })
-      : Promise.reject("fetch error")
+      : Promise.reject(new Error("fetch error"))
   );
 
   openIDConnectService.mockImplementation(() => ({

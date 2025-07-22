@@ -177,7 +177,7 @@ test("Proceed triggers prepareSignupRedirect success", async () => {
   mockAuthService.prepareSignupRedirect.mockResolvedValue({
     response: {
       idToken: "token123",
-      redirectUri: "http://redirect.com",
+      redirectUri: "https://redirect.com",
       code: "abc",
       state: "state1",
     },

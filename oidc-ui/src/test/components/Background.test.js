@@ -43,9 +43,9 @@ beforeEach(() => {
 test("renders with all props", () => {
   utils.checkConfigProperty.mockReturnValue(false);
 
-  defaultProps.oidcService.getEsignetConfiguration.mockImplementation((key) => {
-    return key === configurationKeys.signupConfig ? {} : {};
-  });
+  defaultProps.oidcService.getEsignetConfiguration.mockImplementation(
+    () => ({})
+  );
 
   render(<Background {...defaultProps} />);
 

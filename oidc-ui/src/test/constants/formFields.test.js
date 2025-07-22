@@ -90,7 +90,7 @@ describe("Auth field constants and generator", () => {
       };
 
       // Mock process.env for regex fallbacks
-      process.env.REACT_APP_PASSWORD_REGEX = "default_pswd_regex";
+      process.env.REACT_APP_PSWD_REGEX = "default_pswd_regex";
       process.env.REACT_APP_USERNAME_REGEX = "default_username_regex";
 
       mockOpenIDConnectService = {
@@ -100,7 +100,7 @@ describe("Auth field constants and generator", () => {
 
     afterEach(() => {
       // Clean up mock process.env
-      delete process.env.REACT_APP_PASSWORD_REGEX;
+      delete process.env.REACT_APP_PSWD_REGEX;
       delete process.env.REACT_APP_USERNAME_REGEX;
     });
 

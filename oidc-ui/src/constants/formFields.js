@@ -262,7 +262,7 @@ const generateFieldData = (fieldName, openIDConnectService) => {
 
   const passwordRegexValue =
     openIDConnectService.getEsignetConfiguration(configurationKeys.pswdRegex) ??
-    process.env.REACT_APP_PASSWORD_REGEX;
+    process.env.REACT_APP_PSWD_REGEX;
 
   const usernameRegexValue =
     openIDConnectService.getEsignetConfiguration(

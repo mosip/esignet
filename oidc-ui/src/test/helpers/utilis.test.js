@@ -109,7 +109,7 @@ describe("Utility functions", () => {
       const base64url = base64
         .replace(/\+/g, "-")
         .replace(/\//g, "_")
-        .replace(/=+$/, "");
+        .split("=")[0]; // ✅ safe way to strip padding
       const decoded = base64UrlDecode(base64url);
       expect(decoded).toBe(original);
     });
