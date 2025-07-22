@@ -13,7 +13,7 @@ import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
-import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
@@ -82,7 +82,7 @@ public class AuthorizationControllerTest {
     CacheUtilService cacheUtilService;
 
     @MockBean
-    private KbiSchemaFieldUtil kbiSchemaFieldUtil;
+    private KBIFormHelperService kbiFormHelperService;
 
 
     @MockBean

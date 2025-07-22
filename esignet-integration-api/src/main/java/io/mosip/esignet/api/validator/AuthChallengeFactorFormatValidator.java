@@ -3,19 +3,15 @@ package io.mosip.esignet.api.validator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.util.ErrorConstants;
 
-import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -23,14 +19,11 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 @Slf4j
 @Component
@@ -47,7 +40,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     private ObjectMapper objectMapper;
 
     @Autowired
-    private KbiSchemaFieldUtil kbiSchemaFieldUtil;
+    private KBIFormHelperService kbiFormHelperService;
 
     @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
     private List<Map<String, String>> fieldDetailList;
@@ -67,8 +60,8 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     public void init() {
         try {
             fieldJson = StringUtils.hasText(kbiFormDetailsUrl)
-                    ? kbiSchemaFieldUtil.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
-                    : kbiSchemaFieldUtil.migrateKBIFieldDetails(fieldDetailList);
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList);
         } catch (Exception e) {
             log.error("Error loading KBI form details: {}", kbiFormDetailsUrl, e);
         }

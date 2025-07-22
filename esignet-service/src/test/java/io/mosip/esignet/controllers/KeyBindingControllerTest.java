@@ -12,7 +12,7 @@ import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.Error;
@@ -74,7 +74,7 @@ public class KeyBindingControllerTest {
 	AuditPlugin auditPlugin;
 
 	@MockBean
-	private KbiSchemaFieldUtil kbiSchemaFieldUtil;
+	private KBIFormHelperService KBIFormHelperService;
 
 	@MockBean
 	LocalAuthenticationEntryPoint localAuthenticationEntryPoint;

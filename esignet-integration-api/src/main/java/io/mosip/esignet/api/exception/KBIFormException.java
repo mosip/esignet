@@ -6,11 +6,11 @@
 
 package io.mosip.esignet.api.exception;
 
-public class KbiSchemaFieldException extends Exception {
+public class KBIFormException extends Exception {
 
     private String errorCode;
 
-    public KbiSchemaFieldException(String errorCode) {
+    public KBIFormException(String errorCode) {
         super(errorCode);
         this.errorCode = errorCode;
     }

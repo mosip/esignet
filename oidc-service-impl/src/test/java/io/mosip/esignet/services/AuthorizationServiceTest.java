@@ -15,13 +15,13 @@ import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
-import io.mosip.esignet.api.exception.KbiSchemaFieldException;
+import io.mosip.esignet.api.exception.KBIFormException;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.api.util.FilterCriteriaMatcher;
-import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -104,7 +104,7 @@ public class AuthorizationServiceTest {
     ResourceLoader resourceLoader;
 
     @Mock
-    KbiSchemaFieldUtil kbiSchemaFieldUtil;
+    KBIFormHelperService kbiFormHelperService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -1636,7 +1636,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void init_withEmptyJson_fallbackToMigrate_thenPass() throws KbiSchemaFieldException {
+    public void init_withEmptyJson_fallbackToMigrate_thenPass() throws KBIFormException {
         ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
 
         List<Map<String, String>> fallbackFields = List.of(
@@ -1645,9 +1645,9 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
 
         // Simulate fetch returning null and fallback succeeding
-        when(kbiSchemaFieldUtil.fetchKBIFieldDetailsFromResource(anyString())).thenReturn(null);
+        when(kbiFormHelperService.fetchKBIFieldDetailsFromResource(anyString())).thenReturn(null);
         JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "value");
-        when(kbiSchemaFieldUtil.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
 
         authorizationServiceImpl.init();
 
@@ -1656,7 +1656,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void init_withNullUrl_fallbackToMigrate_thenPass() throws KbiSchemaFieldException {
+    public void init_withNullUrl_fallbackToMigrate_thenPass() throws KBIFormException {
         ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "");
 
         List<Map<String, String>> fallbackFields = List.of(
@@ -1665,7 +1665,7 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
 
         JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "fallback");
-        when(kbiSchemaFieldUtil.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
 
         authorizationServiceImpl.init();
 
@@ -1674,7 +1674,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void init_withException_fallbackToMigrate_thenPass() throws KbiSchemaFieldException {
+    public void init_withException_fallbackToMigrate_thenPass() throws KBIFormException {
         ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
 
         List<Map<String, String>> fallbackFields = List.of(
@@ -1682,7 +1682,7 @@ public class AuthorizationServiceTest {
         );
         ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
         JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("fallback", "true");
-        when(kbiSchemaFieldUtil.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
 
         authorizationServiceImpl.init();
 

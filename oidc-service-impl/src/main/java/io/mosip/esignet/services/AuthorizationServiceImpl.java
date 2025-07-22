@@ -5,11 +5,8 @@
  */
 package io.mosip.esignet.services;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.claim.*;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
@@ -17,7 +14,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
-import io.mosip.esignet.api.util.KbiSchemaFieldUtil;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
@@ -30,18 +27,14 @@ import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -128,17 +121,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private ResourceLoader resourceLoader;
 
     @Autowired
-    private KbiSchemaFieldUtil kbiSchemaFieldUtil;
+    private KBIFormHelperService kbiFormHelperService;
 
     @PostConstruct
     public void init() {
         try {
             JsonNode fieldDetailsJson = StringUtils.hasText(kbiFormDetailsUrl)
-                    ? kbiSchemaFieldUtil.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
                     : null;
 
             uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,
-                    fieldDetailsJson != null ? fieldDetailsJson : kbiSchemaFieldUtil.migrateKBIFieldDetails(fieldDetailList));
+                    fieldDetailsJson != null ? fieldDetailsJson : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList));
 
         } catch (Exception e) {
             log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
@@ -324,8 +317,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .entrySet()
                 .stream()
                 .anyMatch( entry -> entry.getValue().stream()
-                        .anyMatch(m -> (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
-                                transaction.getClaimMetadata().getOrDefault(entry.getKey(), Collections.EMPTY_LIST).isEmpty() ));
+                        .anyMatch(m ->
+                                (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
+                                        ((transaction.getClaimMetadata().get(entry.getKey()) == null || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()))
+                        ));
         claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 
