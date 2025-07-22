@@ -14,6 +14,7 @@ import {
   PREPARE_SIGNUP_REDIRECT,
   RESUME,
 } from "./../constants/routes";
+import { getCsrfToken, storeCsrfToken } from "../helpers/utils";
 
 const authorizeQueryParam = "authorize_query_param";
 
@@ -51,7 +52,7 @@ class authService {
     let response = await ApiService.post(AUTHENTICATE, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
         "oauth-details-hash":
           (await oAuthDetailsHash) ||
           (await this.openIDConnectService.getOauthDetailsHash()),
@@ -90,7 +91,7 @@ class authService {
     let response = await ApiService.post(OAUTH_DETAIL_V2, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
       },
     });
     return response.data;
@@ -105,7 +106,7 @@ class authService {
     let response = await ApiService.post(OAUTH_DETAIL_V3, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
       },
     });
     return response.data;
@@ -125,7 +126,7 @@ class authService {
     let response = await ApiService.post(PAR_OAUTH_DETAIL, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
       },
     });
     return response.data;
@@ -156,7 +157,7 @@ class authService {
     let response = await ApiService.post(AUTHCODE, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
         "oauth-details-hash":
           (await oAuthDetailsHash) ||
           (await this.openIDConnectService.getOauthDetailsHash()),
@@ -193,7 +194,7 @@ class authService {
     let response = await ApiService.post(SEND_OTP, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
         "oauth-details-hash":
           await this.openIDConnectService.getOauthDetailsHash(),
         "oauth-details-key": await this.openIDConnectService.getTransactionId(),
@@ -213,6 +214,8 @@ class authService {
         "Content-Type": "application/json",
       },
     });
+    const token = response.data?.token;
+    if (token) storeCsrfToken(token);
     return response.data;
   };
 
@@ -268,7 +271,7 @@ class authService {
     let response = await ApiService.get(CLAIM_DETAILS, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
         "oauth-details-hash":
           await this.openIDConnectService.getOauthDetailsHash(),
         "oauth-details-key": await this.openIDConnectService.getTransactionId(),
@@ -289,7 +292,7 @@ class authService {
     let response = await ApiService.post(PREPARE_SIGNUP_REDIRECT, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        "X-XSRF-TOKEN": getCsrfToken(),
         "oauth-details-hash":
           await this.openIDConnectService.getOauthDetailsHash(),
         "oauth-details-key": await this.openIDConnectService.getTransactionId(),
@@ -313,7 +316,7 @@ class authService {
 
     const headers = {
       "Content-Type": "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+      "X-XSRF-TOKEN": getCsrfToken(),
       "oauth-details-hash": oauthDetailsHash,
       "oauth-details-key": oauthDetailsKey,
     };

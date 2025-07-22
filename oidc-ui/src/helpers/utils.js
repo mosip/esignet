@@ -2,6 +2,8 @@ import { Buffer } from "buffer";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
 
+const CSRF_TOKEN_KEY = "XSRF-TOKEN";
+
 const encodeString = (str) => {
   return Buffer.from(str).toString("base64");
 };
@@ -93,4 +95,12 @@ const getPollingConfig = () => {
   return { url, interval, timeout, enabled };
 };
 
-export { encodeString, decodeHash, checkConfigProperty, sortKeysDeep, getOauthDetailsHash, base64UrlDecode, getPollingConfig };
+export function storeCsrfToken(token) {
+  if (token) sessionStorage.setItem(CSRF_TOKEN_KEY, token);
+}
+
+export function getCsrfToken() {
+  return sessionStorage.getItem(CSRF_TOKEN_KEY);
+}
+
+export { encodeString, decodeHash, checkConfigProperty, sortKeysDeep, getOauthDetailsHash, base64UrlDecode, getPollingConfig, storeCsrfToken, getCsrfToken };
