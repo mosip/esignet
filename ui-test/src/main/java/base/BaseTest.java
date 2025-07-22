@@ -30,6 +30,7 @@ import io.cucumber.java.Scenario;
 import io.cucumber.plugin.event.PickleStepTestStep;
 import io.cucumber.plugin.event.TestCase;
 import io.cucumber.plugin.event.TestStep;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.S3Adapter;
 import utils.BaseTestUtil;
 import utils.EsignetConfigManager;
@@ -282,6 +283,9 @@ public class BaseTest {
 		String domainPart = baseUrl.replace("https://", "").replace("http://", ""); // remove protocol
 		domainPart = domainPart.split("/")[0]; // remove path if any
 		String[] parts = domainPart.split("\\.");
+		
+		LOGGER.info("--- ApplnURI ---" + BaseTestCase.ApplnURI);
+		BaseTestCase.ApplnURI = System.getProperty("env.endpoint");
 
 		String envName = "";
 		if (parts.length >= 3) {
