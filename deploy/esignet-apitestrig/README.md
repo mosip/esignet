@@ -2,6 +2,8 @@
 
 ## Introduction
 ApiTestRig will test the working of APIs of the MOSIP modules.
+## Config Properties
+* For config properties [eSignet signup Apitestrig Readme](https://github.com/mosip/esignet-signup/blob/release-1.2.x/api-test/README.md) to be followed during deployment.
 ## Install
 * Create a directory for apitestrig on the NFS server at `/srv/nfs/mosip/<sandbox>/apitestrig/`:
 ```
@@ -38,7 +40,6 @@ chmod 777 /srv/nfs/mosip/<sandbox>/apitestrig
 * Run apitestrig manually via Rancher UI.
   ![apitestrig-2.png](../../docs/apitestrig-2.png)
 * There are two modes of apitestrig `smoke` & `smokeAndRegression`.
-* For config properties [eSignet Apitestrig Readme](https://github.com/mosip/esignet/blob/release-1.6.x/api-test/README.md) to be followed during deployment.
 * By default, apitestrig will execute with `smokeAndRegression`. <br>
   If you want to run apitestrig with only `smoke`. <br>
   You have to update the `apitestrig` configmap and rerun the specific apitestrig job.
