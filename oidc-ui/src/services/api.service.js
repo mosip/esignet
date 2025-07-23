@@ -1,11 +1,13 @@
 import axios from "axios";
 
-import { SOMETHING_WENT_WRONG } from "../constants/routes";
+import { CSRF, SOMETHING_WENT_WRONG } from "../constants/routes";
 
 const API_BASE_URL =
   process.env.NODE_ENV === "development"
     ? process.env.REACT_APP_ESIGNET_API_URL
     : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
+
+const csrfEndpoint = `${API_BASE_URL}${CSRF}`;
 
 export class HttpError extends Error {
   code;
@@ -16,11 +18,7 @@ export class HttpError extends Error {
 }
 
 const get_CsrfToken = async () => {
-  let response = await axios.get(CSRF, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  let response = await axios.get(csrfEndpoint);
   return response.data.token;
 };
 
