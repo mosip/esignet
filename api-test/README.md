@@ -98,6 +98,8 @@ These configurations need to be added as part of the eSignet service deployment 
 - **MOSIP_ESIGNET_AUTH_CHALLENGE_BIO_MAX_LENGTH**: 200000
 - **MOSIP_ESIGNET_PREAUTHENTICATION_EXPIRE_IN_SECS**: 600
 - **MOSIP_ESIGNET_CAPTCHA_REQUIRED**: (empty)
+- **MOSIP_MOCK_IDA_IDENTITY_SCHEMA_URL**:
+    value: classpath:/mock-identity-signup-schema.json
 
 These parameters must be included in the eSignet deployment YAML for the API Test Rig to function correctly, independent of which plugin is being used.
 
