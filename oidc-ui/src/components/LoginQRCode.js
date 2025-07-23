@@ -14,7 +14,6 @@ import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
 
 var linkAuthTriggered = false;
-const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function LoginQRCode({
   walletDetail,
@@ -35,6 +34,22 @@ export default function LoginQRCode({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const [qr, setQr] = useState("");
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });

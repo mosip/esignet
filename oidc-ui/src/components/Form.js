@@ -14,8 +14,6 @@ import langConfigService from "../services/langConfigService";
 import { JsonFormBuilder } from "@anushase/json-form-builder";
 import { encodeString } from "../helpers/utils";
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();
-
 export default function Form({
   authService,
   openIDConnectService,
@@ -31,6 +29,22 @@ export default function Form({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const formBuilderRef = useRef(null); // Reference to form instance
   const isSubmitting = useRef(false);

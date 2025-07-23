@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import LoadingIndicator from "../../../common/LoadingIndicator";
+import LoadingIndicator from "../../common/LoadingIndicator";
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key) => key }),
