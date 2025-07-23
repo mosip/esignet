@@ -103,11 +103,6 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             Map<String, String> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
 
             JsonNode schemaArray = fieldJson.path("schema");
-            if (!schemaArray.isArray()) {
-                log.warn("Schema is not an array");
-                return false;
-            }
-
             for (JsonNode fieldNode : schemaArray) {
                 String id = fieldNode.path("id").asText();
                 String controlType = fieldNode.path("controlType").asText("textbox");
@@ -152,6 +147,5 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             return false;
         }
     }
-
 
 }

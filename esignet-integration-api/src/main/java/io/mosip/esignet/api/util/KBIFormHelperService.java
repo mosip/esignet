@@ -59,58 +59,24 @@ public class KBIFormHelperService {
     }
 
     /**
-     * Converts a list of flat field definitions into a structured KBI JSON schema.
+     * Converts a flat list of field definitions into a structured KBI JSON schema.
      * <p>
-     * Each field in the input list is expected to be a map with keys:
+     * Each field map must contain:
      * <ul>
-     *     <li><code>id</code>: the field identifier (required)</li>
-     *     <li><code>type</code>: the field type, e.g., "text" or "date"</li>
-     *     <li><code>regex</code>: optional regular expression for validation</li>
+     *   <li><b>id</b> (required)</li>
+     *   <li><b>type</b> (e.g., "text", "date")</li>
+     *   <li><b>regex</b> (optional validation pattern)</li>
      * </ul>
      *
-     * The output JSON contains:
+     * <p>Returns a JSON with:
      * <ul>
-     *     <li><code>schema</code>: an array of field objects with properties such as controlType, label, validators, etc.</li>
-     *     <li><code>mandatoryLanguages</code>: an array specifying the mandatory languages (currently always ["eng"])</li>
+     *   <li><b>schema</b>: array of field configs (with id, controlType, label, validators, etc.)</li>
+     *   <li><b>mandatoryLanguages</b>: always ["eng"]</li>
      * </ul>
      *
-     * <p><b>Example Input:</b></p>
-     * <pre>{@code
-     * [
-     *   { "id": "user_name", "type": "text", "regex": "^[a-zA-Z0-9_]+$" },
-     *   { "id": "date_of_birth", "type": "date", "regex": "" }
-     * ]
-     * }</pre>
-     *
-     * <p><b>Example Output:</b></p>
-     * <pre>{@code
-     * {
-     *   "schema": [
-     *     {
-     *       "id": "user_name",
-     *       "controlType": "textbox",
-     *       "label": { "eng": "User Name" },
-     *       "required": true,
-     *       "validators": [
-     *         { "type": "regex", "validator": "^[a-zA-Z0-9_]+$" }
-     *       ]
-     *     },
-     *     {
-     *       "id": "date_of_birth",
-     *       "controlType": "date",
-     *       "label": { "eng": "Date Of Birth" },
-     *       "required": true,
-     *       "validators": [],
-     *       "type": "date"
-     *     }
-     *   ],
-     *   "mandatoryLanguages": ["eng"]
-     * }
-     * }</pre>
-     *
-     * @param fieldList the list of field definition maps to migrate
-     * @return the migrated JSON schema as a JsonNode
-     * @throws KBIFormException if the input is empty or invalid, or migration fails
+     * @param fieldList list of field definitions
+     * @return migrated schema as JsonNode
+     * @throws KBIFormException if input is invalid or migration fails
      */
     public JsonNode migrateKBIFieldDetails(List<Map<String, String>> fieldList) throws KBIFormException {
         if (CollectionUtils.isEmpty(fieldList)) {
