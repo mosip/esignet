@@ -1,9 +1,16 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import PopoverContainer from "../../../common/Popover";
+import PopoverContainer from "../../common/Popover";
 
-// Mock the Popover components
-jest.mock("@radix-ui/react-popover", () => require("./mocks"));
+// ✅ Mock implementation of @radix-ui/react-popover
+jest.mock("@radix-ui/react-popover", () => ({
+  __esModule: true,
+  Root: ({ children }) => <div>{children}</div>,
+  Trigger: ({ children }) => <div>{children}</div>,
+  Portal: ({ children }) => <div>{children}</div>,
+  Content: ({ children }) => <div>{children}</div>,
+  Arrow: () => <div>Mock Arrow</div>,
+}));
 
 describe("PopoverContainer", () => {
   it("renders with provided props", () => {

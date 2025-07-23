@@ -53,7 +53,7 @@ The application runs on PORT=3000 by default.
   - REACT_APP_CAPTCHA_ENABLE: comma-separated components list, where the captcha should be shown.
   - REACT_APP_AUTH_TXN_ID_LENGTH: transaction ID length.
   - REACT_APP_OTP_LENGTH: Length of the otp.
-  - REACT_APP_PASSWORD_REGEX: Password pattern using regex.
+  - REACT_APP_PSWD_REGEX: Password pattern using regex.
   - REACT_APP_WALLET_LOGO_URL: URL for the logo in the wallet QRCode. This feature supports cross-origin-enabled image URLs only.
   - REACT_APP_CONSENT_SCREEN_TIME_OUT_BUFFER_IN_SEC: Buffer time for the consent screen expiry timer.
   - REACT_APP_WALLET_QR_CODE_AUTO_REFRESH_LIMIT: Limit for the QR code auto refresh.

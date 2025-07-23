@@ -230,104 +230,13 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   var state = searchParams.get("state");
   var icons;
 
-  useEffect(() => {
-    if (!decodeOAuth) {
-      return;
-    }
-    const initialize = async () => {
-      const langConfig = await langConfigService.getLangCodeMapping();
-      setLangMap(langConfig);
-    };
-    loadComponent();
-    if (firstRender.current) {
-      firstRender.current = false;
-      initialize();
-      return;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (langMap) {
-      const currLang = i18n.language;
-
-      const currLang2letter = langMap[currLang];
-      let tempPurpose = {
-        heading: "",
-        subheading: "",
-        authLabel: authLabelKey.login,
-      };
-
-      if (purposeObj) {
-        // if type is none then no need to
-        // check for title and subheading
-        if (purposeObj.type !== purposeTypeObj.none) {
-          tempPurpose.authLabel = authLabelKey[purposeObj.type];
-          // check for title in purpose object
-          if (purposeObj.title) {
-            tempPurpose.heading =
-              currLang in purposeObj.title
-                ? purposeObj.title[currLang]
-                : currLang2letter in purposeObj.title
-                ? purposeObj.title[currLang2letter]
-                : purposeObj.title["@none"];
-          } else if (purposeObj.type !== purposeTypeObj.none) {
-            tempPurpose.heading = purposeTitleKey[purposeObj.type];
-          } else {
-            tempPurpose.heading = "";
-          }
-
-          // check for subheading in purpose object
-          if (purposeObj.subTitle) {
-            tempPurpose.subheading =
-              currLang in purposeObj.subTitle
-                ? purposeObj.subTitle[currLang]
-                : currLang2letter in purposeObj.subTitle
-                ? purposeObj.subTitle[currLang2letter]
-                : purposeObj.subTitle["@none"];
-          } else if (purposeObj.type !== purposeTypeObj.none) {
-            tempPurpose.subheading = purposeSubTitleKey[purposeObj.type];
-          } else {
-            tempPurpose.subheading = "";
-          }
-        }
-      } else {
-        // if purpose object is not present then default
-        // heading & subheading will be login
-        tempPurpose = {
-          authLabel: authLabelKey.login,
-          heading: purposeTitleKey.login,
-          subheading: purposeSubTitleKey.login,
-        };
-      }
-
-      if (clientNameMap) {
-        const clientName =
-          currLang in clientNameMap
-            ? clientNameMap[currLang]
-            : currLang2letter in clientNameMap
-            ? clientNameMap[currLang2letter]
-            : clientNameMap["@none"];
-        setClientName(clientName);
-      }
-      setHeadingDetails({ ...tempPurpose });
-    }
-  }, [purposeObj, clientNameMap, langMap, i18n.language]);
-
-  useEffect(() => {
-    handleBackButtonClick();
-  }, [headingDetails.authLabel]);
-
   let parsedOauth = null;
+  let hasParsingError = false;
 
   try {
     parsedOauth = JSON.parse(decodeOAuth);
   } catch (error) {
-    return (
-      <DefaultError
-        backgroundImgPath="images/illustration_one.png"
-        errorCode={"parsing_error_msg"}
-      />
-    );
+    hasParsingError = true;
   }
 
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
@@ -335,7 +244,6 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const handleSignInOptionClick = (authFactor, icon, secondaryHeading) => {
     icons = icon;
     setAuthFactorType(authFactor.type);
-    //TODO handle multifactor auth
     setCompToShow(
       createDynamicLoginElements(
         authFactor,
@@ -371,6 +279,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
             onClick={() => handleBackButtonClick()}
             className="back-button-color text-2xl font-semibold justify-left rtl:rotate-180 relative top-[2px]"
           >
+            {/* SVG here */}
             <svg
               width="15"
               height="13"
@@ -404,25 +313,105 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const loadComponent = () => {
     let oAuthDetailResponse = oidcService.getOAuthDetails();
-    // set dynamic heading according the purpose from oauth details
-    // otherwise default heading will be login
     setPurposeObj(oidcService.getPurpose());
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientNameMap(oAuthDetailResponse?.clientName);
-    handleBackButtonClick();
+    handleBackButtonClick(); // ✅ now valid
   };
+
+  useEffect(() => {
+    if (!decodeOAuth) return;
+
+    const initialize = async () => {
+      const langConfig = await langConfigService.getLangCodeMapping();
+      setLangMap(langConfig);
+    };
+
+    loadComponent();
+    if (firstRender.current) {
+      firstRender.current = false;
+      initialize();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (langMap) {
+      const currLang = i18n.language;
+      const currLang2letter = langMap[currLang];
+      let tempPurpose = {
+        heading: "",
+        subheading: "",
+        authLabel: authLabelKey.login,
+      };
+
+      if (purposeObj) {
+        if (purposeObj.type !== purposeTypeObj.none) {
+          tempPurpose.authLabel = authLabelKey[purposeObj.type];
+          if (purposeObj.title) {
+            tempPurpose.heading =
+              currLang in purposeObj.title
+                ? purposeObj.title[currLang]
+                : currLang2letter in purposeObj.title
+                ? purposeObj.title[currLang2letter]
+                : purposeObj.title["@none"];
+          } else {
+            tempPurpose.heading = purposeTitleKey[purposeObj.type];
+          }
+
+          if (purposeObj.subTitle) {
+            tempPurpose.subheading =
+              currLang in purposeObj.subTitle
+                ? purposeObj.subTitle[currLang]
+                : currLang2letter in purposeObj.subTitle
+                ? purposeObj.subTitle[currLang2letter]
+                : purposeObj.subTitle["@none"];
+          } else {
+            tempPurpose.subheading = purposeSubTitleKey[purposeObj.type];
+          }
+        }
+      } else {
+        tempPurpose = {
+          authLabel: authLabelKey.login,
+          heading: purposeTitleKey.login,
+          subheading: purposeSubTitleKey.login,
+        };
+      }
+
+      if (clientNameMap) {
+        const clientName =
+          currLang in clientNameMap
+            ? clientNameMap[currLang]
+            : currLang2letter in clientNameMap
+            ? clientNameMap[currLang2letter]
+            : clientNameMap["@none"];
+        setClientName(clientName);
+      }
+      setHeadingDetails({ ...tempPurpose });
+    }
+  }, [purposeObj, clientNameMap, langMap, i18n.language]);
+
+  useEffect(() => {
+    handleBackButtonClick(); // ✅ safe now
+  }, [headingDetails.authLabel]);
 
   return (
     <>
-      <Background
-        heading={t(headingDetails.heading, headingDetails.heading)}
-        subheading={headingDetails.subheading}
-        clientLogoPath={clientLogoURL}
-        clientName={clientName}
-        component={compToShow}
-        oidcService={oidcService}
-        authService={new authService(null)}
-      />
+      {hasParsingError ? (
+        <DefaultError
+          backgroundImgPath="images/illustration_one.png"
+          errorCode={"parsing_error_msg"}
+        />
+      ) : (
+        <Background
+          heading={t(headingDetails.heading, headingDetails.heading)}
+          subheading={headingDetails.subheading}
+          clientLogoPath={clientLogoURL}
+          clientName={clientName}
+          component={compToShow}
+          oidcService={oidcService}
+          authService={new authService(null)}
+        />
+      )}
     </>
   );
 }

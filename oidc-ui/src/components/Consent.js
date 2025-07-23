@@ -11,8 +11,6 @@ import ModalPopup from "../common/ModalPopup";
 import configService from "../services/configService";
 import redirectOnError from "../helpers/redirectOnError";
 
-const config = await configService();
-
 export default function Consent({
   authService,
   consentAction,
@@ -50,7 +48,16 @@ export default function Consent({
   const [cancelPopup, setCancelPopup] = useState(false);
   const [voluntaryClaims, setVoluntaryClaims] = useState([]);
 
-  const slideToggleClass = config["outline_toggle"]
+  const [config, setConfig] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const result = await configService();
+      setConfig(result);
+    })();
+  }, []);
+
+  const slideToggleClass = config?.outline_toggle
     ? "toggle-outline"
     : "toggle-no-outline";
 
@@ -357,7 +364,11 @@ export default function Consent({
     return (
       <div className="flex items-center justify-center section-background">
         <div className="max-w-md w-full shadow mt-5 rounded loading-indicator px-4 py-4">
-        <LoadingIndicator size="medium" message="redirecting_msg" className="align-loading-center"/>
+          <LoadingIndicator
+            size="medium"
+            message="redirecting_msg"
+            className="align-loading-center"
+          />
         </div>
       </div>
     );
