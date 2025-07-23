@@ -1,4 +1,3 @@
-import localStorageService from "./local-storageService";
 import { Buffer } from "buffer";
 import { ApiService } from "./api.service";
 
@@ -15,8 +14,6 @@ import {
 } from "./../constants/routes";
 
 const authorizeQueryParam = "authorize_query_param";
-
-const { getCookie } = { ...localStorageService };
 
 class authService {
   constructor(openIDConnectService) {
