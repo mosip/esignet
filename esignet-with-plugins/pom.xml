@@ -8,26 +8,15 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.6.1</version>
+		<version>1.6.2-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>esignet-with-plugins</artifactId>
-	<version>1.6.1</version>
+	<version>1.6.2-SNAPSHOT</version>
 	<name>esignet-with-plugins</name>
 	<packaging>pom</packaging>
 	<description> Project of MOSIP e-Signet with Plugins</description>
 	<url>https://github.com/mosip/esignet</url>
-
-	<properties>
-		<java.version>11</java.version>
-		<esignet-plugins.location>target</esignet-plugins.location>
-		<mock-plugin.version>1.3.2</mock-plugin.version>
-		<mock-plugin.fileName>esignet-mock-plugin.jar</mock-plugin.fileName>
-		<mosip-identity-plugin.version>1.3.2</mosip-identity-plugin.version>
-		<mosip-identity-plugin.fileName>mosip-identity-plugin.jar</mosip-identity-plugin.fileName>
-		<sunbird-rc-plugin.version>1.3.2</sunbird-rc-plugin.version>
-		<sunbird-rc-plugin.fileName>sunbird-rc-plugin.jar</sunbird-rc-plugin.fileName>
-	</properties>
 
 	<licenses>
 		<license>
@@ -83,6 +72,17 @@
 			<url>https://central.sonatype.com/api/v1/publisher</url>
 		</repository>
 	</distributionManagement>
+
+	<properties>
+		<java.version>11</java.version>
+		<esignet-plugins.location>target</esignet-plugins.location>
+		<mock-plugin.version>1.3.3-SNAPSHOT</mock-plugin.version>
+		<mock-plugin.fileName>esignet-mock-plugin.jar</mock-plugin.fileName>
+		<mosip-identity-plugin.version>1.3.3-SNAPSHOT</mosip-identity-plugin.version>
+		<mosip-identity-plugin.fileName>mosip-identity-plugin.jar</mosip-identity-plugin.fileName>
+		<sunbird-rc-plugin.version>1.3.3-SNAPSHOT</sunbird-rc-plugin.version>
+		<sunbird-rc-plugin.fileName>sunbird-rc-plugin.jar</sunbird-rc-plugin.fileName>
+	</properties>
 
 	<build>
 		<plugins>
