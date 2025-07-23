@@ -48,6 +48,7 @@ ApiService.interceptors.request.use(
         config.headers["X-XSRF-TOKEN"] = csrfToken;
       }
     } catch (error) {
+      console.error(error);
       throw error;
     }
     return config;

@@ -14,7 +14,6 @@ import {
   PREPARE_SIGNUP_REDIRECT,
   RESUME,
 } from "./../constants/routes";
-import { getCsrfToken, storeCsrfToken } from "../helpers/utils";
 
 const authorizeQueryParam = "authorize_query_param";
 
