@@ -23,7 +23,6 @@ export default function Authorize({ authService }) {
     const callAuthorize = async () => {
       try {
         setStatus(states.LOADING);
-        await get_CsrfToken();
 
         const handleResponse = async (oAuthDetailsResponse) => {
           setStatus(states.LOADED);
