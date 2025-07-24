@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=1.6.0
+CHART_VERSION=1.6.1
 echo Create $NS namespace
 kubectl create ns $NS
 
@@ -40,7 +40,7 @@ function installing_esignet_with_plugins() {
     read -p "Is Prometheus Service Monitor Operator deployed in the k8s cluster? (y/n): " response
     if [[ "$response" == "y" || "$response" == "Y" ]]; then
       servicemonitorflag=true
-      break
+      break--set image.repository=mosipid/esignet --set image.tag=1.5.1
     elif [[ "$response" == "n" || "$response" == "N" ]]; then
       servicemonitorflag=false
       break

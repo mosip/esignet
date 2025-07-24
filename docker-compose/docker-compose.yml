@@ -17,7 +17,7 @@ services:
     restart: always
 
   mock-identity-system:
-    image: 'mosipid/mock-identity-system:0.11.0'
+    image: 'mosipid/mock-identity-system:0.11.1'
     user: root
     ports:
       - 8082:8082
@@ -33,7 +33,7 @@ services:
       - database
 
   esignet:
-    image: 'mosipid/esignet-with-plugins:1.6.0'
+    image: 'mosipid/esignet-with-plugins:1.6.1'
     user: root
     ports: 
       - 8088:8088
@@ -55,7 +55,7 @@ services:
       - redis
 
   esignet-ui:
-    image: 'mosipid/oidc-ui:1.6.0'
+    image: 'mosipid/oidc-ui:1.6.1'
     user: root
     ports:
       - 3000:3000
