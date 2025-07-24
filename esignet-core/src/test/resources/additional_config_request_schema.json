@@ -59,6 +59,9 @@
     "consent_expire_in_mins": {
       "type": "number",
       "minimum": 10
+    },
+    "dpop_bound_access_tokens": {
+      "type": "boolean"
     }
   },
   "additionalProperties": false
