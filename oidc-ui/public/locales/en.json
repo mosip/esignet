@@ -484,7 +484,7 @@
     "IDA-MPA-001": "Digital signature verification failed. Please try again.",
     "IDA-MPA-002": "Invalid certificate in digital signature.",
     "IDA-MPA-003": "Unable to decrypt Request.",
-    "IDA-MLC-009": "Please enter a valid input.",
+    "IDA-MLC-009": "Please enter a valid {{field}}.",
     "IDA-MLC-008": "No authentication type selected",
     "IDA-MLC-010": "The VID has been deactivated. Please check the VID or contact support for assistance.",
     "IDA-MLC-011": "Unable to authenticate as authentication type is not supported.",

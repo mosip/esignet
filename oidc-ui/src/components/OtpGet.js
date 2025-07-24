@@ -225,6 +225,17 @@ export default function OtpGet({
       const { response, errors } = sendOtpResponse;
 
       if (errors != null && errors.length > 0) {
+        if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+          return;
+        }
+        const fieldLabel = currentLoginID?.id ? t1(currentLoginID.id) : "ID";
+        const field =
+          !fieldLabel ||
+          fieldLabel === currentLoginID?.id ||
+          fieldLabel.startsWith("otp.")
+            ? "ID"
+            : fieldLabel;
         let errorCodeCondition =
           langConfig.errors.otp[errors[0].errorCode] !== undefined &&
           langConfig.errors.otp[errors[0].errorCode] !== null;
@@ -233,13 +244,13 @@ export default function OtpGet({
           setErrorBanner({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true,
+            field: field
           });
-        } else if (errors[0].errorCode === "invalid_transaction") {
-          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         } else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
             show: true,
+            field: field
           });
         }
         if (showCaptcha) {
@@ -277,7 +288,9 @@ export default function OtpGet({
         <div className="mb-4">
           <ErrorBanner
             showBanner={errorBanner.show}
-            errorCode={t2(errorBanner.errorCode)}
+            errorCode={t2(errorBanner.errorCode, {
+              field: errorBanner.field,
+            })}
             onCloseHandle={onCloseHandle}
           />
         </div>
