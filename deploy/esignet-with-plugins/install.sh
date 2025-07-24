@@ -40,7 +40,7 @@ function installing_esignet_with_plugins() {
     read -p "Is Prometheus Service Monitor Operator deployed in the k8s cluster? (y/n): " response
     if [[ "$response" == "y" || "$response" == "Y" ]]; then
       servicemonitorflag=true
-      break--set image.repository=mosipid/esignet --set image.tag=1.5.1
+      break
     elif [[ "$response" == "n" || "$response" == "N" ]]; then
       servicemonitorflag=false
       break
