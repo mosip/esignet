@@ -185,7 +185,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_whenParFlowEnabled_throwsException_thenFail() throws EsignetException {
+    public void getOauthDetails_whenParFlowIsMandated_throwsException_thenFail() throws EsignetException {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("client-123");
         oauthDetailRequest.setNonce("nonce");
@@ -207,7 +207,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void getOauthDetails_whenParDisabled_thenPass() throws EsignetException {
+    public void getOauthDetails_whenParIsNotMandated_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
         clientDetail.setName(new HashMap<>());

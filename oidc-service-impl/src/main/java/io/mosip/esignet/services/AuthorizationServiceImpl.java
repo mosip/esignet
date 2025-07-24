@@ -431,7 +431,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private void validateParFlow(JsonNode additionalConfig, String clientId) throws EsignetException {
         if (additionalConfig != null && additionalConfig.path("require_pushed_authorization_requests").asBoolean(false)) {
-            log.error("Pushed Authorization Request (PAR) flow is enabled for clientId: {}", clientId);
+            log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientId);
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
         }
     }
