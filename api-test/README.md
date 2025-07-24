@@ -81,6 +81,7 @@ The Test Rig is dynamically configured based on the core service plugin being te
 - **usePreConfiguredOtp**: A flag to use pre-configured OTPs. Set to "true" for OTP-based workflows.
 - **esignetActuatorPropertySection**: To fetch the configuration and properties from the actuator for service interactions.
 - **esignetSupportedLanguage**: Any 3-letter valid language code to create OIDC client (e.g., "eng", "hin", "tam").
+- **servicesNotDeployed**: Add the value as **sunbirdrc**.
 
 ### 3. Configuration for Sunbird Insurance Use Case:
 - **eSignetbaseurl**: The Test Rig will use the live eSignet instance integrated with the Sunbird insurance service.
@@ -97,6 +98,8 @@ These configurations need to be added as part of the eSignet service deployment 
 - **MOSIP_ESIGNET_AUTH_CHALLENGE_BIO_MAX_LENGTH**: 200000
 - **MOSIP_ESIGNET_PREAUTHENTICATION_EXPIRE_IN_SECS**: 600
 - **MOSIP_ESIGNET_CAPTCHA_REQUIRED**: (empty)
+- **MOSIP_MOCK_IDA_IDENTITY_SCHEMA_URL**:
+    value: classpath:/mock-identity-signup-schema.json
 
 These parameters must be included in the eSignet deployment YAML for the API Test Rig to function correctly, independent of which plugin is being used.
 
@@ -153,7 +156,7 @@ To execute the tests using Jar, use the following steps:
 
 2. Run the automation test suite JAR file:
    ```
-   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.6.1-SNAPSHOT-jar-with-dependencies.jar
+   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.6.1-jar-with-dependencies.jar
    ```
    
 # Using Eclipse IDE
@@ -212,7 +215,7 @@ To execute the tests using Eclipse IDE, use the following steps:
 - **env.user**: Replace `<env_name>` with the appropriate environment name (e.g., `dev`, `qa`, etc.).
 - **env.endpoint**: The environment where the application under test is deployed. Replace `<base_env>` with the correct base URL for the environment (e.g., `https://api-internal.<env_name>.mosip.net`).
 - **env.testLevel**: Set this to `smoke` to run only smoke test cases, or `smokeAndRegression` to run both smoke and regression tests.
-- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.6.1-SNAPSHOT-jar-with-dependencies.jar`.
+- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.6.1-jar-with-dependencies.jar`.
 
 ### Build and Run Info
 
