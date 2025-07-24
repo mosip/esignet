@@ -43,7 +43,8 @@ These values should be customized for your country's context.
   _Example:_ 2,000,000 × 50% = 1,000,000
 
 - **Expected Peak Hour TPS (Transactions Per Second):**  
-  _Example:_ 278
+  `Total Population using National ID for authentication during peak hour/3600`  
+  _Example:_ 1,000,000 / 3600 = 277.77 = 278(approx.)
 
 ---
 
