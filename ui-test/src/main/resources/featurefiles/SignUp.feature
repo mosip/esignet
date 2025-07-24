@@ -237,10 +237,10 @@ Scenario Outline: Completing Registration Process
   And validate the Confirm Password field is masked
 
   When user clicks on the "i" icon in the Password field
-  Then verify the tooltip message "Use 8 or more characters with a mix of alphabets and at least one number." is displayed
+  Then verify the tooltip message Use 8 or more characters with a mix of alphabets and at least one number. is displayed
 
   When user clicks on the "i" icon in the Full Name in Khmer field
-  Then verify the tooltip message "Maximum 30 characters allowed with no alphabets or special characters, except space." is displayed
+  Then verify the tooltip message Maximum 30 characters allowed with no alphabets or special characters, except space. is displayed
 
   When user does not check the terms and conditions checkbox
   Then verify the Continue button will be in disabled state

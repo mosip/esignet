@@ -13,6 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.List;
 import java.time.Duration;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 
 public class RegistrationPage extends BasePage {
@@ -54,7 +55,7 @@ public class RegistrationPage extends BasePage {
 
 	@FindBy(id = ":r4:-form-item-message")
 	WebElement numberCannotStartWithZeroErrorMessage;
-	
+
 	@FindBy(id = ":r4:-form-item-message")
 	List<WebElement> enterValidUserNameError;
 
@@ -117,31 +118,31 @@ public class RegistrationPage extends BasePage {
 
 	@FindBy(id = "login-header")
 	WebElement loginScreen;
-	
+
 	@FindBy(id = "cross_icon")
 	WebElement errorCloseIcon;
-	
+
 	@FindBy(xpath = "//h3[@class='text-3xl font-medium leading-none tracking-tight']")
 	WebElement setupAccountHeader;
-	
+
 	@FindBy(xpath = "//div[@class='text-center text-gray-500']")
 	WebElement setupAccountDescription;
-	
+
 	@FindBy(id = "username")
 	WebElement usernameField;
-	
+
 	@FindBy(id = "fullNameInKhmer")
 	WebElement fullNameInKhmerField;
-	
+
 	@FindBy(id = "password")
 	WebElement passwordField;
-	
+
 	@FindBy(id = "confirmPassword")
 	WebElement confirmPasswordField;
-	
+
 	@FindBy(id = "password-toggle-password")
 	WebElement passwordToggleIcon;
-	
+
 	@FindBy(id = "confirmPassword-toggle-password")
 	WebElement confirmPasswordToggleIcon;
 
@@ -153,61 +154,60 @@ public class RegistrationPage extends BasePage {
 
 	@FindBy(id = "account-setup-submit-button")
 	WebElement setupContinueButton;
-	
+
 	@FindBy(id = "km_language")
 	WebElement khmerLanguageSelection;
-	
+
 	@FindBy(id = ":r7:-form-item-message")
 	WebElement fullNameHasToBeInKhmerOnlyError;
-	
+
 	@FindBy(id = "en_language")
 	WebElement englishLanguageSelection;
-	
+
 	@FindBy(id = ":r7:-form-item-message")
 	WebElement pleaseEnterValidNameError;
-	
+
 	@FindBy(id = ":ra:-form-item-message")
 	WebElement passwordFieldError;
-	
+
 	@FindBy(xpath = "//div[@class='text-center text-gray-500']")
 	WebElement descriptionSetupAccountPage;
-	
+
 	@FindBy(id = ":rd:-form-item-message")
 	WebElement confirmPasswordFieldError;
-	
+
 	@FindBy(id = "fullName-info-icon")
 	WebElement fullNameInKhmerInfoIcon;
-	
+
 	@FindBy(id = "radix-:rb:")
 	WebElement passwordFieldTooltipText;
-	
+
 	@FindBy(id = "radix-:r8:")
 	WebElement fullNameInKhmerTooltipText;
-	
+
 	@FindBy(xpath = "//label[@class='text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 font-medium']")
 	WebElement messageToAcceptTermsAndCondition;
-	
+
 	@FindBy(xpath = "//span[@class='text-primary underline hover:cursor-pointer']")
 	private WebElement termsAndConditionsLink;
-	
+
 	@FindBy(xpath = "//h3[@class='text-xl font-semibold text-gray-900 dark:text-gray-900']")
 	private WebElement termsAndConditionsPopUp;
-	
+
 	@FindBy(id = "cross_icon")
 	WebElement popupWindowCloseIcon;
-	
+
 	@FindBy(xpath = "//span[@class='text-primary underline hover:cursor-pointer']")
 	private WebElement privacyPolicyLink;
-	
+
 	@FindBy(xpath = "//h3[@class='text-xl font-semibold text-gray-900 dark:text-gray-900']")
 	private WebElement privacyPolicyPopUp;
-	
+
 	@FindBy(xpath = "//div[@class='text-center text-lg font-semibold']")
 	private WebElement accountCreatedSuccessfullyMessage;
-	
+
 	@FindBy(id = "username")
 	WebElement screenInEnglishLanguage;
-
 
 	public boolean isRegistrationScreenDisplayed() {
 		return isElementVisible(registrationScreen);
@@ -246,7 +246,7 @@ public class RegistrationPage extends BasePage {
 	}
 
 	public boolean isHelpTextInMobileNumberTextBoxDisplayed(String expectedText) {
-		String placeholder = helpTextInTextBox.getAttribute("placeholder");
+		String placeholder = getElementAttribute(helpTextInTextBox, "placeholder");
 		return placeholder != null && placeholder.equals(expectedText);
 	}
 
@@ -257,7 +257,7 @@ public class RegistrationPage extends BasePage {
 	}
 
 	public boolean isPlaceholderGone() {
-		String value = enterMobileNumberTextBox.getAttribute("value");
+		String value = getElementValue(enterMobileNumberTextBox);
 		return value != null && !value.isEmpty();
 	}
 
@@ -290,19 +290,19 @@ public class RegistrationPage extends BasePage {
 	}
 
 	public boolean isErrorMessageDisplayed() {
-	    return !enterValidUserNameError.isEmpty() && enterValidUserNameError.get(0).isDisplayed();
+		return !enterValidUserNameError.isEmpty() && enterValidUserNameError.get(0).isDisplayed();
 	}
-	
+
 	public void verifyErrorIsGoneAfterClose() {
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-	    wait.until(ExpectedConditions.invisibilityOf(otpExpiredError));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+		wait.until(ExpectedConditions.invisibilityOf(otpExpiredError));
 	}
 
 	public void verifyErrorMessageDisappesAfterTenSeconds() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(12));
 		wait.until(ExpectedConditions.invisibilityOf(incorrectOtpError));
 	}
-	
+
 	public void verifyErrorMessageDisappesAsUserStartsTyping() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
 		wait.until(ExpectedConditions.invisibilityOf(incorrectOtpError));
@@ -317,17 +317,17 @@ public class RegistrationPage extends BasePage {
 	}
 
 	public boolean isNumberRestrictedToNineDigits() {
-		String value = enterMobileNumberTextBox.getAttribute("value");
+		String value = getElementValue(enterMobileNumberTextBox);
 		return value != null && value.length() == 9;
 	}
 
 	public boolean isMobileFieldEmptyOrUnchanged() {
-		String value = enterMobileNumberTextBox.getAttribute("value");
+		String value = getElementValue(enterMobileNumberTextBox);
 		return value == null || value.isEmpty();
 	}
 
 	public boolean isMobileFieldContainingOnlyDigits() {
-		String value = enterMobileNumberTextBox.getAttribute("value");
+		String value = getElementValue(enterMobileNumberTextBox);
 		return value != null && value.matches("\\d+");
 	}
 
@@ -418,18 +418,18 @@ public class RegistrationPage extends BasePage {
 	}
 
 	public boolean isOtpFieldEmptyOrUnchanged() {
-		String value = otpInputField.getAttribute("value");
+		String value = getElementValue(otpInputField);
 		return value == null || value.isEmpty();
 	}
 
 	public boolean isOtpFieldEmptyfterAlphabetEntry() {
-		String value = otpInputField.getAttribute("value");
+		String value = getElementValue(otpInputField);
 		return value == null || value.isEmpty();
 	}
 
 	public boolean isOtpFieldsNumericOnly() {
 		for (WebElement field : otpInputFields) {
-			String value = field.getAttribute("value");
+			String value = getElementValue(field);
 			if (value != null && !value.matches("\\d*")) {
 				return false;
 			}
@@ -439,7 +439,7 @@ public class RegistrationPage extends BasePage {
 
 	public boolean isOtpMasked() {
 		for (WebElement field : otpInputFields) {
-			if (!"password".equalsIgnoreCase(field.getAttribute("type"))) {
+			if (!"password".equalsIgnoreCase(getElementAttribute(field, "type"))) {
 				return false;
 			}
 		}
@@ -494,241 +494,241 @@ public class RegistrationPage extends BasePage {
 	public void clickOnContinueButtonInSucessScreen() {
 		clickOnElement(continueButtonInSuccessPage);
 	}
-	
+
 	public void clickOnErrorCloseIcon() {
 		clickOnElement(errorCloseIcon);
 	}
-	
+
 	public boolean isSetupAccountHeaderVisible() {
-	    return isElementVisible(setupAccountHeader);
+		return isElementVisible(setupAccountHeader);
 	}
 
 	public boolean isSetupAccountDescriptionVisible() {
-	    return isElementVisible(setupAccountDescription);
+		return isElementVisible(setupAccountDescription);
 	}
-	
+
 	public boolean isUsernameFieldVisible() {
-	    return isElementVisible(usernameField);
+		return isElementVisible(usernameField);
 	}
-	
+
 	public boolean isFullNameInKhmerFieldVisible() {
-	    return isElementVisible(fullNameInKhmerField);
+		return isElementVisible(fullNameInKhmerField);
 	}
-	
+
 	public boolean isPasswordFieldVisible() {
-	    return isElementVisible(passwordField);
+		return isElementVisible(passwordField);
 	}
 
 	public boolean isConfirmPasswordFieldVisible() {
-	    return isElementVisible(confirmPasswordField);
+		return isElementVisible(confirmPasswordField);
 	}
-	
+
 	public boolean isPasswordToggleIconVisible() {
-	    return isElementVisible(passwordToggleIcon);
+		return isElementVisible(passwordToggleIcon);
 	}
 
 	public boolean isPasswordPolicyIconVisible() {
-	    return isElementVisible(passwordInfoIcon);
+		return isElementVisible(passwordInfoIcon);
 	}
 
 	public boolean isTermsCheckboxVisible() {
-	    return isElementVisible(termsAndConditionsCheckbox);
+		return isElementVisible(termsAndConditionsCheckbox);
 	}
-	
+
 	public boolean isSetupContinueButtonVisible() {
-	    return isElementVisible(setupContinueButton);
+		return isElementVisible(setupContinueButton);
 	}
 
 	public String getUsernameFieldValue() {
-	    return usernameField.getAttribute("value");
+		return getElementValue(usernameField);
 	}
-	
+
 	public boolean isUsernameFieldReadOnly() {
-	    return usernameField.getAttribute("readonly") != null;
+		return getElementAttribute(usernameField, "readonly") != null;
 	}
-	
+
 	public String getFullNameInKhmerPlaceholder() {
-	    return fullNameInKhmerField.getAttribute("placeholder");
+		return getElementAttribute(fullNameInKhmerField, "placeholder");
 	}
-	
+
 	public void clickOnLanguageSelectionOption() {
 		clickOnElement(languageSelection);
 	}
-	
+
 	public void clickOnKhmerLanguage() {
 		clickOnElement(khmerLanguageSelection);
 	}
-	
-	public void enterName(String name) {
-		fullNameInKhmerField.click();
-		fullNameInKhmerField.sendKeys(Keys.CONTROL + "a");
-	    fullNameInKhmerField.sendKeys(Keys.DELETE);
-		enterText(fullNameInKhmerField, name);
+
+	public void enterName(String name) throws Exception {
+		clearField(fullNameInKhmerField);
+		enterTextJS(fullNameInKhmerField, name);
 	}
-	
+
 	public void clickOnOutsideNameField() {
 		clickOnElement(setupAccountHeader);
 	}
-	
+
 	public boolean isFullNameHasToBeInKhmerErrorDisplayed() {
-	    return isElementVisible(fullNameHasToBeInKhmerOnlyError);
+		return isElementVisible(fullNameHasToBeInKhmerOnlyError);
 	}
-	
+
 	public boolean isFullNameInKhmerRestrictedToThirtyChars() {
-	    String value = fullNameInKhmerField.getAttribute("value");
-	    return value != null && value.length() <= 30;
+		String value = getElementValue(fullNameInKhmerField);
+		return value != null && value.length() <= 30;
 	}
-	
+
 	public void clickOnEnglishLanguage() {
 		clickOnElement(englishLanguageSelection);
 	}
 
 	public boolean isPleaseEnterValidUsernameErrorDisplayed() {
-	    return isElementVisible(pleaseEnterValidNameError); 
+		return isElementVisible(pleaseEnterValidNameError);
 	}
-	
+
 	public boolean isLanguageChanged() {
 		return isElementVisible(setupAccountHeader);
 	}
-	
+
 	public String getPasswordFieldPlaceholder() {
-	    return passwordField.getAttribute("placeholder");
+		return getElementAttribute(passwordField, "placeholder");
 	}
-	
+
 	public void enterPassword(String password) {
-		passwordField.click();
-	    passwordField.sendKeys(Keys.CONTROL + "a");
-	    passwordField.sendKeys(Keys.DELETE);
+		clearField(passwordField);
 		enterText(passwordField, password);
 	}
-	
+
 	public boolean isPasswordDoesNotMeetThePolicyErrorDisplayed() {
-	    return isElementVisible(passwordFieldError); 
+		return isElementVisible(passwordFieldError);
 	}
-	
+
 	public void tabsOutOfField() {
-	    passwordField.sendKeys(Keys.TAB);
+		passwordField.sendKeys(Keys.TAB);
 	}
-	
+
 	public void enterConfirmPassword(String confirmPassword) {
-		confirmPasswordField.click();
-		confirmPasswordField.sendKeys(Keys.CONTROL + "a");
-	    confirmPasswordField.sendKeys(Keys.DELETE);
+		clearField(confirmPasswordField);
 		enterText(confirmPasswordField, confirmPassword);
 	}
-	
+
 	public boolean isPasswordRestrictedToTwentyChars() {
-	    String value = passwordField.getAttribute("value");
-	    return value != null && value.length() <= 20;
+		String value = getElementValue(passwordField);
+		return value != null && value.length() <= 20;
 	}
-	
+
 	public String getConfirmPasswordFieldPlaceholder() {
-	    return confirmPasswordField.getAttribute("placeholder");
+		return getElementAttribute(confirmPasswordField, "placeholder");
 	}
-	
+
 	public boolean isPasswordAndConfirmPasswordDoesNotMatchErrorDisplayed() {
-	    return isElementVisible(confirmPasswordFieldError); 
+		return isElementVisible(confirmPasswordFieldError);
 	}
-	
+
 	public boolean isConfirmPasswordRestrictedToTwentyChars() {
-	    String value = confirmPasswordField.getAttribute("value");
-	    return value != null && value.length() <= 20;
+		String value = getElementValue(confirmPasswordField);
+		return value != null && value.length() <= 20;
 	}
-	
+
 	public boolean isPasswordFieldMasked() {
-	    return "password".equals(passwordField.getAttribute("type"));
+		return "password".equalsIgnoreCase(getElementAttribute(passwordField, "type"));
 	}
 
 	public boolean isConfirmPasswordFieldMasked() {
-	    return "password".equals(confirmPasswordField.getAttribute("type"));
+		return "password".equalsIgnoreCase(getElementAttribute(confirmPasswordField, "type"));
 	}
-	
+
 	public void clickOnPasswordUnmaskIcon() {
-	    clickOnElement(passwordToggleIcon);
+		clickOnElement(passwordToggleIcon);
 	}
 
 	public boolean isPasswordFieldUnmasked() {
-	    return "text".equals(passwordField.getAttribute("type"));
+		return "text".equalsIgnoreCase(getElementAttribute(passwordField, "type"));
 	}
-	
+
 	public void clickOnConfirmPasswordUnmaskIcon() {
-	    clickOnElement(confirmPasswordToggleIcon);
+		clickOnElement(confirmPasswordToggleIcon);
 	}
 
 	public boolean isConfirmPasswordFieldUnmasked() {
-	    return "text".equals(confirmPasswordField.getAttribute("type"));
+		return "text".equalsIgnoreCase(getElementAttribute(confirmPasswordField, "type"));
 	}
-	
+
 	public void clickOnPasswordInfoIcon() {
 		clickOnElement(passwordInfoIcon);
 	}
-	
+
 	public boolean isPasswordTooltipMessageDisplayed() {
-	    return isElementVisible(passwordFieldTooltipText);
+		return isElementVisible(passwordFieldTooltipText);
 	}
-	
+
 	public void clickOnFullNameInKhmerInfoIcon() {
-	    clickOnElement(fullNameInKhmerInfoIcon); 
+		clickOnElement(fullNameInKhmerInfoIcon);
 	}
 
 	public boolean isFullNameInKhmerTooltipMessage() {
-	    return isElementVisible(fullNameInKhmerTooltipText);
+		return isElementVisible(fullNameInKhmerTooltipText);
 	}
-	
+
 	public void ensureTermsCheckboxIsUnchecked() {
-	    if (termsAndConditionsCheckbox.isSelected()) {
-	        termsAndConditionsCheckbox.click();
-	    }
+		if (termsAndConditionsCheckbox.isSelected()) {
+			termsAndConditionsCheckbox.click();
+		}
 	}
 
 	public boolean isContinueButtonInSetupAccountPageEnabled() {
-	    return isButtonEnabled(setupContinueButton);
+		return isButtonEnabled(setupContinueButton);
 	}
-	
+
 	public boolean isTermsAndConditionsMessageDisplayed() {
-	    return isElementVisible(messageToAcceptTermsAndCondition);
+		return isElementVisible(messageToAcceptTermsAndCondition);
 	}
-	
+
 	public void clickOnTermsAndConditionLink() {
 		clickOnElement(termsAndConditionsLink);
 	}
-	
+
 	public boolean isTermsAndConditionsPopupDisplayed() {
-	    return isElementVisible(termsAndConditionsPopUp);
+		return isElementVisible(termsAndConditionsPopUp);
 	}
-	
+
 	public void clickOnClosePopupIcon() {
 		clickOnElement(popupWindowCloseIcon);
 	}
 
 	public boolean isSetupAccountPageVisible() {
-	    return isElementVisible(setupAccountHeader);
+		return isElementVisible(setupAccountHeader);
 	}
-	
+
 	public void clickOnPrivacyPolicyLink() {
 		clickOnElement(privacyPolicyLink);
 	}
-	
+
 	public boolean isPrivacyPolicyPopupDisplayed() {
-	    return isElementVisible(privacyPolicyPopUp);
+		return isElementVisible(privacyPolicyPopUp);
 	}
-	
+
 	public void clearAllMandatoryFields() {
 		fullNameInKhmerField.clear();
 		passwordField.clear();
-	    confirmPasswordField.clear();
+		confirmPasswordField.clear();
 	}
-	
+
 	public void checkTermsAndConditions() {
-	    if (!termsAndConditionsCheckbox.isSelected()) {
-	        termsAndConditionsCheckbox.click();
-	    }
+		if (!termsAndConditionsCheckbox.isSelected()) {
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});",
+					termsAndConditionsCheckbox);
+			((JavascriptExecutor) driver).executeScript("arguments[0].click();", termsAndConditionsCheckbox);
+		}
 	}
-	
+
+	public WebElement getTermsAndConditionsCheckbox() {
+		return termsAndConditionsCheckbox;
+	}
+
 	public void clickOnSetupAccountContinueButton() {
 		clickOnElement(setupContinueButton);
 	}
-	
+
 	public boolean isScreenDisplayedInEnglishLang() {
 		return isElementVisible(screenInEnglishLanguage);
 	}

@@ -242,10 +242,10 @@ public class SignUpStepDef {
 	public void verifyOtpExpiredErrorMessage() {
 		assertTrue(registrationPage.isOtpExpiredMessageDisplayed());
 	}
-	
+
 	@When("user clicks on the close icon of the error message")
 	public void userClicksOnErrorCloseIcon() {
-	    registrationPage.clickOnErrorCloseIcon();
+		registrationPage.clickOnErrorCloseIcon();
 	}
 
 	@Then("verify the error message is not visible")
@@ -262,15 +262,15 @@ public class SignUpStepDef {
 	public void verifyIncorrectOtpMessage() {
 		assertTrue(registrationPage.isIncorrectOtpErrorDisplayed());
 	}
-	
+
 	@Then("verify error message disappears after 10 seconds")
 	public void waitForErrorMessageToDisappear() {
-	    registrationPage.verifyErrorMessageDisappesAfterTenSeconds();
+		registrationPage.verifyErrorMessageDisappesAfterTenSeconds();
 	}
-	
+
 	@Then("verify error message disappears as user starts typing in the input field")
 	public void verifyUserStartsTypingAndErrorMessageDisappear() {
-	    registrationPage.verifyErrorMessageDisappesAsUserStartsTyping();
+		registrationPage.verifyErrorMessageDisappesAsUserStartsTyping();
 	}
 
 	@Then("verify OTP field is rejecting special characters")
@@ -348,296 +348,296 @@ public class SignUpStepDef {
 	public void continueButtonShouldBeDisplayed() {
 		assertTrue(registrationPage.isContinueButtonDisplayed());
 	}
-	
+
 	@When("user click on Continue button in Success Screen")
 	public void clickOnContinueButtonInSucessScreen() {
 		registrationPage.clickOnContinueButtonInSucessScreen();
 	}
-	
+
 	@Then("verify setup account screen is displayed with header Setup Account")
 	public void verifySetupAccountHeader() {
 		assertTrue(registrationPage.isSetupAccountHeaderVisible());
 	}
-	
+
 	@Then("verify description Please enter the requested details to complete your registration.")
 	public void verifySetupAccountDescription() {
 		assertTrue(registrationPage.isSetupAccountDescriptionVisible());
 	}
-	
+
 	@Then("verify a Username field should be visible")
 	public void verifyUsernameField() {
-	    assertTrue(registrationPage.isUsernameFieldVisible());
+		assertTrue(registrationPage.isUsernameFieldVisible());
 	}
-	
+
 	@Then("verify an option to enter Full Name in Khmer")
 	public void verifyFullNameKhmer() {
-	    assertTrue(registrationPage.isFullNameInKhmerFieldVisible());
+		assertTrue(registrationPage.isFullNameInKhmerFieldVisible());
 	}
-	
+
 	@Then("verify an option to setup Password")
 	public void verifyPasswordField() {
-	    assertTrue(registrationPage.isPasswordFieldVisible());
+		assertTrue(registrationPage.isPasswordFieldVisible());
 	}
-	
+
 	@Then("verify an option to Confirm Password")
 	public void verifyConfirmPasswordField() {
-	    assertTrue(registrationPage.isConfirmPasswordFieldVisible());
+		assertTrue(registrationPage.isConfirmPasswordFieldVisible());
 	}
-	
+
 	@Then("verify an option to mask or unmask the entered password")
 	public void verifyPasswordMaskOption() {
-	    assertTrue(registrationPage.isPasswordToggleIconVisible());
+		assertTrue(registrationPage.isPasswordToggleIconVisible());
 	}
 
 	@Then("verify an option to view password policy by clicking on the {string} icon")
 	public void verifyPasswordPolicyIcon(String iconText) {
-	    assertTrue(registrationPage.isPasswordPolicyIconVisible());
+		assertTrue(registrationPage.isPasswordPolicyIconVisible());
 	}
 
 	@Then("verify an option to check the checkbox to agree to T&C and Privacy Policy")
 	public void verifyTCCheckboxVisible() {
-	    assertTrue(registrationPage.isTermsCheckboxVisible());
+		assertTrue(registrationPage.isTermsCheckboxVisible());
 	}
 
 	@Then("verify it should display Continue button")
 	public void verifyContinueButtonOnSetup() {
-	    assertTrue(registrationPage.isSetupContinueButtonVisible());
+		assertTrue(registrationPage.isSetupContinueButtonVisible());
 	}
-	
+
 	@Then("verify the Username field is auto-filled with the verified mobile number")
 	public void verifyUsernameIsAutoFilledWithMobileNumber() {
-	    String expectedMobile = registrationPage.getLastEnteredMobileNumber();
-	    String actualUsername = registrationPage.getUsernameFieldValue();
-	    assertEquals(expectedMobile, actualUsername);
+		String expectedMobile = registrationPage.getLastEnteredMobileNumber();
+		String actualUsername = registrationPage.getUsernameFieldValue();
+		assertEquals(expectedMobile, actualUsername);
 	}
 
 	@Then("validate the Username field should be non-editable")
 	public void verifyUsernameFieldIsNonEditable() {
-	    assertFalse(registrationPage.isUsernameFieldReadOnly());
+		assertFalse(registrationPage.isUsernameFieldReadOnly());
 	}
-	
+
 	@Then("verify the watermark text in the Full Name in Khmer field it should be as {string}")
 	public void verifyFullNameInKhmerWatermark(String expectedText) {
-	    assertEquals(expectedText, registrationPage.getFullNameInKhmerPlaceholder());
+		assertEquals(expectedText, registrationPage.getFullNameInKhmerPlaceholder());
 	}
-	
+
 	@Then("user clicks on Language Selection Option")
 	public void userClicksOnLanguageSelectionOption() {
 		registrationPage.clickOnLanguageSelectionOption();
 	}
-	
+
 	@Then("user selects Khmer from the language dropdown")
 	public void userSelectsKhmerLanguage() {
-		registrationPage.clickOnKhmerLanguage(); 
+		registrationPage.clickOnKhmerLanguage();
 	}
-	
+
 	@Then("verify page rendered in selected language")
 	public void verifyLanguageChanged() {
-	assertTrue(registrationPage.isLanguageChanged());
+		assertTrue(registrationPage.isLanguageChanged());
 	}
-	
-	@When("user enters text {string} in the Full Name in Khmer field") 
-	public void userFillsFullNameInKhmerField(String input) {
+
+	@When("user enters text {string} in the Full Name in Khmer field")
+	public void userFillsFullNameInKhmerField(String input) throws Exception {
 		registrationPage.enterName(input);
 	}
-	
+
 	@Then("user tabs out from the field")
 	public void userTabsOutOfField() {
-	    registrationPage.tabsOutOfField();
+		registrationPage.tabsOutOfField();
 	}
-	
+
 	@Then("verify an error message Should be able to enter only Khmer characters is displayed below the field")
 	public void verifyKhmerOnlyErrorIsDisplayed() {
-		 assertTrue(registrationPage.isFullNameHasToBeInKhmerErrorDisplayed());
+		assertTrue(registrationPage.isFullNameHasToBeInKhmerErrorDisplayed());
 	}
-	
+
 	@Then("user selects English from the language dropdown")
 	public void userSelectsEnglishLanguage() {
-		registrationPage.clickOnEnglishLanguage(); 
+		registrationPage.clickOnEnglishLanguage();
 	}
-	
+
 	@Then("verify UI rendered in English Language")
 	public void verifyLanguageChangedToKhmerLanguage() {
-	assertTrue(registrationPage.isScreenDisplayedInEnglishLang());
+		assertTrue(registrationPage.isScreenDisplayedInEnglishLang());
 	}
-	
+
 	@Then("verify the field restrict the input to 30 characters only")
 	public void fieldShouldRestrictInputToThirtyCharsOnly() {
-	    assertTrue(registrationPage.isFullNameInKhmerRestrictedToThirtyChars());
+		assertTrue(registrationPage.isFullNameInKhmerRestrictedToThirtyChars());
 	}
 
 	@Then("verify an error message Please enter a valid name. is displayed below the field")
 	public void verifyErrorMessageBelowField() {
-		 assertTrue(registrationPage.isPleaseEnterValidUsernameErrorDisplayed());
+		assertTrue(registrationPage.isPleaseEnterValidUsernameErrorDisplayed());
 	}
-	
+
 	@Then("verify the watermark text in the Password field is {string}")
 	public void verifyPasswordWatermark(String expectedText) {
-	    assertEquals(expectedText, registrationPage.getPasswordFieldPlaceholder());
+		assertEquals(expectedText, registrationPage.getPasswordFieldPlaceholder());
 	}
-	
-	@When("user enters {string} in the Password field") 
+
+	@When("user enters {string} in the Password field")
 	public void userFillsPasswordrField(String password) {
 		registrationPage.enterPassword(password);
 	}
 
 	@Then("verify an error message Password does not meet the password policy. displayed below the Password field")
 	public void verifyPasswordErrorMessage() {
-		 assertTrue(registrationPage.isPasswordDoesNotMeetThePolicyErrorDisplayed());
+		assertTrue(registrationPage.isPasswordDoesNotMeetThePolicyErrorDisplayed());
 	}
-	
+
 	@Then("validate the field restrict the input to 20 characters only")
 	public void fieldShouldRestrictInputToTwentyCharsOnly() {
-	    assertTrue(registrationPage.isPasswordRestrictedToTwentyChars());
+		assertTrue(registrationPage.isPasswordRestrictedToTwentyChars());
 	}
-	
+
 	@Then("verify the watermark text in the Confirm Password field is {string}")
 	public void verifyConfirmPasswordWatermark(String expectedText) {
-	    assertEquals(expectedText, registrationPage.getConfirmPasswordFieldPlaceholder());
+		assertEquals(expectedText, registrationPage.getConfirmPasswordFieldPlaceholder());
 	}
-	
-	@When("user enters {string} in the Confirm Password field") 
+
+	@When("user enters {string} in the Confirm Password field")
 	public void userFillsConfirmPasswordrField(String confirmPassword) {
 		registrationPage.enterConfirmPassword(confirmPassword);
 	}
-	
+
 	@Then("verify an inline error message Password and Confirm Password do not match. displayed below Confirm Password field")
 	public void verifyPasswordMismatchError() {
 		assertTrue(registrationPage.isPasswordAndConfirmPasswordDoesNotMatchErrorDisplayed());
 	}
-	
+
 	@Then("verify the field should restrict the password to 20 characters only")
 	public void confirmPassFieldShouldRestrictInputToTwentyCharsOnly() {
-	    assertTrue(registrationPage.isConfirmPasswordRestrictedToTwentyChars());
+		assertTrue(registrationPage.isConfirmPasswordRestrictedToTwentyChars());
 	}
-	
+
 	@Then("validate the Password field is masked")
 	public void passwordFieldShouldBeMasked() {
-	    assertTrue(registrationPage.isPasswordFieldMasked());
+		assertTrue(registrationPage.isPasswordFieldMasked());
 	}
 
 	@Then("validate the Confirm Password field is masked")
 	public void confirmPasswordFieldShouldBeMasked() {
-	    assertTrue(registrationPage.isConfirmPasswordFieldMasked());
+		assertTrue(registrationPage.isConfirmPasswordFieldMasked());
 	}
-	
+
 	@When("user clicks on the unmask icon in the Password field")
 	public void userClicksOnPassUnmaskIcon() {
-	    registrationPage.clickOnPasswordUnmaskIcon();
+		registrationPage.clickOnPasswordUnmaskIcon();
 	}
 
 	@Then("validate the Password field is unmasked")
 	public void passwordShouldBeUnmasked() {
-	    assertTrue(registrationPage.isPasswordFieldUnmasked());
+		assertTrue(registrationPage.isPasswordFieldUnmasked());
 	}
-	
+
 	@When("user clicks on the unmask icon in the Confirm Password field")
 	public void userClicksOnConfirmPassUnmaskIcon() {
-	    registrationPage.clickOnConfirmPasswordUnmaskIcon();
+		registrationPage.clickOnConfirmPasswordUnmaskIcon();
 	}
 
 	@Then("validate the Confirm Password field is unmasked")
 	public void confirmPasswordShouldBeUnmasked() {
-	    assertTrue(registrationPage.isConfirmPasswordFieldUnmasked());
-	}
-	
-	@When("user clicks again on the unmask icon in the Password field")
-	public void userClicksAgainOnUnmaskIcon() {
-	    registrationPage.clickOnPasswordUnmaskIcon(); 
-	}
-	
-	@When("user clicks again on the unmask icon in the Confirm Password field")
-	public void userClicksAgainOnConfirmPassUnmaskIcon() {
-	    registrationPage.clickOnConfirmPasswordUnmaskIcon(); 
-	}
-	
-	@When("user clicks on the {string} icon in the Password field")
-	public void userHoversOnPasswordInfoIcon(String iconLabel) {
-	    registrationPage.clickOnPasswordInfoIcon(); 
+		assertTrue(registrationPage.isConfirmPasswordFieldUnmasked());
 	}
 
-	@Then("verify the tooltip message \"Use 8 or more characters with a mix of alphabets and at least one number.\" is displayed")
+	@When("user clicks again on the unmask icon in the Password field")
+	public void userClicksAgainOnUnmaskIcon() {
+		registrationPage.clickOnPasswordUnmaskIcon();
+	}
+
+	@When("user clicks again on the unmask icon in the Confirm Password field")
+	public void userClicksAgainOnConfirmPassUnmaskIcon() {
+		registrationPage.clickOnConfirmPasswordUnmaskIcon();
+	}
+
+	@When("user clicks on the {string} icon in the Password field")
+	public void userHoversOnPasswordInfoIcon(String iconLabel) {
+		registrationPage.clickOnPasswordInfoIcon();
+	}
+
+	@Then("verify the tooltip message Use 8 or more characters with a mix of alphabets and at least one number. is displayed")
 	public void verifyPasswordTooltipMessage() {
 		assertTrue(registrationPage.isPasswordTooltipMessageDisplayed());
 	}
-	
+
 	@When("user clicks on the {string} icon in the Full Name in Khmer field")
 	public void userHoversOnFullNameInKhmerInfoIcon(String iconLabel) {
-	    registrationPage.clickOnFullNameInKhmerInfoIcon();
+		registrationPage.clickOnFullNameInKhmerInfoIcon();
 	}
 
-	@Then("verify the tooltip message \"Maximum 30 characters allowed with no alphabets or special characters, except space.\" is displayed")
+	@Then("verify the tooltip message Maximum 30 characters allowed with no alphabets or special characters, except space. is displayed")
 	public void verifyFullNameInKhmerTooltipMessage() {
 		assertTrue(registrationPage.isFullNameInKhmerTooltipMessage());
 	}
-	
+
 	@When("user does not check the terms and conditions checkbox")
 	public void userDoesNotCheckTermsAndConditionsCheckbox() {
-	    registrationPage.ensureTermsCheckboxIsUnchecked();
+		registrationPage.ensureTermsCheckboxIsUnchecked();
 	}
 
 	@Then("verify the Continue button will be in disabled state")
 	public void verifyButtonIsDisabled() {
-	    assertFalse(registrationPage.isContinueButtonInSetupAccountPageEnabled());
+		assertFalse(registrationPage.isContinueButtonInSetupAccountPageEnabled());
 	}
-	
+
 	@Then("verify the terms and conditions message")
 	public void verifyTermsAndConditionsMessage() {
 		assertTrue(registrationPage.isTermsAndConditionsMessageDisplayed());
 	}
-	
+
 	@Then("verify it restricts such input with an error message Full Name has to be in Khmer only.")
 	public void verifyErrorMessageDisplayedBelowField() {
 		assertTrue(registrationPage.isFullNameHasToBeInKhmerErrorDisplayed());
 	}
-	
+
 	@When("user clicks on the Terms & Conditions hyperlink")
 	public void userClicksOnHyperlink() {
-	    registrationPage.clickOnTermsAndConditionLink();
+		registrationPage.clickOnTermsAndConditionLink();
 	}
-	
+
 	@Then("verify a pop-up window for Terms and Conditions is displayed")
 	public void verifyTermsAndConditionsPopupDisplayed() {
-	    assertTrue(registrationPage.isTermsAndConditionsPopupDisplayed());
+		assertTrue(registrationPage.isTermsAndConditionsPopupDisplayed());
 	}
-	
+
 	@When("user closes the Terms and Conditions popup")
 	public void userClosesTermsAndConditionsPopup() {
-	    registrationPage.clickOnClosePopupIcon();
+		registrationPage.clickOnClosePopupIcon();
 	}
 
 	@Then("verify user is navigated back to the Account Setup screen")
 	public void userShouldBeOnAccountSetupScreen() {
-	    assertTrue(registrationPage.isSetupAccountPageVisible());
+		assertTrue(registrationPage.isSetupAccountPageVisible());
 	}
-	
+
 	@When("user clicks on the Privacy policy hyperlink")
 	public void userClicksOnPrivacyPolicyHyperlink() {
-	    registrationPage.clickOnPrivacyPolicyLink();
+		registrationPage.clickOnPrivacyPolicyLink();
 	}
-	
+
 	@Then("verify a pop-up window for Privacy Policy is displayed")
 	public void verifyPrivacyPolicyPopupDisplayed() {
-	    assertTrue(registrationPage.isPrivacyPolicyPopupDisplayed());
+		assertTrue(registrationPage.isPrivacyPolicyPopupDisplayed());
 	}
-	
+
 	@When("user closes the privacy policy popup")
 	public void userClosesPrivacyPolicyPopup() {
-	    registrationPage.clickOnClosePopupIcon();
+		registrationPage.clickOnClosePopupIcon();
 	}
-	
+
 	@Then("verify the Continue button is disabled when mandatory fields are not filled in Account Setup screen")
 	public void verifyContinueButtonIsDisabledWhenMandatoryFieldsAreEmpty() {
 		registrationPage.clearAllMandatoryFields();
 		registrationPage.ensureTermsCheckboxIsUnchecked();
-	    boolean isEnabled = registrationPage.isContinueButtonInSetupAccountPageEnabled();
-	    assertFalse("Continue button should be disabled when mandatory fields are empty", isEnabled);
+		boolean isEnabled = registrationPage.isContinueButtonInSetupAccountPageEnabled();
+		assertFalse("Continue button should be disabled when mandatory fields are empty", isEnabled);
 	}
-	
+
 	@Then("verify the Continue button is disabled when only two mandatory fields are filled")
 	public void verifyContinueButtonDisabledWithOnlyTwoFieldsFilled() {
-	    boolean isEnabled = registrationPage.isContinueButtonInSetupAccountPageEnabled();
-	    assertFalse("Continue button should be disabled when only two mandatory fields are filled", isEnabled);
+		boolean isEnabled = registrationPage.isContinueButtonInSetupAccountPageEnabled();
+		assertFalse("Continue button should be disabled when only two mandatory fields are filled", isEnabled);
 	}
 
 }
